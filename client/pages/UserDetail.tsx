@@ -90,6 +90,12 @@ export default function UserDetail() {
     }).format(amount);
   };
 
+  // Order pagination logic
+  const totalOrderPages = Math.ceil(user.orders.length / ordersPerPage);
+  const startOrderIndex = (currentOrderPage - 1) * ordersPerPage;
+  const endOrderIndex = startOrderIndex + ordersPerPage;
+  const currentOrders = user.orders.slice(startOrderIndex, endOrderIndex);
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 py-8">
@@ -296,7 +302,7 @@ export default function UserDetail() {
                                             <div className="font-medium">{event.pageTitle}</div>
                                             <div className="text-gray-600">{event.pageUrl}</div>
                                             <div className="text-xs text-gray-500">
-                                              停留时长: {event.stayDuration} • 滚动深度: {event.scrollDepth}
+                                              停留时长: {event.stayDuration} • 滚动深���: {event.scrollDepth}
                                             </div>
                                           </div>
                                           <div className="text-xs text-gray-500">{event.timestamp}</div>
