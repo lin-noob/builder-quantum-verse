@@ -331,54 +331,86 @@ export default function UserDetail() {
                   </CardHeader>
                   <CardContent>
                     {user.orders.length > 0 ? (
-                      <div className="space-y-2">
-                        {user.orders.map((order) => (
-                          <Collapsible key={order.orderNumber}>
-                            <CollapsibleTrigger 
-                              className="flex items-center justify-between w-full p-4 bg-gray-50 rounded-lg hover:bg-gray-100"
-                              onClick={() => toggleOrder(order.orderNumber)}
-                            >
-                              <div className="flex items-center gap-3">
-                                {openOrders.has(order.orderNumber) ? 
-                                  <ChevronDown className="h-4 w-4" /> : 
-                                  <ChevronRight className="h-4 w-4" />
-                                }
-                                <div className="text-left">
-                                  <div className="font-medium">{order.orderNumber}</div>
-                                  <div className="text-sm text-gray-600">{order.orderDate}</div>
-                                </div>
-                              </div>
-                              <div className="text-right">
-                                <div className="font-medium">{formatCurrency(order.totalAmount)}</div>
-                                <div className="text-sm text-gray-600">{order.status}</div>
-                              </div>
-                            </CollapsibleTrigger>
-                            <CollapsibleContent className="px-4 pb-4">
-                              <div className="mt-4 space-y-3">
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 text-sm">
-                                  <div><strong>币种:</strong> {order.currency}</div>
-                                  <div><strong>支付方式:</strong> {order.paymentMethod}</div>
-                                </div>
-                                <div className="border-t pt-3">
-                                  <h5 className="font-medium mb-2">商品明细</h5>
-                                  <div className="space-y-2">
-                                    {order.items.map((item, index) => (
-                                      <div key={index} className="flex justify-between items-center text-sm bg-white p-3 rounded border">
-                                        <div>
-                                          <div className="font-medium">{item.productName}</div>
-                                          <div className="text-gray-600">
-                                            {formatCurrency(item.unitPrice)} × {item.quantity}
-                                          </div>
-                                        </div>
-                                        <div className="font-medium">{formatCurrency(item.totalPrice)}</div>
-                                      </div>
-                                    ))}
+                      <div className="space-y-4">
+                        <div className="space-y-2">
+                          {currentOrders.map((order) => (
+                            <Collapsible key={order.orderNumber}>
+                              <CollapsibleTrigger
+                                className="flex items-center justify-between w-full p-4 bg-gray-50 rounded-lg hover:bg-gray-100"
+                                onClick={() => toggleOrder(order.orderNumber)}
+                              >
+                                <div className="flex items-center gap-3">
+                                  {openOrders.has(order.orderNumber) ?
+                                    <ChevronDown className="h-4 w-4" /> :
+                                    <ChevronRight className="h-4 w-4" />
+                                  }
+                                  <div className="text-left">
+                                    <div className="font-medium">{order.orderNumber}</div>
+                                    <div className="text-sm text-gray-600">{order.orderDate}</div>
                                   </div>
                                 </div>
-                              </div>
-                            </CollapsibleContent>
-                          </Collapsible>
-                        ))}
+                                <div className="text-right">
+                                  <div className="font-medium">{formatCurrency(order.totalAmount)}</div>
+                                  <div className="text-sm text-gray-600">{order.status}</div>
+                                </div>
+                              </CollapsibleTrigger>
+                              <CollapsibleContent className="px-4 pb-4">
+                                <div className="mt-4 space-y-3">
+                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 text-sm">
+                                    <div><strong>币种:</strong> {order.currency}</div>
+                                    <div><strong>支付方式:</strong> {order.paymentMethod}</div>
+                                  </div>
+                                  <div className="border-t pt-3">
+                                    <h5 className="font-medium mb-2">商品明细</h5>
+                                    <div className="space-y-2">
+                                      {order.items.map((item, index) => (
+                                        <div key={index} className="flex justify-between items-center text-sm bg-white p-3 rounded border">
+                                          <div>
+                                            <div className="font-medium">{item.productName}</div>
+                                            <div className="text-gray-600">
+                                              {formatCurrency(item.unitPrice)} × {item.quantity}
+                                            </div>
+                                          </div>
+                                          <div className="font-medium">{formatCurrency(item.totalPrice)}</div>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                </div>
+                              </CollapsibleContent>
+                            </Collapsible>
+                          ))}
+                        </div>
+
+                        {/* Order Pagination */}
+                        {totalOrderPages > 1 && (
+                          <div className="flex flex-col sm:flex-row items-center justify-between pt-4 border-t gap-4">
+                            <div className="text-sm text-gray-700 order-2 sm:order-1">
+                              正在显示 {startOrderIndex + 1} - {Math.min(endOrderIndex, user.orders.length)} 条，共 {user.orders.length} 条订单
+                            </div>
+                            <div className="flex items-center gap-2 order-1 sm:order-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setCurrentOrderPage(prev => Math.max(1, prev - 1))}
+                                disabled={currentOrderPage === 1}
+                              >
+                                上一页
+                              </Button>
+                              <span className="text-sm text-gray-600 px-2">
+                                {currentOrderPage} / {totalOrderPages}
+                              </span>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setCurrentOrderPage(prev => Math.min(totalOrderPages, prev + 1))}
+                                disabled={currentOrderPage === totalOrderPages}
+                              >
+                                下一页
+                              </Button>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     ) : (
                       <p className="text-gray-500 text-sm">暂无订单记录</p>
