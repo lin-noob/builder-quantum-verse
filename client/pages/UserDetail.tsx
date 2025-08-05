@@ -102,9 +102,9 @@ export default function UserDetail() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
           {/* Left Sidebar - 33.33% */}
-          <div className="lg:col-span-1 space-y-6">
+          <div className="lg:col-span-1 space-y-4 lg:space-y-6">
             {/* Core Identity Card */}
             <Card>
               <CardHeader>
@@ -180,7 +180,7 @@ export default function UserDetail() {
                 <CardTitle className="text-lg">关键业务指标</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-4">
                   <div className="text-center p-3 bg-gray-50 rounded-lg">
                     <div className="text-2xl font-bold text-blue-600">
                       {formatCurrency(user.totalSpent)}
@@ -278,7 +278,7 @@ export default function UserDetail() {
                             </CollapsibleTrigger>
                             <CollapsibleContent className="px-4 pb-4">
                               <div className="mt-4 space-y-3">
-                                <div className="grid grid-cols-2 gap-4 text-sm">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 text-sm">
                                   <div><strong>操作系统:</strong> {session.os}</div>
                                   <div><strong>浏览器:</strong> {session.browser}</div>
                                   <div><strong>位置:</strong> {session.location}</div>
@@ -347,7 +347,7 @@ export default function UserDetail() {
                             </CollapsibleTrigger>
                             <CollapsibleContent className="px-4 pb-4">
                               <div className="mt-4 space-y-3">
-                                <div className="grid grid-cols-2 gap-4 text-sm">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 text-sm">
                                   <div><strong>币种:</strong> {order.currency}</div>
                                   <div><strong>支付方式:</strong> {order.paymentMethod}</div>
                                 </div>
