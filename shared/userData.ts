@@ -351,8 +351,249 @@ export const mockUsers: User[] = [
     maxOrderAmount: 4800.00,
     averagePurchaseCycle: 35,
     tags: ["企业用户"],
-    sessions: [],
-    orders: []
+    sessions: [
+      {
+        id: "session-lm-1",
+        date: "2024-01-20 10:30",
+        summary: "产品演示和技术评估",
+        source: "社交媒体广告",
+        deviceType: "桌面端",
+        os: "macOS 14",
+        browser: "Safari 17",
+        location: "杭州, 中国",
+        ipAddress: "120.55.162.203",
+        events: [
+          {
+            timestamp: "10:30:20",
+            eventType: "页面访问",
+            pageTitle: "产品演示",
+            pageUrl: "/demo",
+            stayDuration: "15分30秒",
+            scrollDepth: "100%"
+          },
+          {
+            timestamp: "10:45:50",
+            eventType: "页面访问",
+            pageTitle: "技术规格",
+            pageUrl: "/specs",
+            stayDuration: "8分45秒",
+            scrollDepth: "90%"
+          },
+          {
+            timestamp: "10:54:35",
+            eventType: "页面访问",
+            pageTitle: "案例研究",
+            pageUrl: "/case-studies",
+            stayDuration: "12分20秒",
+            scrollDepth: "85%"
+          }
+        ]
+      },
+      {
+        id: "session-lm-2",
+        date: "2024-01-10 14:15",
+        summary: "完成订单支付和账户设置",
+        source: "直接访问",
+        deviceType: "桌面端",
+        os: "macOS 14",
+        browser: "Chrome 120",
+        location: "杭州, 中国",
+        ipAddress: "120.55.162.203",
+        events: [
+          {
+            timestamp: "14:15:10",
+            eventType: "页面访问",
+            pageTitle: "登录",
+            pageUrl: "/login",
+            stayDuration: "1分30秒",
+            scrollDepth: "50%"
+          },
+          {
+            timestamp: "14:16:40",
+            eventType: "页面访问",
+            pageTitle: "购物车",
+            pageUrl: "/cart",
+            stayDuration: "2分45秒",
+            scrollDepth: "70%"
+          },
+          {
+            timestamp: "14:19:25",
+            eventType: "页面访问",
+            pageTitle: "支付页面",
+            pageUrl: "/payment",
+            stayDuration: "4分15秒",
+            scrollDepth: "100%"
+          },
+          {
+            timestamp: "14:23:40",
+            eventType: "页面访问",
+            pageTitle: "账户设置",
+            pageUrl: "/account/settings",
+            stayDuration: "6分20秒",
+            scrollDepth: "95%"
+          }
+        ]
+      },
+      {
+        id: "session-lm-3",
+        date: "2024-01-05 16:20",
+        summary: "产品对比和价格咨询",
+        source: "搜索引擎",
+        deviceType: "移动端",
+        os: "iOS 17",
+        browser: "Safari 17",
+        location: "杭州, 中国",
+        ipAddress: "120.55.162.204",
+        events: [
+          {
+            timestamp: "16:20:15",
+            eventType: "页面访问",
+            pageTitle: "产品对比",
+            pageUrl: "/compare",
+            stayDuration: "9分30秒",
+            scrollDepth: "95%"
+          },
+          {
+            timestamp: "16:29:45",
+            eventType: "页面访问",
+            pageTitle: "价格方案",
+            pageUrl: "/pricing",
+            stayDuration: "5分45秒",
+            scrollDepth: "80%"
+          },
+          {
+            timestamp: "16:35:30",
+            eventType: "页面访问",
+            pageTitle: "联系销售",
+            pageUrl: "/contact-sales",
+            stayDuration: "3分20秒",
+            scrollDepth: "75%"
+          }
+        ]
+      }
+    ],
+    orders: [
+      {
+        orderNumber: "ORD-2024-015",
+        orderDate: "2024-01-10",
+        status: "已完成",
+        totalAmount: 4800.00,
+        currency: "CNY",
+        paymentMethod: "支付宝",
+        items: [
+          {
+            productName: "企业版软件授权",
+            unitPrice: 4800.00,
+            quantity: 1,
+            totalPrice: 4800.00
+          }
+        ]
+      },
+      {
+        orderNumber: "ORD-2023-156",
+        orderDate: "2023-12-25",
+        status: "已完成",
+        totalAmount: 3650.25,
+        currency: "CNY",
+        paymentMethod: "企业转账",
+        items: [
+          {
+            productName: "专业版软件授权",
+            unitPrice: 2800.00,
+            quantity: 1,
+            totalPrice: 2800.00
+          },
+          {
+            productName: "云服务套餐",
+            unitPrice: 850.25,
+            quantity: 1,
+            totalPrice: 850.25
+          }
+        ]
+      },
+      {
+        orderNumber: "ORD-2023-134",
+        orderDate: "2023-11-30",
+        status: "已完成",
+        totalAmount: 2250.00,
+        currency: "CNY",
+        paymentMethod: "支付宝",
+        items: [
+          {
+            productName: "标准版软件授权",
+            unitPrice: 1500.00,
+            quantity: 1,
+            totalPrice: 1500.00
+          },
+          {
+            productName: "数据分析模块",
+            unitPrice: 750.00,
+            quantity: 1,
+            totalPrice: 750.00
+          }
+        ]
+      },
+      {
+        orderNumber: "ORD-2023-089",
+        orderDate: "2023-10-15",
+        status: "已完成",
+        totalAmount: 4950.00,
+        currency: "CNY",
+        paymentMethod: "企业转账",
+        items: [
+          {
+            productName: "企业版软件授权",
+            unitPrice: 4800.00,
+            quantity: 1,
+            totalPrice: 4800.00
+          },
+          {
+            productName: "安装服务",
+            unitPrice: 150.00,
+            quantity: 1,
+            totalPrice: 150.00
+          }
+        ]
+      },
+      {
+        orderNumber: "ORD-2023-067",
+        orderDate: "2023-09-20",
+        status: "已完成",
+        totalAmount: 1850.00,
+        currency: "CNY",
+        paymentMethod: "微信支付",
+        items: [
+          {
+            productName: "基础版软件授权",
+            unitPrice: 1200.00,
+            quantity: 1,
+            totalPrice: 1200.00
+          },
+          {
+            productName: "技术支持服务",
+            unitPrice: 650.00,
+            quantity: 1,
+            totalPrice: 650.00
+          }
+        ]
+      },
+      {
+        orderNumber: "ORD-2023-045",
+        orderDate: "2023-08-10",
+        status: "已完成",
+        totalAmount: 1400.00,
+        currency: "CNY",
+        paymentMethod: "支付宝",
+        items: [
+          {
+            productName: "插件扩展包",
+            unitPrice: 700.00,
+            quantity: 2,
+            totalPrice: 1400.00
+          }
+        ]
+      }
+    ]
   },
   {
     cdpId: "c8d4e5f6-7a8b-5678",
