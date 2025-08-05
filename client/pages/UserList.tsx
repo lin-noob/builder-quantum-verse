@@ -101,7 +101,7 @@ export default function UserList() {
         {/* User Table */}
         <Card className="bg-white shadow-sm">
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full min-w-[800px]">
               <thead className="bg-gray-50 border-b">
                 <tr>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">用户</th>
@@ -109,7 +109,7 @@ export default function UserList() {
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">联系方式</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">总消费金额</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">总订单数</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">操��</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">操作</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
@@ -150,11 +150,11 @@ export default function UserList() {
           </div>
 
           {/* Pagination */}
-          <div className="px-6 py-4 border-t bg-gray-50 flex items-center justify-between">
-            <div className="text-sm text-gray-700">
+          <div className="px-6 py-4 border-t bg-gray-50 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="text-sm text-gray-700 order-2 sm:order-1">
               正在显示 {startIndex + 1} - {Math.min(endIndex, filteredUsers.length)} 条，共 {filteredUsers.length} 条
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 order-1 sm:order-2">
               <Button
                 variant="outline"
                 size="sm"
