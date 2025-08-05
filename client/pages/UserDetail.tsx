@@ -29,6 +29,8 @@ export default function UserDetail() {
   const [newTag, setNewTag] = useState("");
   const [openSessions, setOpenSessions] = useState<Set<string>>(new Set());
   const [openOrders, setOpenOrders] = useState<Set<string>>(new Set());
+  const [currentOrderPage, setCurrentOrderPage] = useState(1);
+  const ordersPerPage = 5;
 
   if (!user) {
     return (
