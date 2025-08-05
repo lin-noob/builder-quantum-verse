@@ -4,6 +4,7 @@ import KPICard from '@/components/KPICard';
 import PerformanceTrend from '@/components/PerformanceTrend';
 import DonutChart from '@/components/DonutChart';
 import TagChart from '@/components/TagChart';
+import RecentActivities from '@/components/RecentActivities';
 
 export default function Dashboard() {
   const dashboardData = getDashboardData();
@@ -39,6 +40,11 @@ export default function Dashboard() {
           data={dashboardData.trafficSources}
         />
         <TagChart data={dashboardData.popularTags} />
+      </div>
+
+      {/* Fourth Row: Recent Activities */}
+      <div className="w-full">
+        <RecentActivities />
       </div>
     </div>
   );
