@@ -609,8 +609,375 @@ export const mockUsers: User[] = [
     maxOrderAmount: 6500.00,
     averagePurchaseCycle: 22,
     tags: ["VIP客户", "高价值用户"],
-    sessions: [],
-    orders: []
+    sessions: [
+      {
+        id: "session-wf-1",
+        date: "2024-01-21 13:45",
+        summary: "新功能体验和反馈提交",
+        source: "邮件通知",
+        deviceType: "桌面端",
+        os: "Windows 11",
+        browser: "Chrome 120",
+        location: "北京, 中国",
+        ipAddress: "123.125.114.144",
+        events: [
+          {
+            timestamp: "13:45:20",
+            eventType: "页面访问",
+            pageTitle: "新功能介绍",
+            pageUrl: "/features/new",
+            stayDuration: "12分15秒",
+            scrollDepth: "100%"
+          },
+          {
+            timestamp: "13:57:35",
+            eventType: "页面访问",
+            pageTitle: "功能试用",
+            pageUrl: "/trial/features",
+            stayDuration: "25分30秒",
+            scrollDepth: "95%"
+          },
+          {
+            timestamp: "14:23:05",
+            eventType: "页面访问",
+            pageTitle: "反馈中心",
+            pageUrl: "/feedback",
+            stayDuration: "8分45秒",
+            scrollDepth: "85%"
+          }
+        ]
+      },
+      {
+        id: "session-wf-2",
+        date: "2024-01-20 09:30",
+        summary: "VIP专享服务和升级咨询",
+        source: "直接访问",
+        deviceType: "移动端",
+        os: "Android 14",
+        browser: "Chrome 120",
+        location: "北京, 中国",
+        ipAddress: "123.125.114.145",
+        events: [
+          {
+            timestamp: "09:30:10",
+            eventType: "页面访问",
+            pageTitle: "VIP中心",
+            pageUrl: "/vip",
+            stayDuration: "6分30秒",
+            scrollDepth: "90%"
+          },
+          {
+            timestamp: "09:36:40",
+            eventType: "页面访问",
+            pageTitle: "专属服务",
+            pageUrl: "/vip/services",
+            stayDuration: "10分20秒",
+            scrollDepth: "100%"
+          },
+          {
+            timestamp: "09:47:00",
+            eventType: "页面访问",
+            pageTitle: "升级方案",
+            pageUrl: "/upgrade",
+            stayDuration: "7分15秒",
+            scrollDepth: "80%"
+          }
+        ]
+      },
+      {
+        id: "session-wf-3",
+        date: "2024-01-18 15:20",
+        summary: "数据分析报告查看和导出",
+        source: "直接访问",
+        deviceType: "桌面端",
+        os: "Windows 11",
+        browser: "Edge 120",
+        location: "北京, 中国",
+        ipAddress: "123.125.114.144",
+        events: [
+          {
+            timestamp: "15:20:30",
+            eventType: "页面访问",
+            pageTitle: "数据分析",
+            pageUrl: "/analytics",
+            stayDuration: "18分45秒",
+            scrollDepth: "100%"
+          },
+          {
+            timestamp: "15:39:15",
+            eventType: "页面访问",
+            pageTitle: "报告中心",
+            pageUrl: "/reports",
+            stayDuration: "12分30秒",
+            scrollDepth: "95%"
+          },
+          {
+            timestamp: "15:51:45",
+            eventType: "页面访问",
+            pageTitle: "数据导出",
+            pageUrl: "/export",
+            stayDuration: "5分20秒",
+            scrollDepth: "70%"
+          }
+        ]
+      },
+      {
+        id: "session-wf-4",
+        date: "2024-01-15 11:10",
+        summary: "团队管理和权限设置",
+        source: "直接访问",
+        deviceType: "桌面端",
+        os: "Windows 11",
+        browser: "Chrome 120",
+        location: "北京, 中国",
+        ipAddress: "123.125.114.144",
+        events: [
+          {
+            timestamp: "11:10:15",
+            eventType: "页面访问",
+            pageTitle: "团队管理",
+            pageUrl: "/team",
+            stayDuration: "14分30秒",
+            scrollDepth: "100%"
+          },
+          {
+            timestamp: "11:24:45",
+            eventType: "页面访问",
+            pageTitle: "权限设置",
+            pageUrl: "/permissions",
+            stayDuration: "9分20秒",
+            scrollDepth: "85%"
+          },
+          {
+            timestamp: "11:34:05",
+            eventType: "页面访问",
+            pageTitle: "用户角色",
+            pageUrl: "/roles",
+            stayDuration: "6分45秒",
+            scrollDepth: "75%"
+          }
+        ]
+      },
+      {
+        id: "session-wf-5",
+        date: "2024-01-12 16:35",
+        summary: "API集成和开发者工具",
+        source: "技术文档",
+        deviceType: "桌面端",
+        os: "Windows 11",
+        browser: "Chrome 120",
+        location: "北京, 中国",
+        ipAddress: "123.125.114.144",
+        events: [
+          {
+            timestamp: "16:35:10",
+            eventType: "页面访问",
+            pageTitle: "API文档",
+            pageUrl: "/api/docs",
+            stayDuration: "22分15秒",
+            scrollDepth: "100%"
+          },
+          {
+            timestamp: "16:57:25",
+            eventType: "页面访问",
+            pageTitle: "开发者控制台",
+            pageUrl: "/dev/console",
+            stayDuration: "15分30秒",
+            scrollDepth: "90%"
+          },
+          {
+            timestamp: "17:12:55",
+            eventType: "页面访问",
+            pageTitle: "集成示例",
+            pageUrl: "/dev/examples",
+            stayDuration: "8分40秒",
+            scrollDepth: "85%"
+          }
+        ]
+      }
+    ],
+    orders: [
+      {
+        orderNumber: "ORD-2024-025",
+        orderDate: "2024-01-20",
+        status: "已完成",
+        totalAmount: 6500.00,
+        currency: "CNY",
+        paymentMethod: "企业转账",
+        items: [
+          {
+            productName: "旗舰版软件授权",
+            unitPrice: 6500.00,
+            quantity: 1,
+            totalPrice: 6500.00
+          }
+        ]
+      },
+      {
+        orderNumber: "ORD-2024-018",
+        orderDate: "2024-01-15",
+        status: "已完成",
+        totalAmount: 4280.75,
+        currency: "CNY",
+        paymentMethod: "支付宝",
+        items: [
+          {
+            productName: "企业版软件授权",
+            unitPrice: 3800.00,
+            quantity: 1,
+            totalPrice: 3800.00
+          },
+          {
+            productName: "高级数据分析",
+            unitPrice: 480.75,
+            quantity: 1,
+            totalPrice: 480.75
+          }
+        ]
+      },
+      {
+        orderNumber: "ORD-2024-008",
+        orderDate: "2024-01-08",
+        status: "已完成",
+        totalAmount: 3650.00,
+        currency: "CNY",
+        paymentMethod: "微信支付",
+        items: [
+          {
+            productName: "专业版软件授权",
+            unitPrice: 2800.00,
+            quantity: 1,
+            totalPrice: 2800.00
+          },
+          {
+            productName: "AI智能模块",
+            unitPrice: 850.00,
+            quantity: 1,
+            totalPrice: 850.00
+          }
+        ]
+      },
+      {
+        orderNumber: "ORD-2023-198",
+        orderDate: "2023-12-28",
+        status: "已完成",
+        totalAmount: 5420.00,
+        currency: "CNY",
+        paymentMethod: "企业转账",
+        items: [
+          {
+            productName: "企业版软件授权",
+            unitPrice: 3800.00,
+            quantity: 1,
+            totalPrice: 3800.00
+          },
+          {
+            productName: "定制开发服务",
+            unitPrice: 1620.00,
+            quantity: 1,
+            totalPrice: 1620.00
+          }
+        ]
+      },
+      {
+        orderNumber: "ORD-2023-167",
+        orderDate: "2023-12-10",
+        status: "已完成",
+        totalAmount: 2100.00,
+        currency: "CNY",
+        paymentMethod: "支付宝",
+        items: [
+          {
+            productName: "标准版软件授权",
+            unitPrice: 1500.00,
+            quantity: 1,
+            totalPrice: 1500.00
+          },
+          {
+            productName: "培训服务",
+            unitPrice: 600.00,
+            quantity: 1,
+            totalPrice: 600.00
+          }
+        ]
+      },
+      {
+        orderNumber: "ORD-2023-145",
+        orderDate: "2023-11-25",
+        status: "已完成",
+        totalAmount: 3200.00,
+        currency: "CNY",
+        paymentMethod: "企业转账",
+        items: [
+          {
+            productName: "专业版软件授权",
+            unitPrice: 2800.00,
+            quantity: 1,
+            totalPrice: 2800.00
+          },
+          {
+            productName: "技术支持服务",
+            unitPrice: 400.00,
+            quantity: 1,
+            totalPrice: 400.00
+          }
+        ]
+      },
+      {
+        orderNumber: "ORD-2023-123",
+        orderDate: "2023-11-05",
+        status: "已完成",
+        totalAmount: 1850.00,
+        currency: "CNY",
+        paymentMethod: "微信支付",
+        items: [
+          {
+            productName: "基础版软件授权",
+            unitPrice: 1200.00,
+            quantity: 1,
+            totalPrice: 1200.00
+          },
+          {
+            productName: "云存储服务",
+            unitPrice: 650.00,
+            quantity: 1,
+            totalPrice: 650.00
+          }
+        ]
+      },
+      {
+        orderNumber: "ORD-2023-098",
+        orderDate: "2023-10-20",
+        status: "已完成",
+        totalAmount: 4800.00,
+        currency: "CNY",
+        paymentMethod: "企业转账",
+        items: [
+          {
+            productName: "标准版软件授权",
+            unitPrice: 1600.00,
+            quantity: 3,
+            totalPrice: 4800.00
+          }
+        ]
+      },
+      {
+        orderNumber: "ORD-2023-076",
+        orderDate: "2023-09-30",
+        status: "已完成",
+        totalAmount: 2200.00,
+        currency: "CNY",
+        paymentMethod: "支付宝",
+        items: [
+          {
+            productName: "插件扩展包",
+            unitPrice: 550.00,
+            quantity: 4,
+            totalPrice: 2200.00
+          }
+        ]
+      }
+    ]
   },
   {
     cdpId: "d9e5f6g7-8b9c-9012",
