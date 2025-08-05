@@ -1,0 +1,387 @@
+import { useState } from "react";
+import { useParams, Link } from "react-router-dom";
+import { 
+  ArrowLeft, 
+  User, 
+  Building, 
+  MapPin, 
+  Mail, 
+  Copy, 
+  X,
+  Plus,
+  ChevronDown,
+  ChevronRight
+} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { getUserById, type User } from "@shared/userData";
+import { toast } from "@/hooks/use-toast";
+
+export default function UserDetail() {
+  const { cdpId } = useParams<{ cdpId: string }>();
+  const user = cdpId ? getUserById(cdpId) : null;
+  
+  const [userTags, setUserTags] = useState<string[]>(user?.tags || []);
+  const [newTag, setNewTag] = useState("");
+  const [openSessions, setOpenSessions] = useState<Set<string>>(new Set());
+  const [openOrders, setOpenOrders] = useState<Set<string>>(new Set());
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-semibold text-gray-900 mb-2">用户未找到</h1>
+          <p className="text-gray-600 mb-4">指定的用户ID不存在</p>
+          <Link to="/users" className="text-blue-600 hover:text-blue-800">
+            返回用户列表
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  const handleCopyId = () => {
+    navigator.clipboard.writeText(user.cdpId);
+    toast({ title: "已复制", description: "CDP ID已复制到剪贴板" });
+  };
+
+  const addTag = () => {
+    if (newTag.trim() && !userTags.includes(newTag.trim())) {
+      setUserTags([...userTags, newTag.trim()]);
+      setNewTag("");
+    }
+  };
+
+  const removeTag = (tagToRemove: string) => {
+    setUserTags(userTags.filter(tag => tag !== tagToRemove));
+  };
+
+  const toggleSession = (sessionId: string) => {
+    const newOpenSessions = new Set(openSessions);
+    if (newOpenSessions.has(sessionId)) {
+      newOpenSessions.delete(sessionId);
+    } else {
+      newOpenSessions.add(sessionId);
+    }
+    setOpenSessions(newOpenSessions);
+  };
+
+  const toggleOrder = (orderNumber: string) => {
+    const newOpenOrders = new Set(openOrders);
+    if (newOpenOrders.has(orderNumber)) {
+      newOpenOrders.delete(orderNumber);
+    } else {
+      newOpenOrders.add(orderNumber);
+    }
+    setOpenOrders(newOpenOrders);
+  };
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('zh-CN', {
+      style: 'currency',
+      currency: 'CNY',
+      minimumFractionDigits: 2
+    }).format(amount);
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        {/* Back Link */}
+        <div className="mb-6">
+          <Link 
+            to="/users" 
+            className="inline-flex items-center text-blue-600 hover:text-blue-800 text-sm font-medium"
+          >
+            <ArrowLeft className="h-4 w-4 mr-1" />
+            返回列表
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Left Sidebar - 33.33% */}
+          <div className="lg:col-span-1 space-y-6">
+            {/* Core Identity Card */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-xl font-semibold">
+                  {user.name || user.cdpId.substring(0, 8)}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Tag Management */}
+                <div>
+                  <h4 className="text-sm font-medium text-gray-900 mb-2">状态标签</h4>
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    {userTags.map((tag) => (
+                      <Badge key={tag} variant="secondary" className="flex items-center gap-1">
+                        {tag}
+                        <button 
+                          onClick={() => removeTag(tag)}
+                          className="ml-1 hover:text-red-600"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </Badge>
+                    ))}
+                  </div>
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="添加新标签"
+                      value={newTag}
+                      onChange={(e) => setNewTag(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && addTag()}
+                      className="text-sm"
+                    />
+                    <Button onClick={addTag} size="sm">
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Identity Details */}
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <User className="h-4 w-4 text-gray-500" />
+                    <span className="text-sm text-gray-600">CDP ID:</span>
+                    <code className="text-sm font-mono bg-gray-100 px-2 py-1 rounded">
+                      {user.cdpId}
+                    </code>
+                    <button onClick={handleCopyId} className="text-gray-400 hover:text-gray-600">
+                      <Copy className="h-4 w-4" />
+                    </button>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Building className="h-4 w-4 text-gray-500" />
+                    <span className="text-sm text-gray-600">公司:</span>
+                    <span className="text-sm">{user.company}</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <MapPin className="h-4 w-4 text-gray-500" />
+                    <span className="text-sm text-gray-600">位置:</span>
+                    <span className="text-sm">{user.country}/{user.city}</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Mail className="h-4 w-4 text-gray-500" />
+                    <span className="text-sm text-gray-600">联系:</span>
+                    <span className="text-sm">{user.contact}</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Key Business Metrics */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">关键业务指标</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="text-center p-3 bg-gray-50 rounded-lg">
+                    <div className="text-2xl font-bold text-blue-600">
+                      {formatCurrency(user.totalSpent)}
+                    </div>
+                    <div className="text-xs text-gray-600">总消费金额</div>
+                  </div>
+                  <div className="text-center p-3 bg-gray-50 rounded-lg">
+                    <div className="text-2xl font-bold text-green-600">{user.totalOrders}</div>
+                    <div className="text-xs text-gray-600">总订单数</div>
+                  </div>
+                  <div className="text-center p-3 bg-gray-50 rounded-lg">
+                    <div className="text-2xl font-bold text-purple-600">
+                      {formatCurrency(user.averageOrderValue)}
+                    </div>
+                    <div className="text-xs text-gray-600">平均客单价</div>
+                  </div>
+                  <div className="text-center p-3 bg-gray-50 rounded-lg">
+                    <div className="text-sm font-bold text-orange-600">{user.lastPurchaseDate}</div>
+                    <div className="text-xs text-gray-600">上次购买时间</div>
+                  </div>
+                  <div className="text-center p-3 bg-gray-50 rounded-lg">
+                    <div className="text-2xl font-bold text-red-600">
+                      {formatCurrency(user.maxOrderAmount)}
+                    </div>
+                    <div className="text-xs text-gray-600">最高单笔订单</div>
+                  </div>
+                  <div className="text-center p-3 bg-gray-50 rounded-lg">
+                    <div className="text-2xl font-bold text-indigo-600">{user.averagePurchaseCycle}天</div>
+                    <div className="text-xs text-gray-600">平均购买周期</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Right Content - 66.67% */}
+          <div className="lg:col-span-2">
+            <Tabs defaultValue="timeline" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="timeline">访问时间线</TabsTrigger>
+                <TabsTrigger value="statistics">业务统计</TabsTrigger>
+              </TabsList>
+
+              {/* Access Timeline Tab */}
+              <TabsContent value="timeline" className="space-y-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>近期动态摘要</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {user.sessions.length > 0 ? (
+                      <div className="space-y-3">
+                        {user.sessions.slice(0, 3).map((session) => (
+                          <div key={session.id} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                            <div>
+                              <div className="font-medium text-sm">页面访问</div>
+                              <div className="text-xs text-gray-600">{session.summary}</div>
+                            </div>
+                            <div className="text-xs text-gray-500">{session.date}</div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-gray-500 text-sm">暂无访问记录</p>
+                    )}
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>详细访问会话</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {user.sessions.length > 0 ? (
+                      <div className="space-y-2">
+                        {user.sessions.map((session) => (
+                          <Collapsible key={session.id}>
+                            <CollapsibleTrigger 
+                              className="flex items-center justify-between w-full p-4 bg-gray-50 rounded-lg hover:bg-gray-100"
+                              onClick={() => toggleSession(session.id)}
+                            >
+                              <div className="flex items-center gap-3">
+                                {openSessions.has(session.id) ? 
+                                  <ChevronDown className="h-4 w-4" /> : 
+                                  <ChevronRight className="h-4 w-4" />
+                                }
+                                <div className="text-left">
+                                  <div className="font-medium">{session.date}</div>
+                                  <div className="text-sm text-gray-600">{session.summary}</div>
+                                </div>
+                              </div>
+                              <div className="text-sm text-gray-500">
+                                {session.source} • {session.deviceType}
+                              </div>
+                            </CollapsibleTrigger>
+                            <CollapsibleContent className="px-4 pb-4">
+                              <div className="mt-4 space-y-3">
+                                <div className="grid grid-cols-2 gap-4 text-sm">
+                                  <div><strong>操作系统:</strong> {session.os}</div>
+                                  <div><strong>浏览器:</strong> {session.browser}</div>
+                                  <div><strong>位置:</strong> {session.location}</div>
+                                  <div><strong>IP地址:</strong> {session.ipAddress}</div>
+                                </div>
+                                <div className="border-t pt-3">
+                                  <h5 className="font-medium mb-2">事件时间线</h5>
+                                  <div className="space-y-2">
+                                    {session.events.map((event, index) => (
+                                      <div key={index} className="text-sm bg-white p-3 rounded border">
+                                        <div className="flex justify-between items-start">
+                                          <div>
+                                            <div className="font-medium">{event.pageTitle}</div>
+                                            <div className="text-gray-600">{event.pageUrl}</div>
+                                            <div className="text-xs text-gray-500">
+                                              停留时长: {event.stayDuration} • 滚动深度: {event.scrollDepth}
+                                            </div>
+                                          </div>
+                                          <div className="text-xs text-gray-500">{event.timestamp}</div>
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              </div>
+                            </CollapsibleContent>
+                          </Collapsible>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-gray-500 text-sm">暂无访问会话记录</p>
+                    )}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              {/* Business Statistics Tab */}
+              <TabsContent value="statistics">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>订单统计</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {user.orders.length > 0 ? (
+                      <div className="space-y-2">
+                        {user.orders.map((order) => (
+                          <Collapsible key={order.orderNumber}>
+                            <CollapsibleTrigger 
+                              className="flex items-center justify-between w-full p-4 bg-gray-50 rounded-lg hover:bg-gray-100"
+                              onClick={() => toggleOrder(order.orderNumber)}
+                            >
+                              <div className="flex items-center gap-3">
+                                {openOrders.has(order.orderNumber) ? 
+                                  <ChevronDown className="h-4 w-4" /> : 
+                                  <ChevronRight className="h-4 w-4" />
+                                }
+                                <div className="text-left">
+                                  <div className="font-medium">{order.orderNumber}</div>
+                                  <div className="text-sm text-gray-600">{order.orderDate}</div>
+                                </div>
+                              </div>
+                              <div className="text-right">
+                                <div className="font-medium">{formatCurrency(order.totalAmount)}</div>
+                                <div className="text-sm text-gray-600">{order.status}</div>
+                              </div>
+                            </CollapsibleTrigger>
+                            <CollapsibleContent className="px-4 pb-4">
+                              <div className="mt-4 space-y-3">
+                                <div className="grid grid-cols-2 gap-4 text-sm">
+                                  <div><strong>币种:</strong> {order.currency}</div>
+                                  <div><strong>支付方式:</strong> {order.paymentMethod}</div>
+                                </div>
+                                <div className="border-t pt-3">
+                                  <h5 className="font-medium mb-2">商品明细</h5>
+                                  <div className="space-y-2">
+                                    {order.items.map((item, index) => (
+                                      <div key={index} className="flex justify-between items-center text-sm bg-white p-3 rounded border">
+                                        <div>
+                                          <div className="font-medium">{item.productName}</div>
+                                          <div className="text-gray-600">
+                                            {formatCurrency(item.unitPrice)} × {item.quantity}
+                                          </div>
+                                        </div>
+                                        <div className="font-medium">{formatCurrency(item.totalPrice)}</div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              </div>
+                            </CollapsibleContent>
+                          </Collapsible>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-gray-500 text-sm">暂无订单记录</p>
+                    )}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
