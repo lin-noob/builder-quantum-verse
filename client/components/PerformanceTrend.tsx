@@ -13,7 +13,7 @@ interface PerformanceTrendProps {
 }
 
 export default function PerformanceTrend({ metrics }: PerformanceTrendProps) {
-  const [selectedMetrics, setSelectedMetrics] = useState<string[]>([metrics[2].id]); // Default to "销售额"
+  const [selectedMetrics, setSelectedMetrics] = useState<string[]>(['revenue']); // Default to "销售额"
   const [dateRange, setDateRange] = useState('30days');
   const [showCustomDate, setShowCustomDate] = useState(false);
   const [customStartDate, setCustomStartDate] = useState('');
@@ -46,6 +46,11 @@ export default function PerformanceTrend({ metrics }: PerformanceTrendProps) {
   };
 
   const toggleMetric = (metricId: string) => {
+    // 销售额不能被取消选择
+    if (metricId === 'revenue') {
+      return;
+    }
+
     setSelectedMetrics(prev =>
       prev.includes(metricId)
         ? prev.filter(id => id !== metricId)
@@ -168,6 +173,7 @@ export default function PerformanceTrend({ metrics }: PerformanceTrendProps) {
         <div className="grid grid-cols-5 gap-3">
           {metrics.map((metric, index) => {
             const isSelected = selectedMetrics.includes(metric.id);
+            const isRevenue = metric.id === 'revenue';
             const color = colors[index % colors.length];
 
             return (
@@ -178,14 +184,22 @@ export default function PerformanceTrend({ metrics }: PerformanceTrendProps) {
                   "p-3 rounded-lg text-center border transition-all relative",
                   isSelected
                     ? "bg-blue-50 border-blue-200 text-blue-700"
-                    : "bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100"
+                    : "bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100",
+                  isRevenue && "ring-2 ring-blue-300"
                 )}
+                disabled={isRevenue && isSelected}
+                title={isRevenue ? "销售额为必选指标" : ""}
               >
                 {isSelected && (
                   <div
                     className="absolute top-2 left-2 w-3 h-3 rounded"
                     style={{ backgroundColor: color }}
                   />
+                )}
+                {isRevenue && (
+                  <div className="absolute top-2 right-2">
+                    <span className="text-xs text-blue-600">★</span>
+                  </div>
                 )}
                 <div className="text-xs text-gray-500 mb-1">{metric.label}</div>
                 <div className="text-sm font-semibold">{metric.value}</div>
