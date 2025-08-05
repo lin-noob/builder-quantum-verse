@@ -73,6 +73,43 @@ export const mockUsers: User[] = [
     sessions: [
       {
         id: "session-1",
+        date: "2024-01-22 09:15",
+        summary: "查看新产品发布和价格对比",
+        source: "邮件链接",
+        deviceType: "桌面端",
+        os: "Windows 11",
+        browser: "Chrome 120",
+        location: "深圳, 中国",
+        ipAddress: "183.14.132.117",
+        events: [
+          {
+            timestamp: "09:15:30",
+            eventType: "页面访问",
+            pageTitle: "首页",
+            pageUrl: "/",
+            stayDuration: "1分45秒",
+            scrollDepth: "60%"
+          },
+          {
+            timestamp: "09:17:15",
+            eventType: "页面访问",
+            pageTitle: "新产品发布",
+            pageUrl: "/products/new-release",
+            stayDuration: "8分20秒",
+            scrollDepth: "95%"
+          },
+          {
+            timestamp: "09:25:35",
+            eventType: "页面访问",
+            pageTitle: "价格对比",
+            pageUrl: "/pricing",
+            stayDuration: "4分15秒",
+            scrollDepth: "80%"
+          }
+        ]
+      },
+      {
+        id: "session-2",
         date: "2024-01-15 14:30",
         summary: "浏览产品页面并完成购买",
         source: "直接访问",
@@ -97,13 +134,111 @@ export const mockUsers: User[] = [
             pageUrl: "/products",
             stayDuration: "5分12秒",
             scrollDepth: "100%"
+          },
+          {
+            timestamp: "14:37:57",
+            eventType: "页面访问",
+            pageTitle: "企业版详情",
+            pageUrl: "/products/enterprise",
+            stayDuration: "7分30秒",
+            scrollDepth: "100%"
+          },
+          {
+            timestamp: "14:45:27",
+            eventType: "页面访问",
+            pageTitle: "购物车",
+            pageUrl: "/cart",
+            stayDuration: "3分45秒",
+            scrollDepth: "70%"
+          },
+          {
+            timestamp: "14:49:12",
+            eventType: "页面访问",
+            pageTitle: "结算页面",
+            pageUrl: "/checkout",
+            stayDuration: "5分20秒",
+            scrollDepth: "100%"
+          }
+        ]
+      },
+      {
+        id: "session-3",
+        date: "2024-01-10 16:45",
+        summary: "技术支持咨询和文档查看",
+        source: "搜索引擎",
+        deviceType: "移动端",
+        os: "iOS 17",
+        browser: "Safari 17",
+        location: "深圳, 中国",
+        ipAddress: "183.14.132.118",
+        events: [
+          {
+            timestamp: "16:45:10",
+            eventType: "页面访问",
+            pageTitle: "技术支持",
+            pageUrl: "/support",
+            stayDuration: "3分20秒",
+            scrollDepth: "90%"
+          },
+          {
+            timestamp: "16:48:30",
+            eventType: "页面访问",
+            pageTitle: "API文档",
+            pageUrl: "/docs/api",
+            stayDuration: "12分15秒",
+            scrollDepth: "85%"
+          },
+          {
+            timestamp: "17:00:45",
+            eventType: "页面访问",
+            pageTitle: "集成指南",
+            pageUrl: "/docs/integration",
+            stayDuration: "6分40秒",
+            scrollDepth: "75%"
+          }
+        ]
+      },
+      {
+        id: "session-4",
+        date: "2024-01-08 11:20",
+        summary: "账户管理和历史订单查看",
+        source: "直接访问",
+        deviceType: "桌面端",
+        os: "Windows 11",
+        browser: "Edge 120",
+        location: "深圳, 中国",
+        ipAddress: "183.14.132.117",
+        events: [
+          {
+            timestamp: "11:20:00",
+            eventType: "页面访问",
+            pageTitle: "登录页面",
+            pageUrl: "/login",
+            stayDuration: "1分10秒",
+            scrollDepth: "40%"
+          },
+          {
+            timestamp: "11:21:10",
+            eventType: "页面访问",
+            pageTitle: "账户概览",
+            pageUrl: "/account",
+            stayDuration: "4分30秒",
+            scrollDepth: "95%"
+          },
+          {
+            timestamp: "11:25:40",
+            eventType: "页面访问",
+            pageTitle: "订单历史",
+            pageUrl: "/orders",
+            stayDuration: "8分45秒",
+            scrollDepth: "100%"
           }
         ]
       }
     ],
     orders: [
       {
-        orderNumber: "ORD-2024-001",
+        orderNumber: "ORD-2024-003",
         orderDate: "2024-01-15",
         status: "已完成",
         totalAmount: 5200.00,
@@ -115,6 +250,88 @@ export const mockUsers: User[] = [
             unitPrice: 5200.00,
             quantity: 1,
             totalPrice: 5200.00
+          }
+        ]
+      },
+      {
+        orderNumber: "ORD-2024-002",
+        orderDate: "2024-01-08",
+        status: "已完成",
+        totalAmount: 3280.50,
+        currency: "CNY",
+        paymentMethod: "支付宝",
+        items: [
+          {
+            productName: "专业版软件授权",
+            unitPrice: 2800.00,
+            quantity: 1,
+            totalPrice: 2800.00
+          },
+          {
+            productName: "技术支持服务",
+            unitPrice: 480.50,
+            quantity: 1,
+            totalPrice: 480.50
+          }
+        ]
+      },
+      {
+        orderNumber: "ORD-2023-089",
+        orderDate: "2023-12-20",
+        status: "已完成",
+        totalAmount: 4800.00,
+        currency: "CNY",
+        paymentMethod: "企业转账",
+        items: [
+          {
+            productName: "标准版软件授权",
+            unitPrice: 1600.00,
+            quantity: 3,
+            totalPrice: 4800.00
+          }
+        ]
+      },
+      {
+        orderNumber: "ORD-2023-067",
+        orderDate: "2023-11-15",
+        status: "已完成",
+        totalAmount: 2150.00,
+        currency: "CNY",
+        paymentMethod: "微信支付",
+        items: [
+          {
+            productName: "基础版软件授权",
+            unitPrice: 1200.00,
+            quantity: 1,
+            totalPrice: 1200.00
+          },
+          {
+            productName: "培训服务",
+            unitPrice: 950.00,
+            quantity: 1,
+            totalPrice: 950.00
+          }
+        ]
+      },
+      {
+        orderNumber: "ORD-2023-045",
+        orderDate: "2023-10-28",
+        status: "已完成",
+        totalAmount: 6750.00,
+        currency: "CNY",
+        paymentMethod: "企业转账",
+        items: [
+          {
+            productName: "企业版软件授权",
+            unitPrice: 5200.00,
+            quantity: 1,
+            totalPrice: 5200.00
+          },
+          {
+            productName: "定制开发服务",
+            unitPrice: 1550.00,
+            quantity: 1,
+            totalPrice: 1550.00
           }
         ]
       }
