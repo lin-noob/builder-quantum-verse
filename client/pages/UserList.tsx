@@ -49,11 +49,7 @@ export default function UserList() {
   return (
     <div className="p-6 space-y-6 bg-gray-50 min-h-full">
       <div className="max-w-none">
-        {/* Page Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">用户列表</h1>
-          <p className="text-gray-600">管理和查看您的所有客户。</p>
-        </div>
+
 
         {/* Search and Filter Card */}
         <Card className="p-6 mb-8 bg-white shadow-sm">
