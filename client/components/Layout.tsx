@@ -35,7 +35,7 @@ export default function Layout({ children }: LayoutProps) {
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Left Sidebar */}
-      <div className="w-64 bg-white border-r border-gray-200 flex flex-col">
+      <div className="hidden lg:flex w-64 bg-white border-r border-gray-200 flex-col">
         {/* Logo */}
         <div className="h-16 flex items-center px-6 border-b border-gray-200">
           <div className="flex items-center gap-3">
@@ -77,7 +77,7 @@ export default function Layout({ children }: LayoutProps) {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Tabs Header */}
-        <div className="h-12 bg-white border-b border-gray-200 flex items-center px-6">
+        <div className="h-12 bg-white border-b border-gray-200 flex items-center px-4 lg:px-6">
           <div className="flex items-center gap-2">
             {/* Fixed Home Tab */}
             <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-700 rounded text-sm font-medium border border-blue-200">
