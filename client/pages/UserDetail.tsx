@@ -263,7 +263,7 @@ export default function UserDetail() {
                   </CardHeader>
                   <CardContent>
                     {user.sessions.length > 0 ? (
-                      <div className="space-y-2">
+                      <div className="max-h-96 overflow-y-auto space-y-2 pr-2">
                         {user.sessions.map((session) => (
                           <Collapsible key={session.id}>
                             <CollapsibleTrigger 
@@ -302,7 +302,7 @@ export default function UserDetail() {
                                             <div className="font-medium">{event.pageTitle}</div>
                                             <div className="text-gray-600">{event.pageUrl}</div>
                                             <div className="text-xs text-gray-500">
-                                              停留时长: {event.stayDuration} • 滚动深���: {event.scrollDepth}
+                                              停留时长: {event.stayDuration} • 滚动深度: {event.scrollDepth}
                                             </div>
                                           </div>
                                           <div className="text-xs text-gray-500">{event.timestamp}</div>
