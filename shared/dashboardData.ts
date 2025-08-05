@@ -49,7 +49,7 @@ export interface DashboardData {
 export const mockDashboardData: DashboardData = {
   kpis: [
     {
-      title: "总消费���额",
+      title: "总消费金额",
       value: "¥1,254,680",
       change: 5.2,
       isPositive: true
