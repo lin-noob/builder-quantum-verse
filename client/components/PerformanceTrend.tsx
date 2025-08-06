@@ -58,6 +58,14 @@ export default function PerformanceTrend({ metrics }: PerformanceTrendProps) {
     );
   };
 
+  // 定义数据类型分组，相似的数据类型使用同一个Y轴
+  const getMetricGroup = (metricId: string) => {
+    if (metricId === 'revenue' || metricId === 'net_revenue') return 'revenue'; // 金额类
+    if (metricId === 'sales' || metricId === 'orders') return 'count'; // 数量类
+    if (metricId === 'avg_price') return 'price'; // 价格类
+    return metricId; // 其他独立分组
+  };
+
   // Combine data from all selected metrics
   const chartData = useMemo(() => {
     if (selectedMetrics.length === 0) return [];
