@@ -1,4 +1,5 @@
 import "./global.css";
+import "./lib/suppressWarnings"; // 抑制第三方库警告
 
 import { Toaster } from "@/components/ui/toaster";
 import { createRoot } from "react-dom/client";
