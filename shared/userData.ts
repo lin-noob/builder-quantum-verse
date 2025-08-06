@@ -42,10 +42,26 @@ export interface Order {
   orderNumber: string;
   orderDate: string;
   status: string;
-  totalAmount: number;
+  subtotalAmount: number;    // 商品总价，不含运费和税费
+  shippingAmount: number;    // 运费
+  taxAmount: number;         // 税费
+  totalAmount: number;       // 最终支付总金额
   currency: string;
   paymentMethod: string;
+  discountCode?: string;     // 优惠码（可选）
+  shippingAddress: Address;  // 收货地址
+  billingAddress: Address;   // 账单地址
   items: OrderItem[];
+}
+
+export interface Address {
+  name: string;
+  street: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  country: string;
+  phone?: string;
 }
 
 export interface OrderItem {
@@ -79,7 +95,7 @@ export const mockUsers: User[] = [
         deviceType: "桌面端",
         os: "Windows 11",
         browser: "Chrome 120",
-        location: "深圳, 中国",
+        location: "深���, 中国",
         ipAddress: "183.14.132.117",
         events: [
           {
@@ -542,7 +558,7 @@ export const mockUsers: User[] = [
         paymentMethod: "企业转账",
         items: [
           {
-            productName: "企业版软件授权",
+            productName: "企业版软件授���",
             unitPrice: 4800.00,
             quantity: 1,
             totalPrice: 4800.00
@@ -724,7 +740,7 @@ export const mockUsers: User[] = [
       {
         id: "session-wf-4",
         date: "2024-01-15 11:10",
-        summary: "团队管理和权限设置",
+        summary: "团队管理���权限设置",
         source: "直接访问",
         deviceType: "桌面端",
         os: "Windows 11",
