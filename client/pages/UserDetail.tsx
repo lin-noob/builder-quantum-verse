@@ -411,42 +411,48 @@ export default function UserDetail() {
                                   </div>
 
                                   {/* 地址信息 */}
-                                  <div className="border-t pt-3">
-                                    <h5 className="font-medium mb-3">地址信息</h5>
-                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                                      {/* 收货地址 */}
-                                      <div className="bg-gray-50 p-3 rounded">
-                                        <h6 className="font-medium text-sm mb-2 text-gray-700">收货地址</h6>
-                                        <div className="text-sm space-y-1">
-                                          <div className="font-medium">{order.shippingAddress.name}</div>
-                                          <div>{order.shippingAddress.street}</div>
-                                          <div>
-                                            {order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.postalCode}
+                                  {(order.shippingAddress || order.billingAddress) && (
+                                    <div className="border-t pt-3">
+                                      <h5 className="font-medium mb-3">地址信息</h5>
+                                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                                        {/* 收货地址 */}
+                                        {order.shippingAddress && (
+                                          <div className="bg-gray-50 p-3 rounded">
+                                            <h6 className="font-medium text-sm mb-2 text-gray-700">收货地址</h6>
+                                            <div className="text-sm space-y-1">
+                                              <div className="font-medium">{order.shippingAddress.name}</div>
+                                              <div>{order.shippingAddress.street}</div>
+                                              <div>
+                                                {order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.postalCode}
+                                              </div>
+                                              <div>{order.shippingAddress.country}</div>
+                                              {order.shippingAddress.phone && (
+                                                <div className="text-gray-600">电话: {order.shippingAddress.phone}</div>
+                                              )}
+                                            </div>
                                           </div>
-                                          <div>{order.shippingAddress.country}</div>
-                                          {order.shippingAddress.phone && (
-                                            <div className="text-gray-600">电话: {order.shippingAddress.phone}</div>
-                                          )}
-                                        </div>
-                                      </div>
+                                        )}
 
-                                      {/* 账单地址 */}
-                                      <div className="bg-gray-50 p-3 rounded">
-                                        <h6 className="font-medium text-sm mb-2 text-gray-700">账单地址</h6>
-                                        <div className="text-sm space-y-1">
-                                          <div className="font-medium">{order.billingAddress.name}</div>
-                                          <div>{order.billingAddress.street}</div>
-                                          <div>
-                                            {order.billingAddress.city}, {order.billingAddress.state} {order.billingAddress.postalCode}
+                                        {/* 账单地址 */}
+                                        {order.billingAddress && (
+                                          <div className="bg-gray-50 p-3 rounded">
+                                            <h6 className="font-medium text-sm mb-2 text-gray-700">账单地址</h6>
+                                            <div className="text-sm space-y-1">
+                                              <div className="font-medium">{order.billingAddress.name}</div>
+                                              <div>{order.billingAddress.street}</div>
+                                              <div>
+                                                {order.billingAddress.city}, {order.billingAddress.state} {order.billingAddress.postalCode}
+                                              </div>
+                                              <div>{order.billingAddress.country}</div>
+                                              {order.billingAddress.phone && (
+                                                <div className="text-gray-600">电话: {order.billingAddress.phone}</div>
+                                              )}
+                                            </div>
                                           </div>
-                                          <div>{order.billingAddress.country}</div>
-                                          {order.billingAddress.phone && (
-                                            <div className="text-gray-600">电话: {order.billingAddress.phone}</div>
-                                          )}
-                                        </div>
+                                        )}
                                       </div>
                                     </div>
-                                  </div>
+                                  )}
                                 </div>
                               </CollapsibleContent>
                             </Collapsible>
