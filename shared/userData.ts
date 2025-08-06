@@ -257,9 +257,31 @@ export const mockUsers: User[] = [
         orderNumber: "ORD-2024-003",
         orderDate: "2024-01-15",
         status: "已完成",
+        subtotalAmount: 5200.00,
+        shippingAmount: 0.00,
+        taxAmount: 0.00,
         totalAmount: 5200.00,
         currency: "CNY",
         paymentMethod: "微信支付",
+        discountCode: "VIP2024",
+        shippingAddress: {
+          name: "张伟",
+          street: "深圳市南山区科技园南区R4-B栋20层",
+          city: "深圳",
+          state: "广东省",
+          postalCode: "518057",
+          country: "中国",
+          phone: "13800138000"
+        },
+        billingAddress: {
+          name: "腾讯科技（深圳）有限公司",
+          street: "深圳市南山区科技园南区R4-B栋",
+          city: "深圳",
+          state: "广东省",
+          postalCode: "518057",
+          country: "中国",
+          phone: "0755-86013388"
+        },
         items: [
           {
             productName: "企业版软件授权",
@@ -970,7 +992,7 @@ export const mockUsers: User[] = [
         paymentMethod: "企业转账",
         items: [
           {
-            productName: "标准版软件授权",
+            productName: "���准版软件授权",
             unitPrice: 1600.00,
             quantity: 3,
             totalPrice: 4800.00
@@ -1032,7 +1054,7 @@ export const mockUsers: User[] = [
   {
     cdpId: "f1g7h8i9-0d1e-7890",
     name: "赵敏",
-    company: "小米科技",
+    company: "小米��技",
     country: "中国",
     city: "北京",
     contact: "zhaomin@xiaomi.com",
