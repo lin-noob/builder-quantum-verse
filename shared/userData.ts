@@ -235,7 +235,7 @@ export const mockUsers: User[] = [
           },
           {
             timestamp: "11:21:10",
-            eventType: "页面访问",
+            eventType: "页��访问",
             pageTitle: "账户概览",
             pageUrl: "/account",
             stayDuration: "4分30秒",
@@ -295,9 +295,30 @@ export const mockUsers: User[] = [
         orderNumber: "ORD-2024-002",
         orderDate: "2024-01-08",
         status: "已完成",
-        totalAmount: 3280.50,
+        subtotalAmount: 3280.50,
+        shippingAmount: 50.00,
+        taxAmount: 328.05,
+        totalAmount: 3658.55,
         currency: "CNY",
         paymentMethod: "支付宝",
+        shippingAddress: {
+          name: "张伟",
+          street: "深圳市南山区科技园南区R4-B栋20层",
+          city: "深圳",
+          state: "广东省",
+          postalCode: "518057",
+          country: "中国",
+          phone: "13800138000"
+        },
+        billingAddress: {
+          name: "腾讯科技（深圳）有限公司",
+          street: "深圳市南山区科技园南区R4-B栋",
+          city: "深圳",
+          state: "广东省",
+          postalCode: "518057",
+          country: "中国",
+          phone: "0755-86013388"
+        },
         items: [
           {
             productName: "专业版软件授权",
@@ -727,7 +748,7 @@ export const mockUsers: User[] = [
         date: "2024-01-18 15:20",
         summary: "数据分析报告查看和导出",
         source: "直接访问",
-        deviceType: "桌面端",
+        deviceType: "桌���端",
         os: "Windows 11",
         browser: "Edge 120",
         location: "北京, 中国",
