@@ -371,15 +371,15 @@ export default function UserDetail() {
                                     <div className="bg-gray-50 p-3 rounded space-y-2 text-sm">
                                       <div className="flex justify-between">
                                         <span>商品总价:</span>
-                                        <span>{formatCurrency(order.subtotalAmount)}</span>
+                                        <span>{formatCurrency(order.subtotalAmount || order.totalAmount)}</span>
                                       </div>
-                                      {order.shippingAmount > 0 && (
+                                      {(order.shippingAmount && order.shippingAmount > 0) && (
                                         <div className="flex justify-between">
                                           <span>运费:</span>
                                           <span>{formatCurrency(order.shippingAmount)}</span>
                                         </div>
                                       )}
-                                      {order.taxAmount > 0 && (
+                                      {(order.taxAmount && order.taxAmount > 0) && (
                                         <div className="flex justify-between">
                                           <span>税费:</span>
                                           <span>{formatCurrency(order.taxAmount)}</span>
@@ -490,7 +490,7 @@ export default function UserDetail() {
                         )}
                       </div>
                     ) : (
-                      <p className="text-gray-500 text-sm">暂无订单记录</p>
+                      <p className="text-gray-500 text-sm">暂无订单记���</p>
                     )}
                   </CardContent>
                 </Card>
