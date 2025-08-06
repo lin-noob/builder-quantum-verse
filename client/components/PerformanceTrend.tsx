@@ -232,33 +232,36 @@ export default function PerformanceTrend({ metrics }: PerformanceTrendProps) {
               />
 
               {/* Multiple Y-Axes for different metric types */}
-              {selectedMetrics.map((metricId, index) => {
-                const metric = metrics.find(m => m.id === metricId);
-                if (!metric) return null;
+              {(() => {
+                // 获取唯一的分组
+                const groups = [...new Set(selectedMetrics.map(getMetricGroup))];
 
-                // 对于多个指标，左侧显示前两个，右侧显示后面的
-                const orientation = index < 2 ? 'left' : 'right';
-                const isVisible = selectedMetrics.length === 1 || index < 4; // 最多显示4个Y轴
+                return groups.map((group, groupIndex) => {
+                  // 找到第一个属于这个分组的指标作为代表
+                  const representativeMetricId = selectedMetrics.find(id => getMetricGroup(id) === group);
+                  if (!representativeMetricId) return null;
 
-                return (
-                  <YAxis
-                    key={`yAxis-${metricId}`}
-                    yAxisId={metricId}
-                    orientation={orientation}
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{
-                      fontSize: 11,
-                      fill: colors[index % colors.length],
-                      dx: orientation === 'left' ? -5 : 5
-                    }}
-                    tickFormatter={(value) => formatValue(value, metricId)}
-                    hide={!isVisible}
-                    width={60}
-                    interval="preserveStartEnd"
-                  />
-                );
-              })}
+                  const orientation = groupIndex % 2 === 0 ? 'left' : 'right';
+                  const yAxisId = group; // 使用分组名作为yAxisId
+
+                  return (
+                    <YAxis
+                      key={`yAxis-${group}`}
+                      yAxisId={yAxisId}
+                      orientation={orientation}
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{
+                        fontSize: 11,
+                        fill: colors[groupIndex % colors.length],
+                        dx: orientation === 'left' ? -5 : 5
+                      }}
+                      tickFormatter={(value) => formatValue(value, representativeMetricId)}
+                      width={70}
+                    />
+                  );
+                });
+              })()}
 
               <Tooltip content={<CustomTooltip />} />
               <Legend />
@@ -267,10 +270,12 @@ export default function PerformanceTrend({ metrics }: PerformanceTrendProps) {
                 const metric = metrics.find(m => m.id === metricId);
                 if (!metric) return null;
 
+                const group = getMetricGroup(metricId);
+
                 return (
                   <Line
                     key={metricId}
-                    yAxisId={metricId}
+                    yAxisId={group} // 使用分组名
                     type="monotone"
                     dataKey={metricId}
                     name={metric.label}
