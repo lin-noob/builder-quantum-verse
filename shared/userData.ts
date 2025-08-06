@@ -42,15 +42,15 @@ export interface Order {
   orderNumber: string;
   orderDate: string;
   status: string;
-  subtotalAmount: number;    // 商品总价，不含运费和税费
-  shippingAmount: number;    // 运费
-  taxAmount: number;         // 税费
+  subtotalAmount?: number;   // 商品总价，不含运费和税费（可选，向后兼容）
+  shippingAmount?: number;   // 运费（可选）
+  taxAmount?: number;        // 税费（可选）
   totalAmount: number;       // 最终支付总金额
   currency: string;
   paymentMethod: string;
   discountCode?: string;     // 优惠码（可选）
-  shippingAddress: Address;  // 收货地址
-  billingAddress: Address;   // 账单地址
+  shippingAddress?: Address; // 收货地址（可选）
+  billingAddress?: Address;  // 账单地址（可选）
   items: OrderItem[];
 }
 
@@ -127,7 +127,7 @@ export const mockUsers: User[] = [
       {
         id: "session-2",
         date: "2024-01-15 14:30",
-        summary: "浏览产品页面并完成购买",
+        summary: "浏览产品页面���完成购买",
         source: "直接访问",
         deviceType: "桌面端",
         os: "Windows 11",
@@ -235,7 +235,7 @@ export const mockUsers: User[] = [
           },
           {
             timestamp: "11:21:10",
-            eventType: "页��访问",
+            eventType: "页面访问",
             pageTitle: "账户概览",
             pageUrl: "/account",
             stayDuration: "4分30秒",
@@ -256,7 +256,7 @@ export const mockUsers: User[] = [
       {
         orderNumber: "ORD-2024-003",
         orderDate: "2024-01-15",
-        status: "已完成",
+        status: "已��成",
         subtotalAmount: 5200.00,
         shippingAmount: 0.00,
         taxAmount: 0.00,
@@ -682,7 +682,7 @@ export const mockUsers: User[] = [
         events: [
           {
             timestamp: "13:45:20",
-            eventType: "页面访问",
+            eventType: "页面���问",
             pageTitle: "新功能介绍",
             pageUrl: "/features/new",
             stayDuration: "12分15秒",
@@ -748,7 +748,7 @@ export const mockUsers: User[] = [
         date: "2024-01-18 15:20",
         summary: "数据分析报告查看和导出",
         source: "直接访问",
-        deviceType: "桌���端",
+        deviceType: "桌面端",
         os: "Windows 11",
         browser: "Edge 120",
         location: "北京, 中国",
