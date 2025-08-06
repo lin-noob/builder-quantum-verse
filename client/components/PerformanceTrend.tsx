@@ -24,7 +24,7 @@ export default function PerformanceTrend({ metrics }: PerformanceTrendProps) {
     { value: '30days', label: '过去30天' },
     { value: 'current_month', label: '本月' },
     { value: 'last_month', label: '上月' },
-    { value: 'custom', label: '自定义��期' }
+    { value: 'custom', label: '自定义日期' }
   ];
 
   const handleDateRangeChange = (value: string) => {
@@ -210,7 +210,7 @@ export default function PerformanceTrend({ metrics }: PerformanceTrendProps) {
 
         {/* Multi-Line Chart */}
         <div className="h-80">
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height="100%" margin={{ left: 20, right: 20 }}>
             <LineChart data={chartData}>
               <XAxis
                 dataKey={getXAxisDataKey()}
