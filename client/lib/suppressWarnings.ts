@@ -1,38 +1,53 @@
 // 临时抑制Recharts库的defaultProps警告
 // 这些警告来自第三方库，不影响功能
 
+// 保存原始的console方法
 const originalWarn = console.warn;
 const originalError = console.error;
 
-console.warn = (...args) => {
-  const message = args[0];
+// 定义要过滤的关键词
+const suppressKeywords = [
+  'Support for defaultProps will be removed from function components',
+  'XAxis',
+  'YAxis',
+  'recharts'
+];
 
-  // 抑制Recharts的defaultProps警告
+// 检查是否应该抑制消息
+const shouldSuppress = (message: any): boolean => {
   if (typeof message === 'string') {
-    if (message.includes('Support for defaultProps will be removed from function components') ||
-        message.includes('XAxis') ||
-        message.includes('YAxis')) {
-      return;
-    }
+    return suppressKeywords.some(keyword =>
+      message.toLowerCase().includes(keyword.toLowerCase())
+    );
   }
+  return false;
+};
 
-  // 保留其他所有警告
+// 重写console.warn
+console.warn = (...args) => {
+  if (shouldSuppress(args[0])) {
+    return;
+  }
   originalWarn(...args);
 };
 
-// 同时抑制可能出现在console.error中的类似警告
+// 重写console.error
 console.error = (...args) => {
-  const message = args[0];
-
-  if (typeof message === 'string') {
-    if (message.includes('Support for defaultProps will be removed from function components') ||
-        message.includes('XAxis') ||
-        message.includes('YAxis')) {
-      return;
-    }
+  if (shouldSuppress(args[0])) {
+    return;
   }
-
   originalError(...args);
 };
+
+// 也处理React的内部警告机制
+if (typeof window !== 'undefined' && window.console) {
+  const originalLog = console.log;
+  console.log = (...args) => {
+    if (shouldSuppress(args[0])) {
+      return;
+    }
+    originalLog(...args);
+  };
+}
 
 export {}; // 确保这是一个模块
