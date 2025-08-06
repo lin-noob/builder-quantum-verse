@@ -211,7 +211,10 @@ export default function PerformanceTrend({ metrics }: PerformanceTrendProps) {
         {/* Multi-Line Chart */}
         <div className="h-80">
           <ResponsiveContainer width="100%" height="100%" margin={{ left: 20, right: 20 }}>
-            <LineChart data={chartData}>
+            <LineChart
+              data={chartData}
+              margin={{ top: 20, right: 80, left: 80, bottom: 20 }}
+            >
               <XAxis
                 dataKey={getXAxisDataKey()}
                 axisLine={false}
