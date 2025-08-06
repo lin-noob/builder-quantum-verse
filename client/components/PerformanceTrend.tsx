@@ -24,7 +24,7 @@ export default function PerformanceTrend({ metrics }: PerformanceTrendProps) {
     { value: '30days', label: '过去30天' },
     { value: 'current_month', label: '本月' },
     { value: 'last_month', label: '上月' },
-    { value: 'custom', label: '自定义日期' }
+    { value: 'custom', label: '自定义��期' }
   ];
 
   const handleDateRangeChange = (value: string) => {
@@ -222,20 +222,29 @@ export default function PerformanceTrend({ metrics }: PerformanceTrendProps) {
 
               {/* Multiple Y-Axes for different metric types */}
               {selectedMetrics.map((metricId, index) => {
-                const isFirst = index === 0;
                 const metric = metrics.find(m => m.id === metricId);
                 if (!metric) return null;
+
+                // 对于多个指标，左侧显示前两个，右侧显示后面的
+                const orientation = index < 2 ? 'left' : 'right';
+                const isVisible = selectedMetrics.length === 1 || index < 4; // 最多显示4个Y轴
 
                 return (
                   <YAxis
                     key={`yAxis-${metricId}`}
                     yAxisId={metricId}
-                    orientation={index % 2 === 0 ? 'left' : 'right'}
+                    orientation={orientation}
                     axisLine={false}
                     tickLine={false}
-                    tick={{ fontSize: 12, fill: colors[index % colors.length] }}
+                    tick={{
+                      fontSize: 11,
+                      fill: colors[index % colors.length],
+                      dx: orientation === 'left' ? -5 : 5
+                    }}
                     tickFormatter={(value) => formatValue(value, metricId)}
-                    hide={selectedMetrics.length === 1 ? false : !isFirst}
+                    hide={!isVisible}
+                    width={60}
+                    interval="preserveStartEnd"
                   />
                 );
               })}
