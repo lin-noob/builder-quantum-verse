@@ -3,6 +3,31 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { createServer } from "./server";
 
+// 插件：抑制Recharts的defaultProps警告
+function suppressRechartsWarnings(): Plugin {
+  return {
+    name: 'suppress-recharts-warnings',
+    transform(code, id) {
+      // 在开发模式下注入警告抑制代码
+      if (id.includes('client/main') || id.includes('client/App')) {
+        return `
+          const originalWarn = console.warn;
+          console.warn = function(...args) {
+            const message = String(args[0] || '');
+            if (message.includes('Support for defaultProps will be removed') &&
+                (message.includes('XAxis') || message.includes('YAxis'))) {
+              return;
+            }
+            originalWarn.apply(console, args);
+          };
+          ${code}
+        `;
+      }
+      return code;
+    }
+  };
+}
+
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   server: {
@@ -16,7 +41,7 @@ export default defineConfig(({ mode }) => ({
   build: {
     outDir: "dist/spa",
   },
-  plugins: [react(), expressPlugin()],
+  plugins: [react(), expressPlugin(), suppressRechartsWarnings()],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./client"),
