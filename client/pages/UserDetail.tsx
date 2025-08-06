@@ -355,11 +355,44 @@ export default function UserDetail() {
                                 </div>
                               </CollapsibleTrigger>
                               <CollapsibleContent className="px-4 pb-4">
-                                <div className="mt-4 space-y-3">
+                                <div className="mt-4 space-y-4">
+                                  {/* 基础信息 */}
                                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 text-sm">
                                     <div><strong>币种:</strong> {order.currency}</div>
                                     <div><strong>支付方式:</strong> {order.paymentMethod}</div>
+                                    {order.discountCode && (
+                                      <div><strong>优惠码:</strong> <span className="text-green-600">{order.discountCode}</span></div>
+                                    )}
                                   </div>
+
+                                  {/* 金额明细 */}
+                                  <div className="border-t pt-3">
+                                    <h5 className="font-medium mb-2">金额明细</h5>
+                                    <div className="bg-gray-50 p-3 rounded space-y-2 text-sm">
+                                      <div className="flex justify-between">
+                                        <span>商品总价:</span>
+                                        <span>{formatCurrency(order.subtotalAmount)}</span>
+                                      </div>
+                                      {order.shippingAmount > 0 && (
+                                        <div className="flex justify-between">
+                                          <span>运费:</span>
+                                          <span>{formatCurrency(order.shippingAmount)}</span>
+                                        </div>
+                                      )}
+                                      {order.taxAmount > 0 && (
+                                        <div className="flex justify-between">
+                                          <span>税费:</span>
+                                          <span>{formatCurrency(order.taxAmount)}</span>
+                                        </div>
+                                      )}
+                                      <div className="flex justify-between font-medium text-base border-t border-gray-200 pt-2">
+                                        <span>订单总金额:</span>
+                                        <span className="text-blue-600">{formatCurrency(order.totalAmount)}</span>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  {/* 商品明细 */}
                                   <div className="border-t pt-3">
                                     <h5 className="font-medium mb-2">商品明细</h5>
                                     <div className="space-y-2">
@@ -374,6 +407,44 @@ export default function UserDetail() {
                                           <div className="font-medium">{formatCurrency(item.totalPrice)}</div>
                                         </div>
                                       ))}
+                                    </div>
+                                  </div>
+
+                                  {/* 地址信息 */}
+                                  <div className="border-t pt-3">
+                                    <h5 className="font-medium mb-3">地址信息</h5>
+                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                                      {/* 收货地址 */}
+                                      <div className="bg-gray-50 p-3 rounded">
+                                        <h6 className="font-medium text-sm mb-2 text-gray-700">收货地址</h6>
+                                        <div className="text-sm space-y-1">
+                                          <div className="font-medium">{order.shippingAddress.name}</div>
+                                          <div>{order.shippingAddress.street}</div>
+                                          <div>
+                                            {order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.postalCode}
+                                          </div>
+                                          <div>{order.shippingAddress.country}</div>
+                                          {order.shippingAddress.phone && (
+                                            <div className="text-gray-600">电话: {order.shippingAddress.phone}</div>
+                                          )}
+                                        </div>
+                                      </div>
+
+                                      {/* 账单地址 */}
+                                      <div className="bg-gray-50 p-3 rounded">
+                                        <h6 className="font-medium text-sm mb-2 text-gray-700">账单地址</h6>
+                                        <div className="text-sm space-y-1">
+                                          <div className="font-medium">{order.billingAddress.name}</div>
+                                          <div>{order.billingAddress.street}</div>
+                                          <div>
+                                            {order.billingAddress.city}, {order.billingAddress.state} {order.billingAddress.postalCode}
+                                          </div>
+                                          <div>{order.billingAddress.country}</div>
+                                          {order.billingAddress.phone && (
+                                            <div className="text-gray-600">电话: {order.billingAddress.phone}</div>
+                                          )}
+                                        </div>
+                                      </div>
                                     </div>
                                   </div>
                                 </div>
