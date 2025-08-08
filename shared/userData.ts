@@ -19,6 +19,13 @@ export interface User {
   registrationTime: string;    // 注册时间
   firstPurchaseTime: string;   // 首次购买时间
   lastActiveTime: string;      // 最后活跃时间
+  // Shopping cart related fields
+  cartItems: CartItem[];       // 当前购物车商品
+  totalCartValue: number;      // 购物车总价值
+  cartCreatedTime: string;     // 购物车创建时间
+  lastCartUpdate: string;      // 最后更新购��车时间
+  cartAbandonCount: number;    // 购物车放弃次数
+  averageCartValue: number;    // 平均购物车价值
 }
 
 export interface Session {
@@ -74,6 +81,16 @@ export interface OrderItem {
   unitPrice: number;
   quantity: number;
   totalPrice: number;
+}
+
+export interface CartItem {
+  id: string;
+  productName: string;
+  unitPrice: number;
+  quantity: number;
+  totalPrice: number;
+  addedTime: string;           // 加入购物车时间
+  lastUpdated: string;         // 最后更新时间
 }
 
 export const mockUsers: User[] = [
@@ -277,7 +294,7 @@ export const mockUsers: User[] = [
           name: "张伟",
           street: "深圳市南山区科技园南区R4-B栋20层",
           city: "深圳",
-          state: "广东省",
+          state: "��东省",
           postalCode: "518057",
           country: "中国",
           phone: "13800138000"
@@ -509,7 +526,7 @@ export const mockUsers: User[] = [
       {
         id: "session-lm-3",
         date: "2024-01-05 16:20",
-        summary: "产品对比和价格咨询",
+        summary: "产品对比和价格咨��",
         source: "搜索引擎",
         deviceType: "��动端",
         os: "iOS 17",
@@ -826,7 +843,7 @@ export const mockUsers: User[] = [
           },
           {
             timestamp: "11:34:05",
-            eventType: "页面访问",
+            eventType: "���面访问",
             pageTitle: "用户角色",
             pageUrl: "/roles",
             stayDuration: "6分45秒",
