@@ -24,7 +24,7 @@ import {
   getActionTypeDisplay,
   getStatusDisplay,
   getPurposeLabel
-} from '@/shared/responseActionsData';
+} from '@shared/responseActionsData';
 import ResponseActionModal from '@/components/ResponseActionModal';
 import ConfirmationModal from '@/components/ConfirmationModal';
 import { useResponseActions, convertFormDataToApiRequest } from '@/hooks/useResponseActions';
@@ -391,7 +391,7 @@ export default function ResponseActions() {
               <SelectContent>
                 <SelectItem value="all">全部状态</SelectItem>
                 <SelectItem value="draft">草稿</SelectItem>
-                <SelectItem value="active">生效中</SelectItem>
+                <SelectItem value="active">��效中</SelectItem>
                 <SelectItem value="archived">已归档</SelectItem>
               </SelectContent>
             </Select>
