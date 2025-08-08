@@ -229,7 +229,7 @@ export default function ResponseActions() {
       }
     } catch (err) {
       toast({
-        title: '��作失败',
+        title: '操作失败',
         description: err instanceof Error ? err.message : '未知错误',
         variant: 'destructive'
       });
@@ -470,7 +470,7 @@ export default function ResponseActions() {
                   onClick={() => handleSort('totalConversions')}
                 >
                   <div className="flex items-center gap-2">
-                    累计转化数
+                    累计转化���
                     {getSortIcon('totalConversions')}
                   </div>
                 </TableHead>
