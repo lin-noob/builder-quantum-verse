@@ -182,10 +182,6 @@ export default function ResponseActionCreate() {
             <ArrowLeft className="h-4 w-4 mr-2" />
             返回列表
           </Button>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">创建新动作</h1>
-            <p className="text-gray-500 mt-1">配置新的响应动作</p>
-          </div>
         </div>
       </div>
 
