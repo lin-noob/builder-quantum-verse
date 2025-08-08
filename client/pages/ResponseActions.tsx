@@ -52,6 +52,7 @@ interface SortState {
 type SortableFields = 'totalExecutions' | 'totalInteractions' | 'totalConversions' | 'updatedAt';
 
 export default function ResponseActions() {
+  const navigate = useNavigate();
   const { toast } = useToast();
   const {
     actions,
