@@ -135,10 +135,6 @@ export default function FullyAuto() {
 
   return (
     <div className="p-6 space-y-6">
-      {/* Page Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">全自动模式配置</h1>
-      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* AI Automation Scope */}
@@ -302,7 +298,7 @@ export default function FullyAuto() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="提高用户复购率">提高用户复购率</SelectItem>
+                  <SelectItem value="提高用���复购率">提高用户复购率</SelectItem>
                   <SelectItem value="增加客单价">增加客单价</SelectItem>
                   <SelectItem value="提升用户活跃度">提升用户活跃度</SelectItem>
                   <SelectItem value="促进新用户转化">促进新用户转化</SelectItem>
@@ -318,7 +314,7 @@ export default function FullyAuto() {
                   <DialogTrigger asChild>
                     <Button variant="outline" size="sm" className="flex items-center gap-2">
                       <Settings className="h-4 w-4" />
-                      ��置行为边界
+                      设置行为边界
                     </Button>
                   </DialogTrigger>
                   <DialogContent>
