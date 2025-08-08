@@ -3,7 +3,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Switch } from '@/components/ui/switch';
 import {
   Select,
@@ -150,7 +149,7 @@ export default function FullyAuto() {
               AI自动化应用范围
             </CardTitle>
             <p className="text-sm text-gray-600">
-              请圈选需要由AI进行全自动营销的用户群体。对于未被选中的群体（如VIP客户），AI将不会进行任何主动的营销干预。
+              请圈选需要由AI进行全自动营销的用户群体。对��未被选中的群体（如VIP客户），AI将不会进行任何主动的营销干预。
             </p>
           </CardHeader>
           <CardContent className="space-y-6">
