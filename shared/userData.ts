@@ -302,7 +302,7 @@ export const mockUsers: User[] = [
         billingAddress: {
           name: "腾讯科技（深圳）有限公司",
           street: "深圳市南山区科技园南区R4-B栋",
-          city: "深圳",
+          city: "深��",
           state: "广东省",
           postalCode: "518057",
           country: "中国",
@@ -725,7 +725,7 @@ export const mockUsers: User[] = [
           {
             timestamp: "13:57:35",
             eventType: "页面访问",
-            pageTitle: "功能试用",
+            pageTitle: "��能试用",
             pageUrl: "/trial/features",
             stayDuration: "25分30秒",
             scrollDepth: "95%"
@@ -1057,7 +1057,7 @@ export const mockUsers: User[] = [
       {
         orderNumber: "ORD-2023-076",
         orderDate: "2023-09-30",
-        status: "已完成",
+        status: "已完���",
         totalAmount: 2200.00,
         currency: "CNY",
         paymentMethod: "支付宝",
@@ -1090,6 +1090,31 @@ export const mockUsers: User[] = [
     registrationTime: "2023-11-28 14:22:15",
     firstPurchaseTime: "2023-12-05 11:10:30",
     lastActiveTime: "2024-01-08 15:45:20",
+    cartItems: [
+      {
+        id: "cart-item-cj-1",
+        productName: "标准版软件授权",
+        unitPrice: 1600.00,
+        quantity: 2,
+        totalPrice: 3200.00,
+        addedTime: "2024-01-06 14:30:10",
+        lastUpdated: "2024-01-08 10:15:45"
+      },
+      {
+        id: "cart-item-cj-2",
+        productName: "数据分析模块",
+        unitPrice: 750.00,
+        quantity: 1,
+        totalPrice: 750.00,
+        addedTime: "2024-01-07 11:20:30",
+        lastUpdated: "2024-01-07 11:20:30"
+      }
+    ],
+    totalCartValue: 3950.00,
+    cartCreatedTime: "2024-01-06 14:30:10",
+    lastCartUpdate: "2024-01-08 10:15:45",
+    cartAbandonCount: 1,
+    averageCartValue: 2680.00,
     sessions: [],
     orders: []
   },
@@ -1111,6 +1136,31 @@ export const mockUsers: User[] = [
     registrationTime: "2023-04-08 12:45:50",
     firstPurchaseTime: "2023-04-12 09:30:00",
     lastActiveTime: "2024-01-22 18:20:45",
+    cartItems: [
+      {
+        id: "cart-item-lt-1",
+        productName: "旗舰版软件授权",
+        unitPrice: 8900.00,
+        quantity: 1,
+        totalPrice: 8900.00,
+        addedTime: "2024-01-20 15:30:20",
+        lastUpdated: "2024-01-22 16:45:10"
+      },
+      {
+        id: "cart-item-lt-2",
+        productName: "企业级安全组件",
+        unitPrice: 2200.00,
+        quantity: 3,
+        totalPrice: 6600.00,
+        addedTime: "2024-01-21 09:15:30",
+        lastUpdated: "2024-01-21 11:20:45"
+      }
+    ],
+    totalCartValue: 15500.00,
+    cartCreatedTime: "2024-01-20 15:30:20",
+    lastCartUpdate: "2024-01-22 16:45:10",
+    cartAbandonCount: 7,
+    averageCartValue: 8750.25,
     sessions: [],
     orders: []
   },
@@ -1132,6 +1182,31 @@ export const mockUsers: User[] = [
     registrationTime: "2023-07-15 14:35:45",
     firstPurchaseTime: "2023-07-22 16:50:30",
     lastActiveTime: "2024-01-18 11:25:10",
+    cartItems: [
+      {
+        id: "cart-item-zm-1",
+        productName: "企业版软件授权",
+        unitPrice: 4800.00,
+        quantity: 1,
+        totalPrice: 4800.00,
+        addedTime: "2024-01-16 13:20:15",
+        lastUpdated: "2024-01-17 10:30:45"
+      },
+      {
+        id: "cart-item-zm-2",
+        productName: "AI智能模块",
+        unitPrice: 1200.00,
+        quantity: 2,
+        totalPrice: 2400.00,
+        addedTime: "2024-01-17 14:15:30",
+        lastUpdated: "2024-01-18 09:45:20"
+      }
+    ],
+    totalCartValue: 7200.00,
+    cartCreatedTime: "2024-01-16 13:20:15",
+    lastCartUpdate: "2024-01-18 09:45:20",
+    cartAbandonCount: 4,
+    averageCartValue: 5280.40,
     sessions: [],
     orders: []
   }
