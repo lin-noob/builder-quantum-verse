@@ -418,28 +418,28 @@ export default function ResponseActionDetail() {
         {renderActionButtons()}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Basic Information */}
-        <Card>
-          <CardHeader>
-            <CardTitle>基本信息</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
+      {/* Basic Information */}
+      <Card>
+        <CardHeader>
+          <CardTitle>基本信息</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
             <div>
               <span className="text-sm font-medium text-gray-600">规则ID：</span>
-              <span className="text-sm font-mono">{rule.id}</span>
+              <div className="text-sm font-mono mt-1">{rule.id}</div>
             </div>
             <div>
               <span className="text-sm font-medium text-gray-600">响应动作类型：</span>
-              <span className="text-sm">{getActionTypeDisplay(rule.action)}</span>
+              <div className="text-sm mt-1">{getActionTypeDisplay(rule.action)}</div>
             </div>
             <div>
               <span className="text-sm font-medium text-gray-600">创建时间：</span>
-              <span className="text-sm">{formatDate(rule.createdAt)}</span>
+              <div className="text-sm mt-1">{formatDate(rule.createdAt)}</div>
             </div>
             <div>
               <span className="text-sm font-medium text-gray-600">更新时间：</span>
-              <span className="text-sm">{formatDate(rule.updatedAt)}</span>
+              <div className="text-sm mt-1">{formatDate(rule.updatedAt)}</div>
             </div>
             <div>
               <span className="text-sm font-medium text-gray-600">触发器摘要：</span>
@@ -447,50 +447,50 @@ export default function ResponseActionDetail() {
                 {getTriggerSummary(rule.trigger)}
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </CardContent>
+      </Card>
 
-        {/* Performance Metrics */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5" />
-              效果统计
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 gap-4">
-              <div className="text-center p-4 bg-blue-50 rounded-lg">
-                <div className="text-2xl font-bold text-blue-600">
-                  {rule.totalExecutions.toLocaleString()}
-                </div>
-                <div className="text-sm text-blue-600">累计执行次数</div>
+      {/* Performance Metrics */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <TrendingUp className="h-5 w-5" />
+            效果统计
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="text-center p-4 bg-blue-50 rounded-lg">
+              <div className="text-2xl font-bold text-blue-600">
+                {rule.totalExecutions.toLocaleString()}
               </div>
-              <div className="text-center p-4 bg-green-50 rounded-lg">
-                <div className="text-2xl font-bold text-green-600">
-                  {rule.totalInteractions.toLocaleString()}
-                </div>
-                <div className="text-sm text-green-600">累计互动次数</div>
-              </div>
-              <div className="text-center p-4 bg-purple-50 rounded-lg">
-                <div className="text-2xl font-bold text-purple-600">
-                  {rule.totalConversions.toLocaleString()}
-                </div>
-                <div className="text-sm text-purple-600">累计转化数</div>
-              </div>
-              <div className="text-center p-4 bg-orange-50 rounded-lg">
-                <div className="text-2xl font-bold text-orange-600">
-                  {rule.totalInteractions > 0 
-                    ? ((rule.totalConversions / rule.totalInteractions) * 100).toFixed(1) + '%'
-                    : '0%'
-                  }
-                </div>
-                <div className="text-sm text-orange-600">转化率</div>
-              </div>
+              <div className="text-sm text-blue-600">累计执行次数</div>
             </div>
-          </CardContent>
-        </Card>
-      </div>
+            <div className="text-center p-4 bg-green-50 rounded-lg">
+              <div className="text-2xl font-bold text-green-600">
+                {rule.totalInteractions.toLocaleString()}
+              </div>
+              <div className="text-sm text-green-600">累计互动次数</div>
+            </div>
+            <div className="text-center p-4 bg-purple-50 rounded-lg">
+              <div className="text-2xl font-bold text-purple-600">
+                {rule.totalConversions.toLocaleString()}
+              </div>
+              <div className="text-sm text-purple-600">累计转化数</div>
+            </div>
+            <div className="text-center p-4 bg-orange-50 rounded-lg">
+              <div className="text-2xl font-bold text-orange-600">
+                {rule.totalInteractions > 0
+                  ? ((rule.totalConversions / rule.totalInteractions) * 100).toFixed(1) + '%'
+                  : '0%'
+                }
+              </div>
+              <div className="text-sm text-orange-600">转化率</div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Trigger Configuration */}
       <Card>
