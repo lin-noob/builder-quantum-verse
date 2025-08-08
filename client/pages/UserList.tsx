@@ -122,7 +122,7 @@ export default function UserList() {
                   <SelectValue placeholder="时间范围" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">所���时间</SelectItem>
+                  <SelectItem value="all">所有时间</SelectItem>
                   <SelectItem value="7days">最近7天</SelectItem>
                   <SelectItem value="30days">最近30天</SelectItem>
                   <SelectItem value="90days">最近90天</SelectItem>
