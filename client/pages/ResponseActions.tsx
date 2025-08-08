@@ -18,7 +18,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Plus, Edit, Power, PowerOff, Trash2, Loader2, AlertCircle } from 'lucide-react';
+import { Plus, Edit, Power, PowerOff, Trash2, Loader2, AlertCircle, ArrowUpDown, ArrowUp, ArrowDown, Eye } from 'lucide-react';
 import {
   ResponseAction,
   getActionTypeDisplay,
@@ -391,7 +391,7 @@ export default function ResponseActions() {
               <SelectContent>
                 <SelectItem value="all">全部状态</SelectItem>
                 <SelectItem value="draft">草稿</SelectItem>
-                <SelectItem value="active">��效中</SelectItem>
+                <SelectItem value="active">生效中</SelectItem>
                 <SelectItem value="archived">已归档</SelectItem>
               </SelectContent>
             </Select>
