@@ -540,13 +540,13 @@ export default function UserDetail() {
                       </div>
                       <div className="text-center p-4 bg-purple-50 rounded-lg">
                         <div className="text-2xl font-bold text-purple-600">
-                          {formatCurrency(user.averageCartValue)}
+                          {formatCurrency(user.averageCartValue || 0)}
                         </div>
                         <div className="text-sm text-purple-600">平均购物车价值</div>
                       </div>
                       <div className="text-center p-4 bg-orange-50 rounded-lg">
                         <div className="text-2xl font-bold text-orange-600">
-                          {user.cartAbandonCount}
+                          {user.cartAbandonCount || 0}
                         </div>
                         <div className="text-sm text-orange-600">购物车放弃次数</div>
                       </div>
