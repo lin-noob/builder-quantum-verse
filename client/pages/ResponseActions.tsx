@@ -149,6 +149,18 @@ export default function ResponseActions() {
       : <ArrowUp className="h-4 w-4 text-blue-600" />;
   };
 
+  // Format date for display
+  const formatDate = (dateString: string): string => {
+    const date = new Date(dateString);
+    return date.toLocaleString('zh-CN', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
   // Handle rule operations
   const handleEdit = (rule: Rule) => {
     navigate(`/response-actions/edit/${rule.id}`);
