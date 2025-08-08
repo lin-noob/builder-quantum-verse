@@ -122,7 +122,7 @@ export default function UserList() {
                   <SelectValue placeholder="时间范围" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">所有时间</SelectItem>
+                  <SelectItem value="all">所���时间</SelectItem>
                   <SelectItem value="7days">最近7天</SelectItem>
                   <SelectItem value="30days">最近30天</SelectItem>
                   <SelectItem value="90days">最近90天</SelectItem>
@@ -161,19 +161,25 @@ export default function UserList() {
                       </div>
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-900">
-                      {user.country}/{user.city}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-900">
                       {user.contact}
+                    </td>
+                    <td className="px-6 py-4 text-xs text-gray-600">
+                      {user.firstVisitTime}
+                    </td>
+                    <td className="px-6 py-4 text-xs text-gray-600">
+                      {user.registrationTime}
+                    </td>
+                    <td className="px-6 py-4 text-xs text-gray-600">
+                      {user.firstPurchaseTime}
+                    </td>
+                    <td className="px-6 py-4 text-xs text-gray-600">
+                      {user.lastActiveTime}
                     </td>
                     <td className="px-6 py-4 text-sm font-semibold text-gray-900">
                       {formatCurrency(user.totalSpent)}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-900">
-                      {user.totalOrders}
-                    </td>
                     <td className="px-6 py-4">
-                      <Link 
+                      <Link
                         to={`/users/${user.cdpId}`}
                         className="text-blue-600 hover:text-blue-800 text-sm font-medium"
                       >
