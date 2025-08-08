@@ -30,7 +30,7 @@ export default function ConfirmationModal({
         return {
           title: '确认启用',
           icon: <Power className="h-5 w-5 text-green-600" />,
-          content: `您确定要启用动作"${actionName}"吗���启用后，AI将可能自动调用此动作。`,
+          content: `您确定要启用动作"${actionName}"吗？启用后，AI将可能自动调用此动作。`,
           confirmText: '确认启用',
           confirmVariant: 'default' as const,
           confirmClass: 'bg-green-600 hover:bg-green-700'
