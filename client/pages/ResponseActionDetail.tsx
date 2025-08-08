@@ -187,10 +187,6 @@ export default function ResponseActionDetail() {
             <ArrowLeft className="h-4 w-4 mr-2" />
             返回列表
           </Button>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">{action.actionName}</h1>
-            <p className="text-gray-500 mt-1">响应动作详情</p>
-          </div>
         </div>
         
         <div className="flex items-center gap-2">
