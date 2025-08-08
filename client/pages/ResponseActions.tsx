@@ -161,6 +161,11 @@ export default function ResponseActions() {
     setIsCreateModalOpen(true);
   };
 
+  const handleViewDetail = (actionId: string) => {
+    // TODO: Navigate to detail page
+    console.log('View detail for action:', actionId);
+  };
+
   const handleEnable = (action: ResponseAction) => {
     setConfirmationModal({
       isOpen: true,
@@ -385,7 +390,7 @@ export default function ResponseActions() {
           disabled={operationLoading}
         >
           <Plus className="h-4 w-4" />
-          创建新动���
+          创建新动作
         </Button>
       </div>
 
