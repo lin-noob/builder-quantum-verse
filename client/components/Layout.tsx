@@ -181,13 +181,6 @@ export default function Layout({ children }: LayoutProps) {
                           <Activity className="h-4 w-4" />
                           实时监控
                         </Link>
-                        <Link
-                          to="/ai-marketing/performance-analytics"
-                          className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors"
-                        >
-                          <BarChart3 className="h-4 w-4" />
-                          效果分析
-                        </Link>
                       </div>
                     </div>
                   )}
