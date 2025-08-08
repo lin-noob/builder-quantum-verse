@@ -69,7 +69,7 @@ export default function FullyAuto() {
       
       toast({
         title: '规则添加成功',
-        description: '自定义筛选规则已添加到应用��围'
+        description: '自定义筛选规则已添加到应用范围'
       });
     }
   };
@@ -136,64 +136,27 @@ export default function FullyAuto() {
             </p>
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* Preset User Groups */}
+            {/* Custom Filtering Rules */}
             <div>
-              <Label className="text-base font-medium mb-4 block">预设用户分层</Label>
-              <div className="space-y-4">
-                <div className="flex items-start space-x-3">
-                  <Checkbox
-                    id="newUsers"
-                    checked={config.targetGroups.newUsers}
-                    onCheckedChange={(checked) => handleTargetGroupChange('newUsers', !!checked)}
-                  />
-                  <div className="space-y-1">
-                    <Label htmlFor="newUsers" className="font-medium">新用户</Label>
-                    <p className="text-sm text-gray-600">适用于标准化的欢迎和初次转化引导。</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-3">
-                  <Checkbox
-                    id="lowFrequencyUsers"
-                    checked={config.targetGroups.lowFrequencyUsers}
-                    onCheckedChange={(checked) => handleTargetGroupChange('lowFrequencyUsers', !!checked)}
-                  />
-                  <div className="space-y-1">
-                    <Label htmlFor="lowFrequencyUsers" className="font-medium">订货不多的用户</Label>
-                    <p className="text-sm text-gray-600">适用于促活和复购率提升策略。</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-3">
-                  <Checkbox
-                    id="vipUsers"
-                    checked={config.targetGroups.vipUsers}
-                    onCheckedChange={(checked) => handleTargetGroupChange('vipUsers', !!checked)}
-                  />
-                  <div className="space-y-1">
-                    <Label htmlFor="vipUsers" className="font-medium">VIP客户</Label>
-                    <p className="text-sm text-gray-600">高价值客户，建议进行精细化的人工沟通。</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Custom Rules */}
-            <div className="border-t pt-6">
               <div className="flex items-center justify-between mb-4">
-                <Label className="text-base font-medium">自定义筛选规则</Label>
+                <div>
+                  <Label className="text-base font-medium">自定义筛选规则</Label>
+                  <p className="text-sm text-gray-600 mt-1">
+                    通过添加筛选规则来精确定义AI自动化营销的目标用户群体
+                  </p>
+                </div>
                 <Dialog open={customRuleDialog} onOpenChange={setCustomRuleDialog}>
                   <DialogTrigger asChild>
-                    <Button variant="outline" size="sm" className="flex items-center gap-2">
+                    <Button className="flex items-center gap-2">
                       <Plus className="h-4 w-4" />
-                      自定义筛选规则
+                      添加规则
                     </Button>
                   </DialogTrigger>
                   <DialogContent>
                     <DialogHeader>
-                      <DialogTitle>自定义应用范围</DialogTitle>
+                      <DialogTitle>创建筛选规则</DialogTitle>
                       <DialogDescription>
-                        创建自定义规则来精确定义AI自动化的用户范围
+                        设置用户筛选条件，只有符合条件的用户会被AI自动营销系统触达
                       </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4">
@@ -208,6 +171,8 @@ export default function FullyAuto() {
                             <SelectItem value="orderCount">订单数量</SelectItem>
                             <SelectItem value="lastOrderDays">最后下单天数</SelectItem>
                             <SelectItem value="userTag">用户标签</SelectItem>
+                            <SelectItem value="registrationDays">注册天数</SelectItem>
+                            <SelectItem value="avgOrderValue">平均订单金额</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -219,10 +184,13 @@ export default function FullyAuto() {
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="<">小于</SelectItem>
+                            <SelectItem value="<=">小于等于</SelectItem>
                             <SelectItem value=">">大于</SelectItem>
+                            <SelectItem value=">=">大于等于</SelectItem>
                             <SelectItem value="=">等于</SelectItem>
                             <SelectItem value="!=">不等于</SelectItem>
-                            <SelectItem value="contains">��含</SelectItem>
+                            <SelectItem value="contains">包含</SelectItem>
+                            <SelectItem value="not_contains">不包含</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -231,7 +199,7 @@ export default function FullyAuto() {
                         <Input
                           value={newRule.value}
                           onChange={(e) => setNewRule(prev => ({ ...prev, value: e.target.value }))}
-                          placeholder="输入筛选值"
+                          placeholder="输入筛选值（如：1000、VIP、30等）"
                         />
                       </div>
                     </div>
@@ -247,26 +215,60 @@ export default function FullyAuto() {
                 </Dialog>
               </div>
 
+              {/* Rules Display */}
               {config.customRules.length > 0 ? (
-                <div className="space-y-2">
-                  {config.customRules.map((rule) => (
-                    <div key={rule.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <span className="text-sm">
-                        {rule.field} {rule.operator} {rule.value}
-                      </span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleRemoveCustomRule(rule.id)}
-                        className="text-red-600 hover:text-red-800"
-                      >
-                        删除
-                      </Button>
+                <div className="space-y-3">
+                  <div className="text-sm font-medium text-gray-700 mb-2">
+                    当前筛选条件 ({config.customRules.length} 条规则)：
+                  </div>
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div className="text-sm text-blue-900 mb-3">
+                      <strong>目标用户：</strong>同时满足以下所有条件的用户
                     </div>
-                  ))}
+                    <div className="space-y-2">
+                      {config.customRules.map((rule, index) => (
+                        <div key={rule.id} className="flex items-center justify-between p-3 bg-white rounded-lg border border-blue-100">
+                          <div className="flex items-center gap-2">
+                            <span className="inline-flex items-center justify-center w-6 h-6 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
+                              {index + 1}
+                            </span>
+                            <span className="text-sm font-medium text-gray-900">
+                              {getFieldDisplayName(rule.field)} {getOperatorDisplayName(rule.operator)} {rule.value}
+                            </span>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleRemoveCustomRule(rule.id)}
+                            className="text-red-600 hover:text-red-800 hover:bg-red-50"
+                          >
+                            删除
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="text-xs text-gray-500 italic">
+                    * 用户必须同时满足上述所有条件才会被AI自动营销系统触达
+                  </div>
                 </div>
               ) : (
-                <p className="text-sm text-gray-500">暂无自定义规则</p>
+                <div className="text-center py-8 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+                  <Users className="h-12 w-12 text-gray-400 mx-auto mb-3" />
+                  <h3 className="text-sm font-medium text-gray-900 mb-1">暂无筛选规则</h3>
+                  <p className="text-sm text-gray-500 mb-4">
+                    添加筛选规则来定义AI自动营销的目标用户群体
+                  </p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCustomRuleDialog(true)}
+                    className="flex items-center gap-2"
+                  >
+                    <Plus className="h-4 w-4" />
+                    添加第一条规则
+                  </Button>
+                </div>
               )}
             </div>
           </CardContent>
@@ -315,7 +317,7 @@ export default function FullyAuto() {
                     <DialogHeader>
                       <DialogTitle>设置行为边界</DialogTitle>
                       <DialogDescription>
-                        设置AI自动营销的行为限制和边界条件
+                        设置AI自动营销的行��限制和边界条件
                       </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4">
