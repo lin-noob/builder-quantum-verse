@@ -37,7 +37,7 @@ export default function UserDetail() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-semibold text-gray-900 mb-2">用户未找到</h1>
-          <p className="text-gray-600 mb-4">指定的用户ID不存在</p>
+          <p className="text-gray-600 mb-4">��定的用户ID不存在</p>
           <Link to="/users" className="text-blue-600 hover:text-blue-800">
             返回用户列表
           </Link>
@@ -218,6 +218,29 @@ export default function UserDetail() {
                   <div className="text-center p-3 bg-gray-50 rounded-lg">
                     <div className="text-2xl font-bold text-indigo-600">{user.averagePurchaseCycle}天</div>
                     <div className="text-xs text-gray-600">平均购买周期</div>
+                  </div>
+                </div>
+
+                {/* Time-based Information */}
+                <div className="mt-6 pt-4 border-t border-gray-200">
+                  <h4 className="text-sm font-medium text-gray-900 mb-3">时间轴信息</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="text-center p-3 bg-blue-50 rounded-lg">
+                      <div className="text-sm font-bold text-blue-700">{user.firstVisitTime}</div>
+                      <div className="text-xs text-blue-600">首次访问时间</div>
+                    </div>
+                    <div className="text-center p-3 bg-green-50 rounded-lg">
+                      <div className="text-sm font-bold text-green-700">{user.registrationTime}</div>
+                      <div className="text-xs text-green-600">注册时间</div>
+                    </div>
+                    <div className="text-center p-3 bg-purple-50 rounded-lg">
+                      <div className="text-sm font-bold text-purple-700">{user.firstPurchaseTime}</div>
+                      <div className="text-xs text-purple-600">首次购买时间</div>
+                    </div>
+                    <div className="text-center p-3 bg-orange-50 rounded-lg">
+                      <div className="text-sm font-bold text-orange-700">{user.lastActiveTime}</div>
+                      <div className="text-xs text-orange-600">最后活跃时间</div>
+                    </div>
                   </div>
                 </div>
               </CardContent>
