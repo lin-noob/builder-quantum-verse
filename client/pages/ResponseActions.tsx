@@ -70,6 +70,10 @@ export default function ResponseActions() {
     ruleName: ''
   });
   const [operationLoading, setOperationLoading] = useState(false);
+  const [sortState, setSortState] = useState<SortState>({
+    field: null,
+    direction: 'desc'
+  });
 
   // Filter rules based on current filter state
   const filteredRules = useMemo(() => {
@@ -149,7 +153,7 @@ export default function ResponseActions() {
     } catch (err) {
       toast({
         title: '操作失败',
-        description: err instanceof Error ? err.message : '未知错误',
+        description: err instanceof Error ? err.message : '��知错误',
         variant: 'destructive'
       });
     } finally {
@@ -306,7 +310,7 @@ export default function ResponseActions() {
             <h3 className="text-lg font-medium text-gray-900 mb-2">暂无规则</h3>
             <p className="text-gray-500 mb-4">
               {filters.search || filters.status !== 'all'
-                ? '没有找到符合条件的���则，请尝试调整筛选条件'
+                ? '没有找到符合条件的规则，请尝试调整筛选条件'
                 : '请点击右上角"创建新规则"开始使用'
               }
             </p>
