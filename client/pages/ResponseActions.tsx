@@ -385,7 +385,7 @@ export default function ResponseActions() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>规则名称</TableHead>
+                <TableHead>规则���称</TableHead>
                 <TableHead>响应动作</TableHead>
                 <TableHead>状态</TableHead>
                 <TableHead>触发器摘要</TableHead>
@@ -420,7 +420,7 @@ export default function ResponseActions() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredRules.map((rule) => {
+              {filteredAndSortedRules.map((rule) => {
                 const statusDisplay = getStatusDisplay(rule.status);
                 return (
                   <TableRow key={rule.id}>
@@ -431,7 +431,7 @@ export default function ResponseActions() {
                       {getActionTypeDisplay(rule.action)}
                     </TableCell>
                     <TableCell>
-                      <Badge 
+                      <Badge
                         variant={statusDisplay.color === 'green' ? 'default' : 'secondary'}
                         className={statusDisplay.color === 'green' ? 'bg-green-100 text-green-800' : ''}
                       >
@@ -442,6 +442,15 @@ export default function ResponseActions() {
                       <div className="truncate">
                         {getTriggerSummary(rule.trigger)}
                       </div>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {rule.totalExecutions.toLocaleString()}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {rule.totalInteractions.toLocaleString()}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {rule.totalConversions.toLocaleString()}
                     </TableCell>
                     <TableCell className="text-right">
                       {renderActionLinks(rule)}
