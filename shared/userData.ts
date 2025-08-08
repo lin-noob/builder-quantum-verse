@@ -14,6 +14,11 @@ export interface User {
   tags: string[];
   sessions: Session[];
   orders: Order[];
+  // New time-based fields
+  firstVisitTime: string;      // 首次访问时间
+  registrationTime: string;    // 注册时间
+  firstPurchaseTime: string;   // 首次购买时间
+  lastActiveTime: string;      // 最后活跃时间
 }
 
 export interface Session {
@@ -714,7 +719,7 @@ export const mockUsers: User[] = [
         deviceType: "移动端",
         os: "Android 14",
         browser: "Chrome 120",
-        location: "北京, 中国",
+        location: "北京, ���国",
         ipAddress: "123.125.114.145",
         events: [
           {
@@ -941,7 +946,7 @@ export const mockUsers: User[] = [
       {
         orderNumber: "ORD-2023-167",
         orderDate: "2023-12-10",
-        status: "已完成",
+        status: "���完成",
         totalAmount: 2100.00,
         currency: "CNY",
         paymentMethod: "支付宝",
