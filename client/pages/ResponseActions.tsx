@@ -377,22 +377,25 @@ export default function ResponseActions() {
         )}
       </div>
 
-      {/* TODO: Create/Edit Modal Component will be added next */}
-      {isCreateModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4">
-            <h2 className="text-xl font-bold mb-4">
-              {editingAction ? `编辑动作: ${editingAction.actionName}` : '创建新动作'}
-            </h2>
-            <p className="text-gray-600">创建/编辑模态框组件将在下一步实现</p>
-            <div className="flex justify-end gap-2 mt-6">
-              <Button variant="outline" onClick={() => setIsCreateModalOpen(false)}>
-                取消
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Create/Edit Modal */}
+      <ResponseActionModal
+        isOpen={isCreateModalOpen}
+        onClose={() => {
+          setIsCreateModalOpen(false);
+          setEditingAction(null);
+        }}
+        editingAction={editingAction}
+        onSave={handleSaveAction}
+      />
+
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={confirmationModal.isOpen}
+        onClose={() => setConfirmationModal(prev => ({ ...prev, isOpen: false }))}
+        onConfirm={handleConfirmation}
+        type={confirmationModal.type}
+        actionName={confirmationModal.actionName}
+      />
     </div>
   );
 }
