@@ -19,7 +19,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Plus, Edit, Power, PowerOff, Trash2, Loader2, AlertCircle, ArrowUpDown, ArrowUp, ArrowDown, Eye } from 'lucide-react';
+import { Plus, Loader2, AlertCircle, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import {
   ResponseAction,
   getActionTypeDisplay,
@@ -295,7 +295,7 @@ export default function ResponseActions() {
               disabled={isDisabled}
             >
               <Eye className="h-3 w-3 mr-1" />
-              详情
+              ���情
             </Button>
             <Button
               variant="outline"
