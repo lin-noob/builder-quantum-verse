@@ -1,387 +1,449 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
+  SelectValue
 } from '@/components/ui/select';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft } from 'lucide-react';
-import { 
-  PURPOSE_OPTIONS, 
-  PopupParameters, 
-  EmailParameters 
-} from '@shared/responseActionsData';
-import { useResponseActions } from '@/hooks/useResponseActions';
+import { ArrowLeft, Save } from 'lucide-react';
+import {
+  Rule,
+  TriggerConfig,
+  ActionConfig,
+  RealTimeEventTrigger,
+  UserSegmentTrigger,
+  PopupAction,
+  EmailAction,
+  EVENT_NAME_DISPLAY,
+  EVENT_FIELD_OPTIONS,
+  USER_SEGMENT_FIELDS,
+  SCHEDULE_DISPLAY
+} from '@shared/ruleData';
 import { useToast } from '@/hooks/use-toast';
 
 interface FormData {
-  actionName: string;
-  actionType: 'POPUP' | 'EMAIL';
-  purpose: string;
-  popupTitle: string;
-  popupContent: string;
-  popupButtonText: string;
-  popupButtonLink: string;
-  emailSubject: string;
-  emailContent: string;
-  emailSenderName: string;
+  ruleName: string;
+  trigger: Partial<TriggerConfig>;
+  action: Partial<ActionConfig>;
 }
-
-const initialFormData: FormData = {
-  actionName: '',
-  actionType: 'POPUP',
-  purpose: '',
-  popupTitle: '',
-  popupContent: '',
-  popupButtonText: '',
-  popupButtonLink: '',
-  emailSubject: '',
-  emailContent: '',
-  emailSenderName: '',
-};
 
 export default function ResponseActionCreate() {
   const navigate = useNavigate();
+  const { id } = useParams();
   const { toast } = useToast();
-  const { createAction } = useResponseActions();
-  
-  const [formData, setFormData] = useState<FormData>(initialFormData);
-  const [errors, setErrors] = useState<Partial<FormData>>({});
-  const [saving, setSaving] = useState(false);
+  const isEditing = Boolean(id);
 
-  // Validate form
-  const validateForm = (): boolean => {
-    const newErrors: Partial<FormData> = {};
+  const [formData, setFormData] = useState<FormData>({
+    ruleName: '',
+    trigger: { type: 'real_time_event' },
+    action: { type: 'popup' }
+  });
 
-    if (!formData.actionName.trim()) {
-      newErrors.actionName = '动作名称不能为空';
+  const [triggerType, setTriggerType] = useState<'real_time_event' | 'user_segment'>('real_time_event');
+  const [actionType, setActionType] = useState<'popup' | 'email'>('popup');
+  const [selectedEvent, setSelectedEvent] = useState<string>('');
+  const [loading, setLoading] = useState(false);
+
+  // Handle trigger type change
+  const handleTriggerTypeChange = (type: 'real_time_event' | 'user_segment') => {
+    setTriggerType(type);
+    if (type === 'real_time_event') {
+      setFormData(prev => ({
+        ...prev,
+        trigger: { type: 'real_time_event', eventName: 'user_signup' } as Partial<RealTimeEventTrigger>
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        trigger: {
+          type: 'user_segment',
+          segmentRule: { field: 'tag', operator: '=', value: '' },
+          schedule: 'daily'
+        } as Partial<UserSegmentTrigger>
+      }));
     }
-
-    if (!formData.purpose) {
-      newErrors.purpose = '请选择用途';
-    }
-
-    if (formData.actionType === 'POPUP') {
-      if (!formData.popupTitle.trim()) {
-        newErrors.popupTitle = '弹窗标题不能为空';
-      }
-      if (!formData.popupContent.trim()) {
-        newErrors.popupContent = '弹窗正文不能为空';
-      }
-      if (!formData.popupButtonText.trim()) {
-        newErrors.popupButtonText = '按钮文字不能为空';
-      }
-      if (!formData.popupButtonLink.trim()) {
-        newErrors.popupButtonLink = '按钮链接不能为空';
-      } else if (!isValidUrl(formData.popupButtonLink)) {
-        newErrors.popupButtonLink = '请输入有效的URL地址';
-      }
-    }
-
-    if (formData.actionType === 'EMAIL') {
-      if (!formData.emailSubject.trim()) {
-        newErrors.emailSubject = '邮件标题不能为空';
-      }
-      if (!formData.emailContent.trim()) {
-        newErrors.emailContent = '邮件正文不能为空';
-      }
-      if (!formData.emailSenderName.trim()) {
-        newErrors.emailSenderName = '发件人名称不能为空';
-      }
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
   };
 
-  // URL validation helper
-  const isValidUrl = (string: string): boolean => {
-    try {
-      new URL(string);
-      return true;
-    } catch (_) {
-      return false;
+  // Handle action type change
+  const handleActionTypeChange = (type: 'popup' | 'email') => {
+    setActionType(type);
+    if (type === 'popup') {
+      setFormData(prev => ({
+        ...prev,
+        action: { type: 'popup', title: '', content: '', buttonText: '', buttonLink: '' } as Partial<PopupAction>
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        action: { type: 'email', subject: '', content: '', senderName: '' } as Partial<EmailAction>
+      }));
     }
   };
 
   // Handle form submission
-  const handleSubmit = async (isDraft: boolean = false) => {
-    if (!validateForm()) return;
-
+  const handleSave = async () => {
     try {
-      setSaving(true);
+      setLoading(true);
 
-      let parameters: PopupParameters | EmailParameters;
-      
-      if (formData.actionType === 'POPUP') {
-        parameters = {
-          type: 'popup',
-          title: formData.popupTitle,
-          content: formData.popupContent,
-          buttonText: formData.popupButtonText,
-          buttonLink: formData.popupButtonLink,
-        } as PopupParameters;
-      } else {
-        parameters = {
-          type: 'email',
-          subject: formData.emailSubject,
-          content: formData.emailContent,
-          senderName: formData.emailSenderName,
-        } as EmailParameters;
+      // Validate form
+      if (!formData.ruleName.trim()) {
+        toast({
+          title: '请填写规则名称',
+          variant: 'destructive'
+        });
+        return;
       }
 
-      const createData = {
-        actionName: formData.actionName,
-        actionType: formData.actionType,
-        purpose: formData.purpose,
-        status: isDraft ? 'DRAFT' as const : 'ACTIVE' as const,
-        parameters
-      };
-      
-      await createAction(createData);
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
       toast({
-        title: '创建成功',
-        description: `动作"${formData.actionName}"已成功${isDraft ? '保存为草稿' : '创建并生效'}`
+        title: isEditing ? '更新成功' : '创建成功',
+        description: `规则"${formData.ruleName}"已保存为草稿`
       });
-      
+
       navigate('/response-actions');
-    } catch (err) {
+    } catch (error) {
       toast({
-        title: '创建失败',
-        description: err instanceof Error ? err.message : '未知错误',
+        title: '保存失败',
+        description: error instanceof Error ? error.message : '未知错误',
         variant: 'destructive'
       });
     } finally {
-      setSaving(false);
+      setLoading(false);
     }
   };
 
-  // Handle input changes
-  const handleInputChange = (field: keyof FormData, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-    // Clear error when user starts typing
-    if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: undefined }));
+  // Get field options based on selected event
+  const getFieldOptions = () => {
+    if (triggerType === 'real_time_event' && selectedEvent) {
+      const eventKey = selectedEvent as keyof typeof EVENT_FIELD_OPTIONS;
+      return EVENT_FIELD_OPTIONS[eventKey] || [];
     }
+    return [];
   };
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" onClick={() => navigate('/response-actions')}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            返回列表
+      <div className="mb-6">
+        <div className="flex items-center gap-3 mb-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate('/response-actions')}
+            className="flex items-center gap-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            返回
           </Button>
         </div>
+        <h1 className="text-2xl font-bold text-gray-900">
+          {isEditing ? '编辑规则' : '创建新规则'}
+        </h1>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>动作配置</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Action Name */}
-          <div className="space-y-2">
-            <Label htmlFor="actionName">动作名称 *</Label>
-            <Input
-              id="actionName"
-              value={formData.actionName}
-              onChange={(e) => handleInputChange('actionName', e.target.value)}
-              placeholder="请输入动作名称"
-              className={errors.actionName ? 'border-red-500' : ''}
-            />
-            {errors.actionName && (
-              <p className="text-sm text-red-500">{errors.actionName}</p>
-            )}
-          </div>
-
-          {/* Action Type */}
-          <div className="space-y-3">
-            <Label>动作类型 *</Label>
-            <RadioGroup
-              value={formData.actionType}
-              onValueChange={(value) => handleInputChange('actionType', value as 'POPUP' | 'EMAIL')}
-              className="flex gap-6"
-            >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="POPUP" id="popup" />
-                <Label htmlFor="popup">网页弹窗</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="EMAIL" id="email" />
-                <Label htmlFor="email">发送邮件</Label>
-              </div>
-            </RadioGroup>
-          </div>
-
-          {/* Purpose */}
-          <div className="space-y-2">
-            <Label htmlFor="purpose">用途 *</Label>
-            <Select 
-              value={formData.purpose} 
-              onValueChange={(value) => handleInputChange('purpose', value)}
-            >
-              <SelectTrigger className={errors.purpose ? 'border-red-500' : ''}>
-                <SelectValue placeholder="请选择用途（AI自动触发场景）" />
-              </SelectTrigger>
-              <SelectContent>
-                {PURPOSE_OPTIONS.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {errors.purpose && (
-              <p className="text-sm text-red-500">{errors.purpose}</p>
-            )}
-          </div>
-
-          {/* Conditional Fields - Popup */}
-          {formData.actionType === 'POPUP' && (
-            <div className="space-y-4 border-t pt-4">
-              <h3 className="font-medium text-gray-900">网页弹窗参数</h3>
-              
-              <div className="space-y-2">
-                <Label htmlFor="popupTitle">弹窗标题 *</Label>
-                <Input
-                  id="popupTitle"
-                  value={formData.popupTitle}
-                  onChange={(e) => handleInputChange('popupTitle', e.target.value)}
-                  placeholder="请输入弹窗标题"
-                  className={errors.popupTitle ? 'border-red-500' : ''}
-                />
-                {errors.popupTitle && (
-                  <p className="text-sm text-red-500">{errors.popupTitle}</p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="popupContent">弹窗正文 *</Label>
-                <Textarea
-                  id="popupContent"
-                  value={formData.popupContent}
-                  onChange={(e) => handleInputChange('popupContent', e.target.value)}
-                  placeholder="请输入弹窗正文内容"
-                  rows={4}
-                  className={errors.popupContent ? 'border-red-500' : ''}
-                />
-                {errors.popupContent && (
-                  <p className="text-sm text-red-500">{errors.popupContent}</p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="popupButtonText">按钮文字 *</Label>
-                <Input
-                  id="popupButtonText"
-                  value={formData.popupButtonText}
-                  onChange={(e) => handleInputChange('popupButtonText', e.target.value)}
-                  placeholder="请输入按钮文字"
-                  className={errors.popupButtonText ? 'border-red-500' : ''}
-                />
-                {errors.popupButtonText && (
-                  <p className="text-sm text-red-500">{errors.popupButtonText}</p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="popupButtonLink">按钮链接 *</Label>
-                <Input
-                  id="popupButtonLink"
-                  value={formData.popupButtonLink}
-                  onChange={(e) => handleInputChange('popupButtonLink', e.target.value)}
-                  placeholder="https://example.com"
-                  className={errors.popupButtonLink ? 'border-red-500' : ''}
-                />
-                {errors.popupButtonLink && (
-                  <p className="text-sm text-red-500">{errors.popupButtonLink}</p>
-                )}
-              </div>
+      <div className="space-y-6">
+        {/* Step 1: Configure Trigger */}
+        <Card>
+          <CardHeader>
+            <CardTitle>第一步：设定触发条件</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Trigger Type Selection */}
+            <div>
+              <Label className="text-base font-medium">触发器类型</Label>
+              <RadioGroup
+                value={triggerType}
+                onValueChange={(value: 'real_time_event' | 'user_segment') => handleTriggerTypeChange(value)}
+                className="mt-2"
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="real_time_event" id="real_time" />
+                  <Label htmlFor="real_time">实时事件</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="user_segment" id="user_segment" />
+                  <Label htmlFor="user_segment">用户模式</Label>
+                </div>
+              </RadioGroup>
             </div>
-          )}
 
-          {/* Conditional Fields - Email */}
-          {formData.actionType === 'EMAIL' && (
-            <div className="space-y-4 border-t pt-4">
-              <h3 className="font-medium text-gray-900">邮件参数</h3>
-              
-              <div className="space-y-2">
-                <Label htmlFor="emailSubject">邮件标题 *</Label>
-                <Input
-                  id="emailSubject"
-                  value={formData.emailSubject}
-                  onChange={(e) => handleInputChange('emailSubject', e.target.value)}
-                  placeholder="请输入邮件标题"
-                  className={errors.emailSubject ? 'border-red-500' : ''}
-                />
-                {errors.emailSubject && (
-                  <p className="text-sm text-red-500">{errors.emailSubject}</p>
-                )}
-              </div>
+            {/* Real Time Event Configuration */}
+            {triggerType === 'real_time_event' && (
+              <div className="space-y-4">
+                <div>
+                  <Label>当以下事件发生时</Label>
+                  <Select
+                    value={selectedEvent}
+                    onValueChange={(value) => {
+                      setSelectedEvent(value);
+                      setFormData(prev => ({
+                        ...prev,
+                        trigger: {
+                          ...prev.trigger,
+                          eventName: value as any
+                        }
+                      }));
+                    }}
+                  >
+                    <SelectTrigger className="mt-1">
+                      <SelectValue placeholder="选择事件类型" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(EVENT_NAME_DISPLAY).map(([value, label]) => (
+                        <SelectItem key={value} value={value}>{label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="emailContent">邮件正文 *</Label>
-                <Textarea
-                  id="emailContent"
-                  value={formData.emailContent}
-                  onChange={(e) => handleInputChange('emailContent', e.target.value)}
-                  placeholder="请输入邮件正文（支持HTML格式）"
-                  rows={6}
-                  className={errors.emailContent ? 'border-red-500' : ''}
-                />
-                {errors.emailContent && (
-                  <p className="text-sm text-red-500">{errors.emailContent}</p>
-                )}
-                <p className="text-sm text-gray-500">
-                  支持HTML格式，如: &lt;h3&gt;标题&lt;/h3&gt;&lt;p&gt;段落&lt;/p&gt;
-                </p>
+                {/* Condition */}
+                <div>
+                  <Label>并且满足条件</Label>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-1">
+                    <Select>
+                      <SelectTrigger>
+                        <SelectValue placeholder="字段" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {getFieldOptions().map((field) => (
+                          <SelectItem key={field} value={field}>{field}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Select>
+                      <SelectTrigger>
+                        <SelectValue placeholder="操作符" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="=">=</SelectItem>
+                        <SelectItem value="!=">!=</SelectItem>
+                        <SelectItem value="contains">包含</SelectItem>
+                        <SelectItem value="not_contains">不包含</SelectItem>
+                        <SelectItem value=">">&gt;</SelectItem>
+                        <SelectItem value="<">&lt;</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Input placeholder="值" />
+                  </div>
+                </div>
               </div>
+            )}
 
-              <div className="space-y-2">
-                <Label htmlFor="emailSenderName">发件人名称 *</Label>
-                <Input
-                  id="emailSenderName"
-                  value={formData.emailSenderName}
-                  onChange={(e) => handleInputChange('emailSenderName', e.target.value)}
-                  placeholder="请输入发件人名称"
-                  className={errors.emailSenderName ? 'border-red-500' : ''}
-                />
-                {errors.emailSenderName && (
-                  <p className="text-sm text-red-500">{errors.emailSenderName}</p>
-                )}
+            {/* User Segment Configuration */}
+            {triggerType === 'user_segment' && (
+              <div className="space-y-4">
+                <div>
+                  <Label>筛选用户</Label>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-1">
+                    <Select>
+                      <SelectTrigger>
+                        <SelectValue placeholder="字段" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Object.entries(USER_SEGMENT_FIELDS).map(([value, label]) => (
+                          <SelectItem key={value} value={value}>{label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Select>
+                      <SelectTrigger>
+                        <SelectValue placeholder="操作符" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="=">=</SelectItem>
+                        <SelectItem value="!=">!=</SelectItem>
+                        <SelectItem value="contains">包含</SelectItem>
+                        <SelectItem value="not_contains">不包含</SelectItem>
+                        <SelectItem value=">">&gt;</SelectItem>
+                        <SelectItem value="<">&lt;</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Input placeholder="值" />
+                  </div>
+                </div>
+
+                <div>
+                  <Label>执行频率</Label>
+                  <Select>
+                    <SelectTrigger className="mt-1">
+                      <SelectValue placeholder="选择执行频率" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(SCHEDULE_DISPLAY).map(([value, label]) => (
+                        <SelectItem key={value} value={value}>{label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Step 2: Configure Action */}
+        <Card>
+          <CardHeader>
+            <CardTitle>第二步：设定响应动作</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Action Type Selection */}
+            <div>
+              <Label className="text-base font-medium">响应动作类型</Label>
+              <RadioGroup
+                value={actionType}
+                onValueChange={(value: 'popup' | 'email') => handleActionTypeChange(value)}
+                className="mt-2"
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="popup" id="popup" />
+                  <Label htmlFor="popup">网页弹窗</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="email" id="email" />
+                  <Label htmlFor="email">发送邮件</Label>
+                </div>
+              </RadioGroup>
             </div>
-          )}
 
-          {/* Footer */}
-          <div className="flex justify-end gap-2 pt-4 border-t">
-            <Button variant="outline" onClick={() => navigate('/response-actions')}>
-              取消
-            </Button>
-            <Button 
-              variant="secondary" 
-              onClick={() => handleSubmit(true)}
-              disabled={saving}
-            >
-              保存为草稿
-            </Button>
-            <Button onClick={() => handleSubmit(false)} disabled={saving}>
-              {saving ? '创建中...' : '保存并生效'}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+            {/* Popup Configuration */}
+            {actionType === 'popup' && (
+              <div className="space-y-4">
+                <div>
+                  <Label>弹窗标题</Label>
+                  <Input
+                    className="mt-1"
+                    placeholder="输入弹窗标题"
+                    value={(formData.action as PopupAction)?.title || ''}
+                    onChange={(e) => setFormData(prev => ({
+                      ...prev,
+                      action: { ...prev.action, title: e.target.value } as PopupAction
+                    }))}
+                  />
+                </div>
+                <div>
+                  <Label>弹窗正文</Label>
+                  <Textarea
+                    className="mt-1"
+                    placeholder="输入弹窗内容"
+                    rows={4}
+                    value={(formData.action as PopupAction)?.content || ''}
+                    onChange={(e) => setFormData(prev => ({
+                      ...prev,
+                      action: { ...prev.action, content: e.target.value } as PopupAction
+                    }))}
+                  />
+                </div>
+                <div>
+                  <Label>按钮文字</Label>
+                  <Input
+                    className="mt-1"
+                    placeholder="输入按钮文字"
+                    value={(formData.action as PopupAction)?.buttonText || ''}
+                    onChange={(e) => setFormData(prev => ({
+                      ...prev,
+                      action: { ...prev.action, buttonText: e.target.value } as PopupAction
+                    }))}
+                  />
+                </div>
+                <div>
+                  <Label>按钮链接</Label>
+                  <Input
+                    className="mt-1"
+                    placeholder="输入按钮链接"
+                    value={(formData.action as PopupAction)?.buttonLink || ''}
+                    onChange={(e) => setFormData(prev => ({
+                      ...prev,
+                      action: { ...prev.action, buttonLink: e.target.value } as PopupAction
+                    }))}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Email Configuration */}
+            {actionType === 'email' && (
+              <div className="space-y-4">
+                <div>
+                  <Label>邮件标题</Label>
+                  <Input
+                    className="mt-1"
+                    placeholder="输入邮件标题"
+                    value={(formData.action as EmailAction)?.subject || ''}
+                    onChange={(e) => setFormData(prev => ({
+                      ...prev,
+                      action: { ...prev.action, subject: e.target.value } as EmailAction
+                    }))}
+                  />
+                </div>
+                <div>
+                  <Label>邮件正文</Label>
+                  <Textarea
+                    className="mt-1"
+                    placeholder="输入邮件内容（支持HTML）"
+                    rows={6}
+                    value={(formData.action as EmailAction)?.content || ''}
+                    onChange={(e) => setFormData(prev => ({
+                      ...prev,
+                      action: { ...prev.action, content: e.target.value } as EmailAction
+                    }))}
+                  />
+                </div>
+                <div>
+                  <Label>发件人名称</Label>
+                  <Input
+                    className="mt-1"
+                    placeholder="输入发件人名称"
+                    value={(formData.action as EmailAction)?.senderName || ''}
+                    onChange={(e) => setFormData(prev => ({
+                      ...prev,
+                      action: { ...prev.action, senderName: e.target.value } as EmailAction
+                    }))}
+                  />
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Step 3: Save Rule */}
+        <Card>
+          <CardHeader>
+            <CardTitle>第三步：命名并保存</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div>
+              <Label>规则名称</Label>
+              <Input
+                className="mt-1"
+                placeholder="例如：新用户注册欢迎弹窗"
+                value={formData.ruleName}
+                onChange={(e) => setFormData(prev => ({ ...prev, ruleName: e.target.value }))}
+              />
+            </div>
+
+            <div className="flex justify-end">
+              <Button
+                onClick={handleSave}
+                disabled={loading}
+                className="flex items-center gap-2"
+              >
+                <Save className="h-4 w-4" />
+                {loading ? '保存中...' : '保存为草稿'}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
