@@ -561,17 +561,6 @@ export default function ResponseActions() {
         )}
       </div>
 
-      {/* Create/Edit Modal */}
-      <ResponseActionModal
-        isOpen={isCreateModalOpen}
-        onClose={() => {
-          setIsCreateModalOpen(false);
-          setEditingAction(null);
-        }}
-        editingAction={editingAction}
-        onSave={handleSaveAction}
-      />
-
       {/* Confirmation Modal */}
       <ConfirmationModal
         isOpen={confirmationModal.isOpen}
