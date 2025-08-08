@@ -33,6 +33,35 @@ export default function StrategyGoals() {
   return (
     <div className="p-6 space-y-6 max-w-4xl">
 
+      {/* System Control Card */}
+      <Card>
+        <CardHeader>
+          <CardTitle>系统总控</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <Label htmlFor="system-switch" className="text-base">
+                AI全自动营销系统总开关
+              </Label>
+              <p className="text-sm text-gray-600">
+                {systemEnabled ? (
+                  <span className="text-green-600 font-medium">[运行中]</span>
+                ) : (
+                  <span className="text-gray-500 font-medium">[已停止]</span>
+                )}
+              </p>
+            </div>
+            <Switch
+              id="system-switch"
+              checked={systemEnabled}
+              onCheckedChange={setSystemEnabled}
+              className="scale-125"
+            />
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Core Business Goals Card */}
       <Card>
         <CardHeader>
@@ -66,7 +95,7 @@ export default function StrategyGoals() {
       {/* AI Guardrails Card */}
       <Card>
         <CardHeader>
-          <CardTitle>AI行为边界 (Guardrails)</CardTitle>
+          <CardTitle>AI行为边界</CardTitle>
           <p className="text-sm text-gray-600">
             为AI设定行为护栏，确保所有营销活动都在可控范围内。
           </p>
@@ -126,35 +155,6 @@ export default function StrategyGoals() {
           <Button disabled className="w-fit">
             保存边界设置
           </Button>
-        </CardContent>
-      </Card>
-
-      {/* System Control Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle>系统总控</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <Label htmlFor="system-switch" className="text-base">
-                AI全自动营销系统总开关
-              </Label>
-              <p className="text-sm text-gray-600">
-                {systemEnabled ? (
-                  <span className="text-green-600 font-medium">[运行中]</span>
-                ) : (
-                  <span className="text-gray-500 font-medium">[已停止]</span>
-                )}
-              </p>
-            </div>
-            <Switch
-              id="system-switch"
-              checked={systemEnabled}
-              onCheckedChange={setSystemEnabled}
-              className="scale-125"
-            />
-          </div>
         </CardContent>
       </Card>
     </div>
