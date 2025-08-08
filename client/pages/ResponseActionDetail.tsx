@@ -51,7 +51,7 @@ export default function ResponseActionDetail() {
   // Handle operations
   const handleEdit = () => {
     if (action) {
-      navigate(`/response-actions?edit=${action.id}`);
+      navigate(`/response-actions/edit/${action.id}`);
     }
   };
 
