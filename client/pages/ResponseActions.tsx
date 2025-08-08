@@ -538,7 +538,7 @@ export default function ResponseActions() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredActions.map((action) => {
+              {filteredAndSortedActions.map((action) => {
                 const statusDisplay = getStatusDisplay(action.status);
                 return (
                   <TableRow key={action.id}>
@@ -555,6 +555,15 @@ export default function ResponseActions() {
                       <Badge variant={statusDisplay.variant}>
                         {statusDisplay.text}
                       </Badge>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {action.totalExecutions.toLocaleString()}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {action.totalInteractions.toLocaleString()}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {action.totalConversions.toLocaleString()}
                     </TableCell>
                     <TableCell>
                       {formatDate(action.updatedAt)}
