@@ -19,12 +19,12 @@ import {
 } from '@/components/ui/dialog';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { X } from 'lucide-react';
-import { 
-  ResponseAction, 
-  PURPOSE_OPTIONS, 
-  PopupParameters, 
-  EmailParameters 
-} from '@/shared/responseActionsData';
+import {
+  ResponseAction,
+  PURPOSE_OPTIONS,
+  PopupParameters,
+  EmailParameters
+} from '@shared/responseActionsData';
 
 interface ResponseActionModalProps {
   isOpen: boolean;
@@ -325,7 +325,7 @@ export default function ResponseActionModal({
               <h3 className="font-medium text-gray-900">邮件参数</h3>
               
               <div className="space-y-2">
-                <Label htmlFor="emailSubject">邮件��题 *</Label>
+                <Label htmlFor="emailSubject">邮件标题 *</Label>
                 <Input
                   id="emailSubject"
                   value={formData.emailSubject}
