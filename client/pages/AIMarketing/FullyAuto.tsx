@@ -298,7 +298,7 @@ export default function FullyAuto() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="提高用���复购率">提高用户复购率</SelectItem>
+                  <SelectItem value="提高用户复购率">提��用户复购率</SelectItem>
                   <SelectItem value="增加客单价">增加客单价</SelectItem>
                   <SelectItem value="提升用户活跃度">提升用户活跃度</SelectItem>
                   <SelectItem value="促进新用户转化">促进新用户转化</SelectItem>
