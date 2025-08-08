@@ -212,7 +212,7 @@ export default function ResponseActions() {
           await disableAction(actionId);
           toast({
             title: '停用成功',
-            description: `动作"${actionName}"已成功停用`
+            description: `动作"${actionName}"已���功停用`
           });
           break;
         case 'delete':
@@ -290,6 +290,16 @@ export default function ResponseActions() {
               variant="outline"
               size="sm"
               className={baseClasses}
+              onClick={() => handleViewDetail(action.id)}
+              disabled={isDisabled}
+            >
+              <Eye className="h-3 w-3 mr-1" />
+              详情
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className={baseClasses}
               onClick={() => handleEdit(action)}
               disabled={isDisabled}
             >
@@ -326,6 +336,16 @@ export default function ResponseActions() {
               variant="outline"
               size="sm"
               className={baseClasses}
+              onClick={() => handleViewDetail(action.id)}
+              disabled={isDisabled}
+            >
+              <Eye className="h-3 w-3 mr-1" />
+              详情
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className={baseClasses}
               onClick={() => handleEdit(action)}
               disabled={isDisabled}
             >
@@ -348,6 +368,16 @@ export default function ResponseActions() {
       case 'ARCHIVED':
         return (
           <div className="flex gap-1">
+            <Button
+              variant="outline"
+              size="sm"
+              className={baseClasses}
+              onClick={() => handleViewDetail(action.id)}
+              disabled={isDisabled}
+            >
+              <Eye className="h-3 w-3 mr-1" />
+              详情
+            </Button>
             <Button
               variant="outline"
               size="sm"
