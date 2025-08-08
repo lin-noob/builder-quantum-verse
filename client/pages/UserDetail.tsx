@@ -37,7 +37,7 @@ export default function UserDetail() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <p className="text-gray-900 font-medium mb-2">用户未找到</p>
-          <p className="text-gray-600 mb-4">��定的用户ID不存在</p>
+          <p className="text-gray-600 mb-4">指定的用户ID不存在</p>
           <Link to="/users" className="text-blue-600 hover:text-blue-800">
             返回用户列表
           </Link>
@@ -513,7 +513,7 @@ export default function UserDetail() {
                         )}
                       </div>
                     ) : (
-                      <p className="text-gray-500 text-sm">暂无订单记���</p>
+                      <p className="text-gray-500 text-sm">暂无订单记录</p>
                     )}
                   </CardContent>
                 </Card>
@@ -567,7 +567,7 @@ export default function UserDetail() {
                     {/* Current Cart Items */}
                     {user.cartItems && user.cartItems.length > 0 ? (
                       <div>
-                        <h5 className="font-medium mb-3">当前购物车商品</h5>
+                        <h5 className="font-medium mb-3">当前购物车��品</h5>
                         <div className="space-y-3">
                           {user.cartItems.map((item) => (
                             <div key={item.id} className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
