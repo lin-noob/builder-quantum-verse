@@ -91,6 +91,10 @@ export const mockUsers: User[] = [
     maxOrderAmount: 5200.00,
     averagePurchaseCycle: 28,
     tags: ["VIP客户", "企业用户"],
+    firstVisitTime: "2023-08-15 14:22:33",
+    registrationTime: "2023-08-15 14:35:12",
+    firstPurchaseTime: "2023-08-20 10:45:00",
+    lastActiveTime: "2024-01-22 09:15:30",
     sessions: [
       {
         id: "session-1",
@@ -527,7 +531,7 @@ export const mockUsers: User[] = [
           },
           {
             timestamp: "16:35:30",
-            eventType: "页面访问",
+            eventType: "页��访问",
             pageTitle: "联系销售",
             pageUrl: "/contact-sales",
             stayDuration: "3分20秒",
@@ -678,7 +682,7 @@ export const mockUsers: User[] = [
         id: "session-wf-1",
         date: "2024-01-21 13:45",
         summary: "新功能体验和反馈提交",
-        source: "邮件通知",
+        source: "���件通知",
         deviceType: "桌面端",
         os: "Windows 11",
         browser: "Chrome 120",
@@ -719,7 +723,7 @@ export const mockUsers: User[] = [
         deviceType: "移动端",
         os: "Android 14",
         browser: "Chrome 120",
-        location: "北京, ���国",
+        location: "北京, 中国",
         ipAddress: "123.125.114.145",
         events: [
           {
@@ -946,7 +950,7 @@ export const mockUsers: User[] = [
       {
         orderNumber: "ORD-2023-167",
         orderDate: "2023-12-10",
-        status: "���完成",
+        status: "已完成",
         totalAmount: 2100.00,
         currency: "CNY",
         paymentMethod: "支付宝",
