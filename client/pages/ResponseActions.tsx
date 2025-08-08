@@ -26,9 +26,8 @@ import {
   getStatusDisplay,
   getPurposeLabel
 } from '@shared/responseActionsData';
-import ResponseActionModal from '@/components/ResponseActionModal';
 import ConfirmationModal from '@/components/ConfirmationModal';
-import { useResponseActions, convertFormDataToApiRequest } from '@/hooks/useResponseActions';
+import { useResponseActions } from '@/hooks/useResponseActions';
 import { useToast } from '@/hooks/use-toast';
 
 interface FiltersState {
@@ -419,7 +418,7 @@ export default function ResponseActions() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">全部类型</SelectItem>
-                <SelectItem value="popup">网页��窗</SelectItem>
+                <SelectItem value="popup">网页弹窗</SelectItem>
                 <SelectItem value="email">发送邮件</SelectItem>
               </SelectContent>
             </Select>
