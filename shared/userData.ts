@@ -491,7 +491,7 @@ export const mockUsers: User[] = [
           {
             timestamp: "14:19:25",
             eventType: "页面访问",
-            pageTitle: "支付页面",
+            pageTitle: "���付页面",
             pageUrl: "/payment",
             stayDuration: "4分15秒",
             scrollDepth: "100%"
@@ -689,7 +689,7 @@ export const mockUsers: User[] = [
       {
         id: "session-wf-1",
         date: "2024-01-21 13:45",
-        summary: "新功能体验和反馈提交",
+        summary: "新功能体验和反��提交",
         source: "邮件通知",
         deviceType: "桌面端",
         os: "Windows 11",
@@ -773,7 +773,7 @@ export const mockUsers: User[] = [
         events: [
           {
             timestamp: "15:20:30",
-            eventType: "页面访问",
+            eventType: "页面访��",
             pageTitle: "数据分析",
             pageUrl: "/analytics",
             stayDuration: "18分45秒",
@@ -1069,6 +1069,10 @@ export const mockUsers: User[] = [
     maxOrderAmount: 3200.00,
     averagePurchaseCycle: 45,
     tags: ["新客户"],
+    firstVisitTime: "2023-11-25 16:30:40",
+    registrationTime: "2023-11-28 14:22:15",
+    firstPurchaseTime: "2023-12-05 11:10:30",
+    lastActiveTime: "2024-01-08 15:45:20",
     sessions: [],
     orders: []
   },
@@ -1086,6 +1090,10 @@ export const mockUsers: User[] = [
     maxOrderAmount: 8900.00,
     averagePurchaseCycle: 18,
     tags: ["VIP客户", "长期合作"],
+    firstVisitTime: "2023-04-08 12:15:30",
+    registrationTime: "2023-04-08 12:45:50",
+    firstPurchaseTime: "2023-04-12 09:30:00",
+    lastActiveTime: "2024-01-22 18:20:45",
     sessions: [],
     orders: []
   },
