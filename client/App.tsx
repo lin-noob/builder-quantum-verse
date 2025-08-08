@@ -10,6 +10,7 @@ import Layout from "./components/Layout";
 import Dashboard from "./pages/Dashboard";
 import UserList from "./pages/UserList";
 import UserDetail from "./pages/UserDetail";
+import ResponseActions from "./pages/ResponseActions";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
