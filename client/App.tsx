@@ -30,6 +30,8 @@ const App = () => (
           <Route path="/users" element={<Layout><UserList /></Layout>} />
           <Route path="/users/:cdpId" element={<Layout><UserDetail /></Layout>} />
           <Route path="/response-actions" element={<Layout><ResponseActions /></Layout>} />
+          <Route path="/response-actions/create" element={<Layout><ResponseActionCreate /></Layout>} />
+          <Route path="/response-actions/edit/:id" element={<Layout><ResponseActionEdit /></Layout>} />
           <Route path="/response-actions/:id" element={<Layout><ResponseActionDetail /></Layout>} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<Layout><NotFound /></Layout>} />
