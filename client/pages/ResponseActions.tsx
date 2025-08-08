@@ -159,8 +159,7 @@ export default function ResponseActions() {
 
   // Handle action operations
   const handleEdit = (action: ResponseAction) => {
-    setEditingAction(action);
-    setIsCreateModalOpen(true);
+    navigate(`/response-actions/edit/${action.id}`);
   };
 
   const handleViewDetail = (actionId: string) => {
@@ -358,7 +357,7 @@ export default function ResponseActions() {
               className={isDisabled ? disabledClass : "text-red-600 hover:text-red-800 cursor-pointer text-sm"}
               onClick={() => !isDisabled && handleDelete(action)}
             >
-              删���
+              删除
             </span>
           </div>
         );
@@ -504,7 +503,7 @@ export default function ResponseActions() {
                   onClick={() => handleSort('totalInteractions')}
                 >
                   <div className="flex items-center gap-2">
-                    累计互���次数
+                    ��计互动次数
                     {getSortIcon('totalInteractions')}
                   </div>
                 </TableHead>
