@@ -502,6 +502,9 @@ export default function ResponseActions() {
                         {getTriggerSummary(rule.trigger)}
                       </div>
                     </TableCell>
+                    <TableCell className="text-sm text-gray-600">
+                      {formatDate(rule.createdAt)}
+                    </TableCell>
                     <TableCell className="text-center">
                       {rule.totalExecutions.toLocaleString()}
                     </TableCell>
