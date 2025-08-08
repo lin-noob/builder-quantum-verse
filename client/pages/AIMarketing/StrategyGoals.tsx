@@ -82,20 +82,25 @@ export default function StrategyGoals() {
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="business-goal">当前业务目标</Label>
-            <Select value={currentGoal} onValueChange={setCurrentGoal}>
-              <SelectTrigger className="w-full text-lg">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {BUSINESS_GOALS.map((goal) => (
-                  <SelectItem key={goal.value} value={goal.value}>
+          <div className="space-y-3">
+            <Label>当前业务目标（可选择多个）</Label>
+            <div className="space-y-3">
+              {BUSINESS_GOALS.map((goal) => (
+                <div key={goal.value} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={goal.value}
+                    checked={selectedGoals.includes(goal.value)}
+                    onCheckedChange={() => handleGoalToggle(goal.value)}
+                  />
+                  <Label
+                    htmlFor={goal.value}
+                    className="text-sm font-normal cursor-pointer"
+                  >
                     {goal.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+                  </Label>
+                </div>
+              ))}
+            </div>
           </div>
           <Button disabled className="w-fit">
             保存目标
