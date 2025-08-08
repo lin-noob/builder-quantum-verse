@@ -86,7 +86,32 @@ export default function ResponseActions() {
       const matchesStatus = filters.status === 'all' ||
         rule.status === filters.status;
 
-      return matchesSearch && matchesStatus;
+      // Date filtering
+      let matchesDate = true;
+      if (filters.dateRange !== 'all') {
+        const ruleDate = new Date(rule.createdAt);
+        const now = new Date();
+
+        switch (filters.dateRange) {
+          case 'today':
+            matchesDate = ruleDate.toDateString() === now.toDateString();
+            break;
+          case 'week':
+            const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            matchesDate = ruleDate >= weekAgo;
+            break;
+          case 'month':
+            const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+            matchesDate = ruleDate >= monthAgo;
+            break;
+          case 'quarter':
+            const quarterAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+            matchesDate = ruleDate >= quarterAgo;
+            break;
+        }
+      }
+
+      return matchesSearch && matchesStatus && matchesDate;
     });
 
     // Apply sorting
@@ -246,7 +271,7 @@ export default function ResponseActions() {
               className={isDisabled ? disabledClass : linkClass}
               onClick={() => !isDisabled && handleViewDetail(rule.id)}
             >
-              ��情
+              详情
             </span>
             <span
               className={isDisabled ? disabledClass : linkClass}
