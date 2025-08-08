@@ -140,10 +140,12 @@ export default function UserList() {
               <thead className="bg-gray-50 border-b">
                 <tr>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">用户</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">国家/城市</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">联系方式</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">总消费金额</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">总订单数</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">首次访问</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">注册时间</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">首次购买</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">最后活跃</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">总消费</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">操作</th>
                 </tr>
               </thead>
