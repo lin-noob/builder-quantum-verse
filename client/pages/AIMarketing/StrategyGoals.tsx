@@ -20,7 +20,7 @@ import {
 } from '@shared/aiMarketingData';
 
 export default function StrategyGoals() {
-  const [currentGoal, setCurrentGoal] = useState(mockStrategyData.currentGoal);
+  const [selectedGoals, setSelectedGoals] = useState<string[]>([mockStrategyData.currentGoal]);
   const [guardrails, setGuardrails] = useState<AIGuardrails>(mockStrategyData.guardrails);
   const [systemEnabled, setSystemEnabled] = useState(mockStrategyData.systemStatus.isEnabled);
 
@@ -29,6 +29,16 @@ export default function StrategyGoals() {
       ...prev,
       [field]: value
     }));
+  };
+
+  const handleGoalToggle = (goalValue: string) => {
+    setSelectedGoals(prev => {
+      if (prev.includes(goalValue)) {
+        return prev.filter(g => g !== goalValue);
+      } else {
+        return [...prev, goalValue];
+      }
+    });
   };
 
   return (
