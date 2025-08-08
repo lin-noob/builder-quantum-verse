@@ -123,7 +123,7 @@ export default function UserDetail() {
               <CardContent className="space-y-4">
                 {/* Tag Management */}
                 <div>
-                  <h4 className="text-sm font-medium text-gray-900 mb-2">状���标签</h4>
+                  <h4 className="text-sm font-medium text-gray-900 mb-2">状态标签</h4>
                   <div className="flex flex-wrap gap-2 mb-3">
                     {userTags.map((tag) => (
                       <Badge key={tag} variant="secondary" className="flex items-center gap-1">
@@ -534,7 +534,7 @@ export default function UserDetail() {
                       </div>
                       <div className="text-center p-4 bg-green-50 rounded-lg">
                         <div className="text-2xl font-bold text-green-600">
-                          {user.cartItems.length}
+                          {user.cartItems?.length || 0}
                         </div>
                         <div className="text-sm text-green-600">购物车商品数量</div>
                       </div>
@@ -577,7 +577,7 @@ export default function UserDetail() {
                                   {formatCurrency(item.unitPrice)} × {item.quantity} = {formatCurrency(item.totalPrice)}
                                 </div>
                                 <div className="text-xs text-gray-500 mt-1">
-                                  加入时间: {item.addedTime} | 最后更新: {item.lastUpdated}
+                                  加入时间: {item.addedTime} | 最后��新: {item.lastUpdated}
                                 </div>
                               </div>
                               <div className="text-right">
