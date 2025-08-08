@@ -322,7 +322,7 @@ export default function ResponseActions() {
               className={isDisabled ? disabledClass : linkClass}
               onClick={() => !isDisabled && handleViewDetail(action.id)}
             >
-              详��
+              详情
             </span>
             <span
               className={isDisabled ? disabledClass : linkClass}
@@ -358,7 +358,7 @@ export default function ResponseActions() {
               className={isDisabled ? disabledClass : "text-red-600 hover:text-red-800 cursor-pointer text-sm"}
               onClick={() => !isDisabled && handleDelete(action)}
             >
-              删除
+              删���
             </span>
           </div>
         );
@@ -504,7 +504,7 @@ export default function ResponseActions() {
                   onClick={() => handleSort('totalInteractions')}
                 >
                   <div className="flex items-center gap-2">
-                    累计互动次数
+                    累计互���次数
                     {getSortIcon('totalInteractions')}
                   </div>
                 </TableHead>
@@ -561,7 +561,7 @@ export default function ResponseActions() {
                       {formatDate(action.updatedAt)}
                     </TableCell>
                     <TableCell className="text-right">
-                      {renderActionButtons(action)}
+                      {renderActionLinks(action)}
                     </TableCell>
                   </TableRow>
                 );
