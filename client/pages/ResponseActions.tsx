@@ -79,6 +79,10 @@ export default function ResponseActions() {
     actionName: ''
   });
   const [operationLoading, setOperationLoading] = useState(false);
+  const [sortState, setSortState] = useState<SortState>({
+    field: null,
+    direction: 'desc'
+  });
 
   // Filter actions based on current filter state
   const filteredActions = useMemo(() => {
