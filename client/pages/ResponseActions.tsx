@@ -164,8 +164,7 @@ export default function ResponseActions() {
   };
 
   const handleViewDetail = (actionId: string) => {
-    // TODO: Navigate to detail page
-    console.log('View detail for action:', actionId);
+    navigate(`/response-actions/${actionId}`);
   };
 
   const handleEnable = (action: ResponseAction) => {
