@@ -231,48 +231,6 @@ export default function ResponseActions() {
     }
   };
 
-  // Handle save action from modal
-  const handleSaveAction = async (formData: any, isDraft: boolean) => {
-    try {
-      setOperationLoading(true);
-
-      if (editingAction) {
-        // Update existing action
-        const updateData = {
-          id: editingAction.id,
-          actionName: formData.actionName,
-          actionType: formData.actionType,
-          purpose: formData.purpose,
-          parameters: formData.parameters
-        };
-
-        await updateAction(updateData);
-        toast({
-          title: '更新成功',
-          description: `动作"${formData.actionName}"已成功更新`
-        });
-      } else {
-        // Create new action
-        const apiRequest = convertFormDataToApiRequest(formData, formData.actionType, isDraft);
-        await createAction(apiRequest);
-        toast({
-          title: '创建成功',
-          description: `动作"${formData.actionName}"已成功${isDraft ? '保存为草稿' : '创建并生效'}`
-        });
-      }
-
-      setIsCreateModalOpen(false);
-      setEditingAction(null);
-    } catch (err) {
-      toast({
-        title: '保存失败',
-        description: err instanceof Error ? err.message : '未知错误',
-        variant: 'destructive'
-      });
-    } finally {
-      setOperationLoading(false);
-    }
-  };
 
   // Render action links based on status
   const renderActionLinks = (action: ResponseAction) => {
