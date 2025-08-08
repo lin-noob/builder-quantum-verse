@@ -225,7 +225,7 @@ export default function ResponseActions() {
               variant="outline"
               size="sm"
               className={`${baseClasses} text-red-600 border-red-200 hover:bg-red-50`}
-              onClick={() => handleDelete(action.id)}
+              onClick={() => handleDelete(action)}
             >
               <Trash2 className="h-3 w-3 mr-1" />
               删除
@@ -297,7 +297,7 @@ export default function ResponseActions() {
               <SelectContent>
                 <SelectItem value="all">全部状态</SelectItem>
                 <SelectItem value="draft">草稿</SelectItem>
-                <SelectItem value="active">生���中</SelectItem>
+                <SelectItem value="active">生效中</SelectItem>
                 <SelectItem value="archived">已归档</SelectItem>
               </SelectContent>
             </Select>
