@@ -168,7 +168,7 @@ export default function ResponseActions() {
               variant="outline"
               size="sm"
               className={`${baseClasses} text-green-600 border-green-200 hover:bg-green-50`}
-              onClick={() => handleEnable(action.id)}
+              onClick={() => handleEnable(action)}
             >
               <Power className="h-3 w-3 mr-1" />
               启用
@@ -177,7 +177,7 @@ export default function ResponseActions() {
               variant="outline"
               size="sm"
               className={`${baseClasses} text-red-600 border-red-200 hover:bg-red-50`}
-              onClick={() => handleDelete(action.id)}
+              onClick={() => handleDelete(action)}
             >
               <Trash2 className="h-3 w-3 mr-1" />
               删除
