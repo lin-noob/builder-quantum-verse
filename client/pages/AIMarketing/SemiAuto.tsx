@@ -234,7 +234,7 @@ export default function SemiAuto() {
           disabled={operationLoading}
         >
           <Plus className="h-4 w-4" />
-          创建���剧本
+          创建剧本
         </Button>
       </div>
 
