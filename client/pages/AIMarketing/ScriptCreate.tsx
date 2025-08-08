@@ -157,20 +157,15 @@ export default function ScriptCreate() {
     <div className="p-6 max-w-4xl mx-auto">
       {/* Header */}
       <div className="mb-6">
-        <div className="flex items-center gap-3 mb-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate('/ai-marketing/semi-auto')}
-            className="flex items-center gap-2"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            返回
-          </Button>
-        </div>
-        <h1 className="text-2xl font-bold text-gray-900">
-          {isEditing ? '编辑剧本' : '创建新剧本'}
-        </h1>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => navigate('/ai-marketing/semi-auto')}
+          className="flex items-center gap-2"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          返回
+        </Button>
       </div>
 
       <div className="space-y-6">
@@ -379,7 +374,7 @@ export default function ScriptCreate() {
                 <Label>AI指令简报 (Prompt)</Label>
                 <Textarea
                   className="mt-1"
-                  placeholder="请描述您希望AI生成什么样的内容。例如：根据用户加购的高价商品，生成个性化的挽留邮件，强调商品价值和限时优惠..."
+                  placeholder="请描述您希望AI生成什么样的内容。例如：根据用户加购的高价商品，生成个性化���挽留邮件，强调商品价值和限时优惠..."
                   rows={6}
                   value={formData.prompt}
                   onChange={(e) => handleInputChange('prompt', e.target.value)}
