@@ -89,6 +89,36 @@ export default function Layout({ children }: LayoutProps) {
                         {item.icon}
                         {item.label}
                       </Link>
+
+                      {/* AI Marketing Sub-links for Mobile */}
+                      {item.id === 'ai-marketing' && (
+                        <div className="ml-6 mt-2 space-y-1">
+                          <Link
+                            to="/ai-marketing/strategy-goals"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                            className="flex items-center gap-2 px-3 py-2 text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-md transition-colors"
+                          >
+                            <Target className="h-3 w-3" />
+                            战略与目标
+                          </Link>
+                          <Link
+                            to="/ai-marketing/live-monitoring"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                            className="flex items-center gap-2 px-3 py-2 text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-md transition-colors"
+                          >
+                            <Activity className="h-3 w-3" />
+                            实时监控
+                          </Link>
+                          <Link
+                            to="/ai-marketing/performance-analytics"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                            className="flex items-center gap-2 px-3 py-2 text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-md transition-colors"
+                          >
+                            <BarChart3 className="h-3 w-3" />
+                            效果分析
+                          </Link>
+                        </div>
+                      )}
                     </li>
                   );
                 })}
