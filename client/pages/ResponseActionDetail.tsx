@@ -1,435 +1,525 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
+import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { 
   ArrowLeft, 
-  Edit, 
-  Power, 
-  PowerOff, 
-  Trash2, 
   Calendar, 
-  Clock, 
   Target, 
-  BarChart3,
-  MousePointer,
+  MessageSquare, 
+  Mail, 
+  MousePointer, 
   TrendingUp,
-  Mail,
-  MessageSquare,
-  ExternalLink,
-  AlertCircle
+  AlertCircle,
+  Edit,
+  Play,
+  Square,
+  Trash2
 } from 'lucide-react';
-import { 
-  ResponseAction,
+import {
+  Rule,
+  mockRules,
+  getTriggerSummary,
   getActionTypeDisplay,
   getStatusDisplay,
-  getPurposeLabel
-} from '@shared/responseActionsData';
-import { useResponseActions } from '@/hooks/useResponseActions';
+  EVENT_NAME_DISPLAY,
+  USER_SEGMENT_FIELDS,
+  SCHEDULE_DISPLAY
+} from '@shared/ruleData';
+import ConfirmationModal from '@/components/ConfirmationModal';
 import { useToast } from '@/hooks/use-toast';
+
+interface ConfirmationState {
+  isOpen: boolean;
+  type: 'enable' | 'disable' | 'delete';
+  ruleId: string;
+  ruleName: string;
+}
 
 export default function ResponseActionDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { actions, loading, enableAction, disableAction, deleteAction } = useResponseActions();
-  
-  const [action, setAction] = useState<ResponseAction | null>(null);
+
+  const [rule, setRule] = useState<Rule | null>(null);
+  const [loading, setLoading] = useState(true);
   const [operationLoading, setOperationLoading] = useState(false);
+  const [confirmationModal, setConfirmationModal] = useState<ConfirmationState>({
+    isOpen: false,
+    type: 'enable',
+    ruleId: '',
+    ruleName: ''
+  });
 
-  // Find the action by ID
+  // Load rule data
   useEffect(() => {
-    if (!loading && actions.length > 0 && id) {
-      const foundAction = actions.find(a => a.id === id);
-      setAction(foundAction || null);
+    if (id) {
+      const foundRule = mockRules.find(r => r.id === id);
+      setRule(foundRule || null);
     }
-  }, [actions, loading, id]);
-
-  // Handle operations
-  const handleEdit = () => {
-    if (action) {
-      navigate(`/response-actions/edit/${action.id}`);
-    }
-  };
-
-  const handleEnable = async () => {
-    if (!action) return;
-    
-    try {
-      setOperationLoading(true);
-      await enableAction(action.id);
-      toast({
-        title: '启用成功',
-        description: `动作"${action.actionName}"已成功启用`
-      });
-      // Update local action state
-      setAction(prev => prev ? { ...prev, status: 'ACTIVE' } : null);
-    } catch (err) {
-      toast({
-        title: '启用失败',
-        description: err instanceof Error ? err.message : '未知错误',
-        variant: 'destructive'
-      });
-    } finally {
-      setOperationLoading(false);
-    }
-  };
-
-  const handleDisable = async () => {
-    if (!action) return;
-    
-    try {
-      setOperationLoading(true);
-      await disableAction(action.id);
-      toast({
-        title: '停用成功',
-        description: `动作"${action.actionName}"已成功停用`
-      });
-      // Update local action state
-      setAction(prev => prev ? { ...prev, status: 'ARCHIVED' } : null);
-    } catch (err) {
-      toast({
-        title: '停用失败',
-        description: err instanceof Error ? err.message : '未知错误',
-        variant: 'destructive'
-      });
-    } finally {
-      setOperationLoading(false);
-    }
-  };
-
-  const handleDelete = async () => {
-    if (!action) return;
-    
-    if (window.confirm(`您确定要永久删除动作"${action.actionName}"吗？此操作不可撤销。`)) {
-      try {
-        setOperationLoading(true);
-        await deleteAction(action.id);
-        toast({
-          title: '删除成功',
-          description: `动作"${action.actionName}"已成功删除`
-        });
-        navigate('/response-actions');
-      } catch (err) {
-        toast({
-          title: '删除失败',
-          description: err instanceof Error ? err.message : '未知错误',
-          variant: 'destructive'
-        });
-      } finally {
-        setOperationLoading(false);
-      }
-    }
-  };
+    setLoading(false);
+  }, [id]);
 
   // Format date
   const formatDate = (dateString: string): string => {
     const date = new Date(dateString);
     return date.toLocaleString('zh-CN', {
       year: 'numeric',
-      month: 'long',
-      day: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
       hour: '2-digit',
       minute: '2-digit'
     });
   };
 
-  // Loading state
+  // Handle rule operations
+  const handleEdit = () => {
+    navigate(`/response-actions/edit/${rule?.id}`);
+  };
+
+  const handleEnable = () => {
+    if (!rule) return;
+    setConfirmationModal({
+      isOpen: true,
+      type: 'enable',
+      ruleId: rule.id,
+      ruleName: rule.ruleName
+    });
+  };
+
+  const handleDisable = () => {
+    if (!rule) return;
+    setConfirmationModal({
+      isOpen: true,
+      type: 'disable',
+      ruleId: rule.id,
+      ruleName: rule.ruleName
+    });
+  };
+
+  const handleDelete = () => {
+    if (!rule) return;
+    setConfirmationModal({
+      isOpen: true,
+      type: 'delete',
+      ruleId: rule.id,
+      ruleName: rule.ruleName
+    });
+  };
+
+  // Handle confirmation actions
+  const handleConfirmation = async () => {
+    const { type, ruleName } = confirmationModal;
+
+    try {
+      setOperationLoading(true);
+
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      switch (type) {
+        case 'enable':
+          toast({
+            title: '启用成功',
+            description: `规则"${ruleName}"已成功启用`
+          });
+          // Update local state
+          if (rule) {
+            setRule({...rule, status: 'active'});
+          }
+          break;
+        case 'disable':
+          toast({
+            title: '停用成功',
+            description: `规则"${ruleName}"已成功停用`
+          });
+          if (rule) {
+            setRule({...rule, status: 'archived'});
+          }
+          break;
+        case 'delete':
+          toast({
+            title: '删除成功',
+            description: `规则"${ruleName}"已成功删除`
+          });
+          navigate('/response-actions');
+          return;
+      }
+    } catch (err) {
+      toast({
+        title: '操作失败',
+        description: err instanceof Error ? err.message : '未知错误',
+        variant: 'destructive'
+      });
+    } finally {
+      setOperationLoading(false);
+      setConfirmationModal(prev => ({ ...prev, isOpen: false }));
+    }
+  };
+
+  // Render trigger details
+  const renderTriggerDetails = () => {
+    if (!rule) return null;
+
+    if (rule.trigger.type === 'real_time_event') {
+      const trigger = rule.trigger;
+      return (
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Target className="h-4 w-4 text-blue-600" />
+            <span className="font-medium">实时事件触发</span>
+          </div>
+          <div className="ml-6 space-y-2">
+            <div>
+              <span className="text-sm font-medium text-gray-600">事件类型：</span>
+              <span className="text-sm">{EVENT_NAME_DISPLAY[trigger.eventName]}</span>
+            </div>
+            {trigger.condition && (
+              <div>
+                <span className="text-sm font-medium text-gray-600">过滤条件：</span>
+                <span className="text-sm">
+                  {trigger.condition.field} {trigger.condition.operator} {trigger.condition.value}
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    } else {
+      const trigger = rule.trigger;
+      return (
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Calendar className="h-4 w-4 text-purple-600" />
+            <span className="font-medium">用户模式触发</span>
+          </div>
+          <div className="ml-6 space-y-2">
+            <div>
+              <span className="text-sm font-medium text-gray-600">执行频率：</span>
+              <span className="text-sm">{SCHEDULE_DISPLAY[trigger.schedule]}</span>
+            </div>
+            <div>
+              <span className="text-sm font-medium text-gray-600">用户筛选：</span>
+              <span className="text-sm">
+                {USER_SEGMENT_FIELDS[trigger.segmentRule.field]} {trigger.segmentRule.operator} {trigger.segmentRule.value}
+              </span>
+            </div>
+          </div>
+        </div>
+      );
+    }
+  };
+
+  // Render action details
+  const renderActionDetails = () => {
+    if (!rule) return null;
+
+    if (rule.action.type === 'popup') {
+      const action = rule.action;
+      return (
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <MessageSquare className="h-4 w-4 text-green-600" />
+            <span className="font-medium">网页弹窗</span>
+          </div>
+          <div className="ml-6 space-y-3">
+            <div>
+              <span className="text-sm font-medium text-gray-600">标题：</span>
+              <div className="mt-1 p-2 bg-gray-50 rounded text-sm">{action.title}</div>
+            </div>
+            <div>
+              <span className="text-sm font-medium text-gray-600">内容：</span>
+              <div className="mt-1 p-2 bg-gray-50 rounded text-sm">{action.content}</div>
+            </div>
+            <div>
+              <span className="text-sm font-medium text-gray-600">按钮文字：</span>
+              <span className="text-sm ml-2">{action.buttonText}</span>
+            </div>
+            <div>
+              <span className="text-sm font-medium text-gray-600">按钮链接：</span>
+              <a 
+                href={action.buttonLink} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-sm ml-2 text-blue-600 hover:underline"
+              >
+                {action.buttonLink}
+              </a>
+            </div>
+          </div>
+        </div>
+      );
+    } else {
+      const action = rule.action;
+      return (
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Mail className="h-4 w-4 text-orange-600" />
+            <span className="font-medium">发送邮件</span>
+          </div>
+          <div className="ml-6 space-y-3">
+            <div>
+              <span className="text-sm font-medium text-gray-600">邮件标题：</span>
+              <div className="mt-1 p-2 bg-gray-50 rounded text-sm">{action.subject}</div>
+            </div>
+            <div>
+              <span className="text-sm font-medium text-gray-600">邮件内容：</span>
+              <div 
+                className="mt-1 p-2 bg-gray-50 rounded text-sm"
+                dangerouslySetInnerHTML={{ __html: action.content }}
+              />
+            </div>
+            <div>
+              <span className="text-sm font-medium text-gray-600">发件人：</span>
+              <span className="text-sm ml-2">{action.senderName}</span>
+            </div>
+          </div>
+        </div>
+      );
+    }
+  };
+
+  // Render action buttons based on status
+  const renderActionButtons = () => {
+    if (!rule) return null;
+
+    const isDisabled = operationLoading;
+
+    switch (rule.status) {
+      case 'draft':
+        return (
+          <div className="flex gap-3">
+            <Button onClick={handleEdit} disabled={isDisabled} className="flex items-center gap-2">
+              <Edit className="h-4 w-4" />
+              编辑
+            </Button>
+            <Button 
+              onClick={handleEnable} 
+              disabled={isDisabled}
+              variant="outline"
+              className="flex items-center gap-2 text-green-600 border-green-600 hover:bg-green-50"
+            >
+              <Play className="h-4 w-4" />
+              启用
+            </Button>
+            <Button 
+              onClick={handleDelete} 
+              disabled={isDisabled}
+              variant="outline"
+              className="flex items-center gap-2 text-red-600 border-red-600 hover:bg-red-50"
+            >
+              <Trash2 className="h-4 w-4" />
+              删除
+            </Button>
+          </div>
+        );
+
+      case 'active':
+        return (
+          <div className="flex gap-3">
+            <Button onClick={handleEdit} disabled={isDisabled} className="flex items-center gap-2">
+              <Edit className="h-4 w-4" />
+              编辑
+            </Button>
+            <Button 
+              onClick={handleDisable} 
+              disabled={isDisabled}
+              variant="outline"
+              className="flex items-center gap-2 text-orange-600 border-orange-600 hover:bg-orange-50"
+            >
+              <Square className="h-4 w-4" />
+              停用
+            </Button>
+          </div>
+        );
+
+      case 'archived':
+        return (
+          <div className="flex gap-3">
+            <Button onClick={handleEdit} disabled={isDisabled} className="flex items-center gap-2">
+              <Edit className="h-4 w-4" />
+              编辑
+            </Button>
+            <Button 
+              onClick={handleDelete} 
+              disabled={isDisabled}
+              variant="outline"
+              className="flex items-center gap-2 text-red-600 border-red-600 hover:bg-red-50"
+            >
+              <Trash2 className="h-4 w-4" />
+              删除
+            </Button>
+          </div>
+        );
+
+      default:
+        return null;
+    }
+  };
+
   if (loading) {
     return (
       <div className="p-6">
-        <div className="flex items-center gap-4 mb-6">
-          <Button variant="ghost" onClick={() => navigate('/response-actions')}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            返回列表
-          </Button>
-        </div>
-        <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-500">正在加载动作详情...</p>
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
         </div>
       </div>
     );
   }
 
-  // Action not found
-  if (!action) {
+  if (!rule) {
     return (
       <div className="p-6">
-        <div className="flex items-center gap-4 mb-6">
-          <Button variant="ghost" onClick={() => navigate('/response-actions')}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
+        <div className="mb-6">
+          <Link 
+            to="/response-actions" 
+            className="inline-flex items-center text-blue-600 hover:text-blue-800 text-sm font-medium"
+          >
+            <ArrowLeft className="h-4 w-4 mr-1" />
             返回列表
-          </Button>
+          </Link>
         </div>
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            未找到指定的响应动作，可能已被删除或不存在。
+            未找到指定的规则，可能已被删除或不存在。
           </AlertDescription>
         </Alert>
       </div>
     );
   }
 
-  const statusDisplay = getStatusDisplay(action.status);
-  const isPopup = action.parameters.type === 'popup';
+  const statusDisplay = getStatusDisplay(rule.status);
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
+    <div className="p-6 space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" onClick={() => navigate('/response-actions')}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            返回列表
-          </Button>
-        </div>
-        
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            onClick={handleEdit}
-            disabled={operationLoading}
+      <div className="flex items-center justify-between">
+        <div>
+          <Link 
+            to="/response-actions" 
+            className="inline-flex items-center text-blue-600 hover:text-blue-800 text-sm font-medium mb-2"
           >
-            <Edit className="h-4 w-4 mr-2" />
-            编辑
-          </Button>
-          
-          {action.status === 'DRAFT' && (
-            <Button
-              variant="outline"
-              onClick={handleEnable}
-              disabled={operationLoading}
-              className="text-green-600 border-green-200 hover:bg-green-50"
+            <ArrowLeft className="h-4 w-4 mr-1" />
+            返回列表
+          </Link>
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-bold text-gray-900">{rule.ruleName}</h1>
+            <Badge 
+              variant={statusDisplay.color === 'green' ? 'default' : 'secondary'}
+              className={statusDisplay.color === 'green' ? 'bg-green-100 text-green-800' : ''}
             >
-              <Power className="h-4 w-4 mr-2" />
-              启用
-            </Button>
-          )}
-          
-          {action.status === 'ACTIVE' && (
-            <Button
-              variant="outline"
-              onClick={handleDisable}
-              disabled={operationLoading}
-              className="text-orange-600 border-orange-200 hover:bg-orange-50"
-            >
-              <PowerOff className="h-4 w-4 mr-2" />
-              停用
-            </Button>
-          )}
-          
-          {(action.status === 'DRAFT' || action.status === 'ARCHIVED') && (
-            <Button
-              variant="outline"
-              onClick={handleDelete}
-              disabled={operationLoading}
-              className="text-red-600 border-red-200 hover:bg-red-50"
-            >
-              <Trash2 className="h-4 w-4 mr-2" />
-              删除
-            </Button>
-          )}
+              {statusDisplay.text}
+            </Badge>
+          </div>
         </div>
+        {renderActionButtons()}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Basic Information */}
-        <div className="lg:col-span-2 space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Target className="h-5 w-5" />
-                基本信息
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium text-gray-600">动作名称</label>
-                  <p className="text-lg font-medium mt-1">{action.actionName}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-600">动作类型</label>
-                  <div className="flex items-center gap-2 mt-1">
-                    {isPopup ? <MessageSquare className="h-4 w-4" /> : <Mail className="h-4 w-4" />}
-                    <span className="text-lg">{getActionTypeDisplay(action.actionType)}</span>
-                  </div>
-                </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>基本信息</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <span className="text-sm font-medium text-gray-600">规则ID：</span>
+              <span className="text-sm font-mono">{rule.id}</span>
+            </div>
+            <div>
+              <span className="text-sm font-medium text-gray-600">响应动作类型：</span>
+              <span className="text-sm">{getActionTypeDisplay(rule.action)}</span>
+            </div>
+            <div>
+              <span className="text-sm font-medium text-gray-600">创建时间：</span>
+              <span className="text-sm">{formatDate(rule.createdAt)}</span>
+            </div>
+            <div>
+              <span className="text-sm font-medium text-gray-600">更新时间：</span>
+              <span className="text-sm">{formatDate(rule.updatedAt)}</span>
+            </div>
+            <div>
+              <span className="text-sm font-medium text-gray-600">触发器摘要：</span>
+              <div className="text-sm mt-1 p-2 bg-gray-50 rounded">
+                {getTriggerSummary(rule.trigger)}
               </div>
-              
-              <div>
-                <label className="text-sm font-medium text-gray-600">触发用途</label>
-                <p className="text-lg mt-1">{getPurposeLabel(action.purpose)}</p>
-              </div>
-              
-              <div>
-                <label className="text-sm font-medium text-gray-600">状态</label>
-                <div className="mt-1">
-                  <Badge variant={statusDisplay.variant} className="text-sm px-3 py-1">
-                    {statusDisplay.text}
-                  </Badge>
-                </div>
-              </div>
-              
-              <Separator />
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium text-gray-600 flex items-center gap-2">
-                    <Calendar className="h-4 w-4" />
-                    创建时间
-                  </label>
-                  <p className="mt-1">{formatDate(action.createdAt)}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-600 flex items-center gap-2">
-                    <Clock className="h-4 w-4" />
-                    更新时间
-                  </label>
-                  <p className="mt-1">{formatDate(action.updatedAt)}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Parameters */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                {isPopup ? <MessageSquare className="h-5 w-5" /> : <Mail className="h-5 w-5" />}
-                {isPopup ? '弹窗参数' : '邮件参数'}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {isPopup ? (
-                <>
-                  <div>
-                    <label className="text-sm font-medium text-gray-600">弹窗标题</label>
-                    <p className="text-lg mt-1 font-medium">{action.parameters.title}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-gray-600">弹窗正文</label>
-                    <div className="mt-1 p-3 bg-gray-50 rounded-md">
-                      <p className="text-gray-900">{action.parameters.content}</p>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm font-medium text-gray-600">按钮文字</label>
-                      <p className="mt-1 font-medium">{action.parameters.buttonText}</p>
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-gray-600">按钮链接</label>
-                      <div className="flex items-center gap-2 mt-1">
-                        <p className="text-blue-600 truncate">{action.parameters.buttonLink}</p>
-                        <a 
-                          href={action.parameters.buttonLink} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="text-blue-600 hover:text-blue-800"
-                        >
-                          <ExternalLink className="h-4 w-4" />
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div>
-                    <label className="text-sm font-medium text-gray-600">邮件标题</label>
-                    <p className="text-lg mt-1 font-medium">{action.parameters.subject}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-gray-600">邮件正文</label>
-                    <div className="mt-1 p-3 bg-gray-50 rounded-md">
-                      <div 
-                        className="text-gray-900"
-                        dangerouslySetInnerHTML={{ __html: action.parameters.content }}
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-gray-600">发件人名称</label>
-                    <p className="mt-1 font-medium">{action.parameters.senderName}</p>
-                  </div>
-                </>
-              )}
-            </CardContent>
-          </Card>
-        </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Performance Metrics */}
-        <div>
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <BarChart3 className="h-5 w-5" />
-                效果追踪
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="text-center">
-                <div className="flex items-center justify-center gap-2 mb-2">
-                  <Target className="h-5 w-5 text-blue-600" />
-                  <span className="text-sm font-medium text-gray-600">累计执行次数</span>
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <TrendingUp className="h-5 w-5" />
+              效果统计
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 gap-4">
+              <div className="text-center p-4 bg-blue-50 rounded-lg">
+                <div className="text-2xl font-bold text-blue-600">
+                  {rule.totalExecutions.toLocaleString()}
                 </div>
-                <p className="text-3xl font-bold text-blue-600">
-                  {action.totalExecutions.toLocaleString()}
-                </p>
+                <div className="text-sm text-blue-600">累计执行次数</div>
               </div>
-              
-              <Separator />
-              
-              <div className="text-center">
-                <div className="flex items-center justify-center gap-2 mb-2">
-                  <MousePointer className="h-5 w-5 text-green-600" />
-                  <span className="text-sm font-medium text-gray-600">累计互动次数</span>
+              <div className="text-center p-4 bg-green-50 rounded-lg">
+                <div className="text-2xl font-bold text-green-600">
+                  {rule.totalInteractions.toLocaleString()}
                 </div>
-                <p className="text-3xl font-bold text-green-600">
-                  {action.totalInteractions.toLocaleString()}
-                </p>
-                {action.totalExecutions > 0 && (
-                  <p className="text-sm text-gray-500 mt-1">
-                    互动率: {((action.totalInteractions / action.totalExecutions) * 100).toFixed(1)}%
-                  </p>
-                )}
+                <div className="text-sm text-green-600">累计互动次数</div>
               </div>
-              
-              <Separator />
-              
-              <div className="text-center">
-                <div className="flex items-center justify-center gap-2 mb-2">
-                  <TrendingUp className="h-5 w-5 text-orange-600" />
-                  <span className="text-sm font-medium text-gray-600">累计转化数</span>
+              <div className="text-center p-4 bg-purple-50 rounded-lg">
+                <div className="text-2xl font-bold text-purple-600">
+                  {rule.totalConversions.toLocaleString()}
                 </div>
-                <p className="text-3xl font-bold text-orange-600">
-                  {action.totalConversions.toLocaleString()}
-                </p>
-                {action.totalInteractions > 0 && (
-                  <p className="text-sm text-gray-500 mt-1">
-                    转化率: {((action.totalConversions / action.totalInteractions) * 100).toFixed(1)}%
-                  </p>
-                )}
+                <div className="text-sm text-purple-600">累计转化数</div>
               </div>
-              
-              {action.totalExecutions === 0 && (
-                <div className="text-center py-4">
-                  <p className="text-gray-500 text-sm">
-                    暂无执行数据
-                    {action.status === 'DRAFT' && '（草稿状态）'}
-                  </p>
+              <div className="text-center p-4 bg-orange-50 rounded-lg">
+                <div className="text-2xl font-bold text-orange-600">
+                  {rule.totalInteractions > 0 
+                    ? ((rule.totalConversions / rule.totalInteractions) * 100).toFixed(1) + '%'
+                    : '0%'
+                  }
                 </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
+                <div className="text-sm text-orange-600">转化率</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
+
+      {/* Trigger Configuration */}
+      <Card>
+        <CardHeader>
+          <CardTitle>触发器配置</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {renderTriggerDetails()}
+        </CardContent>
+      </Card>
+
+      {/* Action Configuration */}
+      <Card>
+        <CardHeader>
+          <CardTitle>响应动作配置</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {renderActionDetails()}
+        </CardContent>
+      </Card>
+
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={confirmationModal.isOpen}
+        onClose={() => !operationLoading && setConfirmationModal(prev => ({ ...prev, isOpen: false }))}
+        onConfirm={handleConfirmation}
+        type={confirmationModal.type}
+        actionName={confirmationModal.ruleName}
+      />
     </div>
   );
 }
