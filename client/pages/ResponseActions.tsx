@@ -61,7 +61,8 @@ export default function ResponseActions() {
 
   const [filters, setFilters] = useState<FiltersState>({
     search: '',
-    status: 'all'
+    status: 'all',
+    dateRange: 'all'
   });
 
   const [confirmationModal, setConfirmationModal] = useState<ConfirmationState>({
@@ -245,7 +246,7 @@ export default function ResponseActions() {
               className={isDisabled ? disabledClass : linkClass}
               onClick={() => !isDisabled && handleViewDetail(rule.id)}
             >
-              详情
+              ��情
             </span>
             <span
               className={isDisabled ? disabledClass : linkClass}
@@ -325,7 +326,7 @@ export default function ResponseActions() {
           {/* Search */}
           <div className="flex-1">
             <Input
-              placeholder="��索规则名称"
+              placeholder="搜索规则名称"
               value={filters.search}
               onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
               className="w-full"
