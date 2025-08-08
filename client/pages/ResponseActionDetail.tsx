@@ -200,7 +200,7 @@ export default function ResponseActionDetail() {
             disabled={operationLoading}
           >
             <Edit className="h-4 w-4 mr-2" />
-            编���
+            编辑
           </Button>
           
           {action.status === 'DRAFT' && (
@@ -374,7 +374,7 @@ export default function ResponseActionDetail() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <BarChart3 className="h-5 w-5" />
-                性能指标
+                效果追踪
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
