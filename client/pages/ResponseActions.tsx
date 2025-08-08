@@ -33,6 +33,7 @@ import { useToast } from '@/hooks/use-toast';
 interface FiltersState {
   search: string;
   status: string;
+  dateRange: string;
 }
 
 interface ConfirmationState {
@@ -324,7 +325,7 @@ export default function ResponseActions() {
           {/* Search */}
           <div className="flex-1">
             <Input
-              placeholder="搜索规则名称"
+              placeholder="��索规则名称"
               value={filters.search}
               onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
               className="w-full"
@@ -385,7 +386,7 @@ export default function ResponseActions() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>规则���称</TableHead>
+                <TableHead>规则名称</TableHead>
                 <TableHead>响应动作</TableHead>
                 <TableHead>状态</TableHead>
                 <TableHead>触发器摘要</TableHead>
