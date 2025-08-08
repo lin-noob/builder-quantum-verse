@@ -315,17 +315,31 @@ export default function ResponseActions() {
       {/* Page Header */}
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-gray-900">响应动作库</h1>
-        <Button 
+        <Button
           onClick={() => {
             setEditingAction(null);
             setIsCreateModalOpen(true);
           }}
           className="flex items-center gap-2"
+          disabled={operationLoading}
         >
           <Plus className="h-4 w-4" />
           创建新动作
         </Button>
       </div>
+
+      {/* Error Display */}
+      {error && (
+        <Alert variant="destructive" className="mb-6">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription className="flex items-center justify-between">
+            {error}
+            <Button variant="outline" size="sm" onClick={clearError}>
+              关闭
+            </Button>
+          </AlertDescription>
+        </Alert>
+      )}
 
       {/* Filters & Search Bar */}
       <div className="bg-white rounded-lg border border-gray-200 p-4 mb-6">
