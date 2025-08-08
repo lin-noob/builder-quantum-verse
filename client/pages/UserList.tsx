@@ -16,21 +16,38 @@ export default function UserList() {
 
   const users = getUsers();
 
-  // Filter users based on search and location
+  // Filter users based on search and time criteria
   const filteredUsers = useMemo(() => {
     return users.filter(user => {
-      const matchesSearch = searchQuery === "" || 
+      const matchesSearch = searchQuery === "" ||
         user.cdpId.toLowerCase().includes(searchQuery.toLowerCase()) ||
         user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         user.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
         user.contact.toLowerCase().includes(searchQuery.toLowerCase());
 
-      const matchesLocation = selectedLocation === "all" || 
-        `${user.country}/${user.city}` === selectedLocation;
+      let matchesTimeFilter = true;
 
-      return matchesSearch && matchesLocation;
+      if (timeRangeFilter !== "all" && timeFieldFilter !== "all") {
+        const now = new Date();
+        const timeValue = new Date(
+          timeFieldFilter === "firstVisit" ? user.firstVisitTime :
+          timeFieldFilter === "registration" ? user.registrationTime :
+          timeFieldFilter === "firstPurchase" ? user.firstPurchaseTime :
+          user.lastActiveTime
+        );
+
+        const diffDays = Math.floor((now.getTime() - timeValue.getTime()) / (1000 * 60 * 60 * 24));
+
+        matchesTimeFilter =
+          (timeRangeFilter === "7days" && diffDays <= 7) ||
+          (timeRangeFilter === "30days" && diffDays <= 30) ||
+          (timeRangeFilter === "90days" && diffDays <= 90) ||
+          (timeRangeFilter === "180days" && diffDays <= 180);
+      }
+
+      return matchesSearch && matchesTimeFilter;
     });
-  }, [users, searchQuery, selectedLocation]);
+  }, [users, searchQuery, timeRangeFilter, timeFieldFilter]);
 
   // Pagination
   const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
