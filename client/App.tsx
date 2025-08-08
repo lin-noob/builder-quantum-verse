@@ -14,9 +14,10 @@ import ResponseActions from "./pages/ResponseActions";
 import ResponseActionDetail from "./pages/ResponseActionDetail";
 import ResponseActionCreate from "./pages/ResponseActionCreate";
 import ResponseActionEdit from "./pages/ResponseActionEdit";
-import StrategyGoals from "./pages/AIMarketing/StrategyGoals";
-import LiveMonitoring from "./pages/AIMarketing/LiveMonitoring";
-import PerformanceAnalytics from "./pages/AIMarketing/PerformanceAnalytics";
+import MonitoringCenter from "./pages/AIMarketing/MonitoringCenter";
+import FullyAuto from "./pages/AIMarketing/FullyAuto";
+import SemiAuto from "./pages/AIMarketing/SemiAuto";
+import ScriptCreate from "./pages/AIMarketing/ScriptCreate";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
