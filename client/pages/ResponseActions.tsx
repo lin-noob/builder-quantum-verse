@@ -1,12 +1,12 @@
 import { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { 
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue 
+  SelectValue
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -18,13 +18,15 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Plus, Edit, Power, PowerOff, Trash2 } from 'lucide-react';
-import { 
-  mockResponseActions, 
+import {
+  mockResponseActions,
   ResponseAction,
   getActionTypeDisplay,
   getStatusDisplay,
   getPurposeLabel
 } from '@/shared/responseActionsData';
+import ResponseActionModal from '@/components/ResponseActionModal';
+import ConfirmationModal from '@/components/ConfirmationModal';
 
 interface FiltersState {
   search: string;
