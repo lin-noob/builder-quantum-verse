@@ -36,6 +36,12 @@ export default function Layout({ children }: LayoutProps) {
       label: '响应动作库',
       path: '/response-actions',
       icon: <MessageSquare className="h-5 w-5" />
+    },
+    {
+      id: 'ai-marketing',
+      label: 'AI全自动营销',
+      path: '/ai-marketing/strategy-goals',
+      icon: <Bot className="h-5 w-5" />
     }
   ];
 
