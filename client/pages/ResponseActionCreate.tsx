@@ -135,20 +135,15 @@ export default function ResponseActionCreate() {
     <div className="p-6 max-w-4xl mx-auto">
       {/* Header */}
       <div className="mb-6">
-        <div className="flex items-center gap-3 mb-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate('/response-actions')}
-            className="flex items-center gap-2"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            返回
-          </Button>
-        </div>
-        <h1 className="text-2xl font-bold text-gray-900">
-          {isEditing ? '编辑规则' : '创建新规则'}
-        </h1>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => navigate('/response-actions')}
+          className="flex items-center gap-2"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          返回
+        </Button>
       </div>
 
       <div className="space-y-6">
@@ -319,7 +314,7 @@ export default function ResponseActionCreate() {
             {actionType === 'popup' && (
               <div className="space-y-4">
                 <div>
-                  <Label>弹窗标题</Label>
+                  <Label>���窗标���</Label>
                   <Input
                     className="mt-1"
                     placeholder="输入弹窗标题"
