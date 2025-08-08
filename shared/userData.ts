@@ -419,6 +419,10 @@ export const mockUsers: User[] = [
     maxOrderAmount: 4800.00,
     averagePurchaseCycle: 35,
     tags: ["企业用户"],
+    firstVisitTime: "2023-06-20 11:15:45",
+    registrationTime: "2023-06-22 09:30:18",
+    firstPurchaseTime: "2023-07-05 16:20:30",
+    lastActiveTime: "2024-01-20 10:30:20",
     sessions: [
       {
         id: "session-lm-1",
@@ -531,7 +535,7 @@ export const mockUsers: User[] = [
           },
           {
             timestamp: "16:35:30",
-            eventType: "页��访问",
+            eventType: "页面访问",
             pageTitle: "联系销售",
             pageUrl: "/contact-sales",
             stayDuration: "3分20秒",
@@ -629,7 +633,7 @@ export const mockUsers: User[] = [
         status: "已完成",
         totalAmount: 1850.00,
         currency: "CNY",
-        paymentMethod: "微信支付",
+        paymentMethod: "微信支���",
         items: [
           {
             productName: "基础版软件授权",
@@ -681,8 +685,8 @@ export const mockUsers: User[] = [
       {
         id: "session-wf-1",
         date: "2024-01-21 13:45",
-        summary: "新功能体验和反馈提交",
-        source: "���件通知",
+        summary: "新��能体验和反馈提交",
+        source: "邮件通知",
         deviceType: "桌面端",
         os: "Windows 11",
         browser: "Chrome 120",
@@ -1060,7 +1064,7 @@ export const mockUsers: User[] = [
     lastPurchaseDate: "2024-01-08",
     maxOrderAmount: 3200.00,
     averagePurchaseCycle: 45,
-    tags: ["新客户"],
+    tags: ["新客���"],
     sessions: [],
     orders: []
   },
