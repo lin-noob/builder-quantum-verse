@@ -32,7 +32,7 @@ export interface EmailParameters {
 
 // Purpose options for AI-triggered scenarios
 export const PURPOSE_OPTIONS = [
-  { value: 'NEW_USER_FIRST_VISIT', label: '识别到新用户首次访问时' },
+  { value: 'NEW_USER_FIRST_VISIT', label: '识别到新用户首次访问��' },
   { value: 'CART_ABANDONMENT', label: '识别到用户即将放弃购物车时' },
   { value: 'LONG_STAY_NO_CONVERSION', label: '用户长时间停留但无转化动作时' },
   { value: 'PRODUCT_COMPARISON', label: '识别到用户正在进行商品对比时' },
@@ -74,7 +74,7 @@ export const mockResponseActions: ResponseAction[] = [
     parameters: {
       type: 'email',
       subject: '您的购物车还有商品等待您',
-      content: '<h3>不要错过这些精选商品</h3><p>您的购物车中还有商品正在等待您完成购买。现在完成��单还可享受免费配送！</p>',
+      content: '<h3>不要错过这些精选商品</h3><p>您的购物车中还有商品正在等待您完成购买。现在完成订单还可享受免费配送！</p>',
       senderName: '商城客服团队'
     }
   },
@@ -111,7 +111,7 @@ export const mockResponseActions: ResponseAction[] = [
     parameters: {
       type: 'email',
       subject: '商品对比指南已为您准备',
-      content: '<h3>专业对比分析</h3><p>我们注意到您正在对比多款商品���为您准备了详细的对比分析报告。</p>',
+      content: '<h3>专业对比分析</h3><p>我们注意到您正在对比多款商品，为您准备了详细的对比分析报告。</p>',
       senderName: '产品专家'
     }
   },
@@ -147,7 +147,7 @@ export const mockResponseActions: ResponseAction[] = [
     totalConversions: 0,
     parameters: {
       type: 'email',
-      subject: '季末清仓大��销开始了！',
+      subject: '季末清仓大促销开始了！',
       content: '<h2>全场5折起</h2><p>季末清仓活动正式开始，数千款商品5折起，机会难得，快来选购吧！</p>',
       senderName: '促销活动团队'
     }
