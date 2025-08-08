@@ -144,7 +144,10 @@ export const mockRules: Rule[] = [
     },
     status: 'active',
     createdAt: '2024-01-15T10:00:00Z',
-    updatedAt: '2024-01-20T14:30:00Z'
+    updatedAt: '2024-01-20T14:30:00Z',
+    totalExecutions: 2845,
+    totalInteractions: 1967,
+    totalConversions: 524
   },
   {
     id: 'rule-002',
@@ -166,7 +169,10 @@ export const mockRules: Rule[] = [
     },
     status: 'active',
     createdAt: '2024-01-12T09:15:00Z',
-    updatedAt: '2024-01-18T16:20:00Z'
+    updatedAt: '2024-01-18T16:20:00Z',
+    totalExecutions: 4320,
+    totalInteractions: 2896,
+    totalConversions: 1156
   },
   {
     id: 'rule-003',
@@ -188,7 +194,10 @@ export const mockRules: Rule[] = [
     },
     status: 'archived',
     createdAt: '2024-01-05T08:30:00Z',
-    updatedAt: '2024-01-15T12:00:00Z'
+    updatedAt: '2024-01-15T12:00:00Z',
+    totalExecutions: 1892,
+    totalInteractions: 967,
+    totalConversions: 245
   },
   {
     id: 'rule-004',
@@ -211,6 +220,9 @@ export const mockRules: Rule[] = [
     },
     status: 'draft',
     createdAt: '2024-01-22T11:45:00Z',
-    updatedAt: '2024-01-22T11:45:00Z'
+    updatedAt: '2024-01-22T11:45:00Z',
+    totalExecutions: 0,
+    totalInteractions: 0,
+    totalConversions: 0
   }
 ];
