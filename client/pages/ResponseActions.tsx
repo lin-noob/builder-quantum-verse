@@ -201,7 +201,7 @@ export default function ResponseActions() {
         const apiRequest = convertFormDataToApiRequest(formData, formData.actionType, isDraft);
         await createAction(apiRequest);
         toast({
-          title: '创���成功',
+          title: '创建成功',
           description: `动作"${formData.actionName}"已成功${isDraft ? '保存为草稿' : '创建并生效'}`
         });
       }
@@ -222,7 +222,8 @@ export default function ResponseActions() {
   // Render action buttons based on status
   const renderActionButtons = (action: ResponseAction) => {
     const baseClasses = "h-8 px-3 text-xs";
-    
+    const isDisabled = operationLoading;
+
     switch (action.status) {
       case 'DRAFT':
         return (
@@ -232,6 +233,7 @@ export default function ResponseActions() {
               size="sm"
               className={baseClasses}
               onClick={() => handleEdit(action)}
+              disabled={isDisabled}
             >
               <Edit className="h-3 w-3 mr-1" />
               编辑
@@ -241,6 +243,7 @@ export default function ResponseActions() {
               size="sm"
               className={`${baseClasses} text-green-600 border-green-200 hover:bg-green-50`}
               onClick={() => handleEnable(action)}
+              disabled={isDisabled}
             >
               <Power className="h-3 w-3 mr-1" />
               启用
@@ -250,13 +253,14 @@ export default function ResponseActions() {
               size="sm"
               className={`${baseClasses} text-red-600 border-red-200 hover:bg-red-50`}
               onClick={() => handleDelete(action)}
+              disabled={isDisabled}
             >
               <Trash2 className="h-3 w-3 mr-1" />
               删除
             </Button>
           </div>
         );
-      
+
       case 'ACTIVE':
         return (
           <div className="flex gap-1">
@@ -265,6 +269,7 @@ export default function ResponseActions() {
               size="sm"
               className={baseClasses}
               onClick={() => handleEdit(action)}
+              disabled={isDisabled}
             >
               <Edit className="h-3 w-3 mr-1" />
               编辑
@@ -274,13 +279,14 @@ export default function ResponseActions() {
               size="sm"
               className={`${baseClasses} text-orange-600 border-orange-200 hover:bg-orange-50`}
               onClick={() => handleDisable(action)}
+              disabled={isDisabled}
             >
               <PowerOff className="h-3 w-3 mr-1" />
               停用
             </Button>
           </div>
         );
-      
+
       case 'ARCHIVED':
         return (
           <div className="flex gap-1">
@@ -289,6 +295,7 @@ export default function ResponseActions() {
               size="sm"
               className={baseClasses}
               onClick={() => handleEdit(action)}
+              disabled={isDisabled}
             >
               <Edit className="h-3 w-3 mr-1" />
               编辑
@@ -298,13 +305,14 @@ export default function ResponseActions() {
               size="sm"
               className={`${baseClasses} text-red-600 border-red-200 hover:bg-red-50`}
               onClick={() => handleDelete(action)}
+              disabled={isDisabled}
             >
               <Trash2 className="h-3 w-3 mr-1" />
               删除
             </Button>
           </div>
         );
-      
+
       default:
         return null;
     }
