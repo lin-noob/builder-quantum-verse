@@ -43,6 +43,13 @@ interface ConfirmationState {
   actionName: string;
 }
 
+interface SortState {
+  field: string | null;
+  direction: 'asc' | 'desc';
+}
+
+type SortableFields = 'totalExecutions' | 'totalInteractions' | 'totalConversions' | 'updatedAt';
+
 export default function ResponseActions() {
   const { toast } = useToast();
   const {
