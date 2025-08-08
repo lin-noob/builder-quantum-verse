@@ -1,15 +1,15 @@
 import { useState, useEffect, useCallback } from 'react';
-import { 
-  ResponseAction, 
-  PopupParameters, 
-  EmailParameters 
-} from '@/shared/responseActionsData';
-import { 
-  responseActionsApi, 
+import {
+  ResponseAction,
+  PopupParameters,
+  EmailParameters
+} from '@shared/responseActionsData';
+import {
+  responseActionsApi,
   CreateResponseActionRequest,
   UpdateResponseActionRequest,
-  validateResponseAction 
-} from '@/shared/responseActionsApi';
+  validateResponseAction
+} from '@shared/responseActionsApi';
 
 export interface UseResponseActionsReturn {
   // Data
