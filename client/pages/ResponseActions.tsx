@@ -84,9 +84,9 @@ export default function ResponseActions() {
     direction: 'desc'
   });
 
-  // Filter actions based on current filter state
-  const filteredActions = useMemo(() => {
-    return actions.filter(action => {
+  // Filter and sort actions based on current filter and sort state
+  const filteredAndSortedActions = useMemo(() => {
+    let filtered = actions.filter(action => {
       const matchesSearch = filters.search === '' ||
         action.actionName.toLowerCase().includes(filters.search.toLowerCase());
 
@@ -99,7 +99,31 @@ export default function ResponseActions() {
 
       return matchesSearch && matchesType && matchesStatus;
     });
-  }, [actions, filters]);
+
+    // Apply sorting
+    if (sortState.field) {
+      filtered.sort((a, b) => {
+        let aValue: any;
+        let bValue: any;
+
+        if (sortState.field === 'updatedAt') {
+          aValue = new Date(a.updatedAt).getTime();
+          bValue = new Date(b.updatedAt).getTime();
+        } else {
+          aValue = a[sortState.field as keyof ResponseAction];
+          bValue = b[sortState.field as keyof ResponseAction];
+        }
+
+        if (sortState.direction === 'asc') {
+          return aValue > bValue ? 1 : -1;
+        } else {
+          return aValue < bValue ? 1 : -1;
+        }
+      });
+    }
+
+    return filtered;
+  }, [actions, filters, sortState]);
 
   // Format date for display
   const formatDate = (dateString: string): string => {
