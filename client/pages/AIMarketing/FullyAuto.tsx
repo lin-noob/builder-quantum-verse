@@ -120,7 +120,7 @@ export default function FullyAuto() {
       
       toast({
         title: '设置保存成功',
-        description: '全���动模式配置已更新'
+        description: '全自动模式配置已更新'
       });
     } catch (error) {
       toast({
@@ -273,18 +273,9 @@ export default function FullyAuto() {
                 <div className="text-center py-8 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
                   <Users className="h-12 w-12 text-gray-400 mx-auto mb-3" />
                   <h3 className="text-sm font-medium text-gray-900 mb-1">暂无筛选规则</h3>
-                  <p className="text-sm text-gray-500 mb-4">
+                  <p className="text-sm text-gray-500">
                     添加筛选规则来定义AI自动营销的目标用户群体
                   </p>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setCustomRuleDialog(true)}
-                    className="flex items-center gap-2"
-                  >
-                    <Plus className="h-4 w-4" />
-                    添加第一条规则
-                  </Button>
                 </div>
               )}
             </div>
@@ -327,7 +318,7 @@ export default function FullyAuto() {
                   <DialogTrigger asChild>
                     <Button variant="outline" size="sm" className="flex items-center gap-2">
                       <Settings className="h-4 w-4" />
-                      设置行为边界
+                      ��置行为边界
                     </Button>
                   </DialogTrigger>
                   <DialogContent>
