@@ -465,16 +465,22 @@ export default function ResponseActions() {
                     {getSortIcon('totalInteractions')}
                   </div>
                 </TableHead>
-                <TableHead
-                  className="cursor-pointer select-none hover:bg-gray-50"
-                  onClick={() => handleSort('totalConversions')}
-                >
-                  <div className="flex items-center gap-2">
-                    累计转化���
-                    {getSortIcon('totalConversions')}
+                <div className="flex gap-5 md:gap-20">
+                  <div className="flex flex-col w-1/2">
+                    <TableHead
+                      className="cursor-pointer select-none hover:bg-gray-50"
+                      onClick={() => handleSort('totalConversions')}
+                    >
+                      <div className="flex items-center gap-2">
+                        累计转化
+                        {getSortIcon('totalConversions')}
+                      </div>
+                    </TableHead>
                   </div>
-                </TableHead>
-                <TableHead className="text-right">操作</TableHead>
+                  <div className="flex flex-col w-1/2 ml-5">
+                    <TableHead className="text-right">操作</TableHead>
+                  </div>
+                </div>
               </TableRow>
             </TableHeader>
             <TableBody>
