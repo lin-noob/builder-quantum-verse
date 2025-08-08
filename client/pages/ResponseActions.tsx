@@ -360,8 +360,8 @@ export default function ResponseActions() {
 
           {/* Status Filter */}
           <div className="w-full md:w-48">
-            <Select 
-              value={filters.status} 
+            <Select
+              value={filters.status}
               onValueChange={(value) => setFilters(prev => ({ ...prev, status: value }))}
             >
               <SelectTrigger>
@@ -372,6 +372,25 @@ export default function ResponseActions() {
                 <SelectItem value="draft">草稿</SelectItem>
                 <SelectItem value="active">生效中</SelectItem>
                 <SelectItem value="archived">已归档</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Date Filter */}
+          <div className="w-full md:w-48">
+            <Select
+              value={filters.dateRange}
+              onValueChange={(value) => setFilters(prev => ({ ...prev, dateRange: value }))}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="创建时间" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">全���时间</SelectItem>
+                <SelectItem value="today">今天</SelectItem>
+                <SelectItem value="week">近一周</SelectItem>
+                <SelectItem value="month">近一月</SelectItem>
+                <SelectItem value="quarter">近三月</SelectItem>
               </SelectContent>
             </Select>
           </div>
