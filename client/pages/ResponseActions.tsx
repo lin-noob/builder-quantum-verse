@@ -71,8 +71,6 @@ export default function ResponseActions() {
     status: 'all'
   });
 
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [editingAction, setEditingAction] = useState<ResponseAction | null>(null);
   const [confirmationModal, setConfirmationModal] = useState<ConfirmationState>({
     isOpen: false,
     type: 'enable',
