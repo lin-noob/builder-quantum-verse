@@ -120,7 +120,7 @@ export default function FullyAuto() {
       
       toast({
         title: '设置保存成功',
-        description: '全自动模式配置已更新'
+        description: '全���动模式配置已更新'
       });
     } catch (error) {
       toast({
@@ -146,10 +146,10 @@ export default function FullyAuto() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Users className="h-5 w-5 text-blue-600" />
-              AI自动化应用范围
+              AI自动化目标用户
             </CardTitle>
             <p className="text-sm text-gray-600">
-              请圈选需要由AI进行全自动营销的用户群体。对��未被选中的群体（如VIP客户），AI将不会进行任何主动的营销干预。
+              通过设置筛选规则来精确定义AI自动营销的目标用户群体。只有符合所有筛选条件的用户才会被AI系统进行自动营销干预。
             </p>
           </CardHeader>
           <CardContent className="space-y-6">
