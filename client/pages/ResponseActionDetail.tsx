@@ -261,7 +261,7 @@ export default function ResponseActionDetail() {
           </div>
           <div className="ml-6 space-y-3">
             <div>
-              <span className="text-sm font-medium text-gray-600">邮件标题：</span>
+              <span className="text-sm font-medium text-gray-600">邮件标��：</span>
               <div className="mt-1 p-2 bg-gray-50 rounded text-sm">{action.subject}</div>
             </div>
             <div>
@@ -384,7 +384,7 @@ export default function ResponseActionDetail() {
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            未找到指定的规则，可能已被删除或不存在。
+            未找到指定的规���，可能已被删除或不存在。
           </AlertDescription>
         </Alert>
       </div>
@@ -398,16 +398,16 @@ export default function ResponseActionDetail() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <Link 
-            to="/response-actions" 
+          <Link
+            to="/response-actions"
             className="inline-flex items-center text-blue-600 hover:text-blue-800 text-sm font-medium mb-2"
           >
             <ArrowLeft className="h-4 w-4 mr-1" />
             返回列表
           </Link>
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold text-gray-900">{rule.ruleName}</h1>
-            <Badge 
+            <span className="text-lg font-medium text-gray-900">{rule.ruleName}</span>
+            <Badge
               variant={statusDisplay.color === 'green' ? 'default' : 'secondary'}
               className={statusDisplay.color === 'green' ? 'bg-green-100 text-green-800' : ''}
             >
