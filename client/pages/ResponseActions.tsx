@@ -34,6 +34,13 @@ interface FiltersState {
   status: string;
 }
 
+interface ConfirmationState {
+  isOpen: boolean;
+  type: 'enable' | 'disable' | 'delete';
+  actionId: string;
+  actionName: string;
+}
+
 export default function ResponseActions() {
   const [filters, setFilters] = useState<FiltersState>({
     search: '',
@@ -43,6 +50,12 @@ export default function ResponseActions() {
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingAction, setEditingAction] = useState<ResponseAction | null>(null);
+  const [confirmationModal, setConfirmationModal] = useState<ConfirmationState>({
+    isOpen: false,
+    type: 'enable',
+    actionId: '',
+    actionName: ''
+  });
 
   // Filter actions based on current filter state
   const filteredActions = useMemo(() => {
