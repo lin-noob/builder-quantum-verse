@@ -137,6 +137,24 @@ export default function ResponseActions() {
     });
   };
 
+  // Handle sorting
+  const handleSort = (field: SortableFields) => {
+    setSortState(prev => ({
+      field,
+      direction: prev.field === field && prev.direction === 'desc' ? 'asc' : 'desc'
+    }));
+  };
+
+  // Get sort icon for column headers
+  const getSortIcon = (field: SortableFields) => {
+    if (sortState.field !== field) {
+      return <ArrowUpDown className="h-4 w-4 text-gray-400" />;
+    }
+    return sortState.direction === 'desc'
+      ? <ArrowDown className="h-4 w-4 text-blue-600" />
+      : <ArrowUp className="h-4 w-4 text-blue-600" />;
+  };
+
   // Handle action operations
   const handleEdit = (action: ResponseAction) => {
     setEditingAction(action);
@@ -367,7 +385,7 @@ export default function ResponseActions() {
           disabled={operationLoading}
         >
           <Plus className="h-4 w-4" />
-          创建新动作
+          创建新动���
         </Button>
       </div>
 
