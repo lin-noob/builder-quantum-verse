@@ -11,6 +11,7 @@ import Dashboard from "./pages/Dashboard";
 import UserList from "./pages/UserList";
 import UserDetail from "./pages/UserDetail";
 import ResponseActions from "./pages/ResponseActions";
+import ResponseActionDetail from "./pages/ResponseActionDetail";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
