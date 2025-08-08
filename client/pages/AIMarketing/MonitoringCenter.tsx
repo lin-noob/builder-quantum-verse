@@ -161,10 +161,6 @@ export default function MonitoringCenter() {
 
   return (
     <div className="p-6 space-y-6">
-      {/* Page Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">监控中心</h1>
-      </div>
 
       {/* AI Real-time Decision Feed */}
       <Card>
