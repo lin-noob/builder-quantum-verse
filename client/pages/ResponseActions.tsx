@@ -212,7 +212,7 @@ export default function ResponseActions() {
           await disableAction(actionId);
           toast({
             title: '停用成功',
-            description: `动作"${actionName}"已���功停用`
+            description: `动作"${actionName}"已成功停用`
           });
           break;
         case 'delete':
@@ -494,7 +494,7 @@ export default function ResponseActions() {
             <Loader2 className="h-8 w-8 mx-auto mb-4 animate-spin text-gray-400" />
             <p className="text-gray-500">正在加载响应动作...</p>
           </div>
-        ) : filteredActions.length === 0 ? (
+        ) : filteredAndSortedActions.length === 0 ? (
           <div className="p-12 text-center">
             <div className="text-gray-400 mb-2">
               <Plus className="h-12 w-12 mx-auto mb-4 opacity-50" />
