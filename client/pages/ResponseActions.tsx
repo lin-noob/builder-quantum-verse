@@ -19,7 +19,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Plus, Loader2, AlertCircle } from 'lucide-react';
+import { Plus, Loader2, AlertCircle, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import {
   Rule,
   mockRules,
@@ -122,7 +122,7 @@ export default function ResponseActions() {
       switch (type) {
         case 'enable':
           toast({
-            title: '启用成功',
+            title: '启���成功',
             description: `规则"${ruleName}"已成功启用`
           });
           break;
