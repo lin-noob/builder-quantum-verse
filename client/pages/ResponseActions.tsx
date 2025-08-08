@@ -358,7 +358,7 @@ export default function ResponseActions() {
             <Loader2 className="h-8 w-8 mx-auto mb-4 animate-spin text-gray-400" />
             <p className="text-gray-500">正在加载规则...</p>
           </div>
-        ) : filteredRules.length === 0 ? (
+        ) : filteredAndSortedRules.length === 0 ? (
           <div className="p-12 text-center">
             <div className="text-gray-400 mb-2">
               <Plus className="h-12 w-12 mx-auto mb-4 opacity-50" />
