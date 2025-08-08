@@ -71,7 +71,8 @@ export default function Layout({ children }: LayoutProps) {
               <ul className="space-y-2">
                 {menuItems.map((item) => {
                   const isActive = location.pathname === item.path ||
-                    (item.path === '/dashboard' && location.pathname === '/');
+                    (item.path === '/dashboard' && location.pathname === '/') ||
+                    (item.id === 'ai-marketing' && location.pathname.startsWith('/ai-marketing'));
 
                   return (
                     <li key={item.id}>
@@ -113,8 +114,9 @@ export default function Layout({ children }: LayoutProps) {
         <nav className="flex-1 px-4 py-6">
           <ul className="space-y-2">
             {menuItems.map((item) => {
-              const isActive = location.pathname === item.path || 
-                (item.path === '/dashboard' && location.pathname === '/');
+              const isActive = location.pathname === item.path ||
+                (item.path === '/dashboard' && location.pathname === '/') ||
+                (item.id === 'ai-marketing' && location.pathname.startsWith('/ai-marketing'));
               
               return (
                 <li key={item.id}>
