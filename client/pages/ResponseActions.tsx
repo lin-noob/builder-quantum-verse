@@ -242,6 +242,12 @@ export default function ResponseActions() {
           <div className="flex gap-3 text-sm">
             <span
               className={isDisabled ? disabledClass : linkClass}
+              onClick={() => !isDisabled && handleViewDetail(rule.id)}
+            >
+              详情
+            </span>
+            <span
+              className={isDisabled ? disabledClass : linkClass}
               onClick={() => !isDisabled && handleEdit(rule)}
             >
               编辑
@@ -355,7 +361,7 @@ export default function ResponseActions() {
             <p className="text-gray-500 mb-4">
               {filters.search || filters.status !== 'all'
                 ? '没有找到符合条件的规则，请尝试调整筛选条件'
-                : '请点击右上角"创建新规则"开始使用'
+                : '请���击右上角"创建新规则"开始使用'
               }
             </p>
             {(!filters.search && filters.status === 'all') && (
