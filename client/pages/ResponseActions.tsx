@@ -423,12 +423,12 @@ export default function ResponseActions() {
             </div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">暂无规则</h3>
             <p className="text-gray-500 mb-4">
-              {filters.search || filters.status !== 'all'
+              {filters.search || filters.status !== 'all' || filters.dateRange !== 'all'
                 ? '没有找到符合条件的规则，请尝试调整筛选条件'
                 : '请点击右上角"创建新规则"开始使用'
               }
             </p>
-            {(!filters.search && filters.status === 'all') && (
+            {(!filters.search && filters.status === 'all' && filters.dateRange === 'all') && (
               <Button
                 onClick={() => navigate('/response-actions/create')}
                 className="flex items-center gap-2"
