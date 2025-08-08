@@ -42,6 +42,13 @@ interface ConfirmationState {
   ruleName: string;
 }
 
+interface SortState {
+  field: string | null;
+  direction: 'asc' | 'desc';
+}
+
+type SortableFields = 'totalExecutions' | 'totalInteractions' | 'totalConversions';
+
 export default function ResponseActions() {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -122,7 +129,7 @@ export default function ResponseActions() {
       switch (type) {
         case 'enable':
           toast({
-            title: '启���成功',
+            title: '启用成功',
             description: `规则"${ruleName}"已成功启用`
           });
           break;
@@ -299,7 +306,7 @@ export default function ResponseActions() {
             <h3 className="text-lg font-medium text-gray-900 mb-2">暂无规则</h3>
             <p className="text-gray-500 mb-4">
               {filters.search || filters.status !== 'all'
-                ? '没有找到符合条件的规则，请尝试调整筛选条件'
+                ? '没有找到符合条件的���则，请尝试调整筛选条件'
                 : '请点击右上角"创建新规则"开始使用'
               }
             </p>
