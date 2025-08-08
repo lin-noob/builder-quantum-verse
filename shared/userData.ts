@@ -321,7 +321,7 @@ export const mockUsers: User[] = [
         },
         billingAddress: {
           name: "腾讯科技（深圳）有限公司",
-          street: "深圳市南山区科技园南区R4-B栋",
+          street: "深圳市南山区���技园南区R4-B栋",
           city: "深圳",
           state: "广东省",
           postalCode: "518057",
@@ -511,7 +511,7 @@ export const mockUsers: User[] = [
         date: "2024-01-05 16:20",
         summary: "产品对比和价格咨询",
         source: "搜索引擎",
-        deviceType: "移动端",
+        deviceType: "��动端",
         os: "iOS 17",
         browser: "Safari 17",
         location: "杭州, 中国",
@@ -1111,6 +1111,10 @@ export const mockUsers: User[] = [
     maxOrderAmount: 7200.00,
     averagePurchaseCycle: 30,
     tags: ["企业用户", "技术导向"],
+    firstVisitTime: "2023-07-12 10:20:15",
+    registrationTime: "2023-07-15 14:35:45",
+    firstPurchaseTime: "2023-07-22 16:50:30",
+    lastActiveTime: "2024-01-18 11:25:10",
     sessions: [],
     orders: []
   }
