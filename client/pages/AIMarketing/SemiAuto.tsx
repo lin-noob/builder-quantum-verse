@@ -129,7 +129,7 @@ export default function SemiAuto() {
           break;
         case 'delete':
           toast({
-            title: '删除成功',
+            title: '删除��功',
             description: `剧本"${scriptName}"已成功删除`
           });
           break;
@@ -226,9 +226,8 @@ export default function SemiAuto() {
 
   return (
     <div className="p-6">
-      {/* Page Header */}
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">智能营销剧本列表</h1>
+      {/* Action Bar */}
+      <div className="flex justify-end mb-6">
         <Button
           onClick={() => navigate('/ai-marketing/semi-auto/create')}
           className="flex items-center gap-2"
@@ -307,7 +306,7 @@ export default function SemiAuto() {
             <TableHeader>
               <TableRow>
                 <TableHead>剧本名称</TableHead>
-                <TableHead>触发器摘要</TableHead>
+                <TableHead>���������摘要</TableHead>
                 <TableHead>AI动作</TableHead>
                 <TableHead>状态</TableHead>
                 <TableHead className="text-right">操作</TableHead>
