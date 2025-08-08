@@ -373,10 +373,7 @@ export default function ResponseActions() {
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-gray-900">响应动作库</h1>
         <Button
-          onClick={() => {
-            setEditingAction(null);
-            setIsCreateModalOpen(true);
-          }}
+          onClick={() => navigate('/response-actions/create')}
           className="flex items-center gap-2"
           disabled={operationLoading}
         >
@@ -421,7 +418,7 @@ export default function ResponseActions() {
                 <SelectValue placeholder="类型" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">全部类型</SelectItem>
+                <SelectItem value="all">全部类��</SelectItem>
                 <SelectItem value="popup">网页弹窗</SelectItem>
                 <SelectItem value="email">发送邮件</SelectItem>
               </SelectContent>
@@ -503,7 +500,7 @@ export default function ResponseActions() {
                   onClick={() => handleSort('totalInteractions')}
                 >
                   <div className="flex items-center gap-2">
-                    ��计互动次数
+                    累计互动次数
                     {getSortIcon('totalInteractions')}
                   </div>
                 </TableHead>
