@@ -119,7 +119,7 @@ export default function Layout({ children }: LayoutProps) {
                 (item.id === 'ai-marketing' && location.pathname.startsWith('/ai-marketing'));
               
               return (
-                <li key={item.id}>
+                <li key={item.id} className="relative group">
                   <Link
                     to={item.path}
                     className={cn(
@@ -132,6 +132,35 @@ export default function Layout({ children }: LayoutProps) {
                     {item.icon}
                     {item.label}
                   </Link>
+
+                  {/* AI Marketing Submenu */}
+                  {item.id === 'ai-marketing' && (
+                    <div className="absolute left-full top-0 ml-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                      <div className="p-2">
+                        <Link
+                          to="/ai-marketing/strategy-goals"
+                          className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors"
+                        >
+                          <Target className="h-4 w-4" />
+                          战略与目标
+                        </Link>
+                        <Link
+                          to="/ai-marketing/live-monitoring"
+                          className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors"
+                        >
+                          <Activity className="h-4 w-4" />
+                          实时监控
+                        </Link>
+                        <Link
+                          to="/ai-marketing/performance-analytics"
+                          className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors"
+                        >
+                          <BarChart3 className="h-4 w-4" />
+                          效果分析
+                        </Link>
+                      </div>
+                    </div>
+                  )}
                 </li>
               );
             })}
