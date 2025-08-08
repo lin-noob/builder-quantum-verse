@@ -104,9 +104,31 @@ export default function ResponseActions() {
     return filtered;
   }, [rules, filters, sortState]);
 
+  // Handle sorting
+  const handleSort = (field: SortableFields) => {
+    setSortState(prev => ({
+      field,
+      direction: prev.field === field && prev.direction === 'desc' ? 'asc' : 'desc'
+    }));
+  };
+
+  // Get sort icon for column headers
+  const getSortIcon = (field: SortableFields) => {
+    if (sortState.field !== field) {
+      return <ArrowUpDown className="h-4 w-4 text-gray-400" />;
+    }
+    return sortState.direction === 'desc'
+      ? <ArrowDown className="h-4 w-4 text-blue-600" />
+      : <ArrowUp className="h-4 w-4 text-blue-600" />;
+  };
+
   // Handle rule operations
   const handleEdit = (rule: Rule) => {
     navigate(`/response-actions/edit/${rule.id}`);
+  };
+
+  const handleViewDetail = (ruleId: string) => {
+    navigate(`/response-actions/${ruleId}`);
   };
 
   const handleEnable = (rule: Rule) => {
@@ -348,7 +370,7 @@ export default function ResponseActions() {
                 <TableHead>规则名称</TableHead>
                 <TableHead>响应动作</TableHead>
                 <TableHead>状态</TableHead>
-                <TableHead>触发器���要</TableHead>
+                <TableHead>触发器摘要</TableHead>
                 <TableHead className="text-right">操作</TableHead>
               </TableRow>
             </TableHeader>
