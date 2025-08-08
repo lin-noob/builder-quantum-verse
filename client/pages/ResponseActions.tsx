@@ -44,6 +44,19 @@ interface ConfirmationState {
 }
 
 export default function ResponseActions() {
+  const { toast } = useToast();
+  const {
+    actions,
+    loading,
+    error,
+    createAction,
+    updateAction,
+    deleteAction,
+    enableAction,
+    disableAction,
+    clearError
+  } = useResponseActions();
+
   const [filters, setFilters] = useState<FiltersState>({
     search: '',
     actionType: 'all',
@@ -58,23 +71,24 @@ export default function ResponseActions() {
     actionId: '',
     actionName: ''
   });
+  const [operationLoading, setOperationLoading] = useState(false);
 
   // Filter actions based on current filter state
   const filteredActions = useMemo(() => {
-    return mockResponseActions.filter(action => {
-      const matchesSearch = filters.search === '' || 
+    return actions.filter(action => {
+      const matchesSearch = filters.search === '' ||
         action.actionName.toLowerCase().includes(filters.search.toLowerCase());
-      
-      const matchesType = filters.actionType === 'all' || 
+
+      const matchesType = filters.actionType === 'all' ||
         (filters.actionType === 'popup' && action.actionType === 'POPUP') ||
         (filters.actionType === 'email' && action.actionType === 'EMAIL');
-      
-      const matchesStatus = filters.status === 'all' || 
+
+      const matchesStatus = filters.status === 'all' ||
         action.status.toLowerCase() === filters.status.toLowerCase();
 
       return matchesSearch && matchesType && matchesStatus;
     });
-  }, [filters]);
+  }, [actions, filters]);
 
   // Format date for display
   const formatDate = (dateString: string): string => {
@@ -263,7 +277,7 @@ export default function ResponseActions() {
           {/* Search */}
           <div className="flex-1">
             <Input
-              placeholder="��索动作名称"
+              placeholder="搜索动作名称"
               value={filters.search}
               onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
               className="w-full"
