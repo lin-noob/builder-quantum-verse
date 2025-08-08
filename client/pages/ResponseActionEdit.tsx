@@ -233,7 +233,7 @@ export default function ResponseActionEdit() {
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            未找到指定的响应动作，可能已被删��或不存在。
+            未找到指定的响应动作，可能已被删除或不存在。
           </AlertDescription>
         </Alert>
       </div>
@@ -249,12 +249,6 @@ export default function ResponseActionEdit() {
             <ArrowLeft className="h-4 w-4 mr-2" />
             返回列表
           </Button>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">
-              编辑动作: {action?.actionName}
-            </h1>
-            <p className="text-gray-500 mt-1">修改响应动作的配置</p>
-          </div>
         </div>
       </div>
 
@@ -427,7 +421,7 @@ export default function ResponseActionEdit() {
                   id="emailSenderName"
                   value={formData.emailSenderName}
                   onChange={(e) => handleInputChange('emailSenderName', e.target.value)}
-                  placeholder="请输入��件人名称"
+                  placeholder="请输入发件人名称"
                   className={errors.emailSenderName ? 'border-red-500' : ''}
                 />
                 {errors.emailSenderName && (
