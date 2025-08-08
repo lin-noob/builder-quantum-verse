@@ -491,7 +491,7 @@ export default function ResponseActions() {
       {/* Confirmation Modal */}
       <ConfirmationModal
         isOpen={confirmationModal.isOpen}
-        onClose={() => setConfirmationModal(prev => ({ ...prev, isOpen: false }))}
+        onClose={() => !operationLoading && setConfirmationModal(prev => ({ ...prev, isOpen: false }))}
         onConfirm={handleConfirmation}
         type={confirmationModal.type}
         actionName={confirmationModal.actionName}
