@@ -32,7 +32,6 @@ export default function StrategyGoals() {
 
   return (
     <div className="p-6 space-y-6 max-w-4xl">
-      <h1 className="text-2xl font-bold text-gray-900">战略与目标</h1>
 
       {/* Core Business Goals Card */}
       <Card>
