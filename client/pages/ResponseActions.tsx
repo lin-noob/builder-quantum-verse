@@ -201,7 +201,7 @@ export default function ResponseActions() {
         const apiRequest = convertFormDataToApiRequest(formData, formData.actionType, isDraft);
         await createAction(apiRequest);
         toast({
-          title: '创建成功',
+          title: '创���成功',
           description: `动作"${formData.actionName}"已成功${isDraft ? '保存为草稿' : '创建并生效'}`
         });
       }
@@ -393,7 +393,12 @@ export default function ResponseActions() {
 
       {/* Actions Table */}
       <div className="bg-white rounded-lg border border-gray-200">
-        {filteredActions.length === 0 ? (
+        {loading ? (
+          <div className="p-12 text-center">
+            <Loader2 className="h-8 w-8 mx-auto mb-4 animate-spin text-gray-400" />
+            <p className="text-gray-500">正在加载响应动作...</p>
+          </div>
+        ) : filteredActions.length === 0 ? (
           <div className="p-12 text-center">
             <div className="text-gray-400 mb-2">
               <Plus className="h-12 w-12 mx-auto mb-4 opacity-50" />
@@ -406,12 +411,13 @@ export default function ResponseActions() {
               }
             </p>
             {(!filters.search && filters.actionType === 'all' && filters.status === 'all') && (
-              <Button 
+              <Button
                 onClick={() => {
                   setEditingAction(null);
                   setIsCreateModalOpen(true);
                 }}
                 className="flex items-center gap-2"
+                disabled={operationLoading}
               >
                 <Plus className="h-4 w-4" />
                 创建新动作
