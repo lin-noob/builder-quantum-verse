@@ -278,127 +278,88 @@ export default function ResponseActions() {
     }
   };
 
-  // Render action buttons based on status
-  const renderActionButtons = (action: ResponseAction) => {
-    const baseClasses = "h-8 px-3 text-xs";
+  // Render action links based on status
+  const renderActionLinks = (action: ResponseAction) => {
     const isDisabled = operationLoading;
+    const linkClass = "text-blue-600 hover:text-blue-800 cursor-pointer text-sm";
+    const disabledClass = "text-gray-400 cursor-not-allowed text-sm";
 
     switch (action.status) {
       case 'DRAFT':
         return (
-          <div className="flex gap-1">
-            <Button
-              variant="outline"
-              size="sm"
-              className={baseClasses}
-              onClick={() => handleViewDetail(action.id)}
-              disabled={isDisabled}
+          <div className="flex gap-3 text-sm">
+            <span
+              className={isDisabled ? disabledClass : linkClass}
+              onClick={() => !isDisabled && handleViewDetail(action.id)}
             >
-              <Eye className="h-3 w-3 mr-1" />
-              ���情
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className={baseClasses}
-              onClick={() => handleEdit(action)}
-              disabled={isDisabled}
+              详情
+            </span>
+            <span
+              className={isDisabled ? disabledClass : linkClass}
+              onClick={() => !isDisabled && handleEdit(action)}
             >
-              <Edit className="h-3 w-3 mr-1" />
               编辑
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className={`${baseClasses} text-green-600 border-green-200 hover:bg-green-50`}
-              onClick={() => handleEnable(action)}
-              disabled={isDisabled}
+            </span>
+            <span
+              className={isDisabled ? disabledClass : "text-green-600 hover:text-green-800 cursor-pointer text-sm"}
+              onClick={() => !isDisabled && handleEnable(action)}
             >
-              <Power className="h-3 w-3 mr-1" />
               启用
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className={`${baseClasses} text-red-600 border-red-200 hover:bg-red-50`}
-              onClick={() => handleDelete(action)}
-              disabled={isDisabled}
+            </span>
+            <span
+              className={isDisabled ? disabledClass : "text-red-600 hover:text-red-800 cursor-pointer text-sm"}
+              onClick={() => !isDisabled && handleDelete(action)}
             >
-              <Trash2 className="h-3 w-3 mr-1" />
               删除
-            </Button>
+            </span>
           </div>
         );
 
       case 'ACTIVE':
         return (
-          <div className="flex gap-1">
-            <Button
-              variant="outline"
-              size="sm"
-              className={baseClasses}
-              onClick={() => handleViewDetail(action.id)}
-              disabled={isDisabled}
+          <div className="flex gap-3 text-sm">
+            <span
+              className={isDisabled ? disabledClass : linkClass}
+              onClick={() => !isDisabled && handleViewDetail(action.id)}
             >
-              <Eye className="h-3 w-3 mr-1" />
-              详情
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className={baseClasses}
-              onClick={() => handleEdit(action)}
-              disabled={isDisabled}
+              详��
+            </span>
+            <span
+              className={isDisabled ? disabledClass : linkClass}
+              onClick={() => !isDisabled && handleEdit(action)}
             >
-              <Edit className="h-3 w-3 mr-1" />
               编辑
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className={`${baseClasses} text-orange-600 border-orange-200 hover:bg-orange-50`}
-              onClick={() => handleDisable(action)}
-              disabled={isDisabled}
+            </span>
+            <span
+              className={isDisabled ? disabledClass : "text-orange-600 hover:text-orange-800 cursor-pointer text-sm"}
+              onClick={() => !isDisabled && handleDisable(action)}
             >
-              <PowerOff className="h-3 w-3 mr-1" />
               停用
-            </Button>
+            </span>
           </div>
         );
 
       case 'ARCHIVED':
         return (
-          <div className="flex gap-1">
-            <Button
-              variant="outline"
-              size="sm"
-              className={baseClasses}
-              onClick={() => handleViewDetail(action.id)}
-              disabled={isDisabled}
+          <div className="flex gap-3 text-sm">
+            <span
+              className={isDisabled ? disabledClass : linkClass}
+              onClick={() => !isDisabled && handleViewDetail(action.id)}
             >
-              <Eye className="h-3 w-3 mr-1" />
               详情
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className={baseClasses}
-              onClick={() => handleEdit(action)}
-              disabled={isDisabled}
+            </span>
+            <span
+              className={isDisabled ? disabledClass : linkClass}
+              onClick={() => !isDisabled && handleEdit(action)}
             >
-              <Edit className="h-3 w-3 mr-1" />
               编辑
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className={`${baseClasses} text-red-600 border-red-200 hover:bg-red-50`}
-              onClick={() => handleDelete(action)}
-              disabled={isDisabled}
+            </span>
+            <span
+              className={isDisabled ? disabledClass : "text-red-600 hover:text-red-800 cursor-pointer text-sm"}
+              onClick={() => !isDisabled && handleDelete(action)}
             >
-              <Trash2 className="h-3 w-3 mr-1" />
               删除
-            </Button>
+            </span>
           </div>
         );
 
