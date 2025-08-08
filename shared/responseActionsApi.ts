@@ -49,6 +49,9 @@ export const responseActionsApi = {
       purpose: data.purpose,
       status: data.status,
       parameters: data.parameters,
+      totalExecutions: 0,
+      totalInteractions: 0,
+      totalConversions: 0,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
