@@ -72,7 +72,7 @@ export default function UserList() {
         <Card className="p-6 mb-8 bg-white shadow-sm">
           <div className="flex flex-col md:flex-row gap-4">
             {/* Search Box */}
-            <div className="relative flex-1 md:w-1/2">
+            <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <Input
                 placeholder="搜索 CDP ID、姓名、公司名称或联系方式..."
@@ -85,26 +85,48 @@ export default function UserList() {
               />
             </div>
 
-            {/* Location Filter */}
-            <div className="md:w-1/3">
-              <Select 
-                value={selectedLocation} 
+            {/* Time Field Filter */}
+            <div className="md:w-1/4">
+              <Select
+                value={timeFieldFilter}
                 onValueChange={(value) => {
-                  setSelectedLocation(value);
+                  setTimeFieldFilter(value);
                   setCurrentPage(1);
                 }}
               >
                 <SelectTrigger>
-                  <MapPin className="h-4 w-4 mr-2" />
-                  <SelectValue placeholder="选择位置" />
+                  <Clock className="h-4 w-4 mr-2" />
+                  <SelectValue placeholder="时间字段" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">所有位置</SelectItem>
-                  {locations.map(location => (
-                    <SelectItem key={location} value={location}>
-                      {location}
-                    </SelectItem>
-                  ))}
+                  <SelectItem value="all">所有时间字段</SelectItem>
+                  <SelectItem value="firstVisit">首次访问时间</SelectItem>
+                  <SelectItem value="registration">注册时间</SelectItem>
+                  <SelectItem value="firstPurchase">首次购买时间</SelectItem>
+                  <SelectItem value="lastActive">最后活跃时间</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Time Range Filter */}
+            <div className="md:w-1/4">
+              <Select
+                value={timeRangeFilter}
+                onValueChange={(value) => {
+                  setTimeRangeFilter(value);
+                  setCurrentPage(1);
+                }}
+              >
+                <SelectTrigger>
+                  <Calendar className="h-4 w-4 mr-2" />
+                  <SelectValue placeholder="时间范围" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">所有时间</SelectItem>
+                  <SelectItem value="7days">最近7天</SelectItem>
+                  <SelectItem value="30days">最近30天</SelectItem>
+                  <SelectItem value="90days">最近90天</SelectItem>
+                  <SelectItem value="180days">最近180天</SelectItem>
                 </SelectContent>
               </Select>
             </div>
