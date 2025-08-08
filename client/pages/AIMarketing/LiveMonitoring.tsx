@@ -78,7 +78,6 @@ export default function LiveMonitoring() {
 
   return (
     <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-bold text-gray-900">实时监控</h1>
 
       {/* AI Real-time Decision Feed */}
       <Card>
