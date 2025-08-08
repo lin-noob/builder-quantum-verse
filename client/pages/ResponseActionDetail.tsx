@@ -261,11 +261,11 @@ export default function ResponseActionDetail() {
           </div>
           <div className="ml-6 space-y-3">
             <div>
-              <span className="text-sm font-medium text-gray-600">邮件标��：</span>
+              <span className="text-sm font-medium text-gray-600">邮件标题：</span>
               <div className="mt-1 p-2 bg-gray-50 rounded text-sm">{action.subject}</div>
             </div>
             <div>
-              <span className="text-sm font-medium text-gray-600">邮件内容：</span>
+              <span className="text-sm font-medium text-gray-600">邮��内容：</span>
               <div 
                 className="mt-1 p-2 bg-gray-50 rounded text-sm"
                 dangerouslySetInnerHTML={{ __html: action.content }}
