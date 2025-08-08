@@ -49,6 +49,9 @@ export const mockResponseActions: ResponseAction[] = [
     status: 'ACTIVE',
     createdAt: '2024-01-15T10:00:00Z',
     updatedAt: '2024-01-20T14:30:00Z',
+    totalExecutions: 2845,
+    totalInteractions: 1967,
+    totalConversions: 524,
     parameters: {
       type: 'popup',
       title: '欢迎来到我们的商店！',
@@ -99,7 +102,7 @@ export const mockResponseActions: ResponseAction[] = [
     parameters: {
       type: 'email',
       subject: '商品对比指南已为您准备',
-      content: '<h3>专业对比分析</h3><p>我们注意到您正在对比多款商品，为您准备了详细的对比分析报告。</p>',
+      content: '<h3>专业对比分析</h3><p>我们注意到您正在对比多款商品���为您准备了详细的对比分析报告。</p>',
       senderName: '产品专家'
     }
   },
