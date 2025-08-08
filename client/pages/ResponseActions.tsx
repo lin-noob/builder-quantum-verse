@@ -201,7 +201,7 @@ export default function ResponseActions() {
               variant="outline"
               size="sm"
               className={`${baseClasses} text-orange-600 border-orange-200 hover:bg-orange-50`}
-              onClick={() => handleDisable(action.id)}
+              onClick={() => handleDisable(action)}
             >
               <PowerOff className="h-3 w-3 mr-1" />
               停用
@@ -297,7 +297,7 @@ export default function ResponseActions() {
               <SelectContent>
                 <SelectItem value="all">全部状态</SelectItem>
                 <SelectItem value="draft">草稿</SelectItem>
-                <SelectItem value="active">生效中</SelectItem>
+                <SelectItem value="active">生���中</SelectItem>
                 <SelectItem value="archived">已归档</SelectItem>
               </SelectContent>
             </Select>
