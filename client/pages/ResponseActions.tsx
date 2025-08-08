@@ -92,19 +92,59 @@ export default function ResponseActions() {
     setIsCreateModalOpen(true);
   };
 
-  const handleEnable = (actionId: string) => {
-    // TODO: Implement enable action
-    console.log('Enable action:', actionId);
+  const handleEnable = (action: ResponseAction) => {
+    setConfirmationModal({
+      isOpen: true,
+      type: 'enable',
+      actionId: action.id,
+      actionName: action.actionName
+    });
   };
 
-  const handleDisable = (actionId: string) => {
-    // TODO: Implement disable action
-    console.log('Disable action:', actionId);
+  const handleDisable = (action: ResponseAction) => {
+    setConfirmationModal({
+      isOpen: true,
+      type: 'disable',
+      actionId: action.id,
+      actionName: action.actionName
+    });
   };
 
-  const handleDelete = (actionId: string) => {
-    // TODO: Implement delete action
-    console.log('Delete action:', actionId);
+  const handleDelete = (action: ResponseAction) => {
+    setConfirmationModal({
+      isOpen: true,
+      type: 'delete',
+      actionId: action.id,
+      actionName: action.actionName
+    });
+  };
+
+  // Handle confirmation actions
+  const handleConfirmation = () => {
+    const { type, actionId } = confirmationModal;
+
+    switch (type) {
+      case 'enable':
+        // TODO: Implement actual enable logic
+        console.log('Enabling action:', actionId);
+        break;
+      case 'disable':
+        // TODO: Implement actual disable logic
+        console.log('Disabling action:', actionId);
+        break;
+      case 'delete':
+        // TODO: Implement actual delete logic
+        console.log('Deleting action:', actionId);
+        break;
+    }
+  };
+
+  // Handle save action from modal
+  const handleSaveAction = (actionData: Partial<ResponseAction>, isDraft: boolean) => {
+    // TODO: Implement actual save logic
+    console.log('Saving action:', actionData, 'isDraft:', isDraft);
+    setIsCreateModalOpen(false);
+    setEditingAction(null);
   };
 
   // Render action buttons based on status
