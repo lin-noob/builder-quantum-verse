@@ -26,6 +26,7 @@ const App = () => (
           <Route path="/dashboard" element={<Layout><Dashboard /></Layout>} />
           <Route path="/users" element={<Layout><UserList /></Layout>} />
           <Route path="/users/:cdpId" element={<Layout><UserDetail /></Layout>} />
+          <Route path="/response-actions" element={<Layout><ResponseActions /></Layout>} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<Layout><NotFound /></Layout>} />
         </Routes>
