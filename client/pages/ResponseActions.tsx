@@ -212,6 +212,12 @@ export default function ResponseActions() {
           <div className="flex gap-3 text-sm">
             <span
               className={isDisabled ? disabledClass : linkClass}
+              onClick={() => !isDisabled && handleViewDetail(rule.id)}
+            >
+              详情
+            </span>
+            <span
+              className={isDisabled ? disabledClass : linkClass}
               onClick={() => !isDisabled && handleEdit(rule)}
             >
               编辑
