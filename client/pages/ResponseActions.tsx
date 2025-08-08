@@ -498,7 +498,42 @@ export default function ResponseActions() {
                 <TableHead>类型</TableHead>
                 <TableHead>用途</TableHead>
                 <TableHead>状态</TableHead>
-                <TableHead>更新时间</TableHead>
+                <TableHead
+                  className="cursor-pointer select-none hover:bg-gray-50"
+                  onClick={() => handleSort('totalExecutions')}
+                >
+                  <div className="flex items-center gap-2">
+                    累计执行次数
+                    {getSortIcon('totalExecutions')}
+                  </div>
+                </TableHead>
+                <TableHead
+                  className="cursor-pointer select-none hover:bg-gray-50"
+                  onClick={() => handleSort('totalInteractions')}
+                >
+                  <div className="flex items-center gap-2">
+                    累计互动次数
+                    {getSortIcon('totalInteractions')}
+                  </div>
+                </TableHead>
+                <TableHead
+                  className="cursor-pointer select-none hover:bg-gray-50"
+                  onClick={() => handleSort('totalConversions')}
+                >
+                  <div className="flex items-center gap-2">
+                    累计转化数
+                    {getSortIcon('totalConversions')}
+                  </div>
+                </TableHead>
+                <TableHead
+                  className="cursor-pointer select-none hover:bg-gray-50"
+                  onClick={() => handleSort('updatedAt')}
+                >
+                  <div className="flex items-center gap-2">
+                    更新时间
+                    {getSortIcon('updatedAt')}
+                  </div>
+                </TableHead>
                 <TableHead className="text-right">操作</TableHead>
               </TableRow>
             </TableHeader>
