@@ -555,17 +555,17 @@ export default function UserDetail() {
                     {/* Cart Timeline Information */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 pt-4 border-t border-gray-200">
                       <div className="text-center p-3 bg-gray-50 rounded-lg">
-                        <div className="text-sm font-bold text-gray-700">{user.cartCreatedTime}</div>
+                        <div className="text-sm font-bold text-gray-700">{user.cartCreatedTime || '暂无数据'}</div>
                         <div className="text-xs text-gray-600">购物车创建时间</div>
                       </div>
                       <div className="text-center p-3 bg-gray-50 rounded-lg">
-                        <div className="text-sm font-bold text-gray-700">{user.lastCartUpdate}</div>
+                        <div className="text-sm font-bold text-gray-700">{user.lastCartUpdate || '暂无数据'}</div>
                         <div className="text-xs text-gray-600">最后更新时间</div>
                       </div>
                     </div>
 
                     {/* Current Cart Items */}
-                    {user.cartItems.length > 0 ? (
+                    {user.cartItems && user.cartItems.length > 0 ? (
                       <div>
                         <h5 className="font-medium mb-3">当前购物车商品</h5>
                         <div className="space-y-3">
