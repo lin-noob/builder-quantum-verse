@@ -386,7 +386,7 @@ export default function ResponseActions() {
                 <SelectValue placeholder="创建时间" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">全���时间</SelectItem>
+                <SelectItem value="all">全部时间</SelectItem>
                 <SelectItem value="today">今天</SelectItem>
                 <SelectItem value="week">近一周</SelectItem>
                 <SelectItem value="month">近一月</SelectItem>
@@ -435,6 +435,7 @@ export default function ResponseActions() {
                 <TableHead>响应动作</TableHead>
                 <TableHead>状态</TableHead>
                 <TableHead>触发器摘要</TableHead>
+                <TableHead>创建时间</TableHead>
                 <TableHead
                   className="cursor-pointer select-none hover:bg-gray-50"
                   onClick={() => handleSort('totalExecutions')}
