@@ -17,9 +17,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Plus, Edit, Power, PowerOff, Trash2 } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Plus, Edit, Power, PowerOff, Trash2, Loader2, AlertCircle } from 'lucide-react';
 import {
-  mockResponseActions,
   ResponseAction,
   getActionTypeDisplay,
   getStatusDisplay,
@@ -27,6 +27,8 @@ import {
 } from '@/shared/responseActionsData';
 import ResponseActionModal from '@/components/ResponseActionModal';
 import ConfirmationModal from '@/components/ConfirmationModal';
+import { useResponseActions, convertFormDataToApiRequest } from '@/hooks/useResponseActions';
+import { useToast } from '@/hooks/use-toast';
 
 interface FiltersState {
   search: string;
@@ -261,7 +263,7 @@ export default function ResponseActions() {
           {/* Search */}
           <div className="flex-1">
             <Input
-              placeholder="搜索动作名称"
+              placeholder="��索动作名称"
               value={filters.search}
               onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
               className="w-full"
