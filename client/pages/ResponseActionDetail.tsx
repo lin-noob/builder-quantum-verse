@@ -384,7 +384,7 @@ export default function ResponseActionDetail() {
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            未找到指定的规���，可能已被删除或不存在。
+            未找到指定的规则，可能已被删除或不存在。
           </AlertDescription>
         </Alert>
       </div>
