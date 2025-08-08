@@ -3,8 +3,10 @@ import { ResponseAction } from './responseActionsData';
 // Simulate API delay
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
+import { mockResponseActions } from './responseActionsData';
+
 // In-memory storage for demo purposes
-let actionsStore = [...require('./responseActionsData').mockResponseActions];
+let actionsStore = [...mockResponseActions];
 
 export interface CreateResponseActionRequest {
   actionName: string;
