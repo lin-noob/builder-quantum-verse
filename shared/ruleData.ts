@@ -50,6 +50,10 @@ export interface Rule {
   status: 'draft' | 'active' | 'archived';
   createdAt: string;
   updatedAt: string;
+  // Performance metrics
+  totalExecutions: number;      // 累计执行次数
+  totalInteractions: number;    // 累计互动次数
+  totalConversions: number;     // 累计转化数
 }
 
 // Event name display mapping
