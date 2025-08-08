@@ -633,7 +633,7 @@ export const mockUsers: User[] = [
         status: "已完成",
         totalAmount: 1850.00,
         currency: "CNY",
-        paymentMethod: "微信支���",
+        paymentMethod: "微信支付",
         items: [
           {
             productName: "基础版软件授权",
@@ -681,11 +681,15 @@ export const mockUsers: User[] = [
     maxOrderAmount: 6500.00,
     averagePurchaseCycle: 22,
     tags: ["VIP客户", "高价值用户"],
+    firstVisitTime: "2023-05-10 08:45:22",
+    registrationTime: "2023-05-10 09:12:50",
+    firstPurchaseTime: "2023-05-15 13:25:15",
+    lastActiveTime: "2024-01-21 13:45:20",
     sessions: [
       {
         id: "session-wf-1",
         date: "2024-01-21 13:45",
-        summary: "新��能体验和反馈提交",
+        summary: "新功能体验和反馈提交",
         source: "邮件通知",
         deviceType: "桌面端",
         os: "Windows 11",
@@ -894,7 +898,7 @@ export const mockUsers: User[] = [
         paymentMethod: "支付宝",
         items: [
           {
-            productName: "企业版软件授权",
+            productName: "���业版软件授权",
             unitPrice: 3800.00,
             quantity: 1,
             totalPrice: 3800.00
@@ -1064,7 +1068,7 @@ export const mockUsers: User[] = [
     lastPurchaseDate: "2024-01-08",
     maxOrderAmount: 3200.00,
     averagePurchaseCycle: 45,
-    tags: ["新客���"],
+    tags: ["新客户"],
     sessions: [],
     orders: []
   },
