@@ -229,7 +229,7 @@ export default function ResponseActions() {
       }
     } catch (err) {
       toast({
-        title: '操作失败',
+        title: '��作失败',
         description: err instanceof Error ? err.message : '未知错误',
         variant: 'destructive'
       });
@@ -331,9 +331,8 @@ export default function ResponseActions() {
 
   return (
     <div className="p-6">
-      {/* Page Header */}
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">响应动作库</h1>
+      {/* Action Bar */}
+      <div className="flex justify-end mb-6">
         <Button
           onClick={() => navigate('/response-actions/create')}
           className="flex items-center gap-2"
