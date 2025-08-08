@@ -109,14 +109,6 @@ export default function Layout({ children }: LayoutProps) {
                             <Activity className="h-3 w-3" />
                             实时监控
                           </Link>
-                          <Link
-                            to="/ai-marketing/performance-analytics"
-                            onClick={() => setIsMobileMenuOpen(false)}
-                            className="flex items-center gap-2 px-3 py-2 text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-md transition-colors"
-                          >
-                            <BarChart3 className="h-3 w-3" />
-                            效果分析
-                          </Link>
                         </div>
                       )}
                     </li>
