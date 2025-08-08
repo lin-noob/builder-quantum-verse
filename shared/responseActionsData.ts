@@ -9,6 +9,10 @@ export interface ResponseAction {
   createdAt: string;
   updatedAt: string;
   parameters: PopupParameters | EmailParameters;
+  // Performance metrics
+  totalExecutions: number;      // 累计执行次数
+  totalInteractions: number;    // 累计互动次数
+  totalConversions: number;     // 累计转化数
 }
 
 export interface PopupParameters {
@@ -29,7 +33,7 @@ export interface EmailParameters {
 // Purpose options for AI-triggered scenarios
 export const PURPOSE_OPTIONS = [
   { value: 'NEW_USER_FIRST_VISIT', label: '识别到新用户首次访问时' },
-  { value: 'CART_ABANDONMENT', label: '识别到用户即将放弃购物��时' },
+  { value: 'CART_ABANDONMENT', label: '识别到用户即将放弃购物车时' },
   { value: 'LONG_STAY_NO_CONVERSION', label: '用户长时间停留但无转化动作时' },
   { value: 'PRODUCT_COMPARISON', label: '识别到用户正在进行商品对比时' },
   { value: 'HIGH_POTENTIAL_RETURN_USER', label: '识别高潜力回访用户时' }
@@ -125,7 +129,7 @@ export const mockResponseActions: ResponseAction[] = [
     updatedAt: '2024-01-25T17:10:00Z',
     parameters: {
       type: 'email',
-      subject: '季末清仓大促销开始了！',
+      subject: '季末清仓大��销开始了！',
       content: '<h2>全场5折起</h2><p>季末清仓活动正式开始，数千款商品5折起，机会难得，快来选购吧！</p>',
       senderName: '促销活动团队'
     }
