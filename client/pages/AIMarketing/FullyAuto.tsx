@@ -42,15 +42,6 @@ export default function FullyAuto() {
   // Boundaries form state
   const [boundaries, setBoundaries] = useState(config.boundaries);
 
-  const handleTargetGroupChange = (group: keyof typeof config.targetGroups, checked: boolean) => {
-    setConfig(prev => ({
-      ...prev,
-      targetGroups: {
-        ...prev.targetGroups,
-        [group]: checked
-      }
-    }));
-  };
 
   const handleAddCustomRule = () => {
     if (newRule.field && newRule.operator && newRule.value) {
@@ -183,7 +174,7 @@ export default function FullyAuto() {
                     <DialogHeader>
                       <DialogTitle>创建筛选规则</DialogTitle>
                       <DialogDescription>
-                        ��置用户筛选条件，只有符合条件的用户会被AI自动营销系统触达
+                        设置用户筛选条件，只有符合条件的用户会被AI自动营销系统触达
                       </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4">
@@ -427,7 +418,7 @@ export default function FullyAuto() {
             {/* Priority Notice */}
             <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
               <p className="text-sm text-blue-800">
-                <strong>请注意：</strong>手动营销操作的优先级高于AI自动营销。当您对特定用��进行手动干预时，AI在短时间内将不会对该用户进行重复打扰。
+                <strong>请注意：</strong>手动营销操作的优先级高于AI自动营销。当您对特定用户进行手动干预时，AI在短时间内将不会对该用户进行重复打扰。
               </p>
             </div>
 
