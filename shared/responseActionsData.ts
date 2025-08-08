@@ -68,10 +68,13 @@ export const mockResponseActions: ResponseAction[] = [
     status: 'ACTIVE',
     createdAt: '2024-01-10T09:15:00Z',
     updatedAt: '2024-01-18T16:20:00Z',
+    totalExecutions: 4320,
+    totalInteractions: 2896,
+    totalConversions: 1156,
     parameters: {
       type: 'email',
       subject: '您的购物车还有商品等待您',
-      content: '<h3>不要错过这些精选商品</h3><p>您的购物车中还有商品正在等待您完成购买。现在完成订单还可享受免费配送！</p>',
+      content: '<h3>不要错过这些精选商品</h3><p>您的购物车中还有商品正在等待您完成购买。现在完成��单还可享受免费配送！</p>',
       senderName: '商城客服团队'
     }
   },
@@ -83,6 +86,9 @@ export const mockResponseActions: ResponseAction[] = [
     status: 'DRAFT',
     createdAt: '2024-01-22T11:45:00Z',
     updatedAt: '2024-01-22T11:45:00Z',
+    totalExecutions: 0,
+    totalInteractions: 0,
+    totalConversions: 0,
     parameters: {
       type: 'popup',
       title: '发现感兴趣的商品了吗？',
@@ -99,6 +105,9 @@ export const mockResponseActions: ResponseAction[] = [
     status: 'ARCHIVED',
     createdAt: '2024-01-05T08:30:00Z',
     updatedAt: '2024-01-15T12:00:00Z',
+    totalExecutions: 1892,
+    totalInteractions: 967,
+    totalConversions: 245,
     parameters: {
       type: 'email',
       subject: '商品对比指南已为您准备',
@@ -114,6 +123,9 @@ export const mockResponseActions: ResponseAction[] = [
     status: 'ACTIVE',
     createdAt: '2024-01-12T13:20:00Z',
     updatedAt: '2024-01-19T15:45:00Z',
+    totalExecutions: 1567,
+    totalInteractions: 1234,
+    totalConversions: 398,
     parameters: {
       type: 'popup',
       title: '欢迎回来！专属优惠等您领取',
@@ -130,6 +142,9 @@ export const mockResponseActions: ResponseAction[] = [
     status: 'DRAFT',
     createdAt: '2024-01-25T17:10:00Z',
     updatedAt: '2024-01-25T17:10:00Z',
+    totalExecutions: 0,
+    totalInteractions: 0,
+    totalConversions: 0,
     parameters: {
       type: 'email',
       subject: '季末清仓大��销开始了！',
