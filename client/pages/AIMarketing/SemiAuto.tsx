@@ -129,7 +129,7 @@ export default function SemiAuto() {
           break;
         case 'delete':
           toast({
-            title: '删除��功',
+            title: '删除成功',
             description: `剧本"${scriptName}"已成功删除`
           });
           break;
@@ -234,7 +234,7 @@ export default function SemiAuto() {
           disabled={operationLoading}
         >
           <Plus className="h-4 w-4" />
-          创建新剧本
+          创建���剧本
         </Button>
       </div>
 
@@ -306,7 +306,7 @@ export default function SemiAuto() {
             <TableHeader>
               <TableRow>
                 <TableHead>剧本名称</TableHead>
-                <TableHead>���������摘要</TableHead>
+                <TableHead>触发器摘要</TableHead>
                 <TableHead>AI动作</TableHead>
                 <TableHead>状态</TableHead>
                 <TableHead className="text-right">操作</TableHead>
