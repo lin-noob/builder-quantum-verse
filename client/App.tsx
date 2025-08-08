@@ -12,6 +12,8 @@ import UserList from "./pages/UserList";
 import UserDetail from "./pages/UserDetail";
 import ResponseActions from "./pages/ResponseActions";
 import ResponseActionDetail from "./pages/ResponseActionDetail";
+import ResponseActionCreate from "./pages/ResponseActionCreate";
+import ResponseActionEdit from "./pages/ResponseActionEdit";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
