@@ -37,9 +37,11 @@ const App = () => (
           <Route path="/response-actions/create" element={<Layout><ResponseActionCreate /></Layout>} />
           <Route path="/response-actions/edit/:id" element={<Layout><ResponseActionEdit /></Layout>} />
           <Route path="/response-actions/:id" element={<Layout><ResponseActionDetail /></Layout>} />
-          <Route path="/ai-marketing/strategy-goals" element={<Layout><StrategyGoals /></Layout>} />
-          <Route path="/ai-marketing/live-monitoring" element={<Layout><LiveMonitoring /></Layout>} />
-          <Route path="/ai-marketing/performance-analytics" element={<Layout><PerformanceAnalytics /></Layout>} />
+          <Route path="/ai-marketing/monitoring-center" element={<Layout><MonitoringCenter /></Layout>} />
+          <Route path="/ai-marketing/fully-auto" element={<Layout><FullyAuto /></Layout>} />
+          <Route path="/ai-marketing/semi-auto" element={<Layout><SemiAuto /></Layout>} />
+          <Route path="/ai-marketing/semi-auto/create" element={<Layout><ScriptCreate /></Layout>} />
+          <Route path="/ai-marketing/semi-auto/edit/:id" element={<Layout><ScriptCreate /></Layout>} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<Layout><NotFound /></Layout>} />
         </Routes>
