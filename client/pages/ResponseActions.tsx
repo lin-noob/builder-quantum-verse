@@ -136,31 +136,87 @@ export default function ResponseActions() {
   };
 
   // Handle confirmation actions
-  const handleConfirmation = () => {
-    const { type, actionId } = confirmationModal;
+  const handleConfirmation = async () => {
+    const { type, actionId, actionName } = confirmationModal;
 
-    switch (type) {
-      case 'enable':
-        // TODO: Implement actual enable logic
-        console.log('Enabling action:', actionId);
-        break;
-      case 'disable':
-        // TODO: Implement actual disable logic
-        console.log('Disabling action:', actionId);
-        break;
-      case 'delete':
-        // TODO: Implement actual delete logic
-        console.log('Deleting action:', actionId);
-        break;
+    try {
+      setOperationLoading(true);
+
+      switch (type) {
+        case 'enable':
+          await enableAction(actionId);
+          toast({
+            title: '启用成功',
+            description: `动作"${actionName}"已成功启用`
+          });
+          break;
+        case 'disable':
+          await disableAction(actionId);
+          toast({
+            title: '停用成功',
+            description: `动作"${actionName}"已成功停用`
+          });
+          break;
+        case 'delete':
+          await deleteAction(actionId);
+          toast({
+            title: '删除成功',
+            description: `动作"${actionName}"已成功删除`
+          });
+          break;
+      }
+    } catch (err) {
+      toast({
+        title: '操作失败',
+        description: err instanceof Error ? err.message : '未知错误',
+        variant: 'destructive'
+      });
+    } finally {
+      setOperationLoading(false);
     }
   };
 
   // Handle save action from modal
-  const handleSaveAction = (actionData: Partial<ResponseAction>, isDraft: boolean) => {
-    // TODO: Implement actual save logic
-    console.log('Saving action:', actionData, 'isDraft:', isDraft);
-    setIsCreateModalOpen(false);
-    setEditingAction(null);
+  const handleSaveAction = async (formData: any, isDraft: boolean) => {
+    try {
+      setOperationLoading(true);
+
+      if (editingAction) {
+        // Update existing action
+        const updateData = {
+          id: editingAction.id,
+          actionName: formData.actionName,
+          actionType: formData.actionType,
+          purpose: formData.purpose,
+          parameters: formData.parameters
+        };
+
+        await updateAction(updateData);
+        toast({
+          title: '更新成功',
+          description: `动作"${formData.actionName}"已成功更新`
+        });
+      } else {
+        // Create new action
+        const apiRequest = convertFormDataToApiRequest(formData, formData.actionType, isDraft);
+        await createAction(apiRequest);
+        toast({
+          title: '创建成功',
+          description: `动作"${formData.actionName}"已成功${isDraft ? '保存为草稿' : '创建并生效'}`
+        });
+      }
+
+      setIsCreateModalOpen(false);
+      setEditingAction(null);
+    } catch (err) {
+      toast({
+        title: '保存失败',
+        description: err instanceof Error ? err.message : '未知错误',
+        variant: 'destructive'
+      });
+    } finally {
+      setOperationLoading(false);
+    }
   };
 
   // Render action buttons based on status
