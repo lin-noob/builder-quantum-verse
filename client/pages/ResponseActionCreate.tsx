@@ -314,7 +314,7 @@ export default function ResponseActionCreate() {
             {actionType === 'popup' && (
               <div className="space-y-4">
                 <div>
-                  <Label>���窗标���</Label>
+                  <Label>弹窗标题</Label>
                   <Input
                     className="mt-1"
                     placeholder="输入弹窗标题"
