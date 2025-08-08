@@ -51,11 +51,11 @@ export default function PerformanceAnalytics() {
 
 邮件正文:
 ${activity.contentPreview.includes('Alex') ? 
-  'Hi Alex，秋色正浓，您的相机是否还在等待最完美的那一刻？我们注意到您对摄影装备的热爱，特别为您准备了这个秋季的摄影套装优惠...' :
+  'Hi Alex，秋色正浓，您的���机是否还在等待最完美的那一刻？我们注意到您对摄影装备的热爱，特别为您准备了这个秋季的摄影套装优惠...' :
   activity.contentPreview.includes('收藏') ?
   '您收藏的徒步鞋已到货，现有库存充足。同时我们为您推荐了几款搭配的户外装备，让您的户外体验更加完美...' :
   activity.contentPreview.includes('很久') ?
-  '我们注意到您很久没来了，您的会员权益即将过期。作���我们的重要客户，我们为您准备了专属的回归礼包...' :
+  '我们注意到您很久没来了，您的会员权益即将过期。作为我们的重要客户，我们为您准备了专属的回归礼包...' :
   '欢迎加入！探索您感兴趣的户外运动装备，我们根据您的浏览记录为您推荐了以下商品...'
 }
 
@@ -86,7 +86,6 @@ ${activity.contentPreview.includes('咖啡') ?
 
   return (
     <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-bold text-gray-900">效果分析</h1>
 
       {/* Filters */}
       <Card>
