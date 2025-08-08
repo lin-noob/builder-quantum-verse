@@ -1,20 +1,20 @@
 import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { Search, MapPin, Copy } from "lucide-react";
+import { Search, Calendar, Clock } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { getUsers, getAllLocations, type User } from "@shared/userData";
+import { getUsers, type User } from "@shared/userData";
 
 export default function UserList() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedLocation, setSelectedLocation] = useState("all");
+  const [timeRangeFilter, setTimeRangeFilter] = useState("all");
+  const [timeFieldFilter, setTimeFieldFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
   const users = getUsers();
-  const locations = getAllLocations();
 
   // Filter users based on search and location
   const filteredUsers = useMemo(() => {
