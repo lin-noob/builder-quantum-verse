@@ -298,7 +298,7 @@ export default function ScriptCreate() {
                       onValueChange={(value) => handleInputChange('segmentOperator', value)}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="操作符" />
+                        <SelectValue placeholder="操作��" />
                       </SelectTrigger>
                       <SelectContent>
                         {operatorOptions.map((op) => (
@@ -374,7 +374,7 @@ export default function ScriptCreate() {
                 <Label>AI指令简报 (Prompt)</Label>
                 <Textarea
                   className="mt-1"
-                  placeholder="请描述您希望AI生成什么样的内容。例如：根据用户加购的高价商品，生成个性化���挽留邮件，强调商品价值和限时优惠..."
+                  placeholder="请描述您希望AI生成什么样的内容。例如：根据用户加购的高价商品，生成个性化的挽留邮件，强调商品价值和限时优惠..."
                   rows={6}
                   value={formData.prompt}
                   onChange={(e) => handleInputChange('prompt', e.target.value)}
