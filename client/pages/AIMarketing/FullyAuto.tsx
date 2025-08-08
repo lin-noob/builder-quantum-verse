@@ -81,6 +81,33 @@ export default function FullyAuto() {
     }));
   };
 
+  // Helper functions for display names
+  const getFieldDisplayName = (field: string): string => {
+    const fieldMap: Record<string, string> = {
+      totalSpent: '历史总消费金额',
+      orderCount: '订单数量',
+      lastOrderDays: '最后下单天数',
+      userTag: '用户标签',
+      registrationDays: '注册天数',
+      avgOrderValue: '平均订单金额'
+    };
+    return fieldMap[field] || field;
+  };
+
+  const getOperatorDisplayName = (operator: string): string => {
+    const operatorMap: Record<string, string> = {
+      '<': '小于',
+      '<=': '小于等于',
+      '>': '大于',
+      '>=': '大于等于',
+      '=': '等于',
+      '!=': '不等于',
+      'contains': '包含',
+      'not_contains': '不包含'
+    };
+    return operatorMap[operator] || operator;
+  };
+
   const handleSaveBoundaries = () => {
     setConfig(prev => ({
       ...prev,
@@ -156,7 +183,7 @@ export default function FullyAuto() {
                     <DialogHeader>
                       <DialogTitle>创建筛选规则</DialogTitle>
                       <DialogDescription>
-                        设置用户筛选条件，只有符合条件的用户会被AI自动营销系统触达
+                        ��置用户筛选条件，只有符合条件的用户会被AI自动营销系统触达
                       </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4">
@@ -317,7 +344,7 @@ export default function FullyAuto() {
                     <DialogHeader>
                       <DialogTitle>设置行为边界</DialogTitle>
                       <DialogDescription>
-                        设置AI自动营销的行��限制和边界条件
+                        设置AI自动营销的行为限制和边界条件
                       </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4">
@@ -400,7 +427,7 @@ export default function FullyAuto() {
             {/* Priority Notice */}
             <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
               <p className="text-sm text-blue-800">
-                <strong>请注意：</strong>手动营销操作的优先级高于AI自动营销。当您对特定用户进行手动干预时，AI在短时间内将不会对该用户进行重复打扰。
+                <strong>请注意：</strong>手动营销操作的优先级高于AI自动营销。当您对特定用��进行手动干预时，AI在短时间内将不会对该用户进行重复打扰。
               </p>
             </div>
 
