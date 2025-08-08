@@ -418,8 +418,8 @@ export default function ResponseActions() {
                 <SelectValue placeholder="类型" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">全部类��</SelectItem>
-                <SelectItem value="popup">网页弹窗</SelectItem>
+                <SelectItem value="all">全部类型</SelectItem>
+                <SelectItem value="popup">网页��窗</SelectItem>
                 <SelectItem value="email">发送邮件</SelectItem>
               </SelectContent>
             </Select>
@@ -466,10 +466,7 @@ export default function ResponseActions() {
             </p>
             {(!filters.search && filters.actionType === 'all' && filters.status === 'all') && (
               <Button
-                onClick={() => {
-                  setEditingAction(null);
-                  setIsCreateModalOpen(true);
-                }}
+                onClick={() => navigate('/response-actions/create')}
                 className="flex items-center gap-2"
                 disabled={operationLoading}
               >
