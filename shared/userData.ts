@@ -23,7 +23,7 @@ export interface User {
   cartItems: CartItem[];       // 当前购物车商品
   totalCartValue: number;      // 购物车总价值
   cartCreatedTime: string;     // 购物车创建时间
-  lastCartUpdate: string;      // 最后更新购��车时间
+  lastCartUpdate: string;      // 最后更新购物车时间
   cartAbandonCount: number;    // 购物车放弃次数
   averageCartValue: number;    // 平均购物车价值
 }
@@ -302,7 +302,7 @@ export const mockUsers: User[] = [
         billingAddress: {
           name: "腾讯科技（深圳）有限公司",
           street: "深圳市南山区科技园南区R4-B栋",
-          city: "深��",
+          city: "深圳",
           state: "广东省",
           postalCode: "518057",
           country: "中国",
@@ -725,7 +725,7 @@ export const mockUsers: User[] = [
           {
             timestamp: "13:57:35",
             eventType: "页面访问",
-            pageTitle: "��能试用",
+            pageTitle: "功能试用",
             pageUrl: "/trial/features",
             stayDuration: "25分30秒",
             scrollDepth: "95%"
@@ -872,7 +872,7 @@ export const mockUsers: User[] = [
           },
           {
             timestamp: "16:57:25",
-            eventType: "页面访问",
+            eventType: "页面��问",
             pageTitle: "开发者控制台",
             pageUrl: "/dev/console",
             stayDuration: "15分30秒",
@@ -981,7 +981,7 @@ export const mockUsers: User[] = [
         paymentMethod: "支付宝",
         items: [
           {
-            productName: "标准版软件授权",
+            productName: "���准版软件授权",
             unitPrice: 1500.00,
             quantity: 1,
             totalPrice: 1500.00
@@ -1057,7 +1057,7 @@ export const mockUsers: User[] = [
       {
         orderNumber: "ORD-2023-076",
         orderDate: "2023-09-30",
-        status: "已完���",
+        status: "已完成",
         totalAmount: 2200.00,
         currency: "CNY",
         paymentMethod: "支付宝",
