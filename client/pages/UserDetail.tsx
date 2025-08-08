@@ -589,7 +589,7 @@ export default function UserDetail() {
                         <div className="mt-4 pt-4 border-t border-gray-200">
                           <div className="flex justify-between items-center text-lg font-semibold">
                             <span>购物车总金额:</span>
-                            <span className="text-blue-600">{formatCurrency(user.totalCartValue)}</span>
+                            <span className="text-blue-600">{formatCurrency(user.totalCartValue || 0)}</span>
                           </div>
                         </div>
                       </div>
