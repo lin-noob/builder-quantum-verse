@@ -75,9 +75,9 @@ export default function ResponseActions() {
     direction: 'desc'
   });
 
-  // Filter rules based on current filter state
-  const filteredRules = useMemo(() => {
-    return rules.filter(rule => {
+  // Filter and sort rules based on current filter and sort state
+  const filteredAndSortedRules = useMemo(() => {
+    let filtered = rules.filter(rule => {
       const matchesSearch = filters.search === '' ||
         rule.ruleName.toLowerCase().includes(filters.search.toLowerCase());
 
@@ -86,7 +86,23 @@ export default function ResponseActions() {
 
       return matchesSearch && matchesStatus;
     });
-  }, [rules, filters]);
+
+    // Apply sorting
+    if (sortState.field) {
+      filtered.sort((a, b) => {
+        const aValue = a[sortState.field as keyof Rule];
+        const bValue = b[sortState.field as keyof Rule];
+
+        if (sortState.direction === 'asc') {
+          return aValue > bValue ? 1 : -1;
+        } else {
+          return aValue < bValue ? 1 : -1;
+        }
+      });
+    }
+
+    return filtered;
+  }, [rules, filters, sortState]);
 
   // Handle rule operations
   const handleEdit = (rule: Rule) => {
@@ -153,7 +169,7 @@ export default function ResponseActions() {
     } catch (err) {
       toast({
         title: '操作失败',
-        description: err instanceof Error ? err.message : '��知错误',
+        description: err instanceof Error ? err.message : '未知错误',
         variant: 'destructive'
       });
     } finally {
@@ -332,7 +348,7 @@ export default function ResponseActions() {
                 <TableHead>规则名称</TableHead>
                 <TableHead>响应动作</TableHead>
                 <TableHead>状态</TableHead>
-                <TableHead>触发器摘要</TableHead>
+                <TableHead>触发器���要</TableHead>
                 <TableHead className="text-right">操作</TableHead>
               </TableRow>
             </TableHeader>
