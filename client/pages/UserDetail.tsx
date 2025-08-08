@@ -528,7 +528,7 @@ export default function UserDetail() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                       <div className="text-center p-4 bg-blue-50 rounded-lg">
                         <div className="text-2xl font-bold text-blue-600">
-                          {formatCurrency(user.totalCartValue)}
+                          {formatCurrency(user.totalCartValue || 0)}
                         </div>
                         <div className="text-sm text-blue-600">当前购物车金额</div>
                       </div>
@@ -577,7 +577,7 @@ export default function UserDetail() {
                                   {formatCurrency(item.unitPrice)} × {item.quantity} = {formatCurrency(item.totalPrice)}
                                 </div>
                                 <div className="text-xs text-gray-500 mt-1">
-                                  加入时间: {item.addedTime} | 最后��新: {item.lastUpdated}
+                                  加入时间: {item.addedTime} | 最后更新: {item.lastUpdated}
                                 </div>
                               </div>
                               <div className="text-right">
