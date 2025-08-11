@@ -176,6 +176,12 @@ export default function UserList() {
         order: sortConfig.direction,
       };
 
+      console.log("发起API请求:", {
+        url: "/api/quote/api/v1/profile/list",
+        queryParams,
+        requestBody
+      });
+
       // 使用原始post方法获取完整响应，包含total字段
       const response = await request.post<{
         code: string;
