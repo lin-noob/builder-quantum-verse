@@ -138,7 +138,7 @@ export default function UserDetail() {
                             <div>
                               <h4 className="font-medium">添加新标签</h4>
                               <p className="text-sm text-muted-foreground">
-                                为用户添加一个新的��态标签
+                                ���用户添加一个新的状态标签
                               </p>
                             </div>
                             <Input
@@ -280,72 +280,9 @@ export default function UserDetail() {
                   <TabsTrigger value="statistics">业务统计</TabsTrigger>
                 </TabsList>
 
-                {/* Access Timeline Tab */}
+                {/* Access Timeline Tab - NOW WITH SESSION TIMELINE */}
                 <TabsContent value="timeline" className="space-y-6">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>详细访问会话</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      {user.sessions.length > 0 ? (
-                        <div className="max-h-96 overflow-y-auto space-y-2 pr-2">
-                          {user.sessions.map((session) => (
-                            <Collapsible key={session.id}>
-                              <CollapsibleTrigger 
-                                className="flex items-center justify-between w-full p-4 bg-gray-50 rounded-lg hover:bg-gray-100"
-                                onClick={() => toggleSession(session.id)}
-                              >
-                                <div className="flex items-center gap-3">
-                                  {openSessions.has(session.id) ? 
-                                    <ChevronDown className="h-4 w-4" /> : 
-                                    <ChevronRight className="h-4 w-4" />
-                                  }
-                                  <div className="text-left">
-                                    <div className="font-medium">{session.date}</div>
-                                    <div className="text-sm text-gray-600">{session.summary}</div>
-                                  </div>
-                                </div>
-                                <div className="text-sm text-gray-500">
-                                  {session.source} • {session.deviceType}
-                                </div>
-                              </CollapsibleTrigger>
-                              <CollapsibleContent className="px-4 pb-4">
-                                <div className="mt-4 space-y-3">
-                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 text-sm">
-                                    <div><strong>操作系统:</strong> {session.os}</div>
-                                    <div><strong>浏览器:</strong> {session.browser}</div>
-                                    <div><strong>位置:</strong> {session.location}</div>
-                                    <div><strong>IP地址:</strong> {session.ipAddress}</div>
-                                  </div>
-                                  <div className="border-t pt-3">
-                                    <h5 className="font-medium mb-2">事件时间线</h5>
-                                    <div className="space-y-2">
-                                      {session.events.map((event, index) => (
-                                        <div key={index} className="text-sm bg-white p-3 rounded border">
-                                          <div className="flex justify-between items-start">
-                                            <div>
-                                              <div className="font-medium">{event.pageTitle}</div>
-                                              <div className="text-gray-600">{event.pageUrl}</div>
-                                              <div className="text-xs text-gray-500">
-                                                停留时长: {event.stayDuration} • 滚动深度: {event.scrollDepth}
-                                              </div>
-                                            </div>
-                                            <div className="text-xs text-gray-500">{event.timestamp}</div>
-                                          </div>
-                                        </div>
-                                      ))}
-                                    </div>
-                                  </div>
-                                </div>
-                              </CollapsibleContent>
-                            </Collapsible>
-                          ))}
-                        </div>
-                      ) : (
-                        <p className="text-gray-500 text-sm">暂无访问会话记录</p>
-                      )}
-                    </CardContent>
-                  </Card>
+                  <SessionTimeline />
                 </TabsContent>
 
                 {/* Business Statistics Tab - NOW WITH ORDER HISTORY */}
