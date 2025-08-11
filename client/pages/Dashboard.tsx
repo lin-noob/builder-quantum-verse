@@ -50,7 +50,7 @@ export default function Dashboard() {
     if (globalDateRange === 'custom' && customStartDate && customEndDate) {
       return `${customStartDate} 至 ${customEndDate}`;
     }
-    return option?.label || '过去30���';
+    return option?.label || '过去30天';
   };
 
   return (
@@ -98,7 +98,12 @@ export default function Dashboard() {
               onChange={(e) => setCustomEndDate(e.target.value)}
               className="w-auto"
             />
-            <Button size="sm" variant="outline">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={applyCustomDateRange}
+              disabled={!customStartDate || !customEndDate}
+            >
               应用
             </Button>
           </div>
