@@ -170,7 +170,6 @@ export default function UserList() {
 
             {/* Time Field Selector */}
             <div className="md:w-1/4">
-              <label className="text-sm text-gray-600 mb-1 block">时间字段</label>
               <Select
                 value={selectedTimeField}
                 onValueChange={(value) => {
