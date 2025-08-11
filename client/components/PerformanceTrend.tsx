@@ -10,7 +10,8 @@ interface PerformanceTrendProps {
 }
 
 export default function PerformanceTrend({ metrics, dateRange = '30days' }: PerformanceTrendProps) {
-  const [selectedMetrics, setSelectedMetrics] = useState<string[]>(['totalRevenue']); // Default to "总消费金额"
+  // Default to show all 4 metrics
+  const selectedMetrics = ['totalRevenue', 'totalOrders', 'totalUsers', 'avgOrderValue'];
 
 
   const colors = ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6'];
@@ -35,7 +36,7 @@ export default function PerformanceTrend({ metrics, dateRange = '30days' }: Perf
     );
   };
 
-  // 定义数据类型分组，相似���数据类型使用同一个Y轴
+  // 定义数据类型分组，相似的数据类型使用同一个Y轴
   const getMetricGroup = (metricId: string) => {
     if (metricId === 'totalRevenue' || metricId === 'avgOrderValue') return 'revenue'; // 金额类
     if (metricId === 'totalOrders' || metricId === 'totalUsers') return 'count'; // 数量类
