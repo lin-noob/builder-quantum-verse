@@ -2,62 +2,33 @@ import { useState } from 'react';
 import { getDashboardData } from '@shared/dashboardData';
 import KPICard from '@/components/KPICard';
 import PerformanceTrend from '@/components/PerformanceTrend';
-import DonutChart from '@/components/DonutChart';
 import TagChart from '@/components/TagChart';
-import RecentActivities from '@/components/RecentActivities';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Calendar, RotateCcw } from 'lucide-react';
+import AdvancedDateRangePicker from '@/components/AdvancedDateRangePicker';
+
+interface DateRange {
+  start: Date | null;
+  end: Date | null;
+}
 
 export default function Dashboard2() {
   const dashboardData = getDashboardData();
 
-  // Global date range state
-  const [globalDateRange, setGlobalDateRange] = useState('30days');
-  const [showCustomDate, setShowCustomDate] = useState(false);
-  const [customStartDate, setCustomStartDate] = useState('');
-  const [customEndDate, setCustomEndDate] = useState('');
+  // Date range state for the advanced picker
+  const [dateRange, setDateRange] = useState<DateRange>({
+    start: new Date(2025, 6, 12), // July 12, 2025
+    end: new Date(2025, 7, 10)    // August 10, 2025
+  });
+  const [currentPreset, setCurrentPreset] = useState('last30days');
 
-  const dateRangeOptions = [
-    { value: '7days', label: '过去7天' },
-    { value: '30days', label: '过去30天' },
-    { value: 'current_month', label: '本月' },
-    { value: 'last_month', label: '上月' },
-    { value: 'custom', label: '自定义日期' }
-  ];
-
-  const handleDateRangeChange = (value: string) => {
-    setGlobalDateRange(value);
-    if (value === 'custom') {
-      setShowCustomDate(true);
-    } else {
-      setShowCustomDate(false);
-    }
+  const handleDateRangeChange = (range: DateRange) => {
+    setDateRange(range);
+    // Here you would typically trigger data refresh with new date range
+    console.log('Date range changed:', range);
   };
 
-  // Apply custom date range
-  const applyCustomDateRange = () => {
-    if (customStartDate && customEndDate) {
-      // Here you would typically trigger data refresh with custom date range
-      console.log('Applying custom date range:', customStartDate, 'to', customEndDate);
-    }
-  };
-
-  // Refresh dashboard data
-  const refreshDashboard = () => {
-    // Here you would typically trigger data refresh
-    console.log('Refreshing dashboard data for:', getCurrentDateRangeText());
-    window.location.reload();
-  };
-
-  // Get current date range display text
-  const getCurrentDateRangeText = () => {
-    const option = dateRangeOptions.find(opt => opt.value === globalDateRange);
-    if (globalDateRange === 'custom' && customStartDate && customEndDate) {
-      return `${customStartDate} 至 ${customEndDate}`;
-    }
-    return option?.label || '过去30天';
+  const handlePresetChange = (preset: string) => {
+    setCurrentPreset(preset);
+    console.log('Preset changed:', preset);
   };
 
   return (
@@ -66,67 +37,17 @@ export default function Dashboard2() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">数据概览 2.0</h1>
-          <p className="text-sm text-gray-600 mt-1">当前统计周期：{getCurrentDateRangeText()}</p>
         </div>
         <div className="flex items-center gap-4">
-          {/* Global Date Range Selector */}
-          <div className="w-48">
-            <Select value={globalDateRange} onValueChange={handleDateRangeChange}>
-              <SelectTrigger>
-                <SelectValue placeholder="选择时间范围" />
-              </SelectTrigger>
-              <SelectContent>
-                {dateRangeOptions.map(option => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Refresh Button */}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={refreshDashboard}
-            className="flex items-center gap-2"
-          >
-            <RotateCcw className="h-4 w-4" />
-            刷新
-          </Button>
+          {/* Advanced Date Range Picker */}
+          <AdvancedDateRangePicker
+            value={dateRange}
+            onChange={handleDateRangeChange}
+            onPresetChange={handlePresetChange}
+          />
         </div>
       </div>
 
-      {/* Custom Date Range */}
-      {showCustomDate && (
-        <div className="flex items-center gap-3 mb-6 p-4 bg-white rounded-lg border border-gray-200">
-          <Calendar className="h-4 w-4 text-gray-500" />
-          <div className="flex items-center gap-2">
-            <Input
-              type="date"
-              value={customStartDate}
-              onChange={(e) => setCustomStartDate(e.target.value)}
-              className="w-auto"
-            />
-            <span className="text-gray-500">至</span>
-            <Input
-              type="date"
-              value={customEndDate}
-              onChange={(e) => setCustomEndDate(e.target.value)}
-              className="w-auto"
-            />
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={applyCustomDateRange}
-              disabled={!customStartDate || !customEndDate}
-            >
-              应用
-            </Button>
-          </div>
-        </div>
-      )}
 
       {/* First Row: KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -145,27 +66,16 @@ export default function Dashboard2() {
       <div className="w-full">
         <PerformanceTrend
           metrics={dashboardData.performanceMetrics}
-          dateRange={globalDateRange}
+          dateRange={currentPreset}
         />
       </div>
 
-      {/* Third Row: Distribution Charts */}
+      {/* Third Row: Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <DonutChart
-          title="用户地域分布"
-          data={dashboardData.geoDistribution}
-        />
-        <DonutChart
-          title="访问来源分布"
-          data={dashboardData.trafficSources}
-        />
         <TagChart data={dashboardData.popularTags} />
+        {/* Placeholder for future content */}
       </div>
 
-      {/* Fourth Row: Recent Activities */}
-      <div className="w-full">
-        <RecentActivities />
-      </div>
     </div>
   );
 }
