@@ -86,11 +86,11 @@ export default function Dashboard() {
       {/* Page Header with Global Date Selector */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">��据概览</h1>
+          <h1 className="text-2xl font-bold text-gray-900">数据概览</h1>
         </div>
         <div className="flex items-center gap-4">
           {/* Global Date Range Selector */}
-          <div className="relative">
+          <div className="relative" ref={datePickerRef}>
             <button
               onClick={() => setIsDatePickerOpen(!isDatePickerOpen)}
               className="flex items-center justify-between gap-2 px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 min-w-[200px]"
