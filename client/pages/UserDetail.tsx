@@ -32,7 +32,7 @@ export default function UserDetail() {
   
   const [userTags, setUserTags] = useState<string[]>(user?.tags || []);
   const [newTag, setNewTag] = useState("");
-  const [isTagDialogOpen, setIsTagDialogOpen] = useState(false);
+  const [isTagPopoverOpen, setIsTagPopoverOpen] = useState(false);
   const [openSessions, setOpenSessions] = useState<Set<string>>(new Set());
   const [openOrders, setOpenOrders] = useState<Set<string>>(new Set());
   const [currentOrderPage, setCurrentOrderPage] = useState(1);
@@ -432,7 +432,7 @@ export default function UserDetail() {
 
                                     {/* 金额明细 */}
                                     <div className="border-t pt-3">
-                                      <h5 className="font-medium mb-2">金���明细</h5>
+                                      <h5 className="font-medium mb-2">金额明细</h5>
                                       <div className="bg-gray-50 p-3 rounded space-y-2 text-sm">
                                         <div className="flex justify-between">
                                           <span>商品总价:</span>
@@ -601,7 +601,7 @@ export default function UserDetail() {
                           <div className="text-xs text-gray-600">购物车创建时间</div>
                         </div>
                         <div className="text-center p-3 bg-gray-50 rounded-lg">
-                          <div className="text-sm font-bold text-gray-700">{user.lastCartUpdate || '暂无数据'}</div>
+                          <div className="text-sm font-bold text-gray-700">{user.lastCartUpdate || '暂无���据'}</div>
                           <div className="text-xs text-gray-600">最后更新时间</div>
                         </div>
                       </div>
