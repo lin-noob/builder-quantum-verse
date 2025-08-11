@@ -142,7 +142,7 @@ export default function AdvancedDateRangePicker({ value, onChange, onPresetChang
     const monthNames = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
 
     return (
-      <div className="w-64">
+      <div className="w-56">
         {/* Calendar Header */}
         <div className="flex items-center justify-between p-2 border-b">
           <div className="flex items-center gap-1">
@@ -289,7 +289,7 @@ export default function AdvancedDateRangePicker({ value, onChange, onPresetChang
             <div className="flex items-center gap-2 flex-wrap">
               {[
                 { key: 'today', label: '今日' },
-                { key: 'last7days', label: '��7天' },
+                { key: 'last7days', label: '近7天' },
                 { key: 'last30days', label: '近30天' },
                 { key: 'lastMonth', label: '上月' },
                 { key: 'thisMonth', label: '今年' },
