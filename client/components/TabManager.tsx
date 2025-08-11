@@ -51,7 +51,9 @@ export default function TabManager() {
   const pathToTitle = {
     '/dashboard': '首页',
     '/': '首页',
+    '/dashboard2': '仪表盘2.0',
     '/users': '用户画像',
+    '/users2': '用户画像2.0',
     '/response-actions': '响应动作库',
     '/ai-marketing/monitoring-center': 'AI营销 - 监控中心',
     '/ai-marketing/fully-auto': 'AI营销 - 全自动模式',
@@ -269,7 +271,7 @@ export default function TabManager() {
               onClick={() => handleTabClick(tab)}
               onContextMenu={(e) => handleContextMenu(e, tab)}
             >
-              {/* 标签页图标 */}
+              {/* 标签页��标 */}
               {tab.isHome && <Home className="h-3 w-3 flex-shrink-0" />}
               
               {/* 标签页标题 */}
