@@ -185,6 +185,7 @@ export default function UserList() {
 
       console.log("发起API请求:", {
         url: "/api/quote/api/v1/profile/list",
+        method: "POST",
         requestBody,
       });
 
