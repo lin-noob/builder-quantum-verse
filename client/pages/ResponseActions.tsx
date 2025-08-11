@@ -401,7 +401,7 @@ export default function ResponseActions() {
                 <SelectItem value="today">今天</SelectItem>
                 <SelectItem value="week">近一周</SelectItem>
                 <SelectItem value="month">近一月</SelectItem>
-                <SelectItem value="quarter">近三月</SelectItem>
+                <SelectItem value="quarter">���三月</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -465,22 +465,16 @@ export default function ResponseActions() {
                     {getSortIcon('totalInteractions')}
                   </div>
                 </TableHead>
-                <div className="flex gap-5 md:gap-20">
-                  <div className="flex flex-col w-1/2">
-                    <TableHead
-                      className="cursor-pointer select-none hover:bg-gray-50"
-                      onClick={() => handleSort('totalConversions')}
-                    >
-                      <div className="flex items-center gap-2">
-                        累计转化
-                        {getSortIcon('totalConversions')}
-                      </div>
-                    </TableHead>
+                <TableHead
+                  className="cursor-pointer select-none hover:bg-gray-50"
+                  onClick={() => handleSort('totalConversions')}
+                >
+                  <div className="flex items-center gap-2">
+                    累计转化
+                    {getSortIcon('totalConversions')}
                   </div>
-                  <div className="flex flex-col w-1/2 ml-5">
-                    <TableHead className="text-right">操作</TableHead>
-                  </div>
-                </div>
+                </TableHead>
+                <TableHead className="text-right">操作</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
