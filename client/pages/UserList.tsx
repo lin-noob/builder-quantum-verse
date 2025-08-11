@@ -203,15 +203,33 @@ export default function UserList() {
         },
       });
 
-      // 检查业务响应码
-      if (response.data.code !== "200" && response.data.code !== "0") {
-        throw new Error(response.data.msg || "请求失败");
-      }
+      console.log("API完整响应:", response);
+      console.log("响应状态:", response.status);
+      console.log("响应数据:", response.data);
 
-      const apiUsers = response.data.data || [];
-      const convertedUsers = apiUsers.map(convertApiUserToUser);
-      setUsers(convertedUsers);
-      setTotalCount(response.data.total || 0);
+      // 不管成功失败都显示原始响应，让用户能看到完整信息
+      if (response.data) {
+        console.log("业务响应码:", response.data.code);
+        console.log("业务消息:", response.data.msg);
+        console.log("返回数据:", response.data.data);
+        console.log("总数:", response.data.total);
+
+        // 即使响应码不是200也尝试处理数据
+        const apiUsers = response.data.data || [];
+        if (Array.isArray(apiUsers)) {
+          const convertedUsers = apiUsers.map(convertApiUserToUser);
+          setUsers(convertedUsers);
+          setTotalCount(response.data.total || 0);
+        } else {
+          console.log("数据格式异常，data不是数组:", apiUsers);
+          setUsers([]);
+          setTotalCount(0);
+        }
+      } else {
+        console.log("响应中没有data字段");
+        setUsers([]);
+        setTotalCount(0);
+      }
     } catch (error) {
       console.error("获取用户数据失败:", error);
       console.error("请求参数:", { requestBody });
