@@ -13,6 +13,7 @@ import Dashboard2 from "./pages/Dashboard2";
 import UserList from "./pages/UserList";
 import UserList2 from "./pages/UserList2";
 import UserDetail from "./pages/UserDetail";
+import UserDetail2 from "./pages/UserDetail2";
 import ResponseActions from "./pages/ResponseActions";
 import ResponseActionDetail from "./pages/ResponseActionDetail";
 import ResponseActionCreate from "./pages/ResponseActionCreate";
