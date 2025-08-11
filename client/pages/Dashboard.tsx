@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { getDashboardData } from '@shared/dashboardData';
 import KPICard from '@/components/KPICard';
 import PerformanceTrend from '@/components/PerformanceTrend';
