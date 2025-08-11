@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import OrderHistory from "@/components/OrderHistory";
 import {
   Popover,
   PopoverContent,
@@ -294,7 +295,7 @@ export default function UserDetail() {
               <Tabs defaultValue="timeline" className="w-full">
                 <TabsList className="grid w-full grid-cols-2">
                   <TabsTrigger value="timeline">访问时间线</TabsTrigger>
-                  <TabsTrigger value="statistics">业务统计</TabsTrigger>
+                  <TabsTrigger value="statistics">业务统��</TabsTrigger>
                 </TabsList>
 
                 {/* Access Timeline Tab */}
