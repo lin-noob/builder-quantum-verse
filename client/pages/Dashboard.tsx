@@ -11,6 +11,7 @@ import { Calendar, ChevronDown } from 'lucide-react';
 
 export default function Dashboard() {
   const dashboardData = getDashboardData();
+  const datePickerRef = useRef<HTMLDivElement>(null);
 
   // Global date range state
   const [globalDateRange, setGlobalDateRange] = useState('30days');
