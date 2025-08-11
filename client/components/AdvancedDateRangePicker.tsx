@@ -103,7 +103,7 @@ export default function AdvancedDateRangePicker({
   };
 
   const formatDisplayRange = (range: DateRange) => {
-    if (!range.start || !range.end) return "过去30天";
+    if (!range || !range.start || !range.end) return "过去30天";
     if (range.start.getTime() === range.end.getTime()) {
       return formatDate(range.start);
     }
