@@ -205,6 +205,19 @@ export default function UserList() {
                 onPresetChange={() => {}}
               />
             </div>
+
+            {/* Reset Button */}
+            <div className="flex items-end">
+              <Button
+                variant="outline"
+                size="default"
+                onClick={handleReset}
+                className="flex items-center gap-2 h-10"
+              >
+                <RotateCcw className="h-4 w-4" />
+                重置
+              </Button>
+            </div>
           </div>
         </Card>
 
