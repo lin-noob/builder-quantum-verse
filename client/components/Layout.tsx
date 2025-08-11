@@ -122,7 +122,10 @@ export default function Layout({ children }: LayoutProps) {
       )}
 
       {/* Left Sidebar */}
-      <div className="hidden lg:flex w-64 bg-white border-r border-gray-200 flex-col">
+      <div className={cn(
+        "hidden lg:flex bg-white border-r border-gray-200 flex-col transition-all duration-300 ease-in-out relative",
+        isSidebarCollapsed ? "w-16" : "w-64"
+      )}>
         {/* Logo */}
         <div className="h-16 flex items-center px-6 border-b border-gray-200">
           <div className="flex items-center gap-3">
