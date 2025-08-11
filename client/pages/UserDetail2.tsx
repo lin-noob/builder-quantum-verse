@@ -117,7 +117,7 @@ export default function UserDetail2() {
       <div className="mb-6">
         <Button
           variant="ghost"
-          onClick={() => navigate("/users")}
+          onClick={() => navigate("/users2")}
           className="flex items-center gap-2"
         >
           <ArrowLeft className="h-4 w-4" />
