@@ -115,7 +115,7 @@ export interface TableColumn {
   /** 列宽度 */
   width?: string;
 
-  /** 是否���排序 */
+  /** 是否排序 */
   sortable?: boolean;
 
   /** 数据格式化函数 */

@@ -51,7 +51,7 @@ export default function PerformanceAnalytics() {
 
 邮件正文:
 ${activity.contentPreview.includes('Alex') ? 
-  'Hi Alex，秋色正浓，您的���机是否还在等待最完美的那一刻？我们注意到您对摄影装备的热爱，特别为您准备了这个秋季的摄影套装优惠...' :
+  'Hi Alex，秋色正浓，您的机是否还在等待最完美的那一刻？我们注意到您对摄影装备的热爱，特别为您准备了这个秋季的摄影套装优惠...' :
   activity.contentPreview.includes('收藏') ?
   '您收藏的徒步鞋已到货，现有库存充足。同时我们为您推荐了几款搭配的户外装备，让您的户外体验更加完美...' :
   activity.contentPreview.includes('很久') ?

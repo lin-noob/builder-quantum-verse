@@ -367,7 +367,7 @@ export default function Dashboard2() {
             {/* Top 5 Acquisition Channels */}
             <div className="bg-white p-6 rounded-lg shadow-sm">
               <h3 className="text-lg font-semibold text-slate-900 mb-4">
-                Top 5 首次触���来源
+                Top 5 首次触来源
               </h3>
               <div className="space-y-4" id="acquisition-channels">
                 {acquisitionData.map((channel) => (
