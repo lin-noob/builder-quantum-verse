@@ -74,7 +74,7 @@ export default function UserList2() {
     <div className="p-6 space-y-6 bg-background min-h-full">
       {/* Page Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-foreground">用户列表</h1>
+        <h1 className="text-2xl font-bold text-foreground">用户列表 2.0</h1>
         <p className="text-sm text-muted-foreground mt-1">
           高效浏览、筛选和检索，快速找到目标用户群体。
         </p>
@@ -195,7 +195,7 @@ export default function UserList2() {
 
           {filteredUsers.length === 0 && (
             <div className="text-center py-12">
-              <p className="text-muted-foreground">没有找到���合条件的用户</p>
+              <p className="text-muted-foreground">没有找到符合条件的用户</p>
             </div>
           )}
         </div>
