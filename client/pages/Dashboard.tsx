@@ -39,8 +39,19 @@ export default function Dashboard() {
   // Apply custom date range
   const applyCustomDateRange = () => {
     if (customStartDate && customEndDate) {
+      setGlobalDateRange('custom');
+      setIsCustomDateDialogOpen(false);
       // Here you would typically trigger data refresh with custom date range
       console.log('Applying custom date range:', customStartDate, 'to', customEndDate);
+    }
+  };
+
+  // Cancel custom date selection
+  const cancelCustomDateRange = () => {
+    setIsCustomDateDialogOpen(false);
+    // Reset to previous selection if no custom dates were applied
+    if (globalDateRange === 'custom' && (!customStartDate || !customEndDate)) {
+      setGlobalDateRange('30days');
     }
   };
 
