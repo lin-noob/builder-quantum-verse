@@ -170,7 +170,9 @@ export default function UserList() {
         startDate: dateRange.start?.toISOString(),
         endDate: dateRange.end?.toISOString(),
         searchtype: getSearchTypeMapping(selectedTimeField),
-        sort: sortConfig.field ? getSortFieldMapping(sortConfig.field) : undefined,
+        sort: sortConfig.field
+          ? getSortFieldMapping(sortConfig.field)
+          : undefined,
         order: sortConfig.direction,
       };
 
@@ -180,11 +182,9 @@ export default function UserList() {
         data: ApiUser[];
         msg: string;
         total: number;
-      }>(
-        "/api/quote/api/v1/profile/list",
-        requestBody,
-        { params: queryParams }
-      );
+      }>("/api/quote/api/v1/profile/list", requestBody, {
+        params: queryParams,
+      });
 
       // 检查业务响应码
       if (response.data.code !== "200" && response.data.code !== "0") {
@@ -195,7 +195,6 @@ export default function UserList() {
       const convertedUsers = apiUsers.map(convertApiUserToUser);
       setUsers(convertedUsers);
       setTotalCount(response.data.total || 0);
-
     } catch (error) {
       console.error("获取用户数据失败:", error);
       toast({
@@ -208,7 +207,14 @@ export default function UserList() {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, itemsPerPage, searchQuery, dateRange, selectedTimeField, sortConfig]);
+  }, [
+    currentPage,
+    itemsPerPage,
+    searchQuery,
+    dateRange,
+    selectedTimeField,
+    sortConfig,
+  ]);
 
   // 初始化和依赖更新时获取数据
   useEffect(() => {
@@ -300,7 +306,9 @@ export default function UserList() {
             <p className="text-gray-600 mt-1">管理和分析用户画像数据</p>
           </div>
           <Button onClick={handleRefresh} variant="outline" disabled={loading}>
-            <RefreshCw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} />
+            <RefreshCw
+              className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`}
+            />
             刷新
           </Button>
         </div>
@@ -451,49 +459,53 @@ export default function UserList() {
                   </tr>
                 ) : currentUsers.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className="px-6 py-8 text-center text-gray-500">
+                    <td
+                      colSpan={8}
+                      className="px-6 py-8 text-center text-gray-500"
+                    >
                       暂无数据
                     </td>
                   </tr>
                 ) : (
                   currentUsers.map((user) => (
                     <tr key={user.cdpId} className="hover:bg-gray-50">
-                    <td className="px-6 py-4">
-                      <div className="space-y-1">
-                        <div className="font-mono text-sm text-gray-900">
-                          {user.cdpId || user.id}
+                      <td className="px-6 py-4">
+                        <div className="space-y-1">
+                          <div className="font-mono text-sm text-gray-900">
+                            {user.cdpId || user.id}
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            {user.name || user.fullName || "N/A"} /{" "}
+                            {user.company || user.companyName || "N/A"}
+                          </div>
                         </div>
-                        <div className="text-sm text-gray-500">
-                          {user.name || user.fullName || "N/A"} / {user.company || user.companyName || "N/A"}
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-900">
-                      {user.contact || user.contactInfo || "N/A"}
-                    </td>
-                    <td className="px-6 py-4 text-xs text-gray-600">
-                      {formatDateTime(user.firstVisitTime || "")}
-                    </td>
-                    <td className="px-6 py-4 text-xs text-gray-600">
-                      {formatDateTime(user.registrationTime || "")}
-                    </td>
-                    <td className="px-6 py-4 text-xs text-gray-600">
-                      {formatDateTime(user.firstPurchaseTime || "")}
-                    </td>
-                    <td className="px-6 py-4 text-xs text-gray-600">
-                      {formatDateTime(user.lastActiveTime || "")}
-                    </td>
-                    <td className="px-6 py-4 text-sm font-semibold text-gray-900">
-                      {formatCurrency(user.totalSpent || 0)}
-                    </td>
-                    <td className="px-6 py-4">
-                      <Link
-                        to={`/users/${user.cdpId || user.id}`}
-                        className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                      >
-                        查看详情
-                      </Link>
-                    </td>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900">
+                        {user.contact || user.contactInfo || "N/A"}
+                      </td>
+                      <td className="px-6 py-4 text-xs text-gray-600">
+                        {formatDateTime(user.firstVisitTime || "")}
+                      </td>
+                      <td className="px-6 py-4 text-xs text-gray-600">
+                        {formatDateTime(user.registrationTime || "")}
+                      </td>
+                      <td className="px-6 py-4 text-xs text-gray-600">
+                        {formatDateTime(user.firstPurchaseTime || "")}
+                      </td>
+                      <td className="px-6 py-4 text-xs text-gray-600">
+                        {formatDateTime(user.lastActiveTime || "")}
+                      </td>
+                      <td className="px-6 py-4 text-sm font-semibold text-gray-900">
+                        {formatCurrency(user.totalSpent || 0)}
+                      </td>
+                      <td className="px-6 py-4">
+                        <Link
+                          to={`/users/${user.cdpId || user.id}`}
+                          className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                        >
+                          查看详情
+                        </Link>
+                      </td>
                     </tr>
                   ))
                 )}
@@ -504,9 +516,8 @@ export default function UserList() {
           {/* Pagination */}
           <div className="px-6 py-4 border-t bg-gray-50 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="text-sm text-gray-700 order-2 sm:order-1">
-              正在显示 {startIndex + 1} -{" "}
-              {Math.min(endIndex, totalCount)} 条，共{" "}
-              {totalCount} 条
+              正在显示 {startIndex + 1} - {Math.min(endIndex, totalCount)}{" "}
+              条，共 {totalCount} 条
             </div>
             <div className="flex items-center gap-2 order-1 sm:order-2">
               <Button
@@ -520,7 +531,9 @@ export default function UserList() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
+                onClick={() =>
+                  handlePageChange(Math.min(totalPages, currentPage + 1))
+                }
                 disabled={currentPage >= totalPages || loading}
               >
                 下一页

@@ -82,15 +82,15 @@ export interface Order {
   orderNumber: string;
   orderDate: string;
   status: string;
-  subtotalAmount?: number;   // 商品总价，不含运费和税费（可选，向后兼容）
-  shippingAmount?: number;   // 运费（可选）
-  taxAmount?: number;        // 税费（可选）
-  totalAmount: number;       // 最终支付总金额
+  subtotalAmount?: number; // 商品总价，不含运费和税费（可选，向后兼容）
+  shippingAmount?: number; // 运费（可选）
+  taxAmount?: number; // 税费（可选）
+  totalAmount: number; // 最终支付总金额
   currency: string;
   paymentMethod: string;
-  discountCode?: string;     // 优惠码（可选）
+  discountCode?: string; // 优惠码（可选）
   shippingAddress?: Address; // 收货地址（可选）
-  billingAddress?: Address;  // 账单地址（可选）
+  billingAddress?: Address; // 账单地址（可选）
   items: OrderItem[];
 }
 
@@ -117,8 +117,8 @@ export interface CartItem {
   unitPrice: number;
   quantity: number;
   totalPrice: number;
-  addedTime: string;           // 加入购物车时间
-  lastUpdated: string;         // 最后更新时间
+  addedTime: string; // 加入购物车时间
+  lastUpdated: string; // 最后更新时间
 }
 
 export const mockUsers: User[] = [
@@ -129,11 +129,11 @@ export const mockUsers: User[] = [
     country: "中国",
     city: "深圳",
     contact: "zhangwei@tencent.com",
-    totalSpent: 25680.50,
+    totalSpent: 25680.5,
     totalOrders: 12,
     averageOrderValue: 2140.04,
     lastPurchaseDate: "2024-01-15",
-    maxOrderAmount: 5200.00,
+    maxOrderAmount: 5200.0,
     averagePurchaseCycle: 28,
     tags: ["VIP客户", "企业用户"],
     firstVisitTime: "2023-08-15 14:22:33",
@@ -158,7 +158,7 @@ export const mockUsers: User[] = [
             pageTitle: "首页",
             pageUrl: "/",
             stayDuration: "1分45秒",
-            scrollDepth: "60%"
+            scrollDepth: "60%",
           },
           {
             timestamp: "09:17:15",
@@ -166,7 +166,7 @@ export const mockUsers: User[] = [
             pageTitle: "新产品发布",
             pageUrl: "/products/new-release",
             stayDuration: "8分20秒",
-            scrollDepth: "95%"
+            scrollDepth: "95%",
           },
           {
             timestamp: "09:25:35",
@@ -174,9 +174,9 @@ export const mockUsers: User[] = [
             pageTitle: "价格对比",
             pageUrl: "/pricing",
             stayDuration: "4分15秒",
-            scrollDepth: "80%"
-          }
-        ]
+            scrollDepth: "80%",
+          },
+        ],
       },
       {
         id: "session-2",
@@ -195,7 +195,7 @@ export const mockUsers: User[] = [
             pageTitle: "首页",
             pageUrl: "/",
             stayDuration: "2分30秒",
-            scrollDepth: "85%"
+            scrollDepth: "85%",
           },
           {
             timestamp: "14:32:45",
@@ -203,7 +203,7 @@ export const mockUsers: User[] = [
             pageTitle: "产品列表",
             pageUrl: "/products",
             stayDuration: "5分12秒",
-            scrollDepth: "100%"
+            scrollDepth: "100%",
           },
           {
             timestamp: "14:37:57",
@@ -211,7 +211,7 @@ export const mockUsers: User[] = [
             pageTitle: "企业版详情",
             pageUrl: "/products/enterprise",
             stayDuration: "7分30秒",
-            scrollDepth: "100%"
+            scrollDepth: "100%",
           },
           {
             timestamp: "14:45:27",
@@ -219,7 +219,7 @@ export const mockUsers: User[] = [
             pageTitle: "购物车",
             pageUrl: "/cart",
             stayDuration: "3分45秒",
-            scrollDepth: "70%"
+            scrollDepth: "70%",
           },
           {
             timestamp: "14:49:12",
@@ -227,9 +227,9 @@ export const mockUsers: User[] = [
             pageTitle: "结算页面",
             pageUrl: "/checkout",
             stayDuration: "5分20秒",
-            scrollDepth: "100%"
-          }
-        ]
+            scrollDepth: "100%",
+          },
+        ],
       },
       {
         id: "session-3",
@@ -248,7 +248,7 @@ export const mockUsers: User[] = [
             pageTitle: "技术支持",
             pageUrl: "/support",
             stayDuration: "3分20秒",
-            scrollDepth: "90%"
+            scrollDepth: "90%",
           },
           {
             timestamp: "16:48:30",
@@ -256,7 +256,7 @@ export const mockUsers: User[] = [
             pageTitle: "API文档",
             pageUrl: "/docs/api",
             stayDuration: "12分15秒",
-            scrollDepth: "85%"
+            scrollDepth: "85%",
           },
           {
             timestamp: "17:00:45",
@@ -264,9 +264,9 @@ export const mockUsers: User[] = [
             pageTitle: "集成指南",
             pageUrl: "/docs/integration",
             stayDuration: "6分40秒",
-            scrollDepth: "75%"
-          }
-        ]
+            scrollDepth: "75%",
+          },
+        ],
       },
       {
         id: "session-4",
@@ -285,7 +285,7 @@ export const mockUsers: User[] = [
             pageTitle: "登录页面",
             pageUrl: "/login",
             stayDuration: "1分10秒",
-            scrollDepth: "40%"
+            scrollDepth: "40%",
           },
           {
             timestamp: "11:21:10",
@@ -293,7 +293,7 @@ export const mockUsers: User[] = [
             pageTitle: "账户概览",
             pageUrl: "/account",
             stayDuration: "4分30秒",
-            scrollDepth: "95%"
+            scrollDepth: "95%",
           },
           {
             timestamp: "11:25:40",
@@ -301,20 +301,20 @@ export const mockUsers: User[] = [
             pageTitle: "订单历史",
             pageUrl: "/orders",
             stayDuration: "8分45秒",
-            scrollDepth: "100%"
-          }
-        ]
-      }
+            scrollDepth: "100%",
+          },
+        ],
+      },
     ],
     orders: [
       {
         orderNumber: "ORD-2024-003",
         orderDate: "2024-01-15",
         status: "已��成",
-        subtotalAmount: 5200.00,
-        shippingAmount: 0.00,
-        taxAmount: 0.00,
-        totalAmount: 5200.00,
+        subtotalAmount: 5200.0,
+        shippingAmount: 0.0,
+        taxAmount: 0.0,
+        totalAmount: 5200.0,
         currency: "CNY",
         paymentMethod: "微信支付",
         discountCode: "VIP2024",
@@ -325,7 +325,7 @@ export const mockUsers: User[] = [
           state: "��东省",
           postalCode: "518057",
           country: "中国",
-          phone: "13800138000"
+          phone: "13800138000",
         },
         billingAddress: {
           name: "腾讯科技（深圳）有限公司",
@@ -334,23 +334,23 @@ export const mockUsers: User[] = [
           state: "广东省",
           postalCode: "518057",
           country: "中国",
-          phone: "0755-86013388"
+          phone: "0755-86013388",
         },
         items: [
           {
             productName: "企业版软件授权",
-            unitPrice: 5200.00,
+            unitPrice: 5200.0,
             quantity: 1,
-            totalPrice: 5200.00
-          }
-        ]
+            totalPrice: 5200.0,
+          },
+        ],
       },
       {
         orderNumber: "ORD-2024-002",
         orderDate: "2024-01-08",
         status: "已完成",
-        subtotalAmount: 3280.50,
-        shippingAmount: 50.00,
+        subtotalAmount: 3280.5,
+        shippingAmount: 50.0,
         taxAmount: 328.05,
         totalAmount: 3658.55,
         currency: "CNY",
@@ -362,7 +362,7 @@ export const mockUsers: User[] = [
           state: "广东省",
           postalCode: "518057",
           country: "中国",
-          phone: "13800138000"
+          phone: "13800138000",
         },
         billingAddress: {
           name: "腾讯科技（深圳）有限公司",
@@ -371,84 +371,84 @@ export const mockUsers: User[] = [
           state: "广东省",
           postalCode: "518057",
           country: "中国",
-          phone: "0755-86013388"
+          phone: "0755-86013388",
         },
         items: [
           {
             productName: "专业版软件授权",
-            unitPrice: 2800.00,
+            unitPrice: 2800.0,
             quantity: 1,
-            totalPrice: 2800.00
+            totalPrice: 2800.0,
           },
           {
             productName: "技术支持服务",
-            unitPrice: 480.50,
+            unitPrice: 480.5,
             quantity: 1,
-            totalPrice: 480.50
-          }
-        ]
+            totalPrice: 480.5,
+          },
+        ],
       },
       {
         orderNumber: "ORD-2023-089",
         orderDate: "2023-12-20",
         status: "已完成",
-        totalAmount: 4800.00,
+        totalAmount: 4800.0,
         currency: "CNY",
         paymentMethod: "企业转账",
         items: [
           {
             productName: "标准版软件授权",
-            unitPrice: 1600.00,
+            unitPrice: 1600.0,
             quantity: 3,
-            totalPrice: 4800.00
-          }
-        ]
+            totalPrice: 4800.0,
+          },
+        ],
       },
       {
         orderNumber: "ORD-2023-067",
         orderDate: "2023-11-15",
         status: "已完成",
-        totalAmount: 2150.00,
+        totalAmount: 2150.0,
         currency: "CNY",
         paymentMethod: "微信支付",
         items: [
           {
             productName: "基础版软件授权",
-            unitPrice: 1200.00,
+            unitPrice: 1200.0,
             quantity: 1,
-            totalPrice: 1200.00
+            totalPrice: 1200.0,
           },
           {
             productName: "培训服务",
-            unitPrice: 950.00,
+            unitPrice: 950.0,
             quantity: 1,
-            totalPrice: 950.00
-          }
-        ]
+            totalPrice: 950.0,
+          },
+        ],
       },
       {
         orderNumber: "ORD-2023-045",
         orderDate: "2023-10-28",
         status: "已完成",
-        totalAmount: 6750.00,
+        totalAmount: 6750.0,
         currency: "CNY",
         paymentMethod: "企业转账",
         items: [
           {
             productName: "企业版软件授权",
-            unitPrice: 5200.00,
+            unitPrice: 5200.0,
             quantity: 1,
-            totalPrice: 5200.00
+            totalPrice: 5200.0,
           },
           {
             productName: "定制开发服务",
-            unitPrice: 1550.00,
+            unitPrice: 1550.0,
             quantity: 1,
-            totalPrice: 1550.00
-          }
-        ]
-      }
-    ]
+            totalPrice: 1550.0,
+          },
+        ],
+      },
+    ],
   },
   {
     cdpId: "b7c3d8e9-4f2a-1234",
@@ -461,7 +461,7 @@ export const mockUsers: User[] = [
     totalOrders: 8,
     averageOrderValue: 2362.53,
     lastPurchaseDate: "2024-01-10",
-    maxOrderAmount: 4800.00,
+    maxOrderAmount: 4800.0,
     averagePurchaseCycle: 35,
     tags: ["企业用户"],
     firstVisitTime: "2023-06-20 11:15:45",
@@ -486,7 +486,7 @@ export const mockUsers: User[] = [
             pageTitle: "产品演示",
             pageUrl: "/demo",
             stayDuration: "15分30秒",
-            scrollDepth: "100%"
+            scrollDepth: "100%",
           },
           {
             timestamp: "10:45:50",
@@ -494,7 +494,7 @@ export const mockUsers: User[] = [
             pageTitle: "技术规格",
             pageUrl: "/specs",
             stayDuration: "8分45秒",
-            scrollDepth: "90%"
+            scrollDepth: "90%",
           },
           {
             timestamp: "10:54:35",
@@ -502,9 +502,9 @@ export const mockUsers: User[] = [
             pageTitle: "案例研究",
             pageUrl: "/case-studies",
             stayDuration: "12分20秒",
-            scrollDepth: "85%"
-          }
-        ]
+            scrollDepth: "85%",
+          },
+        ],
       },
       {
         id: "session-lm-2",
@@ -523,7 +523,7 @@ export const mockUsers: User[] = [
             pageTitle: "登录",
             pageUrl: "/login",
             stayDuration: "1分30秒",
-            scrollDepth: "50%"
+            scrollDepth: "50%",
           },
           {
             timestamp: "14:16:40",
@@ -531,7 +531,7 @@ export const mockUsers: User[] = [
             pageTitle: "购物车",
             pageUrl: "/cart",
             stayDuration: "2分45秒",
-            scrollDepth: "70%"
+            scrollDepth: "70%",
           },
           {
             timestamp: "14:19:25",
@@ -539,7 +539,7 @@ export const mockUsers: User[] = [
             pageTitle: "付页面",
             pageUrl: "/payment",
             stayDuration: "4分15秒",
-            scrollDepth: "100%"
+            scrollDepth: "100%",
           },
           {
             timestamp: "14:23:40",
@@ -547,9 +547,9 @@ export const mockUsers: User[] = [
             pageTitle: "账户设置",
             pageUrl: "/account/settings",
             stayDuration: "6分20秒",
-            scrollDepth: "95%"
-          }
-        ]
+            scrollDepth: "95%",
+          },
+        ],
       },
       {
         id: "session-lm-3",
@@ -568,7 +568,7 @@ export const mockUsers: User[] = [
             pageTitle: "产品对比",
             pageUrl: "/compare",
             stayDuration: "9分30秒",
-            scrollDepth: "95%"
+            scrollDepth: "95%",
           },
           {
             timestamp: "16:29:45",
@@ -576,7 +576,7 @@ export const mockUsers: User[] = [
             pageTitle: "价格方案",
             pageUrl: "/pricing",
             stayDuration: "5分45秒",
-            scrollDepth: "80%"
+            scrollDepth: "80%",
           },
           {
             timestamp: "16:35:30",
@@ -584,27 +584,27 @@ export const mockUsers: User[] = [
             pageTitle: "联系销售",
             pageUrl: "/contact-sales",
             stayDuration: "3分20秒",
-            scrollDepth: "75%"
-          }
-        ]
-      }
+            scrollDepth: "75%",
+          },
+        ],
+      },
     ],
     orders: [
       {
         orderNumber: "ORD-2024-015",
         orderDate: "2024-01-10",
         status: "已完成",
-        totalAmount: 4800.00,
+        totalAmount: 4800.0,
         currency: "CNY",
         paymentMethod: "支付宝",
         items: [
           {
             productName: "企业版软件授权",
-            unitPrice: 4800.00,
+            unitPrice: 4800.0,
             quantity: 1,
-            totalPrice: 4800.00
-          }
-        ]
+            totalPrice: 4800.0,
+          },
+        ],
       },
       {
         orderNumber: "ORD-2023-156",
@@ -616,101 +616,101 @@ export const mockUsers: User[] = [
         items: [
           {
             productName: "专业��软件授权",
-            unitPrice: 2800.00,
+            unitPrice: 2800.0,
             quantity: 1,
-            totalPrice: 2800.00
+            totalPrice: 2800.0,
           },
           {
             productName: "云服务套餐",
             unitPrice: 850.25,
             quantity: 1,
-            totalPrice: 850.25
-          }
-        ]
+            totalPrice: 850.25,
+          },
+        ],
       },
       {
         orderNumber: "ORD-2023-134",
         orderDate: "2023-11-30",
         status: "已完成",
-        totalAmount: 2250.00,
+        totalAmount: 2250.0,
         currency: "CNY",
         paymentMethod: "支付宝",
         items: [
           {
             productName: "标准版软件授权",
-            unitPrice: 1500.00,
+            unitPrice: 1500.0,
             quantity: 1,
-            totalPrice: 1500.00
+            totalPrice: 1500.0,
           },
           {
             productName: "数据分析模块",
-            unitPrice: 750.00,
+            unitPrice: 750.0,
             quantity: 1,
-            totalPrice: 750.00
-          }
-        ]
+            totalPrice: 750.0,
+          },
+        ],
       },
       {
         orderNumber: "ORD-2023-089",
         orderDate: "2023-10-15",
         status: "已完成",
-        totalAmount: 4950.00,
+        totalAmount: 4950.0,
         currency: "CNY",
         paymentMethod: "企业转账",
         items: [
           {
             productName: "企业版软件授",
-            unitPrice: 4800.00,
+            unitPrice: 4800.0,
             quantity: 1,
-            totalPrice: 4800.00
+            totalPrice: 4800.0,
           },
           {
             productName: "���装服务",
-            unitPrice: 150.00,
+            unitPrice: 150.0,
             quantity: 1,
-            totalPrice: 150.00
-          }
-        ]
+            totalPrice: 150.0,
+          },
+        ],
       },
       {
         orderNumber: "ORD-2023-067",
         orderDate: "2023-09-20",
         status: "已完成",
-        totalAmount: 1850.00,
+        totalAmount: 1850.0,
         currency: "CNY",
         paymentMethod: "微信支付",
         items: [
           {
             productName: "基础版软件授权",
-            unitPrice: 1200.00,
+            unitPrice: 1200.0,
             quantity: 1,
-            totalPrice: 1200.00
+            totalPrice: 1200.0,
           },
           {
             productName: "技术支持服务",
-            unitPrice: 650.00,
+            unitPrice: 650.0,
             quantity: 1,
-            totalPrice: 650.00
-          }
-        ]
+            totalPrice: 650.0,
+          },
+        ],
       },
       {
         orderNumber: "ORD-2023-045",
         orderDate: "2023-08-10",
         status: "已完成",
-        totalAmount: 1400.00,
+        totalAmount: 1400.0,
         currency: "CNY",
         paymentMethod: "支付宝",
         items: [
           {
             productName: "插���扩展包",
-            unitPrice: 700.00,
+            unitPrice: 700.0,
             quantity: 2,
-            totalPrice: 1400.00
-          }
-        ]
-      }
-    ]
+            totalPrice: 1400.0,
+          },
+        ],
+      },
+    ],
   },
   {
     cdpId: "c8d4e5f6-7a8b-5678",
@@ -723,7 +723,7 @@ export const mockUsers: User[] = [
     totalOrders: 15,
     averageOrderValue: 2143.38,
     lastPurchaseDate: "2024-01-20",
-    maxOrderAmount: 6500.00,
+    maxOrderAmount: 6500.0,
     averagePurchaseCycle: 22,
     tags: ["VIP客户", "高价值用户"],
     firstVisitTime: "2023-05-10 08:45:22",
@@ -748,7 +748,7 @@ export const mockUsers: User[] = [
             pageTitle: "新功能介绍",
             pageUrl: "/features/new",
             stayDuration: "12分15秒",
-            scrollDepth: "100%"
+            scrollDepth: "100%",
           },
           {
             timestamp: "13:57:35",
@@ -756,7 +756,7 @@ export const mockUsers: User[] = [
             pageTitle: "功能试用",
             pageUrl: "/trial/features",
             stayDuration: "25分30秒",
-            scrollDepth: "95%"
+            scrollDepth: "95%",
           },
           {
             timestamp: "14:23:05",
@@ -764,9 +764,9 @@ export const mockUsers: User[] = [
             pageTitle: "反馈中心",
             pageUrl: "/feedback",
             stayDuration: "8分45秒",
-            scrollDepth: "85%"
-          }
-        ]
+            scrollDepth: "85%",
+          },
+        ],
       },
       {
         id: "session-wf-2",
@@ -785,7 +785,7 @@ export const mockUsers: User[] = [
             pageTitle: "VIP中心",
             pageUrl: "/vip",
             stayDuration: "6分30秒",
-            scrollDepth: "90%"
+            scrollDepth: "90%",
           },
           {
             timestamp: "09:36:40",
@@ -793,7 +793,7 @@ export const mockUsers: User[] = [
             pageTitle: "专属服务",
             pageUrl: "/vip/services",
             stayDuration: "10分20秒",
-            scrollDepth: "100%"
+            scrollDepth: "100%",
           },
           {
             timestamp: "09:47:00",
@@ -801,9 +801,9 @@ export const mockUsers: User[] = [
             pageTitle: "升级方案",
             pageUrl: "/upgrade",
             stayDuration: "7分15秒",
-            scrollDepth: "80%"
-          }
-        ]
+            scrollDepth: "80%",
+          },
+        ],
       },
       {
         id: "session-wf-3",
@@ -822,7 +822,7 @@ export const mockUsers: User[] = [
             pageTitle: "数据分析",
             pageUrl: "/analytics",
             stayDuration: "18分45秒",
-            scrollDepth: "100%"
+            scrollDepth: "100%",
           },
           {
             timestamp: "15:39:15",
@@ -830,7 +830,7 @@ export const mockUsers: User[] = [
             pageTitle: "报告中心",
             pageUrl: "/reports",
             stayDuration: "12分30秒",
-            scrollDepth: "95%"
+            scrollDepth: "95%",
           },
           {
             timestamp: "15:51:45",
@@ -838,9 +838,9 @@ export const mockUsers: User[] = [
             pageTitle: "数据导出",
             pageUrl: "/export",
             stayDuration: "5分20秒",
-            scrollDepth: "70%"
-          }
-        ]
+            scrollDepth: "70%",
+          },
+        ],
       },
       {
         id: "session-wf-4",
@@ -859,7 +859,7 @@ export const mockUsers: User[] = [
             pageTitle: "团队管理",
             pageUrl: "/team",
             stayDuration: "14分30秒",
-            scrollDepth: "100%"
+            scrollDepth: "100%",
           },
           {
             timestamp: "11:24:45",
@@ -867,7 +867,7 @@ export const mockUsers: User[] = [
             pageTitle: "权限设置",
             pageUrl: "/permissions",
             stayDuration: "9分20秒",
-            scrollDepth: "85%"
+            scrollDepth: "85%",
           },
           {
             timestamp: "11:34:05",
@@ -875,9 +875,9 @@ export const mockUsers: User[] = [
             pageTitle: "用户角色",
             pageUrl: "/roles",
             stayDuration: "6分45秒",
-            scrollDepth: "75%"
-          }
-        ]
+            scrollDepth: "75%",
+          },
+        ],
       },
       {
         id: "session-wf-5",
@@ -896,7 +896,7 @@ export const mockUsers: User[] = [
             pageTitle: "API文档",
             pageUrl: "/api/docs",
             stayDuration: "22分15秒",
-            scrollDepth: "100%"
+            scrollDepth: "100%",
           },
           {
             timestamp: "16:57:25",
@@ -904,7 +904,7 @@ export const mockUsers: User[] = [
             pageTitle: "开发者控制台",
             pageUrl: "/dev/console",
             stayDuration: "15分30秒",
-            scrollDepth: "90%"
+            scrollDepth: "90%",
           },
           {
             timestamp: "17:12:55",
@@ -912,27 +912,27 @@ export const mockUsers: User[] = [
             pageTitle: "集成示例",
             pageUrl: "/dev/examples",
             stayDuration: "8分40秒",
-            scrollDepth: "85%"
-          }
-        ]
-      }
+            scrollDepth: "85%",
+          },
+        ],
+      },
     ],
     orders: [
       {
         orderNumber: "ORD-2024-025",
         orderDate: "2024-01-20",
         status: "已完成",
-        totalAmount: 6500.00,
+        totalAmount: 6500.0,
         currency: "CNY",
         paymentMethod: "企业转账",
         items: [
           {
             productName: "旗舰版软件授权",
-            unitPrice: 6500.00,
+            unitPrice: 6500.0,
             quantity: 1,
-            totalPrice: 6500.00
-          }
-        ]
+            totalPrice: 6500.0,
+          },
+        ],
       },
       {
         orderNumber: "ORD-2024-018",
@@ -944,161 +944,161 @@ export const mockUsers: User[] = [
         items: [
           {
             productName: "业版软件授权",
-            unitPrice: 3800.00,
+            unitPrice: 3800.0,
             quantity: 1,
-            totalPrice: 3800.00
+            totalPrice: 3800.0,
           },
           {
             productName: "高级数据分析",
             unitPrice: 480.75,
             quantity: 1,
-            totalPrice: 480.75
-          }
-        ]
+            totalPrice: 480.75,
+          },
+        ],
       },
       {
         orderNumber: "ORD-2024-008",
         orderDate: "2024-01-08",
         status: "已完成",
-        totalAmount: 3650.00,
+        totalAmount: 3650.0,
         currency: "CNY",
         paymentMethod: "微信支付",
         items: [
           {
             productName: "专业版软件授权",
-            unitPrice: 2800.00,
+            unitPrice: 2800.0,
             quantity: 1,
-            totalPrice: 2800.00
+            totalPrice: 2800.0,
           },
           {
             productName: "AI智能模块",
-            unitPrice: 850.00,
+            unitPrice: 850.0,
             quantity: 1,
-            totalPrice: 850.00
-          }
-        ]
+            totalPrice: 850.0,
+          },
+        ],
       },
       {
         orderNumber: "ORD-2023-198",
         orderDate: "2023-12-28",
         status: "已完成",
-        totalAmount: 5420.00,
+        totalAmount: 5420.0,
         currency: "CNY",
         paymentMethod: "企业转账",
         items: [
           {
             productName: "企业版软件授权",
-            unitPrice: 3800.00,
+            unitPrice: 3800.0,
             quantity: 1,
-            totalPrice: 3800.00
+            totalPrice: 3800.0,
           },
           {
             productName: "定制开发服务",
-            unitPrice: 1620.00,
+            unitPrice: 1620.0,
             quantity: 1,
-            totalPrice: 1620.00
-          }
-        ]
+            totalPrice: 1620.0,
+          },
+        ],
       },
       {
         orderNumber: "ORD-2023-167",
         orderDate: "2023-12-10",
         status: "已完成",
-        totalAmount: 2100.00,
+        totalAmount: 2100.0,
         currency: "CNY",
         paymentMethod: "支付宝",
         items: [
           {
             productName: "准版软件授权",
-            unitPrice: 1500.00,
+            unitPrice: 1500.0,
             quantity: 1,
-            totalPrice: 1500.00
+            totalPrice: 1500.0,
           },
           {
             productName: "培训服务",
-            unitPrice: 600.00,
+            unitPrice: 600.0,
             quantity: 1,
-            totalPrice: 600.00
-          }
-        ]
+            totalPrice: 600.0,
+          },
+        ],
       },
       {
         orderNumber: "ORD-2023-145",
         orderDate: "2023-11-25",
         status: "已完成",
-        totalAmount: 3200.00,
+        totalAmount: 3200.0,
         currency: "CNY",
         paymentMethod: "企业转账",
         items: [
           {
             productName: "专业版软件授权",
-            unitPrice: 2800.00,
+            unitPrice: 2800.0,
             quantity: 1,
-            totalPrice: 2800.00
+            totalPrice: 2800.0,
           },
           {
             productName: "技术支持服务",
-            unitPrice: 400.00,
+            unitPrice: 400.0,
             quantity: 1,
-            totalPrice: 400.00
-          }
-        ]
+            totalPrice: 400.0,
+          },
+        ],
       },
       {
         orderNumber: "ORD-2023-123",
         orderDate: "2023-11-05",
         status: "已完成",
-        totalAmount: 1850.00,
+        totalAmount: 1850.0,
         currency: "CNY",
         paymentMethod: "微信支付",
         items: [
           {
             productName: "基础版软件授权",
-            unitPrice: 1200.00,
+            unitPrice: 1200.0,
             quantity: 1,
-            totalPrice: 1200.00
+            totalPrice: 1200.0,
           },
           {
             productName: "云存储服务",
-            unitPrice: 650.00,
+            unitPrice: 650.0,
             quantity: 1,
-            totalPrice: 650.00
-          }
-        ]
+            totalPrice: 650.0,
+          },
+        ],
       },
       {
         orderNumber: "ORD-2023-098",
         orderDate: "2023-10-20",
         status: "已完成",
-        totalAmount: 4800.00,
+        totalAmount: 4800.0,
         currency: "CNY",
         paymentMethod: "企业转账",
         items: [
           {
             productName: "准版软件授权",
-            unitPrice: 1600.00,
+            unitPrice: 1600.0,
             quantity: 3,
-            totalPrice: 4800.00
-          }
-        ]
+            totalPrice: 4800.0,
+          },
+        ],
       },
       {
         orderNumber: "ORD-2023-076",
         orderDate: "2023-09-30",
         status: "已完成",
-        totalAmount: 2200.00,
+        totalAmount: 2200.0,
         currency: "CNY",
         paymentMethod: "支付宝",
         items: [
           {
             productName: "插件扩展包",
-            unitPrice: 550.00,
+            unitPrice: 550.0,
             quantity: 4,
-            totalPrice: 2200.00
-          }
-        ]
-      }
-    ]
+            totalPrice: 2200.0,
+          },
+        ],
+      },
+    ],
   },
   {
     cdpId: "d9e5f6g7-8b9c-9012",
@@ -1107,11 +1107,11 @@ export const mockUsers: User[] = [
     country: "中国",
     city: "北京",
     contact: "chenjie@bytedance.com",
-    totalSpent: 12680.00,
+    totalSpent: 12680.0,
     totalOrders: 6,
     averageOrderValue: 2113.33,
     lastPurchaseDate: "2024-01-08",
-    maxOrderAmount: 3200.00,
+    maxOrderAmount: 3200.0,
     averagePurchaseCycle: 45,
     tags: ["新客户"],
     firstVisitTime: "2023-11-25 16:30:40",
@@ -1122,29 +1122,29 @@ export const mockUsers: User[] = [
       {
         id: "cart-item-cj-1",
         productName: "标准版软件授权",
-        unitPrice: 1600.00,
+        unitPrice: 1600.0,
         quantity: 2,
-        totalPrice: 3200.00,
+        totalPrice: 3200.0,
         addedTime: "2024-01-06 14:30:10",
-        lastUpdated: "2024-01-08 10:15:45"
+        lastUpdated: "2024-01-08 10:15:45",
       },
       {
         id: "cart-item-cj-2",
         productName: "数据分析模块",
-        unitPrice: 750.00,
+        unitPrice: 750.0,
         quantity: 1,
-        totalPrice: 750.00,
+        totalPrice: 750.0,
         addedTime: "2024-01-07 11:20:30",
-        lastUpdated: "2024-01-07 11:20:30"
-      }
+        lastUpdated: "2024-01-07 11:20:30",
+      },
     ],
-    totalCartValue: 3950.00,
+    totalCartValue: 3950.0,
     cartCreatedTime: "2024-01-06 14:30:10",
     lastCartUpdate: "2024-01-08 10:15:45",
     cartAbandonCount: 1,
-    averageCartValue: 2680.00,
+    averageCartValue: 2680.0,
     sessions: [],
-    orders: []
+    orders: [],
   },
   {
     cdpId: "e0f6g7h8-9c0d-3456",
@@ -1153,11 +1153,11 @@ export const mockUsers: User[] = [
     country: "中国",
     city: "深圳",
     contact: "liutao@huawei.com",
-    totalSpent: 45230.80,
+    totalSpent: 45230.8,
     totalOrders: 20,
     averageOrderValue: 2261.54,
     lastPurchaseDate: "2024-01-22",
-    maxOrderAmount: 8900.00,
+    maxOrderAmount: 8900.0,
     averagePurchaseCycle: 18,
     tags: ["VIP客户", "长期合作"],
     firstVisitTime: "2023-04-08 12:15:30",
@@ -1168,29 +1168,29 @@ export const mockUsers: User[] = [
       {
         id: "cart-item-lt-1",
         productName: "旗舰版软件授权",
-        unitPrice: 8900.00,
+        unitPrice: 8900.0,
         quantity: 1,
-        totalPrice: 8900.00,
+        totalPrice: 8900.0,
         addedTime: "2024-01-20 15:30:20",
-        lastUpdated: "2024-01-22 16:45:10"
+        lastUpdated: "2024-01-22 16:45:10",
       },
       {
         id: "cart-item-lt-2",
         productName: "企业级安全组件",
-        unitPrice: 2200.00,
+        unitPrice: 2200.0,
         quantity: 3,
-        totalPrice: 6600.00,
+        totalPrice: 6600.0,
         addedTime: "2024-01-21 09:15:30",
-        lastUpdated: "2024-01-21 11:20:45"
-      }
+        lastUpdated: "2024-01-21 11:20:45",
+      },
     ],
-    totalCartValue: 15500.00,
+    totalCartValue: 15500.0,
     cartCreatedTime: "2024-01-20 15:30:20",
     lastCartUpdate: "2024-01-22 16:45:10",
     cartAbandonCount: 7,
     averageCartValue: 8750.25,
     sessions: [],
-    orders: []
+    orders: [],
   },
   {
     cdpId: "f1g7h8i9-0d1e-7890",
@@ -1199,11 +1199,11 @@ export const mockUsers: User[] = [
     country: "中国",
     city: "北京",
     contact: "zhaomin@xiaomi.com",
-    totalSpent: 28950.60,
+    totalSpent: 28950.6,
     totalOrders: 11,
     averageOrderValue: 2631.87,
     lastPurchaseDate: "2024-01-18",
-    maxOrderAmount: 7200.00,
+    maxOrderAmount: 7200.0,
     averagePurchaseCycle: 30,
     tags: ["企业用户", "技术导向"],
     firstVisitTime: "2023-07-12 10:20:15",
@@ -1214,36 +1214,36 @@ export const mockUsers: User[] = [
       {
         id: "cart-item-zm-1",
         productName: "企业版软件授权",
-        unitPrice: 4800.00,
+        unitPrice: 4800.0,
         quantity: 1,
-        totalPrice: 4800.00,
+        totalPrice: 4800.0,
         addedTime: "2024-01-16 13:20:15",
-        lastUpdated: "2024-01-17 10:30:45"
+        lastUpdated: "2024-01-17 10:30:45",
       },
       {
         id: "cart-item-zm-2",
         productName: "AI智能模块",
-        unitPrice: 1200.00,
+        unitPrice: 1200.0,
         quantity: 2,
-        totalPrice: 2400.00,
+        totalPrice: 2400.0,
         addedTime: "2024-01-17 14:15:30",
-        lastUpdated: "2024-01-18 09:45:20"
-      }
+        lastUpdated: "2024-01-18 09:45:20",
+      },
     ],
-    totalCartValue: 7200.00,
+    totalCartValue: 7200.0,
     cartCreatedTime: "2024-01-16 13:20:15",
     lastCartUpdate: "2024-01-18 09:45:20",
     cartAbandonCount: 4,
-    averageCartValue: 5280.40,
+    averageCartValue: 5280.4,
     sessions: [],
-    orders: []
-  }
+    orders: [],
+  },
 ];
 
 export const getUsers = () => mockUsers;
 
 export const getUserById = (cdpId: string) =>
-  mockUsers.find(user => user.cdpId === cdpId);
+  mockUsers.find((user) => user.cdpId === cdpId);
 
 /**
  * 新API相关类型定义
@@ -1260,13 +1260,13 @@ export interface OrderSummaryDto {
   /** 搜索关键词 */
   keywords?: string;
   /** 排序类型(desc降序，asc升序) */
-  order?: 'desc' | 'asc';
+  order?: "desc" | "asc";
   /** 每页记录数 */
   pagesize?: number;
   /** 追加参数 */
   paramother?: Record<string, string>;
   /** 日期搜索类型 */
-  searchtype?: 'signTime' | 'minBuyTime' | 'maxBuyTime' | 'createGmt';
+  searchtype?: "signTime" | "minBuyTime" | "maxBuyTime" | "createGmt";
   /** 店铺ID */
   shopid?: string;
   /** 排序字段 */
@@ -1294,20 +1294,57 @@ export interface UserProfileListParams {
  */
 function generateNewFormatUser(id: number): User {
   const companies = [
-    "阿里巴巴集团", "腾讯科技", "字节跳动", "华为技术", "小米科技",
-    "美团科技", "滴滴出行", "京东科技", "网易科技", "百度在线",
-    "蚂蚁金服", "拼多多", "快手科技", "新浪微博", "搜狐科技"
+    "阿里巴巴集团",
+    "腾讯科技",
+    "字节跳动",
+    "华为技术",
+    "小米科技",
+    "美团科技",
+    "滴滴出行",
+    "京东科技",
+    "网易科技",
+    "百度在线",
+    "蚂蚁金服",
+    "拼多多",
+    "快手科技",
+    "新浪微博",
+    "搜狐科技",
   ];
 
   const locations = [
-    "北京市", "上海市", "深圳市", "广州市", "杭州市",
-    "成都市", "武汉市", "西安市", "南京市", "重庆市"
+    "北京市",
+    "上海市",
+    "深圳市",
+    "广州市",
+    "杭州市",
+    "成都市",
+    "武汉市",
+    "西安市",
+    "南京市",
+    "重庆市",
   ];
 
   const surnames = ["张", "王", "李", "赵", "陈", "刘", "杨", "黄", "周", "吴"];
-  const givenNames = ["伟", "芳", "娜", "秀英", "敏", "静", "丽", "强", "磊", "军"];
+  const givenNames = [
+    "伟",
+    "芳",
+    "娜",
+    "秀英",
+    "敏",
+    "静",
+    "丽",
+    "强",
+    "磊",
+    "军",
+  ];
 
-  const emailDomains = ["@gmail.com", "@163.com", "@qq.com", "@sina.com", "@126.com"];
+  const emailDomains = [
+    "@gmail.com",
+    "@163.com",
+    "@qq.com",
+    "@sina.com",
+    "@126.com",
+  ];
 
   const surname = surnames[Math.floor(Math.random() * surnames.length)];
   const givenName = givenNames[Math.floor(Math.random() * givenNames.length)];
@@ -1316,13 +1353,27 @@ function generateNewFormatUser(id: number): User {
   const isEmail = Math.random() > 0.5;
   const contactInfo = isEmail
     ? `${fullName.toLowerCase()}${Math.floor(Math.random() * 999)}${emailDomains[Math.floor(Math.random() * emailDomains.length)]}`
-    : `1${Math.floor(Math.random() * 9) + 3}${Math.floor(Math.random() * 100000000).toString().padStart(8, '0')}`;
+    : `1${Math.floor(Math.random() * 9) + 3}${Math.floor(
+        Math.random() * 100000000,
+      )
+        .toString()
+        .padStart(8, "0")}`;
 
-  const signTime = new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000 * 3);
-  const createGmt = new Date(signTime.getTime() + Math.random() * 30 * 24 * 60 * 60 * 1000);
-  const minBuyTime = new Date(signTime.getTime() + Math.random() * 60 * 24 * 60 * 60 * 1000);
-  const maxBuyTime = new Date(minBuyTime.getTime() + Math.random() * 200 * 24 * 60 * 60 * 1000);
-  const loginDate = new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000);
+  const signTime = new Date(
+    Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000 * 3,
+  );
+  const createGmt = new Date(
+    signTime.getTime() + Math.random() * 30 * 24 * 60 * 60 * 1000,
+  );
+  const minBuyTime = new Date(
+    signTime.getTime() + Math.random() * 60 * 24 * 60 * 60 * 1000,
+  );
+  const maxBuyTime = new Date(
+    minBuyTime.getTime() + Math.random() * 200 * 24 * 60 * 60 * 1000,
+  );
+  const loginDate = new Date(
+    Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000,
+  );
 
   const orderCount = Math.floor(Math.random() * 50) + 1;
   const avgOrderAmount = Math.random() * 2000 + 100;
@@ -1354,7 +1405,7 @@ function generateNewFormatUser(id: number): User {
     totalSpent: Math.round(totalOrders * 100) / 100,
     tags: [],
     sessions: [],
-    orders: []
+    orders: [],
   };
 }
 
@@ -1371,7 +1422,8 @@ export function getMockUserProfileList(params: UserProfileListParams = {}) {
 
   // 检查缓存
   const cacheKey = `mock_profile_users_${totalUsers}`;
-  const cached = typeof window !== 'undefined' ? sessionStorage.getItem(cacheKey) : null;
+  const cached =
+    typeof window !== "undefined" ? sessionStorage.getItem(cacheKey) : null;
 
   if (cached) {
     allUsers.push(...JSON.parse(cached));
@@ -1379,7 +1431,7 @@ export function getMockUserProfileList(params: UserProfileListParams = {}) {
     for (let i = 1; i <= totalUsers; i++) {
       allUsers.push(generateNewFormatUser(i));
     }
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       sessionStorage.setItem(cacheKey, JSON.stringify(allUsers));
     }
   }
@@ -1389,11 +1441,12 @@ export function getMockUserProfileList(params: UserProfileListParams = {}) {
   const searchTerm = keywords || name;
   if (searchTerm && searchTerm.trim()) {
     const term = searchTerm.toLowerCase();
-    filteredUsers = allUsers.filter(user =>
-      user.fullName.toLowerCase().includes(term) ||
-      user.contactInfo.toLowerCase().includes(term) ||
-      user.companyName.toLowerCase().includes(term) ||
-      user.location.toLowerCase().includes(term)
+    filteredUsers = allUsers.filter(
+      (user) =>
+        user.fullName.toLowerCase().includes(term) ||
+        user.contactInfo.toLowerCase().includes(term) ||
+        user.companyName.toLowerCase().includes(term) ||
+        user.location.toLowerCase().includes(term),
     );
   }
 
@@ -1403,12 +1456,12 @@ export function getMockUserProfileList(params: UserProfileListParams = {}) {
       const aValue = a[sort as keyof User] as any;
       const bValue = b[sort as keyof User] as any;
 
-      if (typeof aValue === 'number' && typeof bValue === 'number') {
-        return order === 'asc' ? aValue - bValue : bValue - aValue;
+      if (typeof aValue === "number" && typeof bValue === "number") {
+        return order === "asc" ? aValue - bValue : bValue - aValue;
       }
 
-      if (typeof aValue === 'string' && typeof bValue === 'string') {
-        return order === 'asc'
+      if (typeof aValue === "string" && typeof bValue === "string") {
+        return order === "asc"
           ? aValue.localeCompare(bValue)
           : bValue.localeCompare(aValue);
       }
@@ -1426,7 +1479,7 @@ export function getMockUserProfileList(params: UserProfileListParams = {}) {
     list: paginatedUsers,
     total: filteredUsers.length,
     currentpage: page,
-    pagesize: limit
+    pagesize: limit,
   };
 }
 
@@ -1434,12 +1487,12 @@ export function getMockUserProfileList(params: UserProfileListParams = {}) {
  * 模拟API调用延迟
  */
 export function mockApiDelay(ms: number = 500): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 export const getAllLocations = () => {
   const locations = new Set<string>();
-  mockUsers.forEach(user => {
+  mockUsers.forEach((user) => {
     locations.add(`${user.country}/${user.city}`);
   });
   return Array.from(locations).sort();
