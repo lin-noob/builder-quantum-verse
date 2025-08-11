@@ -32,7 +32,7 @@ interface SortConfig {
   direction: "asc" | "desc";
 }
 
-// API相关类型定义
+// API相关���型定义
 interface ApiUser {
   id: string;
   cdpUserId: number;
@@ -345,8 +345,16 @@ export default function UserList() {
               />
             </div>
 
-            {/* Reset Button */}
-            <div className="flex items-end">
+            {/* Action Buttons */}
+            <div className="flex items-end gap-2">
+              <Button
+                onClick={handleSearch}
+                className="flex items-center gap-2 h-10"
+                disabled={loading}
+              >
+                <Search className="h-4 w-4" />
+                搜索
+              </Button>
               <Button
                 variant="outline"
                 size="default"
