@@ -61,7 +61,7 @@ export default function UserDetail() {
     if (newTag.trim() && !userTags.includes(newTag.trim())) {
       setUserTags([...userTags, newTag.trim()]);
       setNewTag("");
-      setIsTagDialogOpen(false);
+      setIsTagPopoverOpen(false);
     }
   };
 
@@ -601,7 +601,7 @@ export default function UserDetail() {
                           <div className="text-xs text-gray-600">购物车创建时间</div>
                         </div>
                         <div className="text-center p-3 bg-gray-50 rounded-lg">
-                          <div className="text-sm font-bold text-gray-700">{user.lastCartUpdate || '暂无���据'}</div>
+                          <div className="text-sm font-bold text-gray-700">{user.lastCartUpdate || '暂无数据'}</div>
                           <div className="text-xs text-gray-600">最后更新时间</div>
                         </div>
                       </div>
