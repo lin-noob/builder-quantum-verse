@@ -16,22 +16,6 @@ interface PerformanceTrendProps {
 export default function PerformanceTrend({ metrics, dateRange = '30days' }: PerformanceTrendProps) {
   const [selectedMetrics, setSelectedMetrics] = useState<string[]>(['revenue']); // Default to "销售额"
 
-  const dateRangeOptions = [
-    { value: '7days', label: '过去7天' },
-    { value: '30days', label: '过去30天' },
-    { value: 'current_month', label: '本月' },
-    { value: 'last_month', label: '上月' },
-    { value: 'custom', label: '自定义日期' }
-  ];
-
-  const handleDateRangeChange = (value: string) => {
-    setDateRange(value);
-    if (value === 'custom') {
-      setShowCustomDate(true);
-    } else {
-      setShowCustomDate(false);
-    }
-  };
 
   const colors = ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6'];
 
