@@ -124,13 +124,12 @@ export default function UserDetail() {
 
                   {/* Tag Management */}
                   <div>
-                    <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2 mb-2">
                       <h4 className="text-sm font-medium text-gray-900">状态标签</h4>
                       <Popover open={isTagPopoverOpen} onOpenChange={setIsTagPopoverOpen}>
                         <PopoverTrigger asChild>
-                          <Button size="sm" variant="outline">
-                            <Plus className="h-4 w-4 mr-1" />
-                            添加标签
+                          <Button size="sm" variant="ghost" className="h-6 w-6 p-0">
+                            <Plus className="h-3 w-3" />
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-80" align="end">
