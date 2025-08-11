@@ -326,7 +326,7 @@ export default function UserList() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="firstVisitTime">首次访问时间</SelectItem>
+                  <SelectItem value="firstVisitTime">首��访问时间</SelectItem>
                   <SelectItem value="registrationTime">注册时间</SelectItem>
                   <SelectItem value="firstPurchaseTime">
                     首次购买时间
@@ -431,8 +431,24 @@ export default function UserList() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {currentUsers.map((user) => (
-                  <tr key={user.cdpId || user.id} className="hover:bg-gray-50">
+                {loading ? (
+                  <tr>
+                    <td colSpan={8} className="px-6 py-8 text-center">
+                      <div className="flex items-center justify-center gap-2">
+                        <RefreshCw className="h-4 w-4 animate-spin" />
+                        <span>加载中...</span>
+                      </div>
+                    </td>
+                  </tr>
+                ) : currentUsers.length === 0 ? (
+                  <tr>
+                    <td colSpan={8} className="px-6 py-8 text-center text-gray-500">
+                      暂无数据
+                    </td>
+                  </tr>
+                ) : (
+                  currentUsers.map((user) => (
+                    <tr key={user.cdpId} className="hover:bg-gray-50">
                     <td className="px-6 py-4">
                       <div className="space-y-1">
                         <div className="font-mono text-sm text-gray-900">
@@ -469,8 +485,9 @@ export default function UserList() {
                         查看详情
                       </Link>
                     </td>
-                  </tr>
-                ))}
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
@@ -479,25 +496,23 @@ export default function UserList() {
           <div className="px-6 py-4 border-t bg-gray-50 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="text-sm text-gray-700 order-2 sm:order-1">
               正在显示 {startIndex + 1} -{" "}
-              {Math.min(endIndex, filteredAndSortedUsers.length)} 条，共{" "}
-              {filteredAndSortedUsers.length} 条
+              {Math.min(endIndex, totalCount)} 条，共{" "}
+              {totalCount} 条
             </div>
             <div className="flex items-center gap-2 order-1 sm:order-2">
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-                disabled={currentPage === 1}
+                onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+                disabled={currentPage === 1 || loading}
               >
                 上一页
               </Button>
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() =>
-                  setCurrentPage((prev) => Math.min(totalPages, prev + 1))
-                }
-                disabled={currentPage === totalPages}
+                onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
+                disabled={currentPage >= totalPages || loading}
               >
                 下一页
               </Button>
