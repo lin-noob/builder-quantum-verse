@@ -100,7 +100,10 @@ export default function Dashboard() {
 
       {/* Second Row: Performance Trend (Full Width) */}
       <div className="w-full">
-        <PerformanceTrend metrics={dashboardData.performanceMetrics} />
+        <PerformanceTrend
+          metrics={dashboardData.performanceMetrics}
+          dateRange={globalDateRange}
+        />
       </div>
 
       {/* Third Row: Distribution Charts */}
