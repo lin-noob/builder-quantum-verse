@@ -1,4 +1,6 @@
 import { useEffect, useRef } from 'react';
+import { getDashboardData } from '@shared/dashboardData';
+import PerformanceTrend from '@/components/PerformanceTrend';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -168,7 +170,7 @@ export default function Dashboard2() {
 
   // Keyword Cloud Data
   const keywordData = [
-    { text: '笔记本电脑', size: 40 },
+    { text: '���记本电脑', size: 40 },
     { text: '户外徒步鞋', size: 32 },
     { text: '咖啡豆', size: 28 },
     { text: '无线耳机', size: 25 },
@@ -230,7 +232,7 @@ export default function Dashboard2() {
           <h2 className="text-2xl font-bold text-slate-900 mb-4">核心业绩概览</h2>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
             <div className="bg-white p-5 rounded-lg shadow-sm">
-              <h3 className="text-sm font-medium text-slate-500">总消费金额</h3>
+              <h3 className="text-sm font-medium text-slate-500">总消费���额</h3>
               <p className="text-2xl font-bold text-slate-900 mt-1">¥1,254,680</p>
               <p className="text-green-600 text-sm mt-1">+5.2%</p>
             </div>
@@ -255,7 +257,7 @@ export default function Dashboard2() {
               <p className="text-green-600 text-sm mt-1">+15.0%</p>
             </div>
             <div className="bg-white p-5 rounded-lg shadow-sm">
-              <h3 className="text-sm font-medium text-slate-500">复购��</h3>
+              <h3 className="text-sm font-medium text-slate-500">复购率</h3>
               <p className="text-2xl font-bold text-slate-900 mt-1">35.4%</p>
               <p className="text-green-600 text-sm mt-1">+2.1 pts</p>
             </div>
@@ -278,7 +280,7 @@ export default function Dashboard2() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* RFM Value Matrix */}
             <div className="bg-white p-6 rounded-lg shadow-sm">
-              <h3 className="text-lg font-semibold text-slate-900 mb-2">RFM 价值矩阵</h3>
+              <h3 className="text-lg font-semibold text-slate-900 mb-2">RFM 价��矩阵</h3>
               <p className="text-slate-500 text-sm mb-4">洞察不同价值分群的用户分布与消费贡献。气泡大小代表消费总额。</p>
               <div className="chart-container h-96">
                 <canvas ref={rfmChartRef} id="rfm-matrix-chart"></canvas>
@@ -362,7 +364,7 @@ export default function Dashboard2() {
             {/* Keyword Cloud */}
             <div className="bg-white p-6 rounded-lg shadow-sm">
               <h3 className="text-lg font-semibold text-slate-900 mb-2">热门搜索词云</h3>
-              <p className="text-slate-500 text-sm mb-4">直观了解用户的核心关注点与需求��</p>
+              <p className="text-slate-500 text-sm mb-4">直观了解用户的核心关注点与需求。</p>
               <div className="flex flex-wrap justify-center items-center gap-4 h-80" id="keyword-cloud">
                 {keywordData.map((keyword, index) => (
                   <span
