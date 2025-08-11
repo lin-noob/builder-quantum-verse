@@ -76,7 +76,9 @@ export default function Dashboard() {
           <div className="w-48">
             <Select value={globalDateRange} onValueChange={handleDateRangeChange}>
               <SelectTrigger>
-                <SelectValue placeholder="选择时间范围" />
+                <SelectValue placeholder="选择时间范围">
+                  {getCurrentDateRangeText()}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {dateRangeOptions.map(option => (
