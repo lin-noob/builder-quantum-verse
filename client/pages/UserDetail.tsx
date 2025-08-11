@@ -19,13 +19,10 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { getUserById, type User as UserType } from "@shared/userData";
 import { toast } from "@/hooks/use-toast";
 
@@ -435,7 +432,7 @@ export default function UserDetail() {
 
                                     {/* 金额明细 */}
                                     <div className="border-t pt-3">
-                                      <h5 className="font-medium mb-2">金额明细</h5>
+                                      <h5 className="font-medium mb-2">金���明细</h5>
                                       <div className="bg-gray-50 p-3 rounded space-y-2 text-sm">
                                         <div className="flex justify-between">
                                           <span>商品总价:</span>
