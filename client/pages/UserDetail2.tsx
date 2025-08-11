@@ -132,155 +132,152 @@ export default function UserDetail2() {
         </h1>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column: Identity & KPIs */}
-        <div className="space-y-6">
-          {/* Identity Information Card */}
-          <Card className="bg-background rounded-lg border">
-            <CardContent className="p-6">
-              <div className="grid grid-cols-1 gap-6">
-                {/* Left Column */}
-                <div className="space-y-4">
-                  <h2 className="text-lg font-semibold text-foreground">
-                    {userDetail.basicInfo.email.split('@')[0]}
-                  </h2>
-                  
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-muted-foreground">CDP ID:</span>
-                    <code className="text-sm font-mono bg-muted px-2 py-1 rounded">
-                      {userId}
-                    </code>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleCopyId}
-                      className="h-6 w-6 p-0"
-                    >
-                      <Copy className="h-3 w-3" />
+      <div className="space-y-6">
+        {/* Identity Information Card - Full Width */}
+        <Card className="bg-background rounded-lg border">
+          <CardContent className="p-6">
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+              {/* Left Column */}
+              <div className="space-y-4">
+                <h2 className="text-lg font-semibold text-foreground">
+                  {userDetail.basicInfo.email.split('@')[0]}
+                </h2>
+
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">CDP ID:</span>
+                  <code className="text-sm font-mono bg-muted px-2 py-1 rounded">
+                    {userId}
+                  </code>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleCopyId}
+                    className="h-6 w-6 p-0"
+                  >
+                    <Copy className="h-3 w-3" />
+                  </Button>
+                </div>
+
+                {/* Tag Management */}
+                <div>
+                  <h4 className="text-sm font-medium text-foreground mb-2">标签管理</h4>
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    {userTags.map((tag, index) => (
+                      <div
+                        key={index}
+                        className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs bg-primary/10 text-primary"
+                      >
+                        {tag}
+                        <button
+                          onClick={() => removeTag(tag)}
+                          className="ml-1 hover:text-destructive"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="添加新标签"
+                      value={newTag}
+                      onChange={(e) => setNewTag(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && addTag()}
+                      className="text-sm"
+                    />
+                    <Button onClick={addTag} size="sm">
+                      <Plus className="h-4 w-4" />
                     </Button>
                   </div>
+                </div>
+              </div>
 
-                  {/* Tag Management */}
+              {/* Basic Info Grid - 3 columns */}
+              <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <dl className="space-y-2">
                   <div>
-                    <h4 className="text-sm font-medium text-foreground mb-2">标签管理</h4>
-                    <div className="flex flex-wrap gap-2 mb-3">
-                      {userTags.map((tag, index) => (
-                        <div
-                          key={index}
-                          className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs bg-primary/10 text-primary"
-                        >
-                          {tag}
-                          <button 
-                            onClick={() => removeTag(tag)}
-                            className="ml-1 hover:text-destructive"
-                          >
-                            <X className="h-3 w-3" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="flex gap-2">
-                      <Input
-                        placeholder="添加新标签"
-                        value={newTag}
-                        onChange={(e) => setNewTag(e.target.value)}
-                        onKeyPress={(e) => e.key === 'Enter' && addTag()}
-                        className="text-sm"
-                      />
-                      <Button onClick={addTag} size="sm">
-                        <Plus className="h-4 w-4" />
-                      </Button>
-                    </div>
+                    <dt className="text-xs text-muted-foreground">邮箱</dt>
+                    <dd className="text-sm text-foreground">{userDetail.basicInfo.email}</dd>
                   </div>
-                </div>
-
-                {/* Basic Info Grid */}
-                <div className="grid grid-cols-3 gap-4">
-                  <dl className="space-y-2">
-                    <div>
-                      <dt className="text-xs text-muted-foreground">邮箱</dt>
-                      <dd className="text-sm text-foreground">{userDetail.basicInfo.email}</dd>
-                    </div>
-                    <div>
-                      <dt className="text-xs text-muted-foreground">手机</dt>
-                      <dd className="text-sm text-foreground">{userDetail.basicInfo.phone}</dd>
-                    </div>
-                  </dl>
-                  <dl className="space-y-2">
-                    <div>
-                      <dt className="text-xs text-muted-foreground">公司</dt>
-                      <dd className="text-sm text-foreground">{userDetail.basicInfo.company}</dd>
-                    </div>
-                    <div>
-                      <dt className="text-xs text-muted-foreground">职位</dt>
-                      <dd className="text-sm text-foreground">{userDetail.basicInfo.title}</dd>
-                    </div>
-                  </dl>
-                  <dl className="space-y-2">
-                    <div>
-                      <dt className="text-xs text-muted-foreground">性别</dt>
-                      <dd className="text-sm text-foreground">{userDetail.basicInfo.gender}</dd>
-                    </div>
-                    <div>
-                      <dt className="text-xs text-muted-foreground">年龄</dt>
-                      <dd className="text-sm text-foreground">{userDetail.basicInfo.age}</dd>
-                    </div>
-                  </dl>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Key Metrics Card */}
-          <Card className="bg-background rounded-lg border">
-            <CardHeader>
-              <CardTitle className="text-lg">关键指标</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-wrap gap-4">
-                <dl className="flex-1 min-w-0">
-                  <dt className="text-xs text-muted-foreground">总消费金额</dt>
-                  <dd className="text-sm font-semibold text-foreground">{userDetail.kpis.totalSpend}</dd>
+                  <div>
+                    <dt className="text-xs text-muted-foreground">手机</dt>
+                    <dd className="text-sm text-foreground">{userDetail.basicInfo.phone}</dd>
+                  </div>
                 </dl>
-                <dl className="flex-1 min-w-0">
-                  <dt className="text-xs text-muted-foreground">总订单数</dt>
-                  <dd className="text-sm font-semibold text-foreground">{userDetail.kpis.totalOrders}</dd>
+                <dl className="space-y-2">
+                  <div>
+                    <dt className="text-xs text-muted-foreground">公司</dt>
+                    <dd className="text-sm text-foreground">{userDetail.basicInfo.company}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs text-muted-foreground">职位</dt>
+                    <dd className="text-sm text-foreground">{userDetail.basicInfo.title}</dd>
+                  </div>
                 </dl>
-                <dl className="flex-1 min-w-0">
-                  <dt className="text-xs text-muted-foreground">平均客单价</dt>
-                  <dd className="text-sm font-semibold text-foreground">{userDetail.kpis.avgValue}</dd>
-                </dl>
-                <dl className="flex-1 min-w-0">
-                  <dt className="text-xs text-muted-foreground">最后购买</dt>
-                  <dd className="text-sm font-semibold text-foreground">{userDetail.kpis.lastPurchaseDays}</dd>
-                </dl>
-                <dl className="flex-1 min-w-0">
-                  <dt className="text-xs text-muted-foreground">平均周期</dt>
-                  <dd className="text-sm font-semibold text-foreground">{userDetail.kpis.avgCycle}</dd>
-                </dl>
-                <dl className="flex-1 min-w-0">
-                  <dt className="text-xs text-muted-foreground">LTV分位</dt>
-                  <dd className="text-sm font-semibold text-foreground">{userDetail.kpis.ltvQuintile}</dd>
-                </dl>
-                <dl className="flex-1 min-w-0">
-                  <dt className="text-xs text-muted-foreground">RFM分群</dt>
-                  <dd className="text-sm font-semibold text-foreground">{userDetail.kpis.rfmSegment}</dd>
-                </dl>
-                <dl className="flex-1 min-w-0">
-                  <dt className="text-xs text-muted-foreground">生命周期</dt>
-                  <dd className="text-sm font-semibold text-foreground">{userDetail.kpis.lifecycleStage}</dd>
-                </dl>
-                <dl className="flex-1 min-w-0">
-                  <dt className="text-xs text-muted-foreground">复购率</dt>
-                  <dd className="text-sm font-semibold text-foreground">{userDetail.kpis.repurchaseRate}</dd>
+                <dl className="space-y-2">
+                  <div>
+                    <dt className="text-xs text-muted-foreground">性别</dt>
+                    <dd className="text-sm text-foreground">{userDetail.basicInfo.gender}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs text-muted-foreground">年龄</dt>
+                    <dd className="text-sm text-foreground">{userDetail.basicInfo.age}</dd>
+                  </div>
                 </dl>
               </div>
-            </CardContent>
-          </Card>
-        </div>
+            </div>
+          </CardContent>
+        </Card>
 
-        {/* Right Column: Detailed Data */}
-        <div className="lg:col-span-2">
+        {/* Key Metrics Card - Full Width */}
+        <Card className="bg-background rounded-lg border">
+          <CardHeader>
+            <CardTitle className="text-lg">关键指标</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-9 gap-4">
+              <dl className="text-center">
+                <dt className="text-xs text-muted-foreground">总消费金额</dt>
+                <dd className="text-sm font-semibold text-foreground">{userDetail.kpis.totalSpend}</dd>
+              </dl>
+              <dl className="text-center">
+                <dt className="text-xs text-muted-foreground">总订单数</dt>
+                <dd className="text-sm font-semibold text-foreground">{userDetail.kpis.totalOrders}</dd>
+              </dl>
+              <dl className="text-center">
+                <dt className="text-xs text-muted-foreground">平均客单价</dt>
+                <dd className="text-sm font-semibold text-foreground">{userDetail.kpis.avgValue}</dd>
+              </dl>
+              <dl className="text-center">
+                <dt className="text-xs text-muted-foreground">最后购买</dt>
+                <dd className="text-sm font-semibold text-foreground">{userDetail.kpis.lastPurchaseDays}</dd>
+              </dl>
+              <dl className="text-center">
+                <dt className="text-xs text-muted-foreground">平均周期</dt>
+                <dd className="text-sm font-semibold text-foreground">{userDetail.kpis.avgCycle}</dd>
+              </dl>
+              <dl className="text-center">
+                <dt className="text-xs text-muted-foreground">LTV分位</dt>
+                <dd className="text-sm font-semibold text-foreground">{userDetail.kpis.ltvQuintile}</dd>
+              </dl>
+              <dl className="text-center">
+                <dt className="text-xs text-muted-foreground">RFM分群</dt>
+                <dd className="text-sm font-semibold text-foreground">{userDetail.kpis.rfmSegment}</dd>
+              </dl>
+              <dl className="text-center">
+                <dt className="text-xs text-muted-foreground">生命周期</dt>
+                <dd className="text-sm font-semibold text-foreground">{userDetail.kpis.lifecycleStage}</dd>
+              </dl>
+              <dl className="text-center">
+                <dt className="text-xs text-muted-foreground">复购率</dt>
+                <dd className="text-sm font-semibold text-foreground">{userDetail.kpis.repurchaseRate}</dd>
+              </dl>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Detailed Data - Full Width */}
+        <div>
           <Card className="bg-background rounded-lg border">
             <CardContent className="p-6">
               <Tabs defaultValue="dossier" className="w-full">
