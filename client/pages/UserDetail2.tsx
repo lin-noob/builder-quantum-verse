@@ -124,18 +124,6 @@ export default function UserDetail2() {
 
   return (
     <div className="p-6 space-y-6 bg-background min-h-full">
-      {/* Back Button */}
-      <div className="mb-6">
-        <Button
-          variant="ghost"
-          onClick={() => navigate("/users2")}
-          className="flex items-center gap-2"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          返回用户列表
-        </Button>
-      </div>
-
       {/* Page Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-foreground">
@@ -257,7 +245,7 @@ export default function UserDetail2() {
         {/* Key Metrics Card - Full Width */}
         <Card className="bg-background rounded-lg border">
           <CardHeader>
-            <CardTitle className="text-lg">关键指标</CardTitle>
+            <CardTitle className="text-lg">���键指标</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-9 gap-4">
