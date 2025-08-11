@@ -19,6 +19,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import OrderHistory from "@/components/OrderHistory";
+import SessionTimeline from "@/components/SessionTimeline";
 import {
   Popover,
   PopoverContent,
@@ -137,7 +138,7 @@ export default function UserDetail() {
                             <div>
                               <h4 className="font-medium">添加新标签</h4>
                               <p className="text-sm text-muted-foreground">
-                                为用户添加一个新的状态标签
+                                为用户添加一个新的��态标签
                               </p>
                             </div>
                             <Input
