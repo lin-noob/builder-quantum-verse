@@ -34,79 +34,84 @@ export default function Dashboard2() {
     const ctx = performanceChartRef.current?.getContext('2d');
     if (!ctx) return;
 
-    const chart = new ChartJS(ctx, {
-      type: 'line',
-      data: {
-        labels: ['1月1日', '1月2日', '1月3日', '1月4日', '1月5日', '1月6日', '1月7日', '1月8日', '1月9日', '1月10日'],
-        datasets: [
-          {
-            label: '总消费金额',
-            data: [50000, 62000, 68000, 65000, 72000, 75000, 82000, 78000, 90000, 95000],
-            borderColor: '#3b82f6',
-            backgroundColor: 'rgba(59, 130, 246, 0.1)',
-            yAxisID: 'y',
-          },
-          {
-            label: '总订单数',
-            data: [180, 220, 240, 230, 250, 260, 290, 270, 320, 340],
-            borderColor: '#ef4444',
-            backgroundColor: 'rgba(239, 68, 68, 0.1)',
-            yAxisID: 'y1',
-          },
-          {
-            label: '总用户数',
-            data: [350, 355, 360, 362, 368, 370, 375, 372, 380, 385],
-            borderColor: '#22c55e',
-            backgroundColor: 'rgba(34, 197, 94, 0.1)',
-            yAxisID: 'y1',
-          },
-          {
-            label: '平均客单价',
-            data: [277.8, 281.8, 283.3, 282.6, 288.0, 288.5, 282.8, 288.9, 281.3, 279.4],
-            borderColor: '#f97316',
-            backgroundColor: 'rgba(249, 115, 22, 0.1)',
-            yAxisID: 'y',
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        interaction: {
-          mode: 'index',
-          intersect: false,
+    try {
+      const chart = new ChartJS(ctx, {
+        type: 'line',
+        data: {
+          labels: ['1月1日', '1月2日', '1月3日', '1月4日', '1月5日', '1月6日', '1月7日', '1月8日', '1月9日', '1月10日'],
+          datasets: [
+            {
+              label: '总消费金额',
+              data: [50000, 62000, 68000, 65000, 72000, 75000, 82000, 78000, 90000, 95000],
+              borderColor: '#3b82f6',
+              backgroundColor: 'rgba(59, 130, 246, 0.1)',
+              yAxisID: 'y',
+            },
+            {
+              label: '总订单数',
+              data: [180, 220, 240, 230, 250, 260, 290, 270, 320, 340],
+              borderColor: '#ef4444',
+              backgroundColor: 'rgba(239, 68, 68, 0.1)',
+              yAxisID: 'y1',
+            },
+            {
+              label: '总用户数',
+              data: [350, 355, 360, 362, 368, 370, 375, 372, 380, 385],
+              borderColor: '#22c55e',
+              backgroundColor: 'rgba(34, 197, 94, 0.1)',
+              yAxisID: 'y1',
+            },
+            {
+              label: '平均客单价',
+              data: [277.8, 281.8, 283.3, 282.6, 288.0, 288.5, 282.8, 288.9, 281.3, 279.4],
+              borderColor: '#f97316',
+              backgroundColor: 'rgba(249, 115, 22, 0.1)',
+              yAxisID: 'y',
+            },
+          ],
         },
-        plugins: {
-          legend: {
-            position: 'bottom',
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: {
+            mode: 'index' as const,
+            intersect: false,
           },
-        },
-        scales: {
-          y: {
-            type: 'linear',
-            display: true,
-            position: 'left',
-            title: {
+          plugins: {
+            legend: {
+              position: 'bottom' as const,
+            },
+          },
+          scales: {
+            y: {
+              type: 'linear' as const,
               display: true,
-              text: '金额 (元)',
+              position: 'left' as const,
+              title: {
+                display: true,
+                text: '金额 (元)',
+              },
             },
-          },
-          y1: {
-            type: 'linear',
-            display: true,
-            position: 'right',
-            title: {
+            y1: {
+              type: 'linear' as const,
               display: true,
-              text: '数量',
-            },
-            grid: {
-              drawOnChartArea: false,
+              position: 'right' as const,
+              title: {
+                display: true,
+                text: '数量',
+              },
+              grid: {
+                drawOnChartArea: false,
+              },
             },
           },
         },
-      },
-    });
+      });
 
-    return () => chart.destroy();
+      return () => chart.destroy();
+    } catch (error) {
+      console.error('Performance chart error:', error);
+    }
   }, []);
 
   // RFM Matrix Chart
@@ -114,53 +119,49 @@ export default function Dashboard2() {
     const ctx = rfmChartRef.current?.getContext('2d');
     if (!ctx) return;
 
-    const chart = new ChartJS(ctx, {
-      type: 'bubble',
-      data: {
-        datasets: [
-          {
-            label: 'RFM 价值矩阵',
-            data: [
-              { x: 4.5, y: 4.8, r: 30, label: '重要价值客户 (856人)' },
-              { x: 4.2, y: 2.5, r: 15, label: '重要发展客户 (643人)' },
-              { x: 2.1, y: 4.5, r: 10, label: '重要保持客户 (432人)' },
-              { x: 2.5, y: 2.2, r: 8, label: '一般价值客户 (1123人)' },
-              { x: 1.5, y: 1.8, r: 5, label: '潜在客户 (402人)' },
-            ],
-            backgroundColor: 'rgba(59, 130, 246, 0.6)',
-            borderColor: 'rgba(59, 130, 246, 1)',
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          tooltip: {
-            callbacks: {
-              label: function (context: any) {
-                return context.raw.label;
+    try {
+      const chart = new ChartJS(ctx, {
+        type: 'bubble',
+        data: {
+          datasets: [
+            {
+              label: 'RFM 价值矩阵',
+              data: [
+                { x: 4.5, y: 4.8, r: 30 },
+                { x: 4.2, y: 2.5, r: 15 },
+                { x: 2.1, y: 4.5, r: 10 },
+                { x: 2.5, y: 2.2, r: 8 },
+                { x: 1.5, y: 1.8, r: 5 },
+              ],
+              backgroundColor: 'rgba(59, 130, 246, 0.6)',
+              borderColor: 'rgba(59, 130, 246, 1)',
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text: 'R - 近度分数',
+              },
+            },
+            y: {
+              title: {
+                display: true,
+                text: 'F - 频度分数',
               },
             },
           },
         },
-        scales: {
-          x: {
-            title: {
-              display: true,
-              text: 'R - 近度分数',
-            },
-          },
-          y: {
-            title: {
-              display: true,
-              text: 'F - 频度分数',
-            },
-          },
-        },
-      },
-    });
+      });
 
-    return () => chart.destroy();
+      return () => chart.destroy();
+    } catch (error) {
+      console.error('RFM chart error:', error);
+    }
   }, []);
 
   // Activity Heatmap Data
@@ -182,7 +183,7 @@ export default function Dashboard2() {
     { text: '笔记本电脑', size: 40 },
     { text: '户外徒步鞋', size: 32 },
     { text: '咖啡豆', size: 28 },
-    { text: '无线���机', size: 25 },
+    { text: '无线耳机', size: 25 },
     { text: '机械键盘', size: 22 },
     { text: '无人机', size: 20 },
     { text: '摄影入门', size: 18 },
@@ -290,7 +291,7 @@ export default function Dashboard2() {
             {/* RFM Value Matrix */}
             <div className="bg-white p-6 rounded-lg shadow-sm">
               <h3 className="text-lg font-semibold text-slate-900 mb-2">RFM 价值矩阵</h3>
-              <p className="text-slate-500 text-sm mb-4">洞察不同价值分群的用户分布与消费贡献。��泡大小代表消费总额。</p>
+              <p className="text-slate-500 text-sm mb-4">洞察不同价值分群的用户分布与消费贡献。气泡大小代表消费总额。</p>
               <div className="chart-container h-96">
                 <canvas ref={rfmChartRef} id="rfm-matrix-chart"></canvas>
               </div>
