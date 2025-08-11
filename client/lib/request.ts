@@ -6,7 +6,7 @@ export interface RequestConfig {
   headers?: Record<string, string>;
   /** 超时时间(毫秒) */
   timeout?: number;
-  /** 是��携带凭证 */
+  /** 是否携带凭证 */
   credentials?: RequestCredentials;
   /** 请求拦截器 */
   beforeRequest?: (config: RequestConfig) => RequestConfig | Promise<RequestConfig>;
@@ -47,7 +47,21 @@ export interface RequestOptions extends Omit<RequestConfig, 'beforeRequest' | 'a
 }
 
 /**
- * 响应数据接口
+ * 标准业务API响应格式
+ */
+export interface BusinessApiResponse<T = any> {
+  /** 响应码 */
+  code: string;
+  /** 响应数据 */
+  data: T;
+  /** 响应消息 */
+  msg: string;
+  /** 总数量（用于分页等场景） */
+  total?: number;
+}
+
+/**
+ * HTTP响应数据接口
  */
 export interface ApiResponse<T = any> {
   data: T;
@@ -304,7 +318,7 @@ export class Request {
   }
 
   /**
-   * PATCH请��
+   * PATCH请求
    */
   async patch<T = any>(url: string, data?: RequestData, options?: Omit<RequestOptions, 'method' | 'data'>): Promise<ApiResponse<T>> {
     return this.request<T>(url, { ...options, method: 'PATCH', data });
