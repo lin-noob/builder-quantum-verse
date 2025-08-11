@@ -165,6 +165,14 @@ const App = () => (
               </Layout>
             }
           />
+          <Route
+            path="/user-profiles"
+            element={
+              <Layout>
+                <UserProfileList />
+              </Layout>
+            }
+          />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route
             path="*"
