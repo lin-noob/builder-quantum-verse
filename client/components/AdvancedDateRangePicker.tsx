@@ -70,6 +70,11 @@ export default function AdvancedDateRangePicker({ value, onChange, onPresetChang
     }
   }, []);
 
+  // Initialize with correct preset
+  useEffect(() => {
+    setActivePreset('last30days');
+  }, []);
+
   // Close picker when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
