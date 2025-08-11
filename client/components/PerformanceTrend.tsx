@@ -10,7 +10,7 @@ interface PerformanceTrendProps {
 }
 
 export default function PerformanceTrend({ metrics, dateRange = '30days' }: PerformanceTrendProps) {
-  const [selectedMetrics, setSelectedMetrics] = useState<string[]>(['revenue']); // Default to "销售额"
+  const [selectedMetrics, setSelectedMetrics] = useState<string[]>(['totalRevenue']); // Default to "总消费金额"
 
 
   const colors = ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6'];
