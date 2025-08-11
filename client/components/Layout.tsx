@@ -198,6 +198,24 @@ export default function Layout({ children }: LayoutProps) {
             })}
           </ul>
         </nav>
+
+        {/* Collapse Toggle Button */}
+        <div className="border-t border-gray-200 p-2">
+          <button
+            onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+            className="w-full flex items-center justify-center p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors"
+            title={isSidebarCollapsed ? "展开侧边栏" : "折叠侧边栏"}
+          >
+            {isSidebarCollapsed ? (
+              <ChevronRight className="h-5 w-5" />
+            ) : (
+              <>
+                <ChevronLeft className="h-5 w-5" />
+                <span className="ml-2 text-sm">折叠</span>
+              </>
+            )}
+          </button>
+        </div>
       </div>
 
       {/* Main Content Area */}
