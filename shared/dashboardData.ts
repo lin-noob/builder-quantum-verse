@@ -75,42 +75,8 @@ export const mockDashboardData: DashboardData = {
   ],
   performanceMetrics: [
     {
-      id: "sales",
-      label: "销量",
-      value: "15,247",
-      data: [
-        { date: "2024-01-01", value: 850, label: "1月1日" },
-        { date: "2024-01-02", value: 920, label: "1月2日" },
-        { date: "2024-01-03", value: 1100, label: "1月3日" },
-        { date: "2024-01-04", value: 980, label: "1月4日" },
-        { date: "2024-01-05", value: 1200, label: "1月5日" },
-        { date: "2024-01-06", value: 1350, label: "1月6日" },
-        { date: "2024-01-07", value: 1480, label: "1月7日" },
-        { date: "2024-01-08", value: 1320, label: "1月8日" },
-        { date: "2024-01-09", value: 1580, label: "1月9日" },
-        { date: "2024-01-10", value: 1650, label: "1月10日" }
-      ]
-    },
-    {
-      id: "orders",
-      label: "订单量",
-      value: "8,247",
-      data: [
-        { date: "2024-01-01", value: 156, label: "1月1日" },
-        { date: "2024-01-02", value: 178, label: "1月2日" },
-        { date: "2024-01-03", value: 201, label: "1月3日" },
-        { date: "2024-01-04", value: 189, label: "1月4日" },
-        { date: "2024-01-05", value: 234, label: "1月5日" },
-        { date: "2024-01-06", value: 267, label: "1月6日" },
-        { date: "2024-01-07", value: 298, label: "1月7日" },
-        { date: "2024-01-08", value: 276, label: "1月8日" },
-        { date: "2024-01-09", value: 312, label: "1月9日" },
-        { date: "2024-01-10", value: 328, label: "1月10日" }
-      ]
-    },
-    {
-      id: "revenue",
-      label: "销售额",
+      id: "totalRevenue",
+      label: "总消费金额",
       value: "¥1,254,680",
       data: [
         { date: "2024-01-01", value: 45680, label: "1月1日" },
@@ -126,25 +92,42 @@ export const mockDashboardData: DashboardData = {
       ]
     },
     {
-      id: "net_revenue",
-      label: "净销售额",
-      value: "¥1,128,456",
+      id: "totalOrders",
+      label: "总订单数",
+      value: "8,247",
       data: [
-        { date: "2024-01-01", value: 41120, label: "1月1日" },
-        { date: "2024-01-02", value: 47115, label: "1月2日" },
-        { date: "2024-01-03", value: 55080, label: "1月3日" },
-        { date: "2024-01-04", value: 53010, label: "1月4日" },
-        { date: "2024-01-05", value: 61020, label: "1月5日" },
-        { date: "2024-01-06", value: 66825, label: "1月6日" },
-        { date: "2024-01-07", value: 73890, label: "1月7日" },
-        { date: "2024-01-08", value: 68760, label: "1月8日" },
-        { date: "2024-01-09", value: 80550, label: "1月9日" },
-        { date: "2024-01-10", value: 85320, label: "1月10日" }
+        { date: "2024-01-01", value: 156, label: "1月1日" },
+        { date: "2024-01-02", value: 178, label: "1月2日" },
+        { date: "2024-01-03", value: 201, label: "1月3日" },
+        { date: "2024-01-04", value: 189, label: "1月4日" },
+        { date: "2024-01-05", value: 234, label: "1月5日" },
+        { date: "2024-01-06", value: 267, label: "1月6日" },
+        { date: "2024-01-07", value: 298, label: "1月7日" },
+        { date: "2024-01-08", value: 276, label: "1月8日" },
+        { date: "2024-01-09", value: 312, label: "1月9日" },
+        { date: "2024-01-10", value: 328, label: "1月10日" }
       ]
     },
     {
-      id: "avg_price",
-      label: "平均价格",
+      id: "totalUsers",
+      label: "总用户数",
+      value: "3,456",
+      data: [
+        { date: "2024-01-01", value: 334, label: "1月1日" },
+        { date: "2024-01-02", value: 338, label: "1月2日" },
+        { date: "2024-01-03", value: 342, label: "1月3日" },
+        { date: "2024-01-04", value: 340, label: "1月4日" },
+        { date: "2024-01-05", value: 345, label: "1月5日" },
+        { date: "2024-01-06", value: 348, label: "1月6日" },
+        { date: "2024-01-07", value: 352, label: "1月7日" },
+        { date: "2024-01-08", value: 349, label: "1月8日" },
+        { date: "2024-01-09", value: 354, label: "1月9日" },
+        { date: "2024-01-10", value: 356, label: "1月10日" }
+      ]
+    },
+    {
+      id: "avgOrderValue",
+      label: "平均客单价",
       value: "¥152.3",
       data: [
         { date: "2024-01-01", value: 148.2, label: "1月1日" },
