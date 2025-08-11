@@ -112,50 +112,7 @@ export default function PerformanceTrend({ metrics, dateRange = '30days' }: Perf
   return (
     <Card className="bg-white border border-gray-200">
       <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-lg font-semibold text-gray-900">业绩走势</CardTitle>
-          <div className="flex items-center gap-4">
-            {/* Date Range Filter */}
-            <div className="w-48">
-              <Select value={dateRange} onValueChange={handleDateRangeChange}>
-                <SelectTrigger>
-                  <SelectValue placeholder="选择时间范围" />
-                </SelectTrigger>
-                <SelectContent>
-                  {dateRangeOptions.map(option => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </div>
-        {/* Custom Date Range */}
-        {showCustomDate && (
-          <div className="flex items-center gap-3 mt-4 p-4 bg-gray-50 rounded-lg">
-            <Calendar className="h-4 w-4 text-gray-500" />
-            <div className="flex items-center gap-2">
-              <Input
-                type="date"
-                value={customStartDate}
-                onChange={(e) => setCustomStartDate(e.target.value)}
-                className="w-auto"
-              />
-              <span className="text-gray-500">至</span>
-              <Input
-                type="date"
-                value={customEndDate}
-                onChange={(e) => setCustomEndDate(e.target.value)}
-                className="w-auto"
-              />
-              <Button size="sm" variant="outline">
-                应用
-              </Button>
-            </div>
-          </div>
-        )}
+        <CardTitle className="text-lg font-semibold text-gray-900">业绩走势</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Metric Selector Cards */}
