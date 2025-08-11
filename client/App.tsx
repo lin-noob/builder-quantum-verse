@@ -22,6 +22,7 @@ import MonitoringCenter from "./pages/AIMarketing/MonitoringCenter";
 import FullyAuto from "./pages/AIMarketing/FullyAuto";
 import SemiAuto from "./pages/AIMarketing/SemiAuto";
 import ScriptCreate from "./pages/AIMarketing/ScriptCreate";
+import OrderHistoryDemo from "./pages/OrderHistoryDemo";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
