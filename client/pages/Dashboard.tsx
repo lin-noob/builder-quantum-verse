@@ -4,7 +4,6 @@ import KPICard from '@/components/KPICard';
 import PerformanceTrend from '@/components/PerformanceTrend';
 import DonutChart from '@/components/DonutChart';
 import TagChart from '@/components/TagChart';
-import RecentActivities from '@/components/RecentActivities';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
