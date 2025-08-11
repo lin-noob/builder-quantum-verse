@@ -5,77 +5,31 @@ import PerformanceTrend from '@/components/PerformanceTrend';
 import TagChart from '@/components/TagChart';
 import AdvancedDateRangePicker from '@/components/AdvancedDateRangePicker';
 
+interface DateRange {
+  start: Date | null;
+  end: Date | null;
+}
+
 export default function Dashboard() {
   const dashboardData = getDashboardData();
-  const datePickerRef = useRef<HTMLDivElement>(null);
 
-  // Global date range state
-  const [globalDateRange, setGlobalDateRange] = useState('30days');
-  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
-  const [customStartDate, setCustomStartDate] = useState('');
-  const [customEndDate, setCustomEndDate] = useState('');
+  // Date range state for the advanced picker
+  const [dateRange, setDateRange] = useState<DateRange>({
+    start: new Date(2025, 6, 12), // July 12, 2025
+    end: new Date(2025, 7, 10)    // August 10, 2025
+  });
+  const [currentPreset, setCurrentPreset] = useState('last30days');
 
-  const dateRangeOptions = [
-    { value: '7days', label: '过去7天' },
-    { value: '30days', label: '过去30天' },
-    { value: 'current_month', label: '本月' },
-    { value: 'last_month', label: '上月' },
-    { value: 'custom', label: '自定义日期' }
-  ];
-
-  const handleDateRangeChange = (value: string) => {
-    if (value === 'custom') {
-      setIsDatePickerOpen(true);
-      // Don't change globalDateRange yet, wait for user to apply custom dates
-    } else {
-      setGlobalDateRange(value);
-      setIsDatePickerOpen(false);
-    }
+  const handleDateRangeChange = (range: DateRange) => {
+    setDateRange(range);
+    // Here you would typically trigger data refresh with new date range
+    console.log('Date range changed:', range);
   };
 
-  // Apply custom date range
-  const applyCustomDateRange = () => {
-    if (customStartDate && customEndDate) {
-      setGlobalDateRange('custom');
-      setIsDatePickerOpen(false);
-      // Here you would typically trigger data refresh with custom date range
-      console.log('Applying custom date range:', customStartDate, 'to', customEndDate);
-    }
+  const handlePresetChange = (preset: string) => {
+    setCurrentPreset(preset);
+    console.log('Preset changed:', preset);
   };
-
-  // Cancel custom date selection
-  const cancelCustomDateRange = () => {
-    setIsDatePickerOpen(false);
-    // Reset to previous selection if no custom dates were applied
-    if (globalDateRange === 'custom' && (!customStartDate || !customEndDate)) {
-      setGlobalDateRange('30days');
-    }
-  };
-
-  // Get current date range display text for select
-  const getCurrentDateRangeText = () => {
-    if (globalDateRange === 'custom' && customStartDate && customEndDate) {
-      return `${customStartDate} 至 ${customEndDate}`;
-    }
-    const option = dateRangeOptions.find(opt => opt.value === globalDateRange);
-    return option?.label || '过去30天';
-  };
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (datePickerRef.current && !datePickerRef.current.contains(event.target as Node)) {
-        setIsDatePickerOpen(false);
-      }
-    };
-
-    if (isDatePickerOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => {
-        document.removeEventListener('mousedown', handleClickOutside);
-      };
-    }
-  }, [isDatePickerOpen]);
 
   return (
     <div className="p-6 space-y-6 bg-gray-50 min-h-full">
@@ -127,7 +81,7 @@ export default function Dashboard() {
                     <div className="border-t border-gray-200 pt-3 space-y-3">
                       <div className="flex items-center gap-2 text-xs font-medium text-gray-600">
                         <Calendar className="h-3 w-3" />
-                        自定义日期范围
+                        自定义日期���围
                       </div>
                       <div className="space-y-2">
                         <div>
