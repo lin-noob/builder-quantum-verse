@@ -143,7 +143,7 @@ export default function Dashboard() {
                           />
                         </div>
                         <div>
-                          <label className="block text-xs text-gray-600 mb-1">���束日期</label>
+                          <label className="block text-xs text-gray-600 mb-1">结束日期</label>
                           <Input
                             type="date"
                             value={customEndDate}
@@ -201,9 +201,10 @@ export default function Dashboard() {
         />
       </div>
 
-      {/* Third Row: Tag Chart */}
-      <div className="w-full">
+      {/* Third Row: Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <TagChart data={dashboardData.popularTags} />
+        {/* Placeholder for future content */}
       </div>
 
     </div>
