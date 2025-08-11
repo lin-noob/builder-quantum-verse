@@ -185,7 +185,6 @@ export default function UserList() {
 
       console.log("发起API请求:", {
         url: "/api/quote/api/v1/profile/list",
-        queryParams,
         requestBody,
       });
 
@@ -196,7 +195,6 @@ export default function UserList() {
         msg: string;
         total: number;
       }>("/api/quote/api/v1/profile/list", requestBody, {
-        params: queryParams,
         headers: {
           'Content-Type': 'application/json',
         },
