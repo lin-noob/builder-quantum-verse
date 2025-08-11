@@ -9,7 +9,14 @@ if (typeof console !== 'undefined') {
     // Suppress Recharts defaultProps warnings - these are library-level issues
     // that will be fixed in future Recharts updates
     if (message.includes('Support for defaultProps will be removed from function components')) {
-      if (message.includes('XAxis') || message.includes('YAxis')) {
+      if (message.includes('XAxis') ||
+          message.includes('YAxis') ||
+          message.includes('XAxis2') ||
+          message.includes('YAxis2') ||
+          message.includes('CartesianGrid') ||
+          message.includes('Tooltip') ||
+          message.includes('Line') ||
+          message.includes('recharts')) {
         return;
       }
     }
