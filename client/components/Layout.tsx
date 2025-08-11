@@ -69,6 +69,12 @@ export default function Layout({ children }: LayoutProps) {
       path: "/users2",
       icon: <Users className="h-5 w-5" />,
     },
+    {
+      id: "user-profiles",
+      label: "用户画像列表",
+      path: "/user-profiles",
+      icon: <Users className="h-5 w-5" />,
+    },
   ];
 
   return (
@@ -232,7 +238,7 @@ export default function Layout({ children }: LayoutProps) {
                           className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors"
                         >
                           <Target className="h-4 w-4" />
-                          半自动模式
+                          半���动模式
                         </Link>
                       </div>
                     </div>
