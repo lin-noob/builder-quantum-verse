@@ -18,7 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { getUserById, type User } from "@shared/userData";
+import { getUserById, type User as UserType } from "@shared/userData";
 import { toast } from "@/hooks/use-toast";
 
 export default function UserDetail() {
