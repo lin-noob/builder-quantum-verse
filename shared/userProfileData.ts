@@ -74,50 +74,77 @@ export interface UserDetailResponse {
 
 // Mock data for users list
 export const mockUsersData: UserListItem[] = [
-  { 
-    id: "94f7a4a0", 
-    name: "李四", 
-    segment: "VIP客户", 
-    tags: ["高价值", "忠诚型客户"], 
-    totalSpend: 25100.00, 
-    totalOrders: 21, 
-    lastPurchase: "2025-08-01" 
+  {
+    id: "94f7a4a0",
+    name: "李四",
+    segment: "VIP客户",
+    tags: ["高价值", "忠诚型客户"],
+    totalSpend: 25100.00,
+    totalOrders: 21,
+    lastPurchase: "2025-08-01"
   },
-  { 
-    id: "a2b3c4d5", 
-    name: "张三", 
-    segment: "新用户", 
-    tags: ["高潜力"], 
-    totalSpend: 899.00, 
-    totalOrders: 1, 
-    lastPurchase: "2025-08-10" 
+  {
+    id: "a2b3c4d5",
+    name: "张三",
+    segment: "新用户",
+    tags: ["高潜力"],
+    totalSpend: 899.00,
+    totalOrders: 1,
+    lastPurchase: "2025-08-10"
   },
-  { 
-    id: "e6f7g8h9", 
-    name: "王五", 
-    segment: "普通用户", 
-    tags: ["比价型客户"], 
-    totalSpend: 3450.00, 
-    totalOrders: 6, 
-    lastPurchase: "2025-07-15" 
+  {
+    id: "e6f7g8h9",
+    name: "王五",
+    segment: "普通用户",
+    tags: ["比价型客户"],
+    totalSpend: 3450.00,
+    totalOrders: 6,
+    lastPurchase: "2025-07-15"
   },
-  { 
-    id: "i0j1k2l3", 
-    name: "赵六", 
-    segment: "VIP客户", 
-    tags: ["高价值", "有流失风险", "摄影爱好者"], 
-    totalSpend: 18200.00, 
-    totalOrders: 18, 
-    lastPurchase: "2025-05-18" 
+  {
+    id: "i0j1k2l3",
+    name: "赵六",
+    segment: "VIP客户",
+    tags: ["高价值", "有流失风险", "摄影爱好者"],
+    totalSpend: 18200.00,
+    totalOrders: 18,
+    lastPurchase: "2025-05-18"
   },
-  { 
-    id: "m4n5o6p7", 
-    name: "孙七", 
-    segment: "潜在流失", 
-    tags: [], 
-    totalSpend: 5600.00, 
-    totalOrders: 9, 
-    lastPurchase: "2025-04-01" 
+  {
+    id: "m4n5o6p7",
+    name: "孙七",
+    segment: "潜在流失",
+    tags: [],
+    totalSpend: 5600.00,
+    totalOrders: 9,
+    lastPurchase: "2025-04-01"
+  },
+  {
+    id: "n8o9p0q1",
+    name: "陈八",
+    segment: "企业用户",
+    tags: ["B2B客户", "大客户"],
+    totalSpend: 45600.00,
+    totalOrders: 32,
+    lastPurchase: "2025-08-08"
+  },
+  {
+    id: "r2s3t4u5",
+    name: "刘九",
+    segment: "普通用户",
+    tags: ["活跃用户"],
+    totalSpend: 2800.00,
+    totalOrders: 4,
+    lastPurchase: "2025-07-28"
+  },
+  {
+    id: "v6w7x8y9",
+    name: "黄十",
+    segment: "新用户",
+    tags: ["移动端用户", "年轻群体"],
+    totalSpend: 560.00,
+    totalOrders: 2,
+    lastPurchase: "2025-08-05"
   }
 ];
 
@@ -152,7 +179,7 @@ export const mockUserDetail: UserDetailResponse = {
       location: "上海市", 
       events: [
         { time: "14:30:15", type: "page_view", desc: "首页", url: "/", duration: "1分20秒" },
-        { time: "14:31:35", type: "page_view", desc: "产品列表", url: "/products", duration: "5分10秒" },
+        { time: "14:31:35", type: "page_view", desc: "产品��表", url: "/products", duration: "5分10秒" },
         { time: "14:36:45", type: "add_to_cart", desc: "将\"ProBook X1\"加入购物车", url: "-", duration: "-" }
       ]
     },
