@@ -150,10 +150,6 @@ export default function Dashboard() {
         <TagChart data={dashboardData.popularTags} />
       </div>
 
-      {/* Fourth Row: Recent Activities */}
-      <div className="w-full">
-        <RecentActivities />
-      </div>
     </div>
   );
 }
