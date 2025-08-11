@@ -154,14 +154,7 @@ export default function UserList() {
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
-      const queryParams: Record<string, string | number> = {
-        page: currentPage,
-        limit: itemsPerPage,
-      };
-
-      if (searchQuery.trim()) {
-        queryParams.name = searchQuery.trim();
-      }
+      // 根据API文档，主要参数通过POST body传递，query参数可选
 
       const requestBody: OrderSummaryDto = {
         currentpage: currentPage,
