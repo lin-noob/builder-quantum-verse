@@ -213,6 +213,7 @@ export default function UserList() {
       direction:
         prev.field === field && prev.direction === "asc" ? "desc" : "asc",
     }));
+    setCurrentPage(1); // 重置到第一页
   };
 
   const getSortIcon = (field: string) => {
@@ -226,79 +227,22 @@ export default function UserList() {
     );
   };
 
-  // Filter and sort users
-  const filteredAndSortedUsers = useMemo(() => {
-    let filtered = users.filter((user) => {
-      const matchesSearch =
-        searchQuery === "" ||
-        (user.cdpId && user.cdpId.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        (user.name && user.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        (user.company && user.company.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        (user.contact && user.contact.toLowerCase().includes(searchQuery.toLowerCase()));
+  // 搜索处理
+  const handleSearch = () => {
+    setCurrentPage(1);
+    fetchUsers();
+  };
 
-      let matchesDateFilter = true;
-      if (dateRange.start && dateRange.end) {
-        const timeValue = new Date(
-          selectedTimeField === "firstVisitTime"
-            ? user.firstVisitTime || ""
-            : selectedTimeField === "registrationTime"
-              ? user.registrationTime || ""
-              : selectedTimeField === "firstPurchaseTime"
-                ? user.firstPurchaseTime || ""
-                : user.lastActiveTime || "",
-        );
+  // 页面变化处理
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
 
-        matchesDateFilter =
-          timeValue >= dateRange.start && timeValue <= dateRange.end;
-      }
-
-      return matchesSearch && matchesDateFilter;
-    });
-
-    // Sort the filtered results
-    if (sortConfig.field) {
-      filtered.sort((a, b) => {
-        let aValue: any, bValue: any;
-
-        switch (sortConfig.field) {
-          case "firstVisitTime":
-            aValue = new Date(a.firstVisitTime || "");
-            bValue = new Date(b.firstVisitTime || "");
-            break;
-          case "registrationTime":
-            aValue = new Date(a.registrationTime || "");
-            bValue = new Date(b.registrationTime || "");
-            break;
-          case "firstPurchaseTime":
-            aValue = new Date(a.firstPurchaseTime || "");
-            bValue = new Date(b.firstPurchaseTime || "");
-            break;
-          case "lastActiveTime":
-            aValue = new Date(a.lastActiveTime || "");
-            bValue = new Date(b.lastActiveTime || "");
-            break;
-          case "totalSpent":
-            aValue = a.totalSpent || 0;
-            bValue = b.totalSpent || 0;
-            break;
-          default:
-            return 0;
-        }
-
-        if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
-        if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
-        return 0;
-      });
-    }
-
-    return filtered;
-  }, [users, searchQuery, selectedTimeField, dateRange, sortConfig]);
-
-  // Pagination
-  const totalPages = Math.ceil(filteredAndSortedUsers.length / itemsPerPage);
+  // Pagination - 由于数据来自API，直接使用users数组
+  const totalPages = Math.ceil(totalCount / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentUsers = filteredAndSortedUsers.slice(startIndex, endIndex);
+  const endIndex = Math.min(startIndex + itemsPerPage, totalCount);
+  const currentUsers = users; // API已经返回了当前页的数据
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("zh-CN", {
