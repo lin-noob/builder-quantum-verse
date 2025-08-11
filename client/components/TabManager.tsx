@@ -59,14 +59,16 @@ export default function TabManager() {
   // 页面路径到标题的映射
   const pathToTitle = {
     '/dashboard': '首页',
+    '/': '首页',
     '/users': '用户画像',
     '/response-actions': '响应动作库',
     '/ai-marketing/monitoring-center': 'AI营销 - 监控中心',
     '/ai-marketing/fully-auto': 'AI营销 - 全自动模式',
     '/ai-marketing/semi-auto': 'AI营销 - 半自动模式',
+    '/ai-marketing/semi-auto/create': 'AI营销 - 创建剧本',
     '/ai-marketing/strategy-goals': 'AI营销 - 战略与目标',
     '/ai-marketing/live-monitoring': 'AI营销 - 实时监控',
-    '/ai-marketing/performance-analytics': 'AI营销 - 效果分析'
+    '/ai-marketing/performance-analytics': 'AI营销 - 效果���析'
   };
 
   // 检查滚动状态
