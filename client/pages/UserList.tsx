@@ -181,7 +181,7 @@ export default function UserList() {
         msg: string;
         total: number;
       }>(
-        "/quote/api/v1/profile/list",
+        "/api/quote/api/v1/profile/list",
         requestBody,
         { params: queryParams }
       );
