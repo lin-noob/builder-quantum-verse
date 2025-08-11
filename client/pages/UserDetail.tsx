@@ -23,7 +23,7 @@ import { toast } from "@/hooks/use-toast";
 
 export default function UserDetail() {
   const { cdpId } = useParams<{ cdpId: string }>();
-  const user = cdpId ? getUserById(cdpId) : null;
+  const user: UserType | undefined = cdpId ? getUserById(cdpId) : undefined;
   
   const [userTags, setUserTags] = useState<string[]>(user?.tags || []);
   const [newTag, setNewTag] = useState("");
@@ -239,7 +239,7 @@ export default function UserDetail() {
                     </div>
                     <div className="text-center p-3 bg-orange-50 rounded-lg">
                       <div className="text-sm font-bold text-orange-700">{user.lastActiveTime}</div>
-                      <div className="text-xs text-orange-600">最后活跃时间</div>
+                      <div className="text-xs text-orange-600">���后活跃时间</div>
                     </div>
                   </div>
                 </div>
