@@ -202,16 +202,8 @@ export default function Dashboard() {
         />
       </div>
 
-      {/* Third Row: Distribution Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <DonutChart
-          title="用户地域分布"
-          data={dashboardData.geoDistribution}
-        />
-        <DonutChart
-          title="访问来源分布"
-          data={dashboardData.trafficSources}
-        />
+      {/* Third Row: Tag Chart */}
+      <div className="w-full">
         <TagChart data={dashboardData.popularTags} />
       </div>
 
