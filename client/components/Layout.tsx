@@ -139,26 +139,30 @@ export default function Layout({ children }: LayoutProps) {
         </div>
 
         {/* Navigation Menu */}
-        <nav className="flex-1 px-4 py-6">
+        <nav className="flex-1 px-2 py-6">
           <ul className="space-y-2">
             {menuItems.map((item) => {
               const isActive = location.pathname === item.path ||
                 (item.path === '/dashboard' && location.pathname === '/') ||
                 (item.id === 'ai-marketing' && location.pathname.startsWith('/ai-marketing'));
-              
+
               return (
                 <li key={item.id} className="relative group">
                   <Link
                     to={item.path}
                     className={cn(
-                      "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+                      "flex items-center rounded-lg text-sm font-medium transition-colors relative",
+                      isSidebarCollapsed ? "gap-0 px-3 py-2 justify-center" : "gap-3 px-3 py-2",
                       isActive
                         ? "bg-blue-50 text-blue-700 border border-blue-200"
                         : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
                     )}
+                    title={isSidebarCollapsed ? item.label : undefined}
                   >
                     {item.icon}
-                    {item.label}
+                    {!isSidebarCollapsed && (
+                      <span className="whitespace-nowrap overflow-hidden">{item.label}</span>
+                    )}
                   </Link>
 
                   {/* AI Marketing Submenu */}
