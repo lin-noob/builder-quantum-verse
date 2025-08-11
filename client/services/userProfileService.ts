@@ -22,13 +22,39 @@ class UserProfileService {
   async getUserProfileList(params: UserProfileListParams = {}) {
     const { limit, name, page, body = {} } = params;
 
-    // 构建查询参数
+    // 开发阶段使用mock数据
+    const useMockData = process.env.NODE_ENV === "development" || true; // 强制使用mock数据
+
+    if (useMockData) {
+      // 模拟API延迟
+      await mockApiDelay(300);
+
+      // 使用mock数据
+      const mockResponse = generateMockUserProfileList(
+        page || 1,
+        limit || 10,
+        body.keywords || name,
+      );
+
+      const transformedData: UserProfileListData = {
+        list: mockResponse.list,
+        pagination: {
+          current: mockResponse.page,
+          pageSize: mockResponse.pageSize,
+          total: mockResponse.total,
+          totalPages: Math.ceil(mockResponse.total / mockResponse.pageSize),
+        },
+      };
+
+      return transformedData;
+    }
+
+    // 生产环境使用真实API
     const queryParams: Record<string, string | number> = {};
     if (limit !== undefined) queryParams.limit = limit;
     if (name) queryParams.name = name;
     if (page !== undefined) queryParams.page = page;
 
-    // 构建请求体
     const requestBody: OrderSummaryDto = {
       currentpage: page || 1,
       pagesize: limit || 10,
@@ -44,7 +70,6 @@ class UserProfileService {
         },
       );
 
-      // 转换为标准格式
       const transformedData: UserProfileListData = {
         list: response.list || response || [],
         pagination: {
