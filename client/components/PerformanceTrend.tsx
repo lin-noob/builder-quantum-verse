@@ -10,6 +10,7 @@ import { type PerformanceMetric } from '@shared/dashboardData';
 
 interface PerformanceTrendProps {
   metrics: PerformanceMetric[];
+  dateRange?: string;
 }
 
 export default function PerformanceTrend({ metrics }: PerformanceTrendProps) {
