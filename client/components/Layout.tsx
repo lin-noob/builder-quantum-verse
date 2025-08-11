@@ -1,7 +1,7 @@
 import { ReactNode, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { BarChart3, Users, Home, Menu, X, MessageSquare, Bot, Target, Activity } from 'lucide-react';
+import { BarChart3, Users, Home, Menu, X, MessageSquare, Bot, Target, Activity, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface LayoutProps {
   children: ReactNode;
