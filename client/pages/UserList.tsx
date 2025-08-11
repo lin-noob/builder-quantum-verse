@@ -235,15 +235,15 @@ export default function UserList() {
       console.error("请求参数:", { requestBody });
 
       // 详细显示错误信息
-      if (error && typeof error === 'object') {
+      if (error && typeof error === "object") {
         console.error("错误对象:", error);
-        if ('response' in error) {
+        if ("response" in error) {
           console.error("HTTP响应:", error.response);
         }
-        if ('status' in error) {
+        if ("status" in error) {
           console.error("HTTP状态码:", error.status);
         }
-        if ('data' in error) {
+        if ("data" in error) {
           console.error("错误数据:", error.data);
         }
       }
