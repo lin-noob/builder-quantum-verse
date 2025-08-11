@@ -196,7 +196,7 @@ export default function UserList() {
         total: number;
       }>("/api/quote/api/v1/profile/list", requestBody, {
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       });
 
