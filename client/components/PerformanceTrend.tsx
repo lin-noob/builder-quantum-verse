@@ -23,8 +23,8 @@ export default function PerformanceTrend({ metrics, dateRange = '30days' }: Perf
   };
 
   const toggleMetric = (metricId: string) => {
-    // 销售额不能被取消选择
-    if (metricId === 'revenue') {
+    // 总消费金额不能被取消选择
+    if (metricId === 'totalRevenue') {
       return;
     }
 
@@ -35,7 +35,7 @@ export default function PerformanceTrend({ metrics, dateRange = '30days' }: Perf
     );
   };
 
-  // 定义数据类型分组，相似的数据类型使用同一个Y轴
+  // 定义数��类型分组，相似的数据类型使用同一个Y轴
   const getMetricGroup = (metricId: string) => {
     if (metricId === 'revenue' || metricId === 'net_revenue') return 'revenue'; // 金额类
     if (metricId === 'sales' || metricId === 'orders') return 'count'; // 数量类
