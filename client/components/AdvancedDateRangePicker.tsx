@@ -288,7 +288,7 @@ export default function AdvancedDateRangePicker({ value, onChange, onPresetChang
 
       {/* Picker Panel */}
       {isOpen && (
-        <div className="absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 p-4 w-auto max-w-[500px]">
+        <div className="absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 p-4 w-auto min-w-[400px] max-w-[600px]">
           <div className="flex gap-4 min-h-0">
             {/* Left Preset List */}
             <div className="w-24 pr-3 border-r flex-shrink-0">
@@ -297,7 +297,7 @@ export default function AdvancedDateRangePicker({ value, onChange, onPresetChang
                   { key: 'today', label: '今天' },
                   { key: 'yesterday', label: '昨天' },
                   { key: 'last7days', label: '最近7天' },
-                  { key: 'last30days', label: '最近30天' },
+                  { key: 'last30days', label: '最��30天' },
                   { key: 'thisMonth', label: '本月' },
                   { key: 'lastMonth', label: '上月' }
                 ].map(preset => (
