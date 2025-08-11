@@ -9,7 +9,9 @@ export interface RequestConfig {
   /** 是否携带凭证 */
   credentials?: RequestCredentials;
   /** 请求拦截器 */
-  beforeRequest?: (config: RequestConfig) => RequestConfig | Promise<RequestConfig>;
+  beforeRequest?: (
+    config: RequestConfig,
+  ) => RequestConfig | Promise<RequestConfig>;
   /** 响应拦截器 */
   afterResponse?: (response: Response) => Response | Promise<Response>;
   /** 错误处理器 */
@@ -19,12 +21,12 @@ export interface RequestConfig {
 /**
  * 请求方法类型
  */
-export type RequestMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
+export type RequestMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
 
 /**
  * 请求数据类型
  */
-export type RequestData = 
+export type RequestData =
   | Record<string, any>
   | FormData
   | string
@@ -35,7 +37,8 @@ export type RequestData =
 /**
  * 请求选项
  */
-export interface RequestOptions extends Omit<RequestConfig, 'beforeRequest' | 'afterResponse' | 'onError'> {
+export interface RequestOptions
+  extends Omit<RequestConfig, "beforeRequest" | "afterResponse" | "onError"> {
   /** 请求方法 */
   method?: RequestMethod;
   /** 请求数据 */
@@ -43,7 +46,7 @@ export interface RequestOptions extends Omit<RequestConfig, 'beforeRequest' | 'a
   /** 查询参数 */
   params?: Record<string, string | number | boolean>;
   /** 响应类型 */
-  responseType?: 'json' | 'text' | 'blob' | 'arrayBuffer';
+  responseType?: "json" | "text" | "blob" | "arrayBuffer";
 }
 
 /**
@@ -78,9 +81,14 @@ export class RequestError extends Error {
   statusText: string;
   response?: Response;
 
-  constructor(message: string, status: number, statusText: string, response?: Response) {
+  constructor(
+    message: string,
+    status: number,
+    statusText: string,
+    response?: Response,
+  ) {
     super(message);
-    this.name = 'RequestError';
+    this.name = "RequestError";
     this.status = status;
     this.statusText = statusText;
     this.response = response;
@@ -94,13 +102,13 @@ export class Request {
   private baseURL: string;
   private defaultConfig: RequestConfig;
 
-  constructor(baseURL: string = '', config: RequestConfig = {}) {
+  constructor(baseURL: string = "", config: RequestConfig = {}) {
     this.baseURL = baseURL;
     this.defaultConfig = {
       timeout: 10000,
-      credentials: 'same-origin',
+      credentials: "same-origin",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       ...config,
     };
@@ -109,9 +117,12 @@ export class Request {
   /**
    * 构建完整URL
    */
-  private buildURL(url: string, params?: Record<string, string | number | boolean>): string {
-    const fullURL = url.startsWith('http') ? url : `${this.baseURL}${url}`;
-    
+  private buildURL(
+    url: string,
+    params?: Record<string, string | number | boolean>,
+  ): string {
+    const fullURL = url.startsWith("http") ? url : `${this.baseURL}${url}`;
+
     if (!params || Object.keys(params).length === 0) {
       return fullURL;
     }
@@ -127,7 +138,10 @@ export class Request {
   /**
    * 处理请求数据和请求头
    */
-  private processRequestData(data: RequestData, headers: Record<string, string>) {
+  private processRequestData(
+    data: RequestData,
+    headers: Record<string, string>,
+  ) {
     if (!data) {
       return { body: null, headers };
     }
@@ -135,7 +149,7 @@ export class Request {
     // FormData类型数据
     if (data instanceof FormData) {
       // 移除Content-Type，让浏览器自动设置boundary
-      const { 'Content-Type': contentType, ...restHeaders } = headers;
+      const { "Content-Type": contentType, ...restHeaders } = headers;
       return { body: data, headers: restHeaders };
     }
 
@@ -150,40 +164,48 @@ export class Request {
     }
 
     // 字符串类型数据
-    if (typeof data === 'string') {
+    if (typeof data === "string") {
       return { body: data, headers };
     }
 
     // 对象类型数据，转换为JSON
-    return { 
-      body: JSON.stringify(data), 
-      headers: { ...headers, 'Content-Type': 'application/json' }
+    return {
+      body: JSON.stringify(data),
+      headers: { ...headers, "Content-Type": "application/json" },
     };
   }
 
   /**
    * 处理响应数据
    */
-  private async processResponse<T>(response: Response, responseType: string = 'json'): Promise<ApiResponse<T>> {
+  private async processResponse<T>(
+    response: Response,
+    responseType: string = "json",
+  ): Promise<ApiResponse<T>> {
     if (!response.ok) {
       const errorMessage = `Request failed: ${response.status} ${response.statusText}`;
-      throw new RequestError(errorMessage, response.status, response.statusText, response);
+      throw new RequestError(
+        errorMessage,
+        response.status,
+        response.statusText,
+        response,
+      );
     }
 
     let data: any;
-    
+
     try {
       switch (responseType) {
-        case 'json':
+        case "json":
           data = await response.json();
           break;
-        case 'text':
+        case "text":
           data = await response.text();
           break;
-        case 'blob':
+        case "blob":
           data = await response.blob();
           break;
-        case 'arrayBuffer':
+        case "arrayBuffer":
           data = await response.arrayBuffer();
           break;
         default:
@@ -194,7 +216,7 @@ export class Request {
         `Failed to parse response as ${responseType}`,
         response.status,
         response.statusText,
-        response
+        response,
       );
     }
 
@@ -221,27 +243,33 @@ export class Request {
   /**
    * 通用请求方法
    */
-  async request<T = any>(url: string, options: RequestOptions = {}): Promise<ApiResponse<T>> {
+  async request<T = any>(
+    url: string,
+    options: RequestOptions = {},
+  ): Promise<ApiResponse<T>> {
     const config = { ...this.defaultConfig, ...options };
     const {
-      method = 'GET',
+      method = "GET",
       data,
       params,
       headers = {},
       timeout = this.defaultConfig.timeout || 10000,
       credentials = this.defaultConfig.credentials,
-      responseType = 'json',
+      responseType = "json",
     } = config;
 
     try {
       // 执行请求拦截器
-      const processedConfig = this.defaultConfig.beforeRequest 
+      const processedConfig = this.defaultConfig.beforeRequest
         ? await this.defaultConfig.beforeRequest(config)
         : config;
 
       const fullURL = this.buildURL(url, params);
       const mergedHeaders = { ...this.defaultConfig.headers, ...headers };
-      const { body, headers: finalHeaders } = this.processRequestData(data, mergedHeaders);
+      const { body, headers: finalHeaders } = this.processRequestData(
+        data,
+        mergedHeaders,
+      );
 
       // 创建超时控制器
       const { controller, timeoutId } = this.createTimeoutController(timeout);
@@ -249,7 +277,7 @@ export class Request {
       const fetchOptions: RequestInit = {
         method,
         headers: finalHeaders,
-        body: method !== 'GET' ? body : null,
+        body: method !== "GET" ? body : null,
         credentials,
         signal: controller.signal,
       };
@@ -263,7 +291,6 @@ export class Request {
         : response;
 
       return await this.processResponse<T>(processedResponse, responseType);
-
     } catch (error) {
       // 执行错误处理器
       if (this.defaultConfig.onError) {
@@ -276,15 +303,15 @@ export class Request {
       }
 
       // 处理超时错误
-      if (error instanceof Error && error.name === 'AbortError') {
-        throw new RequestError('Request timeout', 408, 'Request Timeout');
+      if (error instanceof Error && error.name === "AbortError") {
+        throw new RequestError("Request timeout", 408, "Request Timeout");
       }
 
       // 处理网络错误
       throw new RequestError(
-        error instanceof Error ? error.message : 'Unknown error',
+        error instanceof Error ? error.message : "Unknown error",
         0,
-        'Network Error'
+        "Network Error",
       );
     }
   }
@@ -292,45 +319,68 @@ export class Request {
   /**
    * GET请求
    */
-  async get<T = any>(url: string, params?: Record<string, string | number | boolean>, options?: Omit<RequestOptions, 'method' | 'data' | 'params'>): Promise<ApiResponse<T>> {
-    return this.request<T>(url, { ...options, method: 'GET', params });
+  async get<T = any>(
+    url: string,
+    params?: Record<string, string | number | boolean>,
+    options?: Omit<RequestOptions, "method" | "data" | "params">,
+  ): Promise<ApiResponse<T>> {
+    return this.request<T>(url, { ...options, method: "GET", params });
   }
 
   /**
    * POST请求
    */
-  async post<T = any>(url: string, data?: RequestData, options?: Omit<RequestOptions, 'method' | 'data'>): Promise<ApiResponse<T>> {
-    return this.request<T>(url, { ...options, method: 'POST', data });
+  async post<T = any>(
+    url: string,
+    data?: RequestData,
+    options?: Omit<RequestOptions, "method" | "data">,
+  ): Promise<ApiResponse<T>> {
+    return this.request<T>(url, { ...options, method: "POST", data });
   }
 
   /**
    * PUT请求
    */
-  async put<T = any>(url: string, data?: RequestData, options?: Omit<RequestOptions, 'method' | 'data'>): Promise<ApiResponse<T>> {
-    return this.request<T>(url, { ...options, method: 'PUT', data });
+  async put<T = any>(
+    url: string,
+    data?: RequestData,
+    options?: Omit<RequestOptions, "method" | "data">,
+  ): Promise<ApiResponse<T>> {
+    return this.request<T>(url, { ...options, method: "PUT", data });
   }
 
   /**
    * DELETE请求
    */
-  async delete<T = any>(url: string, options?: Omit<RequestOptions, 'method'>): Promise<ApiResponse<T>> {
-    return this.request<T>(url, { ...options, method: 'DELETE' });
+  async delete<T = any>(
+    url: string,
+    options?: Omit<RequestOptions, "method">,
+  ): Promise<ApiResponse<T>> {
+    return this.request<T>(url, { ...options, method: "DELETE" });
   }
 
   /**
    * PATCH请求
    */
-  async patch<T = any>(url: string, data?: RequestData, options?: Omit<RequestOptions, 'method' | 'data'>): Promise<ApiResponse<T>> {
-    return this.request<T>(url, { ...options, method: 'PATCH', data });
+  async patch<T = any>(
+    url: string,
+    data?: RequestData,
+    options?: Omit<RequestOptions, "method" | "data">,
+  ): Promise<ApiResponse<T>> {
+    return this.request<T>(url, { ...options, method: "PATCH", data });
   }
 
   /**
    * 上传文件
    */
-  async upload<T = any>(url: string, formData: FormData, options?: Omit<RequestOptions, 'method' | 'data'>): Promise<ApiResponse<T>> {
-    return this.request<T>(url, { 
-      ...options, 
-      method: 'POST', 
+  async upload<T = any>(
+    url: string,
+    formData: FormData,
+    options?: Omit<RequestOptions, "method" | "data">,
+  ): Promise<ApiResponse<T>> {
+    return this.request<T>(url, {
+      ...options,
+      method: "POST",
       data: formData,
     });
   }
@@ -338,28 +388,35 @@ export class Request {
   /**
    * 下载文件
    */
-  async download(url: string, params?: Record<string, string | number | boolean>, options?: Omit<RequestOptions, 'method' | 'responseType'>): Promise<ApiResponse<Blob>> {
+  async download(
+    url: string,
+    params?: Record<string, string | number | boolean>,
+    options?: Omit<RequestOptions, "method" | "responseType">,
+  ): Promise<ApiResponse<Blob>> {
     return this.request<Blob>(url, {
       ...options,
-      method: 'GET',
+      method: "GET",
       params,
-      responseType: 'blob',
+      responseType: "blob",
     });
   }
 
   /**
    * 业务接口请求 - 自动处理标准业务响应格式
    */
-  async businessRequest<T = any>(url: string, options: RequestOptions = {}): Promise<T> {
+  async businessRequest<T = any>(
+    url: string,
+    options: RequestOptions = {},
+  ): Promise<T> {
     const response = await this.request<BusinessApiResponse<T>>(url, options);
     const businessData = response.data;
 
     // 根据业务码判断请求是否成功
-    if (businessData.code !== '200' && businessData.code !== '0') {
+    if (businessData.code !== "200" && businessData.code !== "0") {
       throw new RequestError(
-        businessData.msg || '业务请求失败',
+        businessData.msg || "业务请求失败",
         parseInt(businessData.code) || 400,
-        businessData.msg || 'Business Error'
+        businessData.msg || "Business Error",
       );
     }
 
@@ -369,36 +426,55 @@ export class Request {
   /**
    * 业务GET请求
    */
-  async businessGet<T = any>(url: string, params?: Record<string, string | number | boolean>, options?: Omit<RequestOptions, 'method' | 'data' | 'params'>): Promise<T> {
-    return this.businessRequest<T>(url, { ...options, method: 'GET', params });
+  async businessGet<T = any>(
+    url: string,
+    params?: Record<string, string | number | boolean>,
+    options?: Omit<RequestOptions, "method" | "data" | "params">,
+  ): Promise<T> {
+    return this.businessRequest<T>(url, { ...options, method: "GET", params });
   }
 
   /**
    * 业务POST请求
    */
-  async businessPost<T = any>(url: string, data?: RequestData, options?: Omit<RequestOptions, 'method' | 'data'>): Promise<T> {
-    return this.businessRequest<T>(url, { ...options, method: 'POST', data });
+  async businessPost<T = any>(
+    url: string,
+    data?: RequestData,
+    options?: Omit<RequestOptions, "method" | "data">,
+  ): Promise<T> {
+    return this.businessRequest<T>(url, { ...options, method: "POST", data });
   }
 
   /**
    * 业务PUT请求
    */
-  async businessPut<T = any>(url: string, data?: RequestData, options?: Omit<RequestOptions, 'method' | 'data'>): Promise<T> {
-    return this.businessRequest<T>(url, { ...options, method: 'PUT', data });
+  async businessPut<T = any>(
+    url: string,
+    data?: RequestData,
+    options?: Omit<RequestOptions, "method" | "data">,
+  ): Promise<T> {
+    return this.businessRequest<T>(url, { ...options, method: "PUT", data });
   }
 
   /**
    * 业务DELETE请求
    */
-  async businessDelete<T = any>(url: string, options?: Omit<RequestOptions, 'method'>): Promise<T> {
-    return this.businessRequest<T>(url, { ...options, method: 'DELETE' });
+  async businessDelete<T = any>(
+    url: string,
+    options?: Omit<RequestOptions, "method">,
+  ): Promise<T> {
+    return this.businessRequest<T>(url, { ...options, method: "DELETE" });
   }
 
   /**
    * 业务PATCH请求
    */
-  async businessPatch<T = any>(url: string, data?: RequestData, options?: Omit<RequestOptions, 'method' | 'data'>): Promise<T> {
-    return this.businessRequest<T>(url, { ...options, method: 'PATCH', data });
+  async businessPatch<T = any>(
+    url: string,
+    data?: RequestData,
+    options?: Omit<RequestOptions, "method" | "data">,
+  ): Promise<T> {
+    return this.businessRequest<T>(url, { ...options, method: "PATCH", data });
   }
 }
 
