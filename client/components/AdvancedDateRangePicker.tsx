@@ -289,7 +289,7 @@ export default function AdvancedDateRangePicker({ value, onChange, onPresetChang
             <div className="flex items-center gap-2 flex-wrap">
               {[
                 { key: 'today', label: '今日' },
-                { key: 'last7days', label: '近7天' },
+                { key: 'last7days', label: '��7天' },
                 { key: 'last30days', label: '近30天' },
                 { key: 'lastMonth', label: '上月' },
                 { key: 'thisMonth', label: '今年' },
@@ -322,9 +322,9 @@ export default function AdvancedDateRangePicker({ value, onChange, onPresetChang
             </div>
           </div>
 
-          <div className="flex gap-4">
+          <div className="flex gap-4 min-h-0">
             {/* Left Preset List */}
-            <div className="w-32 pr-4 border-r">
+            <div className="w-24 pr-3 border-r flex-shrink-0">
               <div className="space-y-1">
                 {[
                   { key: 'today', label: '今天' },
@@ -349,7 +349,7 @@ export default function AdvancedDateRangePicker({ value, onChange, onPresetChang
             </div>
 
             {/* Center Calendar Area */}
-            <div className="flex gap-4 overflow-x-auto">
+            <div className="flex gap-2 overflow-x-auto flex-1 min-w-0">
               <div className="flex-shrink-0">
                 {renderCalendar(leftCalendarDate, true)}
               </div>
