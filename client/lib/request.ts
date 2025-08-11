@@ -339,12 +339,66 @@ export class Request {
    * 下载文件
    */
   async download(url: string, params?: Record<string, string | number | boolean>, options?: Omit<RequestOptions, 'method' | 'responseType'>): Promise<ApiResponse<Blob>> {
-    return this.request<Blob>(url, { 
-      ...options, 
-      method: 'GET', 
+    return this.request<Blob>(url, {
+      ...options,
+      method: 'GET',
       params,
       responseType: 'blob',
     });
+  }
+
+  /**
+   * 业务接口请求 - 自动处理标准业务响应格式
+   */
+  async businessRequest<T = any>(url: string, options: RequestOptions = {}): Promise<T> {
+    const response = await this.request<BusinessApiResponse<T>>(url, options);
+    const businessData = response.data;
+
+    // 根据业务码判断请求是否成功
+    if (businessData.code !== '200' && businessData.code !== '0') {
+      throw new RequestError(
+        businessData.msg || '业务请求失败',
+        parseInt(businessData.code) || 400,
+        businessData.msg || 'Business Error'
+      );
+    }
+
+    return businessData.data;
+  }
+
+  /**
+   * 业务GET请求
+   */
+  async businessGet<T = any>(url: string, params?: Record<string, string | number | boolean>, options?: Omit<RequestOptions, 'method' | 'data' | 'params'>): Promise<T> {
+    return this.businessRequest<T>(url, { ...options, method: 'GET', params });
+  }
+
+  /**
+   * 业务POST请求
+   */
+  async businessPost<T = any>(url: string, data?: RequestData, options?: Omit<RequestOptions, 'method' | 'data'>): Promise<T> {
+    return this.businessRequest<T>(url, { ...options, method: 'POST', data });
+  }
+
+  /**
+   * 业务PUT请求
+   */
+  async businessPut<T = any>(url: string, data?: RequestData, options?: Omit<RequestOptions, 'method' | 'data'>): Promise<T> {
+    return this.businessRequest<T>(url, { ...options, method: 'PUT', data });
+  }
+
+  /**
+   * 业务DELETE请求
+   */
+  async businessDelete<T = any>(url: string, options?: Omit<RequestOptions, 'method'>): Promise<T> {
+    return this.businessRequest<T>(url, { ...options, method: 'DELETE' });
+  }
+
+  /**
+   * 业务PATCH请求
+   */
+  async businessPatch<T = any>(url: string, data?: RequestData, options?: Omit<RequestOptions, 'method' | 'data'>): Promise<T> {
+    return this.businessRequest<T>(url, { ...options, method: 'PATCH', data });
   }
 }
 
