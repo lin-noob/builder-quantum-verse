@@ -62,7 +62,7 @@ export default function TabManager() {
     '/': '首页',
     '/users': '用户画像',
     '/response-actions': '响应动作库',
-    '/ai-marketing/monitoring-center': 'AI营销 - 监控��心',
+    '/ai-marketing/monitoring-center': 'AI营销 - 监控中心',
     '/ai-marketing/fully-auto': 'AI营销 - 全自动模式',
     '/ai-marketing/semi-auto': 'AI营销 - 半自动模式',
     '/ai-marketing/semi-auto/create': 'AI营销 - 创建剧本',
@@ -100,7 +100,7 @@ export default function TabManager() {
     const existingTab = tabs.find(tab => tab.path === currentPath);
     
     if (existingTab) {
-      // 如果标签页已存在，切换到该标���页
+      // 如果标签页已存在，切换到该标签页
       setTabs(prev => prev.map(tab => ({
         ...tab,
         isActive: tab.id === existingTab.id
@@ -308,45 +308,6 @@ export default function TabManager() {
         </button>
       )}
 
-      {/* 右侧操作区 */}
-      <div className="flex items-center gap-1 px-3 border-l border-gray-200">
-        {/* 刷新按钮 */}
-        <button
-          onClick={refreshCurrentTab}
-          className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded transition-colors"
-          title="刷新当前页面"
-        >
-          <RotateCcw className="h-4 w-4" />
-        </button>
-
-        {/* 关闭操作下拉菜单 */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button
-              className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded transition-colors"
-              title="标签页操作"
-            >
-              <MoreVertical className="h-4 w-4" />
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-40">
-            <DropdownMenuItem onClick={() => {
-              const activeTab = tabs.find(tab => tab.isActive);
-              if (activeTab && !activeTab.isHome) {
-                closeTab(activeTab.id);
-              }
-            }}>
-              关闭当前标签页
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={closeOtherTabs}>
-              关闭其他标签页
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={closeAllTabs}>
-              关闭所有标签页
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
 
       {/* 右键菜单 */}
       {contextMenu.isOpen && contextMenu.targetTab && (
