@@ -42,7 +42,7 @@ export default function UserList2() {
   });
 
   const handleRowClick = (userId: string) => {
-    navigate(`/users/${userId}`);
+    navigate(`/users2/${userId}`);
   };
 
   const formatCurrency = (amount: number) => {
@@ -195,7 +195,7 @@ export default function UserList2() {
 
           {filteredUsers.length === 0 && (
             <div className="text-center py-12">
-              <p className="text-muted-foreground">没有找到符合条件的用户</p>
+              <p className="text-muted-foreground">没有找到���合条件的用户</p>
             </div>
           )}
         </div>
