@@ -283,7 +283,7 @@ export default function AdvancedDateRangePicker({ value, onChange, onPresetChang
 
       {/* Picker Panel */}
       {isOpen && (
-        <div className="absolute top-full left-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 p-4 min-w-[800px]">
+        <div className="absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 p-4 w-[90vw] max-w-[800px] min-w-[600px]">
           {/* Top Quick Action Bar */}
           <div className="flex items-center justify-between mb-4 pb-4 border-b">
             <div className="flex items-center gap-2">
