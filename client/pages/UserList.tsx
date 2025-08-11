@@ -156,7 +156,6 @@ export default function UserList() {
       <div className="max-w-none">
         {/* Page Header */}
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">用户画像</h1>
         </div>
 
         {/* Search and Filter Card */}
