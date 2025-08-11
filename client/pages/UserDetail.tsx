@@ -45,7 +45,7 @@ export default function UserDetail() {
           <p className="text-gray-900 font-medium mb-2">用户未找到</p>
           <p className="text-gray-600 mb-4">指定的用户ID不存在</p>
           <Link to="/users" className="text-blue-600 hover:text-blue-800">
-            返回���户列表
+            返回用户列表
           </Link>
         </div>
       </div>
@@ -153,7 +153,7 @@ export default function UserDetail() {
                         <PopoverContent className="w-80" align="end">
                           <div className="space-y-4">
                             <div>
-                              <h4 className="font-medium">添加新���签</h4>
+                              <h4 className="font-medium">添加新标签</h4>
                               <p className="text-sm text-muted-foreground">
                                 为用户添加一个新的状态标签
                               </p>
@@ -299,29 +299,6 @@ export default function UserDetail() {
 
                 {/* Access Timeline Tab */}
                 <TabsContent value="timeline" className="space-y-6">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>近期动态摘要</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      {user.sessions.length > 0 ? (
-                        <div className="space-y-3">
-                          {user.sessions.slice(0, 3).map((session) => (
-                            <div key={session.id} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                              <div>
-                                <div className="font-medium text-sm">页面访问</div>
-                                <div className="text-xs text-gray-600">{session.summary}</div>
-                              </div>
-                              <div className="text-xs text-gray-500">{session.date}</div>
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <p className="text-gray-500 text-sm">暂无访问记录</p>
-                      )}
-                    </CardContent>
-                  </Card>
-
                   <Card>
                     <CardHeader>
                       <CardTitle>详细访问会话</CardTitle>
@@ -475,7 +452,7 @@ export default function UserDetail() {
                                       </div>
                                     </div>
 
-                                    {/* 地��信息 */}
+                                    {/* 地址信息 */}
                                     {(order.shippingAddress || order.billingAddress) && (
                                       <div className="border-t pt-3">
                                         <h5 className="font-medium mb-3">地址信息</h5>
