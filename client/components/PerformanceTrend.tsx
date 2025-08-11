@@ -53,7 +53,7 @@ export default function PerformanceTrend({ metrics, dateRange = '30days' }: Perf
 
       return result;
     });
-  }, [selectedMetrics, metrics]);
+  }, [metrics]);
 
   const formatValue = (value: number, metricId: string) => {
     if (metricId === 'totalRevenue') {
