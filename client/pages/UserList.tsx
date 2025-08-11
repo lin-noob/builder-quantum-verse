@@ -47,28 +47,91 @@ interface DateRange {
   end: Date | null;
 }
 
-interface SortConfig {
-  field: string | null;
-  direction: "asc" | "desc";
+interface SearchForm {
+  keywords: string;
+  dateRange: DateRange;
+  searchtype: 'signTime' | 'minBuyTime' | 'maxBuyTime' | 'createGmt';
+  sortField: string;
+  sortOrder: 'desc' | 'asc';
+}
+
+interface UserListData {
+  list: User[];
+  total: number;
+  currentpage: number;
+  pagesize: number;
 }
 
 export default function UserList() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedTimeField, setSelectedTimeField] = useState("firstVisitTime");
-  const [dateRange, setDateRange] = useState<DateRange>({
-    start: null,
-    end: null,
+  const [loading, setLoading] = useState(false);
+  const [data, setData] = useState<UserListData>({
+    list: [],
+    total: 0,
+    currentpage: 1,
+    pagesize: 10,
   });
-  const [currentPage, setCurrentPage] = useState(1);
-  const [sortConfig, setSortConfig] = useState<SortConfig>({
-    field: "lastActiveTime",
-    direction: "desc",
+  const [searchForm, setSearchForm] = useState<SearchForm>({
+    keywords: "",
+    dateRange: { start: null, end: null },
+    searchtype: "signTime",
+    sortField: "createGmt",
+    sortOrder: "desc",
   });
-  const itemsPerPage = 10;
 
-  const users = getUsers();
+  // 加载数据
+  const loadData = useCallback(async () => {
+    setLoading(true);
+    try {
+      // 模拟API延迟
+      await mockApiDelay(300);
 
-  // Sort function
+      const params: UserProfileListParams = {
+        page: data.currentpage,
+        limit: data.pagesize,
+        name: searchForm.keywords || undefined,
+        body: {
+          keywords: searchForm.keywords || undefined,
+          startDate: searchForm.dateRange.start?.toISOString(),
+          endDate: searchForm.dateRange.end?.toISOString(),
+          searchtype: searchForm.searchtype,
+          sort: searchForm.sortField,
+          order: searchForm.sortOrder,
+        },
+      };
+
+      const result = getMockUserProfileList(params);
+      setData(result);
+    } catch (error) {
+      toast({
+        title: "加载失败",
+        description: "获取用��画像列表失败，请重试",
+        variant: "destructive",
+      });
+      console.error("加载用户画像列表失败:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, [data.currentpage, data.pagesize, searchForm]);
+
+  // 搜索处理
+  const handleSearch = () => {
+    setData(prev => ({ ...prev, currentpage: 1 }));
+    loadData();
+  };
+
+  // 重置搜索
+  const handleReset = () => {
+    setSearchForm({
+      keywords: "",
+      dateRange: { start: null, end: null },
+      searchtype: "signTime",
+      sortField: "createGmt",
+      sortOrder: "desc",
+    });
+    setData(prev => ({ ...prev, currentpage: 1 }));
+  };
+
+  // 排序处理
   const handleSort = (field: string) => {
     setSortConfig((prev) => ({
       field,
