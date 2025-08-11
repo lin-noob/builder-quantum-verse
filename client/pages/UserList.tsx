@@ -234,17 +234,29 @@ export default function UserList() {
       console.error("获取用户数据失败:", error);
       console.error("请求参数:", { requestBody });
 
+      // 详细显示错误信息
+      if (error && typeof error === 'object') {
+        console.error("错误对象:", error);
+        if ('response' in error) {
+          console.error("HTTP响应:", error.response);
+        }
+        if ('status' in error) {
+          console.error("HTTP状态码:", error.status);
+        }
+        if ('data' in error) {
+          console.error("错误数据:", error.data);
+        }
+      }
+
       let errorMessage = "获取用户数据失败，请重试";
       if (error instanceof Error) {
         errorMessage = error.message;
         console.error("错误详情:", error.message);
+        console.error("错误堆栈:", error.stack);
       }
 
-      toast({
-        title: "加载失败",
-        description: errorMessage,
-        variant: "destructive",
-      });
+      // 不显示toast，让用户专注于控制台的错误信息
+      console.log("请检查控制台中的详细错误信息");
       setUsers([]);
       setTotalCount(0);
     } finally {
