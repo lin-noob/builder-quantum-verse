@@ -153,7 +153,7 @@ export const mockUserDetail: UserDetailResponse = {
       events: [
         { time: "14:30:15", type: "page_view", desc: "首页", url: "/", duration: "1分20秒" },
         { time: "14:31:35", type: "page_view", desc: "产品列表", url: "/products", duration: "5分10秒" },
-        { time: "14:36:45\", type: \"add_to_cart\", desc: \"将\"ProBook X1\"加入购物车\", url: \"-\", duration: \"-" }
+        { time: "14:36:45", type: "add_to_cart", desc: "将\"ProBook X1\"加入购物车", url: "-", duration: "-" }
       ]
     },
     { 
