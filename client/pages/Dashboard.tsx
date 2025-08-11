@@ -28,11 +28,11 @@ export default function Dashboard() {
   ];
 
   const handleDateRangeChange = (value: string) => {
-    setGlobalDateRange(value);
     if (value === 'custom') {
-      setShowCustomDate(true);
+      setIsCustomDateDialogOpen(true);
+      // Don't change globalDateRange yet, wait for user to apply custom dates
     } else {
-      setShowCustomDate(false);
+      setGlobalDateRange(value);
     }
   };
 
