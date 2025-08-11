@@ -3,8 +3,6 @@ import { Link } from "react-router-dom";
 import {
   Search,
   ArrowUpDown,
-  ArrowUp,
-  ArrowDown,
   RotateCcw,
   RefreshCw,
   Download,
@@ -39,7 +37,6 @@ import {
   mockApiDelay,
   type User,
   type UserProfileListParams,
-  type OrderSummaryDto
 } from "@shared/userData";
 
 interface DateRange {
@@ -82,7 +79,6 @@ export default function UserList() {
   const loadData = useCallback(async () => {
     setLoading(true);
     try {
-      // 模拟API延迟
       await mockApiDelay(300);
 
       const params: UserProfileListParams = {
@@ -104,7 +100,7 @@ export default function UserList() {
     } catch (error) {
       toast({
         title: "加载失败",
-        description: "获取用��画像列表失败，请重试",
+        description: "获取用户画像列表失败，请重试",
         variant: "destructive",
       });
       console.error("加载用户画像列表失败:", error);
@@ -133,336 +129,417 @@ export default function UserList() {
 
   // 排序处理
   const handleSort = (field: string) => {
-    setSortConfig((prev) => ({
-      field,
-      direction:
-        prev.field === field && prev.direction === "asc" ? "desc" : "asc",
+    const newOrder = searchForm.sortField === field && searchForm.sortOrder === "asc" ? "desc" : "asc";
+    setSearchForm(prev => ({
+      ...prev,
+      sortField: field,
+      sortOrder: newOrder,
     }));
   };
 
-  const getSortIcon = (field: string) => {
-    if (sortConfig.field !== field) {
-      return <ArrowUpDown className="h-4 w-4" />;
-    }
-    return sortConfig.direction === "asc" ? (
-      <ArrowUp className="h-4 w-4" />
-    ) : (
-      <ArrowDown className="h-4 w-4" />
-    );
+  // 分页处理
+  const handlePageChange = (page: number) => {
+    setData(prev => ({ ...prev, currentpage: page }));
   };
 
-  // Filter and sort users
-  const filteredAndSortedUsers = useMemo(() => {
-    let filtered = users.filter((user) => {
-      const matchesSearch =
-        searchQuery === "" ||
-        user.cdpId.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        user.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        user.contact.toLowerCase().includes(searchQuery.toLowerCase());
+  const handlePageSizeChange = (pageSize: number) => {
+    setData(prev => ({ ...prev, pagesize: pageSize, currentpage: 1 }));
+  };
 
-      let matchesDateFilter = true;
-      if (dateRange.start && dateRange.end) {
-        const timeValue = new Date(
-          selectedTimeField === "firstVisitTime"
-            ? user.firstVisitTime
-            : selectedTimeField === "registrationTime"
-              ? user.registrationTime
-              : selectedTimeField === "firstPurchaseTime"
-                ? user.firstPurchaseTime
-                : user.lastActiveTime,
-        );
-
-        matchesDateFilter =
-          timeValue >= dateRange.start && timeValue <= dateRange.end;
-      }
-
-      return matchesSearch && matchesDateFilter;
-    });
-
-    // Sort the filtered results
-    if (sortConfig.field) {
-      filtered.sort((a, b) => {
-        let aValue: any, bValue: any;
-
-        switch (sortConfig.field) {
-          case "firstVisitTime":
-            aValue = new Date(a.firstVisitTime);
-            bValue = new Date(b.firstVisitTime);
-            break;
-          case "registrationTime":
-            aValue = new Date(a.registrationTime);
-            bValue = new Date(b.registrationTime);
-            break;
-          case "firstPurchaseTime":
-            aValue = new Date(a.firstPurchaseTime);
-            bValue = new Date(b.firstPurchaseTime);
-            break;
-          case "lastActiveTime":
-            aValue = new Date(a.lastActiveTime);
-            bValue = new Date(b.lastActiveTime);
-            break;
-          case "totalSpent":
-            aValue = a.totalSpent;
-            bValue = b.totalSpent;
-            break;
-          default:
-            return 0;
-        }
-
-        if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
-        if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
-        return 0;
+  // 导出数据
+  const handleExport = async () => {
+    try {
+      toast({
+        title: "导出成功",
+        description: "用户画像数据已开始下载",
+      });
+    } catch (error) {
+      toast({
+        title: "导出失败",
+        description: "导出用户画像数据失败，请重试",
+        variant: "destructive",
       });
     }
+  };
 
-    return filtered;
-  }, [users, searchQuery, selectedTimeField, dateRange, sortConfig]);
+  // 查看详情
+  const handleViewDetail = (user: User) => {
+    window.open(`/users/${user.cdpId || user.id}`, '_blank');
+  };
 
-  // Pagination
-  const totalPages = Math.ceil(filteredAndSortedUsers.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentUsers = filteredAndSortedUsers.slice(startIndex, endIndex);
-
+  // 格式化货币
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("zh-CN", {
       style: "currency",
       currency: "CNY",
       minimumFractionDigits: 2,
-    }).format(amount);
+    }).format(amount || 0);
   };
 
-  const handleDateRangeChange = (range: DateRange) => {
-    setDateRange(range);
-    setCurrentPage(1);
-  };
+  // 初始化数据
+  useEffect(() => {
+    loadData();
+  }, [data.currentpage, data.pagesize]);
 
-  const handleReset = () => {
-    setSearchQuery("");
-    setSelectedTimeField("firstVisitTime");
-    setDateRange({ start: null, end: null });
-    setSortConfig({ field: null, direction: "asc" });
-    setCurrentPage(1);
-  };
-
-  const formatDateTime = (dateStr: string) => {
-    return new Date(dateStr).toLocaleString("zh-CN", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
+  const totalPages = Math.ceil(data.total / data.pagesize);
 
   return (
     <div className="p-6 space-y-6 bg-gray-50 min-h-full">
-      <div className="max-w-none">
-        {/* Page Header */}
-        <div className="mb-6"></div>
+      {/* 页面标题 */}
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">用户画像</h1>
+          <p className="text-gray-600 mt-1">
+            管理和分析用户画像数据，洞察用户行为特征
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <Button onClick={loadData} variant="outline" disabled={loading}>
+            <RefreshCw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} />
+            刷新
+          </Button>
+          <Button onClick={handleExport}>
+            <Download className="h-4 w-4 mr-2" />
+            导出
+          </Button>
+        </div>
+      </div>
 
-        {/* Search and Filter Card */}
-        <Card className="p-6 mb-8 bg-white shadow-sm">
-          <div className="flex flex-col md:flex-row gap-4 items-end">
-            {/* Search Box */}
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+      {/* 搜索筛选 */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Filter className="h-5 w-5" />
+            搜索筛选
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* 关键词搜索 */}
+            <div>
+              <label className="text-sm font-medium text-gray-700 mb-2 block">
+                关键词搜索
+              </label>
               <Input
-                placeholder="搜索 CDP ID、姓名、公司名称或联系方式..."
-                value={searchQuery}
-                onChange={(e) => {
-                  setSearchQuery(e.target.value);
-                  setCurrentPage(1);
-                }}
-                className="pl-10"
+                placeholder="用户名、联系方式、公司名称..."
+                value={searchForm.keywords}
+                onChange={(e) =>
+                  setSearchForm(prev => ({ ...prev, keywords: e.target.value }))
+                }
+                onKeyPress={(e) => e.key === "Enter" && handleSearch()}
               />
             </div>
 
-            {/* Time Field Selector */}
-            <div className="md:w-1/4">
+            {/* 日期搜索类型 */}
+            <div>
+              <label className="text-sm font-medium text-gray-700 mb-2 block">
+                日期类型
+              </label>
               <Select
-                value={selectedTimeField}
-                onValueChange={(value) => {
-                  setSelectedTimeField(value);
-                  setCurrentPage(1);
-                }}
+                value={searchForm.searchtype}
+                onValueChange={(value: any) =>
+                  setSearchForm(prev => ({ ...prev, searchtype: value }))
+                }
               >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="firstVisitTime">首次访问时间</SelectItem>
-                  <SelectItem value="registrationTime">注册时间</SelectItem>
-                  <SelectItem value="firstPurchaseTime">
-                    首次购买时间
-                  </SelectItem>
-                  <SelectItem value="lastActiveTime">最后活跃时间</SelectItem>
+                  <SelectItem value="signTime">注册时间</SelectItem>
+                  <SelectItem value="minBuyTime">首次购买时间</SelectItem>
+                  <SelectItem value="maxBuyTime">最后购买时间</SelectItem>
+                  <SelectItem value="createGmt">创建时间</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
-            {/* Advanced Date Range Picker */}
-            <div className="md:w-1/4">
-              <AdvancedDateRangePicker
-                value={dateRange}
-                onChange={handleDateRangeChange}
-                onPresetChange={() => {}}
-              />
-            </div>
-
-            {/* Reset Button */}
-            <div className="flex items-end">
-              <Button
-                variant="outline"
-                size="default"
-                onClick={handleReset}
-                className="flex items-center gap-2 h-10"
-              >
-                <RotateCcw className="h-4 w-4" />
-                重置
-              </Button>
-            </div>
-          </div>
-        </Card>
-
-        {/* User Table */}
-        <Card className="bg-white shadow-sm">
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[800px]">
-              <thead className="bg-gray-50 border-b">
-                <tr>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
-                    用户
-                  </th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
-                    联系方式
-                  </th>
-                  <th
-                    className="px-6 py-4 text-left text-sm font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100"
-                    onClick={() => handleSort("firstVisitTime")}
-                  >
-                    <div className="flex items-center gap-2">
-                      首次访问
-                      {getSortIcon("firstVisitTime")}
-                    </div>
-                  </th>
-                  <th
-                    className="px-6 py-4 text-left text-sm font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100"
-                    onClick={() => handleSort("registrationTime")}
-                  >
-                    <div className="flex items-center gap-2">
-                      注册时间
-                      {getSortIcon("registrationTime")}
-                    </div>
-                  </th>
-                  <th
-                    className="px-6 py-4 text-left text-sm font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100"
-                    onClick={() => handleSort("firstPurchaseTime")}
-                  >
-                    <div className="flex items-center gap-2">
-                      首次购买
-                      {getSortIcon("firstPurchaseTime")}
-                    </div>
-                  </th>
-                  <th
-                    className="px-6 py-4 text-left text-sm font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100"
-                    onClick={() => handleSort("lastActiveTime")}
-                  >
-                    <div className="flex items-center gap-2">
-                      最后活跃
-                      {getSortIcon("lastActiveTime")}
-                    </div>
-                  </th>
-                  <th
-                    className="px-6 py-4 text-left text-sm font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100"
-                    onClick={() => handleSort("totalSpent")}
-                  >
-                    <div className="flex items-center gap-2">
-                      总消费
-                      {getSortIcon("totalSpent")}
-                    </div>
-                  </th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
-                    操作
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {currentUsers.map((user) => (
-                  <tr key={user.cdpId} className="hover:bg-gray-50">
-                    <td className="px-6 py-4">
-                      <div className="space-y-1">
-                        <div className="font-mono text-sm text-gray-900">
-                          {user.cdpId}
-                        </div>
-                        <div className="text-sm text-gray-500">
-                          {user.name || "N/A"} / {user.company || "N/A"}
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-900">
-                      {user.contact}
-                    </td>
-                    <td className="px-6 py-4 text-xs text-gray-600">
-                      {formatDateTime(user.firstVisitTime)}
-                    </td>
-                    <td className="px-6 py-4 text-xs text-gray-600">
-                      {formatDateTime(user.registrationTime)}
-                    </td>
-                    <td className="px-6 py-4 text-xs text-gray-600">
-                      {formatDateTime(user.firstPurchaseTime)}
-                    </td>
-                    <td className="px-6 py-4 text-xs text-gray-600">
-                      {formatDateTime(user.lastActiveTime)}
-                    </td>
-                    <td className="px-6 py-4 text-sm font-semibold text-gray-900">
-                      {formatCurrency(user.totalSpent)}
-                    </td>
-                    <td className="px-6 py-4">
-                      <Link
-                        to={`/users/${user.cdpId}`}
-                        className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                      >
-                        查看详情
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Pagination */}
-          <div className="px-6 py-4 border-t bg-gray-50 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="text-sm text-gray-700 order-2 sm:order-1">
-              正在显示 {startIndex + 1} -{" "}
-              {Math.min(endIndex, filteredAndSortedUsers.length)} 条，共{" "}
-              {filteredAndSortedUsers.length} 条
-            </div>
-            <div className="flex items-center gap-2 order-1 sm:order-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-                disabled={currentPage === 1}
-              >
-                上一页
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() =>
-                  setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+            {/* 排序字段 */}
+            <div>
+              <label className="text-sm font-medium text-gray-700 mb-2 block">
+                排序字段
+              </label>
+              <Select
+                value={searchForm.sortField}
+                onValueChange={(value) =>
+                  setSearchForm(prev => ({ ...prev, sortField: value }))
                 }
-                disabled={currentPage === totalPages}
               >
-                下一页
-              </Button>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="createGmt">创建时间</SelectItem>
+                  <SelectItem value="totalOrders">总消费金额</SelectItem>
+                  <SelectItem value="orderCount">订单数量</SelectItem>
+                  <SelectItem value="signTime">注册时间</SelectItem>
+                  <SelectItem value="cdpUserId">CDP用户ID</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* 排序方向 */}
+            <div>
+              <label className="text-sm font-medium text-gray-700 mb-2 block">
+                排序方向
+              </label>
+              <Select
+                value={searchForm.sortOrder}
+                onValueChange={(value: any) =>
+                  setSearchForm(prev => ({ ...prev, sortOrder: value }))
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="desc">降序</SelectItem>
+                  <SelectItem value="asc">升序</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
+
+          {/* 日期范围选择器 */}
+          <div className="mt-4">
+            <label className="text-sm font-medium text-gray-700 mb-2 block">
+              日期范围
+            </label>
+            <AdvancedDateRangePicker
+              startDate={searchForm.dateRange.start}
+              endDate={searchForm.dateRange.end}
+              onDateChange={(start, end) =>
+                setSearchForm(prev => ({
+                  ...prev,
+                  dateRange: { start, end },
+                }))
+              }
+            />
+          </div>
+
+          <div className="flex gap-2 mt-4">
+            <Button onClick={handleSearch} className="flex items-center gap-2">
+              <Search className="h-4 w-4" />
+              搜索
+            </Button>
+            <Button onClick={handleReset} variant="outline">
+              <RotateCcw className="h-4 w-4 mr-2" />
+              重置
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* 数据统计 */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card>
+          <CardContent className="p-4">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-blue-600">
+                {data.total.toLocaleString()}
+              </div>
+              <div className="text-sm text-gray-600 mt-1">总用户数</div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-green-600">
+                {formatCurrency(
+                  data.list.reduce((sum, user) => sum + (user.totalOrders || 0), 0)
+                )}
+              </div>
+              <div className="text-sm text-gray-600 mt-1">总消费金额</div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-purple-600">
+                {data.list.reduce((sum, user) => sum + (user.orderCount || 0), 0)}
+              </div>
+              <div className="text-sm text-gray-600 mt-1">总订单数</div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-orange-600">
+                {formatCurrency(
+                  Math.max(...data.list.map(user => user.maxOrderAmount || 0))
+                )}
+              </div>
+              <div className="text-sm text-gray-600 mt-1">最大订单金额</div>
+            </div>
+          </CardContent>
         </Card>
       </div>
+
+      {/* 数据表格 */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">用户列表</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="relative overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead 
+                    className="cursor-pointer hover:bg-gray-50"
+                    onClick={() => handleSort("cdpUserId")}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span>CDP用户ID</span>
+                      <ArrowUpDown className="h-3 w-3 text-gray-400" />
+                    </div>
+                  </TableHead>
+                  <TableHead>用户姓名</TableHead>
+                  <TableHead>联系方式</TableHead>
+                  <TableHead>公司名称</TableHead>
+                  <TableHead 
+                    className="cursor-pointer hover:bg-gray-50"
+                    onClick={() => handleSort("totalOrders")}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span>总消费金额</span>
+                      <ArrowUpDown className="h-3 w-3 text-gray-400" />
+                    </div>
+                  </TableHead>
+                  <TableHead 
+                    className="cursor-pointer hover:bg-gray-50"
+                    onClick={() => handleSort("orderCount")}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span>订单数量</span>
+                      <ArrowUpDown className="h-3 w-3 text-gray-400" />
+                    </div>
+                  </TableHead>
+                  <TableHead>地区</TableHead>
+                  <TableHead>注册时间</TableHead>
+                  <TableHead>操作</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {loading ? (
+                  <TableRow>
+                    <TableCell colSpan={9} className="text-center py-8">
+                      <div className="flex items-center justify-center gap-2">
+                        <RefreshCw className="h-4 w-4 animate-spin" />
+                        <span>加载中...</span>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ) : data.list.length === 0 ? (
+                  <TableRow>
+                    <TableCell
+                      colSpan={9}
+                      className="text-center py-8 text-gray-500"
+                    >
+                      暂无数据
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  data.list.map((user) => (
+                    <TableRow key={user.id} className="hover:bg-gray-50">
+                      <TableCell className="font-mono text-sm">
+                        {user.cdpUserId}
+                      </TableCell>
+                      <TableCell className="font-medium">
+                        {user.fullName || "-"}
+                      </TableCell>
+                      <TableCell className="text-sm">
+                        {user.contactInfo || "-"}
+                      </TableCell>
+                      <TableCell className="text-sm">
+                        {user.companyName || "-"}
+                      </TableCell>
+                      <TableCell>
+                        <span className="font-semibold text-green-600">
+                          {formatCurrency(user.totalOrders || 0)}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="secondary">
+                          {user.orderCount || 0}单
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-sm">
+                        {user.location || "-"}
+                      </TableCell>
+                      <TableCell className="text-sm text-gray-600">
+                        {user.signTime 
+                          ? new Date(user.signTime).toLocaleDateString("zh-CN")
+                          : "-"
+                        }
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => handleViewDetail(user)}
+                          className="h-8 w-8 p-0"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
+
+          {/* 分页 */}
+          {data.list.length > 0 && (
+            <div className="flex items-center justify-between mt-4">
+              <div className="text-sm text-gray-600">
+                显示 {(data.currentpage - 1) * data.pagesize + 1} 到{" "}
+                {Math.min(data.currentpage * data.pagesize, data.total)}{" "}
+                项，共 {data.total} 项
+              </div>
+              <div className="flex items-center gap-2">
+                <Select
+                  value={data.pagesize.toString()}
+                  onValueChange={(value) => handlePageSizeChange(Number(value))}
+                >
+                  <SelectTrigger className="w-20">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="10">10</SelectItem>
+                    <SelectItem value="20">20</SelectItem>
+                    <SelectItem value="50">50</SelectItem>
+                    <SelectItem value="100">100</SelectItem>
+                  </SelectContent>
+                </Select>
+                <span className="text-sm text-gray-600">条/页</span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handlePageChange(data.currentpage - 1)}
+                  disabled={data.currentpage <= 1}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <span className="text-sm">
+                  {data.currentpage} / {totalPages}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handlePageChange(data.currentpage + 1)}
+                  disabled={data.currentpage >= totalPages}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
