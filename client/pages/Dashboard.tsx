@@ -81,35 +81,54 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Custom Date Range */}
-      {showCustomDate && (
-        <div className="flex items-center gap-3 mb-6 p-4 bg-white rounded-lg border border-gray-200">
-          <Calendar className="h-4 w-4 text-gray-500" />
-          <div className="flex items-center gap-2">
-            <Input
-              type="date"
-              value={customStartDate}
-              onChange={(e) => setCustomStartDate(e.target.value)}
-              className="w-auto"
-            />
-            <span className="text-gray-500">至</span>
-            <Input
-              type="date"
-              value={customEndDate}
-              onChange={(e) => setCustomEndDate(e.target.value)}
-              className="w-auto"
-            />
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={applyCustomDateRange}
-              disabled={!customStartDate || !customEndDate}
-            >
-              应用
-            </Button>
+      {/* Custom Date Range Dialog */}
+      <Dialog open={isCustomDateDialogOpen} onOpenChange={setIsCustomDateDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>选择自定义日期范围</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 pt-4">
+            <div className="flex items-center gap-3">
+              <Calendar className="h-4 w-4 text-gray-500" />
+              <span className="text-sm font-medium text-gray-700">请选择开始和结束日期</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="flex-1">
+                <label className="block text-xs font-medium text-gray-600 mb-1">开始日期</label>
+                <Input
+                  type="date"
+                  value={customStartDate}
+                  onChange={(e) => setCustomStartDate(e.target.value)}
+                  className="w-full"
+                />
+              </div>
+              <div className="flex-1">
+                <label className="block text-xs font-medium text-gray-600 mb-1">结束日期</label>
+                <Input
+                  type="date"
+                  value={customEndDate}
+                  onChange={(e) => setCustomEndDate(e.target.value)}
+                  className="w-full"
+                />
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 pt-4">
+              <Button
+                variant="outline"
+                onClick={cancelCustomDateRange}
+              >
+                取消
+              </Button>
+              <Button
+                onClick={applyCustomDateRange}
+                disabled={!customStartDate || !customEndDate}
+              >
+                应用
+              </Button>
+            </div>
           </div>
-        </div>
-      )}
+        </DialogContent>
+      </Dialog>
 
       {/* First Row: KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
