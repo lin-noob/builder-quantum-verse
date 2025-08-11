@@ -615,7 +615,7 @@ export const mockUsers: User[] = [
         paymentMethod: "企业转账",
         items: [
           {
-            productName: "专业版软件授权",
+            productName: "专业��软件授权",
             unitPrice: 2800.00,
             quantity: 1,
             totalPrice: 2800.00
@@ -665,7 +665,7 @@ export const mockUsers: User[] = [
             totalPrice: 4800.00
           },
           {
-            productName: "安装服务",
+            productName: "���装服务",
             unitPrice: 150.00,
             quantity: 1,
             totalPrice: 150.00
@@ -1242,8 +1242,200 @@ export const mockUsers: User[] = [
 
 export const getUsers = () => mockUsers;
 
-export const getUserById = (cdpId: string) => 
+export const getUserById = (cdpId: string) =>
   mockUsers.find(user => user.cdpId === cdpId);
+
+/**
+ * 新API相关类型定义
+ */
+
+/**
+ * 订单汇总请求参数
+ */
+export interface OrderSummaryDto {
+  /** 当前页 */
+  currentpage?: number;
+  /** 结束日期 */
+  endDate?: string;
+  /** 搜索关键词 */
+  keywords?: string;
+  /** 排序类型(desc降序，asc升序) */
+  order?: 'desc' | 'asc';
+  /** 每页记录数 */
+  pagesize?: number;
+  /** 追加参数 */
+  paramother?: Record<string, string>;
+  /** 日期搜索类型 */
+  searchtype?: 'signTime' | 'minBuyTime' | 'maxBuyTime' | 'createGmt';
+  /** 店铺ID */
+  shopid?: string;
+  /** 排序字段 */
+  sort?: string;
+  /** 开始日期 */
+  startDate?: string;
+}
+
+/**
+ * 用户画像列表查询参数
+ */
+export interface UserProfileListParams {
+  /** 每页数量 */
+  limit?: number;
+  /** 用户名 */
+  name?: string;
+  /** 页码 */
+  page?: number;
+  /** 请求体参数 */
+  body?: OrderSummaryDto;
+}
+
+/**
+ * 生���符合新API规范的用户数据
+ */
+function generateNewFormatUser(id: number): User {
+  const companies = [
+    "阿里巴巴集团", "腾讯科技", "字节跳动", "华为技术", "小米科技",
+    "美团科技", "滴滴出行", "京东科技", "网易科技", "百度在线",
+    "蚂蚁金服", "拼多多", "快手科技", "新浪微博", "搜狐科技"
+  ];
+
+  const locations = [
+    "北京市", "上海市", "深圳市", "广州市", "杭州市",
+    "成都市", "武汉市", "西安市", "南京市", "重庆市"
+  ];
+
+  const surnames = ["张", "王", "李", "赵", "陈", "刘", "杨", "黄", "周", "吴"];
+  const givenNames = ["伟", "芳", "娜", "秀英", "敏", "静", "丽", "强", "磊", "军"];
+
+  const emailDomains = ["@gmail.com", "@163.com", "@qq.com", "@sina.com", "@126.com"];
+
+  const surname = surnames[Math.floor(Math.random() * surnames.length)];
+  const givenName = givenNames[Math.floor(Math.random() * givenNames.length)];
+  const fullName = surname + givenName;
+
+  const isEmail = Math.random() > 0.5;
+  const contactInfo = isEmail
+    ? `${fullName.toLowerCase()}${Math.floor(Math.random() * 999)}${emailDomains[Math.floor(Math.random() * emailDomains.length)]}`
+    : `1${Math.floor(Math.random() * 9) + 3}${Math.floor(Math.random() * 100000000).toString().padStart(8, '0')}`;
+
+  const signTime = new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000 * 3);
+  const createGmt = new Date(signTime.getTime() + Math.random() * 30 * 24 * 60 * 60 * 1000);
+  const minBuyTime = new Date(signTime.getTime() + Math.random() * 60 * 24 * 60 * 60 * 1000);
+  const maxBuyTime = new Date(minBuyTime.getTime() + Math.random() * 200 * 24 * 60 * 60 * 1000);
+  const loginDate = new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000);
+
+  const orderCount = Math.floor(Math.random() * 50) + 1;
+  const avgOrderAmount = Math.random() * 2000 + 100;
+  const totalOrders = orderCount * avgOrderAmount * (0.5 + Math.random());
+  const maxOrderAmount = avgOrderAmount * (1.5 + Math.random() * 2);
+
+  return {
+    id: `user_${id}`,
+    cdpUserId: 1000000 + id,
+    fullName,
+    contactInfo,
+    companyName: companies[Math.floor(Math.random() * companies.length)],
+    signTime: signTime.toISOString(),
+    createGmt: createGmt.toISOString(),
+    minBuyTime: minBuyTime.toISOString(),
+    maxBuyTime: maxBuyTime.toISOString(),
+    maxOrderAmount: Math.round(maxOrderAmount * 100) / 100,
+    totalOrders: Math.round(totalOrders * 100) / 100,
+    orderCount,
+    loginDate: loginDate.toISOString(),
+    location: locations[Math.floor(Math.random() * locations.length)],
+    shopid: "shop_001",
+
+    // 兼容字段
+    cdpId: `cdp_${id}`,
+    name: fullName,
+    company: companies[Math.floor(Math.random() * companies.length)],
+    contact: contactInfo,
+    totalSpent: Math.round(totalOrders * 100) / 100,
+    tags: [],
+    sessions: [],
+    orders: []
+  };
+}
+
+/**
+ * 获取用户画像列表的mock数据
+ */
+export function getMockUserProfileList(params: UserProfileListParams = {}) {
+  const { page = 1, limit = 10, name, body = {} } = params;
+  const { keywords, searchtype, sort, order } = body;
+
+  // 生成用户列表
+  const totalUsers = 1286;
+  const allUsers: User[] = [];
+
+  // 检查缓存
+  const cacheKey = `mock_profile_users_${totalUsers}`;
+  const cached = typeof window !== 'undefined' ? sessionStorage.getItem(cacheKey) : null;
+
+  if (cached) {
+    allUsers.push(...JSON.parse(cached));
+  } else {
+    for (let i = 1; i <= totalUsers; i++) {
+      allUsers.push(generateNewFormatUser(i));
+    }
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem(cacheKey, JSON.stringify(allUsers));
+    }
+  }
+
+  // 过滤数据
+  let filteredUsers = allUsers;
+  const searchTerm = keywords || name;
+  if (searchTerm && searchTerm.trim()) {
+    const term = searchTerm.toLowerCase();
+    filteredUsers = allUsers.filter(user =>
+      user.fullName.toLowerCase().includes(term) ||
+      user.contactInfo.toLowerCase().includes(term) ||
+      user.companyName.toLowerCase().includes(term) ||
+      user.location.toLowerCase().includes(term)
+    );
+  }
+
+  // 排序
+  if (sort) {
+    filteredUsers.sort((a, b) => {
+      const aValue = a[sort as keyof User] as any;
+      const bValue = b[sort as keyof User] as any;
+
+      if (typeof aValue === 'number' && typeof bValue === 'number') {
+        return order === 'asc' ? aValue - bValue : bValue - aValue;
+      }
+
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        return order === 'asc'
+          ? aValue.localeCompare(bValue)
+          : bValue.localeCompare(aValue);
+      }
+
+      return 0;
+    });
+  }
+
+  // 分页
+  const startIndex = (page - 1) * limit;
+  const endIndex = startIndex + limit;
+  const paginatedUsers = filteredUsers.slice(startIndex, endIndex);
+
+  return {
+    list: paginatedUsers,
+    total: filteredUsers.length,
+    currentpage: page,
+    pagesize: limit
+  };
+}
+
+/**
+ * 模拟API调用延迟
+ */
+export function mockApiDelay(ms: number = 500): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 export const getAllLocations = () => {
   const locations = new Set<string>();
