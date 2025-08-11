@@ -9,16 +9,21 @@ if (typeof console !== 'undefined') {
     // Suppress Recharts defaultProps warnings - these are library-level issues
     // that will be fixed in future Recharts updates
     if (message.includes('Support for defaultProps will be removed from function components')) {
-      if (message.includes('XAxis') ||
-          message.includes('YAxis') ||
-          message.includes('XAxis2') ||
-          message.includes('YAxis2') ||
-          message.includes('CartesianGrid') ||
-          message.includes('Tooltip') ||
-          message.includes('Line') ||
-          message.includes('recharts')) {
+      // Check for any Recharts component mentioned in the warning
+      const rechartsComponents = [
+        'XAxis', 'YAxis', 'XAxis2', 'YAxis2', 'CartesianGrid', 'Tooltip', 'Line',
+        'Surface', 'ChartLayoutContextProvider', 'CategoricalChartWrapper',
+        'recharts', 'LineChart', 'ResponsiveContainer', 'Legend'
+      ];
+
+      if (rechartsComponents.some(component => message.includes(component))) {
         return;
       }
+    }
+
+    // Also suppress if the stack trace contains recharts references
+    if (message.includes('defaultProps') && message.includes('recharts.js')) {
+      return;
     }
 
     // Allow other warnings through
