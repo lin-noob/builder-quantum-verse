@@ -93,17 +93,6 @@ export default function UserDetail() {
   return (
     <div className="p-6 space-y-6 bg-gray-50 min-h-full">
       <div className="max-w-none">
-        {/* Back Link */}
-        <div className="mb-6">
-          <Link
-            to="/users"
-            className="inline-flex items-center text-blue-600 hover:text-blue-800 text-sm font-medium"
-          >
-            <ArrowLeft className="h-4 w-4 mr-1" />
-            返回列表
-          </Link>
-        </div>
-
         <div className="space-y-6">
           {/* Core Identity Card - Full Width */}
           <Card>
