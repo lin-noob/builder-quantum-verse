@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import {
   Search,
@@ -6,6 +6,12 @@ import {
   ArrowUp,
   ArrowDown,
   RotateCcw,
+  RefreshCw,
+  Download,
+  Filter,
+  Eye,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
@@ -15,10 +21,26 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { toast } from "@/hooks/use-toast";
 import AdvancedDateRangePicker from "@/components/AdvancedDateRangePicker";
-import { getUsers, type User } from "@shared/userData";
+import {
+  getMockUserProfileList,
+  mockApiDelay,
+  type User,
+  type UserProfileListParams,
+  type OrderSummaryDto
+} from "@shared/userData";
 
 interface DateRange {
   start: Date | null;
