@@ -98,46 +98,7 @@ export default function PerformanceTrend({ metrics, dateRange = '30days' }: Perf
       <CardHeader>
         <CardTitle className="text-lg font-semibold text-gray-900">业绩走势</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-6">
-        {/* Metric Selector Cards */}
-        <div className="grid grid-cols-4 gap-3">
-          {metrics.map((metric, index) => {
-            const isSelected = selectedMetrics.includes(metric.id);
-            const isRequired = metric.id === 'totalRevenue';
-            const color = colors[index % colors.length];
-
-            return (
-              <button
-                key={metric.id}
-                onClick={() => toggleMetric(metric.id)}
-                className={cn(
-                  "p-3 rounded-lg text-center border transition-all relative",
-                  isSelected
-                    ? "bg-blue-50 border-blue-200 text-blue-700"
-                    : "bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100",
-                  isRequired && "ring-2 ring-blue-300"
-                )}
-                disabled={isRequired && isSelected}
-                title={isRequired ? "总消费金额为必选指标" : ""}
-              >
-                {isSelected && (
-                  <div
-                    className="absolute top-2 left-2 w-3 h-3 rounded"
-                    style={{ backgroundColor: color }}
-                  />
-                )}
-                {isRequired && (
-                  <div className="absolute top-2 right-2">
-                    <span className="text-xs text-blue-600">★</span>
-                  </div>
-                )}
-                <div className="text-xs text-gray-500 mb-1">{metric.label}</div>
-                <div className="text-sm font-semibold">{metric.value}</div>
-              </button>
-            );
-          })}
-        </div>
-
+      <CardContent>
         {/* Multi-Line Chart */}
         <div className="h-80">
           <ResponsiveContainer width="100%" height="100%" margin={{ left: 20, right: 20 }}>
