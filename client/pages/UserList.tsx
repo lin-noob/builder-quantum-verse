@@ -27,8 +27,8 @@ export default function UserList() {
   });
   const [currentPage, setCurrentPage] = useState(1);
   const [sortConfig, setSortConfig] = useState<SortConfig>({
-    field: null,
-    direction: 'asc'
+    field: 'lastActiveTime',
+    direction: 'desc'
   });
   const itemsPerPage = 10;
 
