@@ -155,7 +155,7 @@ export default function UserDetail() {
                             <div>
                               <h4 className="font-medium">添加新标签</h4>
                               <p className="text-sm text-muted-foreground">
-                                为用户添加一个新的状态标签
+                                ���用户添加一个新的状态标签
                               </p>
                             </div>
                             <Input
@@ -537,89 +537,6 @@ export default function UserDetail() {
                     </CardContent>
                   </Card>
 
-                  {/* Shopping Cart Statistics */}
-                  <Card className="mt-6">
-                    <CardHeader>
-                      <CardTitle>购物车统计</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      {/* Cart Summary Metrics */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                        <div className="text-center p-4 bg-blue-50 rounded-lg">
-                          <div className="text-2xl font-bold text-blue-600">
-                            {formatCurrency(user.totalCartValue || 0)}
-                          </div>
-                          <div className="text-sm text-blue-600">当前购物车金额</div>
-                        </div>
-                        <div className="text-center p-4 bg-green-50 rounded-lg">
-                          <div className="text-2xl font-bold text-green-600">
-                            {user.cartItems?.length || 0}
-                          </div>
-                          <div className="text-sm text-green-600">购物车商品数量</div>
-                        </div>
-                        <div className="text-center p-4 bg-purple-50 rounded-lg">
-                          <div className="text-2xl font-bold text-purple-600">
-                            {formatCurrency(user.averageCartValue || 0)}
-                          </div>
-                          <div className="text-sm text-purple-600">平均购物车价值</div>
-                        </div>
-                        <div className="text-center p-4 bg-orange-50 rounded-lg">
-                          <div className="text-2xl font-bold text-orange-600">
-                            {user.cartAbandonCount || 0}
-                          </div>
-                          <div className="text-sm text-orange-600">购物车放弃次数</div>
-                        </div>
-                      </div>
-
-                      {/* Cart Timeline Information */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 pt-4 border-t border-gray-200">
-                        <div className="text-center p-3 bg-gray-50 rounded-lg">
-                          <div className="text-sm font-bold text-gray-700">{user.cartCreatedTime || '暂无数据'}</div>
-                          <div className="text-xs text-gray-600">购物车创建时间</div>
-                        </div>
-                        <div className="text-center p-3 bg-gray-50 rounded-lg">
-                          <div className="text-sm font-bold text-gray-700">{user.lastCartUpdate || '暂无数据'}</div>
-                          <div className="text-xs text-gray-600">最后更新时间</div>
-                        </div>
-                      </div>
-
-                      {/* Current Cart Items */}
-                      {user.cartItems && user.cartItems.length > 0 ? (
-                        <div>
-                          <h5 className="font-medium mb-3">当前购物车商品</h5>
-                          <div className="space-y-3">
-                            {user.cartItems.map((item) => (
-                              <div key={item.id} className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
-                                <div className="flex-1">
-                                  <div className="font-medium text-sm">{item.productName}</div>
-                                  <div className="text-xs text-gray-600">
-                                    {formatCurrency(item.unitPrice)} × {item.quantity} = {formatCurrency(item.totalPrice)}
-                                  </div>
-                                  <div className="text-xs text-gray-500 mt-1">
-                                    加入时间: {item.addedTime} | 最后更新: {item.lastUpdated}
-                                  </div>
-                                </div>
-                                <div className="text-right">
-                                  <div className="font-medium text-lg">{formatCurrency(item.totalPrice)}</div>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                          <div className="mt-4 pt-4 border-t border-gray-200">
-                            <div className="flex justify-between items-center text-lg font-semibold">
-                              <span>购物车总金额:</span>
-                              <span className="text-blue-600">{formatCurrency(user.totalCartValue || 0)}</span>
-                            </div>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="text-center py-8">
-                          <p className="text-gray-500 text-sm">购物车暂时为空</p>
-                          <p className="text-xs text-gray-400 mt-1">该用户当前没有添加商品到购物车</p>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
                 </TabsContent>
               </Tabs>
             </CardContent>
