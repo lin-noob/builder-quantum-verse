@@ -28,81 +28,8 @@ ChartJS.register(
 );
 
 export default function Dashboard2() {
-  const performanceChartRef = useRef<HTMLCanvasElement>(null);
+  const dashboardData = getDashboardData();
   const rfmChartRef = useRef<HTMLCanvasElement>(null);
-
-  // Performance Trend Chart
-  useEffect(() => {
-    const canvas = performanceChartRef.current;
-    const ctx = canvas?.getContext('2d');
-    if (!ctx || !canvas) {
-      console.log('Canvas not available');
-      return;
-    }
-
-    // Clear any existing chart
-    if (canvas) {
-      ChartJS.getChart(canvas)?.destroy();
-    }
-
-    setTimeout(() => {
-      try {
-        console.log('Creating performance chart...');
-        const chart = new ChartJS(ctx, {
-          type: 'line',
-          data: {
-            labels: ['1月1日', '1月2日', '1月3日', '1月4日', '1月5日', '1月6日', '1月7日', '1月8日', '1月9日', '1月10日'],
-            datasets: [
-              {
-                label: '总消费金额',
-                data: [50000, 62000, 68000, 65000, 72000, 75000, 82000, 78000, 90000, 95000],
-                borderColor: '#3b82f6',
-                backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                yAxisID: 'y',
-                tension: 0.1,
-              },
-              {
-                label: '平均客单价',
-                data: [277.8, 281.8, 283.3, 282.6, 288.0, 288.5, 282.8, 288.9, 281.3, 279.4],
-                borderColor: '#f97316',
-                backgroundColor: 'rgba(249, 115, 22, 0.1)',
-                yAxisID: 'y',
-                tension: 0.1,
-              },
-            ],
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: {
-                position: 'bottom' as const,
-              },
-            },
-            scales: {
-              y: {
-                type: 'linear' as const,
-                display: true,
-                position: 'left' as const,
-                title: {
-                  display: true,
-                  text: '金额 (元)',
-                },
-              },
-            },
-          },
-        });
-
-        console.log('Performance chart created successfully');
-        return () => {
-          console.log('Destroying performance chart');
-          chart.destroy();
-        };
-      } catch (error) {
-        console.error('Performance chart error:', error);
-      }
-    }, 100);
-  }, []);
 
   // RFM Matrix Chart
   useEffect(() => {
@@ -170,7 +97,7 @@ export default function Dashboard2() {
 
   // Keyword Cloud Data
   const keywordData = [
-    { text: '���记本电脑', size: 40 },
+    { text: '笔记本电脑', size: 40 },
     { text: '户外徒步鞋', size: 32 },
     { text: '咖啡豆', size: 28 },
     { text: '无线耳机', size: 25 },
@@ -232,7 +159,7 @@ export default function Dashboard2() {
           <h2 className="text-2xl font-bold text-slate-900 mb-4">核心业绩概览</h2>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
             <div className="bg-white p-5 rounded-lg shadow-sm">
-              <h3 className="text-sm font-medium text-slate-500">总消费���额</h3>
+              <h3 className="text-sm font-medium text-slate-500">总消费金额</h3>
               <p className="text-2xl font-bold text-slate-900 mt-1">¥1,254,680</p>
               <p className="text-green-600 text-sm mt-1">+5.2%</p>
             </div>
@@ -280,7 +207,7 @@ export default function Dashboard2() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* RFM Value Matrix */}
             <div className="bg-white p-6 rounded-lg shadow-sm">
-              <h3 className="text-lg font-semibold text-slate-900 mb-2">RFM 价��矩阵</h3>
+              <h3 className="text-lg font-semibold text-slate-900 mb-2">RFM 价值矩阵</h3>
               <p className="text-slate-500 text-sm mb-4">洞察不同价值分群的用户分布与消费贡献。气泡大小代表消费总额。</p>
               <div className="chart-container h-96">
                 <canvas ref={rfmChartRef} id="rfm-matrix-chart"></canvas>
