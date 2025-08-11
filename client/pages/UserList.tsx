@@ -1,59 +1,124 @@
 import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { Search, Calendar, Clock } from "lucide-react";
+import { Search, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import AdvancedDateRangePicker from "@/components/AdvancedDateRangePicker";
 import { getUsers, type User } from "@shared/userData";
+
+interface DateRange {
+  start: Date | null;
+  end: Date | null;
+}
+
+interface SortConfig {
+  field: string | null;
+  direction: 'asc' | 'desc';
+}
 
 export default function UserList() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [timeRangeFilter, setTimeRangeFilter] = useState("all");
-  const [timeFieldFilter, setTimeFieldFilter] = useState("all");
+  const [selectedTimeField, setSelectedTimeField] = useState("firstVisitTime");
+  const [dateRange, setDateRange] = useState<DateRange>({
+    start: null,
+    end: null
+  });
   const [currentPage, setCurrentPage] = useState(1);
+  const [sortConfig, setSortConfig] = useState<SortConfig>({
+    field: null,
+    direction: 'asc'
+  });
   const itemsPerPage = 10;
 
   const users = getUsers();
 
-  // Filter users based on search and time criteria
-  const filteredUsers = useMemo(() => {
-    return users.filter(user => {
+  // Sort function
+  const handleSort = (field: string) => {
+    setSortConfig(prev => ({
+      field,
+      direction: prev.field === field && prev.direction === 'asc' ? 'desc' : 'asc'
+    }));
+  };
+
+  const getSortIcon = (field: string) => {
+    if (sortConfig.field !== field) {
+      return <ArrowUpDown className="h-4 w-4" />;
+    }
+    return sortConfig.direction === 'asc' ? 
+      <ArrowUp className="h-4 w-4" /> : 
+      <ArrowDown className="h-4 w-4" />;
+  };
+
+  // Filter and sort users
+  const filteredAndSortedUsers = useMemo(() => {
+    let filtered = users.filter(user => {
       const matchesSearch = searchQuery === "" ||
         user.cdpId.toLowerCase().includes(searchQuery.toLowerCase()) ||
         user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         user.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
         user.contact.toLowerCase().includes(searchQuery.toLowerCase());
 
-      let matchesTimeFilter = true;
-
-      if (timeRangeFilter !== "all" && timeFieldFilter !== "all") {
-        const now = new Date();
+      let matchesDateFilter = true;
+      if (dateRange.start && dateRange.end) {
         const timeValue = new Date(
-          timeFieldFilter === "firstVisit" ? user.firstVisitTime :
-          timeFieldFilter === "registration" ? user.registrationTime :
-          timeFieldFilter === "firstPurchase" ? user.firstPurchaseTime :
+          selectedTimeField === "firstVisitTime" ? user.firstVisitTime :
+          selectedTimeField === "registrationTime" ? user.registrationTime :
+          selectedTimeField === "firstPurchaseTime" ? user.firstPurchaseTime :
           user.lastActiveTime
         );
 
-        const diffDays = Math.floor((now.getTime() - timeValue.getTime()) / (1000 * 60 * 60 * 24));
-
-        matchesTimeFilter =
-          (timeRangeFilter === "7days" && diffDays <= 7) ||
-          (timeRangeFilter === "30days" && diffDays <= 30) ||
-          (timeRangeFilter === "90days" && diffDays <= 90) ||
-          (timeRangeFilter === "180days" && diffDays <= 180);
+        matchesDateFilter = timeValue >= dateRange.start && timeValue <= dateRange.end;
       }
 
-      return matchesSearch && matchesTimeFilter;
+      return matchesSearch && matchesDateFilter;
     });
-  }, [users, searchQuery, timeRangeFilter, timeFieldFilter]);
+
+    // Sort the filtered results
+    if (sortConfig.field) {
+      filtered.sort((a, b) => {
+        let aValue: any, bValue: any;
+
+        switch (sortConfig.field) {
+          case 'firstVisitTime':
+            aValue = new Date(a.firstVisitTime);
+            bValue = new Date(b.firstVisitTime);
+            break;
+          case 'registrationTime':
+            aValue = new Date(a.registrationTime);
+            bValue = new Date(b.registrationTime);
+            break;
+          case 'firstPurchaseTime':
+            aValue = new Date(a.firstPurchaseTime);
+            bValue = new Date(b.firstPurchaseTime);
+            break;
+          case 'lastActiveTime':
+            aValue = new Date(a.lastActiveTime);
+            bValue = new Date(b.lastActiveTime);
+            break;
+          case 'totalSpent':
+            aValue = a.totalSpent;
+            bValue = b.totalSpent;
+            break;
+          default:
+            return 0;
+        }
+
+        if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
+        if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
+        return 0;
+      });
+    }
+
+    return filtered;
+  }, [users, searchQuery, selectedTimeField, dateRange, sortConfig]);
 
   // Pagination
-  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredAndSortedUsers.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentUsers = filteredUsers.slice(startIndex, endIndex);
+  const currentUsers = filteredAndSortedUsers.slice(startIndex, endIndex);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('zh-CN', {
@@ -63,14 +128,32 @@ export default function UserList() {
     }).format(amount);
   };
 
+  const handleDateRangeChange = (range: DateRange) => {
+    setDateRange(range);
+    setCurrentPage(1);
+  };
+
+  const formatDateTime = (dateStr: string) => {
+    return new Date(dateStr).toLocaleString('zh-CN', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
   return (
     <div className="p-6 space-y-6 bg-gray-50 min-h-full">
       <div className="max-w-none">
-
+        {/* Page Header */}
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-gray-900">用户画像</h1>
+        </div>
 
         {/* Search and Filter Card */}
         <Card className="p-6 mb-8 bg-white shadow-sm">
-          <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex flex-col md:flex-row gap-4 items-end">
             {/* Search Box */}
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
@@ -85,50 +168,36 @@ export default function UserList() {
               />
             </div>
 
-            {/* Time Field Filter */}
+            {/* Time Field Selector */}
             <div className="md:w-1/4">
+              <label className="text-sm text-gray-600 mb-1 block">时间字段</label>
               <Select
-                value={timeFieldFilter}
+                value={selectedTimeField}
                 onValueChange={(value) => {
-                  setTimeFieldFilter(value);
+                  setSelectedTimeField(value);
                   setCurrentPage(1);
                 }}
               >
                 <SelectTrigger>
-                  <Clock className="h-4 w-4 mr-2" />
-                  <SelectValue placeholder="时间字段" />
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">所有时间字段</SelectItem>
-                  <SelectItem value="firstVisit">首次访问时间</SelectItem>
-                  <SelectItem value="registration">注册时间</SelectItem>
-                  <SelectItem value="firstPurchase">首次购买时间</SelectItem>
-                  <SelectItem value="lastActive">最后活跃时间</SelectItem>
+                  <SelectItem value="firstVisitTime">首次访问时间</SelectItem>
+                  <SelectItem value="registrationTime">注册时间</SelectItem>
+                  <SelectItem value="firstPurchaseTime">首次购买时间</SelectItem>
+                  <SelectItem value="lastActiveTime">最后活跃时间</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
-            {/* Time Range Filter */}
+            {/* Advanced Date Range Picker */}
             <div className="md:w-1/4">
-              <Select
-                value={timeRangeFilter}
-                onValueChange={(value) => {
-                  setTimeRangeFilter(value);
-                  setCurrentPage(1);
-                }}
-              >
-                <SelectTrigger>
-                  <Calendar className="h-4 w-4 mr-2" />
-                  <SelectValue placeholder="时间范围" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">所有时间</SelectItem>
-                  <SelectItem value="7days">最近7天</SelectItem>
-                  <SelectItem value="30days">最近30天</SelectItem>
-                  <SelectItem value="90days">最近90天</SelectItem>
-                  <SelectItem value="180days">最近180天</SelectItem>
-                </SelectContent>
-              </Select>
+              <label className="text-sm text-gray-600 mb-1 block">日期范围</label>
+              <AdvancedDateRangePicker
+                value={dateRange}
+                onChange={handleDateRangeChange}
+                onPresetChange={() => {}}
+              />
             </div>
           </div>
         </Card>
@@ -141,11 +210,51 @@ export default function UserList() {
                 <tr>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">用户</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">联系方式</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">首次访问</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">注册时间</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">首次购买</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">最后活跃</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">总消费</th>
+                  <th 
+                    className="px-6 py-4 text-left text-sm font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100"
+                    onClick={() => handleSort('firstVisitTime')}
+                  >
+                    <div className="flex items-center gap-2">
+                      首次访问
+                      {getSortIcon('firstVisitTime')}
+                    </div>
+                  </th>
+                  <th 
+                    className="px-6 py-4 text-left text-sm font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100"
+                    onClick={() => handleSort('registrationTime')}
+                  >
+                    <div className="flex items-center gap-2">
+                      注册时间
+                      {getSortIcon('registrationTime')}
+                    </div>
+                  </th>
+                  <th 
+                    className="px-6 py-4 text-left text-sm font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100"
+                    onClick={() => handleSort('firstPurchaseTime')}
+                  >
+                    <div className="flex items-center gap-2">
+                      首次购买
+                      {getSortIcon('firstPurchaseTime')}
+                    </div>
+                  </th>
+                  <th 
+                    className="px-6 py-4 text-left text-sm font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100"
+                    onClick={() => handleSort('lastActiveTime')}
+                  >
+                    <div className="flex items-center gap-2">
+                      最后活跃
+                      {getSortIcon('lastActiveTime')}
+                    </div>
+                  </th>
+                  <th 
+                    className="px-6 py-4 text-left text-sm font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100"
+                    onClick={() => handleSort('totalSpent')}
+                  >
+                    <div className="flex items-center gap-2">
+                      总消费
+                      {getSortIcon('totalSpent')}
+                    </div>
+                  </th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">操作</th>
                 </tr>
               </thead>
@@ -164,16 +273,16 @@ export default function UserList() {
                       {user.contact}
                     </td>
                     <td className="px-6 py-4 text-xs text-gray-600">
-                      {user.firstVisitTime}
+                      {formatDateTime(user.firstVisitTime)}
                     </td>
                     <td className="px-6 py-4 text-xs text-gray-600">
-                      {user.registrationTime}
+                      {formatDateTime(user.registrationTime)}
                     </td>
                     <td className="px-6 py-4 text-xs text-gray-600">
-                      {user.firstPurchaseTime}
+                      {formatDateTime(user.firstPurchaseTime)}
                     </td>
                     <td className="px-6 py-4 text-xs text-gray-600">
-                      {user.lastActiveTime}
+                      {formatDateTime(user.lastActiveTime)}
                     </td>
                     <td className="px-6 py-4 text-sm font-semibold text-gray-900">
                       {formatCurrency(user.totalSpent)}
@@ -195,7 +304,7 @@ export default function UserList() {
           {/* Pagination */}
           <div className="px-6 py-4 border-t bg-gray-50 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="text-sm text-gray-700 order-2 sm:order-1">
-              正在显示 {startIndex + 1} - {Math.min(endIndex, filteredUsers.length)} 条，共 {filteredUsers.length} 条
+              正在显示 {startIndex + 1} - {Math.min(endIndex, filteredAndSortedUsers.length)} 条，共 {filteredAndSortedUsers.length} 条
             </div>
             <div className="flex items-center gap-2 order-1 sm:order-2">
               <Button
