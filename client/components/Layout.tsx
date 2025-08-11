@@ -134,7 +134,7 @@ export default function Layout({ children }: LayoutProps) {
                             className="flex items-center gap-2 px-3 py-2 text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-md transition-colors"
                           >
                             <Target className="h-3 w-3" />
-                            战���与目标
+                            战与目标
                           </Link>
                           <Link
                             to="/ai-marketing/live-monitoring"
@@ -225,7 +225,7 @@ export default function Layout({ children }: LayoutProps) {
                           className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors"
                         >
                           <Bot className="h-4 w-4" />
-                          全���动模式
+                          全动模式
                         </Link>
                         <Link
                           to="/ai-marketing/semi-auto"

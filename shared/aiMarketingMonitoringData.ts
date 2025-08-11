@@ -95,7 +95,7 @@ export const mockDecisionRecords: DecisionRecord[] = [
     id: 'decision-005',
     timestamp: '12:10:55',
     mode: 'fully-auto',
-    content: '用户ID: U-1024 - [用户标签变更] 依据用户近期高频购买行为���AI决策为其自动添加"高潜力"标签。',
+    content: '用户ID: U-1024 - [用户标签变更] 依据用户近期高频购买行为AI决策为其自动添加"高潜力"标签。',
     status: 'revoked',
     userId: 'U-1024',
     actionType: 'tag_management',

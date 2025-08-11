@@ -142,7 +142,7 @@ export default function UserDetail() {
                             <div>
                               <h4 className="font-medium">添加新标签</h4>
                               <p className="text-sm text-muted-foreground">
-                                ���用户添加一个新的状态标签
+                                用户添加一个新的状态标签
                               </p>
                             </div>
                             <Input

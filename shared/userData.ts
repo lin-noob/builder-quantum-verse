@@ -121,7 +121,7 @@ export const mockUsers: User[] = [
         deviceType: "桌面端",
         os: "Windows 11",
         browser: "Chrome 120",
-        location: "深���, 中国",
+        location: "深, 中国",
         ipAddress: "183.14.132.117",
         events: [
           {
@@ -153,7 +153,7 @@ export const mockUsers: User[] = [
       {
         id: "session-2",
         date: "2024-01-15 14:30",
-        summary: "浏览产品页面���完成购买",
+        summary: "浏览产品页面完成购买",
         source: "直接访问",
         deviceType: "桌面端",
         os: "Windows 11",
@@ -338,7 +338,7 @@ export const mockUsers: User[] = [
         },
         billingAddress: {
           name: "腾讯科技（深圳）有限公司",
-          street: "深圳市南山区���技园南区R4-B栋",
+          street: "深圳市南山区技园南区R4-B栋",
           city: "深圳",
           state: "广东省",
           postalCode: "518057",
@@ -508,7 +508,7 @@ export const mockUsers: User[] = [
           {
             timestamp: "14:19:25",
             eventType: "页面访问",
-            pageTitle: "���付页面",
+            pageTitle: "付页面",
             pageUrl: "/payment",
             stayDuration: "4分15秒",
             scrollDepth: "100%"
@@ -631,7 +631,7 @@ export const mockUsers: User[] = [
         paymentMethod: "企业转账",
         items: [
           {
-            productName: "企业版软件授���",
+            productName: "企业版软件授",
             unitPrice: 4800.00,
             quantity: 1,
             totalPrice: 4800.00
@@ -716,7 +716,7 @@ export const mockUsers: User[] = [
         events: [
           {
             timestamp: "13:45:20",
-            eventType: "页面���问",
+            eventType: "页面问",
             pageTitle: "新功能介绍",
             pageUrl: "/features/new",
             stayDuration: "12分15秒",
@@ -817,7 +817,7 @@ export const mockUsers: User[] = [
       {
         id: "session-wf-4",
         date: "2024-01-15 11:10",
-        summary: "团队管理���权限设置",
+        summary: "团队管理权限设置",
         source: "直接访问",
         deviceType: "桌面端",
         os: "Windows 11",
@@ -843,7 +843,7 @@ export const mockUsers: User[] = [
           },
           {
             timestamp: "11:34:05",
-            eventType: "���面访问",
+            eventType: "面访问",
             pageTitle: "用户角色",
             pageUrl: "/roles",
             stayDuration: "6分45秒",
@@ -915,7 +915,7 @@ export const mockUsers: User[] = [
         paymentMethod: "支付宝",
         items: [
           {
-            productName: "���业版软件授权",
+            productName: "业版软件授权",
             unitPrice: 3800.00,
             quantity: 1,
             totalPrice: 3800.00
@@ -981,7 +981,7 @@ export const mockUsers: User[] = [
         paymentMethod: "支付宝",
         items: [
           {
-            productName: "���准版软件授权",
+            productName: "准版软件授权",
             unitPrice: 1500.00,
             quantity: 1,
             totalPrice: 1500.00
@@ -1047,7 +1047,7 @@ export const mockUsers: User[] = [
         paymentMethod: "企业转账",
         items: [
           {
-            productName: "���准版软件授权",
+            productName: "准版软件授权",
             unitPrice: 1600.00,
             quantity: 3,
             totalPrice: 4800.00

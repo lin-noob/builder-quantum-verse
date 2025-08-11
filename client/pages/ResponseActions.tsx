@@ -442,7 +442,7 @@ export default function ResponseActions() {
                 <SelectItem value="today">今天</SelectItem>
                 <SelectItem value="week">近一周</SelectItem>
                 <SelectItem value="month">近一月</SelectItem>
-                <SelectItem value="quarter">���三月</SelectItem>
+                <SelectItem value="quarter">三月</SelectItem>
               </SelectContent>
             </Select>
           </div>
