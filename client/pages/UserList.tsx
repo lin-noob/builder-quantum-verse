@@ -328,54 +328,6 @@ export default function UserList() {
         </CardContent>
       </Card>
 
-      {/* 数据统计 */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600">
-                {data.total.toLocaleString()}
-              </div>
-              <div className="text-sm text-gray-600 mt-1">总用户数</div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">
-                {formatCurrency(
-                  data.list.reduce((sum, user) => sum + (user.totalOrders || 0), 0)
-                )}
-              </div>
-              <div className="text-sm text-gray-600 mt-1">总消费金额</div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-purple-600">
-                {data.list.reduce((sum, user) => sum + (user.orderCount || 0), 0)}
-              </div>
-              <div className="text-sm text-gray-600 mt-1">总订单数</div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-orange-600">
-                {formatCurrency(
-                  Math.max(...data.list.map(user => user.maxOrderAmount || 0))
-                )}
-              </div>
-              <div className="text-sm text-gray-600 mt-1">最大订单金额</div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
       {/* 数据表格 */}
       <Card>
         <CardHeader>
