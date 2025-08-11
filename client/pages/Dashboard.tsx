@@ -38,6 +38,53 @@ export default function Dashboard() {
 
   return (
     <div className="p-6 space-y-6 bg-gray-50 min-h-full">
+      {/* Page Header with Global Date Selector */}
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold text-gray-900">数据概览</h1>
+        <div className="flex items-center gap-4">
+          {/* Global Date Range Selector */}
+          <div className="w-48">
+            <Select value={globalDateRange} onValueChange={handleDateRangeChange}>
+              <SelectTrigger>
+                <SelectValue placeholder="选择时间范围" />
+              </SelectTrigger>
+              <SelectContent>
+                {dateRangeOptions.map(option => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      </div>
+
+      {/* Custom Date Range */}
+      {showCustomDate && (
+        <div className="flex items-center gap-3 mb-6 p-4 bg-white rounded-lg border border-gray-200">
+          <Calendar className="h-4 w-4 text-gray-500" />
+          <div className="flex items-center gap-2">
+            <Input
+              type="date"
+              value={customStartDate}
+              onChange={(e) => setCustomStartDate(e.target.value)}
+              className="w-auto"
+            />
+            <span className="text-gray-500">至</span>
+            <Input
+              type="date"
+              value={customEndDate}
+              onChange={(e) => setCustomEndDate(e.target.value)}
+              className="w-auto"
+            />
+            <Button size="sm" variant="outline">
+              应用
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* First Row: KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {dashboardData.kpis.map((kpi, index) => (
