@@ -28,10 +28,11 @@ export default function Dashboard() {
 
   const handleDateRangeChange = (value: string) => {
     if (value === 'custom') {
-      setIsCustomDateDialogOpen(true);
+      setIsDatePickerOpen(true);
       // Don't change globalDateRange yet, wait for user to apply custom dates
     } else {
       setGlobalDateRange(value);
+      setIsDatePickerOpen(false);
     }
   };
 
