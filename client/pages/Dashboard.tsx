@@ -7,8 +7,7 @@ import TagChart from '@/components/TagChart';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Calendar } from 'lucide-react';
+import { Calendar, ChevronDown } from 'lucide-react';
 
 export default function Dashboard() {
   const dashboardData = getDashboardData();
@@ -169,7 +168,7 @@ export default function Dashboard() {
           data={dashboardData.geoDistribution}
         />
         <DonutChart
-          title="访问来源分布"
+          title="访问���源分布"
           data={dashboardData.trafficSources}
         />
         <TagChart data={dashboardData.popularTags} />
