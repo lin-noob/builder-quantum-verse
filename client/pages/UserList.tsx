@@ -133,6 +133,14 @@ export default function UserList() {
     setCurrentPage(1);
   };
 
+  const handleReset = () => {
+    setSearchQuery("");
+    setSelectedTimeField("firstVisitTime");
+    setDateRange({ start: null, end: null });
+    setSortConfig({ field: null, direction: 'asc' });
+    setCurrentPage(1);
+  };
+
   const formatDateTime = (dateStr: string) => {
     return new Date(dateStr).toLocaleString('zh-CN', {
       year: 'numeric',
