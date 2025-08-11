@@ -179,7 +179,7 @@ export const mockUserDetail: UserDetailResponse = {
       location: "上海市", 
       events: [
         { time: "14:30:15", type: "page_view", desc: "首页", url: "/", duration: "1分20秒" },
-        { time: "14:31:35", type: "page_view", desc: "产品��表", url: "/products", duration: "5分10秒" },
+        { time: "14:31:35", type: "page_view", desc: "产品列表", url: "/products", duration: "5分10秒" },
         { time: "14:36:45", type: "add_to_cart", desc: "将\"ProBook X1\"加入购物车", url: "-", duration: "-" }
       ]
     },
@@ -274,7 +274,7 @@ export const mockUserDetail: UserDetailResponse = {
       },
       "购物车与意图": { 
         "当前购物车商品数": "0", 
-        "当前购物车总金额": "¥0.00", 
+        "当前��物车总金额": "¥0.00", 
         "历史放弃购物车次数": "2", 
         "购物车放弃率": "9.5%" 
       }
@@ -299,8 +299,48 @@ export const fetchUsers = async (): Promise<UserListItem[]> => {
 };
 
 export const fetchUserDetail = async (userId: string): Promise<UserDetailResponse> => {
+  // Find the user in the list to get basic info
+  const user = mockUsersData.find(u => u.id === userId);
+
+  // Create dynamic user detail based on the user data
+  const dynamicUserDetail: UserDetailResponse = {
+    ...mockUserDetail,
+    basicInfo: {
+      ...mockUserDetail.basicInfo,
+      email: user ? `${user.name.toLowerCase()}@example.com` : "user@example.com"
+    },
+    kpis: {
+      ...mockUserDetail.kpis,
+      totalSpend: user ? `¥${user.totalSpend.toLocaleString('zh-CN', { minimumFractionDigits: 2 })}` : "¥0.00",
+      totalOrders: user ? user.totalOrders.toString() : "0"
+    },
+    allProfileData: {
+      ...mockUserDetail.allProfileData,
+      identity: {
+        ...mockUserDetail.allProfileData.identity,
+        "基础信息": {
+          ...mockUserDetail.allProfileData.identity["基础信息"],
+          "姓名": user?.name || "未知用户",
+          "主邮箱": user ? `${user.name.toLowerCase()}@example.com` : "user@example.com"
+        }
+      },
+      value: {
+        ...mockUserDetail.allProfileData.value,
+        "标签与分层": {
+          ...mockUserDetail.allProfileData.value["标签与分层"],
+          "用户分层": user?.segment || "普通用户",
+          "手动标签": user?.tags.join(", ") || ""
+        },
+        "价值维度": {
+          ...mockUserDetail.allProfileData.value["价值维度"],
+          "总消费金额": user ? `¥${user.totalSpend.toLocaleString('zh-CN', { minimumFractionDigits: 2 })}` : "¥0.00"
+        }
+      }
+    }
+  };
+
   // Simulate API call
   return new Promise(resolve => {
-    setTimeout(() => resolve(mockUserDetail), 500);
+    setTimeout(() => resolve(dynamicUserDetail), 500);
   });
 };
