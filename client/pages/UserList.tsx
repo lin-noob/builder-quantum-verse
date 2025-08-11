@@ -174,18 +174,27 @@ export default function UserList() {
         order: sortConfig.direction,
       };
 
-      const response = await request.businessPost<ApiUser[]>(
+      // 使用原始post方法获取完整响应，包含total字段
+      const response = await request.post<{
+        code: string;
+        data: ApiUser[];
+        msg: string;
+        total: number;
+      }>(
         "/quote/api/v1/profile/list",
         requestBody,
         { params: queryParams }
       );
 
-      // 注意：根据API文档，response应该已经被businessPost处理过，直接是data数组
-      const convertedUsers = response.map(convertApiUserToUser);
-      setUsers(convertedUsers);
+      // 检查业务响应码
+      if (response.data.code !== "200" && response.data.code !== "0") {
+        throw new Error(response.data.msg || "请求失败");
+      }
 
-      // 如果需要总数，可能需要从响应头或其他地方获取，这里暂时使用返回的数据长度
-      setTotalCount(response.length);
+      const apiUsers = response.data.data || [];
+      const convertedUsers = apiUsers.map(convertApiUserToUser);
+      setUsers(convertedUsers);
+      setTotalCount(response.data.total || 0);
 
     } catch (error) {
       console.error("获取用户数据失败:", error);
@@ -326,7 +335,7 @@ export default function UserList() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="firstVisitTime">首��访问时间</SelectItem>
+                  <SelectItem value="firstVisitTime">首次访问时间</SelectItem>
                   <SelectItem value="registrationTime">注册时间</SelectItem>
                   <SelectItem value="firstPurchaseTime">
                     首次购买时间
