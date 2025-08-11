@@ -197,9 +197,17 @@ export default function UserList() {
       setTotalCount(response.data.total || 0);
     } catch (error) {
       console.error("获取用户数据失败:", error);
+      console.error("请求参数:", { queryParams, requestBody });
+
+      let errorMessage = "获取用户数据失败，请重试";
+      if (error instanceof Error) {
+        errorMessage = error.message;
+        console.error("错误详情:", error.message);
+      }
+
       toast({
         title: "加载失败",
-        description: "获取用户数据失败，请重试",
+        description: errorMessage,
         variant: "destructive",
       });
       setUsers([]);
