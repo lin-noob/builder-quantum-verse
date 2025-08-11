@@ -285,8 +285,8 @@ export default function AdvancedDateRangePicker({ value, onChange, onPresetChang
       {isOpen && (
         <div className="absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 p-4 w-[90vw] max-w-[800px] min-w-[600px]">
           {/* Top Quick Action Bar */}
-          <div className="flex items-center justify-between mb-4 pb-4 border-b">
-            <div className="flex items-center gap-2">
+          <div className="mb-4 pb-4 border-b space-y-3">
+            <div className="flex items-center gap-2 flex-wrap">
               {[
                 { key: 'today', label: '今日' },
                 { key: 'last7days', label: '近7天' },
@@ -306,18 +306,18 @@ export default function AdvancedDateRangePicker({ value, onChange, onPresetChang
                 </Button>
               ))}
             </div>
-            
-            <div className="flex items-center gap-2">
+
+            <div className="flex items-center gap-2 justify-end">
               <Input
                 value={formatDate(tempRange.start)}
                 readOnly
-                className="w-32 text-xs"
+                className="w-28 text-xs"
               />
               <Calendar className="h-4 w-4 text-gray-400" />
               <Input
                 value={formatDate(tempRange.end)}
                 readOnly
-                className="w-32 text-xs"
+                className="w-28 text-xs"
               />
             </div>
           </div>
