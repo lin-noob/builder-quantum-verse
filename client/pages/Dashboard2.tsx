@@ -31,87 +31,75 @@ export default function Dashboard2() {
 
   // Performance Trend Chart
   useEffect(() => {
-    const ctx = performanceChartRef.current?.getContext('2d');
-    if (!ctx) return;
-
-    try {
-      const chart = new ChartJS(ctx, {
-        type: 'line',
-        data: {
-          labels: ['1月1日', '1月2日', '1月3日', '1月4日', '1月5日', '1月6日', '1月7日', '1月8日', '1月9日', '1月10日'],
-          datasets: [
-            {
-              label: '总消费金额',
-              data: [50000, 62000, 68000, 65000, 72000, 75000, 82000, 78000, 90000, 95000],
-              borderColor: '#3b82f6',
-              backgroundColor: 'rgba(59, 130, 246, 0.1)',
-              yAxisID: 'y',
-            },
-            {
-              label: '总订单数',
-              data: [180, 220, 240, 230, 250, 260, 290, 270, 320, 340],
-              borderColor: '#ef4444',
-              backgroundColor: 'rgba(239, 68, 68, 0.1)',
-              yAxisID: 'y1',
-            },
-            {
-              label: '总用户数',
-              data: [350, 355, 360, 362, 368, 370, 375, 372, 380, 385],
-              borderColor: '#22c55e',
-              backgroundColor: 'rgba(34, 197, 94, 0.1)',
-              yAxisID: 'y1',
-            },
-            {
-              label: '平均客单价',
-              data: [277.8, 281.8, 283.3, 282.6, 288.0, 288.5, 282.8, 288.9, 281.3, 279.4],
-              borderColor: '#f97316',
-              backgroundColor: 'rgba(249, 115, 22, 0.1)',
-              yAxisID: 'y',
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          interaction: {
-            mode: 'index' as const,
-            intersect: false,
-          },
-          plugins: {
-            legend: {
-              position: 'bottom' as const,
-            },
-          },
-          scales: {
-            y: {
-              type: 'linear' as const,
-              display: true,
-              position: 'left' as const,
-              title: {
-                display: true,
-                text: '金额 (元)',
-              },
-            },
-            y1: {
-              type: 'linear' as const,
-              display: true,
-              position: 'right' as const,
-              title: {
-                display: true,
-                text: '数量',
-              },
-              grid: {
-                drawOnChartArea: false,
-              },
-            },
-          },
-        },
-      });
-
-      return () => chart.destroy();
-    } catch (error) {
-      console.error('Performance chart error:', error);
+    const canvas = performanceChartRef.current;
+    const ctx = canvas?.getContext('2d');
+    if (!ctx || !canvas) {
+      console.log('Canvas not available');
+      return;
     }
+
+    // Clear any existing chart
+    if (canvas) {
+      ChartJS.getChart(canvas)?.destroy();
+    }
+
+    setTimeout(() => {
+      try {
+        console.log('Creating performance chart...');
+        const chart = new ChartJS(ctx, {
+          type: 'line',
+          data: {
+            labels: ['1月1日', '1月2日', '1月3日', '1月4日', '1月5日', '1月6日', '1月7日', '1月8日', '1月9日', '1月10日'],
+            datasets: [
+              {
+                label: '总消费金额',
+                data: [50000, 62000, 68000, 65000, 72000, 75000, 82000, 78000, 90000, 95000],
+                borderColor: '#3b82f6',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                yAxisID: 'y',
+                tension: 0.1,
+              },
+              {
+                label: '平均客单价',
+                data: [277.8, 281.8, 283.3, 282.6, 288.0, 288.5, 282.8, 288.9, 281.3, 279.4],
+                borderColor: '#f97316',
+                backgroundColor: 'rgba(249, 115, 22, 0.1)',
+                yAxisID: 'y',
+                tension: 0.1,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: 'bottom' as const,
+              },
+            },
+            scales: {
+              y: {
+                type: 'linear' as const,
+                display: true,
+                position: 'left' as const,
+                title: {
+                  display: true,
+                  text: '金额 (元)',
+                },
+              },
+            },
+          },
+        });
+
+        console.log('Performance chart created successfully');
+        return () => {
+          console.log('Destroying performance chart');
+          chart.destroy();
+        };
+      } catch (error) {
+        console.error('Performance chart error:', error);
+      }
+    }, 100);
   }, []);
 
   // RFM Matrix Chart
@@ -267,7 +255,7 @@ export default function Dashboard2() {
               <p className="text-green-600 text-sm mt-1">+15.0%</p>
             </div>
             <div className="bg-white p-5 rounded-lg shadow-sm">
-              <h3 className="text-sm font-medium text-slate-500">复购率</h3>
+              <h3 className="text-sm font-medium text-slate-500">复购��</h3>
               <p className="text-2xl font-bold text-slate-900 mt-1">35.4%</p>
               <p className="text-green-600 text-sm mt-1">+2.1 pts</p>
             </div>
@@ -374,7 +362,7 @@ export default function Dashboard2() {
             {/* Keyword Cloud */}
             <div className="bg-white p-6 rounded-lg shadow-sm">
               <h3 className="text-lg font-semibold text-slate-900 mb-2">热门搜索词云</h3>
-              <p className="text-slate-500 text-sm mb-4">直观了解用户的核心关注点与需求。</p>
+              <p className="text-slate-500 text-sm mb-4">直观了解用户的核心关注点与需求��</p>
               <div className="flex flex-wrap justify-center items-center gap-4 h-80" id="keyword-cloud">
                 {keywordData.map((keyword, index) => (
                   <span
