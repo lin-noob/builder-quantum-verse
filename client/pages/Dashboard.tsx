@@ -66,7 +66,7 @@ export default function Dashboard() {
       <div className="w-full">
         <PerformanceTrend
           metrics={dashboardData.performanceMetrics}
-          dateRange={globalDateRange}
+          dateRange={currentPreset}
         />
       </div>
 
