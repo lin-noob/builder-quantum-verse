@@ -9,6 +9,7 @@ import {
   Tooltip,
   Legend,
   Filler,
+  BubbleController,
 } from 'chart.js';
 
 // Register Chart.js components
@@ -20,7 +21,8 @@ ChartJS.register(
   Title,
   Tooltip,
   Legend,
-  Filler
+  Filler,
+  BubbleController
 );
 
 export default function Dashboard2() {
@@ -122,7 +124,7 @@ export default function Dashboard2() {
               { x: 4.5, y: 4.8, r: 30, label: '重要价值客户 (856人)' },
               { x: 4.2, y: 2.5, r: 15, label: '重要发展客户 (643人)' },
               { x: 2.1, y: 4.5, r: 10, label: '重要保持客户 (432人)' },
-              { x: 2.5, y: 2.2, r: 8, label: '一��价值客户 (1123人)' },
+              { x: 2.5, y: 2.2, r: 8, label: '一般价值客户 (1123人)' },
               { x: 1.5, y: 1.8, r: 5, label: '潜在客户 (402人)' },
             ],
             backgroundColor: 'rgba(59, 130, 246, 0.6)',
@@ -173,14 +175,14 @@ export default function Dashboard2() {
   ];
 
   const dayLabels = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
-  const hourLabels = ['0-4时', '4-8时', '8-12时', '12-16时', '16-20���', '20-24时'];
+  const hourLabels = ['0-4时', '4-8时', '8-12时', '12-16时', '16-20时', '20-24时'];
 
   // Keyword Cloud Data
   const keywordData = [
     { text: '笔记本电脑', size: 40 },
     { text: '户外徒步鞋', size: 32 },
     { text: '咖啡豆', size: 28 },
-    { text: '无线耳机', size: 25 },
+    { text: '无线���机', size: 25 },
     { text: '机械键盘', size: 22 },
     { text: '无人机', size: 20 },
     { text: '摄影入门', size: 18 },
@@ -288,7 +290,7 @@ export default function Dashboard2() {
             {/* RFM Value Matrix */}
             <div className="bg-white p-6 rounded-lg shadow-sm">
               <h3 className="text-lg font-semibold text-slate-900 mb-2">RFM 价值矩阵</h3>
-              <p className="text-slate-500 text-sm mb-4">洞察不同价值分群的用户分布与消费贡献。气泡大小代表消费总额。</p>
+              <p className="text-slate-500 text-sm mb-4">洞察不同价值分群的用户分布与消费贡献。��泡大小代表消费总额。</p>
               <div className="chart-container h-96">
                 <canvas ref={rfmChartRef} id="rfm-matrix-chart"></canvas>
               </div>
