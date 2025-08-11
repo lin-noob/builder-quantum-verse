@@ -23,18 +23,6 @@ export default function PerformanceTrend({ metrics, dateRange = '30days' }: Perf
     return 'label'; // 默认显示label
   };
 
-  const toggleMetric = (metricId: string) => {
-    // 总消费金额不能被取消选择
-    if (metricId === 'totalRevenue') {
-      return;
-    }
-
-    setSelectedMetrics(prev =>
-      prev.includes(metricId)
-        ? prev.filter(id => id !== metricId)
-        : [...prev, metricId]
-    );
-  };
 
   // 定义数据类型分组，相似的数据类型使用同一个Y轴
   const getMetricGroup = (metricId: string) => {
