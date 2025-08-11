@@ -67,10 +67,10 @@ export default function PerformanceTrend({ metrics, dateRange = '30days' }: Perf
   }, [selectedMetrics, metrics]);
 
   const formatValue = (value: number, metricId: string) => {
-    if (metricId === 'revenue' || metricId === 'net_revenue') {
+    if (metricId === 'totalRevenue') {
       return `¥${value.toLocaleString()}`;
     }
-    if (metricId === 'avg_price') {
+    if (metricId === 'avgOrderValue') {
       return `¥${value.toFixed(1)}`;
     }
     return value.toLocaleString();
