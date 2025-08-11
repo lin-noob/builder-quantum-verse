@@ -103,7 +103,7 @@ export default function UserDetail2() {
         <div className="text-center">
           <p className="text-foreground font-medium mb-2">用户未找到</p>
           <p className="text-muted-foreground mb-4">指定的用户ID不存在</p>
-          <Button onClick={() => navigate("/users")}>
+          <Button onClick={() => navigate("/users2")}>
             返回用户列表
           </Button>
         </div>
