@@ -43,22 +43,6 @@ export default function Dashboard() {
     }
   };
 
-  // Refresh dashboard data
-  const refreshDashboard = () => {
-    // Here you would typically trigger data refresh
-    console.log('Refreshing dashboard data for:', getCurrentDateRangeText());
-    window.location.reload();
-  };
-
-  // Get current date range display text
-  const getCurrentDateRangeText = () => {
-    const option = dateRangeOptions.find(opt => opt.value === globalDateRange);
-    if (globalDateRange === 'custom' && customStartDate && customEndDate) {
-      return `${customStartDate} 至 ${customEndDate}`;
-    }
-    return option?.label || '过去30天';
-  };
-
   return (
     <div className="p-6 space-y-6 bg-gray-50 min-h-full">
       {/* Page Header with Global Date Selector */}
