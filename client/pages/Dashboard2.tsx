@@ -156,7 +156,6 @@ export default function Dashboard2() {
 
         {/* Core Performance Overview */}
         <section>
-          <h2 className="text-2xl font-bold text-slate-900 mb-4">核心业绩概览</h2>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
             <div className="bg-white p-5 rounded-lg shadow-sm">
               <h3 className="text-sm font-medium text-slate-500">总消费金额</h3>
