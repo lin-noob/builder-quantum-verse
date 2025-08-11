@@ -191,7 +191,6 @@ export default function UserList() {
 
             {/* Advanced Date Range Picker */}
             <div className="md:w-1/4">
-              <label className="text-sm text-gray-600 mb-1 block">日期范围</label>
               <AdvancedDateRangePicker
                 value={dateRange}
                 onChange={handleDateRangeChange}
