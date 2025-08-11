@@ -35,7 +35,7 @@ export default function PerformanceTrend({ metrics, dateRange = '30days' }: Perf
     );
   };
 
-  // 定义数据类型分组，相似的数据类型使用同一个Y轴
+  // 定义数据类型分组，相似���数据类型使用同一个Y轴
   const getMetricGroup = (metricId: string) => {
     if (metricId === 'totalRevenue' || metricId === 'avgOrderValue') return 'revenue'; // 金额类
     if (metricId === 'totalOrders' || metricId === 'totalUsers') return 'count'; // 数量类
@@ -111,10 +111,10 @@ export default function PerformanceTrend({ metrics, dateRange = '30days' }: Perf
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Metric Selector Cards */}
-        <div className="grid grid-cols-5 gap-3">
+        <div className="grid grid-cols-4 gap-3">
           {metrics.map((metric, index) => {
             const isSelected = selectedMetrics.includes(metric.id);
-            const isRevenue = metric.id === 'revenue';
+            const isRequired = metric.id === 'totalRevenue';
             const color = colors[index % colors.length];
 
             return (
@@ -126,10 +126,10 @@ export default function PerformanceTrend({ metrics, dateRange = '30days' }: Perf
                   isSelected
                     ? "bg-blue-50 border-blue-200 text-blue-700"
                     : "bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100",
-                  isRevenue && "ring-2 ring-blue-300"
+                  isRequired && "ring-2 ring-blue-300"
                 )}
-                disabled={isRevenue && isSelected}
-                title={isRevenue ? "销售额为必选指标" : ""}
+                disabled={isRequired && isSelected}
+                title={isRequired ? "总消费金额为必选指标" : ""}
               >
                 {isSelected && (
                   <div
@@ -137,7 +137,7 @@ export default function PerformanceTrend({ metrics, dateRange = '30days' }: Perf
                     style={{ backgroundColor: color }}
                   />
                 )}
-                {isRevenue && (
+                {isRequired && (
                   <div className="absolute top-2 right-2">
                     <span className="text-xs text-blue-600">★</span>
                   </div>
