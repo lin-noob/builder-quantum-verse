@@ -55,6 +55,15 @@ export default function Dashboard() {
     }
   };
 
+  // Get current date range display text for select
+  const getCurrentDateRangeText = () => {
+    if (globalDateRange === 'custom' && customStartDate && customEndDate) {
+      return `${customStartDate} 至 ${customEndDate}`;
+    }
+    const option = dateRangeOptions.find(opt => opt.value === globalDateRange);
+    return option?.label || '过去30天';
+  };
+
   return (
     <div className="p-6 space-y-6 bg-gray-50 min-h-full">
       {/* Page Header with Global Date Selector */}
