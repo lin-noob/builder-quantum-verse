@@ -24,7 +24,6 @@ import FullyAuto from "./pages/AIMarketing/FullyAuto";
 import SemiAuto from "./pages/AIMarketing/SemiAuto";
 import ScriptCreate from "./pages/AIMarketing/ScriptCreate";
 import OrderHistoryDemo from "./pages/OrderHistoryDemo";
-import UserProfileList from "./pages/UserProfileList";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
