@@ -40,7 +40,7 @@ const App = () => (
           <Route path="/dashboard2" element={<Layout><Dashboard2 /></Layout>} />
           <Route path="/users" element={<Layout><UserList /></Layout>} />
           <Route path="/users2" element={<Layout><UserList2 /></Layout>} />
-          <Route path="/users/:cdpId" element={<Layout><UserDetail /></Layout>} />
+          <Route path="/users/:cdpId" element={<Layout><UserDetailNew /></Layout>} />
           <Route path="/users2/:userId" element={<Layout><UserDetail2 /></Layout>} />
           <Route path="/response-actions" element={<Layout><ResponseActions /></Layout>} />
           <Route path="/response-actions/create" element={<Layout><ResponseActionCreate /></Layout>} />
