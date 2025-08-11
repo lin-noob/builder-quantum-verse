@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from 'react';
 import { getDashboardData } from '@shared/dashboardData';
 import KPICard from '@/components/KPICard';
 import PerformanceTrend from '@/components/PerformanceTrend';
-import DonutChart from '@/components/DonutChart';
 import TagChart from '@/components/TagChart';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
@@ -144,7 +143,7 @@ export default function Dashboard() {
                           />
                         </div>
                         <div>
-                          <label className="block text-xs text-gray-600 mb-1">结束日期</label>
+                          <label className="block text-xs text-gray-600 mb-1">���束日期</label>
                           <Input
                             type="date"
                             value={customEndDate}
