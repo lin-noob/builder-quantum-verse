@@ -278,7 +278,7 @@ export default function AdvancedDateRangePicker({ value, onChange, onPresetChang
           <Calendar className="h-4 w-4" />
           <span>{formatDisplayRange(tempRange)}</span>
         </div>
-        <ChevronLeft className={cn("h-4 w-4 transition-transform", isOpen && "rotate-180")} />
+        <ChevronLeft className={cn("h-4 w-4 transition-transform", isOpen && "rotate-90")} />
       </Button>
 
       {/* Picker Panel */}
