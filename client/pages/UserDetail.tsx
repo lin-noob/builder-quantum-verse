@@ -144,7 +144,41 @@ export default function UserDetail() {
 
                   {/* Tag Management */}
                   <div>
-                    <h4 className="text-sm font-medium text-gray-900 mb-2">状态标签</h4>
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="text-sm font-medium text-gray-900">状态标签</h4>
+                      <Dialog open={isTagDialogOpen} onOpenChange={setIsTagDialogOpen}>
+                        <DialogTrigger asChild>
+                          <Button size="sm" variant="outline">
+                            <Plus className="h-4 w-4 mr-1" />
+                            添加标签
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[425px] absolute top-full left-0 mt-2">
+                          <DialogHeader>
+                            <DialogTitle>添加新标签</DialogTitle>
+                            <DialogDescription>
+                              为用户添加一个新的状态标签
+                            </DialogDescription>
+                          </DialogHeader>
+                          <div className="space-y-4 py-4">
+                            <Input
+                              placeholder="输入标签名称"
+                              value={newTag}
+                              onChange={(e) => setNewTag(e.target.value)}
+                              onKeyPress={(e) => e.key === 'Enter' && addTag()}
+                            />
+                            <div className="flex justify-end gap-2">
+                              <Button variant="outline" onClick={() => setIsTagDialogOpen(false)}>
+                                取消
+                              </Button>
+                              <Button onClick={addTag} disabled={!newTag.trim()}>
+                                添加
+                              </Button>
+                            </div>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                    </div>
                     <div className="flex flex-wrap gap-2 mb-3">
                       {userTags.map((tag) => (
                         <Badge key={tag} variant="secondary" className="flex items-center gap-1">
@@ -158,38 +192,6 @@ export default function UserDetail() {
                         </Badge>
                       ))}
                     </div>
-                    <Dialog open={isTagDialogOpen} onOpenChange={setIsTagDialogOpen}>
-                      <DialogTrigger asChild>
-                        <Button size="sm" variant="outline">
-                          <Plus className="h-4 w-4 mr-1" />
-                          添加标签
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="sm:max-w-[425px]">
-                        <DialogHeader>
-                          <DialogTitle>添加新标签</DialogTitle>
-                          <DialogDescription>
-                            为用户添加一个新的状态标签
-                          </DialogDescription>
-                        </DialogHeader>
-                        <div className="space-y-4 py-4">
-                          <Input
-                            placeholder="输入标签名称"
-                            value={newTag}
-                            onChange={(e) => setNewTag(e.target.value)}
-                            onKeyPress={(e) => e.key === 'Enter' && addTag()}
-                          />
-                          <div className="flex justify-end gap-2">
-                            <Button variant="outline" onClick={() => setIsTagDialogOpen(false)}>
-                              取消
-                            </Button>
-                            <Button onClick={addTag} disabled={!newTag.trim()}>
-                              添加
-                            </Button>
-                          </div>
-                        </div>
-                      </DialogContent>
-                    </Dialog>
                   </div>
                 </div>
 
@@ -393,7 +395,7 @@ export default function UserDetail() {
                 <TabsContent value="statistics">
                   <Card>
                     <CardHeader>
-                      <CardTitle>订单统��</CardTitle>
+                      <CardTitle>订单统计</CardTitle>
                     </CardHeader>
                     <CardContent>
                       {user.orders.length > 0 ? (
