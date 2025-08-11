@@ -290,40 +290,47 @@ export default function AdvancedDateRangePicker({ value, onChange, onPresetChang
       {isOpen && (
         <div className="absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 p-4 w-[90vw] max-w-[800px] min-w-[600px]">
           {/* Top Quick Action Bar */}
-          <div className="mb-4 pb-4 border-b space-y-3">
-            <div className="flex items-center gap-2 flex-wrap">
-              {[
-                { key: 'today', label: '今日' },
-                { key: 'last7days', label: '近7天' },
-                { key: 'last30days', label: '近30天' },
-                { key: 'lastMonth', label: '上月' },
-                { key: 'thisMonth', label: '今年' },
-                { key: 'custom', label: '自定义' }
-              ].map(preset => (
-                <Button
-                  key={preset.key}
-                  variant={activePreset === preset.key ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => handlePresetClick(preset.key)}
-                  className="text-xs"
-                >
-                  {preset.label}
-                </Button>
-              ))}
-            </div>
+          <div className="mb-4 pb-4 border-b">
+            <div className="flex items-center justify-between gap-4">
+              {/* Component 1: Preset Button Group */}
+              <div className="flex items-center gap-2">
+                {[
+                  { key: 'today', label: '今日' },
+                  { key: 'last7days', label: '近7天' },
+                  { key: 'last30days', label: '近30天' },
+                  { key: 'lastMonth', label: '上月' },
+                  { key: 'thisMonth', label: '今年' },
+                  { key: 'custom', label: '自定义' }
+                ].map(preset => (
+                  <Button
+                    key={preset.key}
+                    variant={activePreset === preset.key ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => handlePresetClick(preset.key)}
+                    className={cn(
+                      "text-xs",
+                      activePreset === preset.key && "bg-blue-600 text-white hover:bg-blue-700"
+                    )}
+                  >
+                    {preset.label}
+                  </Button>
+                ))}
+              </div>
 
-            <div className="flex items-center gap-2 justify-end">
-              <Input
-                value={formatDate(tempRange.start)}
-                readOnly
-                className="w-28 text-xs"
-              />
-              <Calendar className="h-4 w-4 text-gray-400" />
-              <Input
-                value={formatDate(tempRange.end)}
-                readOnly
-                className="w-28 text-xs"
-              />
+              {/* Component 2: Date Range Input Boxes */}
+              <div className="flex items-center gap-2">
+                <Input
+                  value="2025-07-12"
+                  readOnly
+                  className="w-28 text-xs text-center"
+                />
+                <Calendar className="h-4 w-4 text-gray-400" />
+                <Input
+                  value="2025-08-10"
+                  readOnly
+                  className="w-28 text-xs text-center"
+                />
+              </div>
             </div>
           </div>
 
