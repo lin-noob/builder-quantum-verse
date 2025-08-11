@@ -45,7 +45,7 @@ export default function UserDetail() {
           <p className="text-gray-900 font-medium mb-2">用户未找到</p>
           <p className="text-gray-600 mb-4">指定的用户ID不存在</p>
           <Link to="/users" className="text-blue-600 hover:text-blue-800">
-            返回用户列表
+            返回���户列表
           </Link>
         </div>
       </div>
@@ -143,21 +143,21 @@ export default function UserDetail() {
                   <div>
                     <div className="flex items-center justify-between mb-2">
                       <h4 className="text-sm font-medium text-gray-900">状态标签</h4>
-                      <Dialog open={isTagDialogOpen} onOpenChange={setIsTagDialogOpen}>
-                        <DialogTrigger asChild>
+                      <Popover open={isTagPopoverOpen} onOpenChange={setIsTagPopoverOpen}>
+                        <PopoverTrigger asChild>
                           <Button size="sm" variant="outline">
                             <Plus className="h-4 w-4 mr-1" />
                             添加标签
                           </Button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-[425px] absolute top-full left-0 mt-2">
-                          <DialogHeader>
-                            <DialogTitle>添加新标签</DialogTitle>
-                            <DialogDescription>
-                              为用户添加一个新的状态标签
-                            </DialogDescription>
-                          </DialogHeader>
-                          <div className="space-y-4 py-4">
+                        </PopoverTrigger>
+                        <PopoverContent className="w-80" align="end">
+                          <div className="space-y-4">
+                            <div>
+                              <h4 className="font-medium">添加新���签</h4>
+                              <p className="text-sm text-muted-foreground">
+                                为用户添加一个新的状态标签
+                              </p>
+                            </div>
                             <Input
                               placeholder="输入标签名称"
                               value={newTag}
@@ -165,16 +165,16 @@ export default function UserDetail() {
                               onKeyPress={(e) => e.key === 'Enter' && addTag()}
                             />
                             <div className="flex justify-end gap-2">
-                              <Button variant="outline" onClick={() => setIsTagDialogOpen(false)}>
+                              <Button variant="outline" size="sm" onClick={() => setIsTagPopoverOpen(false)}>
                                 取消
                               </Button>
-                              <Button onClick={addTag} disabled={!newTag.trim()}>
+                              <Button size="sm" onClick={addTag} disabled={!newTag.trim()}>
                                 添加
                               </Button>
                             </div>
                           </div>
-                        </DialogContent>
-                      </Dialog>
+                        </PopoverContent>
+                      </Popover>
                     </div>
                     <div className="flex flex-wrap gap-2 mb-3">
                       {userTags.map((tag) => (
@@ -475,7 +475,7 @@ export default function UserDetail() {
                                       </div>
                                     </div>
 
-                                    {/* 地址信息 */}
+                                    {/* 地��信息 */}
                                     {(order.shippingAddress || order.billingAddress) && (
                                       <div className="border-t pt-3">
                                         <h5 className="font-medium mb-3">地址信息</h5>
