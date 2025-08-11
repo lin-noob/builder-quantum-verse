@@ -13,12 +13,8 @@ interface PerformanceTrendProps {
   dateRange?: string;
 }
 
-export default function PerformanceTrend({ metrics }: PerformanceTrendProps) {
+export default function PerformanceTrend({ metrics, dateRange = '30days' }: PerformanceTrendProps) {
   const [selectedMetrics, setSelectedMetrics] = useState<string[]>(['revenue']); // Default to "销售额"
-  const [dateRange, setDateRange] = useState('30days');
-  const [showCustomDate, setShowCustomDate] = useState(false);
-  const [customStartDate, setCustomStartDate] = useState('');
-  const [customEndDate, setCustomEndDate] = useState('');
 
   const dateRangeOptions = [
     { value: '7days', label: '过去7天' },
