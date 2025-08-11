@@ -14,7 +14,7 @@ export default function Dashboard() {
 
   // Global date range state
   const [globalDateRange, setGlobalDateRange] = useState('30days');
-  const [isCustomDateDialogOpen, setIsCustomDateDialogOpen] = useState(false);
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   const [customStartDate, setCustomStartDate] = useState('');
   const [customEndDate, setCustomEndDate] = useState('');
 
@@ -168,7 +168,7 @@ export default function Dashboard() {
           data={dashboardData.geoDistribution}
         />
         <DonutChart
-          title="访问���源分布"
+          title="访问来源分布"
           data={dashboardData.trafficSources}
         />
         <TagChart data={dashboardData.popularTags} />
