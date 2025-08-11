@@ -194,18 +194,9 @@ export class Request {
     response: Response,
     responseType: string = "json",
   ): Promise<ApiResponse<T>> {
-    if (!response.ok) {
-      const errorMessage = `Request failed: ${response.status} ${response.statusText}`;
-      throw new RequestError(
-        errorMessage,
-        response.status,
-        response.statusText,
-        response,
-      );
-    }
-
     let data: any;
 
+    // 总是尝试解析响应体，不管状态码是什么
     try {
       switch (responseType) {
         case "json":
@@ -224,12 +215,9 @@ export class Request {
           data = await response.json();
       }
     } catch (error) {
-      throw new RequestError(
-        `Failed to parse response as ${responseType}`,
-        response.status,
-        response.statusText,
-        response,
-      );
+      // 解析失败时返回null，但仍然返回响应信息
+      console.error(`Failed to parse response as ${responseType}:`, error);
+      data = null;
     }
 
     return {
