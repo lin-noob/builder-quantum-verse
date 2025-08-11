@@ -303,7 +303,7 @@ export default function TabManager() {
       {/* 右键菜单 */}
       {contextMenu.isOpen && contextMenu.targetTab && (
         <div
-          className="fixed bg-white border border-gray-200 rounded shadow-lg py-1 z-50 min-w-24"
+          className="fixed bg-white border border-gray-200 rounded shadow-lg py-1 z-50 w-20"
           style={{
             left: contextMenu.x,
             top: contextMenu.y,
@@ -311,7 +311,7 @@ export default function TabManager() {
           onClick={(e) => e.stopPropagation()}
         >
           <button
-            className="w-full px-3 py-1.5 text-left text-xs text-gray-700 hover:bg-gray-50 transition-colors"
+            className="w-full px-2 py-1.5 text-left text-xs text-gray-700 hover:bg-gray-50 transition-colors"
             onClick={() => {
               refreshCurrentTab();
               closeContextMenu();
@@ -321,7 +321,7 @@ export default function TabManager() {
           </button>
           {!contextMenu.targetTab.isHome && (
             <button
-              className="w-full px-3 py-1.5 text-left text-xs text-gray-700 hover:bg-gray-50 transition-colors"
+              className="w-full px-2 py-1.5 text-left text-xs text-gray-700 hover:bg-gray-50 transition-colors"
               onClick={() => {
                 closeTab(contextMenu.targetTab!.id);
                 closeContextMenu();
@@ -331,7 +331,7 @@ export default function TabManager() {
             </button>
           )}
           <button
-            className="w-full px-3 py-1.5 text-left text-xs text-gray-700 hover:bg-gray-50 transition-colors"
+            className="w-full px-2 py-1.5 text-left text-xs text-gray-700 hover:bg-gray-50 transition-colors"
             onClick={() => {
               closeOtherTabs();
               closeContextMenu();
@@ -339,26 +339,6 @@ export default function TabManager() {
           >
             关闭其他
           </button>
-          <button
-            className="w-full px-3 py-1.5 text-left text-xs text-gray-700 hover:bg-gray-50 transition-colors"
-            onClick={() => {
-              closeAllTabs();
-              closeContextMenu();
-            }}
-          >
-            关闭所有
-          </button>
-          {!contextMenu.targetTab.isHome && (
-            <button
-              className="w-full px-3 py-1.5 text-left text-xs text-gray-700 hover:bg-gray-50 transition-colors"
-              onClick={() => {
-                closeRightTabs(contextMenu.targetTab!.id);
-                closeContextMenu();
-              }}
-            >
-              关闭右侧
-            </button>
-          )}
         </div>
       )}
     </div>
