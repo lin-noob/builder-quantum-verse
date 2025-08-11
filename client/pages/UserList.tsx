@@ -307,8 +307,8 @@ export default function UserList() {
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value);
-                  setCurrentPage(1);
                 }}
+                onKeyPress={(e) => e.key === "Enter" && handleSearch()}
                 className="pl-10"
               />
             </div>
@@ -404,7 +404,7 @@ export default function UserList() {
                     onClick={() => handleSort("lastActiveTime")}
                   >
                     <div className="flex items-center gap-2">
-                      ���后活跃
+                      最后活跃
                       {getSortIcon("lastActiveTime")}
                     </div>
                   </th>
