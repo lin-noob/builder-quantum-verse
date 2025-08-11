@@ -305,12 +305,11 @@ export default function UserList() {
               日期范围
             </label>
             <AdvancedDateRangePicker
-              startDate={searchForm.dateRange.start}
-              endDate={searchForm.dateRange.end}
-              onDateChange={(start, end) =>
+              value={searchForm.dateRange}
+              onChange={(range) =>
                 setSearchForm(prev => ({
                   ...prev,
-                  dateRange: { start, end },
+                  dateRange: range,
                 }))
               }
             />
