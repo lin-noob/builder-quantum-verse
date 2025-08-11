@@ -101,7 +101,7 @@ export default function UserList() {
   const [totalCount, setTotalCount] = useState(0);
   const itemsPerPage = 10;
 
-  // 转换API用户数据为UI格式
+  // 转换API用户数���为UI格式
   const convertApiUserToUser = (apiUser: ApiUser): User => {
     return {
       cdpId: apiUser.cdpUserId.toString(),
@@ -184,7 +184,7 @@ export default function UserList() {
       const convertedUsers = response.map(convertApiUserToUser);
       setUsers(convertedUsers);
 
-      // 如果需要总数，可能需要从响应头或其他地方获取，这里暂时使用返回的数据长度
+      // 如果需要总数，可能需要从响��头或其他地方获取，这里暂时使用返回的数据长度
       setTotalCount(response.length);
 
     } catch (error) {
@@ -233,7 +233,7 @@ export default function UserList() {
     fetchUsers();
   };
 
-  // 页面变化处理
+  // 页面变化���理
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
@@ -263,6 +263,11 @@ export default function UserList() {
     setDateRange({ start: null, end: null });
     setSortConfig({ field: null, direction: "asc" });
     setCurrentPage(1);
+  };
+
+  // 手动刷新数据
+  const handleRefresh = () => {
+    fetchUsers();
   };
 
   const formatDateTime = (dateStr: string) => {
@@ -458,7 +463,7 @@ export default function UserList() {
             <div className="text-sm text-gray-700 order-2 sm:order-1">
               正在显示 {startIndex + 1} -{" "}
               {Math.min(endIndex, filteredAndSortedUsers.length)} 条，共{" "}
-              {filteredAndSortedUsers.length} 条
+              {filteredAndSortedUsers.length} ���
             </div>
             <div className="flex items-center gap-2 order-1 sm:order-2">
               <Button
