@@ -101,7 +101,7 @@ export default function UserList() {
   const [totalCount, setTotalCount] = useState(0);
   const itemsPerPage = 10;
 
-  // 转换API用户数���为UI格式
+  // 转换API用户数据为UI格式
   const convertApiUserToUser = (apiUser: ApiUser): User => {
     return {
       cdpId: apiUser.cdpUserId.toString(),
@@ -184,7 +184,7 @@ export default function UserList() {
       const convertedUsers = response.map(convertApiUserToUser);
       setUsers(convertedUsers);
 
-      // 如果需要总数，可能需要从响��头或其他地方获取，这里暂时使用返回的数据长度
+      // 如果需要总数，可能需要从响应头或其他地方获取，这里暂时使用返回的数据长度
       setTotalCount(response.length);
 
     } catch (error) {
@@ -233,7 +233,7 @@ export default function UserList() {
     fetchUsers();
   };
 
-  // 页面变化���理
+  // 页面变化处理
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
@@ -285,7 +285,16 @@ export default function UserList() {
     <div className="p-6 space-y-6 bg-gray-50 min-h-full">
       <div className="max-w-none">
         {/* Page Header */}
-        <div className="mb-6"></div>
+        <div className="mb-6 flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">用户画像</h1>
+            <p className="text-gray-600 mt-1">管理和分析用户画像数据</p>
+          </div>
+          <Button onClick={handleRefresh} variant="outline" disabled={loading}>
+            <RefreshCw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} />
+            刷新
+          </Button>
+        </div>
 
         {/* Search and Filter Card */}
         <Card className="p-6 mb-8 bg-white shadow-sm">
@@ -395,7 +404,7 @@ export default function UserList() {
                     onClick={() => handleSort("lastActiveTime")}
                   >
                     <div className="flex items-center gap-2">
-                      最后活跃
+                      ���后活跃
                       {getSortIcon("lastActiveTime")}
                     </div>
                   </th>
@@ -463,7 +472,7 @@ export default function UserList() {
             <div className="text-sm text-gray-700 order-2 sm:order-1">
               正在显示 {startIndex + 1} -{" "}
               {Math.min(endIndex, filteredAndSortedUsers.length)} 条，共{" "}
-              {filteredAndSortedUsers.length} ���
+              {filteredAndSortedUsers.length} 条
             </div>
             <div className="flex items-center gap-2 order-1 sm:order-2">
               <Button
