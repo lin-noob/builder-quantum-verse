@@ -1,8 +1,8 @@
-import { useState, useEffect, useRef } from 'react';
-import { Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { cn } from '@/lib/utils';
+import { useState, useEffect, useRef } from "react";
+import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 
 interface DateRange {
   start: Date | null;
@@ -48,12 +48,16 @@ const presetRanges = {
     const start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
     const end = new Date(now.getFullYear(), now.getMonth(), 0);
     return { start, end };
-  }
+  },
 };
 
-export default function AdvancedDateRangePicker({ value, onChange, onPresetChange }: AdvancedDateRangePickerProps) {
+export default function AdvancedDateRangePicker({
+  value,
+  onChange,
+  onPresetChange,
+}: AdvancedDateRangePickerProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [activePreset, setActivePreset] = useState('last30days');
+  const [activePreset, setActivePreset] = useState("last30days");
   const [leftCalendarDate, setLeftCalendarDate] = useState(new Date(2025, 6)); // July 2025
   const [rightCalendarDate, setRightCalendarDate] = useState(new Date(2025, 7)); // August 2025
   const [tempRange, setTempRange] = useState<DateRange>(value);
@@ -72,30 +76,34 @@ export default function AdvancedDateRangePicker({ value, onChange, onPresetChang
 
   // Initialize with correct preset
   useEffect(() => {
-    setActivePreset('last30days');
+    setActivePreset("last30days");
   }, []);
 
   // Close picker when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
       }
     };
 
     if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
+      document.addEventListener("mousedown", handleClickOutside);
+      return () =>
+        document.removeEventListener("mousedown", handleClickOutside);
     }
   }, [isOpen]);
 
   const formatDate = (date: Date | null) => {
-    if (!date) return '';
-    return date.toISOString().split('T')[0];
+    if (!date) return "";
+    return date.toISOString().split("T")[0];
   };
 
   const formatDisplayRange = (range: DateRange) => {
-    if (!range.start || !range.end) return '过去30天';
+    if (!range.start || !range.end) return "过去30天";
     if (range.start.getTime() === range.end.getTime()) {
       return formatDate(range.start);
     }
@@ -104,8 +112,8 @@ export default function AdvancedDateRangePicker({ value, onChange, onPresetChang
 
   const handlePresetClick = (preset: string) => {
     setActivePreset(preset);
-    if (preset === 'custom') return;
-    
+    if (preset === "custom") return;
+
     const range = presetRanges[preset as keyof typeof presetRanges]();
     setTempRange(range);
     onChange(range);
@@ -144,7 +152,20 @@ export default function AdvancedDateRangePicker({ value, onChange, onPresetChang
       days.push(date);
     }
 
-    const monthNames = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
+    const monthNames = [
+      "1月",
+      "2月",
+      "3月",
+      "4月",
+      "5月",
+      "6月",
+      "7月",
+      "8月",
+      "9月",
+      "10月",
+      "11月",
+      "12月",
+    ];
 
     return (
       <div className="w-56">
@@ -180,11 +201,11 @@ export default function AdvancedDateRangePicker({ value, onChange, onPresetChang
               «
             </button>
           </div>
-          
+
           <div className="font-medium text-sm">
             {year}年 {monthNames[month]}
           </div>
-          
+
           <div className="flex items-center gap-1">
             <button
               onClick={() => {
@@ -219,8 +240,11 @@ export default function AdvancedDateRangePicker({ value, onChange, onPresetChang
 
         {/* Weekday Headers */}
         <div className="grid grid-cols-7 gap-0 text-xs text-gray-500 py-2">
-          {['日', '一', '二', '三', '四', '五', '六'].map(day => (
-            <div key={day} className="h-8 flex items-center justify-center font-medium">
+          {["日", "一", "二", "三", "四", "五", "六"].map((day) => (
+            <div
+              key={day}
+              className="h-8 flex items-center justify-center font-medium"
+            >
               {day}
             </div>
           ))}
@@ -257,9 +281,13 @@ export default function AdvancedDateRangePicker({ value, onChange, onPresetChang
                   "h-8 w-8 text-xs flex items-center justify-center relative hover:bg-gray-100 transition-colors",
                   !isCurrentMonth && "text-gray-300",
                   isCurrentMonth && "text-gray-900",
-                  isTodayDate && !isRangeStart && !isRangeEnd && "border border-blue-500 rounded-full",
-                  (isRangeStart || isRangeEnd) && "bg-blue-600 text-white rounded-full font-medium",
-                  isInRange && !isRangeStart && !isRangeEnd && "bg-blue-100"
+                  isTodayDate &&
+                    !isRangeStart &&
+                    !isRangeEnd &&
+                    "border border-blue-500 rounded-full",
+                  (isRangeStart || isRangeEnd) &&
+                    "bg-blue-600 text-white rounded-full font-medium",
+                  isInRange && !isRangeStart && !isRangeEnd && "bg-blue-100",
                 )}
               >
                 {date.getDate()}
@@ -283,7 +311,9 @@ export default function AdvancedDateRangePicker({ value, onChange, onPresetChang
           <Calendar className="h-4 w-4" />
           <span>{formatDisplayRange(tempRange)}</span>
         </div>
-        <ChevronLeft className={cn("h-4 w-4 transition-transform", isOpen && "rotate-90")} />
+        <ChevronLeft
+          className={cn("h-4 w-4 transition-transform", isOpen && "rotate-90")}
+        />
       </Button>
 
       {/* Picker Panel */}
@@ -294,19 +324,19 @@ export default function AdvancedDateRangePicker({ value, onChange, onPresetChang
             <div className="w-24 pr-3 border-r flex-shrink-0">
               <div className="space-y-1">
                 {[
-                  { key: 'today', label: '今天' },
-                  { key: 'yesterday', label: '昨天' },
-                  { key: 'last7days', label: '最近7天' },
-                  { key: 'last30days', label: '最��30天' },
-                  { key: 'thisMonth', label: '本月' },
-                  { key: 'lastMonth', label: '上月' }
-                ].map(preset => (
+                  { key: "today", label: "今天" },
+                  { key: "yesterday", label: "昨天" },
+                  { key: "last7days", label: "最近7天" },
+                  { key: "last30days", label: "最��30天" },
+                  { key: "thisMonth", label: "本月" },
+                  { key: "lastMonth", label: "上月" },
+                ].map((preset) => (
                   <button
                     key={preset.key}
                     onClick={() => handlePresetClick(preset.key)}
                     className={cn(
                       "w-full text-left px-2 py-1 text-xs rounded hover:bg-gray-100 transition-colors",
-                      activePreset === preset.key && "bg-blue-50 text-blue-700"
+                      activePreset === preset.key && "bg-blue-50 text-blue-700",
                     )}
                   >
                     {preset.label}

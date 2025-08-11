@@ -1,6 +1,6 @@
-import { useEffect, useRef } from 'react';
-import { getDashboardData } from '@shared/dashboardData';
-import PerformanceTrend from '@/components/PerformanceTrend';
+import { useEffect, useRef } from "react";
+import { getDashboardData } from "@shared/dashboardData";
+import PerformanceTrend from "@/components/PerformanceTrend";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -12,7 +12,7 @@ import {
   Legend,
   Filler,
   BubbleController,
-} from 'chart.js';
+} from "chart.js";
 
 // Register Chart.js components
 ChartJS.register(
@@ -24,7 +24,7 @@ ChartJS.register(
   Tooltip,
   Legend,
   Filler,
-  BubbleController
+  BubbleController,
 );
 
 export default function Dashboard2() {
@@ -33,16 +33,16 @@ export default function Dashboard2() {
 
   // RFM Matrix Chart
   useEffect(() => {
-    const ctx = rfmChartRef.current?.getContext('2d');
+    const ctx = rfmChartRef.current?.getContext("2d");
     if (!ctx) return;
 
     try {
       const chart = new ChartJS(ctx, {
-        type: 'bubble',
+        type: "bubble",
         data: {
           datasets: [
             {
-              label: 'RFM 价值矩阵',
+              label: "RFM 价值矩阵",
               data: [
                 { x: 4.5, y: 4.8, r: 30 },
                 { x: 4.2, y: 2.5, r: 15 },
@@ -50,8 +50,8 @@ export default function Dashboard2() {
                 { x: 2.5, y: 2.2, r: 8 },
                 { x: 1.5, y: 1.8, r: 5 },
               ],
-              backgroundColor: 'rgba(59, 130, 246, 0.6)',
-              borderColor: 'rgba(59, 130, 246, 1)',
+              backgroundColor: "rgba(59, 130, 246, 0.6)",
+              borderColor: "rgba(59, 130, 246, 1)",
             },
           ],
         },
@@ -62,13 +62,13 @@ export default function Dashboard2() {
             x: {
               title: {
                 display: true,
-                text: 'R - 近度分数',
+                text: "R - 近度分数",
               },
             },
             y: {
               title: {
                 display: true,
-                text: 'F - 频度分数',
+                text: "F - 频度分数",
               },
             },
           },
@@ -77,7 +77,7 @@ export default function Dashboard2() {
 
       return () => chart.destroy();
     } catch (error) {
-      console.error('RFM chart error:', error);
+      console.error("RFM chart error:", error);
     }
   }, []);
 
@@ -92,47 +92,54 @@ export default function Dashboard2() {
     [15, 18, 40, 55, 75, 30],
   ];
 
-  const dayLabels = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
-  const hourLabels = ['0-4时', '4-8时', '8-12时', '12-16时', '16-20时', '20-24时'];
+  const dayLabels = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"];
+  const hourLabels = [
+    "0-4时",
+    "4-8时",
+    "8-12时",
+    "12-16时",
+    "16-20时",
+    "20-24时",
+  ];
 
   // Keyword Cloud Data
   const keywordData = [
-    { text: '笔记本电脑', size: 40 },
-    { text: '户外徒步鞋', size: 32 },
-    { text: '咖啡豆', size: 28 },
-    { text: '无线耳机', size: 25 },
-    { text: '机械键盘', size: 22 },
-    { text: '无人机', size: 20 },
-    { text: '摄影入门', size: 18 },
-    { text: '帐篷', size: 16 },
-    { text: '瑜伽垫', size: 14 },
+    { text: "笔记本电脑", size: 40 },
+    { text: "户外徒步鞋", size: 32 },
+    { text: "咖啡豆", size: 28 },
+    { text: "无线耳机", size: 25 },
+    { text: "机械键盘", size: 22 },
+    { text: "无人机", size: 20 },
+    { text: "摄影入门", size: 18 },
+    { text: "帐篷", size: 16 },
+    { text: "瑜伽垫", size: 14 },
   ];
 
   // Lifecycle Funnel Data
   const lifecycleData = [
-    { stage: '认知', count: 3456, conversion: 0 },
-    { stage: '考虑', count: 1890, conversion: 54.7 },
-    { stage: '首次购买', count: 1120, conversion: 59.3 },
-    { stage: '忠诚', count: 756, conversion: 67.5 },
-    { stage: '流失', count: 210, conversion: 0 },
+    { stage: "认知", count: 3456, conversion: 0 },
+    { stage: "考虑", count: 1890, conversion: 54.7 },
+    { stage: "首次购买", count: 1120, conversion: 59.3 },
+    { stage: "忠诚", count: 756, conversion: 67.5 },
+    { stage: "流失", count: 210, conversion: 0 },
   ];
 
   // Acquisition Channels Data
   const acquisitionData = [
-    { source: '付费搜索', value: 1024, percentage: 45 },
-    { source: '自然搜索', value: 680, percentage: 30 },
-    { source: '社交媒体', value: 340, percentage: 15 },
-    { source: '直接访问', value: 113, percentage: 5 },
-    { source: '引荐', value: 101, percentage: 5 },
+    { source: "付费搜索", value: 1024, percentage: 45 },
+    { source: "自然搜索", value: 680, percentage: 30 },
+    { source: "社交媒体", value: 340, percentage: 15 },
+    { source: "直接访问", value: 113, percentage: 5 },
+    { source: "引荐", value: 101, percentage: 5 },
   ];
 
   // Top Categories Data
   const categoriesData = [
-    { name: '电子产品', value: 350000, percentage: 40 },
-    { name: '户外运动', value: 280000, percentage: 32 },
-    { name: '图书音像', value: 150000, percentage: 17 },
-    { name: '家居生活', value: 80000, percentage: 9 },
-    { name: '服饰鞋包', value: 20000, percentage: 2 },
+    { name: "电子产品", value: 350000, percentage: 40 },
+    { name: "户外运动", value: 280000, percentage: 32 },
+    { name: "图书音像", value: 150000, percentage: 17 },
+    { name: "家居生活", value: 80000, percentage: 9 },
+    { name: "服饰鞋包", value: 20000, percentage: 2 },
   ];
 
   return (
@@ -142,7 +149,9 @@ export default function Dashboard2() {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-slate-900">战略业务洞察</h1>
-            <p className="text-slate-500 mt-1">从宏观业绩到微观洞察，全面掌握您的用户与业务脉搏。</p>
+            <p className="text-slate-500 mt-1">
+              从宏观业绩到微观洞察，全面掌握您的用户与业务脉搏。
+            </p>
           </div>
           <div className="mt-4 sm:mt-0">
             <input
@@ -159,7 +168,9 @@ export default function Dashboard2() {
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
             <div className="bg-white p-5 rounded-lg shadow-sm">
               <h3 className="text-sm font-medium text-slate-500">总消费金额</h3>
-              <p className="text-2xl font-bold text-slate-900 mt-1">¥1,254,680</p>
+              <p className="text-2xl font-bold text-slate-900 mt-1">
+                ¥1,254,680
+              </p>
               <p className="text-green-600 text-sm mt-1">+5.2%</p>
             </div>
             <div className="bg-white p-5 rounded-lg shadow-sm">
@@ -200,12 +211,18 @@ export default function Dashboard2() {
 
         {/* User Value & Lifecycle */}
         <section>
-          <h2 className="text-2xl font-bold text-slate-900 mb-4">用户价值与生命周期</h2>
+          <h2 className="text-2xl font-bold text-slate-900 mb-4">
+            用户价值与生命周期
+          </h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* RFM Value Matrix */}
             <div className="bg-white p-6 rounded-lg shadow-sm">
-              <h3 className="text-lg font-semibold text-slate-900 mb-2">RFM 价值矩阵</h3>
-              <p className="text-slate-500 text-sm mb-4">洞察不同价值分群的用户分布与消费贡献。气泡大小代表消费总额。</p>
+              <h3 className="text-lg font-semibold text-slate-900 mb-2">
+                RFM 价值矩阵
+              </h3>
+              <p className="text-slate-500 text-sm mb-4">
+                洞察不同价值分群的用户分布与消费贡献。气泡大小代表消费总额。
+              </p>
               <div className="chart-container h-96">
                 <canvas ref={rfmChartRef} id="rfm-matrix-chart"></canvas>
               </div>
@@ -213,8 +230,12 @@ export default function Dashboard2() {
 
             {/* User Lifecycle Funnel */}
             <div className="bg-white p-6 rounded-lg shadow-sm">
-              <h3 className="text-lg font-semibold text-slate-900 mb-2">用户生命周期漏斗</h3>
-              <p className="text-slate-500 text-sm mb-4">观察用户从认知到忠诚的转化与流失情况。</p>
+              <h3 className="text-lg font-semibold text-slate-900 mb-2">
+                用户生命周期漏斗
+              </h3>
+              <p className="text-slate-500 text-sm mb-4">
+                观察用户从认知到忠诚的转化与流失情况。
+              </p>
               <div className="flex flex-col space-y-4" id="lifecycle-funnel">
                 {lifecycleData.map((stage, index) => (
                   <div key={stage.stage} className="flex items-center">
@@ -225,17 +246,30 @@ export default function Dashboard2() {
                         width: `${100 - index * 15}%`,
                       }}
                     >
-                      <span className="text-white font-medium">{stage.stage}</span>
-                      <span className="text-white font-bold">{stage.count.toLocaleString()}</span>
+                      <span className="text-white font-medium">
+                        {stage.stage}
+                      </span>
+                      <span className="text-white font-bold">
+                        {stage.count.toLocaleString()}
+                      </span>
                     </div>
-                    {index < lifecycleData.length - 1 && stage.conversion > 0 && (
-                      <div className="ml-4 text-slate-600 text-sm">
-                        {stage.conversion}%
-                        <svg className="w-4 h-4 ml-1 inline" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
-                        </svg>
-                      </div>
-                    )}
+                    {index < lifecycleData.length - 1 &&
+                      stage.conversion > 0 && (
+                        <div className="ml-4 text-slate-600 text-sm">
+                          {stage.conversion}%
+                          <svg
+                            className="w-4 h-4 ml-1 inline"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        </div>
+                      )}
                   </div>
                 ))}
               </div>
@@ -245,33 +279,43 @@ export default function Dashboard2() {
 
         {/* User Behavior Insights */}
         <section>
-          <h2 className="text-2xl font-bold text-slate-900 mb-4">用户行为偏好洞察</h2>
+          <h2 className="text-2xl font-bold text-slate-900 mb-4">
+            用户行为偏好洞察
+          </h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Activity Heatmap */}
             <div className="bg-white p-6 rounded-lg shadow-sm">
-              <h3 className="text-lg font-semibold text-slate-900 mb-2">用户活跃度热力图</h3>
-              <p className="text-slate-500 text-sm mb-4">发现用户最活跃的星期与时段，颜色越深代表活跃度越高。</p>
+              <h3 className="text-lg font-semibold text-slate-900 mb-2">
+                用户活跃度热力图
+              </h3>
+              <p className="text-slate-500 text-sm mb-4">
+                发现用户最活跃的星期与时段，颜色越深代表活跃度越高。
+              </p>
               <table className="w-full" id="activity-heatmap">
                 <thead>
                   <tr>
                     <th className="text-xs text-slate-500 p-1"></th>
                     {hourLabels.map((hour) => (
-                      <th key={hour} className="text-xs text-slate-500 p-1">{hour}</th>
+                      <th key={hour} className="text-xs text-slate-500 p-1">
+                        {hour}
+                      </th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {heatmapData.map((row, dayIndex) => (
                     <tr key={dayIndex}>
-                      <td className="text-xs text-slate-500 p-1">{dayLabels[dayIndex]}</td>
+                      <td className="text-xs text-slate-500 p-1">
+                        {dayLabels[dayIndex]}
+                      </td>
                       {row.map((value, hourIndex) => (
                         <td
                           key={hourIndex}
                           className="p-1"
                           style={{
                             backgroundColor: `rgba(59, 130, 246, ${value / 100})`,
-                            borderRadius: '4px',
-                            margin: '1px',
+                            borderRadius: "4px",
+                            margin: "1px",
                           }}
                         >
                           <div className="w-8 h-8 flex items-center justify-center text-xs text-white font-medium">
@@ -287,9 +331,16 @@ export default function Dashboard2() {
 
             {/* Keyword Cloud */}
             <div className="bg-white p-6 rounded-lg shadow-sm">
-              <h3 className="text-lg font-semibold text-slate-900 mb-2">热门搜索词云</h3>
-              <p className="text-slate-500 text-sm mb-4">直观了解用户的核心关注点与需求。</p>
-              <div className="flex flex-wrap justify-center items-center gap-4 h-80" id="keyword-cloud">
+              <h3 className="text-lg font-semibold text-slate-900 mb-2">
+                热门搜索词云
+              </h3>
+              <p className="text-slate-500 text-sm mb-4">
+                直观了解用户的核心关注点与需求。
+              </p>
+              <div
+                className="flex flex-wrap justify-center items-center gap-4 h-80"
+                id="keyword-cloud"
+              >
                 {keywordData.map((keyword, index) => (
                   <span
                     key={keyword.text}
@@ -309,17 +360,25 @@ export default function Dashboard2() {
 
         {/* Channel & Category Insights */}
         <section>
-          <h2 className="text-2xl font-bold text-slate-900 mb-4">渠道与品类洞察</h2>
+          <h2 className="text-2xl font-bold text-slate-900 mb-4">
+            渠道与品类洞察
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {/* Top 5 Acquisition Channels */}
             <div className="bg-white p-6 rounded-lg shadow-sm">
-              <h3 className="text-lg font-semibold text-slate-900 mb-4">Top 5 首次触���来源</h3>
+              <h3 className="text-lg font-semibold text-slate-900 mb-4">
+                Top 5 首次触���来源
+              </h3>
               <div className="space-y-4" id="acquisition-channels">
                 {acquisitionData.map((channel) => (
                   <div key={channel.source}>
                     <div className="flex justify-between items-center mb-1">
-                      <span className="text-sm font-medium text-slate-700">{channel.source}</span>
-                      <span className="text-sm text-slate-500">{channel.value}</span>
+                      <span className="text-sm font-medium text-slate-700">
+                        {channel.source}
+                      </span>
+                      <span className="text-sm text-slate-500">
+                        {channel.value}
+                      </span>
                     </div>
                     <div className="w-full bg-slate-200 rounded-full h-2">
                       <div
@@ -334,13 +393,19 @@ export default function Dashboard2() {
 
             {/* Top 5 Categories */}
             <div className="bg-white p-6 rounded-lg shadow-sm">
-              <h3 className="text-lg font-semibold text-slate-900 mb-4">Top 5 热销品类</h3>
+              <h3 className="text-lg font-semibold text-slate-900 mb-4">
+                Top 5 热销品类
+              </h3>
               <div className="space-y-4" id="top-categories">
                 {categoriesData.map((category) => (
                   <div key={category.name}>
                     <div className="flex justify-between items-center mb-1">
-                      <span className="text-sm font-medium text-slate-700">{category.name}</span>
-                      <span className="text-sm text-slate-500">¥{(category.value / 1000).toFixed(0)}k</span>
+                      <span className="text-sm font-medium text-slate-700">
+                        {category.name}
+                      </span>
+                      <span className="text-sm text-slate-500">
+                        ¥{(category.value / 1000).toFixed(0)}k
+                      </span>
                     </div>
                     <div className="w-full bg-slate-200 rounded-full h-2">
                       <div
@@ -355,15 +420,23 @@ export default function Dashboard2() {
 
             {/* Shopping Cart Insights */}
             <div className="bg-white p-6 rounded-lg shadow-sm">
-              <h3 className="text-lg font-semibold text-slate-900 mb-4">购物车洞察</h3>
+              <h3 className="text-lg font-semibold text-slate-900 mb-4">
+                购物车洞察
+              </h3>
               <div className="space-y-6">
                 <div>
-                  <div className="text-sm text-slate-500 mb-1">历史购物车放弃率</div>
+                  <div className="text-sm text-slate-500 mb-1">
+                    历史购物车放弃率
+                  </div>
                   <div className="text-2xl font-bold text-red-600">18.5%</div>
                 </div>
                 <div>
-                  <div className="text-sm text-slate-500 mb-1">当前购物车总金额</div>
-                  <div className="text-2xl font-bold text-slate-900">¥12,480</div>
+                  <div className="text-sm text-slate-500 mb-1">
+                    当前购物车总金额
+                  </div>
+                  <div className="text-2xl font-bold text-slate-900">
+                    ¥12,480
+                  </div>
                 </div>
               </div>
             </div>

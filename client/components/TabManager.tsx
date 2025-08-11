@@ -1,12 +1,7 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { cn } from '@/lib/utils';
-import {
-  X,
-  ChevronLeft,
-  ChevronRight,
-  Home
-} from 'lucide-react';
+import { useState, useRef, useEffect, useCallback } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { cn } from "@/lib/utils";
+import { X, ChevronLeft, ChevronRight, Home } from "lucide-react";
 
 interface Tab {
   id: string;
@@ -25,12 +20,12 @@ interface ContextMenu {
 
 const DEFAULT_TABS: Tab[] = [
   {
-    id: 'home',
-    title: '首页',
-    path: '/dashboard',
+    id: "home",
+    title: "首页",
+    path: "/dashboard",
     isHome: true,
-    isActive: true
-  }
+    isActive: true,
+  },
 ];
 
 export default function TabManager() {
@@ -41,7 +36,7 @@ export default function TabManager() {
     isOpen: false,
     x: 0,
     y: 0,
-    targetTab: null
+    targetTab: null,
   });
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
@@ -49,19 +44,19 @@ export default function TabManager() {
 
   // 页面路径到标题的映射
   const pathToTitle = {
-    '/dashboard': '首页',
-    '/': '首页',
-    '/dashboard2': '仪表盘2.0',
-    '/users': '用户画像',
-    '/users2': '用户画像2.0',
-    '/response-actions': '响应动作库',
-    '/ai-marketing/monitoring-center': 'AI营销 - 监控中心',
-    '/ai-marketing/fully-auto': 'AI营销 - 全自动模式',
-    '/ai-marketing/semi-auto': 'AI营销 - 半自动模式',
-    '/ai-marketing/semi-auto/create': 'AI营销 - 创建剧本',
-    '/ai-marketing/strategy-goals': 'AI营销 - 战略与目标',
-    '/ai-marketing/live-monitoring': 'AI营销 - 实时监控',
-    '/ai-marketing/performance-analytics': 'AI营销 - 效果分析'
+    "/dashboard": "首页",
+    "/": "首页",
+    "/dashboard2": "仪表盘2.0",
+    "/users": "用户画像",
+    "/users2": "用户画像2.0",
+    "/response-actions": "响应动作库",
+    "/ai-marketing/monitoring-center": "AI营销 - 监控中心",
+    "/ai-marketing/fully-auto": "AI营销 - 全自动模式",
+    "/ai-marketing/semi-auto": "AI营销 - 半自动模式",
+    "/ai-marketing/semi-auto/create": "AI营销 - 创建剧本",
+    "/ai-marketing/strategy-goals": "AI营销 - 战略与目标",
+    "/ai-marketing/live-monitoring": "AI营销 - 实时监控",
+    "/ai-marketing/performance-analytics": "AI营销 - 效果分析",
   };
 
   // 检查滚动状态
@@ -70,19 +65,19 @@ export default function TabManager() {
     if (container) {
       setCanScrollLeft(container.scrollLeft > 0);
       setCanScrollRight(
-        container.scrollLeft < container.scrollWidth - container.clientWidth
+        container.scrollLeft < container.scrollWidth - container.clientWidth,
       );
     }
   }, []);
 
   // 滚动标签页
-  const scrollTabs = (direction: 'left' | 'right') => {
+  const scrollTabs = (direction: "left" | "right") => {
     const container = tabsContainerRef.current;
     if (container) {
       const scrollAmount = 200;
       container.scrollBy({
-        left: direction === 'left' ? -scrollAmount : scrollAmount,
-        behavior: 'smooth'
+        left: direction === "left" ? -scrollAmount : scrollAmount,
+        behavior: "smooth",
       });
     }
   };
@@ -90,34 +85,36 @@ export default function TabManager() {
   // 监听路由变化，自动添加或切换标签页
   useEffect(() => {
     const currentPath = location.pathname;
-    const existingTab = tabs.find(tab => tab.path === currentPath);
-    
+    const existingTab = tabs.find((tab) => tab.path === currentPath);
+
     if (existingTab) {
       // 如果标签页已存在，切换到该标签页
-      setTabs(prev => prev.map(tab => ({
-        ...tab,
-        isActive: tab.id === existingTab.id
-      })));
+      setTabs((prev) =>
+        prev.map((tab) => ({
+          ...tab,
+          isActive: tab.id === existingTab.id,
+        })),
+      );
     } else {
       // 如果标签页不存在，创建新标签页
       let title = pathToTitle[currentPath as keyof typeof pathToTitle];
 
       // 如果没有预定义标题，尝试从路径生成友好的标题
       if (!title) {
-        if (currentPath.includes('/users/')) {
-          title = '用户详情';
-        } else if (currentPath.includes('/response-actions/')) {
-          if (currentPath.includes('/create')) {
-            title = '创建响应动作';
-          } else if (currentPath.includes('/edit/')) {
-            title = '编辑响应动作';
+        if (currentPath.includes("/users/")) {
+          title = "用户详情";
+        } else if (currentPath.includes("/response-actions/")) {
+          if (currentPath.includes("/create")) {
+            title = "创建响应动作";
+          } else if (currentPath.includes("/edit/")) {
+            title = "编辑响应动作";
           } else {
-            title = '响应动作详情';
+            title = "响应动作详情";
           }
         } else {
           // 默认使用路径最后一部分作为标题
-          const pathParts = currentPath.split('/').filter(Boolean);
-          title = pathParts[pathParts.length - 1] || '页面';
+          const pathParts = currentPath.split("/").filter(Boolean);
+          title = pathParts[pathParts.length - 1] || "页面";
         }
       }
 
@@ -125,12 +122,12 @@ export default function TabManager() {
         id: `tab-${Date.now()}`,
         title,
         path: currentPath,
-        isActive: true
+        isActive: true,
       };
 
-      setTabs(prev => [
-        ...prev.map(tab => ({ ...tab, isActive: false })),
-        newTab
+      setTabs((prev) => [
+        ...prev.map((tab) => ({ ...tab, isActive: false })),
+        newTab,
       ]);
     }
   }, [location.pathname]);
@@ -140,33 +137,33 @@ export default function TabManager() {
     const container = tabsContainerRef.current;
     if (container) {
       checkScrollStatus();
-      container.addEventListener('scroll', checkScrollStatus);
-      return () => container.removeEventListener('scroll', checkScrollStatus);
+      container.addEventListener("scroll", checkScrollStatus);
+      return () => container.removeEventListener("scroll", checkScrollStatus);
     }
   }, [checkScrollStatus]);
 
   // 监听窗口大小变化
   useEffect(() => {
-    window.addEventListener('resize', checkScrollStatus);
-    return () => window.removeEventListener('resize', checkScrollStatus);
+    window.addEventListener("resize", checkScrollStatus);
+    return () => window.removeEventListener("resize", checkScrollStatus);
   }, [checkScrollStatus]);
 
   // 点击标签页
   const handleTabClick = (tab: Tab) => {
-    setTabs(prev => prev.map(t => ({ ...t, isActive: t.id === tab.id })));
+    setTabs((prev) => prev.map((t) => ({ ...t, isActive: t.id === tab.id })));
     navigate(tab.path);
   };
 
   // 关闭标签页
   const closeTab = (tabId: string, e?: React.MouseEvent) => {
     e?.stopPropagation();
-    
-    const tabToClose = tabs.find(tab => tab.id === tabId);
+
+    const tabToClose = tabs.find((tab) => tab.id === tabId);
     if (!tabToClose || tabToClose.isHome) return;
 
-    const tabIndex = tabs.findIndex(tab => tab.id === tabId);
-    const newTabs = tabs.filter(tab => tab.id !== tabId);
-    
+    const tabIndex = tabs.findIndex((tab) => tab.id === tabId);
+    const newTabs = tabs.filter((tab) => tab.id !== tabId);
+
     // 如果关闭的是激活标签页，需要切换到其他标签页
     if (tabToClose.isActive && newTabs.length > 0) {
       let nextActiveTab;
@@ -176,11 +173,11 @@ export default function TabManager() {
       } else {
         nextActiveTab = newTabs[0];
       }
-      
+
       nextActiveTab.isActive = true;
       navigate(nextActiveTab.path);
     }
-    
+
     setTabs(newTabs);
   };
 
@@ -191,9 +188,9 @@ export default function TabManager() {
 
   // 关闭其他标签页
   const closeOtherTabs = () => {
-    const activeTab = tabs.find(tab => tab.isActive);
-    const homeTabs = tabs.filter(tab => tab.isHome);
-    
+    const activeTab = tabs.find((tab) => tab.isActive);
+    const homeTabs = tabs.filter((tab) => tab.isHome);
+
     if (activeTab) {
       const newTabs = activeTab.isHome ? homeTabs : [...homeTabs, activeTab];
       setTabs(newTabs);
@@ -202,14 +199,14 @@ export default function TabManager() {
 
   // 关闭所有标签页（除首页）
   const closeAllTabs = () => {
-    const homeTabs = tabs.filter(tab => tab.isHome);
-    setTabs(homeTabs.map(tab => ({ ...tab, isActive: true })));
-    navigate('/dashboard');
+    const homeTabs = tabs.filter((tab) => tab.isHome);
+    setTabs(homeTabs.map((tab) => ({ ...tab, isActive: true })));
+    navigate("/dashboard");
   };
 
   // 关闭右侧标签页
   const closeRightTabs = (targetTabId: string) => {
-    const targetIndex = tabs.findIndex(tab => tab.id === targetTabId);
+    const targetIndex = tabs.findIndex((tab) => tab.id === targetTabId);
     const newTabs = tabs.slice(0, targetIndex + 1);
     setTabs(newTabs);
   };
@@ -221,7 +218,7 @@ export default function TabManager() {
       isOpen: true,
       x: e.clientX,
       y: e.clientY,
-      targetTab: tab
+      targetTab: tab,
     });
   };
 
@@ -234,8 +231,8 @@ export default function TabManager() {
   useEffect(() => {
     const handleClick = () => closeContextMenu();
     if (contextMenu.isOpen) {
-      document.addEventListener('click', handleClick);
-      return () => document.removeEventListener('click', handleClick);
+      document.addEventListener("click", handleClick);
+      return () => document.removeEventListener("click", handleClick);
     }
   }, [contextMenu.isOpen]);
 
@@ -244,7 +241,7 @@ export default function TabManager() {
       {/* 左侧滚动箭头 */}
       {canScrollLeft && (
         <button
-          onClick={() => scrollTabs('left')}
+          onClick={() => scrollTabs("left")}
           className="flex-shrink-0 w-8 h-8 flex items-center justify-center text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded transition-colors ml-2"
         >
           <ChevronLeft className="h-4 w-4" />
@@ -255,7 +252,7 @@ export default function TabManager() {
       <div
         ref={tabsContainerRef}
         className="flex-1 flex items-center overflow-x-auto scrollbar-hide"
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
         <div className="flex items-center gap-0 px-2">
           {tabs.map((tab) => (
@@ -266,17 +263,17 @@ export default function TabManager() {
                 "border-r border-gray-200 last:border-r-0",
                 tab.isActive
                   ? "bg-white text-gray-900 font-semibold border-t-2 border-t-blue-500"
-                  : "bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                  : "bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-gray-900",
               )}
               onClick={() => handleTabClick(tab)}
               onContextMenu={(e) => handleContextMenu(e, tab)}
             >
               {/* 标签页��标 */}
               {tab.isHome && <Home className="h-3 w-3 flex-shrink-0" />}
-              
+
               {/* 标签页标题 */}
               <span className="truncate max-w-32">{tab.title}</span>
-              
+
               {/* 关闭按钮 */}
               {!tab.isHome && (
                 <button
@@ -294,13 +291,12 @@ export default function TabManager() {
       {/* 右侧滚动箭头 */}
       {canScrollRight && (
         <button
-          onClick={() => scrollTabs('right')}
+          onClick={() => scrollTabs("right")}
           className="flex-shrink-0 w-8 h-8 flex items-center justify-center text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded transition-colors"
         >
           <ChevronRight className="h-4 w-4" />
         </button>
       )}
-
 
       {/* 右键菜单 */}
       {contextMenu.isOpen && contextMenu.targetTab && (

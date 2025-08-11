@@ -1,23 +1,27 @@
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { 
-  ArrowLeft, 
-  User, 
-  Building, 
-  MapPin, 
-  Mail, 
-  Copy, 
+import {
+  ArrowLeft,
+  User,
+  Building,
+  MapPin,
+  Mail,
+  Copy,
   X,
   Plus,
   ChevronDown,
-  ChevronRight
+  ChevronRight,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import OrderHistory from "@/components/OrderHistory";
 import SessionTimeline from "@/components/SessionTimeline";
 import {
@@ -31,7 +35,7 @@ import { toast } from "@/hooks/use-toast";
 export default function UserDetail() {
   const { cdpId } = useParams<{ cdpId: string }>();
   const user: UserType | undefined = cdpId ? getUserById(cdpId) : undefined;
-  
+
   const [userTags, setUserTags] = useState<string[]>(user?.tags || []);
   const [newTag, setNewTag] = useState("");
   const [isTagPopoverOpen, setIsTagPopoverOpen] = useState(false);
@@ -65,7 +69,7 @@ export default function UserDetail() {
   };
 
   const removeTag = (tagToRemove: string) => {
-    setUserTags(userTags.filter(tag => tag !== tagToRemove));
+    setUserTags(userTags.filter((tag) => tag !== tagToRemove));
   };
 
   const toggleSession = (sessionId: string) => {
@@ -79,10 +83,10 @@ export default function UserDetail() {
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('zh-CN', {
-      style: 'currency',
-      currency: 'CNY',
-      minimumFractionDigits: 2
+    return new Intl.NumberFormat("zh-CN", {
+      style: "currency",
+      currency: "CNY",
+      minimumFractionDigits: 2,
     }).format(amount);
   };
 
@@ -91,8 +95,8 @@ export default function UserDetail() {
       <div className="max-w-none">
         {/* Back Link */}
         <div className="mb-6">
-          <Link 
-            to="/users" 
+          <Link
+            to="/users"
             className="inline-flex items-center text-blue-600 hover:text-blue-800 text-sm font-medium"
           >
             <ArrowLeft className="h-4 w-4 mr-1" />
@@ -110,14 +114,17 @@ export default function UserDetail() {
                   <h2 className="text-xl font-semibold">
                     {user.name || user.cdpId.substring(0, 8)}
                   </h2>
-                  
+
                   <div className="flex items-center gap-3">
                     <User className="h-4 w-4 text-gray-500" />
                     <span className="text-sm text-gray-600">CDP ID:</span>
                     <code className="text-sm font-mono bg-gray-100 px-2 py-1 rounded">
                       {user.cdpId}
                     </code>
-                    <button onClick={handleCopyId} className="text-gray-400 hover:text-gray-600">
+                    <button
+                      onClick={handleCopyId}
+                      className="text-gray-400 hover:text-gray-600"
+                    >
                       <Copy className="h-4 w-4" />
                     </button>
                   </div>
@@ -125,10 +132,19 @@ export default function UserDetail() {
                   {/* Tag Management */}
                   <div>
                     <div className="flex items-center gap-2 mb-2">
-                      <h4 className="text-sm font-medium text-gray-900">状态标签</h4>
-                      <Popover open={isTagPopoverOpen} onOpenChange={setIsTagPopoverOpen}>
+                      <h4 className="text-sm font-medium text-gray-900">
+                        状态标签
+                      </h4>
+                      <Popover
+                        open={isTagPopoverOpen}
+                        onOpenChange={setIsTagPopoverOpen}
+                      >
                         <PopoverTrigger asChild>
-                          <Button size="sm" variant="ghost" className="h-6 w-6 p-0">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-6 w-6 p-0"
+                          >
                             <Plus className="h-3 w-3" />
                           </Button>
                         </PopoverTrigger>
@@ -144,13 +160,21 @@ export default function UserDetail() {
                               placeholder="输入标签名称"
                               value={newTag}
                               onChange={(e) => setNewTag(e.target.value)}
-                              onKeyPress={(e) => e.key === 'Enter' && addTag()}
+                              onKeyPress={(e) => e.key === "Enter" && addTag()}
                             />
                             <div className="flex justify-end gap-2">
-                              <Button variant="outline" size="sm" onClick={() => setIsTagPopoverOpen(false)}>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setIsTagPopoverOpen(false)}
+                              >
                                 取消
                               </Button>
-                              <Button size="sm" onClick={addTag} disabled={!newTag.trim()}>
+                              <Button
+                                size="sm"
+                                onClick={addTag}
+                                disabled={!newTag.trim()}
+                              >
                                 添加
                               </Button>
                             </div>
@@ -160,9 +184,13 @@ export default function UserDetail() {
                     </div>
                     <div className="flex flex-wrap gap-2 mb-3">
                       {userTags.map((tag) => (
-                        <Badge key={tag} variant="secondary" className="flex items-center gap-1">
+                        <Badge
+                          key={tag}
+                          variant="secondary"
+                          className="flex items-center gap-1"
+                        >
                           {tag}
-                          <button 
+                          <button
                             onClick={() => removeTag(tag)}
                             className="ml-1 hover:text-red-600"
                           >
@@ -188,7 +216,9 @@ export default function UserDetail() {
                       <MapPin className="h-4 w-4 text-gray-500" />
                       <div>
                         <div className="text-xs text-gray-600">位置</div>
-                        <div className="text-sm">{user.country}/{user.city}</div>
+                        <div className="text-sm">
+                          {user.country}/{user.city}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -220,7 +250,9 @@ export default function UserDetail() {
                   <div className="text-xs text-gray-600">总消费金额</div>
                 </div>
                 <div className="text-center p-2 bg-gray-50 rounded">
-                  <div className="text-lg font-bold text-gray-900">{user.totalOrders}</div>
+                  <div className="text-lg font-bold text-gray-900">
+                    {user.totalOrders}
+                  </div>
                   <div className="text-xs text-gray-600">总订单数</div>
                 </div>
                 <div className="text-center p-2 bg-gray-50 rounded">
@@ -230,7 +262,9 @@ export default function UserDetail() {
                   <div className="text-xs text-gray-600">平均客单价</div>
                 </div>
                 <div className="text-center p-2 bg-gray-50 rounded">
-                  <div className="text-sm font-bold text-gray-900">{user.lastPurchaseDate}</div>
+                  <div className="text-sm font-bold text-gray-900">
+                    {user.lastPurchaseDate}
+                  </div>
                   <div className="text-xs text-gray-600">上次购买时间</div>
                 </div>
                 <div className="text-center p-2 bg-gray-50 rounded">
@@ -240,29 +274,41 @@ export default function UserDetail() {
                   <div className="text-xs text-gray-600">最高单笔订单</div>
                 </div>
                 <div className="text-center p-2 bg-gray-50 rounded">
-                  <div className="text-lg font-bold text-gray-900">{user.averagePurchaseCycle}天</div>
+                  <div className="text-lg font-bold text-gray-900">
+                    {user.averagePurchaseCycle}天
+                  </div>
                   <div className="text-xs text-gray-600">平均购买周期</div>
                 </div>
               </div>
 
               {/* Time-based Information */}
               <div className="mt-4 pt-3 border-t border-gray-200">
-                <h4 className="text-sm font-medium text-gray-900 mb-2">时间轴信息</h4>
+                <h4 className="text-sm font-medium text-gray-900 mb-2">
+                  时间轴信息
+                </h4>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                   <div className="text-center p-2 bg-gray-50 rounded">
-                    <div className="text-sm font-bold text-gray-700">{user.firstVisitTime}</div>
+                    <div className="text-sm font-bold text-gray-700">
+                      {user.firstVisitTime}
+                    </div>
                     <div className="text-xs text-gray-600">首次访问时间</div>
                   </div>
                   <div className="text-center p-2 bg-gray-50 rounded">
-                    <div className="text-sm font-bold text-gray-700">{user.registrationTime}</div>
+                    <div className="text-sm font-bold text-gray-700">
+                      {user.registrationTime}
+                    </div>
                     <div className="text-xs text-gray-600">注册时间</div>
                   </div>
                   <div className="text-center p-2 bg-gray-50 rounded">
-                    <div className="text-sm font-bold text-gray-700">{user.firstPurchaseTime}</div>
+                    <div className="text-sm font-bold text-gray-700">
+                      {user.firstPurchaseTime}
+                    </div>
                     <div className="text-xs text-gray-600">首次购买时间</div>
                   </div>
                   <div className="text-center p-2 bg-gray-50 rounded">
-                    <div className="text-sm font-bold text-gray-700">{user.lastActiveTime}</div>
+                    <div className="text-sm font-bold text-gray-700">
+                      {user.lastActiveTime}
+                    </div>
                     <div className="text-xs text-gray-600">最后活跃时间</div>
                   </div>
                 </div>

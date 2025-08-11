@@ -1,15 +1,15 @@
-import { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
+  SelectValue,
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -17,18 +17,25 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Plus, Loader2, AlertCircle, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+} from "@/components/ui/table";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  Plus,
+  Loader2,
+  AlertCircle,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+} from "lucide-react";
 import {
   Rule,
   mockRules,
   getTriggerSummary,
   getActionTypeDisplay,
-  getStatusDisplay
-} from '@shared/ruleData';
-import ConfirmationModal from '@/components/ConfirmationModal';
-import { useToast } from '@/hooks/use-toast';
+  getStatusDisplay,
+} from "@shared/ruleData";
+import ConfirmationModal from "@/components/ConfirmationModal";
+import { useToast } from "@/hooks/use-toast";
 
 interface FiltersState {
   search: string;
@@ -38,74 +45,82 @@ interface FiltersState {
 
 interface ConfirmationState {
   isOpen: boolean;
-  type: 'enable' | 'disable' | 'delete';
+  type: "enable" | "disable" | "delete";
   ruleId: string;
   ruleName: string;
 }
 
 interface SortState {
   field: string | null;
-  direction: 'asc' | 'desc';
+  direction: "asc" | "desc";
 }
 
-type SortableFields = 'totalExecutions' | 'totalInteractions' | 'totalConversions';
+type SortableFields =
+  | "totalExecutions"
+  | "totalInteractions"
+  | "totalConversions";
 
 export default function ResponseActions() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  
+
   // Use mock data for now
   const [rules] = useState<Rule[]>(mockRules);
   const [loading] = useState(false);
   const [error] = useState<string | null>(null);
 
   const [filters, setFilters] = useState<FiltersState>({
-    search: '',
-    status: 'all',
-    dateRange: 'all'
+    search: "",
+    status: "all",
+    dateRange: "all",
   });
 
-  const [confirmationModal, setConfirmationModal] = useState<ConfirmationState>({
-    isOpen: false,
-    type: 'enable',
-    ruleId: '',
-    ruleName: ''
-  });
+  const [confirmationModal, setConfirmationModal] = useState<ConfirmationState>(
+    {
+      isOpen: false,
+      type: "enable",
+      ruleId: "",
+      ruleName: "",
+    },
+  );
   const [operationLoading, setOperationLoading] = useState(false);
   const [sortState, setSortState] = useState<SortState>({
     field: null,
-    direction: 'desc'
+    direction: "desc",
   });
 
   // Filter and sort rules based on current filter and sort state
   const filteredAndSortedRules = useMemo(() => {
-    let filtered = rules.filter(rule => {
-      const matchesSearch = filters.search === '' ||
+    let filtered = rules.filter((rule) => {
+      const matchesSearch =
+        filters.search === "" ||
         rule.ruleName.toLowerCase().includes(filters.search.toLowerCase());
 
-      const matchesStatus = filters.status === 'all' ||
-        rule.status === filters.status;
+      const matchesStatus =
+        filters.status === "all" || rule.status === filters.status;
 
       // Date filtering
       let matchesDate = true;
-      if (filters.dateRange !== 'all') {
+      if (filters.dateRange !== "all") {
         const ruleDate = new Date(rule.createdAt);
         const now = new Date();
 
         switch (filters.dateRange) {
-          case 'today':
+          case "today":
             matchesDate = ruleDate.toDateString() === now.toDateString();
             break;
-          case 'week':
+          case "week":
             const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
             matchesDate = ruleDate >= weekAgo;
             break;
-          case 'month':
+          case "month":
             const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
             matchesDate = ruleDate >= monthAgo;
             break;
-          case 'quarter':
-            const quarterAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+          case "quarter":
+            const quarterAgo = new Date(
+              now.getTime() - 90 * 24 * 60 * 60 * 1000,
+            );
             matchesDate = ruleDate >= quarterAgo;
             break;
         }
@@ -120,7 +135,7 @@ export default function ResponseActions() {
         const aValue = a[sortState.field as keyof Rule];
         const bValue = b[sortState.field as keyof Rule];
 
-        if (sortState.direction === 'asc') {
+        if (sortState.direction === "asc") {
           return aValue > bValue ? 1 : -1;
         } else {
           return aValue < bValue ? 1 : -1;
@@ -133,9 +148,10 @@ export default function ResponseActions() {
 
   // Handle sorting
   const handleSort = (field: SortableFields) => {
-    setSortState(prev => ({
+    setSortState((prev) => ({
       field,
-      direction: prev.field === field && prev.direction === 'desc' ? 'asc' : 'desc'
+      direction:
+        prev.field === field && prev.direction === "desc" ? "asc" : "desc",
     }));
   };
 
@@ -144,20 +160,22 @@ export default function ResponseActions() {
     if (sortState.field !== field) {
       return <ArrowUpDown className="h-4 w-4 text-gray-400" />;
     }
-    return sortState.direction === 'desc'
-      ? <ArrowDown className="h-4 w-4 text-blue-600" />
-      : <ArrowUp className="h-4 w-4 text-blue-600" />;
+    return sortState.direction === "desc" ? (
+      <ArrowDown className="h-4 w-4 text-blue-600" />
+    ) : (
+      <ArrowUp className="h-4 w-4 text-blue-600" />
+    );
   };
 
   // Format date for display
   const formatDate = (dateString: string): string => {
     const date = new Date(dateString);
-    return date.toLocaleString('zh-CN', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit'
+    return date.toLocaleString("zh-CN", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -173,27 +191,27 @@ export default function ResponseActions() {
   const handleEnable = (rule: Rule) => {
     setConfirmationModal({
       isOpen: true,
-      type: 'enable',
+      type: "enable",
       ruleId: rule.id,
-      ruleName: rule.ruleName
+      ruleName: rule.ruleName,
     });
   };
 
   const handleDisable = (rule: Rule) => {
     setConfirmationModal({
       isOpen: true,
-      type: 'disable',
+      type: "disable",
       ruleId: rule.id,
-      ruleName: rule.ruleName
+      ruleName: rule.ruleName,
     });
   };
 
   const handleDelete = (rule: Rule) => {
     setConfirmationModal({
       isOpen: true,
-      type: 'delete',
+      type: "delete",
       ruleId: rule.id,
-      ruleName: rule.ruleName
+      ruleName: rule.ruleName,
     });
   };
 
@@ -205,48 +223,49 @@ export default function ResponseActions() {
       setOperationLoading(true);
 
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       switch (type) {
-        case 'enable':
+        case "enable":
           toast({
-            title: '启用成功',
-            description: `规则"${ruleName}"已成功启用`
+            title: "启用成功",
+            description: `规则"${ruleName}"已成功启用`,
           });
           break;
-        case 'disable':
+        case "disable":
           toast({
-            title: '停用成功',
-            description: `规则"${ruleName}"已成功停用`
+            title: "停用成功",
+            description: `规则"${ruleName}"已成功停用`,
           });
           break;
-        case 'delete':
+        case "delete":
           toast({
-            title: '删除成功',
-            description: `规则"${ruleName}"已成功删除`
+            title: "删除成功",
+            description: `规则"${ruleName}"已成功删除`,
           });
           break;
       }
     } catch (err) {
       toast({
-        title: '操作失败',
-        description: err instanceof Error ? err.message : '未知错误',
-        variant: 'destructive'
+        title: "操作失败",
+        description: err instanceof Error ? err.message : "未知错误",
+        variant: "destructive",
       });
     } finally {
       setOperationLoading(false);
-      setConfirmationModal(prev => ({ ...prev, isOpen: false }));
+      setConfirmationModal((prev) => ({ ...prev, isOpen: false }));
     }
   };
 
   // Render action links based on status
   const renderActionLinks = (rule: Rule) => {
     const isDisabled = operationLoading;
-    const linkClass = "text-blue-600 hover:text-blue-800 cursor-pointer text-sm";
+    const linkClass =
+      "text-blue-600 hover:text-blue-800 cursor-pointer text-sm";
     const disabledClass = "text-gray-400 cursor-not-allowed text-sm";
 
     switch (rule.status) {
-      case 'draft':
+      case "draft":
         return (
           <div className="flex gap-3 text-sm">
             <span
@@ -262,13 +281,21 @@ export default function ResponseActions() {
               编辑
             </span>
             <span
-              className={isDisabled ? disabledClass : "text-green-600 hover:text-green-800 cursor-pointer text-sm"}
+              className={
+                isDisabled
+                  ? disabledClass
+                  : "text-green-600 hover:text-green-800 cursor-pointer text-sm"
+              }
               onClick={() => !isDisabled && handleEnable(rule)}
             >
               启用
             </span>
             <span
-              className={isDisabled ? disabledClass : "text-red-600 hover:text-red-800 cursor-pointer text-sm"}
+              className={
+                isDisabled
+                  ? disabledClass
+                  : "text-red-600 hover:text-red-800 cursor-pointer text-sm"
+              }
               onClick={() => !isDisabled && handleDelete(rule)}
             >
               删除
@@ -276,7 +303,7 @@ export default function ResponseActions() {
           </div>
         );
 
-      case 'active':
+      case "active":
         return (
           <div className="flex gap-3 text-sm">
             <span
@@ -292,7 +319,11 @@ export default function ResponseActions() {
               编辑
             </span>
             <span
-              className={isDisabled ? disabledClass : "text-orange-600 hover:text-orange-800 cursor-pointer text-sm"}
+              className={
+                isDisabled
+                  ? disabledClass
+                  : "text-orange-600 hover:text-orange-800 cursor-pointer text-sm"
+              }
               onClick={() => !isDisabled && handleDisable(rule)}
             >
               停用
@@ -300,7 +331,7 @@ export default function ResponseActions() {
           </div>
         );
 
-      case 'archived':
+      case "archived":
         return (
           <div className="flex gap-3 text-sm">
             <span
@@ -316,7 +347,11 @@ export default function ResponseActions() {
               编辑
             </span>
             <span
-              className={isDisabled ? disabledClass : "text-red-600 hover:text-red-800 cursor-pointer text-sm"}
+              className={
+                isDisabled
+                  ? disabledClass
+                  : "text-red-600 hover:text-red-800 cursor-pointer text-sm"
+              }
               onClick={() => !isDisabled && handleDelete(rule)}
             >
               删除
@@ -334,7 +369,7 @@ export default function ResponseActions() {
       {/* Action Bar */}
       <div className="flex justify-end mb-6">
         <Button
-          onClick={() => navigate('/response-actions/create')}
+          onClick={() => navigate("/response-actions/create")}
           className="flex items-center gap-2"
           disabled={operationLoading}
         >
@@ -364,7 +399,9 @@ export default function ResponseActions() {
             <Input
               placeholder="搜索规则名称"
               value={filters.search}
-              onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
+              onChange={(e) =>
+                setFilters((prev) => ({ ...prev, search: e.target.value }))
+              }
               className="w-full"
             />
           </div>
@@ -373,7 +410,9 @@ export default function ResponseActions() {
           <div className="w-full md:w-48">
             <Select
               value={filters.status}
-              onValueChange={(value) => setFilters(prev => ({ ...prev, status: value }))}
+              onValueChange={(value) =>
+                setFilters((prev) => ({ ...prev, status: value }))
+              }
             >
               <SelectTrigger>
                 <SelectValue placeholder="状态" />
@@ -391,7 +430,9 @@ export default function ResponseActions() {
           <div className="w-full md:w-48">
             <Select
               value={filters.dateRange}
-              onValueChange={(value) => setFilters(prev => ({ ...prev, dateRange: value }))}
+              onValueChange={(value) =>
+                setFilters((prev) => ({ ...prev, dateRange: value }))
+              }
             >
               <SelectTrigger>
                 <SelectValue placeholder="创建时间" />
@@ -422,21 +463,24 @@ export default function ResponseActions() {
             </div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">暂无规则</h3>
             <p className="text-gray-500 mb-4">
-              {filters.search || filters.status !== 'all' || filters.dateRange !== 'all'
-                ? '没有找到符合条件的规则，请尝试调整筛选条件'
-                : '请点击右上角"创建新规则"开始使用'
-              }
+              {filters.search ||
+              filters.status !== "all" ||
+              filters.dateRange !== "all"
+                ? "没有找到符合条件的规则，请尝试调整筛选条件"
+                : '请点击右上角"创建新规则"开始使用'}
             </p>
-            {(!filters.search && filters.status === 'all' && filters.dateRange === 'all') && (
-              <Button
-                onClick={() => navigate('/response-actions/create')}
-                className="flex items-center gap-2"
-                disabled={operationLoading}
-              >
-                <Plus className="h-4 w-4" />
-                创建新规则
-              </Button>
-            )}
+            {!filters.search &&
+              filters.status === "all" &&
+              filters.dateRange === "all" && (
+                <Button
+                  onClick={() => navigate("/response-actions/create")}
+                  className="flex items-center gap-2"
+                  disabled={operationLoading}
+                >
+                  <Plus className="h-4 w-4" />
+                  创建新规则
+                </Button>
+              )}
           </div>
         ) : (
           <Table>
@@ -449,29 +493,29 @@ export default function ResponseActions() {
                 <TableHead>创建时间</TableHead>
                 <TableHead
                   className="cursor-pointer select-none hover:bg-gray-50"
-                  onClick={() => handleSort('totalExecutions')}
+                  onClick={() => handleSort("totalExecutions")}
                 >
                   <div className="flex items-center gap-2">
                     累计执行次数
-                    {getSortIcon('totalExecutions')}
+                    {getSortIcon("totalExecutions")}
                   </div>
                 </TableHead>
                 <TableHead
                   className="cursor-pointer select-none hover:bg-gray-50"
-                  onClick={() => handleSort('totalInteractions')}
+                  onClick={() => handleSort("totalInteractions")}
                 >
                   <div className="flex items-center gap-2">
                     累计互动次数
-                    {getSortIcon('totalInteractions')}
+                    {getSortIcon("totalInteractions")}
                   </div>
                 </TableHead>
                 <TableHead
                   className="cursor-pointer select-none hover:bg-gray-50"
-                  onClick={() => handleSort('totalConversions')}
+                  onClick={() => handleSort("totalConversions")}
                 >
                   <div className="flex items-center gap-2">
                     累计转化
-                    {getSortIcon('totalConversions')}
+                    {getSortIcon("totalConversions")}
                   </div>
                 </TableHead>
                 <TableHead className="text-right">操作</TableHead>
@@ -485,13 +529,19 @@ export default function ResponseActions() {
                     <TableCell className="font-medium">
                       {rule.ruleName}
                     </TableCell>
-                    <TableCell>
-                      {getActionTypeDisplay(rule.action)}
-                    </TableCell>
+                    <TableCell>{getActionTypeDisplay(rule.action)}</TableCell>
                     <TableCell>
                       <Badge
-                        variant={statusDisplay.color === 'green' ? 'default' : 'secondary'}
-                        className={statusDisplay.color === 'green' ? 'bg-green-100 text-green-800' : ''}
+                        variant={
+                          statusDisplay.color === "green"
+                            ? "default"
+                            : "secondary"
+                        }
+                        className={
+                          statusDisplay.color === "green"
+                            ? "bg-green-100 text-green-800"
+                            : ""
+                        }
                       >
                         {statusDisplay.text}
                       </Badge>
@@ -527,7 +577,10 @@ export default function ResponseActions() {
       {/* Confirmation Modal */}
       <ConfirmationModal
         isOpen={confirmationModal.isOpen}
-        onClose={() => !operationLoading && setConfirmationModal(prev => ({ ...prev, isOpen: false }))}
+        onClose={() =>
+          !operationLoading &&
+          setConfirmationModal((prev) => ({ ...prev, isOpen: false }))
+        }
         onConfirm={handleConfirmation}
         type={confirmationModal.type}
         actionName={confirmationModal.ruleName}

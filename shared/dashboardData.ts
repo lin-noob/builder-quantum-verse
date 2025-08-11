@@ -52,26 +52,26 @@ export const mockDashboardData: DashboardData = {
       title: "总消费金额",
       value: "¥1,254,680",
       change: 5.2,
-      isPositive: true
+      isPositive: true,
     },
     {
       title: "总订单数",
       value: "8,247",
       change: 12.8,
-      isPositive: true
+      isPositive: true,
     },
     {
       title: "总用户数",
       value: "3,456",
       change: -2.1,
-      isPositive: false
+      isPositive: false,
     },
     {
       title: "平均客单价",
       value: "¥152.3",
       change: 8.9,
-      isPositive: true
-    }
+      isPositive: true,
+    },
   ],
   performanceMetrics: [
     {
@@ -88,8 +88,8 @@ export const mockDashboardData: DashboardData = {
         { date: "2024-01-07", value: 82100, label: "1月7日" },
         { date: "2024-01-08", value: 76400, label: "1月8日" },
         { date: "2024-01-09", value: 89500, label: "1月9日" },
-        { date: "2024-01-10", value: 94800, label: "1月10日" }
-      ]
+        { date: "2024-01-10", value: 94800, label: "1月10日" },
+      ],
     },
     {
       id: "totalOrders",
@@ -105,8 +105,8 @@ export const mockDashboardData: DashboardData = {
         { date: "2024-01-07", value: 298, label: "1月7日" },
         { date: "2024-01-08", value: 276, label: "1月8日" },
         { date: "2024-01-09", value: 312, label: "1月9日" },
-        { date: "2024-01-10", value: 328, label: "1月10日" }
-      ]
+        { date: "2024-01-10", value: 328, label: "1月10日" },
+      ],
     },
     {
       id: "totalUsers",
@@ -122,8 +122,8 @@ export const mockDashboardData: DashboardData = {
         { date: "2024-01-07", value: 352, label: "1月7日" },
         { date: "2024-01-08", value: 349, label: "1月8日" },
         { date: "2024-01-09", value: 354, label: "1月9日" },
-        { date: "2024-01-10", value: 356, label: "1月10日" }
-      ]
+        { date: "2024-01-10", value: 356, label: "1月10日" },
+      ],
     },
     {
       id: "avgOrderValue",
@@ -139,9 +139,9 @@ export const mockDashboardData: DashboardData = {
         { date: "2024-01-07", value: 162.1, label: "1月7日" },
         { date: "2024-01-08", value: 155.4, label: "1月8日" },
         { date: "2024-01-09", value: 159.8, label: "1月9日" },
-        { date: "2024-01-10", value: 163.5, label: "1月10日" }
-      ]
-    }
+        { date: "2024-01-10", value: 163.5, label: "1月10日" },
+      ],
+    },
   ],
   userComposition: [
     { date: "周一", newUsers: 450, returningUsers: 890 },
@@ -150,29 +150,29 @@ export const mockDashboardData: DashboardData = {
     { date: "周四", newUsers: 620, returningUsers: 1200 },
     { date: "周五", newUsers: 720, returningUsers: 1350 },
     { date: "周六", newUsers: 680, returningUsers: 980 },
-    { date: "周日", newUsers: 580, returningUsers: 870 }
+    { date: "周日", newUsers: 580, returningUsers: 870 },
   ],
   geoDistribution: [
     { label: "北京", value: 1256, percentage: 36.3, color: "#3b82f6" },
     { label: "上海", value: 896, percentage: 25.9, color: "#06b6d4" },
     { label: "深圳", value: 654, percentage: 18.9, color: "#8b5cf6" },
     { label: "杭州", value: 432, percentage: 12.5, color: "#10b981" },
-    { label: "其他", value: 218, percentage: 6.3, color: "#6b7280" }
+    { label: "其他", value: 218, percentage: 6.3, color: "#6b7280" },
   ],
   trafficSources: [
     { label: "直接访问", value: 2140, percentage: 45.2, color: "#3b82f6" },
     { label: "搜索引擎", value: 1320, percentage: 27.8, color: "#06b6d4" },
     { label: "社交媒体", value: 680, percentage: 14.3, color: "#8b5cf6" },
     { label: "邮件营销", value: 380, percentage: 8.0, color: "#10b981" },
-    { label: "其他", value: 220, percentage: 4.6, color: "#6b7280" }
+    { label: "其他", value: 220, percentage: 4.6, color: "#6b7280" },
   ],
   popularTags: [
     { label: "VIP客户", count: 856 },
     { label: "企业用户", count: 643 },
     { label: "高价值用户", count: 421 },
     { label: "长期合作", count: 298 },
-    { label: "技术导向", count: 187 }
-  ]
+    { label: "技术导向", count: 187 },
+  ],
 };
 
 export const getDashboardData = () => mockDashboardData;

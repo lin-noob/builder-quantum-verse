@@ -1,8 +1,20 @@
 import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { Search, ArrowUpDown, ArrowUp, ArrowDown, RotateCcw } from "lucide-react";
+import {
+  Search,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+  RotateCcw,
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import AdvancedDateRangePicker from "@/components/AdvancedDateRangePicker";
@@ -15,7 +27,7 @@ interface DateRange {
 
 interface SortConfig {
   field: string | null;
-  direction: 'asc' | 'desc';
+  direction: "asc" | "desc";
 }
 
 export default function UserList() {
@@ -23,12 +35,12 @@ export default function UserList() {
   const [selectedTimeField, setSelectedTimeField] = useState("firstVisitTime");
   const [dateRange, setDateRange] = useState<DateRange>({
     start: null,
-    end: null
+    end: null,
   });
   const [currentPage, setCurrentPage] = useState(1);
   const [sortConfig, setSortConfig] = useState<SortConfig>({
-    field: 'lastActiveTime',
-    direction: 'desc'
+    field: "lastActiveTime",
+    direction: "desc",
   });
   const itemsPerPage = 10;
 
@@ -36,9 +48,10 @@ export default function UserList() {
 
   // Sort function
   const handleSort = (field: string) => {
-    setSortConfig(prev => ({
+    setSortConfig((prev) => ({
       field,
-      direction: prev.field === field && prev.direction === 'asc' ? 'desc' : 'asc'
+      direction:
+        prev.field === field && prev.direction === "asc" ? "desc" : "asc",
     }));
   };
 
@@ -46,15 +59,18 @@ export default function UserList() {
     if (sortConfig.field !== field) {
       return <ArrowUpDown className="h-4 w-4" />;
     }
-    return sortConfig.direction === 'asc' ? 
-      <ArrowUp className="h-4 w-4" /> : 
-      <ArrowDown className="h-4 w-4" />;
+    return sortConfig.direction === "asc" ? (
+      <ArrowUp className="h-4 w-4" />
+    ) : (
+      <ArrowDown className="h-4 w-4" />
+    );
   };
 
   // Filter and sort users
   const filteredAndSortedUsers = useMemo(() => {
-    let filtered = users.filter(user => {
-      const matchesSearch = searchQuery === "" ||
+    let filtered = users.filter((user) => {
+      const matchesSearch =
+        searchQuery === "" ||
         user.cdpId.toLowerCase().includes(searchQuery.toLowerCase()) ||
         user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         user.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -63,13 +79,17 @@ export default function UserList() {
       let matchesDateFilter = true;
       if (dateRange.start && dateRange.end) {
         const timeValue = new Date(
-          selectedTimeField === "firstVisitTime" ? user.firstVisitTime :
-          selectedTimeField === "registrationTime" ? user.registrationTime :
-          selectedTimeField === "firstPurchaseTime" ? user.firstPurchaseTime :
-          user.lastActiveTime
+          selectedTimeField === "firstVisitTime"
+            ? user.firstVisitTime
+            : selectedTimeField === "registrationTime"
+              ? user.registrationTime
+              : selectedTimeField === "firstPurchaseTime"
+                ? user.firstPurchaseTime
+                : user.lastActiveTime,
         );
 
-        matchesDateFilter = timeValue >= dateRange.start && timeValue <= dateRange.end;
+        matchesDateFilter =
+          timeValue >= dateRange.start && timeValue <= dateRange.end;
       }
 
       return matchesSearch && matchesDateFilter;
@@ -81,23 +101,23 @@ export default function UserList() {
         let aValue: any, bValue: any;
 
         switch (sortConfig.field) {
-          case 'firstVisitTime':
+          case "firstVisitTime":
             aValue = new Date(a.firstVisitTime);
             bValue = new Date(b.firstVisitTime);
             break;
-          case 'registrationTime':
+          case "registrationTime":
             aValue = new Date(a.registrationTime);
             bValue = new Date(b.registrationTime);
             break;
-          case 'firstPurchaseTime':
+          case "firstPurchaseTime":
             aValue = new Date(a.firstPurchaseTime);
             bValue = new Date(b.firstPurchaseTime);
             break;
-          case 'lastActiveTime':
+          case "lastActiveTime":
             aValue = new Date(a.lastActiveTime);
             bValue = new Date(b.lastActiveTime);
             break;
-          case 'totalSpent':
+          case "totalSpent":
             aValue = a.totalSpent;
             bValue = b.totalSpent;
             break;
@@ -105,8 +125,8 @@ export default function UserList() {
             return 0;
         }
 
-        if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
-        if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
+        if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
+        if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
         return 0;
       });
     }
@@ -121,10 +141,10 @@ export default function UserList() {
   const currentUsers = filteredAndSortedUsers.slice(startIndex, endIndex);
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('zh-CN', {
-      style: 'currency',
-      currency: 'CNY',
-      minimumFractionDigits: 2
+    return new Intl.NumberFormat("zh-CN", {
+      style: "currency",
+      currency: "CNY",
+      minimumFractionDigits: 2,
     }).format(amount);
   };
 
@@ -137,17 +157,17 @@ export default function UserList() {
     setSearchQuery("");
     setSelectedTimeField("firstVisitTime");
     setDateRange({ start: null, end: null });
-    setSortConfig({ field: null, direction: 'asc' });
+    setSortConfig({ field: null, direction: "asc" });
     setCurrentPage(1);
   };
 
   const formatDateTime = (dateStr: string) => {
-    return new Date(dateStr).toLocaleString('zh-CN', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit'
+    return new Date(dateStr).toLocaleString("zh-CN", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -155,8 +175,7 @@ export default function UserList() {
     <div className="p-6 space-y-6 bg-gray-50 min-h-full">
       <div className="max-w-none">
         {/* Page Header */}
-        <div className="mb-6">
-        </div>
+        <div className="mb-6"></div>
 
         {/* Search and Filter Card */}
         <Card className="p-6 mb-8 bg-white shadow-sm">
@@ -190,7 +209,9 @@ export default function UserList() {
                 <SelectContent>
                   <SelectItem value="firstVisitTime">首次访问时间</SelectItem>
                   <SelectItem value="registrationTime">注册时间</SelectItem>
-                  <SelectItem value="firstPurchaseTime">首次购买时间</SelectItem>
+                  <SelectItem value="firstPurchaseTime">
+                    首次购买时间
+                  </SelectItem>
                   <SelectItem value="lastActiveTime">最后活跃时间</SelectItem>
                 </SelectContent>
               </Select>
@@ -226,54 +247,60 @@ export default function UserList() {
             <table className="w-full min-w-[800px]">
               <thead className="bg-gray-50 border-b">
                 <tr>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">用户</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">联系方式</th>
-                  <th 
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                    用户
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                    联系方式
+                  </th>
+                  <th
                     className="px-6 py-4 text-left text-sm font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100"
-                    onClick={() => handleSort('firstVisitTime')}
+                    onClick={() => handleSort("firstVisitTime")}
                   >
                     <div className="flex items-center gap-2">
                       首次访问
-                      {getSortIcon('firstVisitTime')}
+                      {getSortIcon("firstVisitTime")}
                     </div>
                   </th>
-                  <th 
+                  <th
                     className="px-6 py-4 text-left text-sm font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100"
-                    onClick={() => handleSort('registrationTime')}
+                    onClick={() => handleSort("registrationTime")}
                   >
                     <div className="flex items-center gap-2">
                       注册时间
-                      {getSortIcon('registrationTime')}
+                      {getSortIcon("registrationTime")}
                     </div>
                   </th>
-                  <th 
+                  <th
                     className="px-6 py-4 text-left text-sm font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100"
-                    onClick={() => handleSort('firstPurchaseTime')}
+                    onClick={() => handleSort("firstPurchaseTime")}
                   >
                     <div className="flex items-center gap-2">
                       首次购买
-                      {getSortIcon('firstPurchaseTime')}
+                      {getSortIcon("firstPurchaseTime")}
                     </div>
                   </th>
-                  <th 
+                  <th
                     className="px-6 py-4 text-left text-sm font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100"
-                    onClick={() => handleSort('lastActiveTime')}
+                    onClick={() => handleSort("lastActiveTime")}
                   >
                     <div className="flex items-center gap-2">
                       最后活跃
-                      {getSortIcon('lastActiveTime')}
+                      {getSortIcon("lastActiveTime")}
                     </div>
                   </th>
-                  <th 
+                  <th
                     className="px-6 py-4 text-left text-sm font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100"
-                    onClick={() => handleSort('totalSpent')}
+                    onClick={() => handleSort("totalSpent")}
                   >
                     <div className="flex items-center gap-2">
                       总消费
-                      {getSortIcon('totalSpent')}
+                      {getSortIcon("totalSpent")}
                     </div>
                   </th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">操作</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                    操作
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
@@ -281,9 +308,11 @@ export default function UserList() {
                   <tr key={user.cdpId} className="hover:bg-gray-50">
                     <td className="px-6 py-4">
                       <div className="space-y-1">
-                        <div className="font-mono text-sm text-gray-900">{user.cdpId}</div>
+                        <div className="font-mono text-sm text-gray-900">
+                          {user.cdpId}
+                        </div>
                         <div className="text-sm text-gray-500">
-                          {user.name || 'N/A'} / {user.company || 'N/A'}
+                          {user.name || "N/A"} / {user.company || "N/A"}
                         </div>
                       </div>
                     </td>
@@ -322,13 +351,15 @@ export default function UserList() {
           {/* Pagination */}
           <div className="px-6 py-4 border-t bg-gray-50 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="text-sm text-gray-700 order-2 sm:order-1">
-              正在显示 {startIndex + 1} - {Math.min(endIndex, filteredAndSortedUsers.length)} 条，共 {filteredAndSortedUsers.length} 条
+              正在显示 {startIndex + 1} -{" "}
+              {Math.min(endIndex, filteredAndSortedUsers.length)} 条，共{" "}
+              {filteredAndSortedUsers.length} 条
             </div>
             <div className="flex items-center gap-2 order-1 sm:order-2">
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
                 disabled={currentPage === 1}
               >
                 上一页
@@ -336,7 +367,9 @@ export default function UserList() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+                }
                 disabled={currentPage === totalPages}
               >
                 下一页

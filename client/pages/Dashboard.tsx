@@ -1,9 +1,9 @@
-import { useState } from 'react';
-import { getDashboardData } from '@shared/dashboardData';
-import KPICard from '@/components/KPICard';
-import PerformanceTrend from '@/components/PerformanceTrend';
-import TagChart from '@/components/TagChart';
-import AdvancedDateRangePicker from '@/components/AdvancedDateRangePicker';
+import { useState } from "react";
+import { getDashboardData } from "@shared/dashboardData";
+import KPICard from "@/components/KPICard";
+import PerformanceTrend from "@/components/PerformanceTrend";
+import TagChart from "@/components/TagChart";
+import AdvancedDateRangePicker from "@/components/AdvancedDateRangePicker";
 
 interface DateRange {
   start: Date | null;
@@ -16,19 +16,19 @@ export default function Dashboard() {
   // Date range state for the advanced picker
   const [dateRange, setDateRange] = useState<DateRange>({
     start: new Date(2025, 6, 12), // July 12, 2025
-    end: new Date(2025, 7, 10)    // August 10, 2025
+    end: new Date(2025, 7, 10), // August 10, 2025
   });
-  const [currentPreset, setCurrentPreset] = useState('last30days');
+  const [currentPreset, setCurrentPreset] = useState("last30days");
 
   const handleDateRangeChange = (range: DateRange) => {
     setDateRange(range);
     // Here you would typically trigger data refresh with new date range
-    console.log('Date range changed:', range);
+    console.log("Date range changed:", range);
   };
 
   const handlePresetChange = (preset: string) => {
     setCurrentPreset(preset);
-    console.log('Preset changed:', preset);
+    console.log("Preset changed:", preset);
   };
 
   return (
@@ -47,7 +47,6 @@ export default function Dashboard() {
           />
         </div>
       </div>
-
 
       {/* First Row: KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -75,7 +74,6 @@ export default function Dashboard() {
         <TagChart data={dashboardData.popularTags} />
         {/* Placeholder for future content */}
       </div>
-
     </div>
   );
 }

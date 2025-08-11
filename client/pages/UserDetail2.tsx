@@ -5,9 +5,25 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
-import { fetchUserDetail, type UserDetailResponse } from "@shared/userProfileData";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
+import {
+  fetchUserDetail,
+  type UserDetailResponse,
+} from "@shared/userProfileData";
 import { toast } from "@/hooks/use-toast";
 
 // Mock activity data for the chart
@@ -18,7 +34,7 @@ const mockActivityData = [
   { date: "2025-07-18", sessions: 2, pageViews: 8, duration: 15 },
   { date: "2025-07-19", sessions: 0, pageViews: 0, duration: 0 },
   { date: "2025-07-20", sessions: 5, pageViews: 22, duration: 55 },
-  { date: "2025-07-21", sessions: 3, pageViews: 14, duration: 28 }
+  { date: "2025-07-21", sessions: 3, pageViews: 14, duration: 28 },
 ];
 
 export default function UserDetail2() {
@@ -32,12 +48,13 @@ export default function UserDetail2() {
   useEffect(() => {
     const loadUserDetail = async () => {
       if (!userId) return;
-      
+
       try {
         const detail = await fetchUserDetail(userId);
         setUserDetail(detail);
         // Extract tags from the profile data
-        const tagsFromProfile = detail.allProfileData.value["标签与分层"]["手动标签"];
+        const tagsFromProfile =
+          detail.allProfileData.value["标签与分层"]["手动标签"];
         if (tagsFromProfile) {
           setUserTags(tagsFromProfile.split(", "));
         }
@@ -66,14 +83,14 @@ export default function UserDetail2() {
   };
 
   const removeTag = (tagToRemove: string) => {
-    setUserTags(userTags.filter(tag => tag !== tagToRemove));
+    setUserTags(userTags.filter((tag) => tag !== tagToRemove));
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('zh-CN', {
-      style: 'currency',
-      currency: 'CNY',
-      minimumFractionDigits: 2
+    return new Intl.NumberFormat("zh-CN", {
+      style: "currency",
+      currency: "CNY",
+      minimumFractionDigits: 2,
     }).format(amount);
   };
 
@@ -99,9 +116,7 @@ export default function UserDetail2() {
         <div className="text-center">
           <p className="text-foreground font-medium mb-2">用户未找到</p>
           <p className="text-muted-foreground mb-4">指定的用户ID不存在</p>
-          <Button onClick={() => navigate("/users2")}>
-            返回用户列表
-          </Button>
+          <Button onClick={() => navigate("/users2")}>返回用户列表</Button>
         </div>
       </div>
     );
@@ -124,7 +139,7 @@ export default function UserDetail2() {
       {/* Page Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-foreground">
-          {userDetail.basicInfo.email.split('@')[0]}
+          {userDetail.basicInfo.email.split("@")[0]}
         </h1>
       </div>
 
@@ -136,9 +151,9 @@ export default function UserDetail2() {
               {/* Left Column */}
               <div className="space-y-4">
                 <h2 className="text-lg font-semibold text-foreground">
-                  {userDetail.basicInfo.email.split('@')[0]}
+                  {userDetail.basicInfo.email.split("@")[0]}
                 </h2>
-                
+
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-muted-foreground">CDP ID:</span>
                   <code className="text-sm font-mono bg-muted px-2 py-1 rounded">
@@ -156,7 +171,9 @@ export default function UserDetail2() {
 
                 {/* Tag Management */}
                 <div>
-                  <h4 className="text-sm font-medium text-foreground mb-2">标签管理</h4>
+                  <h4 className="text-sm font-medium text-foreground mb-2">
+                    标签管理
+                  </h4>
                   <div className="flex flex-wrap gap-2 mb-3">
                     {userTags.map((tag, index) => (
                       <div
@@ -164,7 +181,7 @@ export default function UserDetail2() {
                         className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs bg-primary/10 text-primary"
                       >
                         {tag}
-                        <button 
+                        <button
                           onClick={() => removeTag(tag)}
                           className="ml-1 hover:text-destructive"
                         >
@@ -178,7 +195,7 @@ export default function UserDetail2() {
                       placeholder="添加新标签"
                       value={newTag}
                       onChange={(e) => setNewTag(e.target.value)}
-                      onKeyPress={(e) => e.key === 'Enter' && addTag()}
+                      onKeyPress={(e) => e.key === "Enter" && addTag()}
                       className="text-sm"
                     />
                     <Button onClick={addTag} size="sm">
@@ -193,31 +210,43 @@ export default function UserDetail2() {
                 <dl className="space-y-2">
                   <div>
                     <dt className="text-xs text-muted-foreground">邮箱</dt>
-                    <dd className="text-sm text-foreground">{userDetail.basicInfo.email}</dd>
+                    <dd className="text-sm text-foreground">
+                      {userDetail.basicInfo.email}
+                    </dd>
                   </div>
                   <div>
                     <dt className="text-xs text-muted-foreground">手机</dt>
-                    <dd className="text-sm text-foreground">{userDetail.basicInfo.phone}</dd>
+                    <dd className="text-sm text-foreground">
+                      {userDetail.basicInfo.phone}
+                    </dd>
                   </div>
                 </dl>
                 <dl className="space-y-2">
                   <div>
                     <dt className="text-xs text-muted-foreground">公司</dt>
-                    <dd className="text-sm text-foreground">{userDetail.basicInfo.company}</dd>
+                    <dd className="text-sm text-foreground">
+                      {userDetail.basicInfo.company}
+                    </dd>
                   </div>
                   <div>
                     <dt className="text-xs text-muted-foreground">职位</dt>
-                    <dd className="text-sm text-foreground">{userDetail.basicInfo.title}</dd>
+                    <dd className="text-sm text-foreground">
+                      {userDetail.basicInfo.title}
+                    </dd>
                   </div>
                 </dl>
                 <dl className="space-y-2">
                   <div>
                     <dt className="text-xs text-muted-foreground">性别</dt>
-                    <dd className="text-sm text-foreground">{userDetail.basicInfo.gender}</dd>
+                    <dd className="text-sm text-foreground">
+                      {userDetail.basicInfo.gender}
+                    </dd>
                   </div>
                   <div>
                     <dt className="text-xs text-muted-foreground">年龄</dt>
-                    <dd className="text-sm text-foreground">{userDetail.basicInfo.age}</dd>
+                    <dd className="text-sm text-foreground">
+                      {userDetail.basicInfo.age}
+                    </dd>
                   </div>
                 </dl>
               </div>
@@ -234,39 +263,57 @@ export default function UserDetail2() {
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-9 gap-4">
               <dl className="text-center">
                 <dt className="text-xs text-muted-foreground">总消费金额</dt>
-                <dd className="text-sm font-semibold text-foreground">{userDetail.kpis.totalSpend}</dd>
+                <dd className="text-sm font-semibold text-foreground">
+                  {userDetail.kpis.totalSpend}
+                </dd>
               </dl>
               <dl className="text-center">
                 <dt className="text-xs text-muted-foreground">总订单数</dt>
-                <dd className="text-sm font-semibold text-foreground">{userDetail.kpis.totalOrders}</dd>
+                <dd className="text-sm font-semibold text-foreground">
+                  {userDetail.kpis.totalOrders}
+                </dd>
               </dl>
               <dl className="text-center">
                 <dt className="text-xs text-muted-foreground">平均客单价</dt>
-                <dd className="text-sm font-semibold text-foreground">{userDetail.kpis.avgValue}</dd>
+                <dd className="text-sm font-semibold text-foreground">
+                  {userDetail.kpis.avgValue}
+                </dd>
               </dl>
               <dl className="text-center">
                 <dt className="text-xs text-muted-foreground">最后购买</dt>
-                <dd className="text-sm font-semibold text-foreground">{userDetail.kpis.lastPurchaseDays}</dd>
+                <dd className="text-sm font-semibold text-foreground">
+                  {userDetail.kpis.lastPurchaseDays}
+                </dd>
               </dl>
               <dl className="text-center">
                 <dt className="text-xs text-muted-foreground">平均周期</dt>
-                <dd className="text-sm font-semibold text-foreground">{userDetail.kpis.avgCycle}</dd>
+                <dd className="text-sm font-semibold text-foreground">
+                  {userDetail.kpis.avgCycle}
+                </dd>
               </dl>
               <dl className="text-center">
                 <dt className="text-xs text-muted-foreground">LTV分位</dt>
-                <dd className="text-sm font-semibold text-foreground">{userDetail.kpis.ltvQuintile}</dd>
+                <dd className="text-sm font-semibold text-foreground">
+                  {userDetail.kpis.ltvQuintile}
+                </dd>
               </dl>
               <dl className="text-center">
                 <dt className="text-xs text-muted-foreground">RFM分群</dt>
-                <dd className="text-sm font-semibold text-foreground">{userDetail.kpis.rfmSegment}</dd>
+                <dd className="text-sm font-semibold text-foreground">
+                  {userDetail.kpis.rfmSegment}
+                </dd>
               </dl>
               <dl className="text-center">
                 <dt className="text-xs text-muted-foreground">生命周期</dt>
-                <dd className="text-sm font-semibold text-foreground">{userDetail.kpis.lifecycleStage}</dd>
+                <dd className="text-sm font-semibold text-foreground">
+                  {userDetail.kpis.lifecycleStage}
+                </dd>
               </dl>
               <dl className="text-center">
                 <dt className="text-xs text-muted-foreground">复购率</dt>
-                <dd className="text-sm font-semibold text-foreground">{userDetail.kpis.repurchaseRate}</dd>
+                <dd className="text-sm font-semibold text-foreground">
+                  {userDetail.kpis.repurchaseRate}
+                </dd>
               </dl>
             </div>
           </CardContent>
@@ -293,67 +340,99 @@ export default function UserDetail2() {
                   </TabsList>
 
                   <TabsContent value="identity" className="space-y-4">
-                    {Object.entries(userDetail.allProfileData.identity).map(([groupName, data]) => (
-                      <div key={groupName}>
-                        <h4 className="text-sm font-medium text-foreground mb-2">{groupName}</h4>
-                        <dl className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                          {Object.entries(data).map(([key, value]) => (
-                            <div key={key} className="flex flex-col">
-                              <dt className="text-xs text-muted-foreground">{key}</dt>
-                              <dd className="text-sm text-foreground">{value}</dd>
-                            </div>
-                          ))}
-                        </dl>
-                      </div>
-                    ))}
+                    {Object.entries(userDetail.allProfileData.identity).map(
+                      ([groupName, data]) => (
+                        <div key={groupName}>
+                          <h4 className="text-sm font-medium text-foreground mb-2">
+                            {groupName}
+                          </h4>
+                          <dl className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                            {Object.entries(data).map(([key, value]) => (
+                              <div key={key} className="flex flex-col">
+                                <dt className="text-xs text-muted-foreground">
+                                  {key}
+                                </dt>
+                                <dd className="text-sm text-foreground">
+                                  {value}
+                                </dd>
+                              </div>
+                            ))}
+                          </dl>
+                        </div>
+                      ),
+                    )}
                   </TabsContent>
 
                   <TabsContent value="value" className="space-y-4">
-                    {Object.entries(userDetail.allProfileData.value).map(([groupName, data]) => (
-                      <div key={groupName}>
-                        <h4 className="text-sm font-medium text-foreground mb-2">{groupName}</h4>
-                        <dl className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                          {Object.entries(data).map(([key, value]) => (
-                            <div key={key} className="flex flex-col">
-                              <dt className="text-xs text-muted-foreground">{key}</dt>
-                              <dd className="text-sm text-foreground">{value}</dd>
-                            </div>
-                          ))}
-                        </dl>
-                      </div>
-                    ))}
+                    {Object.entries(userDetail.allProfileData.value).map(
+                      ([groupName, data]) => (
+                        <div key={groupName}>
+                          <h4 className="text-sm font-medium text-foreground mb-2">
+                            {groupName}
+                          </h4>
+                          <dl className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                            {Object.entries(data).map(([key, value]) => (
+                              <div key={key} className="flex flex-col">
+                                <dt className="text-xs text-muted-foreground">
+                                  {key}
+                                </dt>
+                                <dd className="text-sm text-foreground">
+                                  {value}
+                                </dd>
+                              </div>
+                            ))}
+                          </dl>
+                        </div>
+                      ),
+                    )}
                   </TabsContent>
 
                   <TabsContent value="behavior" className="space-y-4">
-                    {Object.entries(userDetail.allProfileData.behavior).map(([groupName, data]) => (
-                      <div key={groupName}>
-                        <h4 className="text-sm font-medium text-foreground mb-2">{groupName}</h4>
-                        <dl className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                          {Object.entries(data).map(([key, value]) => (
-                            <div key={key} className="flex flex-col">
-                              <dt className="text-xs text-muted-foreground">{key}</dt>
-                              <dd className="text-sm text-foreground">{value}</dd>
-                            </div>
-                          ))}
-                        </dl>
-                      </div>
-                    ))}
+                    {Object.entries(userDetail.allProfileData.behavior).map(
+                      ([groupName, data]) => (
+                        <div key={groupName}>
+                          <h4 className="text-sm font-medium text-foreground mb-2">
+                            {groupName}
+                          </h4>
+                          <dl className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                            {Object.entries(data).map(([key, value]) => (
+                              <div key={key} className="flex flex-col">
+                                <dt className="text-xs text-muted-foreground">
+                                  {key}
+                                </dt>
+                                <dd className="text-sm text-foreground">
+                                  {value}
+                                </dd>
+                              </div>
+                            ))}
+                          </dl>
+                        </div>
+                      ),
+                    )}
                   </TabsContent>
 
                   <TabsContent value="tech" className="space-y-4">
-                    {Object.entries(userDetail.allProfileData.tech).map(([groupName, data]) => (
-                      <div key={groupName}>
-                        <h4 className="text-sm font-medium text-foreground mb-2">{groupName}</h4>
-                        <dl className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                          {Object.entries(data).map(([key, value]) => (
-                            <div key={key} className="flex flex-col">
-                              <dt className="text-xs text-muted-foreground">{key}</dt>
-                              <dd className="text-sm text-foreground">{value}</dd>
-                            </div>
-                          ))}
-                        </dl>
-                      </div>
-                    ))}
+                    {Object.entries(userDetail.allProfileData.tech).map(
+                      ([groupName, data]) => (
+                        <div key={groupName}>
+                          <h4 className="text-sm font-medium text-foreground mb-2">
+                            {groupName}
+                          </h4>
+                          <dl className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                            {Object.entries(data).map(([key, value]) => (
+                              <div key={key} className="flex flex-col">
+                                <dt className="text-xs text-muted-foreground">
+                                  {key}
+                                </dt>
+                                <dd className="text-sm text-foreground">
+                                  {value}
+                                </dd>
+                              </div>
+                            ))}
+                          </dl>
+                        </div>
+                      ),
+                    )}
                   </TabsContent>
                 </Tabs>
               </TabsContent>
@@ -368,8 +447,18 @@ export default function UserDetail2() {
                       <XAxis dataKey="date" />
                       <YAxis />
                       <Tooltip />
-                      <Line type="monotone" dataKey="sessions" stroke="hsl(var(--primary))" strokeWidth={2} />
-                      <Line type="monotone" dataKey="pageViews" stroke="hsl(var(--secondary))" strokeWidth={2} />
+                      <Line
+                        type="monotone"
+                        dataKey="sessions"
+                        stroke="hsl(var(--primary))"
+                        strokeWidth={2}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="pageViews"
+                        stroke="hsl(var(--secondary))"
+                        strokeWidth={2}
+                      />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
@@ -383,7 +472,8 @@ export default function UserDetail2() {
                           <div>
                             <div className="font-medium">{session.time}</div>
                             <div className="text-sm text-muted-foreground">
-                              {session.duration} • {session.source} • {session.device}
+                              {session.duration} • {session.source} •{" "}
+                              {session.device}
                             </div>
                           </div>
                         </div>
@@ -391,18 +481,27 @@ export default function UserDetail2() {
                       <AccordionContent>
                         <div className="space-y-2">
                           {session.events.map((event, eventIndex) => (
-                            <div key={eventIndex} className="p-3 bg-muted rounded text-sm">
+                            <div
+                              key={eventIndex}
+                              className="p-3 bg-muted rounded text-sm"
+                            >
                               <div className="flex justify-between items-start">
                                 <div>
-                                  <div className="font-medium">{event.desc}</div>
-                                  <div className="text-muted-foreground">{event.url}</div>
+                                  <div className="font-medium">
+                                    {event.desc}
+                                  </div>
+                                  <div className="text-muted-foreground">
+                                    {event.url}
+                                  </div>
                                   {event.duration && (
                                     <div className="text-xs text-muted-foreground">
                                       停留时长: {event.duration}
                                     </div>
                                   )}
                                 </div>
-                                <div className="text-xs text-muted-foreground">{event.time}</div>
+                                <div className="text-xs text-muted-foreground">
+                                  {event.time}
+                                </div>
                               </div>
                             </div>
                           ))}
@@ -422,11 +521,17 @@ export default function UserDetail2() {
                         <div className="flex justify-between w-full pr-4">
                           <div>
                             <div className="font-medium">{order.id}</div>
-                            <div className="text-sm text-muted-foreground">{order.time}</div>
+                            <div className="text-sm text-muted-foreground">
+                              {order.time}
+                            </div>
                           </div>
                           <div className="text-right">
-                            <div className="font-medium">{formatCurrency(order.total)}</div>
-                            <div className="text-sm text-muted-foreground">{order.status}</div>
+                            <div className="font-medium">
+                              {formatCurrency(order.total)}
+                            </div>
+                            <div className="text-sm text-muted-foreground">
+                              {order.status}
+                            </div>
                           </div>
                         </div>
                       </AccordionTrigger>
@@ -434,25 +539,34 @@ export default function UserDetail2() {
                         <div className="space-y-4">
                           <div className="grid grid-cols-2 gap-4 text-sm">
                             <div>
-                              <span className="font-medium">支付方式:</span> {order.payment}
+                              <span className="font-medium">支付方式:</span>{" "}
+                              {order.payment}
                             </div>
                             <div>
-                              <span className="font-medium">��单状态:</span> {order.status}
+                              <span className="font-medium">��单状态:</span>{" "}
+                              {order.status}
                             </div>
                           </div>
-                          
+
                           <div>
                             <h5 className="font-medium mb-2">商品明细</h5>
                             <div className="space-y-2">
                               {order.items.map((item, itemIndex) => (
-                                <div key={itemIndex} className="flex justify-between items-center p-3 bg-muted rounded text-sm">
+                                <div
+                                  key={itemIndex}
+                                  className="flex justify-between items-center p-3 bg-muted rounded text-sm"
+                                >
                                   <div>
-                                    <div className="font-medium">{item.name}</div>
+                                    <div className="font-medium">
+                                      {item.name}
+                                    </div>
                                     <div className="text-muted-foreground">
                                       {formatCurrency(item.price)} × {item.qty}
                                     </div>
                                   </div>
-                                  <div className="font-medium">{formatCurrency(item.total)}</div>
+                                  <div className="font-medium">
+                                    {formatCurrency(item.total)}
+                                  </div>
                                 </div>
                               ))}
                             </div>
