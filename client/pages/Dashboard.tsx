@@ -15,7 +15,7 @@ export default function Dashboard() {
 
   // Global date range state
   const [globalDateRange, setGlobalDateRange] = useState('30days');
-  const [showCustomDate, setShowCustomDate] = useState(false);
+  const [isCustomDateDialogOpen, setIsCustomDateDialogOpen] = useState(false);
   const [customStartDate, setCustomStartDate] = useState('');
   const [customEndDate, setCustomEndDate] = useState('');
 
