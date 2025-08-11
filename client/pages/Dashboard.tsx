@@ -1,12 +1,9 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import { getDashboardData } from '@shared/dashboardData';
 import KPICard from '@/components/KPICard';
 import PerformanceTrend from '@/components/PerformanceTrend';
 import TagChart from '@/components/TagChart';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Calendar, ChevronDown } from 'lucide-react';
+import AdvancedDateRangePicker from '@/components/AdvancedDateRangePicker';
 
 export default function Dashboard() {
   const dashboardData = getDashboardData();
