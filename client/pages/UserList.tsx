@@ -211,7 +211,7 @@ export default function UserList() {
       setTotalCount(response.data.total || 0);
     } catch (error) {
       console.error("获取用户数据失败:", error);
-      console.error("请求参数:", { queryParams, requestBody });
+      console.error("请求参数:", { requestBody });
 
       let errorMessage = "获取用户数据失败，请重试";
       if (error instanceof Error) {
@@ -302,7 +302,7 @@ export default function UserList() {
     setCurrentPage(1);
   };
 
-  // 手动刷新数据
+  // 手��刷新数据
   const handleRefresh = () => {
     fetchUsers();
   };
