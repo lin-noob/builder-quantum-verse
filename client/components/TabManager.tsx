@@ -66,7 +66,7 @@ export default function TabManager() {
     '/ai-marketing/fully-auto': 'AI营销 - 全自动模式',
     '/ai-marketing/semi-auto': 'AI营销 - 半自动模式',
     '/ai-marketing/semi-auto/create': 'AI营销 - 创建剧本',
-    '/ai-marketing/strategy-goals': 'AI营销 - 战略与目标',
+    '/ai-marketing/strategy-goals': 'AI���销 - 战略与目标',
     '/ai-marketing/live-monitoring': 'AI营销 - 实时监控',
     '/ai-marketing/performance-analytics': 'AI营销 - 效果分析'
   };
@@ -312,7 +312,7 @@ export default function TabManager() {
       {/* 右键菜单 */}
       {contextMenu.isOpen && contextMenu.targetTab && (
         <div
-          className="fixed bg-white border border-gray-200 rounded-lg shadow-lg py-2 z-50 min-w-36"
+          className="fixed bg-white border border-gray-200 rounded shadow-lg py-1 z-50 min-w-24"
           style={{
             left: contextMenu.x,
             top: contextMenu.y,
@@ -320,7 +320,7 @@ export default function TabManager() {
           onClick={(e) => e.stopPropagation()}
         >
           <button
-            className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+            className="w-full px-3 py-1.5 text-left text-xs text-gray-700 hover:bg-gray-50 transition-colors"
             onClick={() => {
               refreshCurrentTab();
               closeContextMenu();
@@ -330,7 +330,7 @@ export default function TabManager() {
           </button>
           {!contextMenu.targetTab.isHome && (
             <button
-              className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+              className="w-full px-3 py-1.5 text-left text-xs text-gray-700 hover:bg-gray-50 transition-colors"
               onClick={() => {
                 closeTab(contextMenu.targetTab!.id);
                 closeContextMenu();
@@ -340,7 +340,7 @@ export default function TabManager() {
             </button>
           )}
           <button
-            className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+            className="w-full px-3 py-1.5 text-left text-xs text-gray-700 hover:bg-gray-50 transition-colors"
             onClick={() => {
               closeOtherTabs();
               closeContextMenu();
@@ -349,7 +349,7 @@ export default function TabManager() {
             关闭其他
           </button>
           <button
-            className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+            className="w-full px-3 py-1.5 text-left text-xs text-gray-700 hover:bg-gray-50 transition-colors"
             onClick={() => {
               closeAllTabs();
               closeContextMenu();
@@ -359,13 +359,13 @@ export default function TabManager() {
           </button>
           {!contextMenu.targetTab.isHome && (
             <button
-              className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+              className="w-full px-3 py-1.5 text-left text-xs text-gray-700 hover:bg-gray-50 transition-colors"
               onClick={() => {
                 closeRightTabs(contextMenu.targetTab!.id);
                 closeContextMenu();
               }}
             >
-              关闭右侧标签页
+              关闭右侧
             </button>
           )}
         </div>
