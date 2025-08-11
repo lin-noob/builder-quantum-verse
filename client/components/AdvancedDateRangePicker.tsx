@@ -349,9 +349,13 @@ export default function AdvancedDateRangePicker({ value, onChange, onPresetChang
             </div>
 
             {/* Center Calendar Area */}
-            <div className="flex gap-4">
-              {renderCalendar(leftCalendarDate, true)}
-              {renderCalendar(rightCalendarDate, false)}
+            <div className="flex gap-4 overflow-x-auto">
+              <div className="flex-shrink-0">
+                {renderCalendar(leftCalendarDate, true)}
+              </div>
+              <div className="flex-shrink-0">
+                {renderCalendar(rightCalendarDate, false)}
+              </div>
             </div>
           </div>
         </div>
