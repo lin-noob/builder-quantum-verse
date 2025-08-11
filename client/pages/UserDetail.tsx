@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { 
-  ArrowLeft, 
-  User, 
-  Building, 
-  MapPin, 
-  Mail, 
-  Copy, 
+import {
+  ArrowLeft,
+  User,
+  Building,
+  MapPin,
+  Mail,
+  Copy,
   X,
   Plus,
   ChevronDown,
@@ -18,6 +18,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { getUserById, type User as UserType } from "@shared/userData";
 import { toast } from "@/hooks/use-toast";
 
@@ -27,6 +35,7 @@ export default function UserDetail() {
   
   const [userTags, setUserTags] = useState<string[]>(user?.tags || []);
   const [newTag, setNewTag] = useState("");
+  const [isTagDialogOpen, setIsTagDialogOpen] = useState(false);
   const [openSessions, setOpenSessions] = useState<Set<string>>(new Set());
   const [openOrders, setOpenOrders] = useState<Set<string>>(new Set());
   const [currentOrderPage, setCurrentOrderPage] = useState(1);
@@ -55,6 +64,7 @@ export default function UserDetail() {
     if (newTag.trim() && !userTags.includes(newTag.trim())) {
       setUserTags([...userTags, newTag.trim()]);
       setNewTag("");
+      setIsTagDialogOpen(false);
     }
   };
 
@@ -114,13 +124,13 @@ export default function UserDetail() {
           {/* Core Identity Card - Full Width */}
           <Card>
             <CardContent className="p-6">
-              <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Left Column */}
                 <div className="space-y-4">
                   <h2 className="text-xl font-semibold">
                     {user.name || user.cdpId.substring(0, 8)}
                   </h2>
-                  
+
                   <div className="flex items-center gap-3">
                     <User className="h-4 w-4 text-gray-500" />
                     <span className="text-sm text-gray-600">CDP ID:</span>
@@ -139,7 +149,7 @@ export default function UserDetail() {
                       {userTags.map((tag) => (
                         <Badge key={tag} variant="secondary" className="flex items-center gap-1">
                           {tag}
-                          <button 
+                          <button
                             onClick={() => removeTag(tag)}
                             className="ml-1 hover:text-red-600"
                           >
@@ -148,23 +158,43 @@ export default function UserDetail() {
                         </Badge>
                       ))}
                     </div>
-                    <div className="flex gap-2">
-                      <Input
-                        placeholder="添加新标签"
-                        value={newTag}
-                        onChange={(e) => setNewTag(e.target.value)}
-                        onKeyPress={(e) => e.key === 'Enter' && addTag()}
-                        className="text-sm"
-                      />
-                      <Button onClick={addTag} size="sm">
-                        <Plus className="h-4 w-4" />
-                      </Button>
-                    </div>
+                    <Dialog open={isTagDialogOpen} onOpenChange={setIsTagDialogOpen}>
+                      <DialogTrigger asChild>
+                        <Button size="sm" variant="outline">
+                          <Plus className="h-4 w-4 mr-1" />
+                          添加标签
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-[425px]">
+                        <DialogHeader>
+                          <DialogTitle>添加新标签</DialogTitle>
+                          <DialogDescription>
+                            为用户添加一个新的状态标签
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-4 py-4">
+                          <Input
+                            placeholder="输入标签名称"
+                            value={newTag}
+                            onChange={(e) => setNewTag(e.target.value)}
+                            onKeyPress={(e) => e.key === 'Enter' && addTag()}
+                          />
+                          <div className="flex justify-end gap-2">
+                            <Button variant="outline" onClick={() => setIsTagDialogOpen(false)}>
+                              取消
+                            </Button>
+                            <Button onClick={addTag} disabled={!newTag.trim()}>
+                              添加
+                            </Button>
+                          </div>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
                   </div>
                 </div>
 
-                {/* Basic Info Grid - 3 columns */}
-                <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* Basic Info Grid - 2 columns */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-3">
                     <div className="flex items-center gap-3">
                       <Building className="h-4 w-4 text-gray-500" />
@@ -190,9 +220,6 @@ export default function UserDetail() {
                       </div>
                     </div>
                   </div>
-                  <div className="space-y-3">
-                    {/* Additional info can go here */}
-                  </div>
                 </div>
               </div>
             </CardContent>
@@ -204,58 +231,58 @@ export default function UserDetail() {
               <CardTitle className="text-lg">关键业务指标</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                <div className="text-center p-3 bg-gray-50 rounded-lg">
-                  <div className="text-xl font-bold text-blue-600">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+                <div className="text-center p-2 bg-gray-50 rounded">
+                  <div className="text-lg font-bold text-gray-900">
                     {formatCurrency(user.totalSpent)}
                   </div>
                   <div className="text-xs text-gray-600">总消费金额</div>
                 </div>
-                <div className="text-center p-3 bg-gray-50 rounded-lg">
-                  <div className="text-xl font-bold text-green-600">{user.totalOrders}</div>
+                <div className="text-center p-2 bg-gray-50 rounded">
+                  <div className="text-lg font-bold text-gray-900">{user.totalOrders}</div>
                   <div className="text-xs text-gray-600">总订单数</div>
                 </div>
-                <div className="text-center p-3 bg-gray-50 rounded-lg">
-                  <div className="text-xl font-bold text-purple-600">
+                <div className="text-center p-2 bg-gray-50 rounded">
+                  <div className="text-lg font-bold text-gray-900">
                     {formatCurrency(user.averageOrderValue)}
                   </div>
                   <div className="text-xs text-gray-600">平均客单价</div>
                 </div>
-                <div className="text-center p-3 bg-gray-50 rounded-lg">
-                  <div className="text-sm font-bold text-orange-600">{user.lastPurchaseDate}</div>
+                <div className="text-center p-2 bg-gray-50 rounded">
+                  <div className="text-sm font-bold text-gray-900">{user.lastPurchaseDate}</div>
                   <div className="text-xs text-gray-600">上次购买时间</div>
                 </div>
-                <div className="text-center p-3 bg-gray-50 rounded-lg">
-                  <div className="text-xl font-bold text-red-600">
+                <div className="text-center p-2 bg-gray-50 rounded">
+                  <div className="text-lg font-bold text-gray-900">
                     {formatCurrency(user.maxOrderAmount)}
                   </div>
                   <div className="text-xs text-gray-600">最高单笔订单</div>
                 </div>
-                <div className="text-center p-3 bg-gray-50 rounded-lg">
-                  <div className="text-xl font-bold text-indigo-600">{user.averagePurchaseCycle}天</div>
+                <div className="text-center p-2 bg-gray-50 rounded">
+                  <div className="text-lg font-bold text-gray-900">{user.averagePurchaseCycle}天</div>
                   <div className="text-xs text-gray-600">平均购买周期</div>
                 </div>
               </div>
 
               {/* Time-based Information */}
-              <div className="mt-6 pt-4 border-t border-gray-200">
-                <h4 className="text-sm font-medium text-gray-900 mb-3">时间轴信息</h4>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  <div className="text-center p-3 bg-blue-50 rounded-lg">
-                    <div className="text-sm font-bold text-blue-700">{user.firstVisitTime}</div>
-                    <div className="text-xs text-blue-600">首次访问时间</div>
+              <div className="mt-4 pt-3 border-t border-gray-200">
+                <h4 className="text-sm font-medium text-gray-900 mb-2">时间轴信息</h4>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                  <div className="text-center p-2 bg-gray-50 rounded">
+                    <div className="text-sm font-bold text-gray-700">{user.firstVisitTime}</div>
+                    <div className="text-xs text-gray-600">首次访问时间</div>
                   </div>
-                  <div className="text-center p-3 bg-green-50 rounded-lg">
-                    <div className="text-sm font-bold text-green-700">{user.registrationTime}</div>
-                    <div className="text-xs text-green-600">注册时间</div>
+                  <div className="text-center p-2 bg-gray-50 rounded">
+                    <div className="text-sm font-bold text-gray-700">{user.registrationTime}</div>
+                    <div className="text-xs text-gray-600">注册时间</div>
                   </div>
-                  <div className="text-center p-3 bg-purple-50 rounded-lg">
-                    <div className="text-sm font-bold text-purple-700">{user.firstPurchaseTime}</div>
-                    <div className="text-xs text-purple-600">首次购买时间</div>
+                  <div className="text-center p-2 bg-gray-50 rounded">
+                    <div className="text-sm font-bold text-gray-700">{user.firstPurchaseTime}</div>
+                    <div className="text-xs text-gray-600">首次购买时间</div>
                   </div>
-                  <div className="text-center p-3 bg-orange-50 rounded-lg">
-                    <div className="text-sm font-bold text-orange-700">{user.lastActiveTime}</div>
-                    <div className="text-xs text-orange-600">最后活跃时间</div>
+                  <div className="text-center p-2 bg-gray-50 rounded">
+                    <div className="text-sm font-bold text-gray-700">{user.lastActiveTime}</div>
+                    <div className="text-xs text-gray-600">最后活跃时间</div>
                   </div>
                 </div>
               </div>
@@ -366,7 +393,7 @@ export default function UserDetail() {
                 <TabsContent value="statistics">
                   <Card>
                     <CardHeader>
-                      <CardTitle>订单统计</CardTitle>
+                      <CardTitle>订单统��</CardTitle>
                     </CardHeader>
                     <CardContent>
                       {user.orders.length > 0 ? (
