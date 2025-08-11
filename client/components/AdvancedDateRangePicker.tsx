@@ -74,6 +74,12 @@ export default function AdvancedDateRangePicker({
     }
   }, []);
 
+  useEffect(() => {
+    if (value) {
+      setTempRange(value);
+    }
+  }, [value]);
+
   // Initialize with correct preset
   useEffect(() => {
     setActivePreset("last30days");
