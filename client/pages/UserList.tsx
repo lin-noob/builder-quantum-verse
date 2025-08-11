@@ -71,21 +71,21 @@ export default function UserList() {
     let filtered = users.filter((user) => {
       const matchesSearch =
         searchQuery === "" ||
-        user.cdpId.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        user.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        user.contact.toLowerCase().includes(searchQuery.toLowerCase());
+        (user.cdpId && user.cdpId.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (user.name && user.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (user.company && user.company.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (user.contact && user.contact.toLowerCase().includes(searchQuery.toLowerCase()));
 
       let matchesDateFilter = true;
       if (dateRange.start && dateRange.end) {
         const timeValue = new Date(
           selectedTimeField === "firstVisitTime"
-            ? user.firstVisitTime
+            ? user.firstVisitTime || ""
             : selectedTimeField === "registrationTime"
-              ? user.registrationTime
+              ? user.registrationTime || ""
               : selectedTimeField === "firstPurchaseTime"
-                ? user.firstPurchaseTime
-                : user.lastActiveTime,
+                ? user.firstPurchaseTime || ""
+                : user.lastActiveTime || "",
         );
 
         matchesDateFilter =
@@ -102,24 +102,24 @@ export default function UserList() {
 
         switch (sortConfig.field) {
           case "firstVisitTime":
-            aValue = new Date(a.firstVisitTime);
-            bValue = new Date(b.firstVisitTime);
+            aValue = new Date(a.firstVisitTime || "");
+            bValue = new Date(b.firstVisitTime || "");
             break;
           case "registrationTime":
-            aValue = new Date(a.registrationTime);
-            bValue = new Date(b.registrationTime);
+            aValue = new Date(a.registrationTime || "");
+            bValue = new Date(b.registrationTime || "");
             break;
           case "firstPurchaseTime":
-            aValue = new Date(a.firstPurchaseTime);
-            bValue = new Date(b.firstPurchaseTime);
+            aValue = new Date(a.firstPurchaseTime || "");
+            bValue = new Date(b.firstPurchaseTime || "");
             break;
           case "lastActiveTime":
-            aValue = new Date(a.lastActiveTime);
-            bValue = new Date(b.lastActiveTime);
+            aValue = new Date(a.lastActiveTime || "");
+            bValue = new Date(b.lastActiveTime || "");
             break;
           case "totalSpent":
-            aValue = a.totalSpent;
-            bValue = b.totalSpent;
+            aValue = a.totalSpent || 0;
+            bValue = b.totalSpent || 0;
             break;
           default:
             return 0;
@@ -162,6 +162,7 @@ export default function UserList() {
   };
 
   const formatDateTime = (dateStr: string) => {
+    if (!dateStr) return "N/A";
     return new Date(dateStr).toLocaleString("zh-CN", {
       year: "numeric",
       month: "2-digit",
@@ -305,38 +306,38 @@ export default function UserList() {
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {currentUsers.map((user) => (
-                  <tr key={user.cdpId} className="hover:bg-gray-50">
+                  <tr key={user.cdpId || user.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4">
                       <div className="space-y-1">
                         <div className="font-mono text-sm text-gray-900">
-                          {user.cdpId}
+                          {user.cdpId || user.id}
                         </div>
                         <div className="text-sm text-gray-500">
-                          {user.name || "N/A"} / {user.company || "N/A"}
+                          {user.name || user.fullName || "N/A"} / {user.company || user.companyName || "N/A"}
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-900">
-                      {user.contact}
+                      {user.contact || user.contactInfo || "N/A"}
                     </td>
                     <td className="px-6 py-4 text-xs text-gray-600">
-                      {formatDateTime(user.firstVisitTime)}
+                      {formatDateTime(user.firstVisitTime || "")}
                     </td>
                     <td className="px-6 py-4 text-xs text-gray-600">
-                      {formatDateTime(user.registrationTime)}
+                      {formatDateTime(user.registrationTime || "")}
                     </td>
                     <td className="px-6 py-4 text-xs text-gray-600">
-                      {formatDateTime(user.firstPurchaseTime)}
+                      {formatDateTime(user.firstPurchaseTime || "")}
                     </td>
                     <td className="px-6 py-4 text-xs text-gray-600">
-                      {formatDateTime(user.lastActiveTime)}
+                      {formatDateTime(user.lastActiveTime || "")}
                     </td>
                     <td className="px-6 py-4 text-sm font-semibold text-gray-900">
-                      {formatCurrency(user.totalSpent)}
+                      {formatCurrency(user.totalSpent || 0)}
                     </td>
                     <td className="px-6 py-4">
                       <Link
-                        to={`/users/${user.cdpId}`}
+                        to={`/users/${user.cdpId || user.id}`}
                         className="text-blue-600 hover:text-blue-800 text-sm font-medium"
                       >
                         查看详情
