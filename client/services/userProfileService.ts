@@ -2,6 +2,7 @@
  * 用户画像API服务
  */
 import { createRequest } from "@/lib/request";
+import { generateMockUserProfileList, mockApiDelay } from "@/mock/userProfileData";
 import type {
   UserProfile,
   UserProfileListParams,
