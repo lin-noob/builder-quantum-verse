@@ -32,6 +32,58 @@ interface SortConfig {
   direction: "asc" | "desc";
 }
 
+// API相关类型定义
+interface ApiUser {
+  id: string;
+  cdpUserId: number;
+  fullName: string;
+  contactInfo: string;
+  companyName: string;
+  signTime: string;
+  createGmt: string;
+  minBuyTime: string;
+  maxBuyTime: string;
+  maxOrderAmount: number;
+  totalOrders: number;
+  orderCount: number;
+  loginDate: string;
+  location: string;
+  shopid: string;
+}
+
+// 转换为UI需要的用户格式
+interface User {
+  cdpId: string;
+  name: string;
+  company: string;
+  contact: string;
+  firstVisitTime: string;
+  registrationTime: string;
+  firstPurchaseTime: string;
+  lastActiveTime: string;
+  totalSpent: number;
+}
+
+interface OrderSummaryDto {
+  currentpage?: number;
+  endDate?: string;
+  keywords?: string;
+  order?: string;
+  pagesize?: number;
+  paramother?: Record<string, string>;
+  searchtype?: string;
+  shopid?: string;
+  sort?: string;
+  startDate?: string;
+}
+
+interface ApiResponse {
+  code: string;
+  data: ApiUser[];
+  msg: string;
+  total: number;
+}
+
 export default function UserList() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTimeField, setSelectedTimeField] = useState("firstVisitTime");
