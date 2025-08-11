@@ -190,6 +190,9 @@ export default function UserList() {
         total: number;
       }>("/api/quote/api/v1/profile/list", requestBody, {
         params: queryParams,
+        headers: {
+          'Content-Type': 'application/json',
+        },
       });
 
       // 检查业务响应码
