@@ -96,9 +96,115 @@ export default function UserList() {
     field: "lastActiveTime",
     direction: "desc",
   });
+  const [loading, setLoading] = useState(false);
+  const [users, setUsers] = useState<User[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
   const itemsPerPage = 10;
 
-  const users = getUsers();
+  // 转换API用户数据为UI格式
+  const convertApiUserToUser = (apiUser: ApiUser): User => {
+    return {
+      cdpId: apiUser.cdpUserId.toString(),
+      name: apiUser.fullName || "",
+      company: apiUser.companyName || "",
+      contact: apiUser.contactInfo || "",
+      firstVisitTime: apiUser.createGmt || "",
+      registrationTime: apiUser.signTime || "",
+      firstPurchaseTime: apiUser.minBuyTime || "",
+      lastActiveTime: apiUser.loginDate || "",
+      totalSpent: apiUser.totalOrders || 0,
+    };
+  };
+
+  // 获取搜索类型映射
+  const getSearchTypeMapping = (timeField: string): string => {
+    switch (timeField) {
+      case "firstVisitTime":
+        return "createGmt";
+      case "registrationTime":
+        return "signTime";
+      case "firstPurchaseTime":
+        return "minBuyTime";
+      case "lastActiveTime":
+        return "createGmt";
+      default:
+        return "signTime";
+    }
+  };
+
+  // 获取排序字段映射
+  const getSortFieldMapping = (field: string): string => {
+    switch (field) {
+      case "firstVisitTime":
+        return "createGmt";
+      case "registrationTime":
+        return "signTime";
+      case "firstPurchaseTime":
+        return "minBuyTime";
+      case "lastActiveTime":
+        return "loginDate";
+      case "totalSpent":
+        return "totalOrders";
+      default:
+        return "createGmt";
+    }
+  };
+
+  // 调用API获取用户数据
+  const fetchUsers = useCallback(async () => {
+    setLoading(true);
+    try {
+      const queryParams: Record<string, string | number> = {
+        page: currentPage,
+        limit: itemsPerPage,
+      };
+
+      if (searchQuery.trim()) {
+        queryParams.name = searchQuery.trim();
+      }
+
+      const requestBody: OrderSummaryDto = {
+        currentpage: currentPage,
+        pagesize: itemsPerPage,
+        keywords: searchQuery.trim() || undefined,
+        startDate: dateRange.start?.toISOString(),
+        endDate: dateRange.end?.toISOString(),
+        searchtype: getSearchTypeMapping(selectedTimeField),
+        sort: sortConfig.field ? getSortFieldMapping(sortConfig.field) : undefined,
+        order: sortConfig.direction,
+      };
+
+      const response = await request.businessPost<ApiUser[]>(
+        "/quote/api/v1/profile/list",
+        requestBody,
+        { params: queryParams }
+      );
+
+      // 注意：根据API文档，response应该已经被businessPost处理过，直接是data数组
+      const convertedUsers = response.map(convertApiUserToUser);
+      setUsers(convertedUsers);
+
+      // 如果需要总数，可能需要从响应头或其他地方获取，这里暂时使用返回的数据长度
+      setTotalCount(response.length);
+
+    } catch (error) {
+      console.error("获取用户数据失败:", error);
+      toast({
+        title: "加载失败",
+        description: "获取用户数据失败，请重试",
+        variant: "destructive",
+      });
+      setUsers([]);
+      setTotalCount(0);
+    } finally {
+      setLoading(false);
+    }
+  }, [currentPage, itemsPerPage, searchQuery, dateRange, selectedTimeField, sortConfig]);
+
+  // 初始化和依赖更新时获取数据
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
 
   // Sort function
   const handleSort = (field: string) => {
