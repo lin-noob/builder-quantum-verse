@@ -60,7 +60,7 @@ export default function AdvancedDateRangePicker({
   const [activePreset, setActivePreset] = useState("last30days");
   const [leftCalendarDate, setLeftCalendarDate] = useState(new Date(2025, 6)); // July 2025
   const [rightCalendarDate, setRightCalendarDate] = useState(new Date(2025, 7)); // August 2025
-  const [tempRange, setTempRange] = useState<DateRange>(value);
+  const [tempRange, setTempRange] = useState<DateRange>(value || { start: null, end: null });
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Mock dates for demo
