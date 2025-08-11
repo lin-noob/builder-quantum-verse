@@ -8,7 +8,7 @@ import RecentActivities from '@/components/RecentActivities';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Calendar } from 'lucide-react';
+import { Calendar, RotateCcw } from 'lucide-react';
 
 export default function Dashboard() {
   const dashboardData = getDashboardData();
