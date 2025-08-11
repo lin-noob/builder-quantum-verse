@@ -83,14 +83,10 @@ export default function UserDetail2() {
         <div className="animate-pulse">
           <div className="h-6 bg-secondary rounded mb-6 w-32"></div>
           <div className="h-8 bg-secondary rounded mb-6 w-48"></div>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="space-y-4">
-              <div className="h-64 bg-secondary rounded"></div>
-              <div className="h-48 bg-secondary rounded"></div>
-            </div>
-            <div className="lg:col-span-2">
-              <div className="h-96 bg-secondary rounded"></div>
-            </div>
+          <div className="space-y-4">
+            <div className="h-64 bg-secondary rounded"></div>
+            <div className="h-48 bg-secondary rounded"></div>
+            <div className="h-96 bg-secondary rounded"></div>
           </div>
         </div>
       </div>
@@ -142,7 +138,7 @@ export default function UserDetail2() {
                 <h2 className="text-lg font-semibold text-foreground">
                   {userDetail.basicInfo.email.split('@')[0]}
                 </h2>
-
+                
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-muted-foreground">CDP ID:</span>
                   <code className="text-sm font-mono bg-muted px-2 py-1 rounded">
@@ -168,7 +164,7 @@ export default function UserDetail2() {
                         className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs bg-primary/10 text-primary"
                       >
                         {tag}
-                        <button
+                        <button 
                           onClick={() => removeTag(tag)}
                           className="ml-1 hover:text-destructive"
                         >
@@ -277,201 +273,199 @@ export default function UserDetail2() {
         </Card>
 
         {/* Detailed Data - Full Width */}
-        <div>
-          <Card className="bg-background rounded-lg border">
-            <CardContent className="p-6">
-              <Tabs defaultValue="dossier" className="w-full">
-                <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="dossier">用户档案</TabsTrigger>
-                  <TabsTrigger value="timeline">访问与行为时间线</TabsTrigger>
-                  <TabsTrigger value="orders">业务与订单统计</TabsTrigger>
-                </TabsList>
+        <Card className="bg-background rounded-lg border">
+          <CardContent className="p-6">
+            <Tabs defaultValue="dossier" className="w-full">
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="dossier">用户档案</TabsTrigger>
+                <TabsTrigger value="timeline">访问与行为时间线</TabsTrigger>
+                <TabsTrigger value="orders">业务与订单统计</TabsTrigger>
+              </TabsList>
 
-                {/* User Dossier Tab */}
-                <TabsContent value="dossier" className="space-y-4">
-                  <Tabs defaultValue="identity" className="w-full">
-                    <TabsList className="grid w-full grid-cols-4">
-                      <TabsTrigger value="identity">身份与标签</TabsTrigger>
-                      <TabsTrigger value="value">价值与生命周期</TabsTrigger>
-                      <TabsTrigger value="behavior">行为与意图</TabsTrigger>
-                      <TabsTrigger value="tech">技术环境</TabsTrigger>
-                    </TabsList>
+              {/* User Dossier Tab */}
+              <TabsContent value="dossier" className="space-y-4">
+                <Tabs defaultValue="identity" className="w-full">
+                  <TabsList className="grid w-full grid-cols-4">
+                    <TabsTrigger value="identity">身份与标签</TabsTrigger>
+                    <TabsTrigger value="value">价值与生命周期</TabsTrigger>
+                    <TabsTrigger value="behavior">行为与意图</TabsTrigger>
+                    <TabsTrigger value="tech">技术环境</TabsTrigger>
+                  </TabsList>
 
-                    <TabsContent value="identity" className="space-y-4">
-                      {Object.entries(userDetail.allProfileData.identity).map(([groupName, data]) => (
-                        <div key={groupName}>
-                          <h4 className="text-sm font-medium text-foreground mb-2">{groupName}</h4>
-                          <dl className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                            {Object.entries(data).map(([key, value]) => (
-                              <div key={key} className="flex flex-col">
-                                <dt className="text-xs text-muted-foreground">{key}</dt>
-                                <dd className="text-sm text-foreground">{value}</dd>
-                              </div>
-                            ))}
-                          </dl>
-                        </div>
-                      ))}
-                    </TabsContent>
-
-                    <TabsContent value="value" className="space-y-4">
-                      {Object.entries(userDetail.allProfileData.value).map(([groupName, data]) => (
-                        <div key={groupName}>
-                          <h4 className="text-sm font-medium text-foreground mb-2">{groupName}</h4>
-                          <dl className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                            {Object.entries(data).map(([key, value]) => (
-                              <div key={key} className="flex flex-col">
-                                <dt className="text-xs text-muted-foreground">{key}</dt>
-                                <dd className="text-sm text-foreground">{value}</dd>
-                              </div>
-                            ))}
-                          </dl>
-                        </div>
-                      ))}
-                    </TabsContent>
-
-                    <TabsContent value="behavior" className="space-y-4">
-                      {Object.entries(userDetail.allProfileData.behavior).map(([groupName, data]) => (
-                        <div key={groupName}>
-                          <h4 className="text-sm font-medium text-foreground mb-2">{groupName}</h4>
-                          <dl className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                            {Object.entries(data).map(([key, value]) => (
-                              <div key={key} className="flex flex-col">
-                                <dt className="text-xs text-muted-foreground">{key}</dt>
-                                <dd className="text-sm text-foreground">{value}</dd>
-                              </div>
-                            ))}
-                          </dl>
-                        </div>
-                      ))}
-                    </TabsContent>
-
-                    <TabsContent value="tech" className="space-y-4">
-                      {Object.entries(userDetail.allProfileData.tech).map(([groupName, data]) => (
-                        <div key={groupName}>
-                          <h4 className="text-sm font-medium text-foreground mb-2">{groupName}</h4>
-                          <dl className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                            {Object.entries(data).map(([key, value]) => (
-                              <div key={key} className="flex flex-col">
-                                <dt className="text-xs text-muted-foreground">{key}</dt>
-                                <dd className="text-sm text-foreground">{value}</dd>
-                              </div>
-                            ))}
-                          </dl>
-                        </div>
-                      ))}
-                    </TabsContent>
-                  </Tabs>
-                </TabsContent>
-
-                {/* Timeline Tab */}
-                <TabsContent value="timeline" className="space-y-4">
-                  {/* Activity Chart */}
-                  <div className="h-64">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={mockActivityData}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="date" />
-                        <YAxis />
-                        <Tooltip />
-                        <Line type="monotone" dataKey="sessions" stroke="hsl(var(--primary))" strokeWidth={2} />
-                        <Line type="monotone" dataKey="pageViews" stroke="hsl(var(--secondary))" strokeWidth={2} />
-                      </LineChart>
-                    </ResponsiveContainer>
-                  </div>
-
-                  {/* Session Details */}
-                  <Accordion type="single" collapsible className="w-full">
-                    {userDetail.sessions.map((session, index) => (
-                      <AccordionItem key={index} value={`session-${index}`}>
-                        <AccordionTrigger className="text-left">
-                          <div className="flex justify-between w-full pr-4">
-                            <div>
-                              <div className="font-medium">{session.time}</div>
-                              <div className="text-sm text-muted-foreground">
-                                {session.duration} • {session.source} • {session.device}
-                              </div>
+                  <TabsContent value="identity" className="space-y-4">
+                    {Object.entries(userDetail.allProfileData.identity).map(([groupName, data]) => (
+                      <div key={groupName}>
+                        <h4 className="text-sm font-medium text-foreground mb-2">{groupName}</h4>
+                        <dl className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                          {Object.entries(data).map(([key, value]) => (
+                            <div key={key} className="flex flex-col">
+                              <dt className="text-xs text-muted-foreground">{key}</dt>
+                              <dd className="text-sm text-foreground">{value}</dd>
                             </div>
-                          </div>
-                        </AccordionTrigger>
-                        <AccordionContent>
-                          <div className="space-y-2">
-                            {session.events.map((event, eventIndex) => (
-                              <div key={eventIndex} className="p-3 bg-muted rounded text-sm">
-                                <div className="flex justify-between items-start">
-                                  <div>
-                                    <div className="font-medium">{event.desc}</div>
-                                    <div className="text-muted-foreground">{event.url}</div>
-                                    {event.duration && (
-                                      <div className="text-xs text-muted-foreground">
-                                        停留时长: {event.duration}
-                                      </div>
-                                    )}
-                                  </div>
-                                  <div className="text-xs text-muted-foreground">{event.time}</div>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </AccordionContent>
-                      </AccordionItem>
+                          ))}
+                        </dl>
+                      </div>
                     ))}
-                  </Accordion>
-                </TabsContent>
+                  </TabsContent>
 
-                {/* Orders Tab */}
-                <TabsContent value="orders" className="space-y-4">
-                  <Accordion type="single" collapsible className="w-full">
-                    {userDetail.orders.map((order, index) => (
-                      <AccordionItem key={index} value={`order-${index}`}>
-                        <AccordionTrigger className="text-left">
-                          <div className="flex justify-between w-full pr-4">
-                            <div>
-                              <div className="font-medium">{order.id}</div>
-                              <div className="text-sm text-muted-foreground">{order.time}</div>
+                  <TabsContent value="value" className="space-y-4">
+                    {Object.entries(userDetail.allProfileData.value).map(([groupName, data]) => (
+                      <div key={groupName}>
+                        <h4 className="text-sm font-medium text-foreground mb-2">{groupName}</h4>
+                        <dl className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                          {Object.entries(data).map(([key, value]) => (
+                            <div key={key} className="flex flex-col">
+                              <dt className="text-xs text-muted-foreground">{key}</dt>
+                              <dd className="text-sm text-foreground">{value}</dd>
                             </div>
-                            <div className="text-right">
-                              <div className="font-medium">{formatCurrency(order.total)}</div>
-                              <div className="text-sm text-muted-foreground">{order.status}</div>
+                          ))}
+                        </dl>
+                      </div>
+                    ))}
+                  </TabsContent>
+
+                  <TabsContent value="behavior" className="space-y-4">
+                    {Object.entries(userDetail.allProfileData.behavior).map(([groupName, data]) => (
+                      <div key={groupName}>
+                        <h4 className="text-sm font-medium text-foreground mb-2">{groupName}</h4>
+                        <dl className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                          {Object.entries(data).map(([key, value]) => (
+                            <div key={key} className="flex flex-col">
+                              <dt className="text-xs text-muted-foreground">{key}</dt>
+                              <dd className="text-sm text-foreground">{value}</dd>
+                            </div>
+                          ))}
+                        </dl>
+                      </div>
+                    ))}
+                  </TabsContent>
+
+                  <TabsContent value="tech" className="space-y-4">
+                    {Object.entries(userDetail.allProfileData.tech).map(([groupName, data]) => (
+                      <div key={groupName}>
+                        <h4 className="text-sm font-medium text-foreground mb-2">{groupName}</h4>
+                        <dl className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                          {Object.entries(data).map(([key, value]) => (
+                            <div key={key} className="flex flex-col">
+                              <dt className="text-xs text-muted-foreground">{key}</dt>
+                              <dd className="text-sm text-foreground">{value}</dd>
+                            </div>
+                          ))}
+                        </dl>
+                      </div>
+                    ))}
+                  </TabsContent>
+                </Tabs>
+              </TabsContent>
+
+              {/* Timeline Tab */}
+              <TabsContent value="timeline" className="space-y-4">
+                {/* Activity Chart */}
+                <div className="h-64">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={mockActivityData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="date" />
+                      <YAxis />
+                      <Tooltip />
+                      <Line type="monotone" dataKey="sessions" stroke="hsl(var(--primary))" strokeWidth={2} />
+                      <Line type="monotone" dataKey="pageViews" stroke="hsl(var(--secondary))" strokeWidth={2} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+
+                {/* Session Details */}
+                <Accordion type="single" collapsible className="w-full">
+                  {userDetail.sessions.map((session, index) => (
+                    <AccordionItem key={index} value={`session-${index}`}>
+                      <AccordionTrigger className="text-left">
+                        <div className="flex justify-between w-full pr-4">
+                          <div>
+                            <div className="font-medium">{session.time}</div>
+                            <div className="text-sm text-muted-foreground">
+                              {session.duration} • {session.source} • {session.device}
                             </div>
                           </div>
-                        </AccordionTrigger>
-                        <AccordionContent>
-                          <div className="space-y-4">
-                            <div className="grid grid-cols-2 gap-4 text-sm">
-                              <div>
-                                <span className="font-medium">支付方式:</span> {order.payment}
-                              </div>
-                              <div>
-                                <span className="font-medium">订单状态:</span> {order.status}
-                              </div>
-                            </div>
-                            
-                            <div>
-                              <h5 className="font-medium mb-2">商品明细</h5>
-                              <div className="space-y-2">
-                                {order.items.map((item, itemIndex) => (
-                                  <div key={itemIndex} className="flex justify-between items-center p-3 bg-muted rounded text-sm">
-                                    <div>
-                                      <div className="font-medium">{item.name}</div>
-                                      <div className="text-muted-foreground">
-                                        {formatCurrency(item.price)} × {item.qty}
-                                      </div>
+                        </div>
+                      </AccordionTrigger>
+                      <AccordionContent>
+                        <div className="space-y-2">
+                          {session.events.map((event, eventIndex) => (
+                            <div key={eventIndex} className="p-3 bg-muted rounded text-sm">
+                              <div className="flex justify-between items-start">
+                                <div>
+                                  <div className="font-medium">{event.desc}</div>
+                                  <div className="text-muted-foreground">{event.url}</div>
+                                  {event.duration && (
+                                    <div className="text-xs text-muted-foreground">
+                                      停留时长: {event.duration}
                                     </div>
-                                    <div className="font-medium">{formatCurrency(item.total)}</div>
-                                  </div>
-                                ))}
+                                  )}
+                                </div>
+                                <div className="text-xs text-muted-foreground">{event.time}</div>
                               </div>
                             </div>
+                          ))}
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
+                  ))}
+                </Accordion>
+              </TabsContent>
+
+              {/* Orders Tab */}
+              <TabsContent value="orders" className="space-y-4">
+                <Accordion type="single" collapsible className="w-full">
+                  {userDetail.orders.map((order, index) => (
+                    <AccordionItem key={index} value={`order-${index}`}>
+                      <AccordionTrigger className="text-left">
+                        <div className="flex justify-between w-full pr-4">
+                          <div>
+                            <div className="font-medium">{order.id}</div>
+                            <div className="text-sm text-muted-foreground">{order.time}</div>
                           </div>
-                        </AccordionContent>
-                      </AccordionItem>
-                    ))}
-                  </Accordion>
-                </TabsContent>
-              </Tabs>
-            </CardContent>
-          </Card>
-        </div>
+                          <div className="text-right">
+                            <div className="font-medium">{formatCurrency(order.total)}</div>
+                            <div className="text-sm text-muted-foreground">{order.status}</div>
+                          </div>
+                        </div>
+                      </AccordionTrigger>
+                      <AccordionContent>
+                        <div className="space-y-4">
+                          <div className="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                              <span className="font-medium">支付方式:</span> {order.payment}
+                            </div>
+                            <div>
+                              <span className="font-medium">��单状态:</span> {order.status}
+                            </div>
+                          </div>
+                          
+                          <div>
+                            <h5 className="font-medium mb-2">商品明细</h5>
+                            <div className="space-y-2">
+                              {order.items.map((item, itemIndex) => (
+                                <div key={itemIndex} className="flex justify-between items-center p-3 bg-muted rounded text-sm">
+                                  <div>
+                                    <div className="font-medium">{item.name}</div>
+                                    <div className="text-muted-foreground">
+                                      {formatCurrency(item.price)} × {item.qty}
+                                    </div>
+                                  </div>
+                                  <div className="font-medium">{formatCurrency(item.total)}</div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
+                  ))}
+                </Accordion>
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
