@@ -1,31 +1,59 @@
 export interface User {
-  cdpId: string;
-  name: string;
-  company: string;
-  country: string;
-  city: string;
-  contact: string;
-  totalSpent: number;
-  totalOrders: number;
-  averageOrderValue: number;
-  lastPurchaseDate: string;
+  /** ID */
+  id: string;
+  /** CDP 用户ID（唯一） */
+  cdpUserId: number;
+  /** 用户姓名 */
+  fullName: string;
+  /** 联系方式（Email/手机号） */
+  contactInfo: string;
+  /** 公司名称 */
+  companyName: string;
+  /** 注册时间 */
+  signTime: string;
+  /** 创建时间 */
+  createGmt: string;
+  /** 首次购买时间 */
+  minBuyTime: string;
+  /** 最后购买时间 */
+  maxBuyTime: string;
+  /** 最大订单金额（保留5位小数） */
   maxOrderAmount: number;
-  averagePurchaseCycle: number;
-  tags: string[];
-  sessions: Session[];
-  orders: Order[];
-  // New time-based fields
-  firstVisitTime: string;      // 首次访问时间
-  registrationTime: string;    // 注册时间
-  firstPurchaseTime: string;   // 首次购买时间
-  lastActiveTime: string;      // 最后活跃时间
-  // Shopping cart related fields
-  cartItems: CartItem[];       // 当前购物车商品
-  totalCartValue: number;      // 购物车总价值
-  cartCreatedTime: string;     // 购物车创建时间
-  lastCartUpdate: string;      // 最后更新购物车时间
-  cartAbandonCount: number;    // 购物车放弃次数
-  averageCartValue: number;    // 平均购物车价值
+  /** 总消费金额（保留5位小数） */
+  totalOrders: number;
+  /** 订单数量 */
+  orderCount: number;
+  /** 最后登录时间 */
+  loginDate: string;
+  /** 地区 */
+  location: string;
+  /** tenant_id */
+  shopid: string;
+
+  // 保留原有字段以兼容现有功能
+  cdpId?: string; // 兼容字段
+  name?: string; // 兼容字段
+  company?: string; // 兼容字段
+  country?: string; // 兼容字段
+  city?: string; // 兼容字段
+  contact?: string; // 兼容字段
+  totalSpent?: number; // 兼容字段
+  averageOrderValue?: number; // 兼容字段
+  lastPurchaseDate?: string; // 兼容字段
+  averagePurchaseCycle?: number; // 兼容字段
+  tags?: string[]; // 兼容字段
+  sessions?: Session[]; // 兼容字段
+  orders?: Order[]; // 兼容字段
+  firstVisitTime?: string; // 兼容字段
+  registrationTime?: string; // 兼容字段
+  firstPurchaseTime?: string; // 兼容字段
+  lastActiveTime?: string; // 兼容字段
+  cartItems?: CartItem[]; // 兼容字段
+  totalCartValue?: number; // 兼容字段
+  cartCreatedTime?: string; // 兼容字段
+  lastCartUpdate?: string; // 兼容字段
+  cartAbandonCount?: number; // 兼容字段
+  averageCartValue?: number; // 兼容字段
 }
 
 export interface Session {
@@ -253,7 +281,7 @@ export const mockUsers: User[] = [
         events: [
           {
             timestamp: "11:20:00",
-            eventType: "页面访问",
+            eventType: "页面访���",
             pageTitle: "登录页面",
             pageUrl: "/login",
             stayDuration: "1分10秒",
@@ -444,7 +472,7 @@ export const mockUsers: User[] = [
       {
         id: "session-lm-1",
         date: "2024-01-20 10:30",
-        summary: "产品演示和技术评估",
+        summary: "产品演示和技术��估",
         source: "社交媒体广告",
         deviceType: "桌面端",
         os: "macOS 14",
@@ -486,7 +514,7 @@ export const mockUsers: User[] = [
         deviceType: "桌面端",
         os: "macOS 14",
         browser: "Chrome 120",
-        location: "杭州, 中国",
+        location: "杭州, ��国",
         ipAddress: "120.55.162.203",
         events: [
           {
@@ -675,7 +703,7 @@ export const mockUsers: User[] = [
         paymentMethod: "支付宝",
         items: [
           {
-            productName: "插件扩展包",
+            productName: "插���扩展包",
             unitPrice: 700.00,
             quantity: 2,
             totalPrice: 1400.00
