@@ -166,15 +166,29 @@ export default function UserList() {
       const requestBody: OrderSummaryDto = {
         currentpage: currentPage,
         pagesize: itemsPerPage,
-        keywords: searchQuery.trim() || undefined,
-        startDate: dateRange.start?.toISOString(),
-        endDate: dateRange.end?.toISOString(),
-        searchtype: getSearchTypeMapping(selectedTimeField),
-        sort: sortConfig.field
-          ? getSortFieldMapping(sortConfig.field)
-          : undefined,
-        order: sortConfig.direction,
       };
+
+      // 只有在有值的时候才添加这些字段
+      if (searchQuery.trim()) {
+        requestBody.keywords = searchQuery.trim();
+      }
+
+      if (dateRange.start) {
+        requestBody.startDate = dateRange.start.toISOString();
+      }
+
+      if (dateRange.end) {
+        requestBody.endDate = dateRange.end.toISOString();
+      }
+
+      if (selectedTimeField) {
+        requestBody.searchtype = getSearchTypeMapping(selectedTimeField);
+      }
+
+      if (sortConfig.field) {
+        requestBody.sort = getSortFieldMapping(sortConfig.field);
+        requestBody.order = sortConfig.direction;
+      }
 
       console.log("发起API请求:", {
         url: "/api/quote/api/v1/profile/list",
