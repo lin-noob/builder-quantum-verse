@@ -65,12 +65,28 @@ export default function Dashboard() {
     return option?.label || '过去30天';
   };
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (datePickerRef.current && !datePickerRef.current.contains(event.target as Node)) {
+        setIsDatePickerOpen(false);
+      }
+    };
+
+    if (isDatePickerOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }
+  }, [isDatePickerOpen]);
+
   return (
     <div className="p-6 space-y-6 bg-gray-50 min-h-full">
       {/* Page Header with Global Date Selector */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">数据概览</h1>
+          <h1 className="text-2xl font-bold text-gray-900">��据概览</h1>
         </div>
         <div className="flex items-center gap-4">
           {/* Global Date Range Selector */}
