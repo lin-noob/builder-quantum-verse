@@ -193,12 +193,10 @@ export default function Dashboard2() {
 
         {/* Performance Trend Analysis */}
         <section>
-          <div className="bg-white p-6 rounded-lg shadow-sm">
-            <h3 className="text-lg font-semibold text-slate-900 mb-4">业绩走势</h3>
-            <div className="chart-container h-96">
-              <canvas ref={performanceChartRef} id="performance-trend-chart"></canvas>
-            </div>
-          </div>
+          <PerformanceTrend
+            metrics={dashboardData.performanceMetrics}
+            dateRange="last30days"
+          />
         </section>
 
         {/* User Value & Lifecycle */}
@@ -316,7 +314,7 @@ export default function Dashboard2() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {/* Top 5 Acquisition Channels */}
             <div className="bg-white p-6 rounded-lg shadow-sm">
-              <h3 className="text-lg font-semibold text-slate-900 mb-4">Top 5 首次触点来源</h3>
+              <h3 className="text-lg font-semibold text-slate-900 mb-4">Top 5 首次触���来源</h3>
               <div className="space-y-4" id="acquisition-channels">
                 {acquisitionData.map((channel) => (
                   <div key={channel.source}>
