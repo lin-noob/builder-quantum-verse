@@ -189,13 +189,15 @@ export default function UserList() {
         requestBody,
       });
 
-      // 使用原始post方法获取完整响应，包含total字段
-      const response = await request.post<{
+      // 使用通用request方法明确指定POST
+      const response = await request.request<{
         code: string;
         data: ApiUser[];
         msg: string;
         total: number;
-      }>("/api/quote/api/v1/profile/list", requestBody, {
+      }>("/api/quote/api/v1/profile/list", {
+        method: "POST",
+        data: requestBody,
         headers: {
           "Content-Type": "application/json",
         },
