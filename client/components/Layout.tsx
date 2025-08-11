@@ -127,12 +127,14 @@ export default function Layout({ children }: LayoutProps) {
         isSidebarCollapsed ? "w-16" : "w-64"
       )}>
         {/* Logo */}
-        <div className="h-16 flex items-center px-6 border-b border-gray-200">
+        <div className="h-16 flex items-center justify-center px-3 border-b border-gray-200">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
               <BarChart3 className="h-5 w-5 text-white" />
             </div>
-            <span className="text-xl font-bold text-gray-900">CDP Pro</span>
+            {!isSidebarCollapsed && (
+              <span className="text-xl font-bold text-gray-900 whitespace-nowrap overflow-hidden">CDP Pro</span>
+            )}
           </div>
         </div>
 
