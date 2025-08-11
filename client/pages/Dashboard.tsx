@@ -66,7 +66,6 @@ export default function Dashboard() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">数据概览</h1>
-          <p className="text-sm text-gray-600 mt-1">当前统计周期：{getCurrentDateRangeText()}</p>
         </div>
         <div className="flex items-center gap-4">
           {/* Global Date Range Selector */}
@@ -84,17 +83,6 @@ export default function Dashboard() {
               </SelectContent>
             </Select>
           </div>
-
-          {/* Refresh Button */}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={refreshDashboard}
-            className="flex items-center gap-2"
-          >
-            <RotateCcw className="h-4 w-4" />
-            刷新
-          </Button>
         </div>
       </div>
 
