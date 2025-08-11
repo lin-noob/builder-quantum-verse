@@ -49,7 +49,10 @@ export default function Dashboard() {
     <div className="p-6 space-y-6 bg-gray-50 min-h-full">
       {/* Page Header with Global Date Selector */}
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">数据概览</h1>
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">数据概览</h1>
+          <p className="text-sm text-gray-600 mt-1">当前统计周期：{getCurrentDateRangeText()}</p>
+        </div>
         <div className="flex items-center gap-4">
           {/* Global Date Range Selector */}
           <div className="w-48">
