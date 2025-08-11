@@ -28,9 +28,21 @@ export default function Layout({ children }: LayoutProps) {
       icon: <BarChart3 className="h-5 w-5" />
     },
     {
+      id: 'dashboard2',
+      label: '仪表盘2.0',
+      path: '/dashboard2',
+      icon: <BarChart3 className="h-5 w-5" />
+    },
+    {
       id: 'users',
       label: '用户画像',
       path: '/users',
+      icon: <Users className="h-5 w-5" />
+    },
+    {
+      id: 'users2',
+      label: '用户画像2.0',
+      path: '/users2',
       icon: <Users className="h-5 w-5" />
     },
     {
@@ -182,7 +194,7 @@ export default function Layout({ children }: LayoutProps) {
                     className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors"
                   >
                     <Bot className="h-4 w-4" />
-                    全自动模式
+                    全���动模式
                   </Link>
                   <Link
                     to="/ai-marketing/semi-auto"
