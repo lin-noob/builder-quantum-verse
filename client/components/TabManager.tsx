@@ -1,21 +1,12 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { 
-  X, 
-  RotateCcw, 
-  ChevronDown, 
-  ChevronLeft, 
-  ChevronRight,
-  Home,
-  MoreVertical
-} from 'lucide-react';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+  X,
+  ChevronLeft,
+  ChevronRight,
+  Home
+} from 'lucide-react';
 
 interface Tab {
   id: string;
@@ -66,7 +57,7 @@ export default function TabManager() {
     '/ai-marketing/fully-auto': 'AI营销 - 全自动模式',
     '/ai-marketing/semi-auto': 'AI营销 - 半自动模式',
     '/ai-marketing/semi-auto/create': 'AI营销 - 创建剧本',
-    '/ai-marketing/strategy-goals': 'AI���销 - 战略与目标',
+    '/ai-marketing/strategy-goals': 'AI营销 - 战略与目标',
     '/ai-marketing/live-monitoring': 'AI营销 - 实时监控',
     '/ai-marketing/performance-analytics': 'AI营销 - 效果分析'
   };
