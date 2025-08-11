@@ -36,13 +36,21 @@ export default function Dashboard() {
     }
   };
 
+  // Apply custom date range
+  const applyCustomDateRange = () => {
+    if (customStartDate && customEndDate) {
+      // Here you would typically trigger data refresh with custom date range
+      console.log('Applying custom date range:', customStartDate, 'to', customEndDate);
+    }
+  };
+
   // Get current date range display text
   const getCurrentDateRangeText = () => {
     const option = dateRangeOptions.find(opt => opt.value === globalDateRange);
     if (globalDateRange === 'custom' && customStartDate && customEndDate) {
       return `${customStartDate} 至 ${customEndDate}`;
     }
-    return option?.label || '过去30天';
+    return option?.label || '过去30���';
   };
 
   return (
