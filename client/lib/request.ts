@@ -127,6 +127,18 @@ export class Request {
       return fullURL;
     }
 
+    // 处理相对路径的情况（用于代理）
+    if (!fullURL.startsWith("http")) {
+      // 对于相对路径，手动拼接查询参数
+      const searchParams = new URLSearchParams();
+      Object.entries(params).forEach(([key, value]) => {
+        searchParams.set(key, String(value));
+      });
+      const queryString = searchParams.toString();
+      return queryString ? `${fullURL}?${queryString}` : fullURL;
+    }
+
+    // 对于绝对URL，使用URL对象处理
     const urlObj = new URL(fullURL);
     Object.entries(params).forEach(([key, value]) => {
       urlObj.searchParams.set(key, String(value));
