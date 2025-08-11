@@ -17,6 +17,7 @@ interface MenuItem {
 export default function Layout({ children }: LayoutProps) {
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   const menuItems: MenuItem[] = [
     {
