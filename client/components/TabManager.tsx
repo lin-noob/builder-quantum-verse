@@ -62,13 +62,13 @@ export default function TabManager() {
     '/': '首页',
     '/users': '用户画像',
     '/response-actions': '响应动作库',
-    '/ai-marketing/monitoring-center': 'AI营销 - 监控中心',
+    '/ai-marketing/monitoring-center': 'AI营销 - 监控��心',
     '/ai-marketing/fully-auto': 'AI营销 - 全自动模式',
     '/ai-marketing/semi-auto': 'AI营销 - 半自动模式',
     '/ai-marketing/semi-auto/create': 'AI营销 - 创建剧本',
     '/ai-marketing/strategy-goals': 'AI营销 - 战略与目标',
     '/ai-marketing/live-monitoring': 'AI营销 - 实时监控',
-    '/ai-marketing/performance-analytics': 'AI营销 - 效果���析'
+    '/ai-marketing/performance-analytics': 'AI营销 - 效果分析'
   };
 
   // 检查滚动状态
@@ -100,21 +100,41 @@ export default function TabManager() {
     const existingTab = tabs.find(tab => tab.path === currentPath);
     
     if (existingTab) {
-      // 如果标签页已存在，切换到该标签页
+      // 如果标签页已存在，切换到该标���页
       setTabs(prev => prev.map(tab => ({
         ...tab,
         isActive: tab.id === existingTab.id
       })));
     } else {
       // 如果标签页不存在，创建新标签页
-      const title = pathToTitle[currentPath as keyof typeof pathToTitle] || currentPath;
+      let title = pathToTitle[currentPath as keyof typeof pathToTitle];
+
+      // 如果没有预定义标题，尝试从路径生成友好的标题
+      if (!title) {
+        if (currentPath.includes('/users/')) {
+          title = '用户详情';
+        } else if (currentPath.includes('/response-actions/')) {
+          if (currentPath.includes('/create')) {
+            title = '创建响应动作';
+          } else if (currentPath.includes('/edit/')) {
+            title = '编辑响应动作';
+          } else {
+            title = '响应动作详情';
+          }
+        } else {
+          // 默认使用路径最后一部分作为标题
+          const pathParts = currentPath.split('/').filter(Boolean);
+          title = pathParts[pathParts.length - 1] || '页面';
+        }
+      }
+
       const newTab: Tab = {
         id: `tab-${Date.now()}`,
         title,
         path: currentPath,
         isActive: true
       };
-      
+
       setTabs(prev => [
         ...prev.map(tab => ({ ...tab, isActive: false })),
         newTab
