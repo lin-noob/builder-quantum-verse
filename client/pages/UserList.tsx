@@ -67,7 +67,7 @@ interface User {
 interface OrderSummaryDto {
   currentpage?: number;
   endDate?: string;
-  keywords?: string;
+  keyword?: string;
   order?: string;
   pagesize?: number;
   paramother?: Record<string, string>;
@@ -136,17 +136,17 @@ export default function UserList() {
   const getSortFieldMapping = (field: string): string => {
     switch (field) {
       case "firstVisitTime":
-        return "createGmt";
+        return "create_gmt";
       case "registrationTime":
-        return "signTime";
+        return "sign_time";
       case "firstPurchaseTime":
-        return "minBuyTime";
+        return "min_buy_time";
       case "lastActiveTime":
-        return "loginDate";
+        return "login_date";
       case "totalSpent":
-        return "totalOrders";
+        return "total_orders";
       default:
-        return "createGmt";
+        return "create_gmt";
     }
   };
 
@@ -188,7 +188,7 @@ export default function UserList() {
 
       // 只有在有值的时候才添加这些字段
       if (searchQuery.trim()) {
-        requestBody.keywords = searchQuery.trim();
+        requestBody.keyword = searchQuery.trim();
       }
 
       if (dateRange.start) {
@@ -211,8 +211,12 @@ export default function UserList() {
       console.log("发起API请求:", {
         url: "/api/quote/api/v1/profile/list",
         method: "POST",
+<<<<<<< HEAD
         requestBody,
         timestamp: new Date().toISOString()
+=======
+        requestBody: {},
+>>>>>>> origin/main
       });
 
       console.log("当前网络状态:", navigator.onLine ? "在线" : "离线");
@@ -221,10 +225,10 @@ export default function UserList() {
       // 使用通用request方法明确指定POST，增加超时时间
       const response = await request.request<{
         code: string;
-        data: ApiUser[];
+        records: ApiUser[];
         msg: string;
         total: number;
-      }>("/api/quote/api/v1/profile/list", {
+      }>("/quote/api/v1/profile/list", {
         method: "POST",
         data: requestBody,
         timeout: 30000, // 增加到30秒
@@ -233,19 +237,10 @@ export default function UserList() {
         },
       });
 
-      console.log("API完整响应:", response);
-      console.log("响应状态:", response.status);
-      console.log("响应数据:", response.data);
-
       // 不管成功失败都显示原始响应，让用户能看到完整信息
-      if (response.data) {
-        console.log("业务响应码:", response.data.code);
-        console.log("业务消息:", response.data.msg);
-        console.log("返回数据:", response.data.data);
-        console.log("总数:", response.data.total);
-
+      if (response.data.records) {
         // 即使响应码不是200也尝试处理数据
-        const apiUsers = response.data.data || [];
+        const apiUsers = response.data.records || [];
         if (Array.isArray(apiUsers)) {
           const convertedUsers = apiUsers.map(convertApiUserToUser);
           setUsers(convertedUsers);
@@ -262,6 +257,7 @@ export default function UserList() {
       }
     } catch (error) {
       console.error("获取用户数据失败:", error);
+<<<<<<< HEAD
       console.error("请求参数:", { requestBody });
 
       // 详细显示错误信息
@@ -306,6 +302,10 @@ export default function UserList() {
         variant: "destructive",
       });
 
+=======
+      // 不显示toast，让用户专注于控制台的错误信息
+      console.log("请检查控制台中的详细错误信息");
+>>>>>>> origin/main
       setUsers([]);
       setTotalCount(0);
     } finally {
@@ -364,9 +364,9 @@ export default function UserList() {
   const currentUsers = users; // API已经返回了当前页的数据
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("zh-CN", {
+    return new Intl.NumberFormat("en-US", {
       style: "currency",
-      currency: "CNY",
+      currency: "USD",
       minimumFractionDigits: 2,
     }).format(amount);
   };
