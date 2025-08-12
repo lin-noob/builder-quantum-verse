@@ -238,7 +238,6 @@ export default function ResponseActionCreate() {
                     placeholder="例如：/products"
                     className="text-base font-mono text-sm"
                   />
-                  <p className="text-xs text-gray-500 mt-1">用户点击按钮后跳转的页面地址</p>
                 </div>
               </div>
 
@@ -254,7 +253,7 @@ export default function ResponseActionCreate() {
                     ...prev,
                     popup: { ...prev.popup!, content: e.target.value }
                   }))}
-                  placeholder="输入弹窗的详细内容，告诉用户您想传达的信息..."
+                  placeholder="输入弹窗的详细内容��告诉用户您想传达的信息..."
                 />
               </div>
             </CardContent>
