@@ -419,30 +419,30 @@ export default function ResponseActions() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div id="detail-kpis" className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="text-center p-4 bg-blue-50 rounded-lg">
-                <div className="text-2xl font-bold text-blue-600">
+            <div id="detail-kpis" className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div className="text-center p-3 bg-gray-50 rounded">
+                <div className="text-lg font-bold text-gray-900">
                   {formatNumber(selectedAction.totalExecutions)}
                 </div>
-                <div className="text-sm text-blue-600">累计执行次数</div>
+                <div className="text-xs text-gray-600">累计执行次数</div>
               </div>
-              <div className="text-center p-4 bg-green-50 rounded-lg">
-                <div className="text-2xl font-bold text-green-600">
+              <div className="text-center p-3 bg-gray-50 rounded">
+                <div className="text-lg font-bold text-gray-900">
                   {formatNumber(selectedAction.interactions)}
                 </div>
-                <div className="text-sm text-green-600">累计互动次数</div>
+                <div className="text-xs text-gray-600">累计互动次数</div>
               </div>
-              <div className="text-center p-4 bg-purple-50 rounded-lg">
-                <div className="text-2xl font-bold text-purple-600">
+              <div className="text-center p-3 bg-gray-50 rounded">
+                <div className="text-lg font-bold text-gray-900">
                   {formatNumber(selectedAction.conversions)}
                 </div>
-                <div className="text-sm text-purple-600">累计转化数</div>
+                <div className="text-xs text-gray-600">累计转化数</div>
               </div>
-              <div className="text-center p-4 bg-orange-50 rounded-lg">
-                <div className="text-2xl font-bold text-orange-600">
+              <div className="text-center p-3 bg-gray-50 rounded">
+                <div className="text-lg font-bold text-gray-900">
                   {calculateConversionRate(selectedAction.conversions, selectedAction.interactions)}
                 </div>
-                <div className="text-sm text-orange-600">转化率</div>
+                <div className="text-xs text-gray-600">转化率</div>
               </div>
             </div>
           </CardContent>
@@ -638,7 +638,7 @@ export default function ResponseActions() {
     </div>
   );
 
-  // 根据当前视图渲染对应内容
+  // 根据当前视图渲��对应内容
   return (
     <div>
       {currentView === 'list' && renderListView()}
