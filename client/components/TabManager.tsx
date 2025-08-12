@@ -82,13 +82,13 @@ export default function TabManager() {
     }
   };
 
-  // 监听路由变化，自动添加或切换标签页
+  // 监听路由变化，自动添加或切换标��页
   useEffect(() => {
     const currentPath = location.pathname;
     const existingTab = tabs.find((tab) => tab.path === currentPath);
 
     if (existingTab) {
-      // 如果标签页已存在��切换到该标签页
+      // 如果标签页已存在，切换到该标签页
       setTabs((prev) =>
         prev.map((tab) => ({
           ...tab,
@@ -103,6 +103,14 @@ export default function TabManager() {
       if (!title) {
         if (currentPath.includes("/users/")) {
           title = "用户详情";
+        } else if (currentPath.includes("/response-actions/")) {
+          if (currentPath.includes("/create")) {
+            title = "创建响应动作";
+          } else if (currentPath.includes("/edit/")) {
+            title = "编辑响应动作";
+          } else {
+            title = "响应动作详情";
+          }
         } else if (currentPath.includes("/response-actions")) {
           title = "响应动作库";
         } else {
@@ -175,7 +183,7 @@ export default function TabManager() {
     setTabs(newTabs);
   };
 
-  // 刷新当��标签页
+  // 刷新当前标签页
   const refreshCurrentTab = () => {
     window.location.reload();
   };
