@@ -53,21 +53,62 @@ export default function ResponseActions() {
   // 下拉菜单状态
   const [dropdownOpen, setDropdownOpen] = useState<string | null>(null);
 
-  // 过滤后的数据
-  const filteredActions = useMemo(() => {
-    return actionsData.filter(action => {
-      const matchesSearch = filters.search === '' || 
+  // 过滤、排序和分页后的数据
+  const processedData = useMemo(() => {
+    // 1. 过滤数据
+    let filtered = actionsData.filter(action => {
+      const matchesSearch = filters.search === '' ||
         action.name.toLowerCase().includes(filters.search.toLowerCase());
-      
-      const matchesScope = filters.monitoringScope === 'all' || 
-        action.monitoringScope === filters.monitoringScope;
-      
-      const matchesStatus = filters.status === 'all' || 
+
+      const matchesStatus = filters.status === 'all' ||
         action.status === filters.status;
-      
-      return matchesSearch && matchesScope && matchesStatus;
+
+      return matchesSearch && matchesStatus;
     });
-  }, [filters]);
+
+    // 2. 排序数据
+    if (sortState.field) {
+      filtered.sort((a, b) => {
+        let aValue: any;
+        let bValue: any;
+
+        switch (sortState.field) {
+          case 'totalExecutions':
+            aValue = a.totalExecutions;
+            bValue = b.totalExecutions;
+            break;
+          case 'conversions':
+            aValue = a.conversions;
+            bValue = b.conversions;
+            break;
+          case 'lastUpdated':
+            aValue = new Date(a.lastUpdated);
+            bValue = new Date(b.lastUpdated);
+            break;
+          default:
+            return 0;
+        }
+
+        if (sortState.direction === 'asc') {
+          return aValue > bValue ? 1 : aValue < bValue ? -1 : 0;
+        } else {
+          return aValue < bValue ? 1 : aValue > bValue ? -1 : 0;
+        }
+      });
+    }
+
+    // 3. 分页数据
+    const totalCount = filtered.length;
+    const totalPages = Math.ceil(totalCount / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const paginatedData = filtered.slice(startIndex, startIndex + itemsPerPage);
+
+    return {
+      data: paginatedData,
+      totalCount,
+      totalPages
+    };
+  }, [filters, sortState, currentPage, itemsPerPage]);
 
   // 重置筛选
   const resetFilters = () => {
@@ -82,7 +123,7 @@ export default function ResponseActions() {
   const renderActionList = () => {
     // 筛选逻辑已在 useMemo 中处理，这里可以添加刷新逻辑
     toast({
-      title: "���据已刷新",
+      title: "数据已刷新",
       description: `找到 ${filteredActions.length} 条动作记录`
     });
   };
@@ -213,7 +254,7 @@ export default function ResponseActions() {
                       className="text-sky-600 hover:underline"
                       onClick={() => navigate(`/response-actions/${action.id}`)}
                     >
-                      ��情
+                      详情
                     </button>
                     <button 
                       className="text-sky-600 hover:underline"
