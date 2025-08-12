@@ -70,7 +70,7 @@ export default function ResponseActionDetail() {
       <Card className="bg-white rounded-lg shadow-sm">
         <CardContent>
           {/* 动作名称和状态 */}
-          <div className="mb-6 pb-4 border-b border-gray-200">
+          <div className="mt-2 mb-6 pb-4 border-b border-gray-200">
             <div className="flex items-center justify-between">
               <h1 className="text-2xl font-bold text-gray-900">{action.name}</h1>
               <Badge 
