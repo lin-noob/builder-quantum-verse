@@ -90,6 +90,30 @@ const App = () => (
             }
           />
           <Route
+            path="/response-actions/create"
+            element={
+              <Layout>
+                <ResponseActionCreate />
+              </Layout>
+            }
+          />
+          <Route
+            path="/response-actions/edit/:id"
+            element={
+              <Layout>
+                <ResponseActionCreate />
+              </Layout>
+            }
+          />
+          <Route
+            path="/response-actions/:id"
+            element={
+              <Layout>
+                <ResponseActionDetail />
+              </Layout>
+            }
+          />
+          <Route
             path="/ai-marketing/monitoring-center"
             element={
               <Layout>
