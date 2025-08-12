@@ -211,12 +211,8 @@ export default function UserList() {
       console.log("发起API请求:", {
         url: "/api/quote/api/v1/profile/list",
         method: "POST",
-<<<<<<< HEAD
         requestBody,
         timestamp: new Date().toISOString()
-=======
-        requestBody: {},
->>>>>>> origin/main
       });
 
       console.log("当前网络状态:", navigator.onLine ? "在线" : "离线");
@@ -257,7 +253,6 @@ export default function UserList() {
       }
     } catch (error) {
       console.error("获取用户数据失败:", error);
-<<<<<<< HEAD
       console.error("请求参数:", { requestBody });
 
       // 详细显示错误信息
@@ -302,10 +297,6 @@ export default function UserList() {
         variant: "destructive",
       });
 
-=======
-      // 不显示toast，让用户专注于控制台的错误信息
-      console.log("请检查控制台中的详细错误信息");
->>>>>>> origin/main
       setUsers([]);
       setTotalCount(0);
     } finally {
