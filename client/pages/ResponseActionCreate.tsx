@@ -237,25 +237,22 @@ export default function ResponseActionCreate() {
             </CardContent>
           </Card>
 
-        </div>
-      </div>
-
-      {/* 固定在底部中间的操作按钮 */}
-      <div className="fixed bottom-0 left-0 lg:left-64 right-0 bg-white border-t border-gray-200 shadow-lg">
-        <div className="flex items-center justify-center space-x-4 px-6 py-4">
-          <Button
-            variant="outline"
-            onClick={() => navigate('/response-actions')}
-            className="px-6"
-          >
-            取消
-          </Button>
-          <Button
-            onClick={handleSave}
-            className="bg-blue-600 hover:bg-blue-700 px-6"
-          >
-            {isEditing ? '保存更改' : '保存动作'}
-          </Button>
+          {/* 操作按钮 */}
+          <div className="flex justify-center space-x-4 pt-6">
+            <Button
+              variant="outline"
+              onClick={() => navigate('/response-actions')}
+              className="px-6"
+            >
+              取消
+            </Button>
+            <Button
+              onClick={handleSave}
+              className="bg-blue-600 hover:bg-blue-700 px-6"
+            >
+              {isEditing ? '保存更改' : '保存动作'}
+            </Button>
+          </div>
         </div>
       </div>
     </div>
