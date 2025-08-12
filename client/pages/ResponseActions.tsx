@@ -182,7 +182,7 @@ export default function ResponseActions() {
     showListView();
   };
 
-  // 渲染列表视图
+  // 渲染列��视图
   const renderListView = () => (
     <div className="p-6 space-y-6 bg-gray-50 min-h-full">
       {/* 筛选区 */}
@@ -461,21 +461,8 @@ export default function ResponseActions() {
                 <h4 className="font-semibold text-gray-900">网页弹窗</h4>
               </div>
 
-              {/* 弹窗预览 */}
-              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4">
-                <div className="bg-white rounded-lg shadow-md p-4 max-w-sm">
-                  <h5 className="font-bold text-gray-900 mb-2">{selectedAction.popup.title}</h5>
-                  <p className="text-gray-700 text-sm mb-4">{selectedAction.popup.content}</p>
-                  <button className="bg-blue-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-blue-700 transition-colors">
-                    {selectedAction.popup.buttonText}
-                  </button>
-                </div>
-                <p className="text-xs text-gray-600 mt-2">弹窗预览效果</p>
-              </div>
-
               {/* 配置详情 */}
               <div className="space-y-4">
-                <h5 className="font-medium text-gray-900 border-b border-gray-100 pb-1">配置详情</h5>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="bg-gray-50 rounded-lg p-3">
                     <dt className="text-xs font-medium text-gray-500 uppercase tracking-wide">弹窗标题</dt>
