@@ -143,6 +143,7 @@ export default function ResponseActions() {
   // 查询函数（刷新数据）
   const renderActionList = () => {
     // 筛选逻辑已在 useMemo 中处理，这里可以添加刷新逻辑
+    setCurrentPage(1); // 重置到第一页
     toast({
       title: "数据已刷新",
       description: `找到 ${processedData.totalCount} 条动作记录`
