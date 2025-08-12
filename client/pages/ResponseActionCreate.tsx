@@ -237,26 +237,29 @@ export default function ResponseActionCreate() {
             </CardContent>
           </Card>
 
-          {/* 底部操作区域 */}
-          <div className="mt-8 flex items-center justify-between py-6 px-6 bg-white rounded-lg shadow-sm border-0 ring-1 ring-gray-200">
-            <div className="text-sm text-gray-500">
-              {isEditing ? '修改配置后请及时保存更改' : '填写完成后请保存动作配置'}
-            </div>
-            <div className="flex items-center space-x-4">
-              <Button
-                variant="outline"
-                onClick={() => navigate('/response-actions')}
-                className="px-6"
-              >
-                取消
-              </Button>
-              <Button
-                onClick={handleSave}
-                className="bg-blue-600 hover:bg-blue-700 px-6"
-              >
-                {isEditing ? '保存更改' : '保存动作'}
-              </Button>
-            </div>
+        </div>
+      </div>
+
+      {/* 固定在底部中间的操作按钮 */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg">
+        <div className="max-w-4xl mx-auto px-6 py-4">
+          <div className="flex items-center justify-center space-x-4">
+            <Button
+              variant="outline"
+              onClick={() => navigate('/response-actions')}
+              className="px-6"
+            >
+              取消
+            </Button>
+            <Button
+              onClick={handleSave}
+              className="bg-blue-600 hover:bg-blue-700 px-6"
+            >
+              {isEditing ? '保存更改' : '保存动作'}
+            </Button>
+          </div>
+          <div className="text-center text-xs text-gray-500 mt-2">
+            {isEditing ? '修改配置后请及时保存更改' : '填写完成后请保存动作配置'}
           </div>
         </div>
       </div>
