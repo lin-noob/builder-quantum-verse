@@ -287,8 +287,16 @@ export default function UserList() {
         }
       }
 
-      let errorMessage = "获取用户数据失败，请重试";
+      let errorMessage = "获取用户数据失败";
       if (error instanceof Error) {
+        if (error.message.includes("timeout") || error.message.includes("Request timeout")) {
+          errorMessage = "请求超时，请检查网络连接或稍后重试";
+        } else if (error.message.includes("Network Error")) {
+          errorMessage = "网络连接失败，请检查网络设置";
+        } else {
+          errorMessage = `获取数据失败: ${error.message}`;
+        }
+      } else if (error instanceof Error) {
         errorMessage = error.message;
         console.error("错误详情:", error.message);
         console.error("错误堆栈:", error.stack);
