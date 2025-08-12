@@ -132,7 +132,7 @@ export default function ResponseActions() {
     // 筛选逻辑已在 useMemo 中处理，这里可以添加刷新逻辑
     toast({
       title: "数据已刷新",
-      description: `找到 ${filteredActions.length} 条动作记录`
+      description: `找到 ${filteredActions.length} 条动作记���`
     });
   };
 
@@ -356,6 +356,15 @@ export default function ResponseActions() {
             ))}
           </tbody>
         </table>
+        {filteredActions.length > 0 && (
+          <div className="px-6 py-3 border-t bg-gray-50 text-sm text-gray-600">
+            共 {filteredActions.length} 条记录
+            {filters.search || filters.monitoringScope !== 'all' || filters.status !== 'all'
+              ? ` (已筛选，共 ${actionsData.length} 条)`
+              : ''
+            }
+          </div>
+        )}
       </Card>
     </div>
   );
