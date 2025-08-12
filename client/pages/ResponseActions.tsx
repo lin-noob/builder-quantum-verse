@@ -278,11 +278,11 @@ export default function ResponseActions() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {filteredActions.map((action) => (
+            {processedData.data.map((action) => (
               <tr key={action.id} className="hover:bg-gray-50">
                 <td className="px-6 py-4 text-sm font-medium text-gray-900">{action.name}</td>
                 <td className="px-6 py-4">
-                  <Badge 
+                  <Badge
                     variant={STATUS_DISPLAY[action.status].color === 'green' ? 'default' : 'secondary'}
                     className={STATUS_DISPLAY[action.status].color === 'green' ? 'bg-green-100 text-green-800' : ''}
                   >
@@ -295,29 +295,29 @@ export default function ResponseActions() {
                 <td className="px-6 py-4 text-sm text-gray-600">{action.lastUpdated}</td>
                 <td className="px-6 py-4 text-sm">
                   <div className="flex items-center gap-2">
-                    <button 
+                    <button
                       className="text-sky-600 hover:underline"
                       onClick={() => navigate(`/response-actions/${action.id}`)}
                     >
                       详情
                     </button>
-                    <button 
-                      className="text-sky-600 hover:underline"
-                      onClick={() => navigate(`/response-actions/edit/${action.id}`)}
-                    >
-                      编辑
-                    </button>
                     <div className="relative">
-                      <button 
-                        className="text-gray-600 hover:text-gray-800"
+                      <button
+                        className="text-gray-600 hover:text-gray-800 p-1"
                         onClick={() => setDropdownOpen(dropdownOpen === action.id ? null : action.id)}
                       >
-                        <MoreHorizontal className="h-4 w-4" />
+                        <MoreVertical className="h-4 w-4" />
                       </button>
                       {dropdownOpen === action.id && (
                         <div className="absolute right-0 top-6 bg-white border rounded-lg shadow-lg py-1 z-50 min-w-[100px]">
+                          <button
+                            className="block w-full text-left px-3 py-1 text-sm text-sky-600 hover:bg-gray-100"
+                            onClick={() => navigate(`/response-actions/edit/${action.id}`)}
+                          >
+                            编辑
+                          </button>
                           {action.status === 'active' && (
-                            <button 
+                            <button
                               className="block w-full text-left px-3 py-1 text-sm text-gray-700 hover:bg-gray-100"
                               onClick={() => handleActionOperation(action.id, 'disable')}
                             >
@@ -326,13 +326,13 @@ export default function ResponseActions() {
                           )}
                           {action.status === 'draft' && (
                             <>
-                              <button 
+                              <button
                                 className="block w-full text-left px-3 py-1 text-sm text-gray-700 hover:bg-gray-100"
                                 onClick={() => handleActionOperation(action.id, 'enable')}
                               >
                                 启用
                               </button>
-                              <button 
+                              <button
                                 className="block w-full text-left px-3 py-1 text-sm text-red-600 hover:bg-gray-100"
                                 onClick={() => handleActionOperation(action.id, 'delete')}
                               >
@@ -341,7 +341,7 @@ export default function ResponseActions() {
                             </>
                           )}
                           {action.status === 'archived' && (
-                            <button 
+                            <button
                               className="block w-full text-left px-3 py-1 text-sm text-red-600 hover:bg-gray-100"
                               onClick={() => handleActionOperation(action.id, 'delete')}
                             >
