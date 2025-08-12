@@ -150,6 +150,25 @@ export default function UserList() {
     }
   };
 
+  // 测试连通性
+  const testConnectivity = async () => {
+    try {
+      console.log("测试代理连通性...");
+      const response = await fetch("/api/quote/api/v1/profile/list", {
+        method: "OPTIONS",
+        headers: {
+          "Access-Control-Request-Method": "POST",
+          "Access-Control-Request-Headers": "Content-Type",
+        },
+      });
+      console.log("连通性测试响应:", response.status, response.statusText);
+      return response.ok;
+    } catch (error) {
+      console.error("连通性测试失败:", error);
+      return false;
+    }
+  };
+
   // 调用API获取用户数据
   const fetchUsers = useCallback(async () => {
     setLoading(true);
