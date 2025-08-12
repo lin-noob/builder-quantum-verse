@@ -24,7 +24,7 @@ export default function ResponseActionDetail() {
   const [action, setAction] = useState<ActionData | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // 加载动��数据
+  // 加载动作数据
   useEffect(() => {
     if (id) {
       const foundAction = actionsData.find(a => a.id === id);
@@ -65,26 +65,6 @@ export default function ResponseActionDetail() {
 
   return (
     <div className="p-6 space-y-6 bg-gray-50 min-h-full">
-      {/* 页面头部 */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button 
-            variant="ghost" 
-            onClick={() => navigate('/response-actions')}
-            className="flex items-center gap-2"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            返回列表
-          </Button>
-        </div>
-        <Button 
-          className="bg-sky-600 text-white flex items-center gap-2"
-          onClick={() => navigate(`/response-actions/edit/${action.id}`)}
-        >
-          <Edit className="h-4 w-4" />
-          编辑
-        </Button>
-      </div>
 
       {/* 基本信息卡片 */}
       <Card className="bg-white rounded-lg shadow-sm">
