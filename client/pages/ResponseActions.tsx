@@ -207,7 +207,7 @@ export default function ResponseActions() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">所有监控范围</SelectItem>
+                <SelectItem value="all">所��监控范围</SelectItem>
                 <SelectItem value="real_time_event">实时事件</SelectItem>
                 <SelectItem value="user_mode">用户模式</SelectItem>
               </SelectContent>
@@ -378,6 +378,18 @@ export default function ResponseActions() {
         {/* 基本信息卡片 */}
         <Card className="bg-white rounded-lg shadow-sm">
           <CardContent>
+            {/* 动作名称和状态 */}
+            <div className="mb-6 pb-4 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <h1 className="text-2xl font-bold text-gray-900">{selectedAction.name}</h1>
+                <Badge
+                  variant={STATUS_DISPLAY[selectedAction.status].color === 'green' ? 'default' : 'secondary'}
+                  className={`${STATUS_DISPLAY[selectedAction.status].color === 'green' ? 'bg-green-100 text-green-800' : ''} text-sm px-3 py-1`}
+                >
+                  {STATUS_DISPLAY[selectedAction.status].text}
+                </Badge>
+              </div>
+            </div>
             <dl className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div>
                 <dt className="text-sm font-medium text-gray-600">规则ID</dt>
@@ -532,7 +544,7 @@ export default function ResponseActions() {
         <CardContent className="pt-6">
           <div className="flex items-center gap-2 mb-2">
             <label className="block text-sm font-medium text-gray-700">AI 监控范围</label>
-            <HelpCircle className="h-4 w-4 text-gray-400" title="选择���时触发此动作" />
+            <HelpCircle className="h-4 w-4 text-gray-400" title="选择何时触发此动作" />
           </div>
           <Select
             value={formData.monitoringScope}
@@ -560,7 +572,7 @@ export default function ResponseActions() {
               rows={3}
               value={formData.purpose || ''}
               onChange={(e) => setFormData(prev => ({ ...prev, purpose: e.target.value }))}
-              placeholder="请���述动作用途..."
+              placeholder="请描述动作用途..."
             />
           </div>
           <div>
