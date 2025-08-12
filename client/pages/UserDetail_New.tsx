@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import {
   ArrowLeft,
@@ -29,17 +29,90 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { getUserById, type User as UserType } from "@shared/userData";
+import { getProfileView, type ApiUser } from "@/lib/profile";
 import { toast } from "@/hooks/use-toast";
 
 export default function UserDetail() {
   const { cdpId } = useParams<{ cdpId: string }>();
-  const user: UserType | undefined = cdpId ? getUserById(cdpId) : undefined;
+  const [loading, setLoading] = useState(false);
+  const [apiUser, setApiUser] = useState<ApiUser | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+    const run = async () => {
+      if (!cdpId) return;
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await getProfileView(cdpId);
+        if (mounted) setApiUser(data);
+      } catch (e: any) {
+        if (mounted) setError(e?.message || "加载失败");
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+    run();
+    return () => {
+      mounted = false;
+    };
+  }, [cdpId]);
+
+  const user = useMemo(() => {
+    if (!apiUser) return null;
+    return {
+      // old UI-compatible fields
+      cdpId: String(apiUser.cdpUserId ?? cdpId ?? ""),
+      name: apiUser.fullName,
+      company: apiUser.companyName,
+      country: apiUser.location?.split("/")[0] || "",
+      city: apiUser.location?.split("/")[1] || "",
+      contact: apiUser.contactInfo,
+      totalSpent: apiUser.totalOrders ?? 0,
+      totalOrders: apiUser.orderCount ?? 0,
+      averageOrderValue: (apiUser.totalOrders && apiUser.orderCount)
+        ? Number(apiUser.totalOrders) / Math.max(1, Number(apiUser.orderCount))
+        : 0,
+      lastPurchaseDate: apiUser.maxBuyTime,
+      maxOrderAmount: apiUser.maxOrderAmount,
+      averagePurchaseCycle: 0,
+      firstVisitTime: apiUser.createGmt,
+      registrationTime: apiUser.signTime,
+      firstPurchaseTime: apiUser.minBuyTime,
+      lastActiveTime: apiUser.loginDate,
+      tags: [],
+      sessions: [],
+      orders: [],
+    } as any;
+  }, [apiUser, cdpId]);
 
   const [userTags, setUserTags] = useState<string[]>(user?.tags || []);
   const [newTag, setNewTag] = useState("");
   const [isTagPopoverOpen, setIsTagPopoverOpen] = useState(false);
   const [openSessions, setOpenSessions] = useState<Set<string>>(new Set());
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center text-gray-600">加载中...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-900 font-medium mb-2">加载失败</p>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <Link to="/users" className="text-blue-600 hover:text-blue-800">
+            返回用户列表
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   if (!user) {
     return (

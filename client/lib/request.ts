@@ -220,12 +220,7 @@ export class Request {
       data = null;
     }
 
-    return {
-      data,
-      status: response.status,
-      statusText: response.statusText,
-      headers: response.headers,
-    };
+    return data;
   }
 
   /**
