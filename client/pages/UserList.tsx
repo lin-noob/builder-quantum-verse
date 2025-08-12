@@ -218,20 +218,38 @@ export default function UserList() {
       console.log("当前网络状态:", navigator.onLine ? "在线" : "离线");
       console.log("代理配置目标:", "http://192.168.1.128:8099");
 
-      // 使用通用request方法明确指定POST，增加超时时间
-      const response = await request.request<{
-        code: string;
-        records: ApiUser[];
-        msg: string;
-        total: number;
-      }>("/quote/api/v1/profile/list", {
-        method: "POST",
-        data: requestBody,
-        timeout: 30000, // 增加到30秒
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      // 使用通用request方法明确指定POST，增加超时时间并添加重试逻辑
+      let response;
+      let retries = 2;
+
+      while (retries >= 0) {
+        try {
+          response = await request.request<{
+            code: string;
+            records: ApiUser[];
+            msg: string;
+            total: number;
+          }>("/quote/api/v1/profile/list", {
+            method: "POST",
+            data: requestBody,
+            timeout: 45000, // 增加到45秒
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+          break; // 成功则跳出重试循环
+        } catch (error) {
+          console.log(`请求尝试失败 (剩余重试次数: ${retries}):`, error);
+          retries--;
+
+          if (retries < 0) {
+            throw error; // 重试用完后抛出错误
+          }
+
+          // 等待2秒后重试
+          await new Promise(resolve => setTimeout(resolve, 2000));
+        }
+      }
 
       // 不管成功失败都显示原始响应，让用户能看到完整信息
       if (response.data.records) {
@@ -286,7 +304,7 @@ export default function UserList() {
           console.error("请求超时，可能的原因:");
           console.error("1. 服务器响应缓慢");
           console.error("2. 网络延迟过高");
-          errorMessage = "请求超时，请稍后重试";
+          errorMessage = "请求超时，��稍后重试";
         }
       }
 
