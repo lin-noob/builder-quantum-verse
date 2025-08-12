@@ -292,7 +292,7 @@ export default function UserList() {
           console.error("3. CORS 配置问题");
           errorMessage = "网络连接失败，请检查代理服务器是否可访问";
         } else if (error.message.includes("timeout")) {
-          console.error("请求超时，可��的原因:");
+          console.error("请求超时，可能的原因:");
           console.error("1. 服务器响应缓慢");
           console.error("2. 网络延迟过高");
           errorMessage = "请求超时，请稍后重试";
@@ -471,6 +471,15 @@ export default function UserList() {
                 <RotateCcw className="h-4 w-4" />
                 重置
               </Button>
+              <Button
+                variant="outline"
+                size="default"
+                onClick={testConnectivity}
+                className="flex items-center gap-2 h-10"
+                title="测试代理服务器连通性"
+              >
+                测试连接
+              </Button>
             </div>
           </div>
         </Card>
@@ -501,7 +510,7 @@ export default function UserList() {
                     onClick={() => handleSort("registrationTime")}
                   >
                     <div className="flex items-center gap-2">
-                      注册时间
+                      ��册时间
                       {getSortIcon("registrationTime")}
                     </div>
                   </th>
