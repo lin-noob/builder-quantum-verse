@@ -258,10 +258,29 @@ export default function UserList() {
         errorMessage = error.message;
         console.error("错误详情:", error.message);
         console.error("错误堆栈:", error.stack);
+
+        // 针对不同类型的错误给出更具体的提示
+        if (error.message.includes("Failed to fetch")) {
+          console.error("网络连接失败，可能的原因:");
+          console.error("1. 代理服务器 192.168.1.128:8099 无法访问");
+          console.error("2. 网络连接问题");
+          console.error("3. CORS 配置问题");
+          errorMessage = "网络连接失败，请检查代理服务器是否可访问";
+        } else if (error.message.includes("timeout")) {
+          console.error("请求超时，可能的原因:");
+          console.error("1. 服务器响应缓慢");
+          console.error("2. 网络延迟过高");
+          errorMessage = "请求超时，请稍后重试";
+        }
       }
 
-      // 不显示toast，让用户专注于控制台��错误信息
-      console.log("请检查控制台中的详细错误信息");
+      // 显示用户友好的错误提示
+      toast({
+        title: "请求失败",
+        description: errorMessage,
+        variant: "destructive",
+      });
+
       setUsers([]);
       setTotalCount(0);
     } finally {
@@ -390,7 +409,7 @@ export default function UserList() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="firstVisitTime">首次访问时间</SelectItem>
-                  <SelectItem value="registrationTime">注册时间</SelectItem>
+                  <SelectItem value="registrationTime">��册时间</SelectItem>
                   <SelectItem value="firstPurchaseTime">
                     首次购买时间
                   </SelectItem>
