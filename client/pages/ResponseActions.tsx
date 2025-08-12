@@ -114,9 +114,30 @@ export default function ResponseActions() {
   const resetFilters = () => {
     setFilters({
       search: '',
-      monitoringScope: 'all',
       status: 'all'
     });
+    setCurrentPage(1);
+  };
+
+  // 处理排序
+  const handleSort = (field: SortableFields) => {
+    setSortState(prev => ({
+      field,
+      direction: prev.field === field && prev.direction === 'desc' ? 'asc' : 'desc'
+    }));
+    setCurrentPage(1);
+  };
+
+  // 获取排序图标
+  const getSortIcon = (field: SortableFields) => {
+    if (sortState.field !== field) {
+      return <ArrowUpDown className="h-4 w-4 text-gray-400" />;
+    }
+    return sortState.direction === 'desc' ? (
+      <ArrowDown className="h-4 w-4 text-blue-600" />
+    ) : (
+      <ArrowUp className="h-4 w-4 text-blue-600" />
+    );
   };
 
   // 查询函数（刷新数据）
