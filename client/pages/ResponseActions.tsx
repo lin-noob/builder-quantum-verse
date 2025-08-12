@@ -310,9 +310,9 @@ export default function ResponseActions() {
                         <MoreHorizontal className="h-4 w-4" />
                       </button>
                       {dropdownOpen === action.id && (
-                        <div className="absolute right-0 top-6 bg-white border rounded-lg shadow-lg py-1 z-10 min-w-[100px]">
+                        <div className="absolute right-0 top-6 bg-white border rounded-lg shadow-lg py-1 z-50 min-w-[100px]">
                           {action.status === 'active' && (
-                            <button 
+                            <button
                               className="block w-full text-left px-3 py-1 text-sm text-gray-700 hover:bg-gray-100"
                               onClick={() => handleActionOperation(action.id, 'disable')}
                             >
@@ -321,13 +321,13 @@ export default function ResponseActions() {
                           )}
                           {action.status === 'draft' && (
                             <>
-                              <button 
+                              <button
                                 className="block w-full text-left px-3 py-1 text-sm text-gray-700 hover:bg-gray-100"
                                 onClick={() => handleActionOperation(action.id, 'enable')}
                               >
                                 启用
                               </button>
-                              <button 
+                              <button
                                 className="block w-full text-left px-3 py-1 text-sm text-red-600 hover:bg-gray-100"
                                 onClick={() => handleActionOperation(action.id, 'delete')}
                               >
@@ -336,7 +336,7 @@ export default function ResponseActions() {
                             </>
                           )}
                           {action.status === 'archived' && (
-                            <button 
+                            <button
                               className="block w-full text-left px-3 py-1 text-sm text-red-600 hover:bg-gray-100"
                               onClick={() => handleActionOperation(action.id, 'delete')}
                             >
