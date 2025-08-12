@@ -121,7 +121,10 @@ export default function ResponseActionCreate() {
                 <div>
                   <div className="flex items-center gap-2 mb-2">
                     <label className="block text-sm font-medium text-gray-900">监控范围</label>
-                    <HelpCircle className="h-4 w-4 text-gray-400" title="选择何时触发此动作" />
+                    <HelpCircle
+                      className="h-4 w-4 text-gray-400 cursor-help"
+                      title="为AI圈定一个宏观的监控范围，作为其进行意图分析的前提，有助于提升系统效率。"
+                    />
                   </div>
                   <Select
                     value={formData.monitoringScope}
