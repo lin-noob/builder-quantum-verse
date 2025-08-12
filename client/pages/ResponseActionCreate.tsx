@@ -129,7 +129,7 @@ export default function ResponseActionCreate() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="real_time_event">实时事件－专注于分析用户的实时行为流</SelectItem>
-                      <SelectItem value="user_mode">用���模式－侧重于分析用户的历史数据和画像</SelectItem>
+                      <SelectItem value="user_mode">用户模式－侧重于分析用户的历史数据和画像</SelectItem>
                     </SelectContent>
                   </Select>
                   <p className="text-xs text-gray-500 mt-1">
@@ -222,7 +222,7 @@ export default function ResponseActionCreate() {
                       ...prev,
                       popup: { ...prev.popup!, buttonText: e.target.value }
                     }))}
-                    placeholder="例如：立即体验"
+                    placeholder="���如：立即体验"
                     className="text-base"
                   />
                 </div>
