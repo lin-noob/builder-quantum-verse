@@ -29,8 +29,15 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { getProfileView, type ApiUser } from "@/lib/profile";
+import {
+  getProfileView,
+  type ApiUser,
+  addProfileLabel,
+  deleteProfileLabel,
+  ApiLabel,
+} from "@/lib/profile";
 import { toast } from "@/hooks/use-toast";
+import { getDaysBetween } from "@/lib/utils";
 
 export default function UserDetail() {
   const { cdpId } = useParams<{ cdpId: string }>();
@@ -71,26 +78,54 @@ export default function UserDetail() {
       contact: apiUser.contactInfo,
       totalSpent: apiUser.totalOrders ?? 0,
       totalOrders: apiUser.orderCount ?? 0,
-      averageOrderValue: (apiUser.totalOrders && apiUser.orderCount)
-        ? Number(apiUser.totalOrders) / Math.max(1, Number(apiUser.orderCount))
-        : 0,
+      averageOrderValue:
+        apiUser.totalOrders && apiUser.orderCount
+          ? Number(apiUser.totalOrders) /
+            Math.max(1, Number(apiUser.orderCount))
+          : 0,
       lastPurchaseDate: apiUser.maxBuyTime,
       maxOrderAmount: apiUser.maxOrderAmount,
-      averagePurchaseCycle: 0,
+      averagePurchaseCycle: (() => {
+        const daysSpan = getDaysBetween(apiUser.maxBuyTime, apiUser.minBuyTime);
+        const orders = Number(apiUser.orderCount) || 0;
+        if (!daysSpan || Number.isNaN(daysSpan)) return 0;
+        if (orders <= 1) return daysSpan; // 无法计算间隔，用跨度天数
+        const cycle = daysSpan / (orders - 1);
+        return Math.max(1, Math.round(cycle));
+      })(),
       firstVisitTime: apiUser.createGmt,
       registrationTime: apiUser.signTime,
       firstPurchaseTime: apiUser.minBuyTime,
       lastActiveTime: apiUser.loginDate,
+      currency: apiUser.currencySymbol,
       tags: [],
       sessions: [],
       orders: [],
     } as any;
   }, [apiUser, cdpId]);
 
-  const [userTags, setUserTags] = useState<string[]>(user?.tags || []);
+  const [userTags, setUserTags] = useState<ApiLabel[]>(user?.tags || []);
+  const [labelNameToId, setLabelNameToId] = useState<Record<string, number>>(
+    {},
+  );
   const [newTag, setNewTag] = useState("");
   const [isTagPopoverOpen, setIsTagPopoverOpen] = useState(false);
   const [openSessions, setOpenSessions] = useState<Set<string>>(new Set());
+  const [tagSaving, setTagSaving] = useState(false);
+
+  const refetchUser = async () => {
+    if (!cdpId) return;
+    try {
+      const fresh = await getProfileView(cdpId);
+      if (fresh) setApiUser(fresh);
+    } catch {}
+  };
+
+  useEffect(() => {
+    if (apiUser?.labelList && Array.isArray(apiUser.labelList)) {
+      setUserTags(apiUser.labelList);
+    }
+  }, [apiUser?.labelList]);
 
   if (loading) {
     return (
@@ -133,16 +168,53 @@ export default function UserDetail() {
     toast({ title: "已复制", description: "CDP ID已复制到剪贴板" });
   };
 
-  const addTag = () => {
-    if (newTag.trim() && !userTags.includes(newTag.trim())) {
-      setUserTags([...userTags, newTag.trim()]);
-      setNewTag("");
+  const addTag = async () => {
+    const value = newTag.trim();
+    if (!value) return;
+    // if (userTags.includes(value)) {
+    //   toast({ title: "重复标签", description: "该标签已存在" });
+    //   setNewTag("");
+    //   setIsTagPopoverOpen(false);
+    //   return;
+    // }
+    setTagSaving(true);
+
+    setNewTag("");
+    try {
+      await addProfileLabel(String(user.cdpId), value);
+      // optimistic update
+      // setUserTags((prev) => [...prev, value]);
+
+      // Close input immediately for better UX
       setIsTagPopoverOpen(false);
+
+      // then refetch to get server ids
+      await refetchUser();
+      toast({ title: "添加成功", description: `已添加标签：${value}` });
+    } catch (e: any) {
+      toast({ title: "添加失败", description: e?.message || "请稍后重试" });
+    } finally {
+      setTagSaving(false);
     }
   };
 
-  const removeTag = (tagToRemove: string) => {
-    setUserTags(userTags.filter((tag) => tag !== tagToRemove));
+  const removeTag = async (id: string) => {
+    setTagSaving(true);
+    try {
+      await deleteProfileLabel(id);
+      // setUserTags((prev) => prev.filter((t) => t !== tagToRemove));
+      // setLabelNameToId((prev) => {
+      //   const { [tagToRemove]: _, ...rest } = prev;
+      //   return rest;
+      // });
+      // refresh from server to keep一致
+      await refetchUser();
+      toast({ title: "删除成功" });
+    } catch (e: any) {
+      toast({ title: "删除失败", description: e?.message || "请稍后重试" });
+    } finally {
+      setTagSaving(false);
+    }
   };
 
   const toggleSession = (sessionId: string) => {
@@ -155,13 +227,15 @@ export default function UserDetail() {
     setOpenSessions(newOpenSessions);
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("zh-CN", {
-      style: "currency",
-      currency: "CNY",
-      minimumFractionDigits: 2,
+  function formatWithSymbol(amount: number, symbol: string) {
+    const formatted = new Intl.NumberFormat("en-US", {
+      style: "decimal", // 只格式化数字，不加货币
+      minimumFractionDigits: 2, // 保留两位小数
+      maximumFractionDigits: 2,
     }).format(amount);
-  };
+
+    return `${symbol}${formatted}`;
+  }
 
   return (
     <div className="p-6 space-y-6 bg-gray-50 min-h-full">
@@ -235,7 +309,7 @@ export default function UserDetail() {
                               <Button
                                 size="sm"
                                 onClick={addTag}
-                                disabled={!newTag.trim()}
+                                disabled={!newTag.trim() || tagSaving}
                               >
                                 添加
                               </Button>
@@ -245,16 +319,17 @@ export default function UserDetail() {
                       </Popover>
                     </div>
                     <div className="flex flex-wrap gap-2 mb-3">
-                      {userTags.map((tag) => (
+                      {userTags.map((tag, index) => (
                         <Badge
-                          key={tag}
+                          key={index}
                           variant="secondary"
                           className="flex items-center gap-1"
                         >
-                          {tag}
+                          {tag.labelName}
                           <button
-                            onClick={() => removeTag(tag)}
+                            onClick={() => removeTag(tag.id)}
                             className="ml-1 hover:text-red-600"
+                            disabled={tagSaving}
                           >
                             <X className="h-3 w-3" />
                           </button>
@@ -307,7 +382,7 @@ export default function UserDetail() {
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
                 <div className="text-center p-2 bg-gray-50 rounded">
                   <div className="text-lg font-bold text-gray-900">
-                    {formatCurrency(user.totalSpent)}
+                    {formatWithSymbol(user.totalSpent, user.currency)}
                   </div>
                   <div className="text-xs text-gray-600">总消费金额</div>
                 </div>
@@ -319,7 +394,7 @@ export default function UserDetail() {
                 </div>
                 <div className="text-center p-2 bg-gray-50 rounded">
                   <div className="text-lg font-bold text-gray-900">
-                    {formatCurrency(user.averageOrderValue)}
+                    {formatWithSymbol(user.averageOrderValue, user.currency)}
                   </div>
                   <div className="text-xs text-gray-600">平均客单价</div>
                 </div>
@@ -331,7 +406,7 @@ export default function UserDetail() {
                 </div>
                 <div className="text-center p-2 bg-gray-50 rounded">
                   <div className="text-lg font-bold text-gray-900">
-                    {formatCurrency(user.maxOrderAmount)}
+                    {formatWithSymbol(user.maxOrderAmount, user.currency)}
                   </div>
                   <div className="text-xs text-gray-600">最高单笔订单</div>
                 </div>

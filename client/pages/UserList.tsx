@@ -49,10 +49,12 @@ interface ApiUser {
   loginDate: string;
   location: string;
   shopid: string;
+  currencySymbol: string;
 }
 
 // 转换为UI需要的用户格式
 interface User {
+  id: string;
   cdpId: string;
   name: string;
   company: string;
@@ -62,6 +64,7 @@ interface User {
   firstPurchaseTime: string;
   lastActiveTime: string;
   totalSpent: number;
+  currency: string;
 }
 
 interface OrderSummaryDto {
@@ -104,6 +107,7 @@ export default function UserList() {
   // 转换API用户数据为UI格式
   const convertApiUserToUser = (apiUser: ApiUser): User => {
     return {
+      id: apiUser.id || "",
       cdpId: apiUser.cdpUserId.toString(),
       name: apiUser.fullName || "",
       company: apiUser.companyName || "",
@@ -113,6 +117,7 @@ export default function UserList() {
       firstPurchaseTime: apiUser.minBuyTime || "",
       lastActiveTime: apiUser.loginDate || "",
       totalSpent: apiUser.totalOrders || 0,
+      currency: apiUser.currencySymbol || "",
     };
   };
 
@@ -282,12 +287,8 @@ export default function UserList() {
   const endIndex = Math.min(startIndex + itemsPerPage, totalCount);
   const currentUsers = users; // API已经返回了当前页的数据
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      minimumFractionDigits: 2,
-    }).format(amount);
+  const formatCurrency = (amount: number, currency: string) => {
+    return currency + amount;
   };
 
   const handleDateRangeChange = (range: DateRange) => {
@@ -519,11 +520,11 @@ export default function UserList() {
                         {formatDateTime(user.lastActiveTime || "")}
                       </td>
                       <td className="px-6 py-4 text-sm font-semibold text-gray-900">
-                        {formatCurrency(user.totalSpent || 0)}
+                        {formatCurrency(user.totalSpent || 0, user.currency)}
                       </td>
                       <td className="px-6 py-4">
                         <Link
-                          to={`/users/${user.cdpId || user.id}`}
+                          to={`/users/${user.id}`}
                           className="text-blue-600 hover:text-blue-800 text-sm font-medium"
                         >
                           查看详情
