@@ -5,13 +5,13 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, MoreHorizontal } from "lucide-react";
-import { 
-  actionsData, 
-  ActionData, 
-  ActionStatus, 
-  MonitoringScope, 
-  STATUS_DISPLAY, 
+import { Plus, MoreVertical, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import {
+  actionsData,
+  ActionData,
+  ActionStatus,
+  MonitoringScope,
+  STATUS_DISPLAY,
   formatNumber
 } from "@shared/actionLibraryData";
 import { useToast } from "@/hooks/use-toast";
