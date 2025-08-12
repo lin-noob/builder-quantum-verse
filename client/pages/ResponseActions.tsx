@@ -127,9 +127,13 @@ export default function ResponseActions() {
     });
   };
 
-  // 查询函数
+  // 查询函数（刷新数据）
   const renderActionList = () => {
-    // 筛选逻辑已在 useMemo 中处理
+    // 筛选逻辑已在 useMemo 中处理，这里可以添加刷新逻辑
+    toast({
+      title: "数据已刷新",
+      description: `找到 ${filteredActions.length} 条动作记录`
+    });
   };
 
   // 处理操作按钮点击
@@ -462,7 +466,7 @@ export default function ResponseActions() {
         {/* 响应动作配置卡片 */}
         <Card className="bg-white rounded-lg shadow-sm">
           <CardHeader>
-            <CardTitle>响��动作配置</CardTitle>
+            <CardTitle>响应动作配置</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
