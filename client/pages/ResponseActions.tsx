@@ -182,7 +182,7 @@ export default function ResponseActions() {
     showListView();
   };
 
-  // 渲染列��视图
+  // 渲染列表视图
   const renderListView = () => (
     <div className="p-6 space-y-6 bg-gray-50 min-h-full">
       {/* 筛选区 */}
@@ -377,9 +377,6 @@ export default function ResponseActions() {
       <div className="p-6 space-y-6 bg-gray-50 min-h-full">
         {/* 基本信息卡片 */}
         <Card className="bg-white rounded-lg shadow-sm">
-          <CardHeader>
-            <CardTitle>基本信息</CardTitle>
-          </CardHeader>
           <CardContent>
             <dl className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div>
@@ -535,7 +532,7 @@ export default function ResponseActions() {
         <CardContent className="pt-6">
           <div className="flex items-center gap-2 mb-2">
             <label className="block text-sm font-medium text-gray-700">AI 监控范围</label>
-            <HelpCircle className="h-4 w-4 text-gray-400" title="选择何时触发此动作" />
+            <HelpCircle className="h-4 w-4 text-gray-400" title="选择���时触发此动作" />
           </div>
           <Select
             value={formData.monitoringScope}
@@ -563,7 +560,7 @@ export default function ResponseActions() {
               rows={3}
               value={formData.purpose || ''}
               onChange={(e) => setFormData(prev => ({ ...prev, purpose: e.target.value }))}
-              placeholder="请描述动作用途..."
+              placeholder="请���述动作用途..."
             />
           </div>
           <div>
