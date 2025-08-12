@@ -64,28 +64,6 @@ export default function ResponseActionCreate() {
 
   return (
     <div className="min-h-full bg-gray-50">
-      {/* 顶部操作栏 */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-end h-16">
-            <div className="flex items-center space-x-3">
-              <Button 
-                variant="outline" 
-                onClick={() => navigate('/response-actions')}
-              >
-                取消
-              </Button>
-              <Button 
-                onClick={handleSave}
-                className="bg-blue-600 hover:bg-blue-700"
-              >
-                保存
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* 主要内容区域 */}
       <div className="max-w-none mx-auto px-6 lg:px-12 py-8">
         <div className="space-y-6">
@@ -222,7 +200,7 @@ export default function ResponseActionCreate() {
                       ...prev,
                       popup: { ...prev.popup!, buttonText: e.target.value }
                     }))}
-                    placeholder="���如：立即体验"
+                    placeholder="例如：立即体验"
                     className="text-base"
                   />
                 </div>
