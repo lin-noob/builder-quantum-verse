@@ -215,8 +215,8 @@ export default function UserList() {
         timestamp: new Date().toISOString()
       });
 
-      // 先测试代理是否正常工作
-      console.log("测试API连通性...");
+      console.log("当前网络状态:", navigator.onLine ? "在线" : "离线");
+      console.log("代理配置目标:", "http://192.168.1.128:8099");
 
       // 使用通用request方法明确指定POST，增加超时时间
       const response = await request.request<{
@@ -292,7 +292,7 @@ export default function UserList() {
           console.error("3. CORS 配置问题");
           errorMessage = "网络连接失败，请检查代理服务器是否可访问";
         } else if (error.message.includes("timeout")) {
-          console.error("请求超时，可能的原因:");
+          console.error("请求超时，可��的原因:");
           console.error("1. 服务器响应缓慢");
           console.error("2. 网络延迟过高");
           errorMessage = "请求超时，请稍后重试";
