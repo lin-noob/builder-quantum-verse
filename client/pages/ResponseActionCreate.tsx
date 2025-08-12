@@ -106,7 +106,7 @@ export default function ResponseActionCreate() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="real_time_event">实时事件���专注于分析用户的实时行为流</SelectItem>
+                      <SelectItem value="real_time_event">实时事件－专注于分析用户的实时行为流</SelectItem>
                       <SelectItem value="user_mode">用户模式－侧重于分析用户的历史数据和画像</SelectItem>
                     </SelectContent>
                   </Select>
@@ -169,7 +169,7 @@ export default function ResponseActionCreate() {
                 </div>
                 <div>
                   <CardTitle className="text-base font-semibold">弹窗内容</CardTitle>
-                  <p className="text-sm text-gray-500 mt-1">设计用户看到的弹窗内容和交互</p>
+                  <p className="text-sm text-gray-500 mt-1">设计用���看到的弹窗内容和交互</p>
                 </div>
               </div>
             </CardHeader>
@@ -239,7 +239,7 @@ export default function ResponseActionCreate() {
 
           {/* 操作按钮 */}
           <Card className="shadow-sm border-0 ring-1 ring-gray-200">
-            <CardContent className="pt-6">
+            <CardContent className="py-4">
               <div className="flex justify-center space-x-4">
                 <Button
                   variant="outline"
