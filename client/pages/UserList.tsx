@@ -150,7 +150,7 @@ export default function UserList() {
     }
   };
 
-  // 调用API获取用户数据
+  // 调用API获取用户数��
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
@@ -187,7 +187,11 @@ export default function UserList() {
         url: "/api/quote/api/v1/profile/list",
         method: "POST",
         requestBody,
+        timestamp: new Date().toISOString()
       });
+
+      // 先测试代理是否正常工作
+      console.log("测试API连通性...");
 
       // 使用通用request方法明确指定POST
       const response = await request.request<{
