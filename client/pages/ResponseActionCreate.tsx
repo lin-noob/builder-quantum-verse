@@ -119,13 +119,7 @@ export default function ResponseActionCreate() {
                 </div>
 
                 <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <label className="block text-sm font-medium text-gray-900">监控范围</label>
-                    <HelpCircle
-                      className="h-4 w-4 text-gray-400 cursor-help"
-                      title="为AI圈定一个宏观的监控范围，作为其进行意图分析的前提，有助于提升系统效率。"
-                    />
-                  </div>
+                  <label className="block text-sm font-medium text-gray-900 mb-2">���控范围</label>
                   <Select
                     value={formData.monitoringScope}
                     onValueChange={(value) => setFormData(prev => ({ ...prev, monitoringScope: value as MonitoringScope }))}
@@ -138,6 +132,9 @@ export default function ResponseActionCreate() {
                       <SelectItem value="user_mode">用户模式</SelectItem>
                     </SelectContent>
                   </Select>
+                  <p className="text-xs text-gray-500 mt-1">
+                    为AI圈定一个宏观的监控范围，作为其进行意图分析的前提，有助于提升系统效率。
+                  </p>
                 </div>
 
                 <div>
