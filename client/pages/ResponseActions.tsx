@@ -37,10 +37,19 @@ export default function ResponseActions() {
   // 筛选状态
   const [filters, setFilters] = useState<FilterState>({
     search: '',
-    monitoringScope: 'all',
     status: 'all'
   });
-  
+
+  // 排序状态 - 默认按最后更新时间排序
+  const [sortState, setSortState] = useState<SortState>({
+    field: 'lastUpdated',
+    direction: 'desc'
+  });
+
+  // 分页状态
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
   // 下拉菜单状态
   const [dropdownOpen, setDropdownOpen] = useState<string | null>(null);
 
@@ -73,7 +82,7 @@ export default function ResponseActions() {
   const renderActionList = () => {
     // 筛选逻辑已在 useMemo 中处理，这里可以添加刷新逻辑
     toast({
-      title: "数据已刷新",
+      title: "���据已刷新",
       description: `找到 ${filteredActions.length} 条动作记录`
     });
   };
@@ -204,7 +213,7 @@ export default function ResponseActions() {
                       className="text-sky-600 hover:underline"
                       onClick={() => navigate(`/response-actions/${action.id}`)}
                     >
-                      详情
+                      ��情
                     </button>
                     <button 
                       className="text-sky-600 hover:underline"
@@ -273,7 +282,7 @@ export default function ResponseActions() {
         )}
       </Card>
       
-      {/* 点击外部关��下拉菜单 */}
+      {/* 点击外部关闭下拉菜单 */}
       {dropdownOpen && (
         <div 
           className="fixed inset-0 z-40"
