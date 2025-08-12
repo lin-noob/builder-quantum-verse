@@ -103,35 +103,18 @@ export default function ResponseActions() {
     <div className="p-6 space-y-6 bg-gray-50 min-h-full">
       {/* 筛选区 */}
       <Card className="bg-white p-4 rounded-lg shadow-sm">
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="flex flex-col md:flex-row gap-4 items-end">
           {/* 搜索框 */}
-          <div className="md:col-span-2">
+          <div className="flex-1">
             <Input
               placeholder="搜索动作名称..."
               value={filters.search}
               onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
             />
           </div>
-          
-          {/* 监控��围筛选 */}
-          <div>
-            <Select 
-              value={filters.monitoringScope} 
-              onValueChange={(value) => setFilters(prev => ({ ...prev, monitoringScope: value }))}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">所有监控范围</SelectItem>
-                <SelectItem value="real_time_event">实时事件</SelectItem>
-                <SelectItem value="user_mode">用户模式</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          
+
           {/* 状态筛选 */}
-          <div>
+          <div className="w-full md:w-48">
             <Select
               value={filters.status}
               onValueChange={(value) => setFilters(prev => ({ ...prev, status: value }))}
@@ -147,23 +130,23 @@ export default function ResponseActions() {
               </SelectContent>
             </Select>
           </div>
-        </div>
-        
-        {/* 操作按钮区 */}
-        <div className="flex justify-end mt-4 gap-2">
-          <Button 
-            variant="outline"
-            className="bg-slate-200 text-slate-700"
-            onClick={resetFilters}
-          >
-            重置
-          </Button>
-          <Button 
-            className="bg-sky-600 text-white"
-            onClick={renderActionList}
-          >
-            查询
-          </Button>
+
+          {/* 操作按钮 */}
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              className="bg-slate-200 text-slate-700"
+              onClick={resetFilters}
+            >
+              重置
+            </Button>
+            <Button
+              className="bg-sky-600 text-white"
+              onClick={renderActionList}
+            >
+              查询
+            </Button>
+          </div>
         </div>
       </Card>
 
