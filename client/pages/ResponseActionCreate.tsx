@@ -106,7 +106,7 @@ export default function ResponseActionCreate() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="real_time_event">实时事件－专注于分析用户的实时行为流</SelectItem>
+                      <SelectItem value="real_time_event">实时事件���专注于分析用户的实时行为流</SelectItem>
                       <SelectItem value="user_mode">用户模式－侧重于分析用户的历史数据和画像</SelectItem>
                     </SelectContent>
                   </Select>
@@ -238,21 +238,25 @@ export default function ResponseActionCreate() {
           </Card>
 
           {/* 操作按钮 */}
-          <div className="flex justify-center space-x-4 pt-6">
-            <Button
-              variant="outline"
-              onClick={() => navigate('/response-actions')}
-              className="px-6"
-            >
-              取消
-            </Button>
-            <Button
-              onClick={handleSave}
-              className="bg-blue-600 hover:bg-blue-700 px-6"
-            >
-              {isEditing ? '保存更改' : '保存动作'}
-            </Button>
-          </div>
+          <Card className="shadow-sm border-0 ring-1 ring-gray-200">
+            <CardContent className="pt-6">
+              <div className="flex justify-center space-x-4">
+                <Button
+                  variant="outline"
+                  onClick={() => navigate('/response-actions')}
+                  className="px-6"
+                >
+                  取消
+                </Button>
+                <Button
+                  onClick={handleSave}
+                  className="bg-blue-600 hover:bg-blue-700 px-6"
+                >
+                  {isEditing ? '保存更改' : '保存动作'}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
