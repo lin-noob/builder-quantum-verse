@@ -19,9 +19,16 @@ import { useToast } from "@/hooks/use-toast";
 // 筛选状态接口
 interface FilterState {
   search: string;
-  monitoringScope: string;
   status: string;
 }
+
+// 排序状态接口
+interface SortState {
+  field: string | null;
+  direction: "asc" | "desc";
+}
+
+type SortableFields = "totalExecutions" | "conversions" | "lastUpdated";
 
 export default function ResponseActions() {
   const navigate = useNavigate();
@@ -266,7 +273,7 @@ export default function ResponseActions() {
         )}
       </Card>
       
-      {/* 点击外部关闭下拉菜单 */}
+      {/* 点击外部关��下拉菜单 */}
       {dropdownOpen && (
         <div 
           className="fixed inset-0 z-40"
