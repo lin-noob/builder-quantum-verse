@@ -132,11 +132,11 @@ export default function ResponseActions() {
     // 筛选逻辑已在 useMemo 中处理，这里可以添加刷新逻辑
     toast({
       title: "数据已刷新",
-      description: `找到 ${filteredActions.length} 条动作记���`
+      description: `找到 ${filteredActions.length} 条动作记录`
     });
   };
 
-  // 处理操作按钮点击
+  // 处理操作��钮点击
   const handleActionOperation = (actionId: string, operation: string) => {
     const action = actionsData.find(a => a.id === actionId);
     if (!action) return;
@@ -369,36 +369,12 @@ export default function ResponseActions() {
     </div>
   );
 
-  // 渲染详情视图
+  // ���染详情视图
   const renderDetailView = () => {
     if (!selectedAction) return null;
 
     return (
       <div className="p-6 space-y-6 bg-gray-50 min-h-full">
-        {/* 页面头部 */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button 
-              variant="ghost" 
-              onClick={showListView}
-              className="flex items-center gap-2"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              返回列表
-            </Button>
-            <h1 id="detail-view-title" className="text-2xl font-bold text-gray-900">
-              {selectedAction.name}
-            </h1>
-          </div>
-          <Button 
-            className="bg-sky-600 text-white flex items-center gap-2"
-            onClick={() => showEditView(selectedAction.id)}
-          >
-            <Edit className="h-4 w-4" />
-            编辑
-          </Button>
-        </div>
-
         {/* 基本信息卡片 */}
         <Card className="bg-white rounded-lg shadow-sm">
           <CardHeader>
