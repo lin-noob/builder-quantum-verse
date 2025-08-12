@@ -128,8 +128,8 @@ export default function ResponseActionCreate() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="real_time_event">实时事件</SelectItem>
-                      <SelectItem value="user_mode">用户模式</SelectItem>
+                      <SelectItem value="real_time_event">实时事件－专注于分析用户的实时行为流</SelectItem>
+                      <SelectItem value="user_mode">用���模式－侧重于分析用户的历史数据和画像</SelectItem>
                     </SelectContent>
                   </Select>
                   <p className="text-xs text-gray-500 mt-1">
@@ -253,7 +253,7 @@ export default function ResponseActionCreate() {
                     ...prev,
                     popup: { ...prev.popup!, content: e.target.value }
                   }))}
-                  placeholder="输入弹窗的详细内容��告诉用户您想传达的信息..."
+                  placeholder="输入弹窗的详细内容，告诉用户您想传达的信息..."
                 />
               </div>
             </CardContent>
