@@ -150,7 +150,7 @@ export default function UserList() {
     }
   };
 
-  // 调用API获取用户数��
+  // 调用API获取用户数据
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
@@ -193,7 +193,7 @@ export default function UserList() {
       // 先测试代理是否正常工作
       console.log("测试API连通性...");
 
-      // 使用通用request方法明确指定POST
+      // 使用通用request方法明确指定POST，增加超时时间
       const response = await request.request<{
         code: string;
         data: ApiUser[];
@@ -202,6 +202,7 @@ export default function UserList() {
       }>("/api/quote/api/v1/profile/list", {
         method: "POST",
         data: requestBody,
+        timeout: 30000, // 增加到30秒
         headers: {
           "Content-Type": "application/json",
         },
@@ -259,7 +260,7 @@ export default function UserList() {
         console.error("错误堆栈:", error.stack);
       }
 
-      // 不显示toast，让用户专注于控制台的错误信息
+      // 不显示toast，让用户专注于控制台��错误信息
       console.log("请检查控制台中的详细错误信息");
       setUsers([]);
       setTotalCount(0);
