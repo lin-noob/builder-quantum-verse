@@ -462,7 +462,7 @@ export default function ResponseActions() {
         {/* 响应动作配置卡片 */}
         <Card className="bg-white rounded-lg shadow-sm">
           <CardHeader>
-            <CardTitle>响应动作配置</CardTitle>
+            <CardTitle>响��动作配置</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -658,8 +658,8 @@ export default function ResponseActions() {
       
       {/* 点击外部关闭下拉菜单 */}
       {dropdownOpen && (
-        <div 
-          className="fixed inset-0 z-5"
+        <div
+          className="fixed inset-0 z-40"
           onClick={() => setDropdownOpen(null)}
         />
       )}
