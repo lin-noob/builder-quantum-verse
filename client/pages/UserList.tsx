@@ -136,17 +136,17 @@ export default function UserList() {
   const getSortFieldMapping = (field: string): string => {
     switch (field) {
       case "firstVisitTime":
-        return "createGmt";
+        return "create_gmt";
       case "registrationTime":
-        return "signTime";
+        return "sign_time";
       case "firstPurchaseTime":
-        return "minBuyTime";
+        return "min_buy_time";
       case "lastActiveTime":
-        return "loginDate";
+        return "login_date";
       case "totalSpent":
-        return "totalOrders";
+        return "total_orders";
       default:
-        return "createGmt";
+        return "create_gmt";
     }
   };
 
