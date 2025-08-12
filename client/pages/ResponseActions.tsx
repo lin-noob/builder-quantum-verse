@@ -1,590 +1,668 @@
 import { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import {
-  Plus,
-  Loader2,
-  AlertCircle,
-  ArrowUpDown,
-  ArrowUp,
-  ArrowDown,
-} from "lucide-react";
-import {
-  Rule,
-  mockRules,
-  getTriggerSummary,
-  getActionTypeDisplay,
-  getStatusDisplay,
-} from "@shared/ruleData";
-import ConfirmationModal from "@/components/ConfirmationModal";
+import { Plus, ArrowLeft, Edit, TrendingUp, MessageSquare, MoreHorizontal, HelpCircle } from "lucide-react";
+import { 
+  actionsData, 
+  ActionData, 
+  ActionStatus, 
+  MonitoringScope, 
+  STATUS_DISPLAY, 
+  MONITORING_SCOPE_DISPLAY,
+  formatNumber,
+  calculateConversionRate,
+  COMMON_PURPOSES
+} from "@shared/actionLibraryData";
 import { useToast } from "@/hooks/use-toast";
 
-interface FiltersState {
+// 视图类型
+type ViewType = 'list' | 'detail' | 'edit';
+
+// 筛选状态接口
+interface FilterState {
   search: string;
+  monitoringScope: string;
   status: string;
-  dateRange: string;
 }
-
-interface ConfirmationState {
-  isOpen: boolean;
-  type: "enable" | "disable" | "delete";
-  ruleId: string;
-  ruleName: string;
-}
-
-interface SortState {
-  field: string | null;
-  direction: "asc" | "desc";
-}
-
-type SortableFields =
-  | "totalExecutions"
-  | "totalInteractions"
-  | "totalConversions";
 
 export default function ResponseActions() {
-  const navigate = useNavigate();
   const { toast } = useToast();
-
-  // Use mock data for now
-  const [rules] = useState<Rule[]>(mockRules);
-  const [loading] = useState(false);
-  const [error] = useState<string | null>(null);
-
-  const [filters, setFilters] = useState<FiltersState>({
-    search: "",
-    status: "all",
-    dateRange: "all",
+  
+  // 当前视图状态
+  const [currentView, setCurrentView] = useState<ViewType>('list');
+  const [selectedActionId, setSelectedActionId] = useState<string | null>(null);
+  const [isCreating, setIsCreating] = useState(false);
+  
+  // 筛选状态
+  const [filters, setFilters] = useState<FilterState>({
+    search: '',
+    monitoringScope: 'all',
+    status: 'all'
   });
-
-  const [confirmationModal, setConfirmationModal] = useState<ConfirmationState>(
-    {
-      isOpen: false,
-      type: "enable",
-      ruleId: "",
-      ruleName: "",
-    },
-  );
-  const [operationLoading, setOperationLoading] = useState(false);
-  const [sortState, setSortState] = useState<SortState>({
-    field: null,
-    direction: "desc",
+  
+  // 表单数据状态
+  const [formData, setFormData] = useState<Partial<ActionData>>({
+    name: '',
+    monitoringScope: 'real_time_event',
+    purpose: '',
+    popup: {
+      title: '',
+      content: '',
+      buttonText: '',
+      buttonLink: ''
+    }
   });
+  
+  // 下拉菜单状态
+  const [dropdownOpen, setDropdownOpen] = useState<string | null>(null);
 
-  // Filter and sort rules based on current filter and sort state
-  const filteredAndSortedRules = useMemo(() => {
-    let filtered = rules.filter((rule) => {
-      const matchesSearch =
-        filters.search === "" ||
-        rule.ruleName.toLowerCase().includes(filters.search.toLowerCase());
-
-      const matchesStatus =
-        filters.status === "all" || rule.status === filters.status;
-
-      // Date filtering
-      let matchesDate = true;
-      if (filters.dateRange !== "all") {
-        const ruleDate = new Date(rule.createdAt);
-        const now = new Date();
-
-        switch (filters.dateRange) {
-          case "today":
-            matchesDate = ruleDate.toDateString() === now.toDateString();
-            break;
-          case "week":
-            const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-            matchesDate = ruleDate >= weekAgo;
-            break;
-          case "month":
-            const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-            matchesDate = ruleDate >= monthAgo;
-            break;
-          case "quarter":
-            const quarterAgo = new Date(
-              now.getTime() - 90 * 24 * 60 * 60 * 1000,
-            );
-            matchesDate = ruleDate >= quarterAgo;
-            break;
-        }
-      }
-
-      return matchesSearch && matchesStatus && matchesDate;
+  // 过滤后的数据
+  const filteredActions = useMemo(() => {
+    return actionsData.filter(action => {
+      const matchesSearch = filters.search === '' || 
+        action.name.toLowerCase().includes(filters.search.toLowerCase());
+      
+      const matchesScope = filters.monitoringScope === 'all' || 
+        action.monitoringScope === filters.monitoringScope;
+      
+      const matchesStatus = filters.status === 'all' || 
+        action.status === filters.status;
+      
+      return matchesSearch && matchesScope && matchesStatus;
     });
+  }, [filters]);
 
-    // Apply sorting
-    if (sortState.field) {
-      filtered.sort((a, b) => {
-        const aValue = a[sortState.field as keyof Rule];
-        const bValue = b[sortState.field as keyof Rule];
+  // 获取当前选中的动作数据
+  const selectedAction = selectedActionId 
+    ? actionsData.find(action => action.id === selectedActionId) 
+    : null;
 
-        if (sortState.direction === "asc") {
-          return aValue > bValue ? 1 : -1;
-        } else {
-          return aValue < bValue ? 1 : -1;
+  // 视图切换函数
+  const switchView = (view: ViewType, actionId?: string) => {
+    setCurrentView(view);
+    if (actionId) {
+      setSelectedActionId(actionId);
+    }
+    if (view === 'edit' && actionId) {
+      const action = actionsData.find(a => a.id === actionId);
+      if (action) {
+        setFormData(action);
+        setIsCreating(false);
+      }
+    } else if (view === 'edit' && !actionId) {
+      // 创建新动作
+      setFormData({
+        name: '',
+        monitoringScope: 'real_time_event',
+        purpose: '',
+        popup: {
+          title: '',
+          content: '',
+          buttonText: '',
+          buttonLink: ''
         }
       });
+      setIsCreating(true);
     }
-
-    return filtered;
-  }, [rules, filters, sortState]);
-
-  // Handle sorting
-  const handleSort = (field: SortableFields) => {
-    setSortState((prev) => ({
-      field,
-      direction:
-        prev.field === field && prev.direction === "desc" ? "asc" : "desc",
-    }));
   };
 
-  // Get sort icon for column headers
-  const getSortIcon = (field: SortableFields) => {
-    if (sortState.field !== field) {
-      return <ArrowUpDown className="h-4 w-4 text-gray-400" />;
+  // 显示列表视图
+  const showListView = () => switchView('list');
+  
+  // 显示详情视图
+  const showDetailView = (actionId: string) => switchView('detail', actionId);
+  
+  // 显示编辑视图
+  const showEditView = (actionId?: string) => switchView('edit', actionId);
+
+  // 重置筛选
+  const resetFilters = () => {
+    setFilters({
+      search: '',
+      monitoringScope: 'all',
+      status: 'all'
+    });
+  };
+
+  // 查询函数
+  const renderActionList = () => {
+    // 筛选逻辑已在 useMemo 中处理
+  };
+
+  // 处理操作按钮点击
+  const handleActionOperation = (actionId: string, operation: string) => {
+    const action = actionsData.find(a => a.id === actionId);
+    if (!action) return;
+
+    switch (operation) {
+      case 'enable':
+        toast({
+          title: "启用成功",
+          description: `动作"${action.name}"已启用`
+        });
+        break;
+      case 'disable':
+        toast({
+          title: "停用成功", 
+          description: `动作"${action.name}"已停用`
+        });
+        break;
+      case 'delete':
+        toast({
+          title: "删除成功",
+          description: `动作"${action.name}"已删除`
+        });
+        break;
     }
-    return sortState.direction === "desc" ? (
-      <ArrowDown className="h-4 w-4 text-blue-600" />
-    ) : (
-      <ArrowUp className="h-4 w-4 text-blue-600" />
-    );
+    setDropdownOpen(null);
   };
 
-  // Format date for display
-  const formatDate = (dateString: string): string => {
-    const date = new Date(dateString);
-    return date.toLocaleString("zh-CN", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
-  // Handle rule operations
-  const handleEdit = (rule: Rule) => {
-    navigate(`/response-actions/edit/${rule.id}`);
-  };
-
-  const handleViewDetail = (ruleId: string) => {
-    navigate(`/response-actions/${ruleId}`);
-  };
-
-  const handleEnable = (rule: Rule) => {
-    setConfirmationModal({
-      isOpen: true,
-      type: "enable",
-      ruleId: rule.id,
-      ruleName: rule.ruleName,
-    });
-  };
-
-  const handleDisable = (rule: Rule) => {
-    setConfirmationModal({
-      isOpen: true,
-      type: "disable",
-      ruleId: rule.id,
-      ruleName: rule.ruleName,
-    });
-  };
-
-  const handleDelete = (rule: Rule) => {
-    setConfirmationModal({
-      isOpen: true,
-      type: "delete",
-      ruleId: rule.id,
-      ruleName: rule.ruleName,
-    });
-  };
-
-  // Handle confirmation actions
-  const handleConfirmation = async () => {
-    const { type, ruleName } = confirmationModal;
-
-    try {
-      setOperationLoading(true);
-
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      switch (type) {
-        case "enable":
-          toast({
-            title: "启用成功",
-            description: `规则"${ruleName}"已成功启用`,
-          });
-          break;
-        case "disable":
-          toast({
-            title: "停用成功",
-            description: `规则"${ruleName}"已成功停用`,
-          });
-          break;
-        case "delete":
-          toast({
-            title: "删除成功",
-            description: `规则"${ruleName}"已成功删除`,
-          });
-          break;
-      }
-    } catch (err) {
+  // 保存表单
+  const handleSave = () => {
+    if (!formData.name?.trim()) {
       toast({
-        title: "操作失败",
-        description: err instanceof Error ? err.message : "未知错误",
-        variant: "destructive",
+        title: "请填写动作名称",
+        variant: "destructive"
       });
-    } finally {
-      setOperationLoading(false);
-      setConfirmationModal((prev) => ({ ...prev, isOpen: false }));
+      return;
     }
+
+    toast({
+      title: isCreating ? "创建成功" : "保存成功",
+      description: `动作"${formData.name}"已保存`
+    });
+    
+    showListView();
   };
 
-  // Render action links based on status
-  const renderActionLinks = (rule: Rule) => {
-    const isDisabled = operationLoading;
-    const linkClass =
-      "text-blue-600 hover:text-blue-800 cursor-pointer text-sm";
-    const disabledClass = "text-gray-400 cursor-not-allowed text-sm";
-
-    switch (rule.status) {
-      case "draft":
-        return (
-          <div className="flex gap-3 text-sm">
-            <span
-              className={isDisabled ? disabledClass : linkClass}
-              onClick={() => !isDisabled && handleViewDetail(rule.id)}
-            >
-              详情
-            </span>
-            <span
-              className={isDisabled ? disabledClass : linkClass}
-              onClick={() => !isDisabled && handleEdit(rule)}
-            >
-              编辑
-            </span>
-            <span
-              className={
-                isDisabled
-                  ? disabledClass
-                  : "text-green-600 hover:text-green-800 cursor-pointer text-sm"
-              }
-              onClick={() => !isDisabled && handleEnable(rule)}
-            >
-              启用
-            </span>
-            <span
-              className={
-                isDisabled
-                  ? disabledClass
-                  : "text-red-600 hover:text-red-800 cursor-pointer text-sm"
-              }
-              onClick={() => !isDisabled && handleDelete(rule)}
-            >
-              删除
-            </span>
-          </div>
-        );
-
-      case "active":
-        return (
-          <div className="flex gap-3 text-sm">
-            <span
-              className={isDisabled ? disabledClass : linkClass}
-              onClick={() => !isDisabled && handleViewDetail(rule.id)}
-            >
-              详情
-            </span>
-            <span
-              className={isDisabled ? disabledClass : linkClass}
-              onClick={() => !isDisabled && handleEdit(rule)}
-            >
-              编辑
-            </span>
-            <span
-              className={
-                isDisabled
-                  ? disabledClass
-                  : "text-orange-600 hover:text-orange-800 cursor-pointer text-sm"
-              }
-              onClick={() => !isDisabled && handleDisable(rule)}
-            >
-              停用
-            </span>
-          </div>
-        );
-
-      case "archived":
-        return (
-          <div className="flex gap-3 text-sm">
-            <span
-              className={isDisabled ? disabledClass : linkClass}
-              onClick={() => !isDisabled && handleViewDetail(rule.id)}
-            >
-              详情
-            </span>
-            <span
-              className={isDisabled ? disabledClass : linkClass}
-              onClick={() => !isDisabled && handleEdit(rule)}
-            >
-              编辑
-            </span>
-            <span
-              className={
-                isDisabled
-                  ? disabledClass
-                  : "text-red-600 hover:text-red-800 cursor-pointer text-sm"
-              }
-              onClick={() => !isDisabled && handleDelete(rule)}
-            >
-              删除
-            </span>
-          </div>
-        );
-
-      default:
-        return null;
-    }
-  };
-
-  return (
-    <div className="p-6">
-      {/* Action Bar */}
-      <div className="flex justify-end mb-6">
-        <Button
-          onClick={() => navigate("/response-actions/create")}
-          className="flex items-center gap-2"
-          disabled={operationLoading}
-        >
-          <Plus className="h-4 w-4" />
-          创建新规则
-        </Button>
-      </div>
-
-      {/* Error Display */}
-      {error && (
-        <Alert variant="destructive" className="mb-6">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription className="flex items-center justify-between">
-            {error}
-            <Button variant="outline" size="sm">
-              关闭
-            </Button>
-          </AlertDescription>
-        </Alert>
-      )}
-
-      {/* Filters & Search Bar */}
-      <div className="bg-white rounded-lg border border-gray-200 p-4 mb-6">
-        <div className="flex flex-col md:flex-row gap-4">
-          {/* Search */}
-          <div className="flex-1">
+  // 渲染列表视图
+  const renderListView = () => (
+    <div className="p-6 space-y-6 bg-gray-50 min-h-full">
+      {/* 筛选区 */}
+      <Card className="bg-white p-4 rounded-lg shadow-sm">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {/* 搜索框 */}
+          <div className="md:col-span-2">
             <Input
-              placeholder="搜索规则名称"
+              placeholder="搜索动作名称..."
               value={filters.search}
-              onChange={(e) =>
-                setFilters((prev) => ({ ...prev, search: e.target.value }))
-              }
-              className="w-full"
+              onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
             />
           </div>
-
-          {/* Status Filter */}
-          <div className="w-full md:w-48">
-            <Select
-              value={filters.status}
-              onValueChange={(value) =>
-                setFilters((prev) => ({ ...prev, status: value }))
-              }
+          
+          {/* 监控范围筛选 */}
+          <div>
+            <Select 
+              value={filters.monitoringScope} 
+              onValueChange={(value) => setFilters(prev => ({ ...prev, monitoringScope: value }))}
             >
               <SelectTrigger>
-                <SelectValue placeholder="状态" />
+                <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">全部状态</SelectItem>
+                <SelectItem value="all">所有监控范围</SelectItem>
+                <SelectItem value="real_time_event">实时事件</SelectItem>
+                <SelectItem value="user_mode">用户模式</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          
+          {/* 状态筛选 */}
+          <div>
+            <Select
+              value={filters.status}
+              onValueChange={(value) => setFilters(prev => ({ ...prev, status: value }))}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">所有状态</SelectItem>
                 <SelectItem value="draft">草稿</SelectItem>
                 <SelectItem value="active">生效中</SelectItem>
                 <SelectItem value="archived">已归档</SelectItem>
               </SelectContent>
             </Select>
           </div>
-
-          {/* Date Filter */}
-          <div className="w-full md:w-48">
-            <Select
-              value={filters.dateRange}
-              onValueChange={(value) =>
-                setFilters((prev) => ({ ...prev, dateRange: value }))
-              }
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="创建时间" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">全部时间</SelectItem>
-                <SelectItem value="today">今天</SelectItem>
-                <SelectItem value="week">近一周</SelectItem>
-                <SelectItem value="month">近一月</SelectItem>
-                <SelectItem value="quarter">三月</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
         </div>
+        
+        {/* 操作按钮区 */}
+        <div className="flex justify-end mt-4 gap-2">
+          <Button 
+            variant="outline"
+            className="bg-slate-200 text-slate-700"
+            onClick={resetFilters}
+          >
+            重置
+          </Button>
+          <Button 
+            className="bg-sky-600 text-white"
+            onClick={renderActionList}
+          >
+            查询
+          </Button>
+        </div>
+      </Card>
+
+      {/* 主操作区 */}
+      <div className="mb-4">
+        <Button 
+          className="bg-sky-600 text-white flex items-center gap-2"
+          onClick={() => showEditView()}
+        >
+          <Plus className="h-4 w-4" />
+          创建新动作
+        </Button>
       </div>
 
-      {/* Rules Table */}
-      <div className="bg-white rounded-lg border border-gray-200">
-        {loading ? (
-          <div className="p-12 text-center">
-            <Loader2 className="h-8 w-8 mx-auto mb-4 animate-spin text-gray-400" />
-            <p className="text-gray-500">正在加载规则...</p>
-          </div>
-        ) : filteredAndSortedRules.length === 0 ? (
-          <div className="p-12 text-center">
-            <div className="text-gray-400 mb-2">
-              <Plus className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">暂无规则</h3>
-            <p className="text-gray-500 mb-4">
-              {filters.search ||
-              filters.status !== "all" ||
-              filters.dateRange !== "all"
-                ? "没有找到符合条件的规则，请尝试调整筛选条件"
-                : '请点击右上角"创建新规则"开始使用'}
-            </p>
-            {!filters.search &&
-              filters.status === "all" &&
-              filters.dateRange === "all" && (
-                <Button
-                  onClick={() => navigate("/response-actions/create")}
-                  className="flex items-center gap-2"
-                  disabled={operationLoading}
-                >
-                  <Plus className="h-4 w-4" />
-                  创建新规则
-                </Button>
-              )}
-          </div>
-        ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>规则名称</TableHead>
-                <TableHead>响应动作</TableHead>
-                <TableHead>状态</TableHead>
-                <TableHead>触发器摘要</TableHead>
-                <TableHead>创建时间</TableHead>
-                <TableHead
-                  className="cursor-pointer select-none hover:bg-gray-50"
-                  onClick={() => handleSort("totalExecutions")}
-                >
+      {/* 数据表格 */}
+      <Card className="bg-white rounded-lg shadow-sm overflow-x-auto">
+        <table className="w-full">
+          <thead className="bg-slate-50">
+            <tr>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">动作名称</th>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">状态</th>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">响应动作用途</th>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">总执行次数</th>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">转化数</th>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">最后更新</th>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">操作</th>
+            </tr>
+          </thead>
+          <tbody id="action-list-body" className="divide-y divide-gray-200">
+            {filteredActions.map((action) => (
+              <tr key={action.id} className="hover:bg-gray-50">
+                <td className="px-6 py-4 text-sm font-medium text-gray-900">{action.name}</td>
+                <td className="px-6 py-4">
+                  <Badge 
+                    variant={STATUS_DISPLAY[action.status].color === 'green' ? 'default' : 'secondary'}
+                    className={STATUS_DISPLAY[action.status].color === 'green' ? 'bg-green-100 text-green-800' : ''}
+                  >
+                    {STATUS_DISPLAY[action.status].text}
+                  </Badge>
+                </td>
+                <td className="px-6 py-4 text-sm text-gray-600">{action.purpose}</td>
+                <td className="px-6 py-4 text-sm text-gray-900">{formatNumber(action.totalExecutions)}</td>
+                <td className="px-6 py-4 text-sm text-gray-900">{formatNumber(action.conversions)}</td>
+                <td className="px-6 py-4 text-sm text-gray-600">{action.lastUpdated}</td>
+                <td className="px-6 py-4 text-sm">
                   <div className="flex items-center gap-2">
-                    累计执行次数
-                    {getSortIcon("totalExecutions")}
-                  </div>
-                </TableHead>
-                <TableHead
-                  className="cursor-pointer select-none hover:bg-gray-50"
-                  onClick={() => handleSort("totalInteractions")}
-                >
-                  <div className="flex items-center gap-2">
-                    累计互动次数
-                    {getSortIcon("totalInteractions")}
-                  </div>
-                </TableHead>
-                <TableHead
-                  className="cursor-pointer select-none hover:bg-gray-50"
-                  onClick={() => handleSort("totalConversions")}
-                >
-                  <div className="flex items-center gap-2">
-                    累计转化
-                    {getSortIcon("totalConversions")}
-                  </div>
-                </TableHead>
-                <TableHead className="text-right">操作</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredAndSortedRules.map((rule) => {
-                const statusDisplay = getStatusDisplay(rule.status);
-                return (
-                  <TableRow key={rule.id}>
-                    <TableCell className="font-medium">
-                      {rule.ruleName}
-                    </TableCell>
-                    <TableCell>{getActionTypeDisplay(rule.action)}</TableCell>
-                    <TableCell>
-                      <Badge
-                        variant={
-                          statusDisplay.color === "green"
-                            ? "default"
-                            : "secondary"
-                        }
-                        className={
-                          statusDisplay.color === "green"
-                            ? "bg-green-100 text-green-800"
-                            : ""
-                        }
+                    <button 
+                      className="text-sky-600 hover:underline"
+                      onClick={() => showDetailView(action.id)}
+                    >
+                      详情
+                    </button>
+                    <button 
+                      className="text-sky-600 hover:underline"
+                      onClick={() => showEditView(action.id)}
+                    >
+                      编辑
+                    </button>
+                    <div className="relative">
+                      <button 
+                        className="text-gray-600 hover:text-gray-800"
+                        onClick={() => setDropdownOpen(dropdownOpen === action.id ? null : action.id)}
                       >
-                        {statusDisplay.text}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="max-w-md">
-                      <div className="truncate">
-                        {getTriggerSummary(rule.trigger)}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-sm text-gray-600">
-                      {formatDate(rule.createdAt)}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      {rule.totalExecutions.toLocaleString()}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      {rule.totalInteractions.toLocaleString()}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      {rule.totalConversions.toLocaleString()}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {renderActionLinks(rule)}
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        )}
+                        <MoreHorizontal className="h-4 w-4" />
+                      </button>
+                      {dropdownOpen === action.id && (
+                        <div className="absolute right-0 top-6 bg-white border rounded-lg shadow-lg py-1 z-10 min-w-[100px]">
+                          {action.status === 'active' && (
+                            <button 
+                              className="block w-full text-left px-3 py-1 text-sm text-gray-700 hover:bg-gray-100"
+                              onClick={() => handleActionOperation(action.id, 'disable')}
+                            >
+                              停用
+                            </button>
+                          )}
+                          {action.status === 'draft' && (
+                            <>
+                              <button 
+                                className="block w-full text-left px-3 py-1 text-sm text-gray-700 hover:bg-gray-100"
+                                onClick={() => handleActionOperation(action.id, 'enable')}
+                              >
+                                启用
+                              </button>
+                              <button 
+                                className="block w-full text-left px-3 py-1 text-sm text-red-600 hover:bg-gray-100"
+                                onClick={() => handleActionOperation(action.id, 'delete')}
+                              >
+                                删除
+                              </button>
+                            </>
+                          )}
+                          {action.status === 'archived' && (
+                            <button 
+                              className="block w-full text-left px-3 py-1 text-sm text-red-600 hover:bg-gray-100"
+                              onClick={() => handleActionOperation(action.id, 'delete')}
+                            >
+                              删除
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </Card>
+    </div>
+  );
+
+  // 渲染详情视图
+  const renderDetailView = () => {
+    if (!selectedAction) return null;
+
+    return (
+      <div className="p-6 space-y-6 bg-gray-50 min-h-full">
+        {/* 页面头部 */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Button 
+              variant="ghost" 
+              onClick={showListView}
+              className="flex items-center gap-2"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              返回列表
+            </Button>
+            <h1 id="detail-view-title" className="text-2xl font-bold text-gray-900">
+              {selectedAction.name}
+            </h1>
+          </div>
+          <Button 
+            className="bg-sky-600 text-white flex items-center gap-2"
+            onClick={() => showEditView(selectedAction.id)}
+          >
+            <Edit className="h-4 w-4" />
+            编辑
+          </Button>
+        </div>
+
+        {/* 基本信息卡片 */}
+        <Card className="bg-white rounded-lg shadow-sm">
+          <CardHeader>
+            <CardTitle>基本信息</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <dl className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div>
+                <dt className="text-sm font-medium text-gray-600">规则ID</dt>
+                <dd className="mt-1 text-sm text-gray-900">{selectedAction.id}</dd>
+              </div>
+              <div>
+                <dt className="text-sm font-medium text-gray-600">响应动作类型</dt>
+                <dd className="mt-1 text-sm text-gray-900">网页弹窗</dd>
+              </div>
+              <div>
+                <dt className="text-sm font-medium text-gray-600">创建时间</dt>
+                <dd className="mt-1 text-sm text-gray-900">{selectedAction.createdAt}</dd>
+              </div>
+              <div>
+                <dt className="text-sm font-medium text-gray-600">更新时间</dt>
+                <dd className="mt-1 text-sm text-gray-900">{selectedAction.lastUpdated}</dd>
+              </div>
+              <div>
+                <dt className="text-sm font-medium text-gray-600">AI 监控范围</dt>
+                <dd className="mt-1 text-sm text-gray-900">{MONITORING_SCOPE_DISPLAY[selectedAction.monitoringScope]}</dd>
+              </div>
+              <div>
+                <dt className="text-sm font-medium text-gray-600">响应动作用途</dt>
+                <dd className="mt-1 text-sm text-gray-900">{selectedAction.purpose}</dd>
+              </div>
+            </dl>
+          </CardContent>
+        </Card>
+
+        {/* 效果统计卡片 */}
+        <Card className="bg-white rounded-lg shadow-sm">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <TrendingUp className="h-5 w-5" />
+              效果统计
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div id="detail-kpis" className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="text-center p-4 bg-blue-50 rounded-lg">
+                <div className="text-2xl font-bold text-blue-600">
+                  {formatNumber(selectedAction.totalExecutions)}
+                </div>
+                <div className="text-sm text-blue-600">累计执行次数</div>
+              </div>
+              <div className="text-center p-4 bg-green-50 rounded-lg">
+                <div className="text-2xl font-bold text-green-600">
+                  {formatNumber(selectedAction.interactions)}
+                </div>
+                <div className="text-sm text-green-600">累计互动次数</div>
+              </div>
+              <div className="text-center p-4 bg-purple-50 rounded-lg">
+                <div className="text-2xl font-bold text-purple-600">
+                  {formatNumber(selectedAction.conversions)}
+                </div>
+                <div className="text-sm text-purple-600">累计转化数</div>
+              </div>
+              <div className="text-center p-4 bg-orange-50 rounded-lg">
+                <div className="text-2xl font-bold text-orange-600">
+                  {calculateConversionRate(selectedAction.conversions, selectedAction.interactions)}
+                </div>
+                <div className="text-sm text-orange-600">转化率</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* 响应动作配置卡片 */}
+        <Card className="bg-white rounded-lg shadow-sm">
+          <CardHeader>
+            <CardTitle>响应动作配置</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <h4 className="font-medium flex items-center gap-2">
+                <MessageSquare className="h-4 w-4" />
+                网页弹窗
+              </h4>
+              <dl className="space-y-3 ml-6">
+                <div>
+                  <dt className="text-sm font-medium text-gray-600">标题：</dt>
+                  <dd className="text-sm text-gray-900">{selectedAction.popup.title}</dd>
+                </div>
+                <div>
+                  <dt className="text-sm font-medium text-gray-600">内容：</dt>
+                  <dd className="text-sm text-gray-900">{selectedAction.popup.content}</dd>
+                </div>
+                <div>
+                  <dt className="text-sm font-medium text-gray-600">按钮文字：</dt>
+                  <dd className="text-sm text-gray-900">{selectedAction.popup.buttonText}</dd>
+                </div>
+                <div>
+                  <dt className="text-sm font-medium text-gray-600">按钮链接：</dt>
+                  <dd className="text-sm text-gray-900">{selectedAction.popup.buttonLink}</dd>
+                </div>
+              </dl>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  };
+
+  // 渲染编辑视图
+  const renderEditView = () => (
+    <div className="p-6 space-y-6 bg-gray-50 min-h-full max-w-4xl mx-auto">
+      {/* 页面头部 */}
+      <div className="flex items-center gap-4">
+        <Button 
+          variant="ghost" 
+          onClick={showListView}
+          className="flex items-center gap-2"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          返回
+        </Button>
+        <h1 id="edit-view-title-main" className="text-2xl font-bold text-gray-900">
+          {isCreating ? '创建新AI动作' : '编辑AI动作'}
+        </h1>
       </div>
 
-      {/* Confirmation Modal */}
-      <ConfirmationModal
-        isOpen={confirmationModal.isOpen}
-        onClose={() =>
-          !operationLoading &&
-          setConfirmationModal((prev) => ({ ...prev, isOpen: false }))
-        }
-        onConfirm={handleConfirmation}
-        type={confirmationModal.type}
-        actionName={confirmationModal.ruleName}
-      />
+      {/* 动作名称卡片 */}
+      <Card className="bg-white rounded-lg shadow-sm">
+        <CardContent className="pt-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">动作名称</label>
+            <Input
+              value={formData.name || ''}
+              onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+              placeholder="请输入动作名称"
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* AI 监控范围卡片 */}
+      <Card className="bg-white rounded-lg shadow-sm">
+        <CardContent className="pt-6">
+          <div className="flex items-center gap-2 mb-2">
+            <label className="block text-sm font-medium text-gray-700">AI 监控范围</label>
+            <HelpCircle className="h-4 w-4 text-gray-400" title="选择何时触发此动作" />
+          </div>
+          <Select
+            value={formData.monitoringScope}
+            onValueChange={(value) => setFormData(prev => ({ ...prev, monitoringScope: value as MonitoringScope }))}
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="real_time_event">实时事件</SelectItem>
+              <SelectItem value="user_mode">用户模式</SelectItem>
+            </SelectContent>
+          </Select>
+        </CardContent>
+      </Card>
+
+      {/* 响应动作用途卡片 */}
+      <Card className="bg-white rounded-lg shadow-sm">
+        <CardContent className="pt-6 space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">响应动作用途</label>
+            <p className="text-sm text-gray-600 mb-2">描述此动作的具体用途和触发场景</p>
+            <textarea 
+              className="w-full px-3 py-2 border border-gray-300 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-sky-500"
+              rows={3}
+              value={formData.purpose || ''}
+              onChange={(e) => setFormData(prev => ({ ...prev, purpose: e.target.value }))}
+              placeholder="请描述动作用途..."
+            />
+          </div>
+          <div>
+            <p className="text-sm font-medium text-gray-700 mb-2">常用用途建议</p>
+            <div className="flex flex-wrap gap-2">
+              {COMMON_PURPOSES.map((purpose, index) => (
+                <Button
+                  key={index}
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setFormData(prev => ({ ...prev, purpose }))}
+                  className="text-sm"
+                >
+                  {purpose}
+                </Button>
+              ))}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* 弹窗内容卡片 */}
+      <Card className="bg-white rounded-lg shadow-sm">
+        <CardHeader>
+          <CardTitle>弹窗内容</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">弹窗标题</label>
+            <Input
+              value={formData.popup?.title || ''}
+              onChange={(e) => setFormData(prev => ({ 
+                ...prev, 
+                popup: { ...prev.popup!, title: e.target.value }
+              }))}
+              placeholder="请输入弹窗标题"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">弹窗正文</label>
+            <textarea 
+              className="w-full px-3 py-2 border border-gray-300 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-sky-500"
+              rows={4}
+              value={formData.popup?.content || ''}
+              onChange={(e) => setFormData(prev => ({ 
+                ...prev, 
+                popup: { ...prev.popup!, content: e.target.value }
+              }))}
+              placeholder="请输入弹窗内容"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">按钮文字</label>
+            <Input
+              value={formData.popup?.buttonText || ''}
+              onChange={(e) => setFormData(prev => ({ 
+                ...prev, 
+                popup: { ...prev.popup!, buttonText: e.target.value }
+              }))}
+              placeholder="请输入按钮文字"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">按钮链接 (URL)</label>
+            <Input
+              value={formData.popup?.buttonLink || ''}
+              onChange={(e) => setFormData(prev => ({ 
+                ...prev, 
+                popup: { ...prev.popup!, buttonLink: e.target.value }
+              }))}
+              placeholder="请输入按钮链接"
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* 页面底部操作栏 */}
+      <div className="flex justify-end">
+        <Button 
+          className="bg-sky-600 text-white"
+          onClick={handleSave}
+        >
+          保存
+        </Button>
+      </div>
+    </div>
+  );
+
+  // 根据当前视图渲染对应内容
+  return (
+    <div>
+      {currentView === 'list' && renderListView()}
+      {currentView === 'detail' && renderDetailView()}
+      {currentView === 'edit' && renderEditView()}
+      
+      {/* 点击外部关闭下拉菜单 */}
+      {dropdownOpen && (
+        <div 
+          className="fixed inset-0 z-5"
+          onClick={() => setDropdownOpen(null)}
+        />
+      )}
     </div>
   );
 }
