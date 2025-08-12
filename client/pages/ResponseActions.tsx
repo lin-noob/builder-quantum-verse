@@ -247,9 +247,33 @@ export default function ResponseActions() {
               <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">动作名称</th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">状态</th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">响应动作用途</th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">总执行次数</th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">转化数</th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">最后更新</th>
+              <th
+                className="px-6 py-4 text-left text-sm font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100"
+                onClick={() => handleSort('totalExecutions')}
+              >
+                <div className="flex items-center gap-2">
+                  累计执行次数
+                  {getSortIcon('totalExecutions')}
+                </div>
+              </th>
+              <th
+                className="px-6 py-4 text-left text-sm font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100"
+                onClick={() => handleSort('conversions')}
+              >
+                <div className="flex items-center gap-2">
+                  累计转化数
+                  {getSortIcon('conversions')}
+                </div>
+              </th>
+              <th
+                className="px-6 py-4 text-left text-sm font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100"
+                onClick={() => handleSort('lastUpdated')}
+              >
+                <div className="flex items-center gap-2">
+                  最后更新
+                  {getSortIcon('lastUpdated')}
+                </div>
+              </th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">操作</th>
             </tr>
           </thead>
