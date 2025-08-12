@@ -168,7 +168,7 @@ export default function ResponseActions() {
   const handleSave = () => {
     if (!formData.name?.trim()) {
       toast({
-        title: "请填写动作名称",
+        title: "请��写动作名称",
         variant: "destructive"
       });
       return;
@@ -454,29 +454,56 @@ export default function ResponseActions() {
             <CardTitle>响应动作配置</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              <h4 className="font-medium flex items-center gap-2">
-                <MessageSquare className="h-4 w-4" />
-                网页弹窗
-              </h4>
-              <dl className="space-y-3 ml-6">
-                <div>
-                  <dt className="text-sm font-medium text-gray-600">标题：</dt>
-                  <dd className="text-sm text-gray-900">{selectedAction.popup.title}</dd>
+            <div className="space-y-6">
+              {/* 动作类型标题 */}
+              <div className="flex items-center gap-2 pb-2 border-b border-gray-100">
+                <MessageSquare className="h-5 w-5 text-blue-600" />
+                <h4 className="font-semibold text-gray-900">网页弹窗</h4>
+              </div>
+
+              {/* 弹窗预览 */}
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4">
+                <div className="bg-white rounded-lg shadow-md p-4 max-w-sm">
+                  <h5 className="font-bold text-gray-900 mb-2">{selectedAction.popup.title}</h5>
+                  <p className="text-gray-700 text-sm mb-4">{selectedAction.popup.content}</p>
+                  <button className="bg-blue-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-blue-700 transition-colors">
+                    {selectedAction.popup.buttonText}
+                  </button>
                 </div>
-                <div>
-                  <dt className="text-sm font-medium text-gray-600">内容：</dt>
-                  <dd className="text-sm text-gray-900">{selectedAction.popup.content}</dd>
+                <p className="text-xs text-gray-600 mt-2">弹窗预览效果</p>
+              </div>
+
+              {/* 配置详情 */}
+              <div className="space-y-4">
+                <h5 className="font-medium text-gray-900 border-b border-gray-100 pb-1">配置详情</h5>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="bg-gray-50 rounded-lg p-3">
+                    <dt className="text-xs font-medium text-gray-500 uppercase tracking-wide">弹窗标题</dt>
+                    <dd className="mt-1 text-sm font-medium text-gray-900">{selectedAction.popup.title}</dd>
+                  </div>
+                  <div className="bg-gray-50 rounded-lg p-3">
+                    <dt className="text-xs font-medium text-gray-500 uppercase tracking-wide">按钮文字</dt>
+                    <dd className="mt-1 text-sm font-medium text-gray-900">{selectedAction.popup.buttonText}</dd>
+                  </div>
+                  <div className="bg-gray-50 rounded-lg p-3 md:col-span-2">
+                    <dt className="text-xs font-medium text-gray-500 uppercase tracking-wide">弹窗内容</dt>
+                    <dd className="mt-1 text-sm text-gray-900">{selectedAction.popup.content}</dd>
+                  </div>
+                  <div className="bg-gray-50 rounded-lg p-3 md:col-span-2">
+                    <dt className="text-xs font-medium text-gray-500 uppercase tracking-wide">跳转链接</dt>
+                    <dd className="mt-1">
+                      <a
+                        href={selectedAction.popup.buttonLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
+                      >
+                        {selectedAction.popup.buttonLink}
+                      </a>
+                    </dd>
+                  </div>
                 </div>
-                <div>
-                  <dt className="text-sm font-medium text-gray-600">按钮文字：</dt>
-                  <dd className="text-sm text-gray-900">{selectedAction.popup.buttonText}</dd>
-                </div>
-                <div>
-                  <dt className="text-sm font-medium text-gray-600">按钮链接：</dt>
-                  <dd className="text-sm text-gray-900">{selectedAction.popup.buttonLink}</dd>
-                </div>
-              </dl>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -638,7 +665,7 @@ export default function ResponseActions() {
     </div>
   );
 
-  // 根据当前视图渲��对应内容
+  // 根据当前视图渲染对应内容
   return (
     <div>
       {currentView === 'list' && renderListView()}
