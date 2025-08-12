@@ -173,6 +173,12 @@ export default function UserList() {
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
+      // 首先测试连通性
+      const isConnected = await testConnectivity();
+      if (!isConnected) {
+        console.warn("代理连通性测试失败，但仍然尝试API请求...");
+      }
+
       // 根据API文档，主要参数通过POST body传递，query参数可选
 
       const requestBody: OrderSummaryDto = {
