@@ -169,7 +169,7 @@ export default function ResponseActionCreate() {
                 </div>
                 <div>
                   <CardTitle className="text-base font-semibold">弹窗内容</CardTitle>
-                  <p className="text-sm text-gray-500 mt-1">设计用���看到的弹窗内容和交互</p>
+                  <p className="text-sm text-gray-500 mt-1">设计用户看到的弹窗内容和交互</p>
                 </div>
               </div>
             </CardHeader>
