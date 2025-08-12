@@ -87,9 +87,9 @@ export default function ResponseActionCreate() {
       </div>
 
       {/* 主要内容区域 */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-none mx-auto px-6 lg:px-12 py-8">
         <div className="space-y-6">
-          
+
           {/* 基本信息 */}
           <Card className="shadow-sm border-0 ring-1 ring-gray-200">
             <CardHeader className="pb-4">
@@ -103,21 +103,21 @@ export default function ResponseActionCreate() {
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-900 mb-2">
-                  动作名称 <span className="text-red-500">*</span>
-                </label>
-                <Input
-                  value={formData.name || ''}
-                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                  placeholder="例如：新用户注册欢迎弹窗"
-                  className="text-base"
-                />
-                <p className="text-xs text-gray-500 mt-1">为这个响应动作起一个描述性的名称</p>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <CardContent>
+              <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                <div className="lg:col-span-2">
+                  <label className="block text-sm font-medium text-gray-900 mb-2">
+                    动作名称 <span className="text-red-500">*</span>
+                  </label>
+                  <Input
+                    value={formData.name || ''}
+                    onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                    placeholder="例如：新用户注册欢迎弹窗"
+                    className="text-base"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">为这个响应动作起一个描述性的名称</p>
+                </div>
+
                 <div>
                   <div className="flex items-center gap-2 mb-2">
                     <label className="block text-sm font-medium text-gray-900">监控范围</label>
@@ -139,7 +139,7 @@ export default function ResponseActionCreate() {
                     </SelectContent>
                   </Select>
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-900 mb-2">动作类型</label>
                   <div className="h-[42px] p-3 bg-blue-50 rounded-lg border border-blue-200 flex items-center">
@@ -151,11 +151,11 @@ export default function ResponseActionCreate() {
                 </div>
               </div>
 
-              <div>
+              <div className="mt-6">
                 <label className="block text-sm font-medium text-gray-900 mb-2">
                   动作用途 <span className="text-red-500">*</span>
                 </label>
-                <textarea 
+                <textarea
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
                   rows={3}
                   value={formData.purpose || ''}
@@ -195,60 +195,44 @@ export default function ResponseActionCreate() {
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-900 mb-2">
-                  弹窗标题 <span className="text-red-500">*</span>
-                </label>
-                <Input
-                  value={formData.popup?.title || ''}
-                  onChange={(e) => setFormData(prev => ({ 
-                    ...prev, 
-                    popup: { ...prev.popup!, title: e.target.value }
-                  }))}
-                  placeholder="例如：欢迎加入我们！"
-                  className="text-base font-medium"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-900 mb-2">
-                  弹窗内容 <span className="text-red-500">*</span>
-                </label>
-                <textarea 
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
-                  rows={4}
-                  value={formData.popup?.content || ''}
-                  onChange={(e) => setFormData(prev => ({ 
-                    ...prev, 
-                    popup: { ...prev.popup!, content: e.target.value }
-                  }))}
-                  placeholder="输入弹窗的详细内容，告诉用户您想传达的信息..."
-                />
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <CardContent>
+              <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                <div className="lg:col-span-2">
+                  <label className="block text-sm font-medium text-gray-900 mb-2">
+                    弹窗标题 <span className="text-red-500">*</span>
+                  </label>
+                  <Input
+                    value={formData.popup?.title || ''}
+                    onChange={(e) => setFormData(prev => ({
+                      ...prev,
+                      popup: { ...prev.popup!, title: e.target.value }
+                    }))}
+                    placeholder="例如：欢迎加入我们！"
+                    className="text-base font-medium"
+                  />
+                </div>
+
                 <div>
                   <label className="block text-sm font-medium text-gray-900 mb-2">
                     按钮文字 <span className="text-red-500">*</span>
                   </label>
                   <Input
                     value={formData.popup?.buttonText || ''}
-                    onChange={(e) => setFormData(prev => ({ 
-                      ...prev, 
+                    onChange={(e) => setFormData(prev => ({
+                      ...prev,
                       popup: { ...prev.popup!, buttonText: e.target.value }
                     }))}
                     placeholder="例如：立即体验"
                     className="text-base"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-900 mb-2">跳转链接</label>
                   <Input
                     value={formData.popup?.buttonLink || ''}
-                    onChange={(e) => setFormData(prev => ({ 
-                      ...prev, 
+                    onChange={(e) => setFormData(prev => ({
+                      ...prev,
                       popup: { ...prev.popup!, buttonLink: e.target.value }
                     }))}
                     placeholder="例如：/products"
@@ -256,6 +240,22 @@ export default function ResponseActionCreate() {
                   />
                   <p className="text-xs text-gray-500 mt-1">用户点击按钮后跳转的页面地址</p>
                 </div>
+              </div>
+
+              <div className="mt-6">
+                <label className="block text-sm font-medium text-gray-900 mb-2">
+                  弹窗内容 <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
+                  rows={4}
+                  value={formData.popup?.content || ''}
+                  onChange={(e) => setFormData(prev => ({
+                    ...prev,
+                    popup: { ...prev.popup!, content: e.target.value }
+                  }))}
+                  placeholder="输入弹窗的详细内容，告诉用户您想传达的信息..."
+                />
               </div>
             </CardContent>
           </Card>
