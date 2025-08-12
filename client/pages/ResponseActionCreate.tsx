@@ -63,7 +63,7 @@ export default function ResponseActionCreate() {
   };
 
   return (
-    <div className="min-h-full bg-gray-50">
+    <div className="min-h-full bg-gray-50 pb-24">
       {/* 主要内容区域 */}
       <div className="max-w-none mx-auto px-6 lg:px-12 py-8">
         <div className="space-y-6">
