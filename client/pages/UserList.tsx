@@ -179,7 +179,7 @@ export default function UserList() {
         console.warn("代理连通性测试失败，但仍然尝试API请求...");
       }
 
-      // 根据API文档，主要参数通过POST body传递，query参数可选
+      // ���据API文档，主要参数通过POST body传递，query参数可选
 
       const requestBody: OrderSummaryDto = {
         currentpage: currentPage,
@@ -256,7 +256,7 @@ export default function UserList() {
           setTotalCount(0);
         }
       } else {
-        console.log("响应中没有data字段");
+        console.log("响应���没有data字段");
         setUsers([]);
         setTotalCount(0);
       }
@@ -434,7 +434,7 @@ export default function UserList() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="firstVisitTime">首次访问时间</SelectItem>
-                  <SelectItem value="registrationTime">��册时间</SelectItem>
+                  <SelectItem value="registrationTime">注册时间</SelectItem>
                   <SelectItem value="firstPurchaseTime">
                     首次购买时间
                   </SelectItem>
@@ -510,7 +510,7 @@ export default function UserList() {
                     onClick={() => handleSort("registrationTime")}
                   >
                     <div className="flex items-center gap-2">
-                      ��册时间
+                      注册时间
                       {getSortIcon("registrationTime")}
                     </div>
                   </th>
