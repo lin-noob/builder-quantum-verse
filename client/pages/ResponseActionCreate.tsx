@@ -119,7 +119,7 @@ export default function ResponseActionCreate() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-900 mb-2">���控范围</label>
+                  <label className="block text-sm font-medium text-gray-900 mb-2">监控范围</label>
                   <Select
                     value={formData.monitoringScope}
                     onValueChange={(value) => setFormData(prev => ({ ...prev, monitoringScope: value as MonitoringScope }))}
@@ -152,6 +152,9 @@ export default function ResponseActionCreate() {
                 <label className="block text-sm font-medium text-gray-900 mb-2">
                   动作用途 <span className="text-red-500">*</span>
                 </label>
+                <p className="text-xs text-gray-500 mb-2">
+                  请用自然语言清晰地描述这个弹窗希望达成的业务目标。AI将理解您的意图，并自主寻找最佳的触发时机。
+                </p>
                 <textarea
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
                   rows={3}
