@@ -357,15 +357,34 @@ export default function ResponseActions() {
             ))}
           </tbody>
         </table>
-        {filteredActions.length > 0 && (
-          <div className="px-6 py-3 border-t bg-gray-50 text-sm text-gray-600">
-            共 {filteredActions.length} 条记录
-            {filters.search || filters.monitoringScope !== 'all' || filters.status !== 'all' 
-              ? ` (已筛选，共 ${actionsData.length} 条)` 
-              : ''
-            }
+        {/* 分页区域 */}
+        <div className="px-6 py-4 border-t bg-gray-50 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="text-sm text-gray-700 order-2 sm:order-1">
+            正在显示 {((currentPage - 1) * itemsPerPage) + 1} - {Math.min(currentPage * itemsPerPage, processedData.totalCount)} 条，共 {processedData.totalCount} 条
+            {(filters.search || filters.status !== 'all') && ` (已筛选，共 ${actionsData.length} 条)`}
           </div>
-        )}
+          <div className="flex items-center gap-2 order-1 sm:order-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+              disabled={currentPage === 1}
+            >
+              上一页
+            </Button>
+            <span className="text-sm text-gray-600">
+              第 {currentPage} 页，共 {processedData.totalPages} 页
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(Math.min(processedData.totalPages, currentPage + 1))}
+              disabled={currentPage >= processedData.totalPages}
+            >
+              下一页
+            </Button>
+          </div>
+        </div>
       </Card>
       
       {/* 点击外部关闭下拉菜单 */}
