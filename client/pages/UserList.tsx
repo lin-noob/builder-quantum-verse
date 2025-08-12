@@ -354,20 +354,6 @@ export default function UserList() {
   return (
     <div className="p-6 space-y-6 bg-gray-50 min-h-full">
       <div className="max-w-none">
-        {/* Page Header */}
-        <div className="mb-6 flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">用户画像</h1>
-            <p className="text-gray-600 mt-1">管理和分析用户画像数据</p>
-          </div>
-          <Button onClick={handleRefresh} variant="outline" disabled={loading}>
-            <RefreshCw
-              className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`}
-            />
-            刷新
-          </Button>
-        </div>
-
         {/* Search and Filter Card */}
         <Card className="p-6 mb-8 bg-white shadow-sm">
           <div className="flex flex-col md:flex-row gap-4 items-end">
