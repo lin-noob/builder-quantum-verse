@@ -136,7 +136,7 @@ export default function ResponseActions() {
     });
   };
 
-  // 处理操作��钮点击
+  // 处理操作按钮点击
   const handleActionOperation = (actionId: string, operation: string) => {
     const action = actionsData.find(a => a.id === actionId);
     if (!action) return;
@@ -369,7 +369,7 @@ export default function ResponseActions() {
     </div>
   );
 
-  // ���染详情视图
+  // 渲染详情视图
   const renderDetailView = () => {
     if (!selectedAction) return null;
 
@@ -399,7 +399,7 @@ export default function ResponseActions() {
                 <dd className="mt-1 text-sm text-gray-900">{selectedAction.lastUpdated}</dd>
               </div>
               <div>
-                <dt className="text-sm font-medium text-gray-600">AI 监控范围</dt>
+                <dt className="text-sm font-medium text-gray-600">触发器类型</dt>
                 <dd className="mt-1 text-sm text-gray-900">{MONITORING_SCOPE_DISPLAY[selectedAction.monitoringScope]}</dd>
               </div>
               <div>
