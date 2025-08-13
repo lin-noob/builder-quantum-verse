@@ -51,7 +51,7 @@ interface ApiUser {
   shopid: string;
 }
 
-// 转换为UI需要的用户格式
+// 转换为UI需要的用户格��
 interface User {
   cdpId: string;
   name: string;
@@ -224,6 +224,7 @@ export default function UserList() {
 
       while (retries >= 0) {
         try {
+          console.log(`开始请求尝试 (剩余重试次数: ${retries})`);
           response = await request.request<{
             code: string;
             records: ApiUser[];
@@ -237,15 +238,18 @@ export default function UserList() {
               "Content-Type": "application/json",
             },
           });
+          console.log("请求成功完成");
           break; // 成功则跳出重试循环
         } catch (error) {
-          console.log(`请求尝试失败 (剩余重试次数: ${retries}):`, error);
+          console.error(`请求尝试失败 (剩余重试次数: ${retries}):`, error);
           retries--;
 
           if (retries < 0) {
+            console.error("所有重试尝试都失败，抛出最终错误");
             throw error; // 重试用完后抛出错误
           }
 
+          console.log(`等待2秒后进行重试...`);
           // 等待2秒后重试
           await new Promise(resolve => setTimeout(resolve, 2000));
         }
