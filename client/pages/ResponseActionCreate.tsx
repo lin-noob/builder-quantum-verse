@@ -82,8 +82,8 @@ export default function ResponseActionCreate() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                <div className="lg:col-span-2">
+              <div className="max-w-2xl">
+                <div>
                   <label className="block text-sm font-medium text-gray-900 mb-2">
                     动作名称 <span className="text-red-500">*</span>
                   </label>
@@ -94,35 +94,6 @@ export default function ResponseActionCreate() {
                     className="text-base"
                   />
                   <p className="text-xs text-gray-500 mt-1">为这个响应动作起一个描述性的名称</p>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-900 mb-2">监控范围</label>
-                  <Select
-                    value={formData.monitoringScope}
-                    onValueChange={(value) => setFormData(prev => ({ ...prev, monitoringScope: value as MonitoringScope }))}
-                  >
-                    <SelectTrigger className="h-[42px]">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="real_time_event">实时事件－专注于分析用户的实时行为流</SelectItem>
-                      <SelectItem value="user_mode">用户模式－侧重于分析用户的历史数据和画像</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <p className="text-xs text-gray-500 mt-1">
-                    为AI圈定一个宏观的监控范围，作为其进行意图分析的前提，有助于提升系统效率。
-                  </p>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-900 mb-2">动作类型</label>
-                  <div className="h-[42px] p-3 bg-blue-50 rounded-lg border border-blue-200 flex items-center">
-                    <div className="flex items-center space-x-2">
-                      <MessageSquare className="h-4 w-4 text-blue-600" />
-                      <span className="text-sm font-medium text-blue-900">网页弹窗</span>
-                    </div>
-                  </div>
                 </div>
               </div>
 
