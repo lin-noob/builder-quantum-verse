@@ -145,8 +145,8 @@ export default function ResponseActionCreate() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                <div className="lg:col-span-2">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div>
                   <label className="block text-sm font-medium text-gray-900 mb-2">
                     弹窗标题 <span className="text-red-500">*</span>
                   </label>
