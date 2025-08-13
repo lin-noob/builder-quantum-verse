@@ -22,7 +22,6 @@ export default function ResponseActionCreate() {
 
   const [formData, setFormData] = useState<Partial<ActionData>>({
     name: '',
-    monitoringScope: 'real_time_event',
     purpose: '',
     popup: {
       title: '',
