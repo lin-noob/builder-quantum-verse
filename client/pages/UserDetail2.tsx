@@ -245,7 +245,7 @@ export default function UserDetail2() {
         {/* Key Metrics Card - Full Width */}
         <Card className="bg-background rounded-lg border">
           <CardHeader>
-            <CardTitle className="text-lg">���键指标</CardTitle>
+            <CardTitle className="text-lg">关键指标</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-9 gap-4">
