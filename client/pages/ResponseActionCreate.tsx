@@ -4,15 +4,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { 
-  HelpCircle, 
-  Settings, 
-  MessageSquare
+import {
+  Settings
 } from 'lucide-react';
 import {
   actionsData,
   ActionData,
-  MonitoringScope,
   COMMON_PURPOSES
 } from '@shared/actionLibraryData';
 import { useToast } from '@/hooks/use-toast';
