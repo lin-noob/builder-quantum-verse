@@ -99,10 +99,6 @@ export default function ResponseActionDetail() {
               <dd className="mt-1 text-sm text-gray-900">{action.lastUpdated}</dd>
             </div>
             <div>
-              <dt className="text-sm font-medium text-gray-600">触发器类型</dt>
-              <dd className="mt-1 text-sm text-gray-900">{MONITORING_SCOPE_DISPLAY[action.monitoringScope]}</dd>
-            </div>
-            <div>
               <dt className="text-sm font-medium text-gray-600">响应动作用途</dt>
               <dd className="mt-1 text-sm text-gray-900">{action.purpose}</dd>
             </div>
