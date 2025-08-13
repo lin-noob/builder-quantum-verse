@@ -232,7 +232,7 @@ export default function UserList() {
           }>("/quote/api/v1/profile/list", {
             method: "POST",
             data: requestBody,
-            timeout: 45000, // 增加到45秒
+            timeout: 30000, // 30秒超时
             headers: {
               "Content-Type": "application/json",
             },
