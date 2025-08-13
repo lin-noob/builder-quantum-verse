@@ -289,6 +289,9 @@ export class Request {
 
       return await this.processResponse<T>(processedResponse, responseType);
     } catch (error) {
+      // 确保清理超时定时器
+      clearTimeout(timeoutId);
+
       // 执行错误处理器
       if (this.defaultConfig.onError) {
         this.defaultConfig.onError(error as Error);
@@ -299,8 +302,8 @@ export class Request {
         throw error;
       }
 
-      // 处理超时错误
-      if (error instanceof Error && error.name === "AbortError") {
+      // 处理超时错误和中断错误
+      if (error instanceof Error && (error.name === "AbortError" || error.message.includes("aborted"))) {
         throw new RequestError("Request timeout", 408, "Request Timeout");
       }
 
