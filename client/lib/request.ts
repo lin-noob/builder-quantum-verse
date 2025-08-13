@@ -229,7 +229,9 @@ export class Request {
   private createTimeoutController(timeout: number) {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => {
-      controller.abort();
+      if (!controller.signal.aborted) {
+        controller.abort();
+      }
     }, timeout);
 
     return { controller, timeoutId };
