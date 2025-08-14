@@ -349,7 +349,7 @@ export default function Layout({ children }: LayoutProps) {
           <button
             onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
             className="w-full flex items-center justify-center p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors"
-            title={isSidebarCollapsed ? "展开侧边栏" : "折叠侧边���"}
+            title={isSidebarCollapsed ? "展开侧边栏" : "折叠侧边栏"}
           >
             {isSidebarCollapsed ? (
               <ChevronRight className="h-5 w-5" />
