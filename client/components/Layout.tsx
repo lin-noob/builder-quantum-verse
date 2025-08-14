@@ -70,7 +70,7 @@ export default function Layout({ children }: LayoutProps) {
     },
     {
       id: "ai-marketing",
-      label: "AI自动营销",
+      label: "AI自���营销",
       path: "/ai-marketing/monitoring-center",
       icon: <Bot className="h-5 w-5" />,
     },
@@ -278,8 +278,8 @@ export default function Layout({ children }: LayoutProps) {
         </nav>
 
         {/* User Profile Section */}
-        {currentUser && (
-          <div className="border-t border-gray-200 p-3">
+        <div className="border-t border-gray-200 p-3">
+          {currentUser ? (
             <Link
               to="/profile"
               className={cn(
@@ -305,15 +305,38 @@ export default function Layout({ children }: LayoutProps) {
                 <Settings className="h-4 w-4 text-gray-400" />
               )}
             </Link>
-          </div>
-        )}
+          ) : (
+            <Link
+              to="/auth"
+              className={cn(
+                "flex items-center gap-3 p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-colors border border-dashed border-gray-300",
+                isSidebarCollapsed ? "justify-center" : "justify-start"
+              )}
+              title={isSidebarCollapsed ? "点击登录" : ""}
+            >
+              <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center flex-shrink-0">
+                <User className="h-4 w-4 text-gray-500" />
+              </div>
+              {!isSidebarCollapsed && (
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-gray-700 truncate">
+                    点击登录
+                  </p>
+                  <p className="text-xs text-gray-500 truncate">
+                    未登录状态
+                  </p>
+                </div>
+              )}
+            </Link>
+          )}
+        </div>
 
         {/* Collapse Toggle Button */}
         <div className="border-t border-gray-200 p-2">
           <button
             onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
             className="w-full flex items-center justify-center p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors"
-            title={isSidebarCollapsed ? "展开侧边栏" : "折叠侧边栏"}
+            title={isSidebarCollapsed ? "展开侧边栏" : "折��侧边栏"}
           >
             {isSidebarCollapsed ? (
               <ChevronRight className="h-5 w-5" />
