@@ -1,6 +1,5 @@
 import { useParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import {
   sampleStrategies,
   STATUS_DISPLAY_NAMES,
@@ -229,7 +228,7 @@ export default function AIMarketingStrategyDetail() {
           <Card className="bg-background border">
             <CardHeader>
               <CardTitle className="text-lg font-semibold text-foreground">
-                核心指标
+                核心指��
               </CardTitle>
             </CardHeader>
             <CardContent>
