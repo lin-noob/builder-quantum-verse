@@ -36,7 +36,7 @@ export default function UserProfile() {
 
   const [passwordErrors, setPasswordErrors] = useState<PasswordFormErrors>({});
 
-  // 获取当前用户信息
+  // 获取��前用户信息
   useEffect(() => {
     const currentUser = authService.getCurrentUser();
     if (!currentUser) {
@@ -124,10 +124,14 @@ export default function UserProfile() {
       );
       
       if (!result.success) {
-        toast({
-          title: result.error,
-          variant: "destructive"
-        });
+        if (result.error === "当前密码错误") {
+          setPasswordErrors({ currentPassword: result.error });
+        } else {
+          toast({
+            title: result.error,
+            variant: "destructive"
+          });
+        }
         setIsLoading(false);
         return;
       }
@@ -242,7 +246,7 @@ export default function UserProfile() {
               <div className="flex items-center gap-3">
                 <Mail className="h-4 w-4 text-muted-foreground" />
                 <div>
-                  <p className="text-sm font-medium text-foreground">邮��地址</p>
+                  <p className="text-sm font-medium text-foreground">邮箱地址</p>
                   <p className="text-sm text-muted-foreground">{user.email}</p>
                 </div>
               </div>
