@@ -161,7 +161,7 @@ export default function Auth() {
     
     toast({
       title: "谷歌登录成功",
-      description: "已自动填充信息，正在发送验证码..."
+      description: "已自动填充信息，正在��送验证码..."
     });
 
     // 自动发送验证码
@@ -171,7 +171,7 @@ export default function Auth() {
   };
 
   // 注册处理
-  const handleRegister = () => {
+  const handleRegister = async () => {
     // 验证所有字段
     const newErrors: FormErrors = {};
     Object.keys(formData).forEach(key => {
@@ -186,19 +186,16 @@ export default function Auth() {
       return;
     }
 
-    // 模拟验证码检查
-    if (formData.confirmationCode !== "123456") {
-      toast({
-        title: "验证码无效，请重试",
-        variant: "destructive"
-      });
-      return;
-    }
+    const result = await authService.register({
+      username: formData.username,
+      email: formData.email,
+      password: formData.password,
+      confirmationCode: formData.confirmationCode
+    });
 
-    // 再次检查邮箱（防止并发）
-    if (checkEmailExists(formData.email)) {
+    if (!result.success) {
       toast({
-        title: "该用户已存在",
+        title: result.error,
         variant: "destructive"
       });
       return;
@@ -290,7 +287,7 @@ export default function Auth() {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="login-password">密码</Label>
+                  <Label htmlFor="login-password">密���</Label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
