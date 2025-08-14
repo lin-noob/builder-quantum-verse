@@ -85,7 +85,7 @@ export default function TabManager() {
     }
   };
 
-  // 监听路由变化，自动添加或切换标��页
+  // 监听路由变化，自动添加或切换标签页
   useEffect(() => {
     const currentPath = location.pathname;
     const existingTab = tabs.find((tab) => tab.path === currentPath);
@@ -99,7 +99,7 @@ export default function TabManager() {
         })),
       );
     } else {
-      // 如果标签页不存在，创建新标签页
+      // 如果标签页不存在，创��新标签页
       let title = pathToTitle[currentPath as keyof typeof pathToTitle];
 
       // 如果没有预定义标题，尝试从路径生成友好的标题
