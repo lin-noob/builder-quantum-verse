@@ -134,7 +134,7 @@ export default function AIMarketingStrategyCreate() {
                 </div>
                 <div>
                   <CardTitle className="text-base font-semibold">执行模式选择</CardTitle>
-                  <p className="text-sm text-gray-500 mt-1">选择策略的执行方式：AI智能决策或固定内容执行</p>
+                  <p className="text-sm text-gray-500 mt-1">选择策略的执��方式：AI智能决策或固定内容执行</p>
                 </div>
               </div>
             </CardHeader>
@@ -161,7 +161,7 @@ export default function AIMarketingStrategyCreate() {
                     <h3 className="font-medium text-gray-900">半自动模式</h3>
                   </div>
                   <p className="text-sm text-gray-600 ml-7">
-                    商家设定触发规则和业务用途，AI根据用户画像自主决策生成个性化内容
+                    商家设定触发规则，AI根据用户画像自主决策生成个性化内容
                   </p>
                 </div>
 
@@ -374,7 +374,7 @@ export default function AIMarketingStrategyCreate() {
                   placeholder="例如：您的专属10%优惠券已生效，完成订单即可使用！"
                 />
                 <p className="text-xs text-gray-500 mt-2">
-                  AI将基于用户画像和行为数据，对这个基础内容进行个性化改写和优化
+                  AI将基于用户画像和行为数据，对这个基础内容进行个性化��写和优化
                 </p>
               </div>
             </CardContent>
