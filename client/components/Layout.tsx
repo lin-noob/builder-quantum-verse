@@ -13,6 +13,7 @@ import {
   Activity,
   ChevronLeft,
   ChevronRight,
+  Zap,
 } from "lucide-react";
 import TabManager from "./TabManager";
 
