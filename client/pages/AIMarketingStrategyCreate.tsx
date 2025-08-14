@@ -183,7 +183,7 @@ export default function AIMarketingStrategyCreate() {
                         <div className="w-2 h-2 bg-white rounded-full m-0.5"></div>
                       )}
                     </div>
-                    <h3 className="font-medium text-gray-900">全人工模式</h3>
+                    <h3 className="font-medium text-gray-900">��人工模式</h3>
                   </div>
                   <p className="text-sm text-gray-600 ml-7">
                     商家设定触发规则、业务用途和固定响应内容，系统严格按照预设指令执行
@@ -265,7 +265,7 @@ export default function AIMarketingStrategyCreate() {
                   业务用途 <span className="text-red-500">*</span>
                 </label>
                 <p className="text-xs text-gray-500 mb-3">
-                  用自然语言清晰地描述这个策略希望达成的业务目标。系统将严格按照此用途执行固定的响应内容。
+                  用自然语言清晰地描述这个策略希望达成的业务目标。AI将理解您的意图，在触发规则命中时自主选择最佳的个性化策略。
                 </p>
                 <textarea
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
@@ -373,7 +373,7 @@ export default function AIMarketingStrategyCreate() {
                     ...prev,
                     actionParameters: { ...prev.actionParameters!, bodyText: e.target.value }
                   }))}
-                  placeholder="例如：您的专属10%优惠券已生效���完成订单即可使用！"
+                  placeholder="例如：您的专属10%优惠券已生效，完成订单即可使用！"
                 />
                 <p className="text-xs text-gray-500 mt-2">
                   AI将基于用户画像和行为数据，对这个基础内容进行个性化改写和优化
