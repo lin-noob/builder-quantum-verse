@@ -65,7 +65,7 @@ export default function AIMarketingStrategyCreate() {
     '鼓励用户分享和推荐'
   ];
 
-  // 保存策略
+  // 保存���略
   const handleSave = () => {
     if (!formData.strategyName?.trim()) {
       toast({
@@ -123,45 +123,6 @@ export default function AIMarketingStrategyCreate() {
         <div className="space-y-6">
 
           {/* 流���步骤卡片 */}
-          <Card className="shadow-sm border-0 ring-1 ring-gray-200">
-            <CardHeader className="pb-4">
-              <div className="flex items-center space-x-3">
-                <div className="h-8 w-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <Zap className="h-4 w-4 text-blue-600" />
-                </div>
-                <div>
-                  <CardTitle className="text-base font-semibold">AI营销策略配置</CardTitle>
-                  <p className="text-sm text-gray-500 mt-1">配置智能化的用户行为响应策略</p>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-6">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-medium">1</div>
-                    <span className="text-sm font-medium text-blue-600">触发规则</span>
-                  </div>
-                  <div className="w-8 h-0.5 bg-gray-300"></div>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-8 h-8 bg-purple-500 text-white rounded-full flex items-center justify-center text-sm font-medium">2</div>
-                    <span className="text-sm font-medium text-purple-600">业务用途</span>
-                  </div>
-                  <div className="w-8 h-0.5 bg-gray-300"></div>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center text-sm font-medium">3</div>
-                    <span className="text-sm font-medium text-green-600">基础弹窗</span>
-                  </div>
-                  <div className="w-8 h-0.5 bg-gray-300"></div>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center text-sm font-medium">4</div>
-                    <span className="text-sm font-medium text-orange-600">保存策略</span>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
           {/* 基本信息 */}
           <Card className="shadow-sm border-0 ring-1 ring-gray-200">
             <CardHeader className="pb-4">
@@ -184,7 +145,7 @@ export default function AIMarketingStrategyCreate() {
                   <Input
                     value={formData.strategyName || ''}
                     onChange={(e) => setFormData(prev => ({ ...prev, strategyName: e.target.value }))}
-                    placeholder="例如：高价值购物车挽留策略"
+                    placeholder="例如���高价值购物车挽留策略"
                     className="text-base"
                   />
                   <p className="text-xs text-gray-500 mt-1">为这个AI营销策略起一个描述性的名称，便于管理</p>
@@ -315,7 +276,7 @@ export default function AIMarketingStrategyCreate() {
                       ...prev,
                       baseActionParameters: { ...prev.baseActionParameters!, buttonUrl: e.target.value }
                     }))}
-                    placeholder="例如：/checkout"
+                    placeholder="��如：/checkout"
                     className="text-base font-mono text-sm"
                   />
                 </div>
