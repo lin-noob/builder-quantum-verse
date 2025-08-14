@@ -31,6 +31,7 @@ import Auth from "./pages/Auth";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import UserProfile from "./pages/UserProfile";
+import EffectTracking from "./pages/EffectTracking";
 
 const queryClient = new QueryClient();
 
