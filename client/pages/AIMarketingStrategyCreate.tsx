@@ -75,8 +75,8 @@ export default function AIMarketingStrategyCreate() {
       return;
     }
 
-    // 全人工模式需要检查业务用途
-    if (formData.executionMode === 'FULL_MANUAL' && !formData.actionPurpose?.trim()) {
+    // 半自动模式需要检查业务用途
+    if (formData.executionMode === 'SEMI_AUTO' && !formData.actionPurpose?.trim()) {
       toast({
         title: "请填写业务用途",
         variant: "destructive"
