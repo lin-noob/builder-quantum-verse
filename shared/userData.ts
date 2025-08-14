@@ -3,7 +3,7 @@ export interface User {
   id: string;
   /** CDP 用户ID（唯一） */
   cdpUserId: number;
-  /** 用户姓名 */
+  /** 用户姓��� */
   fullName: string;
   /** 联系方式（Email/手机号） */
   contactInfo: string;
@@ -46,7 +46,7 @@ export interface User {
   orders?: Order[]; // 兼容字段
   firstVisitTime?: string; // 兼容字段
   registrationTime?: string; // 兼容字段
-  firstPurchaseTime?: string; // 兼容字段
+  firstPurchaseTime?: string; // 兼���字段
   lastActiveTime?: string; // 兼容字段
   cartItems?: CartItem[]; // 兼容字段
   totalCartValue?: number; // 兼容字段
@@ -499,7 +499,7 @@ export const mockUsers: User[] = [
           {
             timestamp: "10:54:35",
             eventType: "页面访问",
-            pageTitle: "案例研究",
+            pageTitle: "案例研���",
             pageUrl: "/case-studies",
             stayDuration: "12分20秒",
             scrollDepth: "85%",
@@ -924,7 +924,7 @@ export const mockUsers: User[] = [
         status: "已完成",
         totalAmount: 6500.0,
         currency: "CNY",
-        paymentMethod: "企��转账",
+        paymentMethod: "企业转账",
         items: [
           {
             productName: "旗舰版软件授权",
@@ -1009,7 +1009,7 @@ export const mockUsers: User[] = [
         paymentMethod: "支付宝",
         items: [
           {
-            productName: "准版软件授权",
+            productName: "��版软件授权",
             unitPrice: 1500.0,
             quantity: 1,
             totalPrice: 1500.0,
@@ -1222,7 +1222,7 @@ export const mockUsers: User[] = [
       },
       {
         id: "cart-item-zm-2",
-        productName: "AI智能���块",
+        productName: "AI智能模块",
         unitPrice: 1200.0,
         quantity: 2,
         totalPrice: 2400.0,
@@ -1261,7 +1261,7 @@ export interface OrderSummaryDto {
   keywords?: string;
   /** 排序类型(desc降序，asc升序) */
   order?: "desc" | "asc";
-  /** 每页记录数 */
+  /** 每页记��数 */
   pagesize?: number;
   /** 追加参数 */
   paramother?: Record<string, string>;
@@ -1279,7 +1279,7 @@ export interface OrderSummaryDto {
  * 用户画像列表查询参数
  */
 export interface UserProfileListParams {
-  /** ���页数量 */
+  /** 分页数量 */
   limit?: number;
   /** 用户名 */
   name?: string;
