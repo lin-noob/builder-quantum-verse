@@ -115,16 +115,16 @@ export default function TabManager() {
           }
         } else if (currentPath.includes("/ai-marketing-strategies/")) {
           if (currentPath.includes("/create")) {
-            title = "创建AI营销策略";
+            title = "创建营销策略";
           } else if (currentPath.includes("/edit/")) {
-            title = "编辑AI营销策略";
+            title = "编辑营销策略";
           } else {
-            title = "AI营销策略详情";
+            title = "营销策略详情";
           }
         } else if (currentPath.includes("/response-actions")) {
           title = "响应动作库";
         } else if (currentPath.includes("/ai-marketing-strategies")) {
-          title = "AI营销策略";
+          title = "营销策略";
         } else {
           // 默认使用路径最后一部分作为标题
           const pathParts = currentPath.split("/").filter(Boolean);
@@ -181,7 +181,7 @@ export default function TabManager() {
     // 如果关闭的是激活标签页，需要切��到其他标签页
     if (tabToClose.isActive && newTabs.length > 0) {
       let nextActiveTab;
-      // 优先切换到左侧标签页
+      // 优先切��到左侧标签页
       if (tabIndex > 0) {
         nextActiveTab = newTabs[tabIndex - 1];
       } else {
