@@ -50,10 +50,19 @@ export default function AIMarketingStrategyDetail() {
   const getStatusBadgeClass = (status: string) => {
     const colorMap = {
       'DRAFT': 'bg-gray-100 text-gray-800',
-      'ACTIVE': 'bg-green-100 text-green-800', 
+      'ACTIVE': 'bg-green-100 text-green-800',
       'ARCHIVED': 'bg-orange-100 text-orange-800'
     };
     return colorMap[status as keyof typeof colorMap] || 'bg-gray-100 text-gray-800';
+  };
+
+  // 获取执行模式颜色类
+  const getExecutionModeBadgeClass = (mode: string) => {
+    const colorMap = {
+      'SEMI_AUTO': 'bg-blue-100 text-blue-800',
+      'FULL_MANUAL': 'bg-green-100 text-green-800'
+    };
+    return colorMap[mode as keyof typeof colorMap] || 'bg-gray-100 text-gray-800';
   };
 
   // 格式化数字
@@ -256,7 +265,7 @@ export default function AIMarketingStrategyDetail() {
                     </div>
                     <div>
                       <div className="text-sm font-medium text-gray-600">互动次数</div>
-                      <div className="text-xs text-gray-500">用户点击互动数</div>
+                      <div className="text-xs text-gray-500">用户点���互动数</div>
                     </div>
                   </div>
                   <div className="text-right">
