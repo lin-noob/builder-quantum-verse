@@ -230,11 +230,6 @@ export default function AIMarketingStrategies() {
 
   return (
     <div className="p-6 space-y-6 bg-gray-50 min-h-full">
-      {/* 页面标题 */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">AI营销策略</h1>
-        <p className="text-gray-600 mt-2">创建和管理智能化的用户行为响应策略，实现个性化营销自动化</p>
-      </div>
 
       {/* 筛选区 */}
       <Card className="bg-white p-4 rounded-lg shadow-sm">
