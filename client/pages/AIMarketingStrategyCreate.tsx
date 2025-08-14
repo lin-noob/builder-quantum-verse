@@ -252,7 +252,7 @@ export default function AIMarketingStrategyCreate() {
                 </div>
                 <div>
                   <CardTitle className="text-base font-semibold">业务用途设定</CardTitle>
-                  <p className="text-sm text-gray-500 mt-1">向AI下达核心任务指令，指导AI做出正确的个性化决策</p>
+                  <p className="text-sm text-gray-500 mt-1">向AI下达核心任务指令，指导AI做出正确的个性化��策</p>
                 </div>
               </div>
             </CardHeader>
@@ -299,8 +299,15 @@ export default function AIMarketingStrategyCreate() {
                   <MessageSquare className="h-4 w-4 text-green-600" />
                 </div>
                 <div>
-                  <CardTitle className="text-base font-semibold">基础弹窗配置</CardTitle>
-                  <p className="text-sm text-gray-500 mt-1">设计一个基础的弹窗内容，AI将以此为参考进行个性化优化和安全降级</p>
+                  <CardTitle className="text-base font-semibold">
+                    {formData.executionMode === 'SEMI_AUTO' ? '基础弹窗配置' : '弹窗内容配置'}
+                  </CardTitle>
+                  <p className="text-sm text-gray-500 mt-1">
+                    {formData.executionMode === 'SEMI_AUTO'
+                      ? '设计一个基础的弹窗内容，AI将以此为参考进行个性化优化和安全降级'
+                      : '设计固定的弹窗内容，系统将严格按照此内容展示给用户'
+                    }
+                  </p>
                 </div>
               </div>
             </CardHeader>
@@ -387,13 +394,13 @@ export default function AIMarketingStrategyCreate() {
                   onClick={handleSave}
                   className="px-6"
                 >
-                  保存草稿
+                  保存���稿
                 </Button>
                 <Button
                   onClick={handleSaveAndActivate}
                   className="bg-blue-600 hover:bg-blue-700 px-6"
                 >
-                  {isEditing ? '保存并��用' : '创建并启用'}
+                  {isEditing ? '保存并启用' : '创建并启用'}
                 </Button>
               </div>
             </CardContent>
