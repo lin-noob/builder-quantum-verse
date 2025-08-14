@@ -84,23 +84,15 @@ const App = () => (
             }
           />
           <Route
-            path="/response-actions"
+            path="/ai-marketing-strategies"
             element={
               <Layout>
-                <ResponseActions />
+                <AIMarketingStrategies />
               </Layout>
             }
           />
           <Route
-            path="/response-actions/create"
-            element={
-              <Layout>
-                <ResponseActionCreate />
-              </Layout>
-            }
-          />
-          <Route
-            path="/response-actions/edit/:id"
+            path="/ai-marketing-strategies/create"
             element={
               <Layout>
                 <ResponseActionCreate />
@@ -108,12 +100,29 @@ const App = () => (
             }
           />
           <Route
-            path="/response-actions/:id"
+            path="/ai-marketing-strategies/edit/:id"
+            element={
+              <Layout>
+                <ResponseActionCreate />
+              </Layout>
+            }
+          />
+          <Route
+            path="/ai-marketing-strategies/:id"
             element={
               <Layout>
                 <ResponseActionDetail />
               </Layout>
             }
+          />
+          {/* 保持旧路由的兼容性 */}
+          <Route
+            path="/response-actions"
+            element={<Navigate to="/ai-marketing-strategies" replace />}
+          />
+          <Route
+            path="/response-actions/*"
+            element={<Navigate to="/ai-marketing-strategies" replace />}
           />
           <Route
             path="/ai-marketing/monitoring-center"
