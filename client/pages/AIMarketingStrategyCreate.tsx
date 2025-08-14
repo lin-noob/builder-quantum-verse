@@ -357,10 +357,10 @@ export default function AIMarketingStrategyCreate() {
                 <textarea
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
                   rows={4}
-                  value={formData.baseActionParameters?.bodyText || ''}
+                  value={formData.actionParameters?.bodyText || ''}
                   onChange={(e) => setFormData(prev => ({
                     ...prev,
-                    baseActionParameters: { ...prev.baseActionParameters!, bodyText: e.target.value }
+                    actionParameters: { ...prev.actionParameters!, bodyText: e.target.value }
                   }))}
                   placeholder="例如：您的专属10%优惠券已生效，完成订单即可使用！"
                 />
@@ -393,7 +393,7 @@ export default function AIMarketingStrategyCreate() {
                   onClick={handleSaveAndActivate}
                   className="bg-blue-600 hover:bg-blue-700 px-6"
                 >
-                  {isEditing ? '保存并启用' : '创建并启用'}
+                  {isEditing ? '保存并��用' : '创建并启用'}
                 </Button>
               </div>
             </CardContent>
