@@ -18,6 +18,7 @@ import {
   Settings,
 } from "lucide-react";
 import TabManager from "./TabManager";
+import { authService } from "@/services/authService";
 
 interface LayoutProps {
   children: ReactNode;
