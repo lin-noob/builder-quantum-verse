@@ -134,7 +134,7 @@ export const EVENT_DISPLAY_NAMES: Record<TriggerEventName, string> = {
   'add_to_cart': '加入购物车',
   'remove_from_cart': '从购物车移除',
   'start_checkout': '开始结账',
-  'purchase': '完成���买',
+  'purchase': '完成购买',
   'submit_form': '提交表单',
   'newsletter_subscribe': '订阅邮件'
 };
@@ -159,6 +159,18 @@ export const OPERATOR_DISPLAY_NAMES: Record<ComparisonOperator, string> = {
   'NOT_CONTAINS': '不包含',
   '>': '大于',
   '<': '小于'
+};
+
+// 执行模式显示名称映射
+export const EXECUTION_MODE_DISPLAY_NAMES: Record<ExecutionMode, string> = {
+  'SEMI_AUTO': '半自动',
+  'FULL_MANUAL': '全人工'
+};
+
+// 执行模式颜色映射
+export const EXECUTION_MODE_COLORS: Record<ExecutionMode, string> = {
+  'SEMI_AUTO': 'blue',
+  'FULL_MANUAL': 'green'
 };
 
 // 状态显示名称映射
