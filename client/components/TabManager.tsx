@@ -58,6 +58,7 @@ export default function TabManager() {
     "/ai-marketing/strategy-goals": "AI自动营销 - 战略与目标",
     "/ai-marketing/live-monitoring": "AI自动营销 - 实时监控",
     "/ai-marketing/performance-analytics": "AI自动营销 - 效果分析",
+    "/profile": "个人信息",
   };
 
   // 检查滚动状态
