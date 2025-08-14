@@ -734,7 +734,7 @@ export const mockUsers: User[] = [
       {
         id: "session-wf-1",
         date: "2024-01-21 13:45",
-        summary: "新功能体验和反��提交",
+        summary: "新功能体验和反馈提交",
         source: "邮件通知",
         deviceType: "桌面端",
         os: "Windows 11",
@@ -1276,7 +1276,7 @@ export interface OrderSummaryDto {
 }
 
 /**
- * 用户画像列表查���参数
+ * 用户��像列表查询参数
  */
 export interface UserProfileListParams {
   /** 每页数量 */
