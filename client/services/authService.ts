@@ -1,3 +1,5 @@
+import { emailService } from './emailService';
+
 // Simple authentication service for demo purposes
 interface User {
   id: string;
