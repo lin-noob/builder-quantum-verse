@@ -102,8 +102,8 @@ export default function AIMarketingStrategyCreate() {
       return;
     }
 
-    // 全人工模式需要检查业务用途
-    if (formData.executionMode === 'FULL_MANUAL' && !formData.actionPurpose?.trim()) {
+    // 半自动模式需要检查业务用途
+    if (formData.executionMode === 'SEMI_AUTO' && !formData.actionPurpose?.trim()) {
       toast({
         title: "请填写业务用途",
         variant: "destructive"
@@ -125,7 +125,7 @@ export default function AIMarketingStrategyCreate() {
         <div className="space-y-6">
 
           {/* 流���步骤卡片 */}
-          {/* 执行模式选择 */}
+          {/* 执行模���选择 */}
           <Card className="shadow-sm border-0 ring-1 ring-gray-200">
             <CardHeader className="pb-4">
               <div className="flex items-center space-x-3">
