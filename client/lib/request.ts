@@ -255,7 +255,7 @@ export class Request {
       responseType = "json",
     } = config;
 
-    let timeoutId: NodeJS.Timeout | undefined;
+    let timeoutId: number | undefined;
 
     try {
       // 执行请求拦截器
