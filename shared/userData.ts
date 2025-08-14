@@ -53,7 +53,7 @@ export interface User {
   cartCreatedTime?: string; // 兼容字段
   lastCartUpdate?: string; // 兼容字段
   cartAbandonCount?: number; // 兼容字段
-  averageCartValue?: number; // ��容字段
+  averageCartValue?: number; // 兼容字段
 }
 
 export interface Session {
@@ -199,7 +199,7 @@ export const mockUsers: User[] = [
           },
           {
             timestamp: "14:32:45",
-            eventType: "页面访���",
+            eventType: "页面访问",
             pageTitle: "产品列表",
             pageUrl: "/products",
             stayDuration: "5分12秒",
@@ -244,7 +244,7 @@ export const mockUsers: User[] = [
         events: [
           {
             timestamp: "16:45:10",
-            eventType: "页面访问",
+            eventType: "页��访问",
             pageTitle: "技术支持",
             pageUrl: "/support",
             stayDuration: "3分20秒",
@@ -329,7 +329,7 @@ export const mockUsers: User[] = [
         },
         billingAddress: {
           name: "腾讯科技（深圳）有限公司",
-          street: "深圳市南山区科技园南区R4-B栋",
+          street: "深圳市南山��科技园南区R4-B栋",
           city: "深圳",
           state: "广东省",
           postalCode: "518057",
@@ -510,7 +510,7 @@ export const mockUsers: User[] = [
         id: "session-lm-2",
         date: "2024-01-10 14:15",
         summary: "完成订单支付和账户设置",
-        source: "直接访��",
+        source: "直接访问",
         deviceType: "桌面端",
         os: "macOS 14",
         browser: "Chrome 120",
@@ -656,7 +656,7 @@ export const mockUsers: User[] = [
         status: "已完成",
         totalAmount: 4950.0,
         currency: "CNY",
-        paymentMethod: "企���转账",
+        paymentMethod: "企业转账",
         items: [
           {
             productName: "企业版软件授",
@@ -900,7 +900,7 @@ export const mockUsers: User[] = [
           },
           {
             timestamp: "16:57:25",
-            eventType: "页面��问",
+            eventType: "页面访问",
             pageTitle: "开发者控制台",
             pageUrl: "/dev/console",
             stayDuration: "15分30秒",
@@ -1072,7 +1072,7 @@ export const mockUsers: User[] = [
         status: "已完成",
         totalAmount: 4800.0,
         currency: "CNY",
-        paymentMethod: "企���转账",
+        paymentMethod: "企业转账",
         items: [
           {
             productName: "准版软件授权",
@@ -1176,7 +1176,7 @@ export const mockUsers: User[] = [
       },
       {
         id: "cart-item-lt-2",
-        productName: "企业级安全组件",
+        productName: "企业级安全���件",
         unitPrice: 2200.0,
         quantity: 3,
         totalPrice: 6600.0,
@@ -1271,7 +1271,7 @@ export interface OrderSummaryDto {
   shopid?: string;
   /** 排序字段 */
   sort?: string;
-  /** ���始日期 */
+  /** 开始日期 */
   startDate?: string;
 }
 
