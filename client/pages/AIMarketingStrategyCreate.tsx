@@ -91,15 +91,15 @@ export default function AIMarketingStrategyCreate() {
     },
     {
       title: '欢迎新用户，并根据其兴趣进行初步引导',
-      content: '当系统检测到新用户首次访问网站或应用时，基于用户的注册信息、访问来源渠道、浏览设备类型等数据，智能展示个性化欢迎引导流程。通过分析用户点击的商品类别、停留时间、搜索关键词等行为数据，动态调整引导内容和产品推荐。为新用户提供专属新人礼包（如首单优惠券、会员积分奖励）、个性化商品推荐清单、平台核心功能介绍等，帮助用户快速了解平台价值并找到感兴趣的内容。同时收集用户偏好标签，为后续个性化营销奠定基础。'
+      content: '当系统检测到新用户首次访问网站或应用时，基于用户的注册信息、访问来源渠道、浏览设备类型等数据，智能展示个性化欢迎引导流程。通过分析用户点击的商品类别、停留时间、搜索��键词等行为数据，动态调整引导内容和产品推荐。为新用户提供专属新人礼包（如首单优惠券、会员积分奖励）、个性化商品推荐清单、平台核心功能介绍等，帮助用户快速了解平台价值并找到感兴趣的内容。同时收集用户偏好标签，为后续个性化营销奠定基础。'
     },
     {
-      title: '帮助用户找到相��产品，提升用户体验',
+      title: '帮助用户找到相关产品，提升用户体验',
       content: '当用户在网站上搜索无结果、浏览时间较长但未发生点击行为、或在某个类目页面反复浏览时，系统将主动提供智能搜索建议和产品推荐服务。基于用户的搜索历史、浏览轨迹、同类用户购买行为等数据，提供精准的替代产品推荐、相关类目引导、热门搜索词提示等。通过智能客服机器人主动询问用户需求，提供个性化购物助手服务，包括产品对比、尺寸建议、搭配推荐等，显著提升用户的购物体验和找到心仪商品的效率。'
     },
     {
       title: '推荐个性化商品，提高转化率',
-      content: '基于用户的历史购买记录、浏览行为、收藏清单、搜索历史、个人档案信息等多维度数据，运用协同过滤和深度学习算法，在用户浏览商品详情页、购物车页面、或完成订单后，智能推荐高相关性的个性化商品。推荐策略包括：购买了A商品的用户还喜欢B商品、基于季节和节日的时令推荐、根据用户生活方式的场景化推荐、价格敏感度匹配的商品推荐等。通过A/B测试不断优化推荐算法和展示样式，提升点击率和转化率，增加用户客单价和复购频次。'
+      content: '基于用户的历史购买记录、浏览行为、收藏清单、搜索历史、个人档案信息等多维度数据，运用协同过滤和深度学习算法，在用户浏览商品详情页、购物车页面、或完成订单后，智��推荐高相关性的个性化商品。推荐策略包括：购买了A商品的用户还喜欢B商品、基于季节和节日的时令推荐、根据用户生活方式的场景化推荐、价格敏感度匹配的商品推荐等。通过A/B测试不断优化推荐算法和展示样式，提升点击率和转化率，增加用户客单价和复购频次。'
     }
   ];
 
@@ -140,7 +140,7 @@ export default function AIMarketingStrategyCreate() {
       return;
     }
 
-    // 半自动模式需要检查业务用途
+    // 半自动模式需要检��业务用途
     if (formData.executionMode === 'SEMI_AUTO' && !formData.actionPurpose?.trim()) {
       toast({
         title: "请填写业务用途",
@@ -368,7 +368,7 @@ export default function AIMarketingStrategyCreate() {
                 <h3 className="font-medium text-foreground">半自动模式</h3>
               </div>
               <p className="text-sm text-muted-foreground ml-7">
-                商家设定触发规则和业务用途，AI根据用户画像自主决策生成个性化内容
+                商家设定触��规则和业务用途，AI根据用户画像自主决策生成个性化内容
               </p>
             </div>
 
@@ -436,7 +436,7 @@ export default function AIMarketingStrategyCreate() {
             业务用途 <span className="text-destructive">*</span>
           </label>
           <p className="text-xs text-muted-foreground mb-3">
-            用自然语言清晰地描述这个策略希望达成的业务目标。AI将理解您的意图，在触发规则命中时自主选择最佳���个性化策略。
+            用自然语言���晰地描述这个策略希望达成的业务目标。AI将理解您的意图，在触发规则命中时自主选择最佳���个性化策略。
           </p>
           <textarea
             className="w-full px-3 py-2 border border-border rounded-md resize-none focus:ring-2 focus:ring-ring focus:border-ring text-sm"
@@ -450,15 +450,15 @@ export default function AIMarketingStrategyCreate() {
         <div>
           <p className="text-sm font-medium text-foreground mb-3">快速选择常用场景：</p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-            {commonPurposes.map((purpose, index) => (
+            {commonPurposeOptions.map((option, index) => (
               <Button
                 key={index}
                 variant="outline"
                 size="sm"
-                onClick={() => setFormData(prev => ({ ...prev, actionPurpose: purpose }))}
+                onClick={() => setFormData(prev => ({ ...prev, actionPurpose: option.content }))}
                 className="text-sm h-auto py-2 px-3 text-left justify-start whitespace-normal"
               >
-                {purpose}
+                {option.title}
               </Button>
             ))}
           </div>
@@ -476,7 +476,7 @@ export default function AIMarketingStrategyCreate() {
         </CardTitle>
         <p className="text-sm text-muted-foreground">
           {formData.executionMode === 'SEMI_AUTO'
-            ? '设计一个��础的弹窗内容，AI将以此为参考进行个性化优化和安全降级'
+            ? '设计一个基础的弹窗内容，AI将以此为参考进行个性化优化和安全降级'
             : '设计固定的弹窗内容，系统将严格按照此内容展示给用户'
           }
         </p>
@@ -495,7 +495,7 @@ export default function AIMarketingStrategyCreate() {
               }))}
               placeholder={
                 formData.executionMode === 'SEMI_AUTO' 
-                  ? "例如：请留步！"
+                  ? "例如：请留��！"
                   : "例如：您有新消息！"
               }
               className="text-sm"
