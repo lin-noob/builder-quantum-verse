@@ -53,6 +53,12 @@ export default function Layout({ children }: LayoutProps) {
       icon: <MessageSquare className="h-5 w-5" />,
     },
     {
+      id: "ai-marketing-strategies",
+      label: "AI营销",
+      path: "/ai-marketing-strategies",
+      icon: <Zap className="h-5 w-5" />,
+    },
+    {
       id: "ai-marketing",
       label: "AI自动营销",
       path: "/ai-marketing/monitoring-center",
