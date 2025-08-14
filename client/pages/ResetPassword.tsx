@@ -81,13 +81,13 @@ export default function ResetPassword() {
     
     // 如果是新密码字段变化，同时验证确认密码字段
     if (name === "newPassword" && formData.confirmPassword) {
-      const confirmError = formData.confirmPassword !== value ? "确认密码与新密码��匹配" : null;
+      const confirmError = formData.confirmPassword !== value ? "确认密码与新密码不匹配" : null;
       setErrors(prev => ({ ...prev, confirmPassword: confirmError }));
     }
   };
 
   // 确认重置密码
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     // 验证所有字段
     const newErrors: FormErrors = {};
     Object.keys(formData).forEach(key => {
@@ -97,6 +97,16 @@ export default function ResetPassword() {
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
+      return;
+    }
+
+    const result = await authService.resetPassword(location.state.email, formData.newPassword);
+
+    if (!result.success) {
+      toast({
+        title: result.error,
+        variant: "destructive"
+      });
       return;
     }
 
