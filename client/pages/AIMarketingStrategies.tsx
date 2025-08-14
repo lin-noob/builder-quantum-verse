@@ -230,7 +230,6 @@ export default function AIMarketingStrategies() {
 
   return (
     <div className="p-6 space-y-6 bg-gray-50 min-h-full">
-
       {/* 筛选区 */}
       <Card className="bg-white p-4 rounded-lg shadow-sm">
         <div className="flex flex-col md:flex-row gap-4 items-end">
