@@ -281,7 +281,7 @@ export const mockUsers: User[] = [
         events: [
           {
             timestamp: "11:20:00",
-            eventType: "页面访���",
+            eventType: "页面访问",
             pageTitle: "登录页面",
             pageUrl: "/login",
             stayDuration: "1分10秒",
@@ -419,7 +419,7 @@ export const mockUsers: User[] = [
             totalPrice: 1200.0,
           },
           {
-            productName: "培训服务",
+            productName: "培训��务",
             unitPrice: 950.0,
             quantity: 1,
             totalPrice: 950.0,
