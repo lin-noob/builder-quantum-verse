@@ -4,11 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
-  Settings,
-  MessageSquare,
-  Target
-} from 'lucide-react';
-import {
   sampleStrategies,
   AIMarketingStrategy,
   TriggerRule,
@@ -247,44 +242,46 @@ export default function AIMarketingStrategyCreate() {
   // 渲染步骤指示器
   const renderStepIndicator = () => {
     return (
-      <div className="mb-8">
-        <div className="flex items-center justify-between">
-          {activeSteps.map((step, index) => {
-            const status = getStepStatus(index);
-            return (
-              <div key={step.id} className="flex items-center">
-                <div className="flex flex-col items-center">
-                  <div 
-                    className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium
-                      ${status === 'completed' ? 'bg-blue-600 text-white' : 
-                        status === 'current' ? 'bg-blue-100 text-blue-600 ring-2 ring-blue-600' : 
-                        'bg-gray-100 text-gray-400'}
-                    `}
-                  >
-                    {status === 'completed' ? '✓' : step.id}
-                  </div>
-                  <div className="mt-2 text-center">
-                    <div className={`text-sm font-medium ${
-                      status === 'current' ? 'text-blue-600' : 
-                      status === 'completed' ? 'text-gray-900' : 'text-gray-400'
-                    }`}>
-                      {step.title}
+      <Card className="mb-6">
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between">
+            {activeSteps.map((step, index) => {
+              const status = getStepStatus(index);
+              return (
+                <div key={step.id} className="flex items-center flex-1">
+                  <div className="flex flex-col items-center">
+                    <div 
+                      className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium border-2 transition-colors
+                        ${status === 'completed' ? 'bg-primary border-primary text-primary-foreground' : 
+                          status === 'current' ? 'bg-background border-primary text-primary' : 
+                          'bg-background border-muted text-muted-foreground'}
+                      `}
+                    >
+                      {status === 'completed' ? '✓' : step.id}
                     </div>
-                    <div className="text-xs text-gray-500 mt-1">
-                      {step.description}
+                    <div className="mt-3 text-center max-w-24">
+                      <div className={`text-sm font-medium ${
+                        status === 'current' ? 'text-foreground' : 
+                        status === 'completed' ? 'text-foreground' : 'text-muted-foreground'
+                      }`}>
+                        {step.title}
+                      </div>
+                      <div className="text-xs text-muted-foreground mt-1">
+                        {step.description}
+                      </div>
                     </div>
                   </div>
+                  {index < activeSteps.length - 1 && (
+                    <div className={`flex-1 h-px mx-6 transition-colors ${
+                      status === 'completed' ? 'bg-primary' : 'bg-border'
+                    }`} />
+                  )}
                 </div>
-                {index < activeSteps.length - 1 && (
-                  <div className={`flex-1 h-0.5 mx-4 ${
-                    status === 'completed' ? 'bg-blue-600' : 'bg-gray-200'
-                  }`} />
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </div>
+              );
+            })}
+          </div>
+        </CardContent>
+      </Card>
     );
   };
 
@@ -310,66 +307,59 @@ export default function AIMarketingStrategyCreate() {
   const renderStep1 = () => (
     <div className="space-y-6">
       {/* 执行模式选择 */}
-      <Card className="shadow-sm border-0 ring-1 ring-gray-200">
-        <CardHeader className="pb-4">
-          <div className="flex items-center space-x-3">
-            <div className="h-8 w-8 bg-purple-100 rounded-lg flex items-center justify-center">
-              <Settings className="h-4 w-4 text-purple-600" />
-            </div>
-            <div>
-              <CardTitle className="text-base font-semibold">执行模式选择</CardTitle>
-              <p className="text-sm text-gray-500 mt-1">选择策略的执行方式：AI智能决策或固定内容执行</p>
-            </div>
-          </div>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold">执行模式选择</CardTitle>
+          <p className="text-sm text-muted-foreground">选择策略的执行方式：AI智能决策或固定内容执行</p>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div
-              className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
+              className={`p-4 border rounded-lg cursor-pointer transition-all ${
                 formData.executionMode === 'SEMI_AUTO'
-                  ? 'border-blue-500 bg-blue-50'
-                  : 'border-gray-200 hover:border-gray-300'
+                  ? 'border-primary bg-primary/5'
+                  : 'border-border hover:border-muted-foreground'
               }`}
               onClick={() => setFormData(prev => ({ ...prev, executionMode: 'SEMI_AUTO' }))}
             >
-              <div className="flex items-center mb-2">
+              <div className="flex items-center mb-3">
                 <div className={`w-4 h-4 rounded-full border-2 mr-3 ${
                   formData.executionMode === 'SEMI_AUTO'
-                    ? 'border-blue-500 bg-blue-500'
-                    : 'border-gray-300'
+                    ? 'border-primary bg-primary'
+                    : 'border-muted-foreground'
                 }`}>
                   {formData.executionMode === 'SEMI_AUTO' && (
-                    <div className="w-2 h-2 bg-white rounded-full m-0.5"></div>
+                    <div className="w-2 h-2 bg-primary-foreground rounded-full m-0.5"></div>
                   )}
                 </div>
-                <h3 className="font-medium text-gray-900">半自动模式</h3>
+                <h3 className="font-medium text-foreground">半自动模式</h3>
               </div>
-              <p className="text-sm text-gray-600 ml-7">
+              <p className="text-sm text-muted-foreground ml-7">
                 商家设定触发规则和业务用途，AI根据用户画像自主决策生成个性化内容
               </p>
             </div>
 
             <div
-              className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
+              className={`p-4 border rounded-lg cursor-pointer transition-all ${
                 formData.executionMode === 'FULL_MANUAL'
-                  ? 'border-green-500 bg-green-50'
-                  : 'border-gray-200 hover:border-gray-300'
+                  ? 'border-primary bg-primary/5'
+                  : 'border-border hover:border-muted-foreground'
               }`}
               onClick={() => setFormData(prev => ({ ...prev, executionMode: 'FULL_MANUAL' }))}
             >
-              <div className="flex items-center mb-2">
+              <div className="flex items-center mb-3">
                 <div className={`w-4 h-4 rounded-full border-2 mr-3 ${
                   formData.executionMode === 'FULL_MANUAL'
-                    ? 'border-green-500 bg-green-500'
-                    : 'border-gray-300'
+                    ? 'border-primary bg-primary'
+                    : 'border-muted-foreground'
                 }`}>
                   {formData.executionMode === 'FULL_MANUAL' && (
-                    <div className="w-2 h-2 bg-white rounded-full m-0.5"></div>
+                    <div className="w-2 h-2 bg-primary-foreground rounded-full m-0.5"></div>
                   )}
                 </div>
-                <h3 className="font-medium text-gray-900">全人工模式</h3>
+                <h3 className="font-medium text-foreground">全人工模式</h3>
               </div>
-              <p className="text-sm text-gray-600 ml-7">
+              <p className="text-sm text-muted-foreground ml-7">
                 商家设定触发规则和固定响应内容，系统严格按照预设指令执行
               </p>
             </div>
@@ -378,31 +368,24 @@ export default function AIMarketingStrategyCreate() {
       </Card>
 
       {/* 基本信息 */}
-      <Card className="shadow-sm border-0 ring-1 ring-gray-200">
-        <CardHeader className="pb-4">
-          <div className="flex items-center space-x-3">
-            <div className="h-8 w-8 bg-green-100 rounded-lg flex items-center justify-center">
-              <Settings className="h-4 w-4 text-green-600" />
-            </div>
-            <div>
-              <CardTitle className="text-base font-semibold">基本信息</CardTitle>
-              <p className="text-sm text-gray-500 mt-1">设置策略的基本属性和标识信息</p>
-            </div>
-          </div>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold">基本信息</CardTitle>
+          <p className="text-sm text-muted-foreground">设置策略的基本属性和标识信息</p>
         </CardHeader>
         <CardContent>
-          <div className="max-w-2xl">
+          <div className="max-w-xl">
             <div>
-              <label className="block text-sm font-medium text-gray-900 mb-2">
-                策略名称 <span className="text-red-500">*</span>
+              <label className="block text-sm font-medium text-foreground mb-2">
+                策略名称 <span className="text-destructive">*</span>
               </label>
               <Input
                 value={formData.strategyName || ''}
                 onChange={(e) => setFormData(prev => ({ ...prev, strategyName: e.target.value }))}
                 placeholder="例如：高价值购物车挽留策略"
-                className="text-base"
+                className="text-sm"
               />
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-muted-foreground mt-2">
                 {formData.executionMode === 'SEMI_AUTO' 
                   ? '为这个AI营销策略起一个描述性的名称，便于管理'
                   : '为这个营销策略起一个描述性的名称，便于管理'
@@ -417,270 +400,234 @@ export default function AIMarketingStrategyCreate() {
   
   // 第二步：触发规则配置
   const renderStep2 = () => (
-    <div className="space-y-6">
-      {/* 触发规则配置 */}
-      <Card className="shadow-sm border-0 ring-1 ring-gray-200">
-        <CardHeader className="pb-4">
-          <div className="flex items-center space-x-3">
-            <div className="h-8 w-8 bg-blue-100 rounded-lg flex items-center justify-center">
-              <Target className="h-4 w-4 text-blue-600" />
-            </div>
-            <div>
-              <CardTitle className="text-base font-semibold">触发规则配置</CardTitle>
-              <p className="text-sm text-gray-500 mt-1">
-                {formData.executionMode === 'SEMI_AUTO'
-                  ? '定义AI需要监控的精确用户行为场景，作为策略启动的"守门员"'
-                  : '定义系统需要监控的精确用户行为场景，作为固定内容执行的触发条件'
-                }
-              </p>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <TriggerRuleConfig
-            value={formData.triggerRule!}
-            onChange={(rule) => setFormData(prev => ({ ...prev, triggerRule: rule }))}
-          />
-        </CardContent>
-      </Card>
-    </div>
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-lg font-semibold">触发规则配置</CardTitle>
+        <p className="text-sm text-muted-foreground">
+          {formData.executionMode === 'SEMI_AUTO'
+            ? '定义AI需要监控的精确用户行为场景，作为策略启动的"守门员"'
+            : '定义系统需要监控的精确用��行为场景，作为固定内容执行的触发条件'
+          }
+        </p>
+      </CardHeader>
+      <CardContent>
+        <TriggerRuleConfig
+          value={formData.triggerRule!}
+          onChange={(rule) => setFormData(prev => ({ ...prev, triggerRule: rule }))}
+        />
+      </CardContent>
+    </Card>
   );
   
   // 第三步：业务用途设定
   const renderStep3 = () => (
-    <div className="space-y-6">
-      {/* 业务用途配置 */}
-      <Card className="shadow-sm border-0 ring-1 ring-gray-200">
-        <CardHeader className="pb-4">
-          <div className="flex items-center space-x-3">
-            <div className="h-8 w-8 bg-purple-100 rounded-lg flex items-center justify-center">
-              <Target className="h-4 w-4 text-purple-600" />
-            </div>
-            <div>
-              <CardTitle className="text-base font-semibold">业务用途设定</CardTitle>
-              <p className="text-sm text-gray-500 mt-1">向AI下达核心任务指令，指导AI做出正确的个性化决策</p>
-            </div>
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-lg font-semibold">业务用途设定</CardTitle>
+        <p className="text-sm text-muted-foreground">向AI下达核心任务指令，指导AI做出正确的个性化决策</p>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-foreground mb-2">
+            业务用途 <span className="text-destructive">*</span>
+          </label>
+          <p className="text-xs text-muted-foreground mb-3">
+            用自然语言清晰地描述这个策略希望达成的业务目标。AI将理解您的意图，在触发规则命中时自主选择最佳的个性化策略。
+          </p>
+          <textarea
+            className="w-full px-3 py-2 border border-border rounded-md resize-none focus:ring-2 focus:ring-ring focus:border-ring text-sm"
+            rows={4}
+            value={formData.actionPurpose || ''}
+            onChange={(e) => setFormData(prev => ({ ...prev, actionPurpose: e.target.value }))}
+            placeholder="例如：尽力挽留用户，���使其完成订单"
+          />
+        </div>
+        
+        <div>
+          <p className="text-sm font-medium text-foreground mb-3">快速选择常用场景：</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            {commonPurposes.map((purpose, index) => (
+              <Button
+                key={index}
+                variant="outline"
+                size="sm"
+                onClick={() => setFormData(prev => ({ ...prev, actionPurpose: purpose }))}
+                className="text-sm h-auto py-2 px-3 text-left justify-start whitespace-normal"
+              >
+                {purpose}
+              </Button>
+            ))}
           </div>
-        </CardHeader>
-        <CardContent>
-          <div>
-            <label className="block text-sm font-medium text-gray-900 mb-2">
-              业务用途 <span className="text-red-500">*</span>
-            </label>
-            <p className="text-xs text-gray-500 mb-3">
-              用自然语言清晰地描述这个策略希望达成的业务目标。AI将理解您的意图，在触发规则命中时自主选择最佳的个性化策略。
-            </p>
-            <textarea
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
-              rows={4}
-              value={formData.actionPurpose || ''}
-              onChange={(e) => setFormData(prev => ({ ...prev, actionPurpose: e.target.value }))}
-              placeholder="例如：尽力挽留用户，促使其完成订单"
-            />
-            <div className="mt-4">
-              <p className="text-sm font-medium text-gray-700 mb-3">快速选择常用场景：</p>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                {commonPurposes.map((purpose, index) => (
-                  <Button
-                    key={index}
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setFormData(prev => ({ ...prev, actionPurpose: purpose }))}
-                    className="text-sm h-auto py-2 px-3 text-left justify-start whitespace-normal"
-                  >
-                    {purpose}
-                  </Button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+        </div>
+      </CardContent>
+    </Card>
   );
   
   // 第四步：基础弹窗配置
   const renderStep4 = () => (
-    <div className="space-y-6">
-      {/* 基础弹窗配置 */}
-      <Card className="shadow-sm border-0 ring-1 ring-gray-200">
-        <CardHeader className="pb-4">
-          <div className="flex items-center space-x-3">
-            <div className="h-8 w-8 bg-green-100 rounded-lg flex items-center justify-center">
-              <MessageSquare className="h-4 w-4 text-green-600" />
-            </div>
-            <div>
-              <CardTitle className="text-base font-semibold">
-                {formData.executionMode === 'SEMI_AUTO' ? '基础弹窗配置' : '弹窗内容配置'}
-              </CardTitle>
-              <p className="text-sm text-gray-500 mt-1">
-                {formData.executionMode === 'SEMI_AUTO'
-                  ? '设计一个基础的弹窗内容，AI将以此为参考进行个性化优化和安全降级'
-                  : '设计固定的弹窗内容，系统将严格按照此内容展示给用户'
-                }
-              </p>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-900 mb-2">
-                弹窗标题 <span className="text-red-500">*</span>
-              </label>
-              <Input
-                value={formData.actionParameters?.title || ''}
-                onChange={(e) => setFormData(prev => ({
-                  ...prev,
-                  actionParameters: { ...prev.actionParameters!, title: e.target.value }
-                }))}
-                placeholder={
-                  formData.executionMode === 'SEMI_AUTO' 
-                    ? "例如：请留步！"
-                    : "例如：您有新消息！"
-                }
-                className="text-base font-medium"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-900 mb-2">
-                按钮文字 <span className="text-red-500">*</span>
-              </label>
-              <Input
-                value={formData.actionParameters?.buttonText || ''}
-                onChange={(e) => setFormData(prev => ({
-                  ...prev,
-                  actionParameters: { ...prev.actionParameters!, buttonText: e.target.value }
-                }))}
-                placeholder={
-                  formData.executionMode === 'SEMI_AUTO' 
-                    ? "例如：完成我的订单"
-                    : "例如：查看详情"
-                }
-                className="text-base"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-900 mb-2">跳转链接</label>
-              <Input
-                value={formData.actionParameters?.buttonUrl || ''}
-                onChange={(e) => setFormData(prev => ({
-                  ...prev,
-                  actionParameters: { ...prev.actionParameters!, buttonUrl: e.target.value }
-                }))}
-                placeholder="例如：/checkout"
-                className="text-base font-mono text-sm"
-              />
-            </div>
-          </div>
-
-          <div className="mt-6">
-            <label className="block text-sm font-medium text-gray-900 mb-2">
-              弹窗正文 <span className="text-red-500">*</span>
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-lg font-semibold">
+          {formData.executionMode === 'SEMI_AUTO' ? '基础弹窗配置' : '弹窗内容配置'}
+        </CardTitle>
+        <p className="text-sm text-muted-foreground">
+          {formData.executionMode === 'SEMI_AUTO'
+            ? '设计一个基础的弹窗内容，AI将以此为参考进行个性化优化和安全降级'
+            : '设计固定的弹窗内容，系统将严格按照��内容展示给用户'
+          }
+        </p>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">
+              弹窗标题 <span className="text-destructive">*</span>
             </label>
-            <textarea
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
-              rows={4}
-              value={formData.actionParameters?.bodyText || ''}
+            <Input
+              value={formData.actionParameters?.title || ''}
               onChange={(e) => setFormData(prev => ({
                 ...prev,
-                actionParameters: { ...prev.actionParameters!, bodyText: e.target.value }
+                actionParameters: { ...prev.actionParameters!, title: e.target.value }
               }))}
               placeholder={
                 formData.executionMode === 'SEMI_AUTO' 
-                  ? "例如：您的专属10%优惠券已生效，完成订单即可使用！"
-                  : "例如：我们为您准备了特别优惠，点击查看详情。"
+                  ? "例如：请留步！"
+                  : "例如：您有新消息！"
               }
+              className="text-sm"
             />
-            <p className="text-xs text-gray-500 mt-2">
-              {formData.executionMode === 'SEMI_AUTO'
-                ? 'AI将基于用户画像和行为数据，对这个基础内容进行个性化改写和优化'
-                : '系统将严格按照此内容展示给用���，不会进行任何修改'
-              }
-            </p>
           </div>
-        </CardContent>
-      </Card>
-    </div>
+
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">
+              按钮文字 <span className="text-destructive">*</span>
+            </label>
+            <Input
+              value={formData.actionParameters?.buttonText || ''}
+              onChange={(e) => setFormData(prev => ({
+                ...prev,
+                actionParameters: { ...prev.actionParameters!, buttonText: e.target.value }
+              }))}
+              placeholder={
+                formData.executionMode === 'SEMI_AUTO' 
+                  ? "例如：完成我的订单"
+                  : "例如：查看详情"
+              }
+              className="text-sm"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">跳转链接</label>
+            <Input
+              value={formData.actionParameters?.buttonUrl || ''}
+              onChange={(e) => setFormData(prev => ({
+                ...prev,
+                actionParameters: { ...prev.actionParameters!, buttonUrl: e.target.value }
+              }))}
+              placeholder="例如：/checkout"
+              className="text-sm font-mono"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-foreground mb-2">
+            弹窗正文 <span className="text-destructive">*</span>
+          </label>
+          <textarea
+            className="w-full px-3 py-2 border border-border rounded-md resize-none focus:ring-2 focus:ring-ring focus:border-ring text-sm"
+            rows={4}
+            value={formData.actionParameters?.bodyText || ''}
+            onChange={(e) => setFormData(prev => ({
+              ...prev,
+              actionParameters: { ...prev.actionParameters!, bodyText: e.target.value }
+            }))}
+            placeholder={
+              formData.executionMode === 'SEMI_AUTO' 
+                ? "例如：您的专属10%优惠券已生效，完成订单即可使用！"
+                : "例如：我们为您准备了特别优惠，点击查看详情。"
+            }
+          />
+          <p className="text-xs text-muted-foreground mt-2">
+            {formData.executionMode === 'SEMI_AUTO'
+              ? 'AI将基于用户画像和行为数据，对这个基础内容进行个性化改写和优化'
+              : '系统将严格按照此内容展示给用户，不会进行任何修改'
+            }
+          </p>
+        </div>
+      </CardContent>
+    </Card>
   );
   
   return (
-    <div className="min-h-full bg-gray-50">
-      <div className="max-w-4xl mx-auto px-6 lg:px-8 py-8">
-        {/* 页面标题 */}
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">
-            {isEditing ? '编辑AI营销策略' : '创建AI营销策略'}
-          </h1>
-          <p className="text-gray-600 mt-1">
-            {isEditing ? '修改策略配置' : '通过向导式流程创建新的营销策略'}
-          </p>
-        </div>
-        
-        {/* 步骤指示器 */}
-        {renderStepIndicator()}
-        
-        {/* 当前步骤内容 */}
-        <div className="mb-8">
-          {renderStepContent()}
-        </div>
-        
-        {/* 导航按钮 */}
-        <Card className="shadow-sm border-0 ring-1 ring-gray-200">
-          <CardContent className="py-6">
-            <div className="flex justify-between">
-              <div>
-                {currentStep > 1 && (
-                  <Button
-                    variant="outline"
-                    onClick={handlePrevious}
-                    className="px-6"
-                  >
-                    上一步
-                  </Button>
-                )}
-              </div>
-              
-              <div className="flex space-x-4">
+    <div className="p-6 space-y-6 bg-background min-h-full">
+      {/* 页面标题 */}
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-foreground">
+          {isEditing ? '编辑营销策略' : '创建营销策略'}
+        </h1>
+        <p className="text-muted-foreground mt-1">
+          {isEditing ? '修改策略配置' : '通过向导式流程创建新的营销策略'}
+        </p>
+      </div>
+      
+      {/* 步骤指示器 */}
+      {renderStepIndicator()}
+      
+      {/* 当前步骤内容 */}
+      <div className="mb-6">
+        {renderStepContent()}
+      </div>
+      
+      {/* 导航按钮 */}
+      <Card>
+        <CardContent className="p-6">
+          <div className="flex justify-between">
+            <div>
+              {currentStep > 1 && (
                 <Button
                   variant="outline"
-                  onClick={() => navigate('/ai-marketing-strategies')}
-                  className="px-6"
+                  onClick={handlePrevious}
                 >
-                  取消
+                  上一步
                 </Button>
-                
-                {currentStep < totalSteps ? (
-                  <Button
-                    onClick={handleNext}
-                    className="bg-blue-600 hover:bg-blue-700 px-6"
-                  >
-                    下一步
-                  </Button>
-                ) : (
-                  <>
-                    <Button
-                      variant="outline"
-                      onClick={handleSave}
-                      className="px-6"
-                    >
-                      保存草稿
-                    </Button>
-                    <Button
-                      onClick={handleSaveAndActivate}
-                      className="bg-blue-600 hover:bg-blue-700 px-6"
-                    >
-                      {isEditing ? '保存并启用' : '创建并启用'}
-                    </Button>
-                  </>
-                )}
-              </div>
+              )}
             </div>
-          </CardContent>
-        </Card>
-      </div>
+            
+            <div className="flex space-x-3">
+              <Button
+                variant="outline"
+                onClick={() => navigate('/ai-marketing-strategies')}
+              >
+                取消
+              </Button>
+              
+              {currentStep < totalSteps ? (
+                <Button
+                  onClick={handleNext}
+                >
+                  下一步
+                </Button>
+              ) : (
+                <>
+                  <Button
+                    variant="outline"
+                    onClick={handleSave}
+                  >
+                    保存草稿
+                  </Button>
+                  <Button
+                    onClick={handleSaveAndActivate}
+                  >
+                    {isEditing ? '保存并启用' : '创建并启用'}
+                  </Button>
+                </>
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
