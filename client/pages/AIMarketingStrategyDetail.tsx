@@ -94,18 +94,16 @@ export default function AIMarketingStrategyDetail() {
                 </div>
                 <div>
                   <dt className="text-sm font-medium text-muted-foreground">执行模式</dt>
-                  <dd className="mt-1">
-                    <Badge className={getExecutionModeBadgeClass(strategy.executionMode)}>
-                      {EXECUTION_MODE_DISPLAY_NAMES[strategy.executionMode]}
-                    </Badge>
+                  <dd className="mt-1 text-sm text-foreground">
+                    {EXECUTION_MODE_DISPLAY_NAMES[strategy.executionMode]}
                   </dd>
                 </div>
                 <div>
                   <dt className="text-sm font-medium text-muted-foreground">策略状态</dt>
                   <dd className="mt-1 flex items-center gap-2">
-                    <Badge className={getStatusBadgeClass(strategy.status)}>
+                    <span className="text-sm text-foreground">
                       {STATUS_DISPLAY_NAMES[strategy.status]}
-                    </Badge>
+                    </span>
                     {strategy.status === 'ACTIVE' && (
                       <div className="flex items-center gap-1 text-green-600">
                         <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
