@@ -117,7 +117,7 @@ export interface CartItem {
   unitPrice: number;
   quantity: number;
   totalPrice: number;
-  addedTime: string; // 加入购物车时间
+  addedTime: string; // 加入���物车时间
   lastUpdated: string; // 最后更新时间
 }
 
@@ -329,7 +329,7 @@ export const mockUsers: User[] = [
         },
         billingAddress: {
           name: "腾讯科技（深圳）有限公司",
-          street: "深圳市南山区科技园南区R4-B栋",
+          street: "深圳市南山区科技园��区R4-B栋",
           city: "深圳",
           state: "广东省",
           postalCode: "518057",
@@ -514,7 +514,7 @@ export const mockUsers: User[] = [
         deviceType: "桌面端",
         os: "macOS 14",
         browser: "Chrome 120",
-        location: "杭州, ��国",
+        location: "杭州, 中国",
         ipAddress: "120.55.162.203",
         events: [
           {
@@ -1075,7 +1075,7 @@ export const mockUsers: User[] = [
         paymentMethod: "企业转账",
         items: [
           {
-            productName: "准版软件授权",
+            productName: "准��软件授权",
             unitPrice: 1600.0,
             quantity: 3,
             totalPrice: 4800.0,
