@@ -130,9 +130,9 @@ export default function AIMarketingStrategyDetail() {
                   <dt className="text-sm font-medium text-gray-600">更新时间</dt>
                   <dd className="mt-1 text-sm text-gray-900">{formatDate(strategy.updatedAt)}</dd>
                 </div>
-                {strategy.executionMode === 'FULL_MANUAL' && (
+                {strategy.executionMode === 'SEMI_AUTO' && (
                 <div className="col-span-2">
-                  <dt className="text-sm font-medium text-gray-600">业务用途</dt>
+                  <dt className="text-sm font-medium text-gray-600">业���用途</dt>
                   <dd className="mt-1 text-sm text-gray-900">{strategy.actionPurpose}</dd>
                 </div>
                 )}
