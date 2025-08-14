@@ -344,7 +344,7 @@ export default function AIMarketingStrategies() {
                   onClick={() => handleSort('updatedAt')}
                 >
                   <div className="flex items-center gap-2">
-                    最后更新
+                    ���后更新
                     {getSortIcon('updatedAt')}
                   </div>
                 </th>
@@ -359,15 +359,13 @@ export default function AIMarketingStrategies() {
                     <div className="text-xs text-muted-foreground">ID: {strategy.strategyId}</div>
                   </td>
                   <td className="px-6 py-4">
-                    <Badge className={getExecutionModeBadgeClass(strategy.executionMode)}>
+                    <div className="text-sm text-foreground">
                       {EXECUTION_MODE_DISPLAY_NAMES[strategy.executionMode]}
-                    </Badge>
+                    </div>
                   </td>
                   <td className="px-6 py-4">
-                    <div className="flex items-center gap-2">
-                      <Badge className={getStatusBadgeClass(strategy.status)}>
-                        {STATUS_DISPLAY_NAMES[strategy.status]}
-                      </Badge>
+                    <div className="text-sm text-foreground">
+                      {STATUS_DISPLAY_NAMES[strategy.status]}
                     </div>
                   </td>
                   <td className="px-6 py-4">
