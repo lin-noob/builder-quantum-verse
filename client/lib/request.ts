@@ -255,6 +255,8 @@ export class Request {
       responseType = "json",
     } = config;
 
+    let timeoutId: NodeJS.Timeout | undefined;
+
     try {
       // 执行请求拦截器
       const processedConfig = this.defaultConfig.beforeRequest
@@ -269,7 +271,8 @@ export class Request {
       );
 
       // 创建超时控制器
-      const { controller, timeoutId } = this.createTimeoutController(timeout);
+      const { controller, timeoutId: tid } = this.createTimeoutController(timeout);
+      timeoutId = tid;
 
       const fetchOptions: RequestInit = {
         method,
@@ -290,7 +293,9 @@ export class Request {
       return await this.processResponse<T>(processedResponse, responseType);
     } catch (error) {
       // 确保清理超时定时器
-      clearTimeout(timeoutId);
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
 
       // 执行错误处理器
       if (this.defaultConfig.onError) {
