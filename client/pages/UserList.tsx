@@ -186,7 +186,7 @@ export default function UserList() {
         pagesize: itemsPerPage,
       };
 
-      // 只有在有值的时候才添加这些字段
+      // 只有在有值的时候才添加这些字���
       if (searchQuery.trim()) {
         requestBody.keyword = searchQuery.trim();
       }
@@ -298,12 +298,12 @@ export default function UserList() {
         } else if (error.message.includes("Network Error")) {
           errorMessage = "网络连接失败，请检查网络设置";
         } else {
-          errorMessage = `获取数据失败: ${error.message}`;
+          errorMessage = `获取数据��败: ${error.message}`;
         }
       } else if (error instanceof Error) {
         errorMessage = error.message;
         console.error("错误详情:", error.message);
-        console.error("错误堆��:", error.stack);
+        console.error("错误堆栈:", error.stack);
 
         // 针对不同类型的错误给出更具体的提示
         if (error.message.includes("Failed to fetch")) {
