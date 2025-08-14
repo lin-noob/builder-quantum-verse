@@ -47,7 +47,7 @@ export default function UserDetail() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-gray-900 font-medium mb-2">用户未找到</p>
+          <p className="text-gray-900 font-medium mb-2">用户未找���</p>
           <p className="text-gray-600 mb-4">指定的用户ID不存在</p>
           <Link to="/users" className="text-blue-600 hover:text-blue-800">
             返回用户列表
@@ -378,7 +378,7 @@ export default function UserDetail() {
                                 <div className="mt-4 space-y-3">
                                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 text-sm">
                                     <div>
-                                      <strong>操作���统:</strong> {session.os}
+                                      <strong>操作系统:</strong> {session.os}
                                     </div>
                                     <div>
                                       <strong>浏览器:</strong> {session.browser}
