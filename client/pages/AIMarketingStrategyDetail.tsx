@@ -163,7 +163,7 @@ export default function AIMarketingStrategyDetail() {
           <Card className="bg-background border">
             <CardHeader>
               <CardTitle className="text-lg font-semibold text-foreground">
-                {strategy.executionMode === 'SEMI_AUTO' ? '基础弹窗配置' : '弹窗内容配置'}
+                {strategy.executionMode === 'SEMI_AUTO' ? '基���弹窗配置' : '弹窗内容配置'}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -258,7 +258,7 @@ export default function AIMarketingStrategyDetail() {
             <CardContent>
               <div className="space-y-3 text-sm text-muted-foreground">
                 <div className="flex items-start gap-3">
-                  <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center text-xs font-bold text-primary-foreground mt-0.5">
+                  <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center text-xs font-bold text-blue-700 mt-0.5">
                     1
                   </div>
                   <div>
@@ -266,9 +266,9 @@ export default function AIMarketingStrategyDetail() {
                     <div>实时监控用户行为，检测是否命中触发规则</div>
                   </div>
                 </div>
-                
+
                 <div className="flex items-start gap-3">
-                  <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center text-xs font-bold text-primary-foreground mt-0.5">
+                  <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center text-xs font-bold text-green-700 mt-0.5">
                     2
                   </div>
                   <div>
@@ -276,9 +276,9 @@ export default function AIMarketingStrategyDetail() {
                     <div>分析用户完整画像和历史行为数据</div>
                   </div>
                 </div>
-                
+
                 <div className="flex items-start gap-3">
-                  <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center text-xs font-bold text-primary-foreground mt-0.5">
+                  <div className="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center text-xs font-bold text-purple-700 mt-0.5">
                     3
                   </div>
                   <div>
@@ -286,9 +286,9 @@ export default function AIMarketingStrategyDetail() {
                     <div>基于业务用途自主选择最佳策略</div>
                   </div>
                 </div>
-                
+
                 <div className="flex items-start gap-3">
-                  <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center text-xs font-bold text-primary-foreground mt-0.5">
+                  <div className="w-6 h-6 bg-orange-100 rounded-full flex items-center justify-center text-xs font-bold text-orange-700 mt-0.5">
                     4
                   </div>
                   <div>
