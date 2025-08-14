@@ -179,7 +179,7 @@ export default function UserList() {
         console.warn("代理连通性测试失败，但仍然尝试API请求...");
       }
 
-      // ���据API文档，主要参数通过POST body传递，query参数可选
+      // 根据API文档，主要参数通过POST body传递，query参数可选
 
       const requestBody: OrderSummaryDto = {
         currentpage: currentPage,
