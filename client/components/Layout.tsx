@@ -58,7 +58,7 @@ export default function Layout({ children }: LayoutProps) {
     },
     {
       id: "fully-auto",
-      label: "全动模式",
+      label: "AI自动营销",
       path: "/ai-marketing/fully-auto",
       icon: <Bot className="h-5 w-5" />,
     },
@@ -70,7 +70,7 @@ export default function Layout({ children }: LayoutProps) {
     // },
     {
       id: "ai-marketing-strategies",
-      label: "营销��略",
+      label: "营销策略",
       path: "/ai-marketing-strategies",
       icon: <Zap className="h-5 w-5" />,
     },
@@ -209,7 +209,7 @@ export default function Layout({ children }: LayoutProps) {
             </div>
             {!isSidebarCollapsed && (
               <span className="text-xl font-bold text-gray-900 whitespace-nowrap overflow-hidden">
-                AI营销��台
+                AI���销��台
               </span>
             )}
           </div>
