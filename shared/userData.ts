@@ -366,7 +366,7 @@ export const mockUsers: User[] = [
         },
         billingAddress: {
           name: "腾讯科技（深圳）有限公司",
-          street: "深圳市南山区技园南区R4-B栋",
+          street: "深圳市南山��技园南区R4-B栋",
           city: "深圳",
           state: "广东省",
           postalCode: "518057",
@@ -514,7 +514,7 @@ export const mockUsers: User[] = [
         deviceType: "桌面端",
         os: "macOS 14",
         browser: "Chrome 120",
-        location: "杭州, 中国",
+        location: "杭州, ��国",
         ipAddress: "120.55.162.203",
         events: [
           {
@@ -1009,7 +1009,7 @@ export const mockUsers: User[] = [
         paymentMethod: "支付宝",
         items: [
           {
-            productName: "��版软件授权",
+            productName: "企业版软件授权",
             unitPrice: 1500.0,
             quantity: 1,
             totalPrice: 1500.0,
@@ -1261,7 +1261,7 @@ export interface OrderSummaryDto {
   keywords?: string;
   /** 排序类型(desc降��，asc升序) */
   order?: "desc" | "asc";
-  /** 每页记��数 */
+  /** 每页记录数 */
   pagesize?: number;
   /** 追加参数 */
   paramother?: Record<string, string>;
