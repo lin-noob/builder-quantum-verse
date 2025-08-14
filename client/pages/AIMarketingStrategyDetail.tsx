@@ -372,42 +372,6 @@ export default function AIMarketingStrategyDetail() {
             </CardContent>
           </Card>
 
-          {/* 策略状态说明 */}
-          <Card className="bg-white rounded-lg shadow-sm">
-            <CardHeader>
-              <CardTitle className="text-lg">策略状态说明</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3 text-sm">
-                {strategy.status === 'DRAFT' && (
-                  <div className="p-3 bg-gray-50 rounded-lg">
-                    <div className="font-medium text-gray-900 mb-1">草稿状态</div>
-                    <div className="text-gray-600">
-                      策略尚未启用，不会监控用户行为。您可以继续编辑配置或启用策略。
-                    </div>
-                  </div>
-                )}
-                
-                {strategy.status === 'ACTIVE' && (
-                  <div className="p-3 bg-green-50 rounded-lg">
-                    <div className="font-medium text-green-900 mb-1">生效中</div>
-                    <div className="text-green-700">
-                      策略正在7×24小时监控用户行为，一旦触发规则命中，AI将立即进行个性化决策。
-                    </div>
-                  </div>
-                )}
-                
-                {strategy.status === 'ARCHIVED' && (
-                  <div className="p-3 bg-orange-50 rounded-lg">
-                    <div className="font-medium text-orange-900 mb-1">已归档</div>
-                    <div className="text-orange-700">
-                      策略已停用，不再监控用户行为。历史数据保持可见，可随时重新启用。
-                    </div>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
 
           {/* AI工作原理说明 */}
           <Card className="bg-white rounded-lg shadow-sm">
