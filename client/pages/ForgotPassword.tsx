@@ -42,7 +42,7 @@ export default function ForgotPassword() {
     switch (name) {
       case "email":
         if (!value) return "邮箱为必填项";
-        if (value.length > 40) return "邮箱格式无效";
+        if (value.length > 40) return "���箱格式无效";
         if (!validateEmail(value)) return "邮箱格式无效";
         return null;
       case "confirmationCode":
@@ -117,7 +117,7 @@ export default function ForgotPassword() {
   };
 
   // 确认验证码
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     // 验证所有字段
     const newErrors: FormErrors = {};
     Object.keys(formData).forEach(key => {
@@ -130,10 +130,11 @@ export default function ForgotPassword() {
       return;
     }
 
-    // 模拟验证码检查
-    if (formData.confirmationCode !== "8764") {
+    const result = await authService.verifyCode(formData.email, formData.confirmationCode);
+
+    if (!result.success) {
       toast({
-        title: "验证码���效，请重试",
+        title: result.error,
         variant: "destructive"
       });
       return;
@@ -145,8 +146,8 @@ export default function ForgotPassword() {
     });
 
     setTimeout(() => {
-      navigate("/reset-password", { 
-        state: { email: formData.email, verified: true } 
+      navigate("/reset-password", {
+        state: { email: formData.email, verified: true }
       });
     }, 1000);
   };
