@@ -209,7 +209,7 @@ export default function Layout({ children }: LayoutProps) {
             </div>
             {!isSidebarCollapsed && (
               <span className="text-xl font-bold text-gray-900 whitespace-nowrap overflow-hidden">
-                AI营销��台
+                AI营销平台
               </span>
             )}
           </div>
