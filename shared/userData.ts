@@ -3,7 +3,7 @@ export interface User {
   id: string;
   /** CDP 用户ID（唯一） */
   cdpUserId: number;
-  /** 用户姓��� */
+  /** 用户姓名 */
   fullName: string;
   /** 联系方式（Email/手机号） */
   contactInfo: string;
@@ -46,7 +46,7 @@ export interface User {
   orders?: Order[]; // 兼容字段
   firstVisitTime?: string; // 兼容字段
   registrationTime?: string; // 兼容字段
-  firstPurchaseTime?: string; // 兼���字段
+  firstPurchaseTime?: string; // 兼容字段
   lastActiveTime?: string; // 兼容字段
   cartItems?: CartItem[]; // 兼容字段
   totalCartValue?: number; // 兼容字段
@@ -117,7 +117,7 @@ export interface CartItem {
   unitPrice: number;
   quantity: number;
   totalPrice: number;
-  addedTime: string; // 加入购���车时间
+  addedTime: string; // 加入购物车时间
   lastUpdated: string; // 最后更新时间
 }
 
@@ -359,7 +359,7 @@ export const mockUsers: User[] = [
           name: "张伟",
           street: "深圳市南山区科技园南区R4-B栋20层",
           city: "深圳",
-          state: "广东省",
+          state: "广东��",
           postalCode: "518057",
           country: "中国",
           phone: "13800138000",
@@ -593,7 +593,7 @@ export const mockUsers: User[] = [
       {
         orderNumber: "ORD-2024-015",
         orderDate: "2024-01-10",
-        status: "已完成",
+        status: "已��成",
         totalAmount: 4800.0,
         currency: "CNY",
         paymentMethod: "支付宝",
@@ -959,7 +959,7 @@ export const mockUsers: User[] = [
       {
         orderNumber: "ORD-2024-008",
         orderDate: "2024-01-08",
-        status: "已完成",
+        status: "已��成",
         totalAmount: 3650.0,
         currency: "CNY",
         paymentMethod: "微信支付",
@@ -1259,7 +1259,7 @@ export interface OrderSummaryDto {
   endDate?: string;
   /** 搜索关键词 */
   keywords?: string;
-  /** 排序类型(desc降序，asc升序) */
+  /** 排序类型(desc降��，asc升序) */
   order?: "desc" | "asc";
   /** 每页记��数 */
   pagesize?: number;
@@ -1320,7 +1320,7 @@ function generateNewFormatUser(id: number): User {
     "成都市",
     "武汉市",
     "西安市",
-    "南京市",
+    "南京��",
     "重庆市",
   ];
 
