@@ -3,7 +3,7 @@
  * 基于需求文档中的信息结构图和功能结构图
  */
 
-// 策��状态枚举
+// 策略状态枚举
 export type StrategyStatus = 'DRAFT' | 'ACTIVE' | 'ARCHIVED';
 
 // 执行模式枚举
@@ -85,18 +85,19 @@ export interface AIMarketingStrategy {
   // 核心字段
   strategyId: string;
   strategyName: string;
+  executionMode: ExecutionMode;
   actionType: ActionType;
   status: StrategyStatus;
   createdAt: string;
   updatedAt: string;
-  
+
   // AI策略配置
   triggerRule: TriggerRule;
-  actionPurpose: string;
-  
+  actionPurpose?: string; // 仅在半自动模式下必填
+
   // 基础动作参数
-  baseActionParameters: BaseActionParameters;
-  
+  actionParameters: BaseActionParameters; // 重命名为更准确的名称
+
   // 效果追踪字段
   totalExecutions: number;
   totalInteractions: number;
@@ -133,7 +134,7 @@ export const EVENT_DISPLAY_NAMES: Record<TriggerEventName, string> = {
   'add_to_cart': '加入购物车',
   'remove_from_cart': '从购物车移除',
   'start_checkout': '开始结账',
-  'purchase': '完成购买',
+  'purchase': '完成���买',
   'submit_form': '提交表单',
   'newsletter_subscribe': '订阅邮件'
 };
