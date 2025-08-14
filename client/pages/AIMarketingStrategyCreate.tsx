@@ -87,7 +87,7 @@ export default function AIMarketingStrategyCreate() {
   const commonPurposes = [
     '尽力挽留用户，促使其完成订单',
     '欢迎新用户，并根据其兴趣进行初步引导',
-    '帮��用户找到相关产品，提升用户体验',
+    '帮助用户找到相关产品，提升用户体验',
     '推荐个性化商品，提高转化率',
     '收集用户反馈，改善产品服务',
     '引导用户关注优惠活动',
@@ -145,7 +145,7 @@ export default function AIMarketingStrategyCreate() {
       title: isEditing ? "保存并启用成功" : "创建并启用成功",
       description: formData.executionMode === 'SEMI_AUTO' 
         ? `策略"${formData.strategyName}"已启用，AI开始监控用户行为`
-        : `策略"${formData.strategyName}"已启用，系统开始监控用户行为`
+        : `策略"${formData.strategyName}"已启用，系统开始监控用户���为`
     });
 
     navigate('/ai-marketing-strategies');
@@ -394,7 +394,7 @@ export default function AIMarketingStrategyCreate() {
     </Card>
   );
   
-  // 第二步：���发规则配置
+  // 第二步：触发规则配置
   const renderStep2 = () => (
     <Card>
       <CardHeader>
@@ -435,7 +435,7 @@ export default function AIMarketingStrategyCreate() {
             rows={4}
             value={formData.actionPurpose || ''}
             onChange={(e) => setFormData(prev => ({ ...prev, actionPurpose: e.target.value }))}
-            placeholder="例如：尽力挽留用户，促使其完成订单"
+            placeholder="例如：尽力挽留用户，促��其完成订单"
           />
         </div>
         
