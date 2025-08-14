@@ -92,7 +92,7 @@ export default function AIMarketingStrategyCreate() {
     navigate('/ai-marketing-strategies');
   };
 
-  // 保存并启���策略
+  // 保存并启用策略
   const handleSaveAndActivate = () => {
     if (!formData.strategyName?.trim()) {
       toast({
@@ -133,7 +133,7 @@ export default function AIMarketingStrategyCreate() {
                   <Settings className="h-4 w-4 text-purple-600" />
                 </div>
                 <div>
-                  <CardTitle className="text-base font-semibold">执行模式选择</CardTitle>
+                  <CardTitle className="text-base font-semibold">执行模��选择</CardTitle>
                   <p className="text-sm text-gray-500 mt-1">选择策略的执行方式：AI智能决策或固定内容执行</p>
                 </div>
               </div>
@@ -161,7 +161,7 @@ export default function AIMarketingStrategyCreate() {
                     <h3 className="font-medium text-gray-900">半自动模式</h3>
                   </div>
                   <p className="text-sm text-gray-600 ml-7">
-                    商家设定触发规则，AI根据用户画像自主决策生成个性化内容
+                    商家设定触发规则和业务用途，AI根据用户画像自主决策生成个性化内容
                   </p>
                 </div>
 
@@ -183,7 +183,7 @@ export default function AIMarketingStrategyCreate() {
                         <div className="w-2 h-2 bg-white rounded-full m-0.5"></div>
                       )}
                     </div>
-                    <h3 className="font-medium text-gray-900">全人工模式</h3>
+                    <h3 className="font-medium text-gray-900">全人工模��</h3>
                   </div>
                   <p className="text-sm text-gray-600 ml-7">
                     商家设定触发规则、业务用途和固定响应内容，系统严格按照预设指令执行
@@ -235,8 +235,8 @@ export default function AIMarketingStrategyCreate() {
                   <CardTitle className="text-base font-semibold">触发规则配置</CardTitle>
                   <p className="text-sm text-gray-500 mt-1">
                     {formData.executionMode === 'SEMI_AUTO'
-                      ? '定义AI需要监控的精��用户行为场景，作为策略启动的"守门员"'
-                      : '定义系统需要监控的精确用户行为场景，作为固定内容执行的触发条件'
+                      ? '定义AI需要监控的精确用户行为场景，作为策略启动的"守门员"'
+                      : '定义系��需要监控的精确用户行为场景，作为固定内容执行的触发条件'
                     }
                   </p>
                 </div>
@@ -313,7 +313,7 @@ export default function AIMarketingStrategyCreate() {
                   </CardTitle>
                   <p className="text-sm text-gray-500 mt-1">
                     {formData.executionMode === 'SEMI_AUTO'
-                      ? '设计一个基础的弹窗内容，AI将以此为参考进行个性化优化和安全降级'
+                      ? '设计一个基础的弹窗内容，AI将以���为参考进行个性化优化和安全降级'
                       : '设计固定的弹窗内容，系统将严格按照此内容展示给用户'
                     }
                   </p>
