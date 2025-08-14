@@ -244,7 +244,7 @@ export const mockUsers: User[] = [
         events: [
           {
             timestamp: "16:45:10",
-            eventType: "页��访问",
+            eventType: "页面访问",
             pageTitle: "技术支持",
             pageUrl: "/support",
             stayDuration: "3分20秒",
@@ -329,7 +329,7 @@ export const mockUsers: User[] = [
         },
         billingAddress: {
           name: "腾讯科技（深圳）有限公司",
-          street: "深圳市南山��科技园南区R4-B栋",
+          street: "深圳市南山区科技园南区R4-B栋",
           city: "深圳",
           state: "广东省",
           postalCode: "518057",
@@ -472,7 +472,7 @@ export const mockUsers: User[] = [
       {
         id: "session-lm-1",
         date: "2024-01-20 10:30",
-        summary: "产品演示和技术评估",
+        summary: "产品演示��技术评估",
         source: "社交媒体广告",
         deviceType: "桌面端",
         os: "macOS 14",
@@ -753,7 +753,7 @@ export const mockUsers: User[] = [
           {
             timestamp: "13:57:35",
             eventType: "页面访问",
-            pageTitle: "功能试用",
+            pageTitle: "功��试用",
             pageUrl: "/trial/features",
             stayDuration: "25分30秒",
             scrollDepth: "95%",
@@ -1085,7 +1085,7 @@ export const mockUsers: User[] = [
       {
         orderNumber: "ORD-2023-076",
         orderDate: "2023-09-30",
-        status: "已完成",
+        status: "已完���",
         totalAmount: 2200.0,
         currency: "CNY",
         paymentMethod: "支付宝",
@@ -1176,7 +1176,7 @@ export const mockUsers: User[] = [
       },
       {
         id: "cart-item-lt-2",
-        productName: "企业级安全���件",
+        productName: "企业级安全组件",
         unitPrice: 2200.0,
         quantity: 3,
         totalPrice: 6600.0,
@@ -1195,7 +1195,7 @@ export const mockUsers: User[] = [
   {
     cdpId: "f1g7h8i9-0d1e-7890",
     name: "赵敏",
-    company: "小米��技",
+    company: "小米科技",
     country: "中国",
     city: "北京",
     contact: "zhaomin@xiaomi.com",
