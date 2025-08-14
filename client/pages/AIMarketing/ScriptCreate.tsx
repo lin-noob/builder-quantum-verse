@@ -142,7 +142,7 @@ export default function ScriptCreate() {
     { value: '!=', label: '不等于' },
     { value: '>', label: '大于' },
     { value: '<', label: '小于' },
-    { value: '包含', label: '包含' },
+    { value: '包含', label: '���含' },
     { value: '不包含', label: '不包含' }
   ];
 
@@ -394,7 +394,7 @@ export default function ScriptCreate() {
                     <span className="font-medium text-blue-900">AI智能推荐</span>
                   </div>
                   <p className="text-sm text-blue-800 mt-2">
-                    AI将根据用户行为和偏好，自动推荐最相关���产品或服务。
+                    AI将根据用户行为和偏好，自动推荐最相关的产品或服务。
                   </p>
                 </div>
               </div>
