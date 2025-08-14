@@ -124,7 +124,7 @@ export default function AIMarketingStrategyCreate() {
 
     toast({
       title: isEditing ? "保存成功" : "创建成功",
-      description: `策略"${formData.strategyName}"已保存为���稿状态`
+      description: `策略"${formData.strategyName}"已保存为草稿状态`
     });
 
     navigate('/ai-marketing-strategies');
@@ -368,7 +368,7 @@ export default function AIMarketingStrategyCreate() {
                 <h3 className="font-medium text-foreground">半自动模式</h3>
               </div>
               <p className="text-sm text-muted-foreground ml-7">
-                商家设定触��规则和业务用途，AI根据用户画像自主决策生成个性化内容
+                商家设定触发规则和业务用途，AI根据用户画像自主决策生成个性化内容
               </p>
             </div>
 
@@ -550,7 +550,7 @@ export default function AIMarketingStrategyCreate() {
             placeholder={
               formData.executionMode === 'SEMI_AUTO' 
                 ? "例如：您的专属10%优惠券已生效，完成订单即可使用！"
-                : "例如：我们为您准备了特别优惠，点击查看详情。"
+                : "例如：我们为您准备了特���优惠，点击查看详情。"
             }
           />
           <p className="text-xs text-muted-foreground mt-2">
