@@ -87,7 +87,7 @@ export default function AIMarketingStrategyCreate() {
   const commonPurposes = [
     '尽力挽留用户，促使其完成订单',
     '欢迎新用户，并根据其兴趣进行初步引导',
-    '帮助用户找到相关产品，提升用户体验',
+    '帮��用户找到相关产品，提升用户体验',
     '推荐个性化商品，提高转化率',
     '收集用户反馈，改善产品服务',
     '引导用户关注优惠活动',
@@ -105,7 +105,7 @@ export default function AIMarketingStrategyCreate() {
       return;
     }
 
-    // ��自动模式需要检查业务用途
+    // 半自动模式需要检查业务用途
     if (formData.executionMode === 'SEMI_AUTO' && !formData.actionPurpose?.trim()) {
       toast({
         title: "请填写业务用途",
@@ -202,7 +202,7 @@ export default function AIMarketingStrategyCreate() {
       case 4:
         if (!formData.actionParameters?.title?.trim()) {
           toast({
-            title: "请填写弹窗标��",
+            title: "请填写弹窗标题",
             variant: "destructive"
           });
           return false;
@@ -308,7 +308,7 @@ export default function AIMarketingStrategyCreate() {
     <Card>
       <CardHeader>
         <CardTitle className="text-lg font-semibold">策略配置</CardTitle>
-        <p className="text-sm text-muted-foreground">选择执行模式并设置基本信息</p>
+        <p className="text-sm text-muted-foreground">设置基本信息并选择执行模式</p>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* 基本信息 */}
@@ -394,7 +394,7 @@ export default function AIMarketingStrategyCreate() {
     </Card>
   );
   
-  // 第二步：触发规则配置
+  // 第二步：���发规则配置
   const renderStep2 = () => (
     <Card>
       <CardHeader>
