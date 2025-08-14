@@ -53,7 +53,7 @@ export interface User {
   cartCreatedTime?: string; // 兼容字段
   lastCartUpdate?: string; // 兼容字段
   cartAbandonCount?: number; // 兼容字段
-  averageCartValue?: number; // 兼容字段
+  averageCartValue?: number; // ��容字段
 }
 
 export interface Session {
@@ -199,7 +199,7 @@ export const mockUsers: User[] = [
           },
           {
             timestamp: "14:32:45",
-            eventType: "页面访问",
+            eventType: "页面访���",
             pageTitle: "产品列表",
             pageUrl: "/products",
             stayDuration: "5分12秒",
@@ -510,7 +510,7 @@ export const mockUsers: User[] = [
         id: "session-lm-2",
         date: "2024-01-10 14:15",
         summary: "完成订单支付和账户设置",
-        source: "直接访问",
+        source: "直接访��",
         deviceType: "桌面端",
         os: "macOS 14",
         browser: "Chrome 120",
@@ -656,7 +656,7 @@ export const mockUsers: User[] = [
         status: "已完成",
         totalAmount: 4950.0,
         currency: "CNY",
-        paymentMethod: "企业转账",
+        paymentMethod: "企���转账",
         items: [
           {
             productName: "企业版软件授",
@@ -818,7 +818,7 @@ export const mockUsers: User[] = [
         events: [
           {
             timestamp: "15:20:30",
-            eventType: "页面访��",
+            eventType: "页面访问",
             pageTitle: "数据分析",
             pageUrl: "/analytics",
             stayDuration: "18分45秒",
@@ -1072,7 +1072,7 @@ export const mockUsers: User[] = [
         status: "已完成",
         totalAmount: 4800.0,
         currency: "CNY",
-        paymentMethod: "企业转账",
+        paymentMethod: "企���转账",
         items: [
           {
             productName: "准版软件授权",
@@ -1271,12 +1271,12 @@ export interface OrderSummaryDto {
   shopid?: string;
   /** 排序字段 */
   sort?: string;
-  /** 开始日期 */
+  /** ���始日期 */
   startDate?: string;
 }
 
 /**
- * 用户��像列表查询参数
+ * 用户画像列表查询参数
  */
 export interface UserProfileListParams {
   /** 每页数量 */
