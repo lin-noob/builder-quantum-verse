@@ -183,7 +183,7 @@ export default function AIMarketingStrategyCreate() {
                         <div className="w-2 h-2 bg-white rounded-full m-0.5"></div>
                       )}
                     </div>
-                    <h3 className="font-medium text-gray-900">��人工模式</h3>
+                    <h3 className="font-medium text-gray-900">全人工模式</h3>
                   </div>
                   <p className="text-sm text-gray-600 ml-7">
                     商家设定触发规则、业务用途和固定响应内容，系统严格按照预设指令执行
@@ -233,7 +233,12 @@ export default function AIMarketingStrategyCreate() {
                 </div>
                 <div>
                   <CardTitle className="text-base font-semibold">触发规则配置</CardTitle>
-                  <p className="text-sm text-gray-500 mt-1">定义AI需要监控的精确用户行为场景，作为策略启动的"守门员"</p>
+                  <p className="text-sm text-gray-500 mt-1">
+                    {formData.executionMode === 'SEMI_AUTO'
+                      ? '定义AI需要监控的精确用户行为场景，作为策略启动的"守门员"'
+                      : '定义系统需要监控的精确用户行为场景，作为固定内容执行的触发条件'
+                    }
+                  </p>
                 </div>
               </div>
             </CardHeader>
@@ -304,7 +309,7 @@ export default function AIMarketingStrategyCreate() {
                 </div>
                 <div>
                   <CardTitle className="text-base font-semibold">
-                    {formData.executionMode === 'SEMI_AUTO' ? '基础弹窗配置' : '弹窗内容配置'}
+                    {formData.executionMode === 'SEMI_AUTO' ? '基础弹窗配置' : '弹窗内容��置'}
                   </CardTitle>
                   <p className="text-sm text-gray-500 mt-1">
                     {formData.executionMode === 'SEMI_AUTO'
