@@ -3,11 +3,10 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { 
-  Settings, 
+import {
+  Settings,
   MessageSquare,
-  Target,
-  Zap
+  Target
 } from 'lucide-react';
 import {
   sampleStrategies,
@@ -65,7 +64,7 @@ export default function AIMarketingStrategyCreate() {
     '鼓励用户分享和推荐'
   ];
 
-  // 保存���略
+  // 保存策略
   const handleSave = () => {
     if (!formData.strategyName?.trim()) {
       toast({
@@ -110,7 +109,7 @@ export default function AIMarketingStrategyCreate() {
     }
 
     toast({
-      title: isEditing ? "保存并启用成功" : "创建并启用成功",
+      title: isEditing ? "保存并启用成功" : "创建并启���成功",
       description: `策略"${formData.strategyName}"已启用，开始监控用户行为`
     });
     
@@ -145,7 +144,7 @@ export default function AIMarketingStrategyCreate() {
                   <Input
                     value={formData.strategyName || ''}
                     onChange={(e) => setFormData(prev => ({ ...prev, strategyName: e.target.value }))}
-                    placeholder="例如���高价值购物车挽留策略"
+                    placeholder="例如：高价值购物车挽留策略"
                     className="text-base"
                   />
                   <p className="text-xs text-gray-500 mt-1">为这个AI营销策略起一个描述性的名称，便于管理</p>
@@ -194,7 +193,7 @@ export default function AIMarketingStrategyCreate() {
                   业务用途 <span className="text-red-500">*</span>
                 </label>
                 <p className="text-xs text-gray-500 mb-3">
-                  用自然语言清晰地描述这个策略希望达成的业务目标。AI将理解您的意图，在触发规则命中时自主选择最佳的个性化策略。
+                  用自然语言清晰地��述这个策略希望达成的业务目标。AI将理解您的意图，在触发规则命中时自主选择最佳的个性化策略。
                 </p>
                 <textarea
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
@@ -276,7 +275,7 @@ export default function AIMarketingStrategyCreate() {
                       ...prev,
                       baseActionParameters: { ...prev.baseActionParameters!, buttonUrl: e.target.value }
                     }))}
-                    placeholder="��如：/checkout"
+                    placeholder="例如：/checkout"
                     className="text-base font-mono text-sm"
                   />
                 </div>
