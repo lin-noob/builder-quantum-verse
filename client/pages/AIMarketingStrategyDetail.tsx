@@ -130,10 +130,12 @@ export default function AIMarketingStrategyDetail() {
                   <dt className="text-sm font-medium text-gray-600">更新时间</dt>
                   <dd className="mt-1 text-sm text-gray-900">{formatDate(strategy.updatedAt)}</dd>
                 </div>
+                {strategy.executionMode === 'FULL_MANUAL' && (
                 <div className="col-span-2">
                   <dt className="text-sm font-medium text-gray-600">业务用途</dt>
                   <dd className="mt-1 text-sm text-gray-900">{strategy.actionPurpose}</dd>
                 </div>
+                )}
               </dl>
             </CardContent>
           </Card>
@@ -265,7 +267,7 @@ export default function AIMarketingStrategyDetail() {
                     </div>
                     <div>
                       <div className="text-sm font-medium text-gray-600">互动次数</div>
-                      <div className="text-xs text-gray-500">用户点���互动数</div>
+                      <div className="text-xs text-gray-500">用户点击互动数</div>
                     </div>
                   </div>
                   <div className="text-right">
