@@ -112,21 +112,6 @@ export default function AIMarketingStrategyDetail() {
           >
             <ArrowLeft className="h-4 w-4" />
           </Button>
-          <div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold text-gray-900">{strategy.strategyName}</h1>
-              <Badge className={getStatusBadgeClass(strategy.status)}>
-                {STATUS_DISPLAY_NAMES[strategy.status]}
-              </Badge>
-              {strategy.status === 'ACTIVE' && (
-                <div className="flex items-center gap-1 text-green-600">
-                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                  <span className="text-xs">运行中</span>
-                </div>
-              )}
-            </div>
-            <p className="text-gray-600 mt-1">ID: {strategy.strategyId}</p>
-          </div>
         </div>
         
         <div className="flex items-center gap-2">
@@ -365,7 +350,7 @@ export default function AIMarketingStrategyDetail() {
             </CardContent>
           </Card>
 
-          {/* 策略状态说明 */}
+          {/* 策略状态��明 */}
           <Card className="bg-white rounded-lg shadow-sm">
             <CardHeader>
               <CardTitle className="text-lg">策略状态说明</CardTitle>
@@ -445,7 +430,7 @@ export default function AIMarketingStrategyDetail() {
                   </div>
                   <div>
                     <div className="font-medium text-gray-900">个性化执行</div>
-                    <div>生成个性化弹窗内容并执行</div>
+                    <div>���成个性化弹窗内容并执行</div>
                   </div>
                 </div>
               </div>
