@@ -59,7 +59,7 @@ export default function AIMarketingStrategies() {
 
   // 过滤、排序和分页后的数据
   const processedData = useMemo(() => {
-    // 1. 过滤数据
+    // 1. 过滤数���
     let filtered = sampleStrategies.filter(strategy => {
       const matchesSearch = filters.search === '' ||
         strategy.strategyName.toLowerCase().includes(filters.search.toLowerCase()) ||
@@ -102,7 +102,7 @@ export default function AIMarketingStrategies() {
       });
     }
 
-    // 3. 分页数据
+    // 3. 分页数���
     const totalCount = filtered.length;
     const totalPages = Math.ceil(totalCount / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
@@ -148,7 +148,7 @@ export default function AIMarketingStrategies() {
   // 查询函数（刷新数据）
   const renderStrategyList = () => {
     // 筛选逻辑已在 useMemo 中处理，这里可以添加刷新逻辑
-    setCurrentPage(1); // 重置到第一页
+    setCurrentPage(1); // 重置��第一页
     toast({
       title: "数据已刷新",
       description: `找到 ${processedData.totalCount} 条策略记录`
@@ -338,6 +338,11 @@ export default function AIMarketingStrategies() {
                 <td className="px-6 py-4">
                   <div className="font-medium text-gray-900">{strategy.strategyName}</div>
                   <div className="text-xs text-gray-500">ID: {strategy.strategyId}</div>
+                </td>
+                <td className="px-6 py-4">
+                  <Badge className={getExecutionModeBadgeClass(strategy.executionMode)}>
+                    {EXECUTION_MODE_DISPLAY_NAMES[strategy.executionMode]}
+                  </Badge>
                 </td>
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-2">
