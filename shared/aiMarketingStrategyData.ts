@@ -253,7 +253,7 @@ export const sampleStrategies: AIMarketingStrategy[] = [
   },
   {
     strategyId: 'strat_xyz123abc',
-    strategyName: '新用户���册欢迎策略',
+    strategyName: '新用户注册欢迎策略',
     executionMode: 'FULL_MANUAL',
     actionType: 'POPUP',
     status: 'ACTIVE',
