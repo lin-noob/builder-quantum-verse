@@ -324,7 +324,7 @@ export default function UserDetail() {
                     <div className="text-sm font-bold text-gray-700">
                       {user.lastActiveTime}
                     </div>
-                    <div className="text-xs text-gray-600">最���活跃时间</div>
+                    <div className="text-xs text-gray-600">最后活跃时间</div>
                   </div>
                 </div>
               </div>
@@ -378,7 +378,7 @@ export default function UserDetail() {
                                 <div className="mt-4 space-y-3">
                                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 text-sm">
                                     <div>
-                                      <strong>操作系统:</strong> {session.os}
+                                      <strong>操作���统:</strong> {session.os}
                                     </div>
                                     <div>
                                       <strong>浏览器:</strong> {session.browser}
@@ -668,7 +668,7 @@ export default function UserDetail() {
                               <div className="text-sm text-gray-700 order-2 sm:order-1">
                                 正在显示 {startOrderIndex + 1} -{" "}
                                 {Math.min(endOrderIndex, user.orders.length)}{" "}
-                                ��，共 {user.orders.length} 条订单
+                                条，共 {user.orders.length} 条订单
                               </div>
                               <div className="flex items-center gap-2 order-1 sm:order-2">
                                 <Button
