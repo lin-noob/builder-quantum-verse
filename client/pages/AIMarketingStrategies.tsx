@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Search, ArrowUpDown, ArrowUp, ArrowDown, Plus, RotateCcw } from "lucide-react";
 import {
   sampleStrategies,
@@ -145,7 +144,7 @@ export default function AIMarketingStrategies() {
 
   // 查询函数（刷新数据）
   const renderStrategyList = () => {
-    // 筛选逻辑已在 useMemo 中处理，这里可以添加刷新逻辑
+    // 筛选逻辑已在 useMemo 中处理，这里可以添加���新逻辑
     setCurrentPage(1); // 重置到第一页
     toast({
       title: "数据已刷新",
@@ -344,7 +343,7 @@ export default function AIMarketingStrategies() {
                   onClick={() => handleSort('updatedAt')}
                 >
                   <div className="flex items-center gap-2">
-                    ���后更新
+                    最后更新
                     {getSortIcon('updatedAt')}
                   </div>
                 </th>
