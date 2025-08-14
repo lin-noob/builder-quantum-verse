@@ -15,7 +15,7 @@ export type ActionType = 'POPUP';
 // 触发器类型枚举
 export type TriggerType = 'REAL_TIME';
 
-// 比较操作符枚举
+// 比较操作符枚���
 export type ComparisonOperator = '=' | '!=' | 'CONTAINS' | 'NOT_CONTAINS' | '>' | '<';
 
 // 触发事件枚举
@@ -122,7 +122,7 @@ export const EVENT_FIELD_MAPPING: Record<TriggerEventName, FilterField[]> = {
   'newsletter_subscribe': []
 };
 
-// 事件显���名称映射
+// 事件显示名称映射
 export const EVENT_DISPLAY_NAMES: Record<TriggerEventName, string> = {
   'user_signup': '用户注册',
   'user_login': '用户登录',
@@ -300,7 +300,7 @@ export const sampleStrategies: AIMarketingStrategy[] = [
     actionPurpose: '帮助用户找到相关产品，提升用户体验',
     actionParameters: {
       title: '没找到合适的商品？',
-      bodyText: '让我们为您推荐一些热门商品，或联系客服获得帮助',
+      bodyText: '让我们为您推荐一些热门商品，或联系客��获得帮助',
       buttonText: '查看推荐',
       buttonUrl: '/recommendations'
     },
