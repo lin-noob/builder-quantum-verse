@@ -88,6 +88,14 @@ export default function AIMarketingStrategyDetail() {
                   <dd className="mt-1 text-sm text-gray-900 font-medium">{strategy.strategyName}</dd>
                 </div>
                 <div>
+                  <dt className="text-sm font-medium text-gray-600">执行模式</dt>
+                  <dd className="mt-1">
+                    <Badge className={getExecutionModeBadgeClass(strategy.executionMode)}>
+                      {EXECUTION_MODE_DISPLAY_NAMES[strategy.executionMode]}
+                    </Badge>
+                  </dd>
+                </div>
+                <div>
                   <dt className="text-sm font-medium text-gray-600">策略状态</dt>
                   <dd className="mt-1 flex items-center gap-2">
                     <Badge className={getStatusBadgeClass(strategy.status)}>
@@ -267,7 +275,7 @@ export default function AIMarketingStrategyDetail() {
                       <TrendingUp className="h-4 w-4 text-purple-600" />
                     </div>
                     <div>
-                      <div className="text-sm font-medium text-gray-600">转化数</div>
+                      <div className="text-sm font-medium text-gray-600">��化数</div>
                       <div className="text-xs text-gray-500">最终完成转化数</div>
                     </div>
                   </div>
