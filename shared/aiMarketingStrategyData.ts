@@ -299,7 +299,7 @@ export const sampleStrategies: AIMarketingStrategy[] = [
     },
     actionPurpose: '帮助用户找到相关产品，提升用户体验',
     actionParameters: {
-      title: '没找到合适的商品��',
+      title: '没找到合适的商品？',
       bodyText: '让我们为您推荐一些热门商品，或联系客服获得帮助',
       buttonText: '查看推荐',
       buttonUrl: '/recommendations'
