@@ -232,7 +232,7 @@ export default function AIMarketingStrategies() {
   };
 
   return (
-    <div className="p-6 space-y-6 bg-background min-h-full">
+    <div className="p-6 space-y-6 bg-gray-50 min-h-full">
 
       {/* 搜索和筛选卡片 */}
       <Card className="p-6 bg-background border">
