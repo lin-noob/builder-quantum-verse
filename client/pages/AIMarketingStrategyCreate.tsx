@@ -92,7 +92,7 @@ export default function AIMarketingStrategyCreate() {
     navigate('/ai-marketing-strategies');
   };
 
-  // 保存并启用策略
+  // 保存并启���策略
   const handleSaveAndActivate = () => {
     if (!formData.strategyName?.trim()) {
       toast({
@@ -235,7 +235,7 @@ export default function AIMarketingStrategyCreate() {
                   <CardTitle className="text-base font-semibold">触发规则配置</CardTitle>
                   <p className="text-sm text-gray-500 mt-1">
                     {formData.executionMode === 'SEMI_AUTO'
-                      ? '定义AI需要监控的精确用户行为场景，作为策略启动的"守门员"'
+                      ? '定义AI需要监控的精��用户行为场景，作为策略启动的"守门员"'
                       : '定义系统需要监控的精确用户行为场景，作为固定内容执行的触发条件'
                     }
                   </p>
@@ -381,7 +381,10 @@ export default function AIMarketingStrategyCreate() {
                   placeholder="例如：您的专属10%优惠券已生效，完成订单即可使用！"
                 />
                 <p className="text-xs text-gray-500 mt-2">
-                  AI将基于用户画像和行为数据，对这个基础内容进行个性化改写和优化
+                  {formData.executionMode === 'SEMI_AUTO'
+                    ? 'AI将基于用户画像和行为数据，对这个基础内容进行个性化改写和优化'
+                    : '系统将严格按照此内容展示给用户，不会进行任何修改'
+                  }
                 </p>
               </div>
             </CardContent>
