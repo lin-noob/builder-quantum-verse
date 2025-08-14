@@ -50,13 +50,14 @@ export default function TabManager() {
     "/users": "用户画像",
     "/users2": "用户画像2.0",
     "/response-actions": "响应动作库",
-    "/ai-marketing/monitoring-center": "AI营销 - 监控中心",
-    "/ai-marketing/fully-auto": "AI营销 - 全自动模式",
-    "/ai-marketing/semi-auto": "AI营销 - 半自动模式",
-    "/ai-marketing/semi-auto/create": "AI营销 - 创建剧本",
-    "/ai-marketing/strategy-goals": "AI营销 - 战略与目标",
-    "/ai-marketing/live-monitoring": "AI营销 - 实时监控",
-    "/ai-marketing/performance-analytics": "AI营销 - 效果分析",
+    "/ai-marketing-strategies": "AI营销策略",
+    "/ai-marketing/monitoring-center": "AI自动营销 - 监控中心",
+    "/ai-marketing/fully-auto": "AI自动营销 - 全自动模式",
+    "/ai-marketing/semi-auto": "AI自动营销 - 半自动模式",
+    "/ai-marketing/semi-auto/create": "AI自动营销 - 创建剧本",
+    "/ai-marketing/strategy-goals": "AI自动营销 - 战略与目标",
+    "/ai-marketing/live-monitoring": "AI自动营销 - 实时监控",
+    "/ai-marketing/performance-analytics": "AI自动营销 - 效果分析",
   };
 
   // 检查滚动状态
@@ -105,7 +106,7 @@ export default function TabManager() {
           title = "用户详情";
         } else if (currentPath.includes("/response-actions/")) {
           if (currentPath.includes("/create")) {
-            title = "创建响应动作";
+            title = "创��响应动作";
           } else if (currentPath.includes("/edit/")) {
             title = "编辑响应动作";
           } else {
