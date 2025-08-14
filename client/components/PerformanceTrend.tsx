@@ -184,6 +184,12 @@ export default function PerformanceTrend({
                       type="number"
                       domain={['dataMin', 'dataMax']}
                       allowDataOverflow={false}
+                      hide={false}
+                      tickCount={5}
+                      minTickGap={5}
+                      mirror={false}
+                      reversed={false}
+                      includeHidden={false}
                     />
                   );
                 });
