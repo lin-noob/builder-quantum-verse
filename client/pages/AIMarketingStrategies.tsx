@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, MoreVertical, ArrowUpDown, ArrowUp, ArrowDown, Power, PowerOff } from "lucide-react";
+import { Plus, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import {
   sampleStrategies,
   AIMarketingStrategy,
@@ -55,7 +55,7 @@ export default function AIMarketingStrategies() {
   // 下拉菜单状态
   const [dropdownOpen, setDropdownOpen] = useState<string | null>(null);
 
-  // 过滤、排序和分页后的数据
+  // 过���、排序和分页后的数据
   const processedData = useMemo(() => {
     // 1. 过滤数据
     let filtered = sampleStrategies.filter(strategy => {
@@ -145,7 +145,7 @@ export default function AIMarketingStrategies() {
 
   // 查询函数（刷新数据）
   const renderStrategyList = () => {
-    // 筛选逻辑已在 useMemo 中处理，这里可以添加刷新逻辑
+    // 筛选逻���已在 useMemo 中处理，这里可以添加刷新逻辑
     setCurrentPage(1); // 重置到第一页
     toast({
       title: "数据已刷新",
@@ -188,7 +188,7 @@ export default function AIMarketingStrategies() {
     switch (operation) {
       case 'delete':
         toast({
-          title: "删除成功",
+          title: "删��成功",
           description: `策略"${strategy.strategyName}"已删除`
         });
         break;
