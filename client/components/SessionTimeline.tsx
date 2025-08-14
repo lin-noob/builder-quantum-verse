@@ -322,7 +322,7 @@ export default function SessionTimeline() {
         style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
       >
         <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col">
-          {/* ��窗头部 */}
+          {/* 弹窗头部 */}
           <div className="flex justify-between items-center p-4 border-b border-slate-200">
             <h3 className="text-lg font-semibold text-slate-900">会话详情</h3>
             <button
