@@ -145,7 +145,7 @@ export default function AIMarketingStrategyCreate() {
       title: isEditing ? "保存并启用成功" : "创建并启用成功",
       description: formData.executionMode === 'SEMI_AUTO' 
         ? `策略"${formData.strategyName}"已启用，AI开始监控用户行为`
-        : `策略"${formData.strategyName}"已启用，系统开始监控用户���为`
+        : `策略"${formData.strategyName}"已启用，系统开始监控用户行为`
     });
 
     navigate('/ai-marketing-strategies');
@@ -192,7 +192,7 @@ export default function AIMarketingStrategyCreate() {
       case 3:
         if (formData.executionMode === 'SEMI_AUTO' && !formData.actionPurpose?.trim()) {
           toast({
-            title: "请填写业务用途",
+            title: "��填写业务用途",
             variant: "destructive"
           });
           return false;
@@ -327,7 +327,7 @@ export default function AIMarketingStrategyCreate() {
               />
               <p className="text-xs text-muted-foreground mt-2">
                 {formData.executionMode === 'SEMI_AUTO'
-                  ? '为这个AI营销策略起一个描述性的名称，便于管理'
+                  ? '为这个营销策略起一个描述性的名称，便于管理'
                   : '为这个营销策略起一个描述性的名称，便于管理'
                 }
               </p>
@@ -428,14 +428,14 @@ export default function AIMarketingStrategyCreate() {
             业务用途 <span className="text-destructive">*</span>
           </label>
           <p className="text-xs text-muted-foreground mb-3">
-            用自然语言清晰地描述这个策略希望达成的业务目标。AI将理解您的意图，在触发规则命中时自主选择最佳的个性化策略。
+            用自然语言清晰地描述这个策略希望达成的业务目标。AI将理解您的意图，在触发规则命中时自主选择最佳���个性化策略。
           </p>
           <textarea
             className="w-full px-3 py-2 border border-border rounded-md resize-none focus:ring-2 focus:ring-ring focus:border-ring text-sm"
             rows={4}
             value={formData.actionPurpose || ''}
             onChange={(e) => setFormData(prev => ({ ...prev, actionPurpose: e.target.value }))}
-            placeholder="例如：尽力挽留用户，促��其完成订单"
+            placeholder="例如：尽力挽留用户，促使其完成订单"
           />
         </div>
         
