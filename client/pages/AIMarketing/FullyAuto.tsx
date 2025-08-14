@@ -145,7 +145,7 @@ export default function FullyAuto() {
               AI自动化目标用户
             </CardTitle>
             <p className="text-sm text-gray-600">
-              通过设置筛选规则来精确定义AI自动营销的目标用户群体。只有符合所有筛���条件的用户才会被AI系统进行自动营销干预。
+              通过设置筛选规则来精确定义AI自动营销的目标用户群体。只有符合所有筛选条件的用户才会被AI系统进行自动营销干预。
             </p>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -212,7 +212,7 @@ export default function FullyAuto() {
                         <Input
                           value={newRule.value}
                           onChange={(e) => setNewRule(prev => ({ ...prev, value: e.target.value }))}
-                          placeholder="输入筛选值（如：1000、VIP、30等）"
+                          placeholder="输入��选值（如：1000、VIP、30等）"
                         />
                       </div>
                     </div>
