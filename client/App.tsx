@@ -113,7 +113,7 @@ const App = () => (
             path="/ai-marketing-strategies/:id"
             element={
               <Layout>
-                <ResponseActionDetail />
+                <AIMarketingStrategyDetail />
               </Layout>
             }
           />
