@@ -22,7 +22,7 @@ export interface UserProfileListItem {
   /** 首次访问时间 - ISO格式时间字符串 */
   firstVisitTime: string;
 
-  /** 注册时间 - ISO格��时间字符串 */
+  /** 注册时间 - ISO格式时间字符串 */
   registrationTime: string;
 
   /** 首次购买时间 - ISO格式时间字符串 */
@@ -195,7 +195,7 @@ export interface SortConfig {
  * 数据验证规则
  */
 export const VALIDATION_RULES = {
-  /** CDP ID格式验证 - UUID���式 */
+  /** CDP ID格式验证 - UUID格式 */
   cdpId: /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i,
 
   /** 邮箱格式验证 */
@@ -246,7 +246,7 @@ export interface ErrorInfo {
  * API响应基础结构
  */
 export interface ApiResponse<T = any> {
-  /** 响��状态码 */
+  /** 响应状态码 */
   code: number;
 
   /** 响应消息 */
