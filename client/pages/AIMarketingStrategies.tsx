@@ -367,7 +367,7 @@ export default function AIMarketingStrategies() {
                 </td>
                 <td className="px-6 py-4">
                   <div className="text-sm text-gray-600 max-w-xs truncate" title={strategy.actionPurpose || '-'}>
-                    {strategy.executionMode === 'FULL_MANUAL' ? strategy.actionPurpose : '-'}
+                    {strategy.executionMode === 'SEMI_AUTO' ? strategy.actionPurpose : '-'}
                   </div>
                 </td>
                 <td className="px-6 py-4">
