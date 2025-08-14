@@ -432,8 +432,23 @@ export default function UserDetail2() {
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={mockActivityData}>
                       <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="date" />
-                      <YAxis />
+                      <XAxis
+                        dataKey="date"
+                        hide={false}
+                        tickCount={5}
+                        minTickGap={5}
+                        mirror={false}
+                        reversed={false}
+                        includeHidden={false}
+                      />
+                      <YAxis
+                        hide={false}
+                        tickCount={5}
+                        minTickGap={5}
+                        mirror={false}
+                        reversed={false}
+                        includeHidden={false}
+                      />
                       <Tooltip />
                       <Line
                         type="monotone"
