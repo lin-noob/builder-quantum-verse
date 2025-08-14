@@ -246,7 +246,7 @@ export default function UserList() {
 
           if (retries < 0) {
             console.error("所有重试尝试都失败，抛出最终错误");
-            throw error; // ��试用完后抛出错误
+            throw error; // ��试���完后抛出错误
           }
 
           console.log(`等待2秒后进行重试...`);
@@ -269,7 +269,7 @@ export default function UserList() {
           setTotalCount(0);
         }
       } else {
-        console.log("响应���没有data字段");
+        console.log("响应中没有data字段");
         setUsers([]);
         setTotalCount(0);
       }
