@@ -150,6 +150,13 @@ class AuthService {
 
       this.verificationCodes.set(email, { code, expiresAt, type });
 
+      // 发送邮件
+      if (type === 'register') {
+        await emailService.sendRegistrationEmail(email, code);
+      } else {
+        await emailService.sendPasswordResetEmail(email, code);
+      }
+
       return { success: true };
     } catch (error) {
       return { success: false, error: "发送验证码失败，请重试" };
@@ -219,7 +226,7 @@ class AuthService {
     return this.isAuthenticated || !!localStorage.getItem('auth_token');
   }
 
-  // 检查邮箱是否存在
+  // 检查邮箱是否���在
   checkEmailExists(email: string): boolean {
     return this.users.some(u => u.email === email);
   }
