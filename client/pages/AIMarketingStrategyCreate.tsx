@@ -305,14 +305,15 @@ export default function AIMarketingStrategyCreate() {
   
   // 第一步：模式选择和基本信息
   const renderStep1 = () => (
-    <div className="space-y-6">
-      {/* 执行模式选择 */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg font-semibold">执行模式选择</CardTitle>
-          <p className="text-sm text-muted-foreground">选择策略的执行方式：AI智能决策或固定内容执行</p>
-        </CardHeader>
-        <CardContent className="space-y-4">
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-lg font-semibold">策略配置</CardTitle>
+        <p className="text-sm text-muted-foreground">选择执行模式并设置基本信息</p>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        {/* 执行模式选择 */}
+        <div>
+          <h4 className="text-sm font-medium text-foreground mb-3">执行模式</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div
               className={`p-4 border rounded-lg cursor-pointer transition-all ${
@@ -364,16 +365,11 @@ export default function AIMarketingStrategyCreate() {
               </p>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
 
-      {/* 基本信息 */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg font-semibold">基本信息</CardTitle>
-          <p className="text-sm text-muted-foreground">设置策略的基本属性和标识信息</p>
-        </CardHeader>
-        <CardContent>
+        {/* 基本信息 */}
+        <div>
+          <h4 className="text-sm font-medium text-foreground mb-3">基本信息</h4>
           <div className="max-w-xl">
             <div>
               <label className="block text-sm font-medium text-foreground mb-2">
@@ -386,16 +382,16 @@ export default function AIMarketingStrategyCreate() {
                 className="text-sm"
               />
               <p className="text-xs text-muted-foreground mt-2">
-                {formData.executionMode === 'SEMI_AUTO' 
+                {formData.executionMode === 'SEMI_AUTO'
                   ? '为这个AI营销策略起一个描述性的名称，便于管理'
                   : '为这个营销策略起一个描述性的名称，便于管理'
                 }
               </p>
             </div>
           </div>
-        </CardContent>
-      </Card>
-    </div>
+        </div>
+      </CardContent>
+    </Card>
   );
   
   // 第二步：触发规则配置
@@ -432,7 +428,7 @@ export default function AIMarketingStrategyCreate() {
             业务用途 <span className="text-destructive">*</span>
           </label>
           <p className="text-xs text-muted-foreground mb-3">
-            用自然语言清晰地描述这个策略希望达成的业务目标。AI将理解您的意图，在触发规则命中时自主选择最佳的个性化���略。
+            用自然语言清晰地描述这个策略希望达成的业务目标。AI将理解您的意图，在触发规则命中时自主选择最佳的个性化策略。
           </p>
           <textarea
             className="w-full px-3 py-2 border border-border rounded-md resize-none focus:ring-2 focus:ring-ring focus:border-ring text-sm"
@@ -546,7 +542,7 @@ export default function AIMarketingStrategyCreate() {
             placeholder={
               formData.executionMode === 'SEMI_AUTO' 
                 ? "例如：您的专属10%优惠券已生效，完成订单即可使用！"
-                : "例如：我们为您准备了特别优惠，点击查看详情。"
+                : "例如：我们为您准备了特别优���，点击查看详情。"
             }
           />
           <p className="text-xs text-muted-foreground mt-2">
