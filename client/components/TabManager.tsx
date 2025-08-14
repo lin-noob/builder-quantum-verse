@@ -106,14 +106,24 @@ export default function TabManager() {
           title = "用户详情";
         } else if (currentPath.includes("/response-actions/")) {
           if (currentPath.includes("/create")) {
-            title = "创��响应动作";
+            title = "创建响应动作";
           } else if (currentPath.includes("/edit/")) {
             title = "编辑响应动作";
           } else {
             title = "响应动作详情";
           }
+        } else if (currentPath.includes("/ai-marketing-strategies/")) {
+          if (currentPath.includes("/create")) {
+            title = "创建AI营销策略";
+          } else if (currentPath.includes("/edit/")) {
+            title = "编辑AI营销策略";
+          } else {
+            title = "AI营销策略详情";
+          }
         } else if (currentPath.includes("/response-actions")) {
           title = "响应动作库";
+        } else if (currentPath.includes("/ai-marketing-strategies")) {
+          title = "AI营销策略";
         } else {
           // 默认使用路径最后一部分作为标题
           const pathParts = currentPath.split("/").filter(Boolean);
