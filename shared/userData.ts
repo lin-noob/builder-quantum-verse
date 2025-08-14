@@ -144,7 +144,7 @@ export const mockUsers: User[] = [
       {
         id: "session-1",
         date: "2024-01-22 09:15",
-        summary: "查看新产品发布和价格对比",
+        summary: "查���新产品发布和价格对比",
         source: "邮件链接",
         deviceType: "桌面端",
         os: "Windows 11",
@@ -226,7 +226,7 @@ export const mockUsers: User[] = [
             eventType: "页面访问",
             pageTitle: "结算页面",
             pageUrl: "/checkout",
-            stayDuration: "5分20秒",
+            stayDuration: "5分20��",
             scrollDepth: "100%",
           },
         ],
@@ -271,7 +271,7 @@ export const mockUsers: User[] = [
       {
         id: "session-4",
         date: "2024-01-08 11:20",
-        summary: "账户管理和历史订单查看",
+        summary: "���户管理和历史订单查看",
         source: "直接访问",
         deviceType: "桌面端",
         os: "Windows 11",
@@ -329,7 +329,7 @@ export const mockUsers: User[] = [
         },
         billingAddress: {
           name: "腾讯科技（深圳）有限公司",
-          street: "深圳市南山区科技园南��R4-B栋",
+          street: "深圳市南山区科技园南区R4-B栋",
           city: "深圳",
           state: "广东省",
           postalCode: "518057",
@@ -357,7 +357,7 @@ export const mockUsers: User[] = [
         paymentMethod: "支付宝",
         shippingAddress: {
           name: "张伟",
-          street: "深圳市南山区科技园南区R4-B栋20层",
+          street: "深圳市南山区科技园���区R4-B栋20层",
           city: "深圳",
           state: "广东��",
           postalCode: "518057",
@@ -472,7 +472,7 @@ export const mockUsers: User[] = [
       {
         id: "session-lm-1",
         date: "2024-01-20 10:30",
-        summary: "���品演示和技术评估",
+        summary: "产品演示和技术评估",
         source: "社交媒体广告",
         deviceType: "桌面端",
         os: "macOS 14",
@@ -499,7 +499,7 @@ export const mockUsers: User[] = [
           {
             timestamp: "10:54:35",
             eventType: "页面访问",
-            pageTitle: "案例研���",
+            pageTitle: "案例研究",
             pageUrl: "/case-studies",
             stayDuration: "12分20秒",
             scrollDepth: "85%",
@@ -1205,7 +1205,7 @@ export const mockUsers: User[] = [
     lastPurchaseDate: "2024-01-18",
     maxOrderAmount: 7200.0,
     averagePurchaseCycle: 30,
-    tags: ["企业用户", "技术导向"],
+    tags: ["企业用户", "���术导向"],
     firstVisitTime: "2023-07-12 10:20:15",
     registrationTime: "2023-07-15 14:35:45",
     firstPurchaseTime: "2023-07-22 16:50:30",
