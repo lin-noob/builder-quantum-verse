@@ -3,8 +3,11 @@
  * 基于需求文档中的信息结构图和功能结构图
  */
 
-// 策略状态枚举
+// 策��状态枚举
 export type StrategyStatus = 'DRAFT' | 'ACTIVE' | 'ARCHIVED';
+
+// 执行模式枚举
+export type ExecutionMode = 'SEMI_AUTO' | 'FULL_MANUAL';
 
 // 动作类型枚举
 export type ActionType = 'POPUP';
@@ -226,7 +229,7 @@ export const sampleStrategies: AIMarketingStrategy[] = [
     actionPurpose: '尽力挽留用户，促使其完成订单',
     baseActionParameters: {
       title: '请留步！',
-      bodyText: '您的专属10%优惠券已生效，完成���单即可使用！',
+      bodyText: '您的专属10%优惠券已生效，完成订单即可使用！',
       buttonText: '完成我的订单',
       buttonUrl: '/checkout'
     },
