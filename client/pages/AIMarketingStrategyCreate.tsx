@@ -55,7 +55,7 @@ export default function AIMarketingStrategyCreate() {
 
   // 常用业务���途示例
   const commonPurposes = [
-    '尽力挽留用户，促使其完成订单',
+    '尽力挽留用户，促使其完��订单',
     '欢迎新用户，并根据其兴趣进行初步引导',
     '帮助用户找到相关产品，提升用户体验',
     '推荐个性化商品，提高转化率',
@@ -125,7 +125,7 @@ export default function AIMarketingStrategyCreate() {
         <div className="space-y-6">
 
           {/* 流���步骤卡片 */}
-          {/* 执行模���选择 */}
+          {/* 执行模式选择 */}
           <Card className="shadow-sm border-0 ring-1 ring-gray-200">
             <CardHeader className="pb-4">
               <div className="flex items-center space-x-3">
@@ -161,7 +161,7 @@ export default function AIMarketingStrategyCreate() {
                     <h3 className="font-medium text-gray-900">半自动模式</h3>
                   </div>
                   <p className="text-sm text-gray-600 ml-7">
-                    商家设定触发规则，AI根据用户画像自主决策生成个性化内容
+                    商家设定触发规则，AI��据用户画像自主决策生成个性化内容
                   </p>
                 </div>
 
@@ -186,7 +186,7 @@ export default function AIMarketingStrategyCreate() {
                     <h3 className="font-medium text-gray-900">全人工模式</h3>
                   </div>
                   <p className="text-sm text-gray-600 ml-7">
-                    商家设定触发规则、业务用途和固定响应内容，系统严格按照预设指令执行
+                    商家设定触发规则、业务用途和固定响应内容，系统��格按照预设指令执行
                   </p>
                 </div>
               </div>
@@ -245,8 +245,8 @@ export default function AIMarketingStrategyCreate() {
             </CardContent>
           </Card>
 
-          {/* 业务用途配置 - 只在全人工模式下显示 */}
-          {formData.executionMode === 'FULL_MANUAL' && (
+          {/* 业务用途配置 - 只在半自动模式下显示 */}
+          {formData.executionMode === 'SEMI_AUTO' && (
           <Card className="shadow-sm border-0 ring-1 ring-gray-200">
             <CardHeader className="pb-4">
               <div className="flex items-center space-x-3">
@@ -373,7 +373,7 @@ export default function AIMarketingStrategyCreate() {
                     ...prev,
                     actionParameters: { ...prev.actionParameters!, bodyText: e.target.value }
                   }))}
-                  placeholder="例如：您的专属10%优惠券已生效，完成订单即可使用！"
+                  placeholder="例如：您的专属10%优惠券已���效，完成订单即可使用！"
                 />
                 <p className="text-xs text-gray-500 mt-2">
                   AI将基于用户画像和行为数据，对这个基础内容进行个性化改写和优化
