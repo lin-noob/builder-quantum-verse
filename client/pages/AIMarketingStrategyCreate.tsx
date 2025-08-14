@@ -23,6 +23,9 @@ export default function AIMarketingStrategyCreate() {
   const { toast } = useToast();
   const isEditing = Boolean(id);
 
+  // 当前步骤状态
+  const [currentStep, setCurrentStep] = useState(1);
+
   // 表单数据
   const [formData, setFormData] = useState<Partial<AIMarketingStrategy>>({
     strategyName: '',
@@ -401,7 +404,7 @@ export default function AIMarketingStrategyCreate() {
                 />
                 <p className="text-xs text-gray-500 mt-2">
                   {formData.executionMode === 'SEMI_AUTO'
-                    ? 'AI将基于用户画像和行为数据，对这个基础内容进行个性化改写和优化'
+                    ? 'AI将基于用户画像和行��数据，对这个基础内容进行个性化改写和优化'
                     : '系统将严格按照此内容展示给用户，不会进行任何修改'
                   }
                 </p>
