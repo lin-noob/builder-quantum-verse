@@ -87,7 +87,7 @@ export default function ResponseActionCreate() {
                   <Input
                     value={formData.name || ''}
                     onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                    placeholder="例如：新用��注册欢迎弹窗"
+                    placeholder="例如：新用户注册欢迎弹窗"
                     className="text-base"
                   />
                   <p className="text-xs text-gray-500 mt-1">为这个响应动作起一个描述性的名称</p>
@@ -199,7 +199,7 @@ export default function ResponseActionCreate() {
                     ...prev,
                     popup: { ...prev.popup!, content: e.target.value }
                   }))}
-                  placeholder="输入弹窗的详细内容，告诉用户您想传达的信息..."
+                  placeholder="输入弹窗的详细���容，告诉用户您想传达的信息..."
                 />
               </div>
             </CardContent>
