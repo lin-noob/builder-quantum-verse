@@ -313,7 +313,7 @@ export default function UserProfile() {
                     <p className="text-sm text-destructive">{passwordErrors.newPassword}</p>
                   )}
                   <div className="text-xs text-muted-foreground space-y-1">
-                    <p>• 密���长度应为6-32个字符</p>
+                    <p>• 密码长度应为6-32个字符</p>
                     <p>• 至少包含1个字母和1个数字</p>
                   </div>
                 </div>
