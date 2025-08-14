@@ -68,13 +68,13 @@ export default function AIMarketingStrategyCreate() {
     { 
       id: 3, 
       title: '业务用途', 
-      description: '设定AI任务指���',
+      description: '设定AI任务指令',
       isRequired: formData.executionMode === 'SEMI_AUTO'
     },
     { 
       id: 4, 
       title: '弹窗配置', 
-      description: '设计弹窗内容',
+      description: '设计弹窗��容',
       isRequired: true
     }
   ];
@@ -91,7 +91,7 @@ export default function AIMarketingStrategyCreate() {
     },
     {
       title: '欢迎新用户，并根据其兴趣进行初步引导',
-      content: '当系统检测到新用户首次访问网站或应用时，基于用户的注册信息、访问来源渠��、浏览设备类型等数据，智能展示个性化欢迎引导流程。通过分析用户点击的商品类别、停留时间、搜索��键词等行为数据，动态调整引导内容和产品推荐。为新用户提供专属新人礼包（���首单优惠券、会员积分奖励）、个性化商品推荐清单、平台核心功能介绍等，帮助用户快速了解平台价值并找到感兴趣的内容。同时收集用户偏好标签，为后续个性化营销奠定基础。'
+      content: '当系统检测到新用户首次访问网站或应用时，基于用户的注册信息、访问来源渠道、浏览设备类型等数据，智能展示个性化欢迎引导流程。通过分析用户点击的商品类别、停留时间、搜索关键词等行为数据，动态调整引导内容和产品推荐。为新用户提供专属新人礼包（如首单优惠券、会员积分奖励）、个性化商品推荐清单、平台核心功能介绍等，帮助用户快速了解平台价值并找到感兴趣的内容。同时收集用户偏好标签，为后续个性化营销奠定基础。'
     },
     {
       title: '帮助用户找到相关产品，提升用户体验',
@@ -99,7 +99,7 @@ export default function AIMarketingStrategyCreate() {
     },
     {
       title: '推荐个性化商品，提高转化率',
-      content: '基于用户的历史购买记录、浏览行为、收藏清单、搜索历史、个��档案信息等多维度数据，运用协同过滤���深度学习算法，在用户浏览商品详情页、购物车页面、或完成订单后，智��推荐高相关性的个性化商品。推荐策略包括：购买了A商品的用户还喜欢B商��、基于季节和节日的时令推荐、根据用户生活方式的场景化推荐、价格敏感度匹配的商品推荐等。通过A/B测试不断优化推荐算法和展示样式，提升点击率和转化率，增加用户客单价和复购频次。'
+      content: '基于用户的历史购买记录、浏览行为、收藏清单、搜索历史、个人档案信息等多维度数据，运用协同过滤���深度学习算法，在用户浏览商品详情页、购物车页面、或完成订单后，智��推荐高相关性的个性化商品。推荐策略包括：购买了A商品的用户还喜欢B商��、基于季节和节日的时令推荐、根据用户生活方式的场景化推荐、价格敏感度匹配的商品推荐等。通过A/B测试不断优化推荐算法和展示样式，提升点击率和转化率，增加用户客单价和复购频次。'
     }
   ];
 
@@ -368,7 +368,7 @@ export default function AIMarketingStrategyCreate() {
                 <h3 className="font-medium text-foreground">半自动模式</h3>
               </div>
               <p className="text-sm text-muted-foreground ml-7">
-                商家设定触发规则和业务用途，AI根据用户��像自主决策生成个性化内容
+                商家设定触发规则和业务用途，AI根据用户画像自主决策生成个性化内容
               </p>
             </div>
 
@@ -433,10 +433,10 @@ export default function AIMarketingStrategyCreate() {
       <CardContent className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">
-            业���用途 <span className="text-destructive">*</span>
+            业务用途 <span className="text-destructive">*</span>
           </label>
           <p className="text-xs text-muted-foreground mb-3">
-            用自然语言清晰地描述这个策略希望达成的业务目标。AI将理解您的意图，在触发规则命中时自主选择最佳的个性化策略。
+            用自然语言��晰地描述这个策略希望达成的业务目标。AI将理解您的意图，在触发规则命中时自主选择最佳的个性化策略。
           </p>
           <textarea
             className="w-full px-3 py-2 border border-border rounded-md resize-none focus:ring-2 focus:ring-ring focus:border-ring text-sm"
