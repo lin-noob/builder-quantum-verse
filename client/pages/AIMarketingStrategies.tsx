@@ -376,10 +376,10 @@ export default function AIMarketingStrategies() {
                     </button>
                     <div className="relative">
                       <button
-                        className="text-gray-600 hover:text-gray-800 p-1"
+                        className="text-gray-600 hover:text-gray-800 px-2 py-1 text-sm"
                         onClick={() => setDropdownOpen(dropdownOpen === strategy.strategyId ? null : strategy.strategyId)}
                       >
-                        <MoreVertical className="h-4 w-4" />
+                        ···
                       </button>
                       {dropdownOpen === strategy.strategyId && (
                         <div className="absolute right-0 top-6 bg-white border rounded-lg shadow-lg py-1 z-50 min-w-[120px]">
@@ -393,30 +393,27 @@ export default function AIMarketingStrategies() {
                           {/* 状态控制按钮 */}
                           {strategy.status === 'DRAFT' && (
                             <button
-                              className="flex items-center gap-2 w-full text-left px-3 py-1 text-sm text-green-600 hover:bg-gray-100"
+                              className="block w-full text-left px-3 py-1 text-sm text-green-600 hover:bg-gray-100"
                               onClick={() => handleStatusToggle(strategy.strategyId, strategy.status)}
                             >
-                              <Power className="h-3 w-3" />
                               启用策略
                             </button>
                           )}
                           
                           {strategy.status === 'ACTIVE' && (
                             <button
-                              className="flex items-center gap-2 w-full text-left px-3 py-1 text-sm text-orange-600 hover:bg-gray-100"
+                              className="block w-full text-left px-3 py-1 text-sm text-orange-600 hover:bg-gray-100"
                               onClick={() => handleStatusToggle(strategy.strategyId, strategy.status)}
                             >
-                              <PowerOff className="h-3 w-3" />
                               停用策略
                             </button>
                           )}
                           
                           {strategy.status === 'ARCHIVED' && (
                             <button
-                              className="flex items-center gap-2 w-full text-left px-3 py-1 text-sm text-green-600 hover:bg-gray-100"
+                              className="block w-full text-left px-3 py-1 text-sm text-green-600 hover:bg-gray-100"
                               onClick={() => handleStatusToggle(strategy.strategyId, strategy.status)}
                             >
-                              <Power className="h-3 w-3" />
                               重新启用
                             </button>
                           )}
