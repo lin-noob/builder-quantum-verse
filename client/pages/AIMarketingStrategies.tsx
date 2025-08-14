@@ -220,11 +220,6 @@ export default function AIMarketingStrategies() {
 
   return (
     <div className="p-6 space-y-6 bg-background min-h-full">
-      {/* 页面标题 */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-foreground">AI营销策略</h1>
-        <p className="text-muted-foreground mt-1">管理和配置AI营销策略</p>
-      </div>
 
       {/* 搜索和筛选卡片 */}
       <Card className="p-6 bg-background border">
@@ -316,7 +311,7 @@ export default function AIMarketingStrategies() {
                   onClick={() => handleSort('totalConversions')}
                 >
                   <div className="flex items-center gap-2">
-                    转化数
+                    转��数
                     {getSortIcon('totalConversions')}
                   </div>
                 </th>
@@ -355,7 +350,7 @@ export default function AIMarketingStrategies() {
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    <div className="text-sm text-muted-foreground max-w-xs truncate" title={strategy.actionPurpose || '-'}>
+                    <div className="text-sm text-muted-foreground max-w-32 truncate" title={strategy.actionPurpose || '-'}>
                       {strategy.executionMode === 'SEMI_AUTO' ? strategy.actionPurpose : '-'}
                     </div>
                   </td>
