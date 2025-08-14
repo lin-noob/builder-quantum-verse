@@ -96,7 +96,7 @@ const App = () => (
             path="/ai-marketing-strategies/create"
             element={
               <Layout>
-                <ResponseActionCreate />
+                <AIMarketingStrategyCreate />
               </Layout>
             }
           />
@@ -104,7 +104,7 @@ const App = () => (
             path="/ai-marketing-strategies/edit/:id"
             element={
               <Layout>
-                <ResponseActionCreate />
+                <AIMarketingStrategyCreate />
               </Layout>
             }
           />
