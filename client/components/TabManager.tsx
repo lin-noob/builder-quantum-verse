@@ -99,10 +99,10 @@ export default function TabManager() {
         })),
       );
     } else {
-      // 如果标签页不存在，创建新标签页
+      // 如果标签页不存��，创建新标签页
       let title = pathToTitle[currentPath as keyof typeof pathToTitle];
 
-      // ���果没有预定义标题，尝试从路径生成友好的标题
+      // 如果没有预定义标题，尝试从路径生成友好的标题
       if (!title) {
         if (currentPath.includes("/users/")) {
           title = "用户详情";
