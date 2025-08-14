@@ -368,7 +368,7 @@ export default function AIMarketingStrategyCreate() {
                 <h3 className="font-medium text-foreground">半自动模式</h3>
               </div>
               <p className="text-sm text-muted-foreground ml-7">
-                商家设定触发规则和业务用途，AI根据用户画像自主决策生成个性化内容
+                商家设定触发规则和业务用途，AI根据用户画像自主决���生成个性化内容
               </p>
             </div>
 
@@ -436,7 +436,7 @@ export default function AIMarketingStrategyCreate() {
             业务用途 <span className="text-destructive">*</span>
           </label>
           <p className="text-xs text-muted-foreground mb-3">
-            用自然语言清晰地描述这个策略希望达成的业务目标。AI将理解您的意图，在触发规则命中���自主选择最佳的个性化策略。
+            用自然语言清晰地描述这个策略希望达成的业务目标��AI将理解您的意图，在触发规则命中时自主选择最佳的个性化策略。
           </p>
           <textarea
             className="w-full px-3 py-2 border border-border rounded-md resize-none focus:ring-2 focus:ring-ring focus:border-ring text-sm"
@@ -514,7 +514,7 @@ export default function AIMarketingStrategyCreate() {
               }))}
               placeholder={
                 formData.executionMode === 'SEMI_AUTO' 
-                  ? "例如：完成我的��单"
+                  ? "例如：完成我的订单"
                   : "例如：查看详情"
               }
               className="text-sm"
