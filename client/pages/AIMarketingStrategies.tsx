@@ -176,7 +176,7 @@ export default function AIMarketingStrategies() {
     }
 
     toast({
-      title: `${actionText}���功`,
+      title: `${actionText}成功`,
       description: `策略"${strategy.strategyName}"已${actionText}`
     });
     setDropdownOpen(null);
@@ -202,10 +202,19 @@ export default function AIMarketingStrategies() {
   const getStatusBadgeClass = (status: StrategyStatus) => {
     const colorMap = {
       'DRAFT': 'bg-gray-100 text-gray-800',
-      'ACTIVE': 'bg-green-100 text-green-800', 
+      'ACTIVE': 'bg-green-100 text-green-800',
       'ARCHIVED': 'bg-orange-100 text-orange-800'
     };
     return colorMap[status];
+  };
+
+  // 获取执行模式颜色类
+  const getExecutionModeBadgeClass = (mode: string) => {
+    const colorMap = {
+      'SEMI_AUTO': 'bg-blue-100 text-blue-800',
+      'FULL_MANUAL': 'bg-green-100 text-green-800'
+    };
+    return colorMap[mode as keyof typeof colorMap] || 'bg-gray-100 text-gray-800';
   };
 
   // 格式化数字
