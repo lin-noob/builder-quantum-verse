@@ -86,7 +86,7 @@ export default function AIMarketingStrategyCreate() {
 
     toast({
       title: isEditing ? "保存成功" : "创建成功",
-      description: `策略"${formData.strategyName}"已保存为草稿状态`
+      description: `策略"${formData.strategyName}"已保存为草��状态`
     });
 
     navigate('/ai-marketing-strategies');
@@ -218,7 +218,12 @@ export default function AIMarketingStrategyCreate() {
                     placeholder="例如：高价值购物车挽留策略"
                     className="text-base"
                   />
-                  <p className="text-xs text-gray-500 mt-1">为这个AI营销策略起一个描述性的名称，便于管理</p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {formData.executionMode === 'SEMI_AUTO'
+                      ? '为这个AI营销策略起一个描述性的名称，便于管理'
+                      : '为这个营销策略起一个描述性的名称，便于管理'
+                    }
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -332,7 +337,11 @@ export default function AIMarketingStrategyCreate() {
                       ...prev,
                       actionParameters: { ...prev.actionParameters!, title: e.target.value }
                     }))}
-                    placeholder="例如：请留步！"
+                    placeholder={
+                      formData.executionMode === 'SEMI_AUTO'
+                        ? "例如：请留步！"
+                        : "例如：您有新消息！"
+                    }
                     className="text-base font-medium"
                   />
                 </div>
@@ -347,7 +356,11 @@ export default function AIMarketingStrategyCreate() {
                       ...prev,
                       actionParameters: { ...prev.actionParameters!, buttonText: e.target.value }
                     }))}
-                    placeholder="例如：完成我的订单"
+                    placeholder={
+                      formData.executionMode === 'SEMI_AUTO'
+                        ? "例如：完成我的订单"
+                        : "例如：查看详情"
+                    }
                     className="text-base"
                   />
                 </div>
@@ -378,7 +391,11 @@ export default function AIMarketingStrategyCreate() {
                     ...prev,
                     actionParameters: { ...prev.actionParameters!, bodyText: e.target.value }
                   }))}
-                  placeholder="例如：您的专属10%优惠券已生效，完成订单即可使用！"
+                  placeholder={
+                    formData.executionMode === 'SEMI_AUTO'
+                      ? "例如：您的专属10%优惠券已生效，完成订单即可使用！"
+                      : "例如：我们为您准备了特别优惠，点击查看详情。"
+                  }
                 />
                 <p className="text-xs text-gray-500 mt-2">
                   {formData.executionMode === 'SEMI_AUTO'
