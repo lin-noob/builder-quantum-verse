@@ -116,7 +116,7 @@ export default function PerformanceTrend({
     <Card className="bg-white border border-gray-200">
       <CardHeader>
         <CardTitle className="text-lg font-semibold text-gray-900">
-          业���走势
+          业绩走势
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -175,6 +175,9 @@ export default function PerformanceTrend({
                         formatValue(value, representativeMetricId)
                       }
                       width={70}
+                      type="number"
+                      domain={['dataMin', 'dataMax']}
+                      allowDataOverflow={false}
                     />
                   );
                 });
