@@ -51,11 +51,6 @@ export default function AIMarketingStrategyDetail() {
 
   return (
     <div className="p-6 space-y-6 bg-background min-h-full">
-      {/* 页面标题 */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-foreground">{strategy.strategyName}</h1>
-        <p className="text-muted-foreground mt-1">策略详情信息</p>
-      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* 左侧主要信息 */}
