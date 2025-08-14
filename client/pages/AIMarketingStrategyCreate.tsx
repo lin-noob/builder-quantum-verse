@@ -26,6 +26,7 @@ export default function AIMarketingStrategyCreate() {
   // 表单数据
   const [formData, setFormData] = useState<Partial<AIMarketingStrategy>>({
     strategyName: '',
+    executionMode: 'SEMI_AUTO',
     actionPurpose: '',
     triggerRule: {
       type: 'REAL_TIME',
@@ -34,7 +35,7 @@ export default function AIMarketingStrategyCreate() {
         conditions: []
       }
     },
-    baseActionParameters: {
+    actionParameters: {
       title: '',
       bodyText: '',
       buttonText: '',
@@ -109,7 +110,7 @@ export default function AIMarketingStrategyCreate() {
     }
 
     toast({
-      title: isEditing ? "保存并启用成功" : "创建并启���成功",
+      title: isEditing ? "保存并启用成功" : "创建并启用成功",
       description: `策略"${formData.strategyName}"已启用，开始监控用户行为`
     });
     
@@ -153,7 +154,7 @@ export default function AIMarketingStrategyCreate() {
             </CardContent>
           </Card>
 
-          {/* 触发规则配置 */}
+          {/* 触发规则��置 */}
           <Card className="shadow-sm border-0 ring-1 ring-gray-200">
             <CardHeader className="pb-4">
               <div className="flex items-center space-x-3">
@@ -193,14 +194,14 @@ export default function AIMarketingStrategyCreate() {
                   业务用途 <span className="text-red-500">*</span>
                 </label>
                 <p className="text-xs text-gray-500 mb-3">
-                  用自然语言清晰地��述这个策略希望达成的业务目标。AI将理解您的意图，在触发规则命中时自主选择最佳的个性化策略。
+                  用自然语言清晰地描述这个策略希望达成的业务目标。AI将理解您的意图，在触发规则命中时自主选择最佳的个性化策略。
                 </p>
                 <textarea
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
                   rows={4}
                   value={formData.actionPurpose || ''}
                   onChange={(e) => setFormData(prev => ({ ...prev, actionPurpose: e.target.value }))}
-                  placeholder="例如：尽���挽留用户，促使其完成订单"
+                  placeholder="例如：尽���挽留用户，促使其��成订单"
                 />
                 <div className="mt-4">
                   <p className="text-sm font-medium text-gray-700 mb-3">快速选择常用场景：</p>
@@ -311,7 +312,7 @@ export default function AIMarketingStrategyCreate() {
                   onClick={() => navigate('/ai-marketing-strategies')}
                   className="px-6"
                 >
-                  取消
+                  ��消
                 </Button>
                 <Button
                   variant="outline"
