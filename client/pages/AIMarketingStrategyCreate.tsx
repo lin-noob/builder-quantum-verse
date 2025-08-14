@@ -105,7 +105,7 @@ export default function AIMarketingStrategyCreate() {
       return;
     }
 
-    // 半自动模式需要检查业务用途
+    // ��自动模式需要检查业务用途
     if (formData.executionMode === 'SEMI_AUTO' && !formData.actionPurpose?.trim()) {
       toast({
         title: "请填写业务用途",
@@ -202,7 +202,7 @@ export default function AIMarketingStrategyCreate() {
       case 4:
         if (!formData.actionParameters?.title?.trim()) {
           toast({
-            title: "请填写弹窗标题",
+            title: "请填写弹窗标��",
             variant: "destructive"
           });
           return false;
@@ -311,6 +311,30 @@ export default function AIMarketingStrategyCreate() {
         <p className="text-sm text-muted-foreground">选择执行模式并设置基本信息</p>
       </CardHeader>
       <CardContent className="space-y-6">
+        {/* 基本信息 */}
+        <div>
+          <h4 className="text-sm font-medium text-foreground mb-3">基本信息</h4>
+          <div className="max-w-xl">
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-2">
+                策略名称 <span className="text-destructive">*</span>
+              </label>
+              <Input
+                value={formData.strategyName || ''}
+                onChange={(e) => setFormData(prev => ({ ...prev, strategyName: e.target.value }))}
+                placeholder="例如：高价值购物车挽留策略"
+                className="text-sm"
+              />
+              <p className="text-xs text-muted-foreground mt-2">
+                {formData.executionMode === 'SEMI_AUTO'
+                  ? '为这个AI营销策略起一个描述性的名称，便于管理'
+                  : '为这个营销策略起一个描述性的名称，便于管理'
+                }
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* 执行模式选择 */}
         <div>
           <h4 className="text-sm font-medium text-foreground mb-3">执行模式</h4>
@@ -362,30 +386,6 @@ export default function AIMarketingStrategyCreate() {
               </div>
               <p className="text-sm text-muted-foreground ml-7">
                 商家设定触发规则和固定响应内容，系统严格按照预设指令执行
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* 基本信息 */}
-        <div>
-          <h4 className="text-sm font-medium text-foreground mb-3">基本信息</h4>
-          <div className="max-w-xl">
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-2">
-                策略名称 <span className="text-destructive">*</span>
-              </label>
-              <Input
-                value={formData.strategyName || ''}
-                onChange={(e) => setFormData(prev => ({ ...prev, strategyName: e.target.value }))}
-                placeholder="例如：高价值购物车挽留策略"
-                className="text-sm"
-              />
-              <p className="text-xs text-muted-foreground mt-2">
-                {formData.executionMode === 'SEMI_AUTO'
-                  ? '为这个AI营销策略起一个描述性的名称，便于管理'
-                  : '为这个营销策略起一个描述性的名称，便于管理'
-                }
               </p>
             </div>
           </div>
@@ -542,7 +542,7 @@ export default function AIMarketingStrategyCreate() {
             placeholder={
               formData.executionMode === 'SEMI_AUTO' 
                 ? "例如：您的专属10%优惠券已生效，完成订单即可使用！"
-                : "例如：我们为您准备了特别优���，点击查看详情。"
+                : "例如：我们为您准备了特别优惠，点击查看详情。"
             }
           />
           <p className="text-xs text-muted-foreground mt-2">
