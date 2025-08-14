@@ -117,14 +117,38 @@ const App = () => (
               </Layout>
             }
           />
-          {/* 保持旧路由的兼容性 */}
+          {/* 原有的响应动作库路由 */}
           <Route
             path="/response-actions"
-            element={<Navigate to="/ai-marketing-strategies" replace />}
+            element={
+              <Layout>
+                <ResponseActions />
+              </Layout>
+            }
           />
           <Route
-            path="/response-actions/*"
-            element={<Navigate to="/ai-marketing-strategies" replace />}
+            path="/response-actions/create"
+            element={
+              <Layout>
+                <ResponseActionCreate />
+              </Layout>
+            }
+          />
+          <Route
+            path="/response-actions/edit/:id"
+            element={
+              <Layout>
+                <ResponseActionCreate />
+              </Layout>
+            }
+          />
+          <Route
+            path="/response-actions/:id"
+            element={
+              <Layout>
+                <ResponseActionDetail />
+              </Layout>
+            }
           />
           <Route
             path="/ai-marketing/monitoring-center"
