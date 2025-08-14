@@ -15,7 +15,7 @@ import UserList2 from "./pages/UserList2";
 import UserDetail from "./pages/UserDetail";
 import UserDetailNew from "./pages/UserDetail_New";
 import UserDetail2 from "./pages/UserDetail2";
-import ResponseActions from "./pages/ResponseActions";
+import AIMarketingStrategies from "./pages/AIMarketingStrategies";
 import ResponseActionDetail from "./pages/ResponseActionDetail";
 import ResponseActionCreate from "./pages/ResponseActionCreate";
 import MonitoringCenter from "./pages/AIMarketing/MonitoringCenter";
