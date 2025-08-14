@@ -87,7 +87,7 @@ export default function ResponseActionCreate() {
                   <Input
                     value={formData.name || ''}
                     onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                    placeholder="例��：新用户注册欢迎弹窗"
+                    placeholder="例如：新用��注册欢迎弹窗"
                     className="text-base"
                   />
                   <p className="text-xs text-gray-500 mt-1">为这个响应动作起一个描述性的名称</p>
@@ -109,7 +109,7 @@ export default function ResponseActionCreate() {
                   placeholder="描述此动作的具体用途和触发场景..."
                 />
                 <div className="mt-3">
-                  <p className="text-sm font-medium text-gray-700 mb-2">快速选择常用场景����</p>
+                  <p className="text-sm font-medium text-gray-700 mb-2">快速选择常用场景：</p>
                   <div className="flex flex-wrap gap-2">
                     {COMMON_PURPOSES.map((purpose, index) => (
                       <Button
