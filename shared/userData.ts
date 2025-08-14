@@ -19,7 +19,7 @@ export interface User {
   maxBuyTime: string;
   /** 最大订单金额（保留5位小数） */
   maxOrderAmount: number;
-  /** 总消费��额（保留5位小数） */
+  /** 总消费金额��保留5位小数） */
   totalOrders: number;
   /** 订单数量 */
   orderCount: number;
@@ -202,7 +202,7 @@ export const mockUsers: User[] = [
             eventType: "页面访问",
             pageTitle: "产品列表",
             pageUrl: "/products",
-            stayDuration: "5分12���",
+            stayDuration: "5分12秒",
             scrollDepth: "100%",
           },
           {
@@ -322,7 +322,7 @@ export const mockUsers: User[] = [
           name: "张伟",
           street: "深圳市南山区科技园南区R4-B栋20层",
           city: "深圳",
-          state: "��东省",
+          state: "广东省",
           postalCode: "518057",
           country: "中国",
           phone: "13800138000",
@@ -472,7 +472,7 @@ export const mockUsers: User[] = [
       {
         id: "session-lm-1",
         date: "2024-01-20 10:30",
-        summary: "产品演示���技术��估",
+        summary: "产品演示和技术����估",
         source: "社交媒体广告",
         deviceType: "桌面端",
         os: "macOS 14",
@@ -514,13 +514,13 @@ export const mockUsers: User[] = [
         deviceType: "桌面端",
         os: "macOS 14",
         browser: "Chrome 120",
-        location: "杭州, ��国",
+        location: "���州, ��国",
         ipAddress: "120.55.162.203",
         events: [
           {
             timestamp: "14:15:10",
             eventType: "页面访问",
-            pageTitle: "��录",
+            pageTitle: "登录",
             pageUrl: "/login",
             stayDuration: "1分30秒",
             scrollDepth: "50%",
@@ -1025,7 +1025,7 @@ export const mockUsers: User[] = [
       {
         orderNumber: "ORD-2023-145",
         orderDate: "2023-11-25",
-        status: "已完成",
+        status: "已��成",
         totalAmount: 3200.0,
         currency: "CNY",
         paymentMethod: "企业转账",
@@ -1213,7 +1213,7 @@ export const mockUsers: User[] = [
     cartItems: [
       {
         id: "cart-item-zm-1",
-        productName: "企业版软件授权",
+        productName: "企��版软件授权",
         unitPrice: 4800.0,
         quantity: 1,
         totalPrice: 4800.0,
