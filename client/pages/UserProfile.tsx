@@ -138,7 +138,7 @@ export default function UserProfile() {
       setIsEditingPassword(false);
       setIsLoading(false);
       
-      // 延迟后登出并跳转到登录页
+      // 延迟���登出并跳转到登录页
       setTimeout(() => {
         handleLogout();
       }, 2000);
@@ -190,13 +190,9 @@ export default function UserProfile() {
 
   return (
     <div className="p-6 space-y-6 bg-background min-h-full max-w-4xl mx-auto">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">个人信息</h1>
-          <p className="text-sm text-muted-foreground">管理您的账户信息和安全设置</p>
-        </div>
-        <Button 
-          variant="outline" 
+      <div className="flex justify-end">
+        <Button
+          variant="outline"
           onClick={handleLogout}
           className="flex items-center gap-2"
         >
