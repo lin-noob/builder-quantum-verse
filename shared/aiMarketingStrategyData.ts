@@ -222,6 +222,7 @@ export const sampleStrategies: AIMarketingStrategy[] = [
   {
     strategyId: 'strat_8j9k0l1m2n',
     strategyName: '高价值购物车挽留策略',
+    executionMode: 'SEMI_AUTO',
     actionType: 'POPUP',
     status: 'ACTIVE',
     createdAt: '2025-08-08T17:00:00Z',
@@ -240,7 +241,7 @@ export const sampleStrategies: AIMarketingStrategy[] = [
       }
     },
     actionPurpose: '尽力挽留用户，促使其完成订单',
-    baseActionParameters: {
+    actionParameters: {
       title: '请留步！',
       bodyText: '您的专属10%优惠券已生效，完成订单即可使用！',
       buttonText: '完成我的订单',
@@ -252,7 +253,8 @@ export const sampleStrategies: AIMarketingStrategy[] = [
   },
   {
     strategyId: 'strat_xyz123abc',
-    strategyName: '新用户首次访问欢迎策略',
+    strategyName: '新用户注册欢迎策略',
+    executionMode: 'FULL_MANUAL',
     actionType: 'POPUP',
     status: 'ACTIVE',
     createdAt: '2025-08-10T10:30:00Z',
@@ -264,10 +266,9 @@ export const sampleStrategies: AIMarketingStrategy[] = [
         conditions: []
       }
     },
-    actionPurpose: '欢迎新用户，并根据其兴趣进行初步引导',
-    baseActionParameters: {
-      title: '欢迎加入！',
-      bodyText: '感谢您的注册，让我们为您推荐最合适的产品',
+    actionParameters: {
+      title: '欢迎加入我们！',
+      bodyText: '感谢您的注册，开启���的购物之旅吧！首次下单可享9折优惠。',
       buttonText: '开始购物',
       buttonUrl: '/products'
     },
@@ -278,6 +279,7 @@ export const sampleStrategies: AIMarketingStrategy[] = [
   {
     strategyId: 'strat_draft001',
     strategyName: '搜索无结果引导策略',
+    executionMode: 'SEMI_AUTO',
     actionType: 'POPUP',
     status: 'DRAFT',
     createdAt: '2025-08-12T14:20:00Z',
@@ -296,7 +298,7 @@ export const sampleStrategies: AIMarketingStrategy[] = [
       }
     },
     actionPurpose: '帮助用户找到相关产品，提升用户体验',
-    baseActionParameters: {
+    actionParameters: {
       title: '没找到合适的商品？',
       bodyText: '让我们为您推荐一些热门商品，或联系客服获得帮助',
       buttonText: '查看推荐',
