@@ -335,7 +335,7 @@ export default function AdvancedDateRangePicker({
                   { key: "today", label: "今天" },
                   { key: "yesterday", label: "昨天" },
                   { key: "last7days", label: "最近7天" },
-                  { key: "last30days", label: "最��30天" },
+                  { key: "last30days", label: "最近30天" },
                   { key: "thisMonth", label: "本月" },
                   { key: "lastMonth", label: "上月" },
                 ].map((preset) => (
