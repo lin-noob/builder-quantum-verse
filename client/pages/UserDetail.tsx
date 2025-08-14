@@ -324,7 +324,7 @@ export default function UserDetail() {
                     <div className="text-sm font-bold text-gray-700">
                       {user.lastActiveTime}
                     </div>
-                    <div className="text-xs text-gray-600">最后活跃时间</div>
+                    <div className="text-xs text-gray-600">最���活跃时间</div>
                   </div>
                 </div>
               </div>
@@ -337,7 +337,7 @@ export default function UserDetail() {
               <Tabs defaultValue="timeline" className="w-full">
                 <TabsList className="grid w-full grid-cols-2">
                   <TabsTrigger value="timeline">访问时间线</TabsTrigger>
-                  <TabsTrigger value="statistics">业务统��</TabsTrigger>
+                  <TabsTrigger value="statistics">业务统计</TabsTrigger>
                 </TabsList>
 
                 {/* Access Timeline Tab */}
