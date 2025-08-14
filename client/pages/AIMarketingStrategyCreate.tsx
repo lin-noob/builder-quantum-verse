@@ -300,7 +300,7 @@ export default function AIMarketingStrategyCreate() {
                 </div>
                 <div>
                   <CardTitle className="text-base font-semibold">基础弹窗配置</CardTitle>
-                  <p className="text-sm text-gray-500 mt-1">设计一个基础的弹窗内容，AI将以此为参考进行个性化优化和安全降级</p>
+                  <p className="text-sm text-gray-500 mt-1">设计一个基础的弹窗内容，AI��以此为参考进行个性化优化和安全降级</p>
                 </div>
               </div>
             </CardHeader>
@@ -311,10 +311,10 @@ export default function AIMarketingStrategyCreate() {
                     弹窗标题 <span className="text-red-500">*</span>
                   </label>
                   <Input
-                    value={formData.baseActionParameters?.title || ''}
+                    value={formData.actionParameters?.title || ''}
                     onChange={(e) => setFormData(prev => ({
                       ...prev,
-                      baseActionParameters: { ...prev.baseActionParameters!, title: e.target.value }
+                      actionParameters: { ...prev.actionParameters!, title: e.target.value }
                     }))}
                     placeholder="例如：请留步！"
                     className="text-base font-medium"
