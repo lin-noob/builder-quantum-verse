@@ -14,6 +14,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Zap,
+  User,
+  Settings,
 } from "lucide-react";
 import TabManager from "./TabManager";
 
