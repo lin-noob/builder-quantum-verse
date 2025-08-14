@@ -311,7 +311,7 @@ export default function UserList() {
           console.error("1. 代理服务器 192.168.1.128:8099 无法访问");
           console.error("2. 网络连接问题");
           console.error("3. CORS 配置问题");
-          errorMessage = "网络连接失���，���检查代理服务器是否可访问";
+          errorMessage = "网络连接失败，���检查代理服务器是否可访问";
         } else if (error.message.includes("timeout")) {
           console.error("请求超时，可能的原因:");
           console.error("1. 服务器响应缓慢");
@@ -405,7 +405,7 @@ export default function UserList() {
     setCurrentPage(1);
   };
 
-  // 手��刷新数据
+  // 手动刷新数据
   const handleRefresh = () => {
     fetchUsers();
   };
@@ -481,7 +481,7 @@ export default function UserList() {
                 disabled={loading}
               >
                 <Search className="h-4 w-4" />
-                搜���
+                搜索
               </Button>
               <Button
                 variant="outline"
