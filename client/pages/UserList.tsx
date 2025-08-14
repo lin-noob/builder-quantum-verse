@@ -32,7 +32,7 @@ interface SortConfig {
   direction: "asc" | "desc";
 }
 
-// API相关���型定义
+// API相关类型定义
 interface ApiUser {
   id: string;
   cdpUserId: number;
@@ -51,7 +51,7 @@ interface ApiUser {
   shopid: string;
 }
 
-// 转换为UI需要的用户格��
+// 转换为UI需要的用户格式
 interface User {
   cdpId: string;
   name: string;
@@ -246,7 +246,7 @@ export default function UserList() {
 
           if (retries < 0) {
             console.error("所有重试尝试都失败，抛出最终错误");
-            throw error; // 重试用完后抛出错误
+            throw error; // ��试用完后抛出错误
           }
 
           console.log(`等待2秒后进行重试...`);
@@ -311,7 +311,7 @@ export default function UserList() {
           console.error("1. 代理服务器 192.168.1.128:8099 无法访问");
           console.error("2. 网络连接问题");
           console.error("3. CORS 配置问题");
-          errorMessage = "网络连接失败，请检查代理服务器是否可访问";
+          errorMessage = "网络连接失败，���检查代理服务器是否可访问";
         } else if (error.message.includes("timeout")) {
           console.error("请求超时，可能的原因:");
           console.error("1. 服务器响应缓慢");
