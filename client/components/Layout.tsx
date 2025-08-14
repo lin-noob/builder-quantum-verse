@@ -194,10 +194,12 @@ export default function Layout({ children }: LayoutProps) {
               const isActive =
                 location.pathname === item.path ||
                 (item.path === "/dashboard" && location.pathname === "/") ||
+                (item.id === "response-actions" &&
+                  location.pathname.startsWith("/response-actions")) ||
                 (item.id === "ai-marketing-strategies" &&
                   location.pathname.startsWith("/ai-marketing-strategies")) ||
                 (item.id === "ai-marketing" &&
-                  location.pathname.startsWith("/ai-marketing"));
+                  location.pathname.startsWith("/ai-marketing/"));
 
               return (
                 <li key={item.id} className="relative group">
