@@ -163,7 +163,7 @@ export default function AIMarketingStrategyDetail() {
           <Card className="bg-background border">
             <CardHeader>
               <CardTitle className="text-lg font-semibold text-foreground">
-                {strategy.executionMode === 'SEMI_AUTO' ? '基���弹窗配置' : '弹窗内容配置'}
+                {strategy.executionMode === 'SEMI_AUTO' ? '基础弹窗配置' : '弹窗内容配置'}
               </CardTitle>
             </CardHeader>
             <CardContent>
