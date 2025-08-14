@@ -20,12 +20,8 @@ import {
   calculateConversionRate,
   calculateInteractionRate
 } from '@shared/aiMarketingStrategyData';
-import { useToast } from '@/hooks/use-toast';
-
 export default function AIMarketingStrategyDetail() {
   const { id } = useParams();
-  const navigate = useNavigate();
-  const { toast } = useToast();
 
   // 查找策略数据
   const strategy = sampleStrategies.find(s => s.strategyId === id);
