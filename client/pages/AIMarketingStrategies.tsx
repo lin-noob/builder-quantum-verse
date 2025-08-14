@@ -41,7 +41,7 @@ export default function AIMarketingStrategies() {
     status: 'all'
   });
 
-  // 排序状态 - 默认��最后更新时间排序
+  // 排序状态 - 默认按最后更新时间排序
   const [sortState, setSortState] = useState<SortState>({
     field: 'updatedAt',
     direction: 'desc'
@@ -145,7 +145,7 @@ export default function AIMarketingStrategies() {
   // 查询函数（刷新数据）
   const renderStrategyList = () => {
     // 筛选逻辑已在 useMemo 中处理，这里可以添加刷新逻辑
-    setCurrentPage(1); // 重置到第一页
+    setCurrentPage(1); // ���置到第一页
     toast({
       title: "数据已刷新",
       description: `找到 ${processedData.totalCount} 条策略记录`
