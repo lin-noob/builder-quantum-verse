@@ -259,7 +259,7 @@ export default function AIMarketingStrategyCreate() {
             <CardContent>
               <div>
                 <label className="block text-sm font-medium text-gray-900 mb-2">
-                  业务用途 <span className="text-red-500">*</span>
+                  ��务用途 <span className="text-red-500">*</span>
                 </label>
                 <p className="text-xs text-gray-500 mb-3">
                   用自然语言清晰地描述这个策略希望达成的业务目标。AI将理解您的意图，在触发规则命中时自主选择最佳的个性化策略。
@@ -300,7 +300,7 @@ export default function AIMarketingStrategyCreate() {
                 </div>
                 <div>
                   <CardTitle className="text-base font-semibold">基础弹窗配置</CardTitle>
-                  <p className="text-sm text-gray-500 mt-1">设计一个基础的弹窗内容，AI��以此为参考进行个性化优化和安全降级</p>
+                  <p className="text-sm text-gray-500 mt-1">设计一个基础的弹窗内容，AI将以此为参考进行个性化优化和安全降级</p>
                 </div>
               </div>
             </CardHeader>
@@ -326,10 +326,10 @@ export default function AIMarketingStrategyCreate() {
                     按钮文字 <span className="text-red-500">*</span>
                   </label>
                   <Input
-                    value={formData.baseActionParameters?.buttonText || ''}
+                    value={formData.actionParameters?.buttonText || ''}
                     onChange={(e) => setFormData(prev => ({
                       ...prev,
-                      baseActionParameters: { ...prev.baseActionParameters!, buttonText: e.target.value }
+                      actionParameters: { ...prev.actionParameters!, buttonText: e.target.value }
                     }))}
                     placeholder="例如：完成我的订单"
                     className="text-base"
