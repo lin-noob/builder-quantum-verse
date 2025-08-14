@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { User, Mail, Lock, Calendar, Shield, LogOut, Edit2, Save, X } from "lucide-react";
 import { authService, type User as UserType } from "@/services/authService";
+import { useAuthGuard } from "@/hooks/useAuthGuard";
 
 interface PasswordForm {
   currentPassword: string;
@@ -36,7 +37,7 @@ export default function UserProfile() {
 
   const [passwordErrors, setPasswordErrors] = useState<PasswordFormErrors>({});
 
-  // 获取��前用户信息
+  // 获取当前用户信息
   useEffect(() => {
     const currentUser = authService.getCurrentUser();
     if (!currentUser) {
