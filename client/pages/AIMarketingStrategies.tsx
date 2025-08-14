@@ -298,6 +298,7 @@ export default function AIMarketingStrategies() {
           <thead className="bg-slate-50">
             <tr>
               <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">策略名称</th>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">模式</th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">状态</th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">触发规则</th>
               <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">业务用途</th>
@@ -374,7 +375,7 @@ export default function AIMarketingStrategies() {
                       className="text-sky-600 hover:underline"
                       onClick={() => navigate(`/ai-marketing-strategies/${strategy.strategyId}`)}
                     >
-                      详��
+                      详情
                     </button>
                     <div className="relative">
                       <button
