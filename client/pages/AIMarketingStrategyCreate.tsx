@@ -74,7 +74,7 @@ export default function AIMarketingStrategyCreate() {
     { 
       id: 4, 
       title: '弹窗配置', 
-      description: '设计弹窗��容',
+      description: '设计弹窗内容',
       isRequired: true
     }
   ];
@@ -95,11 +95,11 @@ export default function AIMarketingStrategyCreate() {
     },
     {
       title: '帮助用户找到相关产品，提升用户体验',
-      content: '当用户在网站上搜索无结果、浏览时间较长但未发生点击行为、或在某个类目页面反复浏览时，系统将主动提供智能搜索建议和产品推荐服务。基于用户的搜索历史、浏览轨迹、同类用户购买行为等数据，提供精准的替代产品推荐、相关类目引导��热门搜索词提示等。通过智能客服机器人主动询问用户需求，提供个性化购物助手服务，包括产品对比、尺寸建议、搭配推荐等，显著提升用户的购物体验和找到心仪商品的效率。'
+      content: '当用户在网站上搜索无结果、浏览时间较长但未发生点击行为、或在某个类目页面反复浏览时，系统将主动提供智能搜索建议和产品推荐服务。基于用户的搜索历史、浏览轨迹、同类用户购买行为等数据，提供精准的替代产品推荐、相关类目引导、热门搜索词提示等。通过智能客服机器人主动询问用户需求，提供个性化购物助手服务，包括产品对比、尺寸建议、搭配推荐等，显著提升用户的购物体验和找到心仪商品的效率。'
     },
     {
       title: '推荐个性化商品，提高转化率',
-      content: '基于用户的历史购买记录、浏览行为、收藏清单、搜索历史、个人档案信息等多维度数据，运用协同过滤���深度学习算法，在用户浏览商品详情页、购物车页面、或完成订单后，智��推荐高相关性的个性化商品。推荐策略包括：购买了A商品的用户还喜欢B商��、基于季节和节日的时令推荐、根据用户生活方式的场景化推荐、价格敏感度匹配的商品推荐等。通过A/B测试不断优化推荐算法和展示样式，提升点击率和转化率，增加用户客单价和复购频次。'
+      content: '基于用户的历史购买记录、浏览行为、收藏清单、搜索历史、个人档案信息等多维度数据，运用协同过滤和深度学习算法，在用户浏览商品详情页、购物车页面、或完成订单后，智能推荐高相关性的个性化商品。推荐策略包括：购买了A商品的��户还喜欢B商��、基于季节和节日的时令推荐、根据用户生活方式的场景化推荐、价格敏感度匹配的商品推荐等。通过A/B测试不断优化推荐算法和展示样式，提升点击率和转化率，增加用户客单价和复购频次。'
     }
   ];
 
@@ -368,7 +368,7 @@ export default function AIMarketingStrategyCreate() {
                 <h3 className="font-medium text-foreground">半自动模式</h3>
               </div>
               <p className="text-sm text-muted-foreground ml-7">
-                商家设定触发规则和业务用途，AI根据用户画像自主决策生成个性化内容
+                商家设定触发规则和业务用途，AI根据用户画像自主决策生成个性化内���
               </p>
             </div>
 
@@ -436,7 +436,7 @@ export default function AIMarketingStrategyCreate() {
             业务用途 <span className="text-destructive">*</span>
           </label>
           <p className="text-xs text-muted-foreground mb-3">
-            用自然语言��晰地描述这个策略希望达成的业务目标。AI将理解您的意图，在触发规则命中时自主选择最佳的个性化策略。
+            用自然语言清晰地描述这个策略希望达成的业务目标。AI将理解您的意图，在触发规则命中时自主选择最佳的个性化策略。
           </p>
           <textarea
             className="w-full px-3 py-2 border border-border rounded-md resize-none focus:ring-2 focus:ring-ring focus:border-ring text-sm"
@@ -610,7 +610,7 @@ export default function AIMarketingStrategyCreate() {
                     variant="outline"
                     onClick={handleSave}
                   >
-                    保存草稿
+                    保���草稿
                   </Button>
                   <Button
                     onClick={handleSaveAndActivate}
