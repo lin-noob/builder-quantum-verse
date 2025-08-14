@@ -41,7 +41,7 @@ export default function Layout({ children }: LayoutProps) {
   useEffect(() => {
     const user = authService.getCurrentUser();
     setCurrentUser(user);
-  }, [location]); // 当路由变化时重新检查用户状态
+  }, [location]); // 当路由变化时重���检查用户状态
 
   const menuItems: MenuItem[] = [
     {
@@ -64,13 +64,13 @@ export default function Layout({ children }: LayoutProps) {
     // },
     {
       id: "ai-marketing-strategies",
-      label: "AI营销",
+      label: "营销策略",
       path: "/ai-marketing-strategies",
       icon: <Zap className="h-5 w-5" />,
     },
     {
       id: "ai-marketing",
-      label: "AI自动营销",
+      label: "自动营销",
       path: "/ai-marketing/monitoring-center",
       icon: <Bot className="h-5 w-5" />,
     },
