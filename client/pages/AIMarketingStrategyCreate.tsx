@@ -79,7 +79,7 @@ export default function AIMarketingStrategyCreate() {
     }
   ];
   
-  // 获取实际需要的步骤（过滤掉不需���的步骤）
+  // 获取实际需要的步骤（过滤掉不需要的步骤）
   const activeSteps = steps.filter(step => step.isRequired);
   const totalSteps = activeSteps.length;
 
@@ -194,7 +194,7 @@ export default function AIMarketingStrategyCreate() {
         return true;
         
       case 2:
-        // 触发规则验��（这里可以添加更复杂的验证）
+        // 触发规则验证（这里可以添加更复杂的验证）
         return true;
         
       case 3:
@@ -448,7 +448,7 @@ export default function AIMarketingStrategyCreate() {
         </div>
         
         <div>
-          <p className="text-sm font-medium text-foreground mb-3">快速选择常用场景：</p>
+          <p className="text-sm font-medium text-foreground mb-3">快速选择��用场景：</p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             {commonPurposeOptions.map((option, index) => (
               <Button

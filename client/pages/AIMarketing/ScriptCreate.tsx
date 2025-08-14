@@ -97,7 +97,7 @@ export default function ScriptCreate() {
   const eventNameOptions = [
     { value: 'add_to_cart', label: '加入购物车' },
     { value: 'page_view', label: '浏览页面' },
-    { value: 'submit_form', label: '���交表单' },
+    { value: 'submit_form', label: '提交表单' },
     { value: 'user_register', label: '用户注册' },
     { value: 'start_checkout', label: '开始结账' }
   ];
@@ -180,7 +180,7 @@ export default function ScriptCreate() {
               <Label>剧本名称</Label>
               <Input
                 className="mt-1"
-                placeholder="例如：高价商品加购挽留"
+                placeholder="例如：高���商品加购挽留"
                 value={formData.scriptName}
                 onChange={(e) => handleInputChange('scriptName', e.target.value)}
               />
@@ -209,7 +209,7 @@ export default function ScriptCreate() {
             {formData.triggerType === 'real_time_event' && (
               <div className="space-y-4 border-t pt-4">
                 <div>
-                  <Label>当以下事件发生时</Label>
+                  <Label>当以下��件发生时</Label>
                   <Select
                     value={formData.eventName}
                     onValueChange={(value) => handleInputChange('eventName', value)}
