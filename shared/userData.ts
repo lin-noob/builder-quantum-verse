@@ -329,7 +329,7 @@ export const mockUsers: User[] = [
         },
         billingAddress: {
           name: "腾讯科技（深圳）有限公司",
-          street: "深圳市南山区科技园南区R4-B栋",
+          street: "深���市南山区科技园南区R4-B栋",
           city: "深圳",
           state: "广东省",
           postalCode: "518057",
@@ -519,7 +519,7 @@ export const mockUsers: User[] = [
         events: [
           {
             timestamp: "14:15:10",
-            eventType: "页面访问",
+            eventType: "页面访���",
             pageTitle: "登录",
             pageUrl: "/login",
             stayDuration: "1分30秒",
@@ -659,13 +659,13 @@ export const mockUsers: User[] = [
         paymentMethod: "企业转账",
         items: [
           {
-            productName: "企业版软件授",
+            productName: "企业���软件授",
             unitPrice: 4800.0,
             quantity: 1,
             totalPrice: 4800.0,
           },
           {
-            productName: "���装服务",
+            productName: "安装服务",
             unitPrice: 150.0,
             quantity: 1,
             totalPrice: 150.0,
@@ -924,7 +924,7 @@ export const mockUsers: User[] = [
         status: "已完成",
         totalAmount: 6500.0,
         currency: "CNY",
-        paymentMethod: "企业转账",
+        paymentMethod: "企���转账",
         items: [
           {
             productName: "旗舰版软件授权",
@@ -1269,14 +1269,14 @@ export interface OrderSummaryDto {
   searchtype?: "signTime" | "minBuyTime" | "maxBuyTime" | "createGmt";
   /** 店铺ID */
   shopid?: string;
-  /** ��序字段 */
+  /** 排序字段 */
   sort?: string;
   /** 开始日期 */
   startDate?: string;
 }
 
 /**
- * 用户画像列表查询参数
+ * 用户画像��表查询参数
  */
 export interface UserProfileListParams {
   /** 每页数量 */
