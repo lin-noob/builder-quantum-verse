@@ -70,7 +70,7 @@ export default function Layout({ children }: LayoutProps) {
     },
     {
       id: "ai-marketing",
-      label: "AI自���营销",
+      label: "AI自动营销",
       path: "/ai-marketing/monitoring-center",
       icon: <Bot className="h-5 w-5" />,
     },
@@ -94,14 +94,21 @@ export default function Layout({ children }: LayoutProps) {
       <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 z-50">
         <div className="flex items-center gap-3">
           {/* User Profile Icon */}
-          {currentUser && (
-            <Link
-              to="/profile"
-              className="w-8 h-8 bg-primary rounded-full flex items-center justify-center hover:bg-primary/90 transition-colors"
-            >
-              <User className="h-4 w-4 text-primary-foreground" />
-            </Link>
-          )}
+          <Link
+            to={currentUser ? "/profile" : "/auth"}
+            className={cn(
+              "w-8 h-8 rounded-full flex items-center justify-center transition-colors",
+              currentUser
+                ? "bg-primary hover:bg-primary/90"
+                : "bg-gray-200 hover:bg-gray-300 border border-dashed border-gray-400"
+            )}
+            title={currentUser ? "个人信息" : "点击登录"}
+          >
+            <User className={cn(
+              "h-4 w-4",
+              currentUser ? "text-primary-foreground" : "text-gray-500"
+            )} />
+          </Link>
           <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
             <BarChart3 className="h-5 w-5 text-white" />
           </div>
@@ -336,7 +343,7 @@ export default function Layout({ children }: LayoutProps) {
           <button
             onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
             className="w-full flex items-center justify-center p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors"
-            title={isSidebarCollapsed ? "展开侧边栏" : "折��侧边栏"}
+            title={isSidebarCollapsed ? "展开侧边栏" : "折叠侧边栏"}
           >
             {isSidebarCollapsed ? (
               <ChevronRight className="h-5 w-5" />
