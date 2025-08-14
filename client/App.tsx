@@ -27,6 +27,9 @@ import SemiAuto from "./pages/AIMarketing/SemiAuto";
 import ScriptCreate from "./pages/AIMarketing/ScriptCreate";
 import OrderHistoryDemo from "./pages/OrderHistoryDemo";
 import NotFound from "./pages/NotFound";
+import Auth from "./pages/Auth";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 const queryClient = new QueryClient();
 
