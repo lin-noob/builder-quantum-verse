@@ -19,7 +19,7 @@ export interface User {
   maxBuyTime: string;
   /** 最大订单金额（保留5位小数） */
   maxOrderAmount: number;
-  /** ���消费金额（保留5位小数） */
+  /** 总消费金额（保留5位小数） */
   totalOrders: number;
   /** 订单数量 */
   orderCount: number;
@@ -520,7 +520,7 @@ export const mockUsers: User[] = [
           {
             timestamp: "14:15:10",
             eventType: "页面访问",
-            pageTitle: "���录",
+            pageTitle: "登录",
             pageUrl: "/login",
             stayDuration: "1分30秒",
             scrollDepth: "50%",
@@ -615,7 +615,7 @@ export const mockUsers: User[] = [
         paymentMethod: "企业转账",
         items: [
           {
-            productName: "专业��软件授权",
+            productName: "专业版软件授权",
             unitPrice: 2800.0,
             quantity: 1,
             totalPrice: 2800.0,
@@ -753,7 +753,7 @@ export const mockUsers: User[] = [
           {
             timestamp: "13:57:35",
             eventType: "页面访问",
-            pageTitle: "功能��用",
+            pageTitle: "功能试用",
             pageUrl: "/trial/features",
             stayDuration: "25分30秒",
             scrollDepth: "95%",
@@ -1269,7 +1269,7 @@ export interface OrderSummaryDto {
   searchtype?: "signTime" | "minBuyTime" | "maxBuyTime" | "createGmt";
   /** 店铺ID */
   shopid?: string;
-  /** 排序字段 */
+  /** ��序字段 */
   sort?: string;
   /** 开始日期 */
   startDate?: string;
