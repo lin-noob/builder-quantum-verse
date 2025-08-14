@@ -140,6 +140,12 @@ export default function PerformanceTrend({
                 type="category"
                 allowDuplicatedCategory={false}
                 domain={['dataMin', 'dataMax']}
+                hide={false}
+                tickCount={5}
+                minTickGap={5}
+                mirror={false}
+                reversed={false}
+                includeHidden={false}
               />
 
               {/* Multiple Y-Axes for different metric types */}
