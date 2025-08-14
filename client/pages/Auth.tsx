@@ -67,9 +67,11 @@ export default function Auth() {
         if (value.length < 6 || value.length > 20) return "用户名长度应为6-20个字符";
         return null;
       case "email":
-        if (!value) return "邮箱为必填项";
-        if (value.length > 40) return "邮箱格式无效";
-        if (!validateEmail(value)) return "邮箱格式无效";
+        if (!value) return activeTab === "login" ? "邮箱或用户名为必填项" : "邮箱为必填项";
+        if (value.length > 40) return "输入内容过长";
+        // 登录时允许用户名或邮箱，注册时只允许邮箱
+        if (activeTab === "register" && !validateEmail(value)) return "邮箱格式无效";
+        if (activeTab === "login" && value !== "admin" && !validateEmail(value)) return "请输入有效的邮箱或用户名";
         return null;
       case "password":
         if (activeTab === "login") {
