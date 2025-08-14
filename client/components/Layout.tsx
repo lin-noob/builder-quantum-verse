@@ -41,7 +41,7 @@ export default function Layout({ children }: LayoutProps) {
   useEffect(() => {
     const user = authService.getCurrentUser();
     setCurrentUser(user);
-  }, [location]); // 当路由变化时重���检查用户状态
+  }, [location]); // 当路由变化时重新检查用户状态
 
   const menuItems: MenuItem[] = [
     {
@@ -56,6 +56,12 @@ export default function Layout({ children }: LayoutProps) {
       path: "/users",
       icon: <Users className="h-5 w-5" />,
     },
+    {
+      id: "fully-auto",
+      label: "全动模式",
+      path: "/ai-marketing/fully-auto",
+      icon: <Bot className="h-5 w-5" />,
+    },
     // {
     //   id: "response-actions",
     //   label: "响应动作库",
@@ -69,11 +75,24 @@ export default function Layout({ children }: LayoutProps) {
       icon: <Zap className="h-5 w-5" />,
     },
     {
-      id: "ai-marketing",
-      label: "自动营销",
+      id: "monitoring-center",
+      label: "监控中心",
       path: "/ai-marketing/monitoring-center",
-      icon: <Bot className="h-5 w-5" />,
+      icon: <Activity className="h-5 w-5" />,
     },
+    {
+      id: "effect-tracking",
+      label: "效果追踪",
+      path: "/effect-tracking",
+      icon: <Target className="h-5 w-5" />,
+    },
+    // 隐藏自动营销入口
+    // {
+    //   id: "ai-marketing",
+    //   label: "自动营销",
+    //   path: "/ai-marketing/monitoring-center",
+    //   icon: <Bot className="h-5 w-5" />,
+    // },
     {
       id: "dashboard2",
       label: "仪表盘2.0",
