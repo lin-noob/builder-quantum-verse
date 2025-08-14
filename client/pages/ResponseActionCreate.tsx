@@ -109,7 +109,7 @@ export default function ResponseActionCreate() {
                   placeholder="描述此动作的具体用途和触发场景..."
                 />
                 <div className="mt-3">
-                  <p className="text-sm font-medium text-gray-700 mb-2">快速选择常用场景：</p>
+                  <p className="text-sm font-medium text-gray-700 mb-2">快速选��常用场景：</p>
                   <div className="flex flex-wrap gap-2">
                     {COMMON_PURPOSES.map((purpose, index) => (
                       <Button
@@ -168,7 +168,7 @@ export default function ResponseActionCreate() {
                       ...prev,
                       popup: { ...prev.popup!, buttonText: e.target.value }
                     }))}
-                    placeholder="例如：立即体验"
+                    placeholder="例如：��即体验"
                     className="text-base"
                   />
                 </div>
@@ -199,7 +199,7 @@ export default function ResponseActionCreate() {
                     ...prev,
                     popup: { ...prev.popup!, content: e.target.value }
                   }))}
-                  placeholder="输入弹窗的详细���容，告诉用户您想传达的信息..."
+                  placeholder="输入弹窗的详细内容，告诉用户您想传达的信息..."
                 />
               </div>
             </CardContent>
