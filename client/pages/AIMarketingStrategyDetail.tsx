@@ -102,61 +102,6 @@ export default function AIMarketingStrategyDetail() {
 
   return (
     <div className="p-6 space-y-6 bg-gray-50 min-h-full">
-      {/* 页面头部 */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            onClick={() => navigate('/ai-marketing-strategies')}
-            className="p-2"
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-        </div>
-        
-        <div className="flex items-center gap-2">
-          {/* 状态控制按钮 */}
-          {strategy.status === 'DRAFT' && (
-            <Button
-              onClick={() => handleStatusChange('activate')}
-              className="bg-green-600 hover:bg-green-700 flex items-center gap-2"
-            >
-              <Power className="h-4 w-4" />
-              启用策略
-            </Button>
-          )}
-          
-          {strategy.status === 'ACTIVE' && (
-            <Button
-              variant="outline"
-              onClick={() => handleStatusChange('deactivate')}
-              className="text-orange-600 border-orange-300 hover:bg-orange-50 flex items-center gap-2"
-            >
-              <PowerOff className="h-4 w-4" />
-              停用策略
-            </Button>
-          )}
-          
-          {strategy.status === 'ARCHIVED' && (
-            <Button
-              onClick={() => handleStatusChange('activate')}
-              className="bg-green-600 hover:bg-green-700 flex items-center gap-2"
-            >
-              <Power className="h-4 w-4" />
-              重新启用
-            </Button>
-          )}
-          
-          <Button
-            variant="outline"
-            onClick={() => navigate(`/ai-marketing-strategies/edit/${strategy.strategyId}`)}
-            className="flex items-center gap-2"
-          >
-            <Edit className="h-4 w-4" />
-            编辑
-          </Button>
-        </div>
-      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* 左侧主要信息 */}
@@ -319,7 +264,7 @@ export default function AIMarketingStrategyDetail() {
                     </div>
                     <div>
                       <div className="text-sm font-medium text-gray-600">执行次数</div>
-                      <div className="text-xs text-gray-500">策略触发总次数</div>
+                      <div className="text-xs text-gray-500">策略触发总次��</div>
                     </div>
                   </div>
                   <div className="text-right">
@@ -405,7 +350,7 @@ export default function AIMarketingStrategyDetail() {
                     3
                   </div>
                   <div>
-                    <div className="font-medium text-gray-900">智能决策</div>
+                    <div className="font-medium text-gray-900">智���决策</div>
                     <div>基于业务用途自主选择最佳策略</div>
                   </div>
                 </div>
