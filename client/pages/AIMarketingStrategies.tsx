@@ -12,6 +12,8 @@ import {
   StrategyStatus,
   STATUS_DISPLAY_NAMES,
   STATUS_COLORS,
+  EXECUTION_MODE_DISPLAY_NAMES,
+  EXECUTION_MODE_COLORS,
   generateTriggerRuleSummary,
   calculateConversionRate,
   calculateInteractionRate
@@ -122,7 +124,7 @@ export default function AIMarketingStrategies() {
     setCurrentPage(1);
   };
 
-  // 处��排序
+  // 处理排序
   const handleSort = (field: SortableFields) => {
     setSortState(prev => ({
       field,
@@ -372,7 +374,7 @@ export default function AIMarketingStrategies() {
                       className="text-sky-600 hover:underline"
                       onClick={() => navigate(`/ai-marketing-strategies/${strategy.strategyId}`)}
                     >
-                      详情
+                      详��
                     </button>
                     <div className="relative">
                       <button
