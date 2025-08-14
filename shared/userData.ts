@@ -17,9 +17,9 @@ export interface User {
   minBuyTime: string;
   /** 最后购买时间 */
   maxBuyTime: string;
-  /** 最大订单金额（保留5位小���） */
+  /** 最大订单金额（保留5位小数） */
   maxOrderAmount: number;
-  /** 总消费金额（保留5位小数） */
+  /** ���消费金额（保留5位小数） */
   totalOrders: number;
   /** 订单数量 */
   orderCount: number;
@@ -520,7 +520,7 @@ export const mockUsers: User[] = [
           {
             timestamp: "14:15:10",
             eventType: "页面访问",
-            pageTitle: "登录",
+            pageTitle: "���录",
             pageUrl: "/login",
             stayDuration: "1分30秒",
             scrollDepth: "50%",
@@ -556,7 +556,7 @@ export const mockUsers: User[] = [
         date: "2024-01-05 16:20",
         summary: "产品对比和价格咨询",
         source: "搜索引擎",
-        deviceType: "��动端",
+        deviceType: "移动端",
         os: "iOS 17",
         browser: "Safari 17",
         location: "杭州, 中国",
@@ -609,7 +609,7 @@ export const mockUsers: User[] = [
       {
         orderNumber: "ORD-2023-156",
         orderDate: "2023-12-25",
-        status: "已���成",
+        status: "已完成",
         totalAmount: 3650.25,
         currency: "CNY",
         paymentMethod: "企业转账",
@@ -753,7 +753,7 @@ export const mockUsers: User[] = [
           {
             timestamp: "13:57:35",
             eventType: "页面访问",
-            pageTitle: "功能试用",
+            pageTitle: "功能��用",
             pageUrl: "/trial/features",
             stayDuration: "25分30秒",
             scrollDepth: "95%",
@@ -1130,7 +1130,7 @@ export const mockUsers: User[] = [
       },
       {
         id: "cart-item-cj-2",
-        productName: "��据分析模块",
+        productName: "数据分析模块",
         unitPrice: 750.0,
         quantity: 1,
         totalPrice: 750.0,
