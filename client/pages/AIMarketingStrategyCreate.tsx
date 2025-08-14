@@ -245,7 +245,8 @@ export default function AIMarketingStrategyCreate() {
             </CardContent>
           </Card>
 
-          {/* 业务用途配置 */}
+          {/* 业务用途配置 - 只在全人工模式下显示 */}
+          {formData.executionMode === 'FULL_MANUAL' && (
           <Card className="shadow-sm border-0 ring-1 ring-gray-200">
             <CardHeader className="pb-4">
               <div className="flex items-center space-x-3">
@@ -254,7 +255,7 @@ export default function AIMarketingStrategyCreate() {
                 </div>
                 <div>
                   <CardTitle className="text-base font-semibold">业务用途设定</CardTitle>
-                  <p className="text-sm text-gray-500 mt-1">向AI下达核心任务指令，指导AI做出正确的个性化决策</p>
+                  <p className="text-sm text-gray-500 mt-1">设定固定的业务用途，系统将严格按照此指令执行</p>
                 </div>
               </div>
             </CardHeader>
@@ -264,7 +265,7 @@ export default function AIMarketingStrategyCreate() {
                   业务用途 <span className="text-red-500">*</span>
                 </label>
                 <p className="text-xs text-gray-500 mb-3">
-                  用自然语言清晰地描述这个策略希望达成的业务目标。AI将理解您的意图，在触发规则命中时自主选择最佳的个性化策略。
+                  用自然语言清晰地描述这个策略希望达成的业务目标。系统将严格按照此用途执行固定的响应内容。
                 </p>
                 <textarea
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
@@ -292,6 +293,7 @@ export default function AIMarketingStrategyCreate() {
               </div>
             </CardContent>
           </Card>
+          )}
 
           {/* 基础弹窗配置 */}
           <Card className="shadow-sm border-0 ring-1 ring-gray-200">
