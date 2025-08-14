@@ -116,7 +116,7 @@ export default function PerformanceTrend({
     <Card className="bg-white border border-gray-200">
       <CardHeader>
         <CardTitle className="text-lg font-semibold text-gray-900">
-          业绩走势
+          业���走势
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -137,6 +137,9 @@ export default function PerformanceTrend({
                 tickLine={false}
                 tick={{ fontSize: 12, fill: "#6b7280" }}
                 interval="preserveStartEnd"
+                type="category"
+                allowDuplicatedCategory={false}
+                domain={['dataMin', 'dataMax']}
               />
 
               {/* Multiple Y-Axes for different metric types */}
