@@ -75,7 +75,8 @@ export default function AIMarketingStrategyCreate() {
       return;
     }
 
-    if (!formData.actionPurpose?.trim()) {
+    // 半自动模式需要检查业务用途
+    if (formData.executionMode === 'SEMI_AUTO' && !formData.actionPurpose?.trim()) {
       toast({
         title: "请填写业务用途",
         variant: "destructive"
@@ -87,7 +88,7 @@ export default function AIMarketingStrategyCreate() {
       title: isEditing ? "保存成功" : "创建成功",
       description: `策略"${formData.strategyName}"已保存为草稿状态`
     });
-    
+
     navigate('/ai-marketing-strategies');
   };
 
@@ -101,7 +102,8 @@ export default function AIMarketingStrategyCreate() {
       return;
     }
 
-    if (!formData.actionPurpose?.trim()) {
+    // 半自动模式需要检查业务用途
+    if (formData.executionMode === 'SEMI_AUTO' && !formData.actionPurpose?.trim()) {
       toast({
         title: "请填写业务用途",
         variant: "destructive"
@@ -113,7 +115,7 @@ export default function AIMarketingStrategyCreate() {
       title: isEditing ? "保存并启用成功" : "创建并启用成功",
       description: `策略"${formData.strategyName}"已启用，开始监控用户行为`
     });
-    
+
     navigate('/ai-marketing-strategies');
   };
 
@@ -252,7 +254,7 @@ export default function AIMarketingStrategyCreate() {
                 </div>
                 <div>
                   <CardTitle className="text-base font-semibold">业务用途设定</CardTitle>
-                  <p className="text-sm text-gray-500 mt-1">向AI下达核心任务指令，指导AI做出正确的个性化��策</p>
+                  <p className="text-sm text-gray-500 mt-1">向AI下达核心任务指令，指导AI做出正确的个性化决策</p>
                 </div>
               </div>
             </CardHeader>
@@ -351,7 +353,7 @@ export default function AIMarketingStrategyCreate() {
                       ...prev,
                       actionParameters: { ...prev.actionParameters!, buttonUrl: e.target.value }
                     }))}
-                    placeholder="例如：/checkout"
+                    placeholder="���如：/checkout"
                     className="text-base font-mono text-sm"
                   />
                 </div>
@@ -394,7 +396,7 @@ export default function AIMarketingStrategyCreate() {
                   onClick={handleSave}
                   className="px-6"
                 >
-                  保存���稿
+                  保存草稿
                 </Button>
                 <Button
                   onClick={handleSaveAndActivate}
