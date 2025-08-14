@@ -259,7 +259,7 @@ export default function AIMarketingStrategyCreate() {
             <CardContent>
               <div>
                 <label className="block text-sm font-medium text-gray-900 mb-2">
-                  ��务用途 <span className="text-red-500">*</span>
+                  业务用途 <span className="text-red-500">*</span>
                 </label>
                 <p className="text-xs text-gray-500 mb-3">
                   用自然语言清晰地描述这个策略希望达成的业务目标。AI将理解您的意图，在触发规则命中时自主选择最佳的个性化策略。
@@ -339,10 +339,10 @@ export default function AIMarketingStrategyCreate() {
                 <div>
                   <label className="block text-sm font-medium text-gray-900 mb-2">跳转链接</label>
                   <Input
-                    value={formData.baseActionParameters?.buttonUrl || ''}
+                    value={formData.actionParameters?.buttonUrl || ''}
                     onChange={(e) => setFormData(prev => ({
                       ...prev,
-                      baseActionParameters: { ...prev.baseActionParameters!, buttonUrl: e.target.value }
+                      actionParameters: { ...prev.actionParameters!, buttonUrl: e.target.value }
                     }))}
                     placeholder="例如：/checkout"
                     className="text-base font-mono text-sm"
