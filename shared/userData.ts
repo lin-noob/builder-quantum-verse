@@ -19,7 +19,7 @@ export interface User {
   maxBuyTime: string;
   /** 最大订单金额（保留5位小数） */
   maxOrderAmount: number;
-  /** 总消费金额（保留5位小数） */
+  /** 总消费��额（保留5位小数） */
   totalOrders: number;
   /** 订单数量 */
   orderCount: number;
@@ -202,7 +202,7 @@ export const mockUsers: User[] = [
             eventType: "页面访问",
             pageTitle: "产品列表",
             pageUrl: "/products",
-            stayDuration: "5分12秒",
+            stayDuration: "5分12���",
             scrollDepth: "100%",
           },
           {
@@ -310,7 +310,7 @@ export const mockUsers: User[] = [
       {
         orderNumber: "ORD-2024-003",
         orderDate: "2024-01-15",
-        status: "已��成",
+        status: "已完成",
         subtotalAmount: 5200.0,
         shippingAmount: 0.0,
         taxAmount: 0.0,
@@ -419,7 +419,7 @@ export const mockUsers: User[] = [
             totalPrice: 1200.0,
           },
           {
-            productName: "培训��务",
+            productName: "培训服务",
             unitPrice: 950.0,
             quantity: 1,
             totalPrice: 950.0,
@@ -472,7 +472,7 @@ export const mockUsers: User[] = [
       {
         id: "session-lm-1",
         date: "2024-01-20 10:30",
-        summary: "产品演示和技术��估",
+        summary: "产品演示���技术��估",
         source: "社交媒体广告",
         deviceType: "桌面端",
         os: "macOS 14",
@@ -520,7 +520,7 @@ export const mockUsers: User[] = [
           {
             timestamp: "14:15:10",
             eventType: "页面访问",
-            pageTitle: "登录",
+            pageTitle: "��录",
             pageUrl: "/login",
             stayDuration: "1分30秒",
             scrollDepth: "50%",
