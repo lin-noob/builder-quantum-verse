@@ -25,10 +25,10 @@ interface PasswordFormErrors {
 export default function UserProfile() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [user, setUser] = useState<UserType | null>(null);
+  const user = useAuthGuard(); // 使用认证守卫，自动重定向未登录用户
   const [isEditingPassword, setIsEditingPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const [passwordForm, setPasswordForm] = useState<PasswordForm>({
     currentPassword: "",
     newPassword: "",
@@ -36,20 +36,6 @@ export default function UserProfile() {
   });
 
   const [passwordErrors, setPasswordErrors] = useState<PasswordFormErrors>({});
-
-  // 获取当前用户信息
-  useEffect(() => {
-    const currentUser = authService.getCurrentUser();
-    if (!currentUser) {
-      toast({
-        title: "请先登录",
-        variant: "destructive"
-      });
-      navigate("/auth");
-      return;
-    }
-    setUser(currentUser);
-  }, [navigate, toast]);
 
   // 验证密码强度
   const validatePassword = (password: string): string | null => {
