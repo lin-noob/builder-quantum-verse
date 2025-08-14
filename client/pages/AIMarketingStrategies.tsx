@@ -241,7 +241,7 @@ export default function AIMarketingStrategies() {
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
             <Input
-              placeholder="搜索策略名称或业务用途..."
+              placeholder="搜索策略名称���业务用途..."
               value={filters.search}
               onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
               className="pl-10"
@@ -288,7 +288,6 @@ export default function AIMarketingStrategies() {
       {/* 主操作区 */}
       <div className="flex justify-between items-center">
         <div className="text-sm text-muted-foreground">
-          共 {processedData.totalCount} 条记录
         </div>
         <Button 
           onClick={() => navigate('/ai-marketing-strategies/create')}
