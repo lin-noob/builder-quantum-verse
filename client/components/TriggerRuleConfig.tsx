@@ -96,21 +96,7 @@ export default function TriggerRuleConfig({ value, onChange, className = '' }: T
   const allConditionsComplete = conditions.every(isConditionComplete);
 
   return (
-    <div className={className}>
-      <Card className="shadow-sm border-0 ring-1 ring-gray-200">
-        <CardHeader className="pb-4">
-          <div className="flex items-center space-x-3">
-            <div className="h-8 w-8 bg-blue-100 rounded-lg flex items-center justify-center">
-              <AlertCircle className="h-4 w-4 text-blue-600" />
-            </div>
-            <div>
-              <CardTitle className="text-base font-semibold">触发规则配置</CardTitle>
-              <p className="text-sm text-gray-500 mt-1">设定触发策略的精确条件，作为AI分析的起点</p>
-            </div>
-          </div>
-        </CardHeader>
-        
-        <CardContent className="space-y-6">
+    <div className={`space-y-6 ${className}`}>
           {/* 第一步：选择触发事件 */}
           <div>
             <label className="block text-sm font-medium text-gray-900 mb-2">
@@ -267,8 +253,6 @@ export default function TriggerRuleConfig({ value, onChange, className = '' }: T
               )}
             </div>
           </div>
-        </CardContent>
-      </Card>
     </div>
   );
 }
