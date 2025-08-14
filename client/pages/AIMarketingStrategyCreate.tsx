@@ -86,7 +86,7 @@ export default function AIMarketingStrategyCreate() {
 
     toast({
       title: isEditing ? "保存成功" : "创建成功",
-      description: `策略"${formData.strategyName}"已保存为草��状态`
+      description: `策略"${formData.strategyName}"已保存为草稿状态`
     });
 
     navigate('/ai-marketing-strategies');
@@ -113,7 +113,9 @@ export default function AIMarketingStrategyCreate() {
 
     toast({
       title: isEditing ? "保存并启用成功" : "创建并启用成功",
-      description: `策略"${formData.strategyName}"已启用，开始监控用户行为`
+      description: formData.executionMode === 'SEMI_AUTO'
+        ? `策略"${formData.strategyName}"已启用，AI开始监控用户行为`
+        : `策略"${formData.strategyName}"已启用，系统开始监控用户行为`
     });
 
     navigate('/ai-marketing-strategies');
@@ -393,7 +395,7 @@ export default function AIMarketingStrategyCreate() {
                   }))}
                   placeholder={
                     formData.executionMode === 'SEMI_AUTO'
-                      ? "例如：您的专属10%优惠券已生效，完成订单即可使用！"
+                      ? "��如：您的专属10%优惠券已生效，完成订单即可使用！"
                       : "例如：我们为您准备了特别优惠，点击查看详情。"
                   }
                 />
