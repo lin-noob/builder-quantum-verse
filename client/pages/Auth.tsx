@@ -8,6 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { Mail, Lock, User, Shield } from "lucide-react";
+import { authService } from "@/services/authService";
 
 interface FormData {
   username: string;
