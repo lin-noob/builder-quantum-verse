@@ -60,6 +60,15 @@ const App = () => (
           />
 
           <Route
+            path="/effect-tracking"
+            element={
+              <Layout>
+                <EffectTracking />
+              </Layout>
+            }
+          />
+
+          <Route
             path="/dashboard"
             element={
               <Layout>
