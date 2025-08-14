@@ -5,15 +5,13 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { Search, ArrowUpDown, ArrowUp, ArrowDown, Plus, RotateCcw } from "lucide-react";
 import {
   sampleStrategies,
   AIMarketingStrategy,
   StrategyStatus,
   STATUS_DISPLAY_NAMES,
-  STATUS_COLORS,
   EXECUTION_MODE_DISPLAY_NAMES,
-  EXECUTION_MODE_COLORS,
   generateTriggerRuleSummary,
   calculateConversionRate,
   calculateInteractionRate
@@ -63,7 +61,7 @@ export default function AIMarketingStrategies() {
     let filtered = sampleStrategies.filter(strategy => {
       const matchesSearch = filters.search === '' ||
         strategy.strategyName.toLowerCase().includes(filters.search.toLowerCase()) ||
-        strategy.actionPurpose.toLowerCase().includes(filters.search.toLowerCase());
+        (strategy.actionPurpose && strategy.actionPurpose.toLowerCase().includes(filters.search.toLowerCase()));
 
       const matchesStatus = filters.status === 'all' ||
         strategy.status === filters.status;
@@ -136,12 +134,12 @@ export default function AIMarketingStrategies() {
   // 获取排序图标
   const getSortIcon = (field: SortableFields) => {
     if (sortState.field !== field) {
-      return <ArrowUpDown className="h-4 w-4 text-gray-400" />;
+      return <ArrowUpDown className="h-4 w-4 text-muted-foreground" />;
     }
     return sortState.direction === 'desc' ? (
-      <ArrowDown className="h-4 w-4 text-blue-600" />
+      <ArrowDown className="h-4 w-4 text-foreground" />
     ) : (
-      <ArrowUp className="h-4 w-4 text-blue-600" />
+      <ArrowUp className="h-4 w-4 text-foreground" />
     );
   };
 
@@ -201,7 +199,7 @@ export default function AIMarketingStrategies() {
   // 获取状态颜色类
   const getStatusBadgeClass = (status: StrategyStatus) => {
     const colorMap = {
-      'DRAFT': 'bg-gray-100 text-gray-800',
+      'DRAFT': 'bg-muted text-muted-foreground',
       'ACTIVE': 'bg-green-100 text-green-800',
       'ARCHIVED': 'bg-orange-100 text-orange-800'
     };
@@ -212,9 +210,9 @@ export default function AIMarketingStrategies() {
   const getExecutionModeBadgeClass = (mode: string) => {
     const colorMap = {
       'SEMI_AUTO': 'bg-blue-100 text-blue-800',
-      'FULL_MANUAL': 'bg-green-100 text-green-800'
+      'FULL_MANUAL': 'bg-purple-100 text-purple-800'
     };
-    return colorMap[mode as keyof typeof colorMap] || 'bg-gray-100 text-gray-800';
+    return colorMap[mode as keyof typeof colorMap] || 'bg-muted text-muted-foreground';
   };
 
   // 格式化数字
@@ -240,16 +238,24 @@ export default function AIMarketingStrategies() {
   };
 
   return (
-    <div className="p-6 space-y-6 bg-gray-50 min-h-full">
-      {/* 筛选区 */}
-      <Card className="bg-white p-4 rounded-lg shadow-sm">
+    <div className="p-6 space-y-6 bg-background min-h-full">
+      {/* 页面标题 */}
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-foreground">AI营销策略</h1>
+        <p className="text-muted-foreground mt-1">管理和配置AI营销策略</p>
+      </div>
+
+      {/* 搜索和筛选卡片 */}
+      <Card className="p-6 bg-background border">
         <div className="flex flex-col md:flex-row gap-4 items-end">
           {/* 搜索框 */}
-          <div className="flex-1">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
             <Input
               placeholder="搜索策略名称或业务用途..."
               value={filters.search}
               onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
+              className="pl-10"
             />
           </div>
 
@@ -275,13 +281,13 @@ export default function AIMarketingStrategies() {
           <div className="flex gap-2">
             <Button
               variant="outline"
-              className="bg-slate-200 text-slate-700"
               onClick={resetFilters}
+              className="flex items-center gap-2"
             >
+              <RotateCcw className="h-4 w-4" />
               重置
             </Button>
             <Button
-              className="bg-sky-600 text-white"
               onClick={renderStrategyList}
             >
               查询
@@ -291,10 +297,13 @@ export default function AIMarketingStrategies() {
       </Card>
 
       {/* 主操作区 */}
-      <div className="mb-4">
+      <div className="flex justify-between items-center">
+        <div className="text-sm text-muted-foreground">
+          共 {processedData.totalCount} 条记录
+        </div>
         <Button 
-          className="bg-sky-600 text-white flex items-center gap-2"
           onClick={() => navigate('/ai-marketing-strategies/create')}
+          className="flex items-center gap-2"
         >
           <Plus className="h-4 w-4" />
           创建新策略
@@ -302,161 +311,163 @@ export default function AIMarketingStrategies() {
       </div>
 
       {/* 数据表格 */}
-      <Card className="bg-white rounded-lg shadow-sm overflow-x-auto">
-        <table className="w-full">
-          <thead className="bg-slate-50">
-            <tr>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">策略名称</th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">模式</th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">状态</th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">触发规则</th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">业务用途</th>
-              <th
-                className="px-6 py-4 text-left text-sm font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100"
-                onClick={() => handleSort('totalExecutions')}
-              >
-                <div className="flex items-center gap-2">
-                  执行次数
-                  {getSortIcon('totalExecutions')}
-                </div>
-              </th>
-              <th
-                className="px-6 py-4 text-left text-sm font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100"
-                onClick={() => handleSort('totalConversions')}
-              >
-                <div className="flex items-center gap-2">
-                  转化数
-                  {getSortIcon('totalConversions')}
-                </div>
-              </th>
-              <th
-                className="px-6 py-4 text-left text-sm font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100"
-                onClick={() => handleSort('updatedAt')}
-              >
-                <div className="flex items-center gap-2">
-                  最后更新
-                  {getSortIcon('updatedAt')}
-                </div>
-              </th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">操作</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200">
-            {processedData.data.map((strategy) => (
-              <tr key={strategy.strategyId} className="hover:bg-gray-50">
-                <td className="px-6 py-4">
-                  <div className="font-medium text-gray-900">{strategy.strategyName}</div>
-                  <div className="text-xs text-gray-500">ID: {strategy.strategyId}</div>
-                </td>
-                <td className="px-6 py-4">
-                  <Badge className={getExecutionModeBadgeClass(strategy.executionMode)}>
-                    {EXECUTION_MODE_DISPLAY_NAMES[strategy.executionMode]}
-                  </Badge>
-                </td>
-                <td className="px-6 py-4">
+      <Card className="bg-background border">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[800px]">
+            <thead className="bg-muted/50 border-b">
+              <tr>
+                <th className="px-6 py-4 text-left text-sm font-semibold text-foreground">策略名称</th>
+                <th className="px-6 py-4 text-left text-sm font-semibold text-foreground">模式</th>
+                <th className="px-6 py-4 text-left text-sm font-semibold text-foreground">状态</th>
+                <th className="px-6 py-4 text-left text-sm font-semibold text-foreground">触发规则</th>
+                <th className="px-6 py-4 text-left text-sm font-semibold text-foreground">业务用途</th>
+                <th
+                  className="px-6 py-4 text-left text-sm font-semibold text-foreground cursor-pointer select-none hover:bg-muted/80"
+                  onClick={() => handleSort('totalExecutions')}
+                >
                   <div className="flex items-center gap-2">
-                    <Badge className={getStatusBadgeClass(strategy.status)}>
-                      {STATUS_DISPLAY_NAMES[strategy.status]}
-                    </Badge>
+                    执行次数
+                    {getSortIcon('totalExecutions')}
                   </div>
-                </td>
-                <td className="px-6 py-4">
-                  <div className="text-sm text-gray-900">
-                    {generateTriggerRuleSummary(strategy.triggerRule)}
-                  </div>
-                </td>
-                <td className="px-6 py-4">
-                  <div className="text-sm text-gray-600 max-w-xs truncate" title={strategy.actionPurpose || '-'}>
-                    {strategy.executionMode === 'SEMI_AUTO' ? strategy.actionPurpose : '-'}
-                  </div>
-                </td>
-                <td className="px-6 py-4">
-                  <div className="text-sm text-gray-900">{formatNumber(strategy.totalExecutions)}</div>
-                  <div className="text-xs text-gray-500">
-                    互动率 {calculateInteractionRate(strategy.totalExecutions, strategy.totalInteractions)}%
-                  </div>
-                </td>
-                <td className="px-6 py-4">
-                  <div className="text-sm text-gray-900">{formatNumber(strategy.totalConversions)}</div>
-                  <div className="text-xs text-gray-500">
-                    转化率 {calculateConversionRate(strategy.totalExecutions, strategy.totalConversions)}%
-                  </div>
-                </td>
-                <td className="px-6 py-4 text-sm text-gray-600">{formatDate(strategy.updatedAt)}</td>
-                <td className="px-6 py-4 text-sm">
+                </th>
+                <th
+                  className="px-6 py-4 text-left text-sm font-semibold text-foreground cursor-pointer select-none hover:bg-muted/80"
+                  onClick={() => handleSort('totalConversions')}
+                >
                   <div className="flex items-center gap-2">
-                    <button
-                      className="text-sky-600 hover:underline"
-                      onClick={() => navigate(`/ai-marketing-strategies/${strategy.strategyId}`)}
-                    >
-                      详情
-                    </button>
-                    <div className="relative">
-                      <button
-                        className="text-gray-600 hover:text-gray-800 px-2 py-1 text-sm"
-                        onClick={() => setDropdownOpen(dropdownOpen === strategy.strategyId ? null : strategy.strategyId)}
-                      >
-                        ⋮
-                      </button>
-                      {dropdownOpen === strategy.strategyId && (
-                        <div className="absolute right-0 top-6 bg-white border rounded-lg shadow-lg py-1 z-50 min-w-[120px]">
-                          <button
-                            className="block w-full text-left px-3 py-1 text-sm text-sky-600 hover:bg-gray-100"
-                            onClick={() => navigate(`/ai-marketing-strategies/edit/${strategy.strategyId}`)}
-                          >
-                            编辑
-                          </button>
-                          
-                          {/* 状态控制按钮 */}
-                          {strategy.status === 'DRAFT' && (
-                            <button
-                              className="block w-full text-left px-3 py-1 text-sm text-green-600 hover:bg-gray-100"
-                              onClick={() => handleStatusToggle(strategy.strategyId, strategy.status)}
-                            >
-                              启用策略
-                            </button>
-                          )}
-                          
-                          {strategy.status === 'ACTIVE' && (
-                            <button
-                              className="block w-full text-left px-3 py-1 text-sm text-orange-600 hover:bg-gray-100"
-                              onClick={() => handleStatusToggle(strategy.strategyId, strategy.status)}
-                            >
-                              停用策略
-                            </button>
-                          )}
-                          
-                          {strategy.status === 'ARCHIVED' && (
-                            <button
-                              className="block w-full text-left px-3 py-1 text-sm text-green-600 hover:bg-gray-100"
-                              onClick={() => handleStatusToggle(strategy.strategyId, strategy.status)}
-                            >
-                              重新启用
-                            </button>
-                          )}
-                          
-                          {/* 删除按钮 - 只有草稿和已归档状态可以删除 */}
-                          {(strategy.status === 'DRAFT' || strategy.status === 'ARCHIVED') && (
-                            <button
-                              className="block w-full text-left px-3 py-1 text-sm text-red-600 hover:bg-gray-100"
-                              onClick={() => handleStrategyOperation(strategy.strategyId, 'delete')}
-                            >
-                              删除
-                            </button>
-                          )}
-                        </div>
-                      )}
-                    </div>
+                    转化数
+                    {getSortIcon('totalConversions')}
                   </div>
-                </td>
+                </th>
+                <th
+                  className="px-6 py-4 text-left text-sm font-semibold text-foreground cursor-pointer select-none hover:bg-muted/80"
+                  onClick={() => handleSort('updatedAt')}
+                >
+                  <div className="flex items-center gap-2">
+                    最后更新
+                    {getSortIcon('updatedAt')}
+                  </div>
+                </th>
+                <th className="px-6 py-4 text-left text-sm font-semibold text-foreground">操作</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {processedData.data.map((strategy) => (
+                <tr key={strategy.strategyId} className="hover:bg-muted/50">
+                  <td className="px-6 py-4">
+                    <div className="font-medium text-foreground">{strategy.strategyName}</div>
+                    <div className="text-xs text-muted-foreground">ID: {strategy.strategyId}</div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <Badge className={getExecutionModeBadgeClass(strategy.executionMode)}>
+                      {EXECUTION_MODE_DISPLAY_NAMES[strategy.executionMode]}
+                    </Badge>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-2">
+                      <Badge className={getStatusBadgeClass(strategy.status)}>
+                        {STATUS_DISPLAY_NAMES[strategy.status]}
+                      </Badge>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="text-sm text-foreground">
+                      {generateTriggerRuleSummary(strategy.triggerRule)}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="text-sm text-muted-foreground max-w-xs truncate" title={strategy.actionPurpose || '-'}>
+                      {strategy.executionMode === 'SEMI_AUTO' ? strategy.actionPurpose : '-'}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="text-sm text-foreground">{formatNumber(strategy.totalExecutions)}</div>
+                    <div className="text-xs text-muted-foreground">
+                      互动率 {calculateInteractionRate(strategy.totalExecutions, strategy.totalInteractions)}%
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="text-sm text-foreground">{formatNumber(strategy.totalConversions)}</div>
+                    <div className="text-xs text-muted-foreground">
+                      转化率 {calculateConversionRate(strategy.totalExecutions, strategy.totalConversions)}%
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 text-sm text-muted-foreground">{formatDate(strategy.updatedAt)}</td>
+                  <td className="px-6 py-4 text-sm">
+                    <div className="flex items-center gap-2">
+                      <button
+                        className="text-primary hover:underline"
+                        onClick={() => navigate(`/ai-marketing-strategies/${strategy.strategyId}`)}
+                      >
+                        详情
+                      </button>
+                      <div className="relative">
+                        <button
+                          className="text-muted-foreground hover:text-foreground px-2 py-1 text-sm"
+                          onClick={() => setDropdownOpen(dropdownOpen === strategy.strategyId ? null : strategy.strategyId)}
+                        >
+                          ⋮
+                        </button>
+                        {dropdownOpen === strategy.strategyId && (
+                          <div className="absolute right-0 top-6 bg-background border rounded-lg shadow-lg py-1 z-50 min-w-[120px]">
+                            <button
+                              className="block w-full text-left px-3 py-1 text-sm text-primary hover:bg-muted"
+                              onClick={() => navigate(`/ai-marketing-strategies/edit/${strategy.strategyId}`)}
+                            >
+                              编辑
+                            </button>
+                            
+                            {/* 状态控制按钮 */}
+                            {strategy.status === 'DRAFT' && (
+                              <button
+                                className="block w-full text-left px-3 py-1 text-sm text-green-600 hover:bg-muted"
+                                onClick={() => handleStatusToggle(strategy.strategyId, strategy.status)}
+                              >
+                                启用策略
+                              </button>
+                            )}
+                            
+                            {strategy.status === 'ACTIVE' && (
+                              <button
+                                className="block w-full text-left px-3 py-1 text-sm text-orange-600 hover:bg-muted"
+                                onClick={() => handleStatusToggle(strategy.strategyId, strategy.status)}
+                              >
+                                停用策略
+                              </button>
+                            )}
+                            
+                            {strategy.status === 'ARCHIVED' && (
+                              <button
+                                className="block w-full text-left px-3 py-1 text-sm text-green-600 hover:bg-muted"
+                                onClick={() => handleStatusToggle(strategy.strategyId, strategy.status)}
+                              >
+                                重新启用
+                              </button>
+                            )}
+                            
+                            {/* 删除按钮 - 只有草稿和已归档状态可以删除 */}
+                            {(strategy.status === 'DRAFT' || strategy.status === 'ARCHIVED') && (
+                              <button
+                                className="block w-full text-left px-3 py-1 text-sm text-destructive hover:bg-muted"
+                                onClick={() => handleStrategyOperation(strategy.strategyId, 'delete')}
+                              >
+                                删除
+                              </button>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
         
         {/* 分页区域 */}
-        <div className="px-6 py-4 border-t bg-gray-50 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="text-sm text-gray-700 order-2 sm:order-1">
+        <div className="px-6 py-4 border-t bg-muted/20 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="text-sm text-muted-foreground order-2 sm:order-1">
             正在显示 {((currentPage - 1) * itemsPerPage) + 1} - {Math.min(currentPage * itemsPerPage, processedData.totalCount)} 条，共 {processedData.totalCount} 条
             {(filters.search || filters.status !== 'all') && ` (已筛选，共 ${sampleStrategies.length} 条)`}
           </div>
@@ -469,7 +480,7 @@ export default function AIMarketingStrategies() {
             >
               上一页
             </Button>
-            <span className="text-sm text-gray-600">
+            <span className="text-sm text-muted-foreground">
               第 {currentPage} 页，共 {processedData.totalPages} 页
             </span>
             <Button
