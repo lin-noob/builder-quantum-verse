@@ -162,8 +162,12 @@ export default function Layout({ children }: LayoutProps) {
                       location.pathname.startsWith("/response-actions")) ||
                     (item.id === "ai-marketing-strategies" &&
                       location.pathname.startsWith("/ai-marketing-strategies")) ||
-                    (item.id === "ai-marketing" &&
-                      location.pathname.startsWith("/ai-marketing/"));
+                    (item.id === "fully-auto" &&
+                      location.pathname.startsWith("/ai-marketing/fully-auto")) ||
+                    (item.id === "monitoring-center" &&
+                      location.pathname.startsWith("/ai-marketing/monitoring-center")) ||
+                    (item.id === "effect-tracking" &&
+                      location.pathname.startsWith("/effect-tracking"));
 
                   return (
                     <li key={item.id}>
@@ -362,7 +366,7 @@ export default function Layout({ children }: LayoutProps) {
           <button
             onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
             className="w-full flex items-center justify-center p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors"
-            title={isSidebarCollapsed ? "展开侧边栏" : "折叠侧边栏"}
+            title={isSidebarCollapsed ? "展开侧边栏" : "折叠侧边���"}
           >
             {isSidebarCollapsed ? (
               <ChevronRight className="h-5 w-5" />
