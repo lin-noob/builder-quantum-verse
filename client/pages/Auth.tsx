@@ -267,13 +267,13 @@ export default function Auth() {
             <TabsContent value="login" className="space-y-4">
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="login-email">邮箱</Label>
+                  <Label htmlFor="login-email">邮箱或用户名</Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
                       id="login-email"
-                      type="email"
-                      placeholder="请输入邮箱"
+                      type="text"
+                      placeholder="请输入邮箱或用户名"
                       className="pl-10"
                       value={formData.email}
                       onChange={(e) => handleInputChange("email", e.target.value)}
