@@ -172,6 +172,28 @@ export default function AIMarketingStrategyDetail() {
             <CardContent>
               <dl className="grid grid-cols-2 gap-4">
                 <div>
+                  <dt className="text-sm font-medium text-gray-600">策略名称</dt>
+                  <dd className="mt-1 text-sm text-gray-900 font-medium">{strategy.strategyName}</dd>
+                </div>
+                <div>
+                  <dt className="text-sm font-medium text-gray-600">策略状态</dt>
+                  <dd className="mt-1 flex items-center gap-2">
+                    <Badge className={getStatusBadgeClass(strategy.status)}>
+                      {STATUS_DISPLAY_NAMES[strategy.status]}
+                    </Badge>
+                    {strategy.status === 'ACTIVE' && (
+                      <div className="flex items-center gap-1 text-green-600">
+                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                        <span className="text-xs">运行中</span>
+                      </div>
+                    )}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-sm font-medium text-gray-600">策略ID</dt>
+                  <dd className="mt-1 text-sm text-gray-600 font-mono">{strategy.strategyId}</dd>
+                </div>
+                <div>
                   <dt className="text-sm font-medium text-gray-600">创建时间</dt>
                   <dd className="mt-1 text-sm text-gray-900">{formatDate(strategy.createdAt)}</dd>
                 </div>
@@ -350,7 +372,7 @@ export default function AIMarketingStrategyDetail() {
             </CardContent>
           </Card>
 
-          {/* 策略状态��明 */}
+          {/* 策略状态说明 */}
           <Card className="bg-white rounded-lg shadow-sm">
             <CardHeader>
               <CardTitle className="text-lg">策略状态说明</CardTitle>
@@ -430,7 +452,7 @@ export default function AIMarketingStrategyDetail() {
                   </div>
                   <div>
                     <div className="font-medium text-gray-900">个性化执行</div>
-                    <div>���成个性化弹窗内容并执行</div>
+                    <div>生成个性化弹窗内容并执行</div>
                   </div>
                 </div>
               </div>
