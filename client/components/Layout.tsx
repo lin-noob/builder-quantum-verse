@@ -76,7 +76,7 @@ export default function Layout({ children }: LayoutProps) {
     },
     {
       id: "monitoring-center",
-      label: "监���中心",
+      label: "监控中心",
       path: "/ai-marketing/monitoring-center",
       icon: <Activity className="h-5 w-5" />,
     },
@@ -209,7 +209,7 @@ export default function Layout({ children }: LayoutProps) {
             </div>
             {!isSidebarCollapsed && (
               <span className="text-xl font-bold text-gray-900 whitespace-nowrap overflow-hidden">
-                AI���销��台
+                AI营销��台
               </span>
             )}
           </div>
