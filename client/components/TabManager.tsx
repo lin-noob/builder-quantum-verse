@@ -102,7 +102,7 @@ export default function TabManager() {
       // 如果标签页不存在，创建新标签页
       let title = pathToTitle[currentPath as keyof typeof pathToTitle];
 
-      // 如果没有预定义标题，尝试从路径生成友好的标题
+      // ���果没有预定义标题，尝试从路径生成友好的标题
       if (!title) {
         if (currentPath.includes("/users/")) {
           title = "用户详情";
@@ -283,7 +283,7 @@ export default function TabManager() {
               onClick={() => handleTabClick(tab)}
               onContextMenu={(e) => handleContextMenu(e, tab)}
             >
-              {/* 标签页��标 */}
+              {/* 标签页图标 */}
               {tab.isHome && <Home className="h-3 w-3 flex-shrink-0" />}
 
               {/* 标签页标题 */}
