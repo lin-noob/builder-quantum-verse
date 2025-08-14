@@ -212,7 +212,7 @@ export default function FullyAuto() {
                         <Input
                           value={newRule.value}
                           onChange={(e) => setNewRule(prev => ({ ...prev, value: e.target.value }))}
-                          placeholder="输入��选值（如：1000、VIP、30等）"
+                          placeholder="输入对选值（如：1000、VIP、30等）"
                         />
                       </div>
                     </div>

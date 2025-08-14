@@ -97,7 +97,7 @@ export default function ScriptCreate() {
   const eventNameOptions = [
     { value: 'add_to_cart', label: '加入购物车' },
     { value: 'page_view', label: '浏览页面' },
-    { value: 'submit_form', label: '提交表单' },
+    { value: 'submit_form', label: '���交表单' },
     { value: 'user_register', label: '用户注册' },
     { value: 'start_checkout', label: '开始结账' }
   ];
@@ -142,7 +142,7 @@ export default function ScriptCreate() {
     { value: '!=', label: '不等于' },
     { value: '>', label: '大于' },
     { value: '<', label: '小于' },
-    { value: '包含', label: '���含' },
+    { value: '包含', label: '包含' },
     { value: '不包含', label: '不包含' }
   ];
 
@@ -215,7 +215,7 @@ export default function ScriptCreate() {
                     onValueChange={(value) => handleInputChange('eventName', value)}
                   >
                     <SelectTrigger className="mt-1">
-                      <SelectValue placeholder="选��事件类型" />
+                      <SelectValue placeholder="选择事件类型" />
                     </SelectTrigger>
                     <SelectContent>
                       {eventNameOptions.map((option) => (
