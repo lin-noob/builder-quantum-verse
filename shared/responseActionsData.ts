@@ -32,7 +32,7 @@ export interface EmailParameters {
 
 // Purpose options for AI-triggered scenarios
 export const PURPOSE_OPTIONS = [
-  { value: 'NEW_USER_FIRST_VISIT', label: '识别到新用户首次访问��' },
+  { value: 'NEW_USER_FIRST_VISIT', label: '识别到新用户首次访问时' },
   { value: 'CART_ABANDONMENT', label: '识别到用户即将放弃购物车时' },
   { value: 'LONG_STAY_NO_CONVERSION', label: '用户长时间停留但无转化动作时' },
   { value: 'PRODUCT_COMPARISON', label: '识别到用户正在进行商品对比时' },
