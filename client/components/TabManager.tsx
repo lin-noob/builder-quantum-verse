@@ -99,7 +99,7 @@ export default function TabManager() {
         })),
       );
     } else {
-      // 如果标签页不存在，创��新标签页
+      // 如果标签页不存在，创建新标签页
       let title = pathToTitle[currentPath as keyof typeof pathToTitle];
 
       // 如果没有预定义标题，尝试从路径生成友好的标题
@@ -179,7 +179,7 @@ export default function TabManager() {
     const tabIndex = tabs.findIndex((tab) => tab.id === tabId);
     const newTabs = tabs.filter((tab) => tab.id !== tabId);
 
-    // 如果关闭的是激活标签页，需要切��到其他标签页
+    // 如果关闭的是激活标签页，需要切换到其他标签页
     if (tabToClose.isActive && newTabs.length > 0) {
       let nextActiveTab;
       // 优先切换到左侧标签页
