@@ -188,8 +188,8 @@ export default function Layout({ children }: LayoutProps) {
           isSidebarCollapsed ? "w-16" : "w-64",
         )}
       >
-        {/* Logo and User Profile */}
-        <div className="h-16 flex items-center justify-between px-3 border-b border-gray-200">
+        {/* Logo */}
+        <div className="h-16 flex items-center justify-center px-3 border-b border-gray-200">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
               <BarChart3 className="h-5 w-5 text-white" />
@@ -200,18 +200,6 @@ export default function Layout({ children }: LayoutProps) {
               </span>
             )}
           </div>
-          {currentUser && (
-            <Link
-              to="/profile"
-              className={cn(
-                "flex items-center justify-center rounded-full bg-primary hover:bg-primary/90 transition-colors",
-                isSidebarCollapsed ? "w-8 h-8" : "w-8 h-8"
-              )}
-              title={isSidebarCollapsed ? `${currentUser.username} - 个人信息` : ""}
-            >
-              <User className="h-4 w-4 text-primary-foreground" />
-            </Link>
-          )}
         </div>
 
         {/* Navigation Menu */}
