@@ -215,7 +215,7 @@ export default function ScriptCreate() {
                     onValueChange={(value) => handleInputChange('eventName', value)}
                   >
                     <SelectTrigger className="mt-1">
-                      <SelectValue placeholder="选择事件类型" />
+                      <SelectValue placeholder="选��事件类型" />
                     </SelectTrigger>
                     <SelectContent>
                       {eventNameOptions.map((option) => (
@@ -298,7 +298,7 @@ export default function ScriptCreate() {
                       onValueChange={(value) => handleInputChange('segmentOperator', value)}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="操作��" />
+                        <SelectValue placeholder="操作类型" />
                       </SelectTrigger>
                       <SelectContent>
                         {operatorOptions.map((op) => (
@@ -394,7 +394,7 @@ export default function ScriptCreate() {
                     <span className="font-medium text-blue-900">AI智能推荐</span>
                   </div>
                   <p className="text-sm text-blue-800 mt-2">
-                    AI将根据用户行为和偏好，自动推荐最相关的产品或服务。
+                    AI将根据用户行为和偏好，自动推荐最相关���产品或服务。
                   </p>
                 </div>
               </div>
