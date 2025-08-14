@@ -83,36 +83,36 @@ export default function ForgotPassword() {
       return;
     }
 
-    if (!checkEmailExists(formData.email)) {
+    setIsCodeSending(true);
+
+    const result = await authService.sendVerificationCode(formData.email, 'reset');
+
+    setIsCodeSending(false);
+
+    if (!result.success) {
       toast({
-        title: "该邮箱地址未注册",
+        title: result.error,
         variant: "destructive"
       });
       return;
     }
 
-    setIsCodeSending(true);
-    
-    // 模拟发送邮件
-    setTimeout(() => {
-      setIsCodeSending(false);
-      setCountdown(120);
-      
-      toast({
-        title: "验证码已发送至您的邮箱",
-        description: "请查收并在10分钟内使用"
-      });
+    setCountdown(120);
 
-      // 开始倒计时
-      const timer = setInterval(() => {
-        setCountdown(prev => {
-          if (prev <= 1) {
-            clearInterval(timer);
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
+    toast({
+      title: "验证码已发送至您的邮箱",
+      description: "请查收并在10分钟内使用"
+    });
+
+    // 开始倒计时
+    const timer = setInterval(() => {
+      setCountdown(prev => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          return 0;
+        }
+        return prev - 1;
+      });
     }, 1000);
   };
 
@@ -133,7 +133,7 @@ export default function ForgotPassword() {
     // 模拟验证码检查
     if (formData.confirmationCode !== "8764") {
       toast({
-        title: "验证码无效，请重试",
+        title: "验证码���效，请重试",
         variant: "destructive"
       });
       return;
