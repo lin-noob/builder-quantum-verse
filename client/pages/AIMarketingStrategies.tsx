@@ -41,7 +41,7 @@ export default function AIMarketingStrategies() {
     status: 'all'
   });
 
-  // 排序状态 - 默认按最后更新时间排序
+  // 排序状态 - 默认��最后更新时间排序
   const [sortState, setSortState] = useState<SortState>({
     field: 'updatedAt',
     direction: 'desc'
@@ -286,7 +286,7 @@ export default function AIMarketingStrategies() {
       </Card>
 
       {/* 主操作区 */}
-      <div className="flex justify-end items-center">
+      <div className="flex justify-start items-center">
         <Button
           onClick={() => navigate('/ai-marketing-strategies/create')}
           className="flex items-center gap-2"
@@ -320,7 +320,7 @@ export default function AIMarketingStrategies() {
                   onClick={() => handleSort('totalConversions')}
                 >
                   <div className="flex items-center gap-2">
-                    转���数
+                    转��数
                     {getSortIcon('totalConversions')}
                   </div>
                 </th>
