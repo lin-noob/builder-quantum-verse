@@ -19,7 +19,7 @@ export interface User {
   maxBuyTime: string;
   /** 最大订单金额（保留5位小数） */
   maxOrderAmount: number;
-  /** 总消费金��（保留5位小数） */
+  /** 总消费金额（保留5位小数） */
   totalOrders: number;
   /** 订单数量 */
   orderCount: number;
@@ -117,7 +117,7 @@ export interface CartItem {
   unitPrice: number;
   quantity: number;
   totalPrice: number;
-  addedTime: string; // 加入购物车时间
+  addedTime: string; // 加入购���车时间
   lastUpdated: string; // 最后更新时间
 }
 
@@ -329,7 +329,7 @@ export const mockUsers: User[] = [
         },
         billingAddress: {
           name: "腾讯科技（深圳）有限公司",
-          street: "深圳市南山区科技园南区R4-B栋",
+          street: "深圳市南山区科技园南��R4-B栋",
           city: "深圳",
           state: "广东省",
           postalCode: "518057",
@@ -472,7 +472,7 @@ export const mockUsers: User[] = [
       {
         id: "session-lm-1",
         date: "2024-01-20 10:30",
-        summary: "产品演示和技���评估",
+        summary: "���品演示和技术评估",
         source: "社交媒体广告",
         deviceType: "桌面端",
         os: "macOS 14",
@@ -514,7 +514,7 @@ export const mockUsers: User[] = [
         deviceType: "桌面端",
         os: "macOS 14",
         browser: "Chrome 120",
-        location: "���州, 中国",
+        location: "杭州, 中国",
         ipAddress: "120.55.162.203",
         events: [
           {
@@ -753,7 +753,7 @@ export const mockUsers: User[] = [
           {
             timestamp: "13:57:35",
             eventType: "页面访问",
-            pageTitle: "功能试���",
+            pageTitle: "功能试用",
             pageUrl: "/trial/features",
             stayDuration: "25分30秒",
             scrollDepth: "95%",
@@ -1025,7 +1025,7 @@ export const mockUsers: User[] = [
       {
         orderNumber: "ORD-2023-145",
         orderDate: "2023-11-25",
-        status: "已完���",
+        status: "已完成",
         totalAmount: 3200.0,
         currency: "CNY",
         paymentMethod: "企业转账",
@@ -1222,7 +1222,7 @@ export const mockUsers: User[] = [
       },
       {
         id: "cart-item-zm-2",
-        productName: "AI智能模块",
+        productName: "AI智能���块",
         unitPrice: 1200.0,
         quantity: 2,
         totalPrice: 2400.0,
@@ -1279,7 +1279,7 @@ export interface OrderSummaryDto {
  * 用户画像列表查询参数
  */
 export interface UserProfileListParams {
-  /** 每页数量 */
+  /** ���页数量 */
   limit?: number;
   /** 用户名 */
   name?: string;
