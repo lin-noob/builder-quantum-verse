@@ -178,19 +178,41 @@ class AuthService {
   async resetPassword(email: string, newPassword: string): Promise<{ success: boolean; error?: string }> {
     try {
       const userIndex = this.users.findIndex(u => u.email === email);
-      
+
       if (userIndex === -1) {
         return { success: false, error: "用户不存在" };
       }
 
       this.users[userIndex].password = newPassword;
-      
+
       // 清除验证码
       this.verificationCodes.delete(email);
 
       return { success: true };
     } catch (error) {
       return { success: false, error: "重置密码失败，请重试" };
+    }
+  }
+
+  // 修改密码（需要当前密码验证）
+  async changePassword(currentPassword: string, newPassword: string): Promise<{ success: boolean; error?: string }> {
+    try {
+      if (!this.currentUser) {
+        return { success: false, error: "请先登录" };
+      }
+
+      // 验证当前密码
+      const user = this.users.find(u => u.id === this.currentUser!.id);
+      if (!user || user.password !== currentPassword) {
+        return { success: false, error: "当前密码错误" };
+      }
+
+      // 更新密码
+      user.password = newPassword;
+
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: "修改密码失败，请重试" };
     }
   }
 
@@ -226,7 +248,7 @@ class AuthService {
     return this.isAuthenticated || !!localStorage.getItem('auth_token');
   }
 
-  // 检查邮箱是否���在
+  // 检查邮箱是否存在
   checkEmailExists(email: string): boolean {
     return this.users.some(u => u.email === email);
   }
