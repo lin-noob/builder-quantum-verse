@@ -17,7 +17,7 @@ export interface User {
   minBuyTime: string;
   /** 最后购买时间 */
   maxBuyTime: string;
-  /** 最大订单金额（保留5位小数） */
+  /** 最大订单金额（保留5位小���） */
   maxOrderAmount: number;
   /** 总消费金额（保留5位小数） */
   totalOrders: number;
@@ -117,7 +117,7 @@ export interface CartItem {
   unitPrice: number;
   quantity: number;
   totalPrice: number;
-  addedTime: string; // 加入���物车时间
+  addedTime: string; // 加入购物车时间
   lastUpdated: string; // 最后更新时间
 }
 
@@ -329,7 +329,7 @@ export const mockUsers: User[] = [
         },
         billingAddress: {
           name: "腾讯科技（深圳）有限公司",
-          street: "深圳市南山区科技园��区R4-B栋",
+          street: "深圳市南山区科技园南区R4-B栋",
           city: "深圳",
           state: "广东省",
           postalCode: "518057",
@@ -554,7 +554,7 @@ export const mockUsers: User[] = [
       {
         id: "session-lm-3",
         date: "2024-01-05 16:20",
-        summary: "产品对比和价格咨��",
+        summary: "产品对比和价格咨询",
         source: "搜索引擎",
         deviceType: "��动端",
         os: "iOS 17",
@@ -609,7 +609,7 @@ export const mockUsers: User[] = [
       {
         orderNumber: "ORD-2023-156",
         orderDate: "2023-12-25",
-        status: "已完成",
+        status: "已���成",
         totalAmount: 3650.25,
         currency: "CNY",
         paymentMethod: "企业转账",
@@ -1075,7 +1075,7 @@ export const mockUsers: User[] = [
         paymentMethod: "企业转账",
         items: [
           {
-            productName: "准��软件授权",
+            productName: "准版软件授权",
             unitPrice: 1600.0,
             quantity: 3,
             totalPrice: 4800.0,
@@ -1130,7 +1130,7 @@ export const mockUsers: User[] = [
       },
       {
         id: "cart-item-cj-2",
-        productName: "数据分析模块",
+        productName: "��据分析模块",
         unitPrice: 750.0,
         quantity: 1,
         totalPrice: 750.0,
