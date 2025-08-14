@@ -17,6 +17,7 @@ import UserDetailNew from "./pages/UserDetail_New";
 import UserDetail2 from "./pages/UserDetail2";
 import AIMarketingStrategies from "./pages/AIMarketingStrategies";
 import AIMarketingStrategyCreate from "./pages/AIMarketingStrategyCreate";
+import AIMarketingStrategyDetail from "./pages/AIMarketingStrategyDetail";
 import ResponseActionDetail from "./pages/ResponseActionDetail";
 import ResponseActionCreate from "./pages/ResponseActionCreate";
 import MonitoringCenter from "./pages/AIMarketing/MonitoringCenter";
