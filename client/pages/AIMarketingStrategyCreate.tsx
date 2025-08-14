@@ -79,7 +79,7 @@ export default function AIMarketingStrategyCreate() {
     }
   ];
   
-  // 获取实际需要的步骤（过滤掉不需要的步骤）
+  // 获取实际需要的步骤（过滤掉不需���的步骤）
   const activeSteps = steps.filter(step => step.isRequired);
   const totalSteps = activeSteps.length;
 
@@ -91,7 +91,7 @@ export default function AIMarketingStrategyCreate() {
     },
     {
       title: '欢迎新用户，并根据其兴趣进行初步引导',
-      content: '当系统���测到新用户首次访问网站或应用时，基于用户的注册信息、访问来源渠道、浏览设备类型等数据，智能展示个性化欢迎引导流程。通过分析用户点击的商品类别、停留时间、搜索��键词等行为数据，动态调整引导内容和产品推荐。为新用户提供专属新人礼包（如首单优惠券、会员积分奖励）、个性化商品推荐清单、平台核心功能介绍等，帮助用户快速了解平台价值并找到感兴趣的内容。同时收集用户偏好标签，为后续个性化营销奠定基础。'
+      content: '当系统���测到新用户首次访问网站或应用时，基于用户的注册信息、访问来源渠道、浏览设备类型等数据，智能展示个性化欢迎引导流程。通过分析用户点击的商品类别、停留时间、搜索��键词等行为数据，动态调整引导内容和产品推荐。为新用户提供专属新人礼包（���首单优惠券、会员积分奖励）、个性化商品推荐清单、平台核心功能介绍等，帮助用户快速了解平台价值并找到感兴趣的内容。同时收集用户偏好标签，为后续个性化营销奠定基础。'
     },
     {
       title: '帮助用户找到相关产品，提升用户体验',
@@ -99,7 +99,7 @@ export default function AIMarketingStrategyCreate() {
     },
     {
       title: '推荐个性化商品，提高转化率',
-      content: '基于用户的历史购买记录、浏览行为、收藏清单、搜索历史、个人档案信息等多维度数据，运用协同过滤和深度学习算法，在用户浏览商品详情页、购物车页面、或完成订单后，智��推荐高相关性的个性化商品。推荐策略包括：购买了A商品的用户还喜欢B商品、基于季节和节日的时令推荐、根据用户生活方式的场景化推荐、价格敏感度匹配的商品推荐等。通过A/B测试不断优化推荐算法和展示样式，提升点击率和转化率，增加用户客单价和复购频次。'
+      content: '基于用户的历史购买记录、浏览行为、收藏清单、搜索历史、个人档案信息等多维度数据，运用协同过滤和深度学习算法，在用户浏览商品详情页、购物车页面、或完成订单后，智��推荐高相关性的个性化商品。推荐策略包括：购买了A商品的用户还喜欢B商��、基于季节和节日的时令推荐、根据用户生活方式的场景化推荐、价格敏感度匹配的商品推荐等。通过A/B测试不断优化推荐算法和展示样式，提升点击率和转化率，增加用户客单价和复购频次。'
     }
   ];
 
@@ -194,7 +194,7 @@ export default function AIMarketingStrategyCreate() {
         return true;
         
       case 2:
-        // 触发规则验证（这里可以添加更复杂的验证）
+        // 触发规则验��（这里可以添加更复杂的验证）
         return true;
         
       case 3:
@@ -428,7 +428,7 @@ export default function AIMarketingStrategyCreate() {
     <Card>
       <CardHeader>
         <CardTitle className="text-lg font-semibold">业务用途设定</CardTitle>
-        <p className="text-sm text-muted-foreground">向AI下达��心任务指令，指导AI做出正确的个性化决策</p>
+        <p className="text-sm text-muted-foreground">向AI下达核心任务指令，指导AI做出正确的个性化决策</p>
       </CardHeader>
       <CardContent className="space-y-4">
         <div>
@@ -436,7 +436,7 @@ export default function AIMarketingStrategyCreate() {
             业务用途 <span className="text-destructive">*</span>
           </label>
           <p className="text-xs text-muted-foreground mb-3">
-            用自然语言清晰地描述这个策略希望达成的业务目标。AI将理解您的意图，在触发规则命中时自主选择最佳的个性化策略。
+            用自然语言清晰地描述这个策略希望达成的业务目标。AI将理解您的意图，在触发规则命中���自主选择最佳的个性化策略。
           </p>
           <textarea
             className="w-full px-3 py-2 border border-border rounded-md resize-none focus:ring-2 focus:ring-ring focus:border-ring text-sm"
@@ -550,7 +550,7 @@ export default function AIMarketingStrategyCreate() {
             placeholder={
               formData.executionMode === 'SEMI_AUTO' 
                 ? "例如：您的专属10%优惠券已生效，完成订单即可使用！"
-                : "例如：我们为您���备了特别优惠，点击查看详情。"
+                : "例如：我们为您准备了特别优惠，点击查看详情。"
             }
           />
           <p className="text-xs text-muted-foreground mt-2">
