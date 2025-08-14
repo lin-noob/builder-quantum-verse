@@ -35,9 +35,13 @@ export default function Layout({ children }: LayoutProps) {
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [currentUser, setCurrentUser] = useState(authService.getCurrentUser());
 
-  // 获取当前用户
-  const currentUser = authService.getCurrentUser();
+  // 监听用户状态变化
+  useEffect(() => {
+    const user = authService.getCurrentUser();
+    setCurrentUser(user);
+  }, [location]); // 当路由变化时重新检查用户状态
 
   const menuItems: MenuItem[] = [
     {
