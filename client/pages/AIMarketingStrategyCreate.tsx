@@ -17,7 +17,8 @@ import {
   sampleStrategies,
   AIMarketingStrategy,
   TriggerRule,
-  BaseActionParameters
+  BaseActionParameters,
+  generateTriggerRuleSummary
 } from '@shared/aiMarketingStrategyData';
 import TriggerRuleConfig from '@/components/TriggerRuleConfig';
 import { useToast } from '@/hooks/use-toast';
@@ -53,7 +54,7 @@ export default function AIMarketingStrategyCreate() {
     }
   });
 
-  // 如果是编辑模式，加载现有数据
+  // ���果是编辑模式，加载现有数据
   useEffect(() => {
     if (isEditing && id) {
       const strategy = sampleStrategies.find(s => s.strategyId === id);
@@ -98,7 +99,7 @@ export default function AIMarketingStrategyCreate() {
   // 常用业务用途示例
   const commonPurposes = [
     '尽力挽留用户，促使其完成订单',
-    '欢迎新用户，并根据其兴趣进行初步引导',
+    '欢迎新用户，并根据其兴趣进行初���引导',
     '帮助用户找到相关产品，提升用户体验',
     '推荐个性化商品，提高转化率',
     '收集用户反馈，改善产品服务',
@@ -431,7 +432,7 @@ export default function AIMarketingStrategyCreate() {
               placeholder="例如：高价值购物车挽留策略"
               className="text-base"
             />
-            <p className="text-xs text-gray-500 mt-1">为这个AI营��策略起一个描述性的名称，便于管理</p>
+            <p className="text-xs text-gray-500 mt-1">为这个AI营销策略起一个描述性的名称，便于管理</p>
           </div>
 
           {/* 配置预览 */}
