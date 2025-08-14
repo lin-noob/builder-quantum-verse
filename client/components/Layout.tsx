@@ -285,6 +285,37 @@ export default function Layout({ children }: LayoutProps) {
           </ul>
         </nav>
 
+        {/* User Profile Section */}
+        {currentUser && (
+          <div className="border-t border-gray-200 p-3">
+            <Link
+              to="/profile"
+              className={cn(
+                "flex items-center gap-3 p-2 rounded-lg text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-colors",
+                isSidebarCollapsed ? "justify-center" : "justify-start"
+              )}
+              title={isSidebarCollapsed ? `${currentUser.username} - 个人信息` : ""}
+            >
+              <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
+                <User className="h-4 w-4 text-primary-foreground" />
+              </div>
+              {!isSidebarCollapsed && (
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-gray-900 truncate">
+                    {currentUser.username}
+                  </p>
+                  <p className="text-xs text-gray-500 truncate">
+                    {currentUser.isAdmin ? "管理员" : "用户"}
+                  </p>
+                </div>
+              )}
+              {!isSidebarCollapsed && (
+                <Settings className="h-4 w-4 text-gray-400" />
+              )}
+            </Link>
+          </div>
+        )}
+
         {/* Collapse Toggle Button */}
         <div className="border-t border-gray-200 p-2">
           <button
