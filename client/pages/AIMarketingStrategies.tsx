@@ -300,9 +300,8 @@ export default function AIMarketingStrategies() {
       </div>
 
       {/* 数据表格 */}
-      <Card className="bg-background border">
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[800px]">
+      <Card className="bg-background border overflow-x-auto">
+        <table className="w-full">
             <thead className="bg-muted/50 border-b">
               <tr>
                 <th className="px-6 py-4 text-left text-sm font-semibold text-foreground">策略名称</th>
@@ -446,8 +445,7 @@ export default function AIMarketingStrategies() {
                 </tr>
               ))}
             </tbody>
-          </table>
-        </div>
+        </table>
         
         {/* 分页区域 */}
         <div className="px-6 py-4 border-t bg-muted/20 flex flex-col sm:flex-row items-center justify-between gap-4">
