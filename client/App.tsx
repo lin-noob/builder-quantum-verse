@@ -47,6 +47,17 @@ const App = () => (
           <Route path="/reset-password" element={<ResetPassword />} />
 
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
+
+          {/* User Profile route */}
+          <Route
+            path="/profile"
+            element={
+              <Layout>
+                <UserProfile />
+              </Layout>
+            }
+          />
+
           <Route
             path="/dashboard"
             element={
