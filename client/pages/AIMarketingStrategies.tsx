@@ -341,12 +341,6 @@ export default function AIMarketingStrategies() {
                     <Badge className={getStatusBadgeClass(strategy.status)}>
                       {STATUS_DISPLAY_NAMES[strategy.status]}
                     </Badge>
-                    {strategy.status === 'ACTIVE' && (
-                      <div className="flex items-center gap-1 text-green-600">
-                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                        <span className="text-xs">运行中</span>
-                      </div>
-                    )}
                   </div>
                 </td>
                 <td className="px-6 py-4">
