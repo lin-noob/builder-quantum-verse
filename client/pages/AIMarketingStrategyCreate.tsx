@@ -406,7 +406,7 @@ export default function AIMarketingStrategyCreate() {
         <p className="text-sm text-muted-foreground">
           {formData.executionMode === 'SEMI_AUTO'
             ? '定义AI需要监控的精确用户行为场景，作为策略启动的"守门员"'
-            : '定义系统需要监控的精确用��行为场景，作为固定内容执行的触发条件'
+            : '定义系统需要监控的精确用户行为场景，作为固定内容执行的触发条件'
           }
         </p>
       </CardHeader>
@@ -432,14 +432,14 @@ export default function AIMarketingStrategyCreate() {
             业务用途 <span className="text-destructive">*</span>
           </label>
           <p className="text-xs text-muted-foreground mb-3">
-            用自然语言清晰地描述这个策略希望达成的业务目标。AI将理解您的意图，在触发规则命中时自主选择最佳的个性化策略。
+            用自然语言清晰地描述这个策略希望达成的业务目标。AI将理解您的意图，在触发规则命中时自主选择最佳的个性化���略。
           </p>
           <textarea
             className="w-full px-3 py-2 border border-border rounded-md resize-none focus:ring-2 focus:ring-ring focus:border-ring text-sm"
             rows={4}
             value={formData.actionPurpose || ''}
             onChange={(e) => setFormData(prev => ({ ...prev, actionPurpose: e.target.value }))}
-            placeholder="例如：尽力挽留用户，���使其完成订单"
+            placeholder="例如：尽力挽留用户，促使其完成订单"
           />
         </div>
         
@@ -473,7 +473,7 @@ export default function AIMarketingStrategyCreate() {
         <p className="text-sm text-muted-foreground">
           {formData.executionMode === 'SEMI_AUTO'
             ? '设计一个基础的弹窗内容，AI将以此为参考进行个性化优化和安全降级'
-            : '设计固定的弹窗内容，系统将严格按照��内容展示给用户'
+            : '设计固定的弹窗内容，系统将严格按照此内容展示给用户'
           }
         </p>
       </CardHeader>
@@ -562,15 +562,6 @@ export default function AIMarketingStrategyCreate() {
   
   return (
     <div className="p-6 space-y-6 bg-background min-h-full">
-      {/* 页面标题 */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-foreground">
-          {isEditing ? '编辑营销策略' : '创建营销策略'}
-        </h1>
-        <p className="text-muted-foreground mt-1">
-          {isEditing ? '修改策略配置' : '通过向导式流程创建新的营销策略'}
-        </p>
-      </div>
       
       {/* 步骤指示器 */}
       {renderStepIndicator()}
