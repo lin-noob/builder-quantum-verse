@@ -144,7 +144,7 @@ export default function AIMarketingStrategies() {
 
   // 查询函数（刷新数据）
   const renderStrategyList = () => {
-    // 筛选逻辑已在 useMemo 中处理，这里可以添加���新逻辑
+    // 筛选逻辑已在 useMemo 中处理，这里可以添加刷新逻辑
     setCurrentPage(1); // 重置到第一页
     toast({
       title: "数据已刷新",
@@ -195,24 +195,6 @@ export default function AIMarketingStrategies() {
     setDropdownOpen(null);
   };
 
-  // 获取状态颜色类
-  const getStatusBadgeClass = (status: StrategyStatus) => {
-    const colorMap = {
-      'DRAFT': 'bg-muted text-muted-foreground border-transparent',
-      'ACTIVE': 'bg-green-100 text-green-800 border-transparent',
-      'ARCHIVED': 'bg-orange-100 text-orange-800 border-transparent'
-    };
-    return colorMap[status];
-  };
-
-  // 获取执行模式颜色类
-  const getExecutionModeBadgeClass = (mode: string) => {
-    const colorMap = {
-      'SEMI_AUTO': 'bg-blue-100 text-blue-800 border-transparent',
-      'FULL_MANUAL': 'bg-purple-100 text-purple-800 border-transparent'
-    };
-    return colorMap[mode as keyof typeof colorMap] || 'bg-muted text-muted-foreground border-transparent';
-  };
 
   // 格式化数字
   const formatNumber = (num: number): string => {
