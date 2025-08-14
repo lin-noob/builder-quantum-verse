@@ -195,7 +195,7 @@ export default function AIMarketingStrategyDetail() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
                 <MessageSquare className="h-5 w-5 text-green-600" />
-                基础弹窗配置
+                {strategy.executionMode === 'SEMI_AUTO' ? '基础弹窗配置' : '弹窗内容配置'}
               </CardTitle>
             </CardHeader>
             <CardContent>
