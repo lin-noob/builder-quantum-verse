@@ -139,10 +139,7 @@ export default function PerformanceTrend({
                 interval="preserveStartEnd"
                 type="category"
                 allowDuplicatedCategory={false}
-                domain={['dataMin', 'dataMax']}
                 hide={false}
-                tickCount={5}
-                minTickGap={5}
                 mirror={false}
                 reversed={false}
                 includeHidden={false}
