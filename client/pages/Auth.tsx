@@ -161,7 +161,7 @@ export default function Auth() {
     
     toast({
       title: "谷歌登录成功",
-      description: "已自动填充信息，正在��送验证码..."
+      description: "已自动填充信息，正在发送验证码..."
     });
 
     // 自动发送验证码
@@ -212,12 +212,12 @@ export default function Auth() {
   };
 
   // 登录处理
-  const handleLogin = () => {
+  const handleLogin = async () => {
     // 验证字段
     const newErrors: FormErrors = {};
     const emailError = validateField("email", formData.email);
     const passwordError = validateField("password", formData.password);
-    
+
     if (emailError) newErrors.email = emailError;
     if (passwordError) newErrors.password = passwordError;
 
@@ -226,32 +226,27 @@ export default function Auth() {
       return;
     }
 
-    // 默认管理员账号
-    if (formData.email === "admin" && formData.password === "123456") {
-      toast({
-        title: "登录成功！",
-        description: "欢迎回来，管理员"
-      });
-      setTimeout(() => {
-        navigate("/");
-      }, 1000);
-      return;
-    }
+    const result = await authService.login({
+      email: formData.email,
+      password: formData.password
+    });
 
-    // 检查邮箱是否存在
-    if (!checkEmailExists(formData.email)) {
+    if (!result.success) {
       toast({
-        title: "该邮箱未注册账户",
+        title: result.error,
         variant: "destructive"
       });
       return;
     }
 
-    // 模拟密码验证
     toast({
-      title: "邮箱或密码错误，请重新输入",
-      variant: "destructive"
+      title: "登录成功！",
+      description: result.user?.isAdmin ? "欢迎回来，管理员" : "欢迎回来"
     });
+
+    setTimeout(() => {
+      navigate("/");
+    }, 1000);
   };
 
   return (
@@ -287,7 +282,7 @@ export default function Auth() {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="login-password">密���</Label>
+                  <Label htmlFor="login-password">密码</Label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
