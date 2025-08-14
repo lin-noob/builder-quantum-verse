@@ -1,20 +1,14 @@
-import { useParams, useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
+import { useParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { 
-  ArrowLeft, 
-  Edit, 
+import {
   Settings,
   Target,
   MessageSquare,
   BarChart3,
   TrendingUp,
   Users,
-  MousePointer,
-  Power,
-  PowerOff,
-  Archive
+  MousePointer
 } from 'lucide-react';
 import {
   sampleStrategies,
@@ -264,7 +258,7 @@ export default function AIMarketingStrategyDetail() {
                     </div>
                     <div>
                       <div className="text-sm font-medium text-gray-600">执行次数</div>
-                      <div className="text-xs text-gray-500">策略触发总次��</div>
+                      <div className="text-xs text-gray-500">策略触发总次数</div>
                     </div>
                   </div>
                   <div className="text-right">
@@ -350,7 +344,7 @@ export default function AIMarketingStrategyDetail() {
                     3
                   </div>
                   <div>
-                    <div className="font-medium text-gray-900">智���决策</div>
+                    <div className="font-medium text-gray-900">智能决策</div>
                     <div>基于业务用途自主选择最佳策略</div>
                   </div>
                 </div>
