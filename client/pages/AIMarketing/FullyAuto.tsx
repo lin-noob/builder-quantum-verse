@@ -79,7 +79,7 @@ export default function FullyAuto() {
       lastOrderDays: '最后下单天数',
       userTag: '用户标签',
       registrationDays: '注册天数',
-      avgOrderValue: '平均订单金额'
+      avgOrderValue: '平均订单��额'
     };
     return fieldMap[field] || field;
   };
@@ -145,7 +145,7 @@ export default function FullyAuto() {
               AI自动化目标用户
             </CardTitle>
             <p className="text-sm text-gray-600">
-              通过设置筛选规则来精确定义AI自动营销的目标用户群体。只有符合所有筛选条件的用户才会被AI系统进行自动营销干预。
+              通过设置筛选规则来精确定义全自动营销的目标用户群体。只有符合所有筛选条件的用户才会被AI系统进行自动营销干预。
             </p>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -169,7 +169,7 @@ export default function FullyAuto() {
                     <DialogHeader>
                       <DialogTitle>创建筛选规则</DialogTitle>
                       <DialogDescription>
-                        设置用户筛选条件，只有符合条件的用户会被AI自动营销系统触达
+                        设置用户筛选条件，只有符合条件的用户会被全自动营销系统触达
                       </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4">
@@ -262,7 +262,7 @@ export default function FullyAuto() {
                     </div>
                   </div>
                   <div className="text-xs text-gray-500 italic">
-                    * 用户必须同时满足上述所有条件才会被AI自动营销系统触达
+                    * 用户必须同时满足上述所有条件才会被全自动营销系统触达
                   </div>
                 </div>
               ) : (
@@ -270,7 +270,7 @@ export default function FullyAuto() {
                   <Users className="h-12 w-12 text-gray-400 mx-auto mb-3" />
                   <h3 className="text-sm font-medium text-gray-900 mb-1">暂无筛选规则</h3>
                   <p className="text-sm text-gray-500">
-                    添加筛选规则来定义AI自动营销的目标用户群体
+                    添加筛选规则来定义全自动营销的目标用户群体
                   </p>
                 </div>
               )}
@@ -321,7 +321,7 @@ export default function FullyAuto() {
                     <DialogHeader>
                       <DialogTitle>设置行为边界</DialogTitle>
                       <DialogDescription>
-                        设置AI自动营销的行为限制和边界条件
+                        设置全自动营销的行为限制和边界条件
                       </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4">
@@ -404,7 +404,7 @@ export default function FullyAuto() {
             {/* Priority Notice */}
             <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
               <p className="text-sm text-blue-800">
-                <strong>请注意：</strong>手动营销操作的优先级高于AI自动营销。当您对特定用户进行手动干预时，AI在短时间内将不会对该用户进行重复打扰。
+                <strong>请注意：</strong>手动营销操作的优先级高于全自动营销。当您对特定用户进行手动干预时，AI在短时间内将不会对该用户进行重复打扰。
               </p>
             </div>
 

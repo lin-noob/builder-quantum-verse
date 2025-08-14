@@ -58,7 +58,7 @@ export default function Layout({ children }: LayoutProps) {
     },
     {
       id: "fully-auto",
-      label: "AI自动营销",
+      label: "全自动营销",
       path: "/ai-marketing/fully-auto",
       icon: <Bot className="h-5 w-5" />,
     },

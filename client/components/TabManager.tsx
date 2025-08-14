@@ -52,7 +52,7 @@ export default function TabManager() {
     "/response-actions": "响应动作库",
     "/ai-marketing-strategies": "营销策略",
     "/ai-marketing/monitoring-center": "监控中心",
-    "/ai-marketing/fully-auto": "AI自动营销",
+    "/ai-marketing/fully-auto": "全自动营销",
     "/ai-marketing/semi-auto": "半自动模式",
     "/ai-marketing/semi-auto/create": "创建剧本",
     "/ai-marketing/strategy-goals": "战略与目标",
@@ -242,7 +242,7 @@ export default function TabManager() {
     setContextMenu({ isOpen: false, x: 0, y: 0, targetTab: null });
   };
 
-  // 点击页面其他地方关闭右键菜单
+  // ��击页面其他地方关闭右键菜单
   useEffect(() => {
     const handleClick = () => closeContextMenu();
     if (contextMenu.isOpen) {
