@@ -42,7 +42,7 @@ export default function ForgotPassword() {
     switch (name) {
       case "email":
         if (!value) return "邮箱为必填项";
-        if (value.length > 40) return "���箱格式无效";
+        if (value.length > 40) return "邮箱格式无效";
         if (!validateEmail(value)) return "邮箱格式无效";
         return null;
       case "confirmationCode":
@@ -68,12 +68,6 @@ export default function ForgotPassword() {
     }
   };
 
-  // 模拟检查邮箱是否存在
-  const checkEmailExists = (email: string): boolean => {
-    // 模拟数据库中已存在的邮箱（包括默认管理员）
-    const existingEmails = ["admin", "test@example.com", "user@test.com"];
-    return existingEmails.includes(email);
-  };
 
   // 发送验证码
   const sendVerificationCode = async () => {
