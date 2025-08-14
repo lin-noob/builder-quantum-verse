@@ -50,14 +50,14 @@ export default function TabManager() {
     "/users": "用户画像",
     "/users2": "用户画像2.0",
     "/response-actions": "响应动作库",
-    "/ai-marketing-strategies": "AI营销策略",
-    "/ai-marketing/monitoring-center": "AI自动营销 - 监控中心",
-    "/ai-marketing/fully-auto": "AI自动营销 - 全自动模式",
-    "/ai-marketing/semi-auto": "AI自动营销 - 半自动模式",
-    "/ai-marketing/semi-auto/create": "AI自动营销 - 创建剧本",
-    "/ai-marketing/strategy-goals": "AI自动营销 - 战略与目标",
-    "/ai-marketing/live-monitoring": "AI自动营销 - 实时监控",
-    "/ai-marketing/performance-analytics": "AI自动营销 - 效果分析",
+    "/ai-marketing-strategies": "营销策略",
+    "/ai-marketing/monitoring-center": "自动营销 - 监控中心",
+    "/ai-marketing/fully-auto": "自动营销 - 全自动模式",
+    "/ai-marketing/semi-auto": "自动营销 - 半自动模式",
+    "/ai-marketing/semi-auto/create": "自动营销 - 创建剧本",
+    "/ai-marketing/strategy-goals": "自动营销 - 战略与目标",
+    "/ai-marketing/live-monitoring": "自动营销 - 实时监控",
+    "/ai-marketing/performance-analytics": "自动营销 - 效果分析",
     "/profile": "个人信息",
   };
 
@@ -178,7 +178,7 @@ export default function TabManager() {
     const tabIndex = tabs.findIndex((tab) => tab.id === tabId);
     const newTabs = tabs.filter((tab) => tab.id !== tabId);
 
-    // 如果关闭的是激活标签页，需要切换到其他标签页
+    // 如果关闭的是激活标签页，需要切��到其他标签页
     if (tabToClose.isActive && newTabs.length > 0) {
       let nextActiveTab;
       // 优先切换到左侧标签页
