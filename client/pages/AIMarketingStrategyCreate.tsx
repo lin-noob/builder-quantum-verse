@@ -53,7 +53,7 @@ export default function AIMarketingStrategyCreate() {
     }
   }, [isEditing, id]);
 
-  // 常用业务���途示例
+  // 常用业务�����途示例
   const commonPurposes = [
     '尽力挽留用户，促使其完成订单',
     '欢迎新用户，并根据其兴趣进行初步引导',
@@ -133,8 +133,8 @@ export default function AIMarketingStrategyCreate() {
                   <Settings className="h-4 w-4 text-purple-600" />
                 </div>
                 <div>
-                  <CardTitle className="text-base font-semibold">执行模��选择</CardTitle>
-                  <p className="text-sm text-gray-500 mt-1">选择策略的执行方式：AI智能决策或固定内容执行</p>
+                  <CardTitle className="text-base font-semibold">执行模式选择</CardTitle>
+                  <p className="text-sm text-gray-500 mt-1">选���策略的执行方式：AI智能决策或固定内容执行</p>
                 </div>
               </div>
             </CardHeader>
@@ -183,10 +183,10 @@ export default function AIMarketingStrategyCreate() {
                         <div className="w-2 h-2 bg-white rounded-full m-0.5"></div>
                       )}
                     </div>
-                    <h3 className="font-medium text-gray-900">全人工模��</h3>
+                    <h3 className="font-medium text-gray-900">全人工模式</h3>
                   </div>
                   <p className="text-sm text-gray-600 ml-7">
-                    商家设定触发规则、业务用途和固定响应内容，系统严格按照预设指令执行
+                    商家设定触发规则和固定响应内容，系统严格按照预设指令执行
                   </p>
                 </div>
               </div>
@@ -236,7 +236,7 @@ export default function AIMarketingStrategyCreate() {
                   <p className="text-sm text-gray-500 mt-1">
                     {formData.executionMode === 'SEMI_AUTO'
                       ? '定义AI需要监控的精确用户行为场景，作为策略启动的"守门员"'
-                      : '定义系��需要监控的精确用户行为场景，作为固定内容执行的触发条件'
+                      : '定义系统需要监控的精确用户行为场景，作为固定内容执行的触发条件'
                     }
                   </p>
                 </div>
@@ -313,7 +313,7 @@ export default function AIMarketingStrategyCreate() {
                   </CardTitle>
                   <p className="text-sm text-gray-500 mt-1">
                     {formData.executionMode === 'SEMI_AUTO'
-                      ? '设计一个基础的弹窗内容，AI将以���为参考进行个性化优化和安全降级'
+                      ? '设计一个基础的弹窗内容，AI将以此为参考进行个性化优化和安全降级'
                       : '设计固定的弹窗内容，系统将严格按照此内容展示给用户'
                     }
                   </p>
