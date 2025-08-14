@@ -188,15 +188,21 @@ export default function AIMarketingStrategies() {
 
   // 处理其他操作
   const handleStrategyOperation = (strategyId: string, operation: string) => {
-    const strategy = sampleStrategies.find(s => s.strategyId === strategyId);
-    if (!strategy) return;
+    const strategyIndex = sampleStrategies.findIndex(s => s.strategyId === strategyId);
+    if (strategyIndex === -1) return;
+
+    const strategy = sampleStrategies[strategyIndex];
 
     switch (operation) {
       case 'delete':
+        // 实际从数组中移除策略
+        sampleStrategies.splice(strategyIndex, 1);
         toast({
           title: "删除成功",
           description: `策略"${strategy.strategyName}"已删除`
         });
+        // 强制重新渲染页面
+        setCurrentPage(currentPage);
         break;
     }
     setDropdownOpen(null);
@@ -423,7 +429,7 @@ export default function AIMarketingStrategies() {
                               </button>
                             )}
                             
-                            {/* 删除按钮 - 只有非生效中���策略才能删除 */}
+                            {/* 删除按钮 - 只有非生效中的策略才能删除 */}
                             {strategy.status !== 'ACTIVE' && (
                               <button
                                 className="block w-full text-left px-3 py-1 text-sm text-destructive hover:bg-muted"
