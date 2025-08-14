@@ -30,33 +30,9 @@ export default function AIMarketingStrategyDetail() {
     return (
       <div className="p-6 text-center">
         <h1 className="text-2xl font-bold text-gray-900 mb-4">策略不存在</h1>
-        <Button onClick={() => navigate('/ai-marketing-strategies')}>
-          返回策略列表
-        </Button>
       </div>
     );
   }
-
-  // 状态控制
-  const handleStatusChange = (action: string) => {
-    let message = '';
-    switch (action) {
-      case 'activate':
-        message = `策略"${strategy.strategyName}"已启用，开始监控用户行为`;
-        break;
-      case 'deactivate':
-        message = `策略"${strategy.strategyName}"已停用`;
-        break;
-      case 'archive':
-        message = `策略"${strategy.strategyName}"已归档`;
-        break;
-    }
-    
-    toast({
-      title: "操作成功",
-      description: message
-    });
-  };
 
   // 格式化日期
   const formatDate = (dateString: string) => {
