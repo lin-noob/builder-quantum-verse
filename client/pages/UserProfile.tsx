@@ -91,7 +91,7 @@ export default function UserProfile() {
     }
   };
 
-  // 处���输入框失去焦点
+  // 处理输入框失去焦点
   const handlePasswordBlur = (name: string) => {
     const error = validatePasswordField(name, passwordForm[name as keyof PasswordForm]);
     setPasswordErrors(prev => ({ ...prev, [name]: error }));
@@ -117,20 +117,11 @@ export default function UserProfile() {
     setIsLoading(true);
 
     try {
-      // 使用登录验证当前密码
-      const loginResult = await authService.login({
-        email: user.email,
-        password: passwordForm.currentPassword
-      });
-
-      if (!loginResult.success) {
-        setPasswordErrors({ currentPassword: "当前密码错误" });
-        setIsLoading(false);
-        return;
-      }
-
-      // 重置密码
-      const result = await authService.resetPassword(user.email, passwordForm.newPassword);
+      // 使用新的changePassword方法
+      const result = await authService.changePassword(
+        passwordForm.currentPassword,
+        passwordForm.newPassword
+      );
       
       if (!result.success) {
         toast({
@@ -251,7 +242,7 @@ export default function UserProfile() {
               <div className="flex items-center gap-3">
                 <Mail className="h-4 w-4 text-muted-foreground" />
                 <div>
-                  <p className="text-sm font-medium text-foreground">邮箱地址</p>
+                  <p className="text-sm font-medium text-foreground">邮��地址</p>
                   <p className="text-sm text-muted-foreground">{user.email}</p>
                 </div>
               </div>
