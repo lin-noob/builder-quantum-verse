@@ -184,26 +184,26 @@ export default function AIMarketingStrategyDetail() {
                   <div>
                     <dt className="text-sm font-medium text-gray-600">弹窗标题</dt>
                     <dd className="mt-1 text-sm text-gray-900 font-medium">
-                      {strategy.baseActionParameters.title}
+                      {strategy.actionParameters.title}
                     </dd>
                   </div>
                   <div>
                     <dt className="text-sm font-medium text-gray-600">按钮文字</dt>
                     <dd className="mt-1 text-sm text-gray-900">
-                      {strategy.baseActionParameters.buttonText}
+                      {strategy.actionParameters.buttonText}
                     </dd>
                   </div>
                 </div>
                 <div>
                   <dt className="text-sm font-medium text-gray-600">弹窗正文</dt>
                   <dd className="mt-1 text-sm text-gray-900">
-                    {strategy.baseActionParameters.bodyText}
+                    {strategy.actionParameters.bodyText}
                   </dd>
                 </div>
                 <div>
                   <dt className="text-sm font-medium text-gray-600">跳转链接</dt>
                   <dd className="mt-1 text-sm text-gray-600 font-mono">
-                    {strategy.baseActionParameters.buttonUrl}
+                    {strategy.actionParameters.buttonUrl}
                   </dd>
                 </div>
               </div>
