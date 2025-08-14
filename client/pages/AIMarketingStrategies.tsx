@@ -241,7 +241,7 @@ export default function AIMarketingStrategies() {
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
             <Input
-              placeholder="搜索策略名称���业务用途..."
+              placeholder="搜索策略名称或业务用途..."
               value={filters.search}
               onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
               className="pl-10"
@@ -286,10 +286,8 @@ export default function AIMarketingStrategies() {
       </Card>
 
       {/* 主操作区 */}
-      <div className="flex justify-between items-center">
-        <div className="text-sm text-muted-foreground">
-        </div>
-        <Button 
+      <div className="flex justify-end items-center">
+        <Button
           onClick={() => navigate('/ai-marketing-strategies/create')}
           className="flex items-center gap-2"
         >
@@ -322,7 +320,7 @@ export default function AIMarketingStrategies() {
                   onClick={() => handleSort('totalConversions')}
                 >
                   <div className="flex items-center gap-2">
-                    转��数
+                    转���数
                     {getSortIcon('totalConversions')}
                   </div>
                 </th>
