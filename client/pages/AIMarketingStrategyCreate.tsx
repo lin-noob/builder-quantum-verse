@@ -51,7 +51,7 @@ export default function AIMarketingStrategyCreate() {
     }
   }, [isEditing, id]);
 
-  // 步骤配置
+  // 步骤配���
   const steps = [
     { 
       id: 1, 
@@ -87,7 +87,7 @@ export default function AIMarketingStrategyCreate() {
   const commonPurposeOptions = [
     {
       title: '尽力挽留用户，促使其完成订单',
-      content: '当识别到用户在购物车页面停留时间超过3分钟且未完成支付，或者用户尝试离开结账页面时，系统将自动展示个性化挽留弹窗。结合用户的浏览历史和购买偏好，智能推荐相似产品或提供限时优惠券（如"专属8折优惠，仅限10分钟"），同时展示该商品的稀缺性提示（如"仅剩3件"）和社会证明（如"已有1280人购买此商品"）。针对高价值用户，可额外提供免费配送或延长退换货期限等增值服务，通过多重激励机制最大化转化可能性，降低购物车放弃率。'
+      content: '当识别到用户在购物车页面停留时间超过3分钟且未完成支付，或者用户尝试离开结账页面时，系统将自动展示个性化挽留弹窗。结合用户的浏览历史和购买偏好，智能推荐相似产品或提供限时优惠券（如"专属8折优惠，仅限10分钟"），同时展示该商品的稀缺性提示（如"仅剩3件"）和社会证明（如"已有1280人购买此商品"）���针对高价值用户，可额外提供免费配送或延长退换货期限等增值服务，通过多重激励机制最大化转化可能性，降低购物车放弃率。'
     },
     {
       title: '欢迎新用户，并根据其兴趣进行初步引导',
@@ -95,7 +95,7 @@ export default function AIMarketingStrategyCreate() {
     },
     {
       title: '帮助用户找到相关产品，提升用户体验',
-      content: '当用户在网站上搜索无结果、浏览时间较长但未发生点击行为、或在某个类目页面反复浏览时，系统将主动提供智能搜索建议和产品推荐服务。基于用户的搜索历史、浏览轨迹、同类用户购买行为等数据，提供精准的替代产品推荐、相关类目引导、热门搜索词提示等。通过智能客服机器人主动询问用户需求，提供个性化购物助手服务，包括产品对比、尺寸建议、搭配推荐等，显著提升用户的购物体验和找到心仪商品的效率。'
+      content: '当用户在网站上搜索无结果、浏览时间较长但未发生点击行为、或在某个类目页面反复浏览时，系统将主动提供智能搜索建议和产品推荐服务。基于用户的搜索历史、浏览轨迹、同类用户购买行为等数据，提供精准的替代产品推荐、相关类目引导、热门搜索词提示等。通过智���客服机器人主动询问用户需求，提供个性化购物助手服务，包括产品对比、尺寸建议、搭配推荐等，显著提升用户的购物体验和找到心仪商品的效率。'
     },
     {
       title: '推荐个性化商品，提高转化率',
@@ -217,7 +217,7 @@ export default function AIMarketingStrategyCreate() {
         }
         if (!formData.actionParameters?.bodyText?.trim()) {
           toast({
-            title: "请填写弹窗正文",
+            title: "请填写弹��正文",
             variant: "destructive"
           });
           return false;
@@ -436,7 +436,7 @@ export default function AIMarketingStrategyCreate() {
             业务用途 <span className="text-destructive">*</span>
           </label>
           <p className="text-xs text-muted-foreground mb-3">
-            用自然语言���晰地描述这个策略希望达成的业务目标。AI将理解您的意图，在触发规则命中时自主选择最佳���个性化策略。
+            用自然语言清晰地描述这个策略希望达成的业务目标。AI将理解您的意图，在触发规则命中时自主选择最佳的个性化策略。
           </p>
           <textarea
             className="w-full px-3 py-2 border border-border rounded-md resize-none focus:ring-2 focus:ring-ring focus:border-ring text-sm"
@@ -550,7 +550,7 @@ export default function AIMarketingStrategyCreate() {
             placeholder={
               formData.executionMode === 'SEMI_AUTO' 
                 ? "例如：您的专属10%优惠券已生效，完成订单即可使用！"
-                : "例如：我们为您准备了特���优惠，点击查看详情。"
+                : "例如：我们为您准备了特别优惠，点击查看详情。"
             }
           />
           <p className="text-xs text-muted-foreground mt-2">
