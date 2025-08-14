@@ -172,11 +172,18 @@ export default function AIMarketingStrategies() {
       actionText = '重新启用';
     }
 
+    // 实际更新状态
+    strategy.status = newStatus;
+    strategy.updatedAt = new Date().toISOString();
+
     toast({
       title: `${actionText}成功`,
       description: `策略"${strategy.strategyName}"已${actionText}`
     });
     setDropdownOpen(null);
+
+    // 强制重新渲染页面
+    setCurrentPage(currentPage);
   };
 
   // 处理其他操作
@@ -378,12 +385,15 @@ export default function AIMarketingStrategies() {
                         </button>
                         {dropdownOpen === strategy.strategyId && (
                           <div className="absolute right-0 top-6 bg-background border rounded-lg shadow-lg py-1 z-50 min-w-[120px]">
-                            <button
-                              className="block w-full text-left px-3 py-1 text-sm text-primary hover:bg-muted"
-                              onClick={() => navigate(`/ai-marketing-strategies/edit/${strategy.strategyId}`)}
-                            >
-                              编辑
-                            </button>
+                            {/* 只有非生效中的策略才能编辑 */}
+                            {strategy.status !== 'ACTIVE' && (
+                              <button
+                                className="block w-full text-left px-3 py-1 text-sm text-primary hover:bg-muted"
+                                onClick={() => navigate(`/ai-marketing-strategies/edit/${strategy.strategyId}`)}
+                              >
+                                编辑
+                              </button>
+                            )}
                             
                             {/* 状态控制按钮 */}
                             {strategy.status === 'DRAFT' && (
@@ -413,8 +423,8 @@ export default function AIMarketingStrategies() {
                               </button>
                             )}
                             
-                            {/* 删除按钮 - 只有草稿和已归档状态可以删除 */}
-                            {(strategy.status === 'DRAFT' || strategy.status === 'ARCHIVED') && (
+                            {/* 删除按钮 - 只有非生效中���策略才能删除 */}
+                            {strategy.status !== 'ACTIVE' && (
                               <button
                                 className="block w-full text-left px-3 py-1 text-sm text-destructive hover:bg-muted"
                                 onClick={() => handleStrategyOperation(strategy.strategyId, 'delete')}
