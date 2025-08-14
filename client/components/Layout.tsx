@@ -70,7 +70,7 @@ export default function Layout({ children }: LayoutProps) {
     // },
     {
       id: "ai-marketing-strategies",
-      label: "营销策略",
+      label: "营销��略",
       path: "/ai-marketing-strategies",
       icon: <Zap className="h-5 w-5" />,
     },
@@ -226,8 +226,12 @@ export default function Layout({ children }: LayoutProps) {
                   location.pathname.startsWith("/response-actions")) ||
                 (item.id === "ai-marketing-strategies" &&
                   location.pathname.startsWith("/ai-marketing-strategies")) ||
-                (item.id === "ai-marketing" &&
-                  location.pathname.startsWith("/ai-marketing/"));
+                (item.id === "fully-auto" &&
+                  location.pathname.startsWith("/ai-marketing/fully-auto")) ||
+                (item.id === "monitoring-center" &&
+                  location.pathname.startsWith("/ai-marketing/monitoring-center")) ||
+                (item.id === "effect-tracking" &&
+                  location.pathname.startsWith("/effect-tracking"));
 
               return (
                 <li key={item.id} className="relative group">
