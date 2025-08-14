@@ -546,7 +546,7 @@ export default function UserDetail2() {
                               {order.payment}
                             </div>
                             <div>
-                              <span className="font-medium">��单状态:</span>{" "}
+                              <span className="font-medium">订单状态:</span>{" "}
                               {order.status}
                             </div>
                           </div>
