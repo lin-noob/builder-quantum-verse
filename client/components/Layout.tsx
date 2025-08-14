@@ -56,12 +56,12 @@ export default function Layout({ children }: LayoutProps) {
       path: "/users",
       icon: <Users className="h-5 w-5" />,
     },
-    {
-      id: "response-actions",
-      label: "响应动作库",
-      path: "/response-actions",
-      icon: <MessageSquare className="h-5 w-5" />,
-    },
+    // {
+    //   id: "response-actions",
+    //   label: "响应动作库",
+    //   path: "/response-actions",
+    //   icon: <MessageSquare className="h-5 w-5" />,
+    // },
     {
       id: "ai-marketing-strategies",
       label: "AI营销",
