@@ -17,7 +17,7 @@ export interface User {
   minBuyTime: string;
   /** 最后购买时间 */
   maxBuyTime: string;
-  /** 最大订单金额（保留5位小数） */
+  /** 最大订单金额（保留5位���数） */
   maxOrderAmount: number;
   /** 总消费金额（保留5位小数） */
   totalOrders: number;
@@ -472,7 +472,7 @@ export const mockUsers: User[] = [
       {
         id: "session-lm-1",
         date: "2024-01-20 10:30",
-        summary: "产品演示��技术评估",
+        summary: "产品演示和技术评估",
         source: "社交媒体广告",
         deviceType: "桌面端",
         os: "macOS 14",
@@ -609,7 +609,7 @@ export const mockUsers: User[] = [
       {
         orderNumber: "ORD-2023-156",
         orderDate: "2023-12-25",
-        status: "已完成",
+        status: "已���成",
         totalAmount: 3650.25,
         currency: "CNY",
         paymentMethod: "企业转账",
@@ -753,7 +753,7 @@ export const mockUsers: User[] = [
           {
             timestamp: "13:57:35",
             eventType: "页面访问",
-            pageTitle: "功��试用",
+            pageTitle: "功能试用",
             pageUrl: "/trial/features",
             stayDuration: "25分30秒",
             scrollDepth: "95%",
@@ -924,7 +924,7 @@ export const mockUsers: User[] = [
         status: "已完成",
         totalAmount: 6500.0,
         currency: "CNY",
-        paymentMethod: "企业转账",
+        paymentMethod: "企��转账",
         items: [
           {
             productName: "旗舰版软件授权",
@@ -1025,7 +1025,7 @@ export const mockUsers: User[] = [
       {
         orderNumber: "ORD-2023-145",
         orderDate: "2023-11-25",
-        status: "已完成",
+        status: "已完���",
         totalAmount: 3200.0,
         currency: "CNY",
         paymentMethod: "企业转账",
@@ -1085,7 +1085,7 @@ export const mockUsers: User[] = [
       {
         orderNumber: "ORD-2023-076",
         orderDate: "2023-09-30",
-        status: "已完���",
+        status: "已完成",
         totalAmount: 2200.0,
         currency: "CNY",
         paymentMethod: "支付宝",
@@ -1290,7 +1290,7 @@ export interface UserProfileListParams {
 }
 
 /**
- * 生���符合新API规范的用户数据
+ * 生成符合新API规范的用户数据
  */
 function generateNewFormatUser(id: number): User {
   const companies = [
