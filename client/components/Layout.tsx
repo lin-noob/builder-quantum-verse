@@ -36,6 +36,9 @@ export default function Layout({ children }: LayoutProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
+  // 获取当前用户
+  const currentUser = authService.getCurrentUser();
+
   const menuItems: MenuItem[] = [
     {
       id: "dashboard",
@@ -51,7 +54,7 @@ export default function Layout({ children }: LayoutProps) {
     },
     {
       id: "response-actions",
-      label: "响应动作库",
+      label: "响���动作库",
       path: "/response-actions",
       icon: <MessageSquare className="h-5 w-5" />,
     },
