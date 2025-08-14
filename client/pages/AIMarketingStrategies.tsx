@@ -55,7 +55,7 @@ export default function AIMarketingStrategies() {
   // 下拉菜单状态
   const [dropdownOpen, setDropdownOpen] = useState<string | null>(null);
 
-  // 过���、排序和分页后的数据
+  // 过滤、排序和分页后的数据
   const processedData = useMemo(() => {
     // 1. 过滤数据
     let filtered = sampleStrategies.filter(strategy => {
@@ -122,7 +122,7 @@ export default function AIMarketingStrategies() {
     setCurrentPage(1);
   };
 
-  // 处理排序
+  // 处��排序
   const handleSort = (field: SortableFields) => {
     setSortState(prev => ({
       field,
@@ -145,7 +145,7 @@ export default function AIMarketingStrategies() {
 
   // 查询函数（刷新数据）
   const renderStrategyList = () => {
-    // 筛选逻���已在 useMemo 中处理，这里可以添加刷新逻辑
+    // 筛选逻辑已在 useMemo 中处理，这里可以添加刷新逻辑
     setCurrentPage(1); // 重置到第一页
     toast({
       title: "数据已刷新",
@@ -188,7 +188,7 @@ export default function AIMarketingStrategies() {
     switch (operation) {
       case 'delete':
         toast({
-          title: "删��成功",
+          title: "删除成功",
           description: `策略"${strategy.strategyName}"已删除`
         });
         break;
@@ -379,7 +379,7 @@ export default function AIMarketingStrategies() {
                         className="text-gray-600 hover:text-gray-800 px-2 py-1 text-sm"
                         onClick={() => setDropdownOpen(dropdownOpen === strategy.strategyId ? null : strategy.strategyId)}
                       >
-                        ···
+                        ⋮
                       </button>
                       {dropdownOpen === strategy.strategyId && (
                         <div className="absolute right-0 top-6 bg-white border rounded-lg shadow-lg py-1 z-50 min-w-[120px]">
