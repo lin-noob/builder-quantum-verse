@@ -123,6 +123,74 @@ export default function AIMarketingStrategyCreate() {
         <div className="space-y-6">
 
           {/* 流���步骤卡片 */}
+          {/* 执行模式选择 */}
+          <Card className="shadow-sm border-0 ring-1 ring-gray-200">
+            <CardHeader className="pb-4">
+              <div className="flex items-center space-x-3">
+                <div className="h-8 w-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                  <Settings className="h-4 w-4 text-purple-600" />
+                </div>
+                <div>
+                  <CardTitle className="text-base font-semibold">执行模式选择</CardTitle>
+                  <p className="text-sm text-gray-500 mt-1">选择策略的执行方式：AI智能决策或固定内容执行</p>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div
+                  className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                    formData.executionMode === 'SEMI_AUTO'
+                      ? 'border-blue-500 bg-blue-50'
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                  onClick={() => setFormData(prev => ({ ...prev, executionMode: 'SEMI_AUTO' }))}
+                >
+                  <div className="flex items-center mb-2">
+                    <div className={`w-4 h-4 rounded-full border-2 mr-3 ${
+                      formData.executionMode === 'SEMI_AUTO'
+                        ? 'border-blue-500 bg-blue-500'
+                        : 'border-gray-300'
+                    }`}>
+                      {formData.executionMode === 'SEMI_AUTO' && (
+                        <div className="w-2 h-2 bg-white rounded-full m-0.5"></div>
+                      )}
+                    </div>
+                    <h3 className="font-medium text-gray-900">半自动模式</h3>
+                  </div>
+                  <p className="text-sm text-gray-600 ml-7">
+                    商家设定触发规则和业务用途，AI根据用户画像自主决策生成个性化内容
+                  </p>
+                </div>
+
+                <div
+                  className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                    formData.executionMode === 'FULL_MANUAL'
+                      ? 'border-green-500 bg-green-50'
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                  onClick={() => setFormData(prev => ({ ...prev, executionMode: 'FULL_MANUAL' }))}
+                >
+                  <div className="flex items-center mb-2">
+                    <div className={`w-4 h-4 rounded-full border-2 mr-3 ${
+                      formData.executionMode === 'FULL_MANUAL'
+                        ? 'border-green-500 bg-green-500'
+                        : 'border-gray-300'
+                    }`}>
+                      {formData.executionMode === 'FULL_MANUAL' && (
+                        <div className="w-2 h-2 bg-white rounded-full m-0.5"></div>
+                      )}
+                    </div>
+                    <h3 className="font-medium text-gray-900">全人工模式</h3>
+                  </div>
+                  <p className="text-sm text-gray-600 ml-7">
+                    商家设定触发规则和固定响应内容，系统严格按照预设指令执行
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* 基本信息 */}
           <Card className="shadow-sm border-0 ring-1 ring-gray-200">
             <CardHeader className="pb-4">
@@ -154,7 +222,7 @@ export default function AIMarketingStrategyCreate() {
             </CardContent>
           </Card>
 
-          {/* 触发规则��置 */}
+          {/* 触发规则配置 */}
           <Card className="shadow-sm border-0 ring-1 ring-gray-200">
             <CardHeader className="pb-4">
               <div className="flex items-center space-x-3">
@@ -201,7 +269,7 @@ export default function AIMarketingStrategyCreate() {
                   rows={4}
                   value={formData.actionPurpose || ''}
                   onChange={(e) => setFormData(prev => ({ ...prev, actionPurpose: e.target.value }))}
-                  placeholder="例如：尽���挽留用户，促使其��成订单"
+                  placeholder="例如：尽���挽留用户，促使其完成订单"
                 />
                 <div className="mt-4">
                   <p className="text-sm font-medium text-gray-700 mb-3">快速选择常用场景：</p>
@@ -312,7 +380,7 @@ export default function AIMarketingStrategyCreate() {
                   onClick={() => navigate('/ai-marketing-strategies')}
                   className="px-6"
                 >
-                  ��消
+                  取消
                 </Button>
                 <Button
                   variant="outline"
