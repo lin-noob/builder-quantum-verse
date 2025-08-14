@@ -103,11 +103,9 @@ export default function Auth() {
     }
   };
 
-  // 模拟检查邮箱是否存在
+  // 检查邮箱是否存在
   const checkEmailExists = (email: string): boolean => {
-    // 模拟数据库中已存在的邮箱
-    const existingEmails = ["test@example.com", "user@test.com"];
-    return existingEmails.includes(email);
+    return authService.checkEmailExists(email);
   };
 
   // 发送验证码
