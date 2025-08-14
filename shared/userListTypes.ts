@@ -1,5 +1,5 @@
 /**
- * 用��画像列表数据定义
+ * 用户画像列表数据定义
  * 定义了用户画像列表页面所需的所有数据字段类型和结构
  */
 
@@ -22,7 +22,7 @@ export interface UserProfileListItem {
   /** 首次访问时间 - ISO格式时间字符串 */
   firstVisitTime: string;
 
-  /** 注册时间 - ISO格式时间字符串 */
+  /** 注册时间 - ISO格��时间字符串 */
   registrationTime: string;
 
   /** 首次购买时间 - ISO格式时间字符串 */
@@ -195,7 +195,7 @@ export interface SortConfig {
  * 数据验证规则
  */
 export const VALIDATION_RULES = {
-  /** CDP ID格式验证 - UUID格式 */
+  /** CDP ID格式验证 - UUID���式 */
   cdpId: /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i,
 
   /** 邮箱格式验证 */
