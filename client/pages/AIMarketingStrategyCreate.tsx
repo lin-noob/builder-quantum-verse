@@ -56,7 +56,7 @@ export default function AIMarketingStrategyCreate() {
     { 
       id: 1, 
       title: '模式选择', 
-      description: '选择执行模式和基本信息',
+      description: '选择执行模式和基本信���',
       isRequired: true
     },
     { 
@@ -393,7 +393,7 @@ export default function AIMarketingStrategyCreate() {
                 <h3 className="font-medium text-foreground">全人工模式</h3>
               </div>
               <p className="text-sm text-muted-foreground ml-7">
-                商家设定触发规则和固定响应内容，系统严格按照预设指���执行
+                商家设定触发规则和固定响应内容，系统严格按照预设指令执行
               </p>
             </div>
           </div>
@@ -428,7 +428,7 @@ export default function AIMarketingStrategyCreate() {
     <Card>
       <CardHeader>
         <CardTitle className="text-lg font-semibold">业务用途设定</CardTitle>
-        <p className="text-sm text-muted-foreground">向AI下达核心任务指令，指导AI做出正确的个性化决策</p>
+        <p className="text-sm text-muted-foreground">向AI下达��心任务指令，指导AI做出正确的个性化决策</p>
       </CardHeader>
       <CardContent className="space-y-4">
         <div>
@@ -550,7 +550,7 @@ export default function AIMarketingStrategyCreate() {
             placeholder={
               formData.executionMode === 'SEMI_AUTO' 
                 ? "例如：您的专属10%优惠券已生效，完成订单即可使用！"
-                : "例如：我们为您准备了特别优惠，点击查看详情。"
+                : "例如：我们为您���备了特别优惠，点击查看详情。"
             }
           />
           <p className="text-xs text-muted-foreground mt-2">
