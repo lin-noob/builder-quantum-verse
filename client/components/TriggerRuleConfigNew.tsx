@@ -54,7 +54,7 @@ interface FieldConfig {
 // 事件属性字段
 const EVENT_FIELDS: FieldConfig[] = [
   { id: 'page_url', name: '页面URL', dataType: 'text', description: '事件发生时所在页面的网址', applicableEvents: ['page_view'] },
-  { id: 'page_title', name: '页面标题', dataType: 'text', description: '事件发生时所在页面的标题', applicableEvents: ['page_view'] },
+  { id: 'page_title', name: '页面标题', dataType: 'text', description: '事件发生时所在��面的标题', applicableEvents: ['page_view'] },
   { id: 'page_dwell_time_seconds', name: '页面停留时长(秒)', dataType: 'number', description: '用户在该页面已停留的总秒数', applicableEvents: ['page_view'] },
   { id: 'page_scroll_depth', name: '页面滚动深度(%)', dataType: 'number', description: '用户在该页面向下的最大滚动位置', applicableEvents: ['page_view'] },
   { id: 'product_name', name: '商品名称', dataType: 'text', description: '相关的商品名称', applicableEvents: ['view_product', 'add_to_cart', 'remove_from_cart'] },
@@ -75,7 +75,7 @@ const USER_FIELDS: FieldConfig[] = [
 const EVENT_DISPLAY_NAMES: Record<TriggerEventName, string> = {
   'page_view': '浏览页面',
   'view_product': '查看商品',
-  'add_to_cart': '��入购物车',
+  'add_to_cart': '加入购物车',
   'remove_from_cart': '从购物车移除',
   'start_checkout': '开始结账',
   'purchase': '完成购买',
