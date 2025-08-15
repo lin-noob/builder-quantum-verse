@@ -434,22 +434,6 @@ export default function TriggerRuleConfigNew({ value, onChange, className = '' }
               </div>
             )}
 
-            {sessionConditions.length > 0 && (
-              <div>
-                <Badge variant="outline" className="mb-2">会话属性条件 ({sessionConditions.length})</Badge>
-                <div className="text-sm text-gray-700 space-y-1">
-                  {sessionConditions.map((condition, index) => {
-                    const field = SESSION_FIELDS.find(f => f.id === condition.field);
-                    return (
-                      <div key={index} className="pl-2">
-                        • {field?.name} {OPERATOR_DISPLAY_NAMES[condition.operator]} {condition.value}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
             {userConditions.length > 0 && (
               <div>
                 <Badge variant="outline" className="mb-2">用户画像条件 ({userConditions.length})</Badge>
@@ -466,7 +450,7 @@ export default function TriggerRuleConfigNew({ value, onChange, className = '' }
               </div>
             )}
 
-            {conditions.length === 0 && sessionConditions.length === 0 && userConditions.length === 0 && (
+            {conditions.length === 0 && userConditions.length === 0 && (
               <div className="text-sm text-gray-500 italic">
                 当前仅使用基础触发事件，未设置额外过滤条件
               </div>
