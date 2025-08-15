@@ -57,25 +57,15 @@ const EVENT_FIELDS: FieldConfig[] = [
   { id: 'page_title', name: '页面标题', dataType: 'text', description: '事件发生时所在页面的标题', applicableEvents: ['page_view'] },
   { id: 'page_dwell_time_seconds', name: '页面停留时长(秒)', dataType: 'number', description: '用户在该页面已停留的总秒数', applicableEvents: ['page_view'] },
   { id: 'page_scroll_depth', name: '页面滚动深度(%)', dataType: 'number', description: '用户在该页面向下的最大滚动位置', applicableEvents: ['page_view'] },
-  { id: 'product_name', name: '商品名称', dataType: 'text', description: '相关的商品名称', applicableEvents: ['add_to_cart'] },
-  { id: 'category', name: '商品品类', dataType: 'text', description: '相关的商品品类', applicableEvents: ['add_to_cart'] },
-  { id: 'price', name: '商品价格', dataType: 'number', description: '相关的商品单价', applicableEvents: ['add_to_cart'] },
+  { id: 'product_name', name: '商品名称', dataType: 'text', description: '相关的商品名称', applicableEvents: ['view_product', 'add_to_cart', 'remove_from_cart'] },
+  { id: 'category', name: '商品品类', dataType: 'text', description: '相关的商品品类', applicableEvents: ['view_product', 'add_to_cart', 'remove_from_cart'] },
+  { id: 'price', name: '商品价格', dataType: 'number', description: '相关的商品单价', applicableEvents: ['view_product', 'add_to_cart'] },
   { id: 'search_term', name: '搜索关键词', dataType: 'text', description: '用户输入的搜索词', applicableEvents: ['search'] },
-];
-
-// 会话属性字段
-const SESSION_FIELDS: FieldConfig[] = [
-  { id: 'source_info', name: '来源', dataType: 'text', description: '本次访问的来源渠道 (如 Google, Facebook, 直接访问)' },
-  { id: 'device_type', name: '设备类型', dataType: 'text', description: '本次访问使用的设备 (桌面端, 移动端, 平板)' },
-  { id: 'os', name: '操作系统', dataType: 'text', description: '用户设备的操作系统 (如 Windows, macOS, iOS, Android)' },
-  { id: 'browser', name: '浏览器', dataType: 'text', description: '用户使用的浏览器 (如 Chrome, Safari, Edge)' },
-  { id: 'location', name: '位置', dataType: 'text', description: '用户本次访问所在的国家或城市' },
 ];
 
 // 用户画像字段
 const USER_FIELDS: FieldConfig[] = [
   { id: 'tag', name: '用户标签', dataType: 'text', description: '用户所拥有的标签' },
-  { id: 'user_segment', name: '用户分层', dataType: 'text', description: '用户当前所处的分层 (如 VIP客户, 新用户)' },
   { id: 'total_spend', name: '累计消费金额', dataType: 'number', description: '用户历史累计的总消费' },
   { id: 'total_orders', name: '总订单数', dataType: 'number', description: '用户历史累计的总订单数' },
   { id: 'last_purchase_days', name: '距上次购买天数', dataType: 'number', description: '距离该用户上一次购买过去了多少天' },
@@ -400,7 +390,7 @@ export default function TriggerRuleConfigNew({ value, onChange, className = '' }
               </div>
               <div className="text-xs text-gray-500 flex items-start gap-2">
                 <Info className="h-3 w-3 mt-0.5 flex-shrink-0" />
-                对用户本次访问会话的属性进行过滤，如来源渠道、设备类型等
+                对用户本次访问会话的属性进行���滤，如来源渠道、设备类型等
               </div>
               {renderConditions('session', sessionConditions, SESSION_FIELDS)}
             </TabsContent>
