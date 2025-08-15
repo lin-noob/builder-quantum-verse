@@ -104,7 +104,6 @@ interface TriggerRuleConfigProps {
 export default function TriggerRuleConfigNew({ value, onChange, className = '' }: TriggerRuleConfigProps) {
   const [selectedEvent, setSelectedEvent] = useState<TriggerEventName>(value.config.eventName);
   const [conditions, setConditions] = useState<ConditionItem[]>(value.config.conditions || []);
-  const [sessionConditions, setSessionConditions] = useState<ConditionItem[]>(value.config.sessionConditions || []);
   const [userConditions, setUserConditions] = useState<ConditionItem[]>(value.config.userConditions || []);
 
   // 更新父组件
@@ -114,11 +113,10 @@ export default function TriggerRuleConfigNew({ value, onChange, className = '' }
       config: {
         eventName: selectedEvent,
         conditions: conditions,
-        sessionConditions: sessionConditions,
         userConditions: userConditions
       }
     });
-  }, [selectedEvent, conditions, sessionConditions, userConditions, onChange]);
+  }, [selectedEvent, conditions, userConditions, onChange]);
 
   // 获取当前事件可用的事件属性字段
   const getAvailableEventFields = (): FieldConfig[] => {
@@ -322,7 +320,7 @@ export default function TriggerRuleConfigNew({ value, onChange, className = '' }
             </SelectContent>
           </Select>
           <p className="text-xs text-gray-500 mt-2">
-            ���为启动规则判断的核心用户行为
+            作为启动规则判断的核心用户行为
           </p>
         </CardContent>
       </Card>
@@ -365,12 +363,12 @@ export default function TriggerRuleConfigNew({ value, onChange, className = '' }
               </div>
               <div className="text-xs text-gray-500 flex items-start gap-2">
                 <Info className="h-3 w-3 mt-0.5 flex-shrink-0" />
-                对主要触发事件的属性进行过滤，如页面URL、商品价格等
+                对主要触发事件的属性进��过滤，如页面URL、商品价格等
               </div>
               {renderConditions('event', conditions, getAvailableEventFields())}
             </TabsContent>
 
-            {/* 会话属性条件 */}
+            {/* 会话属性条�� */}
             <TabsContent value="session" className="space-y-4 mt-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
