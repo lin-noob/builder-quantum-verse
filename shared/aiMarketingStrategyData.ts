@@ -73,11 +73,10 @@ export interface TriggerRuleConfig {
   conditions: EventCondition[];
 }
 
-// 新的触发规则配置（支持三类条件）
+// 新的触发规则配置（支持两类条件）
 export interface NewTriggerRuleConfig {
   eventName: TriggerEventName;
   conditions: ConditionItem[];           // 事件属性条件
-  sessionConditions: ConditionItem[];    // 会话属性条件
   userConditions: ConditionItem[];       // 用户画像条件
 }
 
