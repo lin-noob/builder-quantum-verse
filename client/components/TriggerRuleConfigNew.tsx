@@ -70,7 +70,7 @@ const USER_FIELDS: FieldConfig[] = [
   { id: 'tag', name: '用户标签', dataType: 'text', description: '用户所拥有的标签' },
   { id: 'total_spend', name: '累计消费金额', dataType: 'number', description: '用户历史累计的总消费' },
   { id: 'total_orders', name: '总订单数', dataType: 'number', description: '用户历史累计的总订单数' },
-  { id: 'last_purchase_days', name: '���上次购买天数', dataType: 'number', description: '距离该用户上一次购买过去了多少天' },
+  { id: 'last_purchase_days', name: '���上次购买天数', dataType: 'number', description: '距离���用户上一次购买过去了多少天' },
 ];
 
 // 事件显示名称
@@ -120,11 +120,16 @@ export default function TriggerRuleConfigNew({ value, onChange, className = '' }
     });
   }, [selectedEvent, conditions, userConditions, onChange]);
 
-  // ���取当前事件可用的事件属性字段
+  // 获取当前事件可用的事件属性字段
   const getAvailableEventFields = (): FieldConfig[] => {
-    return EVENT_FIELDS.filter(field => 
+    return EVENT_FIELDS.filter(field =>
       !field.applicableEvents || field.applicableEvents.includes(selectedEvent)
     );
+  };
+
+  // 检查当前事件是否需要用户画像条件
+  const isUserConditionsDisabled = (): boolean => {
+    return selectedEvent === 'user_signup';
   };
 
   // 获取操作符选项（根据字段类型）
@@ -310,7 +315,7 @@ export default function TriggerRuleConfigNew({ value, onChange, className = '' }
             </SelectContent>
           </Select>
           <p className="text-xs text-gray-500 mt-2">
-            作为启动规则判断的核心用户行为
+            作为启动规则判断的核心用户行��
           </p>
         </CardContent>
       </Card>
