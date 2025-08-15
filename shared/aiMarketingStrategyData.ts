@@ -125,6 +125,30 @@ export interface AIMarketingStrategy {
   totalConversions: number;
 }
 
+// 新的AI营销策略接口（支持增强的触发规则）
+export interface NewAIMarketingStrategy {
+  // 核心字段
+  strategyId: string;
+  strategyName: string;
+  executionMode: ExecutionMode;
+  actionType: ActionType;
+  status: StrategyStatus;
+  createdAt: string;
+  updatedAt: string;
+
+  // AI策略配置（使用新的触发规则）
+  triggerRule: NewTriggerRule;
+  actionPurpose?: string; // 仅在半自动模式下必填
+
+  // 基础动作参数
+  actionParameters: BaseActionParameters;
+
+  // 效果追踪字段
+  totalExecutions: number;
+  totalInteractions: number;
+  totalConversions: number;
+}
+
 // 触发事件与过滤字段的映射关系
 export const EVENT_FIELD_MAPPING: Record<TriggerEventName, FilterField[]> = {
   'page_view': ['page_url', 'page_dwell_time_seconds'],
