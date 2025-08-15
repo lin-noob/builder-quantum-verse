@@ -69,7 +69,7 @@ const EVENT_FIELDS: FieldConfig[] = [
 const USER_FIELDS: FieldConfig[] = [
   { id: 'tag', name: '用户标签', dataType: 'text', description: '用户所拥有的标签' },
   { id: 'total_spend', name: '累计消费金额', dataType: 'number', description: '用户历史累计的总消费' },
-  { id: 'total_orders', name: '总订单数', dataType: 'number', description: '用户历史累计的总订单数' },
+  { id: 'total_orders', name: '总订单数', dataType: 'number', description: '用户历史��计的总订单数' },
   { id: 'last_purchase_days', name: '���上次购买天数', dataType: 'number', description: '距离该用户上一次购买过去了多少天' },
 ];
 
@@ -418,7 +418,13 @@ export default function TriggerRuleConfigNew({ value, onChange, className = '' }
                 <Info className="h-3 w-3 mt-0.5 flex-shrink-0" />
                 对触发事件的用户本人的画像进行过滤，如用户标签、消费记录等
               </div>
-              {renderConditions('user', userConditions, USER_FIELDS)}
+              {isUserConditionsDisabled() ? (
+                <div className="text-sm text-gray-500 italic bg-yellow-50 border border-yellow-200 p-3 rounded-lg">
+                  ⚠️ 当前触发事件"{EVENT_DISPLAY_NAMES[selectedEvent]}"无需设置用户画像条件
+                </div>
+              ) : (
+                renderConditions('user', userConditions, USER_FIELDS)
+              )}
             </TabsContent>
           </Tabs>
         </CardContent>
