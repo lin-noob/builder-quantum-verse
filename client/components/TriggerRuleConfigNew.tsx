@@ -141,7 +141,7 @@ export default function TriggerRuleConfigNew({ value, onChange, className = '' }
   };
 
   // 条件管理函数
-  const addCondition = (type: 'event' | 'session' | 'user') => {
+  const addCondition = (type: 'event' | 'user') => {
     let fields: FieldConfig[];
     let setter: (conditions: ConditionItem[]) => void;
     let currentConditions: ConditionItem[];
@@ -151,11 +151,6 @@ export default function TriggerRuleConfigNew({ value, onChange, className = '' }
         fields = getAvailableEventFields();
         setter = setConditions;
         currentConditions = conditions;
-        break;
-      case 'session':
-        fields = SESSION_FIELDS;
-        setter = setSessionConditions;
-        currentConditions = sessionConditions;
         break;
       case 'user':
         fields = USER_FIELDS;
@@ -174,13 +169,10 @@ export default function TriggerRuleConfigNew({ value, onChange, className = '' }
     setter([...currentConditions, newCondition]);
   };
 
-  const removeCondition = (type: 'event' | 'session' | 'user', index: number) => {
+  const removeCondition = (type: 'event' | 'user', index: number) => {
     switch (type) {
       case 'event':
         setConditions(conditions.filter((_, i) => i !== index));
-        break;
-      case 'session':
-        setSessionConditions(sessionConditions.filter((_, i) => i !== index));
         break;
       case 'user':
         setUserConditions(userConditions.filter((_, i) => i !== index));
@@ -189,8 +181,8 @@ export default function TriggerRuleConfigNew({ value, onChange, className = '' }
   };
 
   const updateCondition = (
-    type: 'event' | 'session' | 'user', 
-    index: number, 
+    type: 'event' | 'user',
+    index: number,
     updates: Partial<ConditionItem>
   ) => {
     const updateArray = (current: ConditionItem[]) => {
@@ -202,9 +194,6 @@ export default function TriggerRuleConfigNew({ value, onChange, className = '' }
     switch (type) {
       case 'event':
         setConditions(updateArray(conditions));
-        break;
-      case 'session':
-        setSessionConditions(updateArray(sessionConditions));
         break;
       case 'user':
         setUserConditions(updateArray(userConditions));
@@ -362,7 +351,7 @@ export default function TriggerRuleConfigNew({ value, onChange, className = '' }
               </div>
               <div className="text-xs text-gray-500 flex items-start gap-2">
                 <Info className="h-3 w-3 mt-0.5 flex-shrink-0" />
-                对主要触发事件��属性进行过滤，如页面URL、商品价格等
+                对主要触发事件的属性进行过滤，如页面URL、商品价格等
               </div>
               {renderConditions('event', conditions, getAvailableEventFields())}
             </TabsContent>
@@ -389,7 +378,7 @@ export default function TriggerRuleConfigNew({ value, onChange, className = '' }
               </div>
               <div className="text-xs text-gray-500 flex items-start gap-2">
                 <Info className="h-3 w-3 mt-0.5 flex-shrink-0" />
-                对用户本次访问会话的属性进行过滤，如来源渠道、设备类型等
+                对用户本次访问��话的属性进行过滤，如来源渠道、设备类型等
               </div>
               {renderConditions('session', sessionConditions, SESSION_FIELDS)}
             </TabsContent>
