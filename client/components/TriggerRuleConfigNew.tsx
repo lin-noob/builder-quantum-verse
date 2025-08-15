@@ -33,7 +33,6 @@ export interface ConditionItem {
 export interface NewTriggerRuleConfig {
   eventName: TriggerEventName;
   conditions: ConditionItem[];
-  sessionConditions: ConditionItem[];
   userConditions: ConditionItem[];
 }
 
@@ -57,7 +56,7 @@ const EVENT_FIELDS: FieldConfig[] = [
   { id: 'page_url', name: '页面URL', dataType: 'text', description: '事件发生时所在页面的网址', applicableEvents: ['page_view'] },
   { id: 'page_title', name: '页面标题', dataType: 'text', description: '事件发生时所在页面的标题', applicableEvents: ['page_view'] },
   { id: 'page_dwell_time_seconds', name: '页面停留时长(秒)', dataType: 'number', description: '用户在该页面已停留的总秒数', applicableEvents: ['page_view'] },
-  { id: 'page_scroll_depth', name: '页面��动深度(%)', dataType: 'number', description: '用户在该页面向下的最大滚动位置', applicableEvents: ['page_view'] },
+  { id: 'page_scroll_depth', name: '页面滚动深度(%)', dataType: 'number', description: '用户在该页面向下的最大滚动位置', applicableEvents: ['page_view'] },
   { id: 'product_name', name: '商品名称', dataType: 'text', description: '相关的商品名称', applicableEvents: ['add_to_cart'] },
   { id: 'category', name: '商品品类', dataType: 'text', description: '相关的商品品类', applicableEvents: ['add_to_cart'] },
   { id: 'price', name: '商品价格', dataType: 'number', description: '相关的商品单价', applicableEvents: ['add_to_cart'] },
@@ -101,7 +100,7 @@ const OPERATOR_DISPLAY_NAMES: Record<ComparisonOperator, string> = {
   '>': '大于',
   '<': '小于',
   'CONTAINS': '包含',
-  '!CONTAINS': '��包含',
+  '!CONTAINS': '不包含',
 };
 
 interface TriggerRuleConfigProps {
@@ -339,7 +338,7 @@ export default function TriggerRuleConfigNew({ value, onChange, className = '' }
       {/* 条件配置 */}
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="text-lg">过��条件配置</CardTitle>
+          <CardTitle className="text-lg">过滤条件配置</CardTitle>
           <p className="text-sm text-gray-600">
             可设置多种类型的过滤条件，同类型条件之间为"且"关系
           </p>
