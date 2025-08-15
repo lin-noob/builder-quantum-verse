@@ -60,16 +60,37 @@ export interface EventCondition {
   value: string | number;
 }
 
-// 触发规则配置
+// 通用条件项（用于新的三类条件系统）
+export interface ConditionItem {
+  field: string;
+  operator: ComparisonOperator;
+  value: string | number;
+}
+
+// 触发规则配置（旧版本，保持向后兼容）
 export interface TriggerRuleConfig {
   eventName: TriggerEventName;
   conditions: EventCondition[];
 }
 
-// 触发规则
+// 新的触发规则配置（支持三类条件）
+export interface NewTriggerRuleConfig {
+  eventName: TriggerEventName;
+  conditions: ConditionItem[];           // 事件属性条件
+  sessionConditions: ConditionItem[];    // 会话属性条件
+  userConditions: ConditionItem[];       // 用户画像条件
+}
+
+// 触发规则（旧版本，保持向后兼容）
 export interface TriggerRule {
   type: TriggerType;
   config: TriggerRuleConfig;
+}
+
+// 新的触发规则（支持三类条件）
+export interface NewTriggerRule {
+  type: TriggerType;
+  config: NewTriggerRuleConfig;
 }
 
 // 基础弹窗参数
