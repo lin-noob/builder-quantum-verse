@@ -137,7 +137,6 @@ export default function TriggerRuleConfigNew({ value, onChange, className = '' }
   const handleEventChange = (eventName: TriggerEventName) => {
     setSelectedEvent(eventName);
     setConditions([]);
-    setSessionConditions([]);
     setUserConditions([]);
   };
 
@@ -363,12 +362,12 @@ export default function TriggerRuleConfigNew({ value, onChange, className = '' }
               </div>
               <div className="text-xs text-gray-500 flex items-start gap-2">
                 <Info className="h-3 w-3 mt-0.5 flex-shrink-0" />
-                对主要触发事件的属性进��过滤，如页面URL、商品价格等
+                对主要触发事件��属性进行过滤，如页面URL、商品价格等
               </div>
               {renderConditions('event', conditions, getAvailableEventFields())}
             </TabsContent>
 
-            {/* 会话属性条�� */}
+            {/* 会话属性条件 */}
             <TabsContent value="session" className="space-y-4 mt-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
