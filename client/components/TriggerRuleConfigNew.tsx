@@ -22,7 +22,7 @@ export type TriggerEventName =
 
 export type ComparisonOperator = '=' | '!=' | '>' | '<' | 'CONTAINS' | '!CONTAINS';
 
-// 条件接口
+// ���件接口
 export interface ConditionItem {
   field: string;
   operator: ComparisonOperator;
@@ -75,7 +75,7 @@ const USER_FIELDS: FieldConfig[] = [
 const EVENT_DISPLAY_NAMES: Record<TriggerEventName, string> = {
   'page_view': '浏览页面',
   'view_product': '查看商品',
-  'add_to_cart': '加入购物车',
+  'add_to_cart': '��入购物车',
   'remove_from_cart': '从购物车移除',
   'start_checkout': '开始结账',
   'purchase': '完成购买',
@@ -118,7 +118,7 @@ export default function TriggerRuleConfigNew({ value, onChange, className = '' }
     });
   }, [selectedEvent, conditions, userConditions, onChange]);
 
-  // 获取当前事件可用的事件属性字段
+  // ���取当前事件可用的事件属性字段
   const getAvailableEventFields = (): FieldConfig[] => {
     return EVENT_FIELDS.filter(field => 
       !field.applicableEvents || field.applicableEvents.includes(selectedEvent)
@@ -203,14 +203,14 @@ export default function TriggerRuleConfigNew({ value, onChange, className = '' }
 
   // 条件渲染组件
   const renderConditions = (
-    type: 'event' | 'session' | 'user',
+    type: 'event' | 'user',
     conditionsList: ConditionItem[],
     fields: FieldConfig[]
   ) => {
     if (conditionsList.length === 0) {
       return (
         <div className="text-sm text-gray-500 italic bg-gray-50 p-3 rounded-lg">
-          暂无{type === 'event' ? '事件属性' : type === 'session' ? '会话属性' : '用户画像'}过滤条件
+          暂无{type === 'event' ? '事件属性' : '用户画像'}过滤条件
         </div>
       );
     }
@@ -378,7 +378,7 @@ export default function TriggerRuleConfigNew({ value, onChange, className = '' }
               </div>
               <div className="text-xs text-gray-500 flex items-start gap-2">
                 <Info className="h-3 w-3 mt-0.5 flex-shrink-0" />
-                对用户本次访问��话的属性进行过滤，如来源渠道、设备类型等
+                对用户本次访问会话的属性进行过滤，如来源渠道、设备类型等
               </div>
               {renderConditions('session', sessionConditions, SESSION_FIELDS)}
             </TabsContent>
