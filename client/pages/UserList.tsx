@@ -188,12 +188,6 @@ export default function UserList() {
         requestBody.order = sortConfig.direction;
       }
 
-      console.log("发起API请求:", {
-        url: "/api/quote/api/v1/profile/list",
-        method: "POST",
-        requestBody: {},
-      });
-
       // 使用通用request方法明确指定POST
       const response = await request.request<{
         code: string;

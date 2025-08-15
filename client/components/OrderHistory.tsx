@@ -1,259 +1,228 @@
-import { useEffect } from "react";
+import { useEffect, useState, useCallback } from "react";
+import { useParams } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  getUserEventList,
+  type ApiEvent,
+  type ApiEventListResponse,
+} from "@/lib/profile";
 
-// Order data according to specifications
-const ordersData = [
-  {
-    orderId: "ORD-20250801-001",
-    order_time: "2025-08-01 10:15:30",
-    status: "已完成",
-    item_count: 2,
-    subtotal_amount: 1899.0,
-    shipping_amount: 0.0,
-    tax_amount: 0.0,
-    discount_amount: 189.9,
-    total_amount: 1709.1,
-    currency: "CNY",
-    payment_method: "支付宝",
-    discount_code: "NEWUSER10",
-    line_items: [
-      { name: "ProBook X1 笔记本电脑", price: 1599.0, qty: 1, total: 1599.0 },
-      { name: "无线鼠标 G-Pro", price: 300.0, qty: 1, total: 300.0 },
-    ],
-    shipping_address: "李四, 138****1234<br>上海市黄浦区人民路100号, 200001",
-    billing_address: "同收货地址",
-  },
-  {
-    orderId: "ORD-20250615-005",
-    order_time: "2025-06-15 20:45:10",
-    status: "已完成",
-    item_count: 2,
-    subtotal_amount: 250.0,
-    shipping_amount: 10.0,
-    tax_amount: 0.0,
-    discount_amount: 0.0,
-    total_amount: 260.0,
-    currency: "CNY",
-    payment_method: "微信支付",
-    discount_code: null,
-    line_items: [
-      { name: "键盘膜", price: 50.0, qty: 1, total: 50.0 },
-      { name: "USB-C扩展坞", price: 200.0, qty: 1, total: 200.0 },
-    ],
-    shipping_address: "李四, 138****1234<br>上海市黄浦区人民路100号, 200001",
-    billing_address: "同收货地址",
-  },
-  {
-    orderId: "ORD-20250401-012",
-    order_time: "2025-04-01 12:05:00",
-    status: "已取消",
-    item_count: 1,
-    subtotal_amount: 3500.0,
-    shipping_amount: 0.0,
-    tax_amount: 0.0,
-    discount_amount: 0.0,
-    total_amount: 3500.0,
-    currency: "CNY",
-    payment_method: "银行卡",
-    discount_code: null,
-    line_items: [
-      { name: "高端单反相机 EOS-R5", price: 3500.0, qty: 1, total: 3500.0 },
-    ],
-    shipping_address: "李四, 138****1234<br>上海市黄浦区人民路100号, 200001",
-    billing_address: "同收货地址",
-  },
-];
+// Parsed order data structure
+interface ParsedOrderData {
+  orderId: string;
+  orderTime: string;
+  status: string;
+  itemCount: number;
+  totalAmount: number;
+  subtotalAmount: number;
+  taxAmount: number;
+  shippingAmount: number;
+  discountAmout: number;
+  currency: string;
+  paymentMethod: string;
+  lineItems: Array<{
+    name: string;
+    price: number;
+    count: number;
+    totalPrice: number;
+    sn: string;
+  }>;
+  shippingAddress: string;
+  consignee: string;
+  phone: string;
+  sn: string;
+  userName: string;
+}
 
-export default function OrderHistory() {
-  useEffect(() => {
-    // Initialize order list
-    renderOrderList();
+export default function OrderHistory({ cdpUserId }: { cdpUserId: string }) {
+  const { cdpId } = useParams<{ cdpId: string }>();
+  const [loading, setLoading] = useState(false);
+  const [eventData, setEventData] = useState<ApiEventListResponse | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [selectedOrder, setSelectedOrder] = useState<ParsedOrderData | null>(
+    null,
+  );
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const pageSize = 10;
 
-    // Add event listeners
-    setupEventListeners();
+  // Parse properties JSON string to extract order details
+  const parseOrderProperties = (propertiesStr: string): any => {
+    try {
+      return JSON.parse(propertiesStr);
+    } catch (error) {
+      console.error("Failed to parse order properties:", error);
+      return {};
+    }
+  };
 
-    return () => {
-      // Cleanup event listeners
-      const tbody = document.getElementById("order-list-body");
-      const closeBtn = document.getElementById("close-modal-btn");
-      const modal = document.getElementById("order-detail-modal");
+  // Convert API event to parsed order data
+  const convertEventToOrder = (event: ApiEvent): ParsedOrderData => {
+    debugger;
+    const properties = parseOrderProperties(event.properties);
 
-      if (tbody) {
-        tbody.removeEventListener("click", handleRowClick);
-      }
-      if (closeBtn) {
-        closeBtn.removeEventListener("click", closeModal);
-      }
-      if (modal) {
-        modal.removeEventListener("click", handleModalBackgroundClick);
-      }
+    return {
+      orderId: properties.sn || event.id,
+      orderTime: event.gmtCreate,
+      status: getStatusText(properties.status),
+      itemCount: properties.line_items?.length || 0,
+      totalAmount: properties.total_amount || event.price,
+      currency: event.currency,
+      paymentMethod: properties.payment_method || "",
+      lineItems: properties.line_items || [],
+      shippingAddress: properties.shipping_address || "",
+      consignee: properties.consignee || "",
+      phone: properties.phone || "",
+      sn: properties.sn || "",
+      subtotalAmount: properties.subtotal_amount || "",
+      taxAmount: properties.tax_amount || "",
+      shippingAmount: properties.shipping_amount || "",
+      discountAmout: properties.discount_amount || "",
+      userName: event.userName || "",
     };
-  }, []);
-
-  const formatCurrency = (amount: number) => {
-    return `¥${amount.toLocaleString("zh-CN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
 
-  const getStatusBadge = (status: string) => {
-    if (status === "已完成") {
-      return `<span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">${status}</span>`;
-    } else if (status === "已取消") {
-      return `<span class="px-2 py-1 text-xs rounded-full bg-red-100 text-red-800">${status}</span>`;
-    }
-    return `<span class="px-2 py-1 text-xs rounded-full bg-slate-100 text-slate-800">${status}</span>`;
-  };
-
-  const renderOrderList = () => {
-    const tbody = document.getElementById("order-list-body");
-    if (!tbody) return;
-
-    tbody.innerHTML = ordersData
-      .map(
-        (order) => `
-      <tr class="hover:bg-slate-50 cursor-pointer" data-order-id="${order.orderId}">
-        <td class="p-3 font-medium text-slate-900">${order.orderId}</td>
-        <td class="p-3 text-slate-600">${order.order_time}</td>
-        <td class="p-3">${getStatusBadge(order.status)}</td>
-        <td class="p-3 text-center text-slate-600">${order.item_count}</td>
-        <td class="p-3 text-right font-medium text-slate-900">${formatCurrency(order.total_amount)}</td>
-      </tr>
-    `,
-      )
-      .join("");
-  };
-
-  const handleRowClick = (e: Event) => {
-    const row = (e.target as Element).closest("tr");
-    if (!row) return;
-
-    const orderId = row.getAttribute("data-order-id");
-    if (!orderId) return;
-
-    const orderData = ordersData.find((order) => order.orderId === orderId);
-    if (!orderData) return;
-
-    populateModal(orderData);
-    openModal();
-  };
-
-  const populateModal = (order: any) => {
-    // Populate order information
-    const modalOrderId = document.getElementById("modal-order-id");
-    const modalOrderTime = document.getElementById("modal-order-time");
-    const modalOrderStatus = document.getElementById("modal-order-status");
-    const modalPaymentMethod = document.getElementById("modal-payment-method");
-    const modalDiscountCode = document.getElementById("modal-discount-code");
-
-    if (modalOrderId) modalOrderId.textContent = order.orderId;
-    if (modalOrderTime) modalOrderTime.textContent = order.order_time;
-    if (modalOrderStatus)
-      modalOrderStatus.innerHTML = getStatusBadge(order.status);
-    if (modalPaymentMethod)
-      modalPaymentMethod.textContent = order.payment_method;
-    if (modalDiscountCode)
-      modalDiscountCode.textContent = order.discount_code || "无";
-
-    // Populate amount details
-    const modalSubtotal = document.getElementById("modal-subtotal");
-    const modalShipping = document.getElementById("modal-shipping");
-    const modalTax = document.getElementById("modal-tax");
-    const modalDiscount = document.getElementById("modal-discount");
-    const modalTotal = document.getElementById("modal-total");
-
-    if (modalSubtotal)
-      modalSubtotal.textContent = formatCurrency(order.subtotal_amount);
-    if (modalShipping)
-      modalShipping.textContent = formatCurrency(order.shipping_amount);
-    if (modalTax) modalTax.textContent = formatCurrency(order.tax_amount);
-    if (modalDiscount)
-      modalDiscount.textContent =
-        order.discount_amount > 0
-          ? `-${formatCurrency(order.discount_amount)}`
-          : formatCurrency(0);
-    if (modalTotal) modalTotal.textContent = formatCurrency(order.total_amount);
-
-    // Populate line items
-    const modalLineItems = document.getElementById("modal-line-items");
-    if (modalLineItems) {
-      modalLineItems.innerHTML = order.line_items
-        .map(
-          (item: any) => `
-        <tr>
-          <td class="p-3 text-slate-900">${item.name}</td>
-          <td class="p-3 text-right text-slate-600">${formatCurrency(item.price)}</td>
-          <td class="p-3 text-center text-slate-600">${item.qty}</td>
-          <td class="p-3 text-right font-medium text-slate-900">${formatCurrency(item.total)}</td>
-        </tr>
-      `,
-        )
-        .join("");
-    }
-
-    // Populate addresses
-    const modalShippingAddress = document.getElementById(
-      "modal-shipping-address",
-    );
-    const modalBillingAddress = document.getElementById(
-      "modal-billing-address",
-    );
-
-    if (modalShippingAddress)
-      modalShippingAddress.innerHTML = order.shipping_address;
-    if (modalBillingAddress)
-      modalBillingAddress.innerHTML = order.billing_address;
-  };
-
-  const openModal = () => {
-    const modal = document.getElementById("order-detail-modal");
-    if (modal) {
-      modal.classList.remove("hidden");
-      document.body.style.overflow = "hidden";
+  // Get status text based on status code
+  const getStatusText = (status: number): string => {
+    switch (status) {
+      case 0:
+        return "未确认";
+      case 1:
+        return "已确认";
+      case 2:
+        return "已完成";
+      case 3:
+        return "已取消";
+      default:
+        return "未知状态";
     }
   };
 
-  const closeModal = () => {
-    const modal = document.getElementById("order-detail-modal");
-    if (modal) {
-      modal.classList.add("hidden");
-      document.body.style.overflow = "";
-    }
-  };
+  // Fetch event data
+  const fetchEventData = useCallback(
+    async (page: number) => {
+      if (!cdpUserId) return;
 
-  const handleModalBackgroundClick = (e: Event) => {
-    if (e.target === e.currentTarget) {
-      closeModal();
-    }
-  };
-
-  const setupEventListeners = () => {
-    const tbody = document.getElementById("order-list-body");
-    const closeBtn = document.getElementById("close-modal-btn");
-    const modal = document.getElementById("order-detail-modal");
-
-    if (tbody) {
-      tbody.addEventListener("click", handleRowClick);
-    }
-
-    if (closeBtn) {
-      closeBtn.addEventListener("click", closeModal);
-    }
-
-    if (modal) {
-      modal.addEventListener("click", handleModalBackgroundClick);
-    }
-
-    // Close modal on escape key
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") {
-        closeModal();
+      setLoading(true);
+      try {
+        const data = await getUserEventList(cdpUserId, page, pageSize, 1); // 0 for order data
+        setEventData(data);
+      } catch (error) {
+        console.error("Failed to fetch event data:", error);
+      } finally {
+        setLoading(false);
       }
-    });
+    },
+    [cdpUserId, pageSize],
+  );
+
+  // Load data on component mount and page change
+  useEffect(() => {
+    fetchEventData(currentPage);
+  }, [fetchEventData, currentPage]);
+
+  // Handle page change
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
   };
+
+  // Handle row click to show order details
+  const handleRowClick = (event: ApiEvent) => {
+    const orderData = convertEventToOrder(event);
+    setSelectedOrder(orderData);
+    setIsModalOpen(true);
+  };
+
+  // Close modal
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedOrder(null);
+  };
+
+  // Format currency with symbol
+  const formatCurrency = (amount: number, currency: string) => {
+    const formatted = new Intl.NumberFormat("en-US", {
+      style: "decimal",
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(amount);
+    return `${currency}${formatted}`;
+  };
+
+  // Get status badge component
+  const getStatusBadge = (status: string) => {
+    let bgColor = "bg-slate-100";
+    let textColor = "text-slate-800";
+
+    switch (status) {
+      case "已完成":
+        bgColor = "bg-green-100";
+        textColor = "text-green-800";
+        break;
+      case "已取消":
+        bgColor = "bg-red-100";
+        textColor = "text-red-800";
+        break;
+      case "已支付":
+        bgColor = "bg-blue-100";
+        textColor = "text-blue-800";
+        break;
+      case "待支付":
+        bgColor = "bg-yellow-100";
+        textColor = "text-yellow-800";
+        break;
+      case "已发货":
+        bgColor = "bg-purple-100";
+        textColor = "text-purple-800";
+        break;
+    }
+
+    return (
+      <span
+        className={`px-2 py-1 text-xs rounded-full ${bgColor} ${textColor}`}
+      >
+        {status}
+      </span>
+    );
+  };
+
+  // Calculate pagination info
+  const totalPages = eventData ? Math.ceil(eventData.total / pageSize) : 0;
+  const startItem = (currentPage - 1) * pageSize + 1;
+  const endItem = Math.min(currentPage * pageSize, eventData?.total || 0);
+
+  if (loading) {
+    return (
+      <div className="bg-white p-6 rounded-lg shadow-sm">
+        <h3 className="text-lg font-semibold text-slate-900 mb-4">订单历史</h3>
+        <div className="flex items-center justify-center py-8">
+          <div className="text-slate-500">加载中...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!eventData || eventData.records.length === 0) {
+    return (
+      <div className="bg-white p-6 rounded-lg shadow-sm">
+        <h3 className="text-lg font-semibold text-slate-900 mb-4">订单历史</h3>
+        <div className="flex items-center justify-center py-8">
+          <div className="text-slate-500">暂无订单数据</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
       {/* Order History Component */}
       <div className="bg-white p-6 rounded-lg shadow-sm font-[Inter]">
-        <h3 className="text-lg font-semibold text-slate-900 mb-4">订单历史</h3>
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-semibold text-slate-900">订单历史</h3>
+          <div className="text-sm text-slate-500">
+            共 {eventData.total} 条记录，显示第 {startItem}-{endItem} 条
+          </div>
+        </div>
 
         {/* Order List Table */}
         <div className="overflow-x-auto">
@@ -263,176 +232,274 @@ export default function OrderHistory() {
                 <th className="p-3 font-medium">订单号</th>
                 <th className="p-3 font-medium">下单时间</th>
                 <th className="p-3 font-medium">状态</th>
-                <th className="p-3 font-medium text-center">商品件数</th>
-                <th className="p-3 font-medium text-right">订单总金额</th>
+                <th className="p-3 font-medium text-center">商品数量</th>
+                <th className="p-3 font-medium text-right">订单金额</th>
               </tr>
             </thead>
-            <tbody id="order-list-body" className="divide-y divide-slate-200">
-              {/* Order rows will be rendered here by JavaScript */}
+            <tbody className="divide-y divide-slate-200">
+              {eventData.records.map((event) => {
+                const orderData = convertEventToOrder(event);
+                return (
+                  <tr
+                    key={event.id}
+                    className="hover:bg-slate-50 cursor-pointer"
+                    onClick={() => handleRowClick(event)}
+                  >
+                    <td className="p-3 font-medium text-slate-900">
+                      {orderData.sn}
+                    </td>
+                    <td className="p-3 text-slate-600">
+                      {orderData.orderTime}
+                    </td>
+                    <td className="p-3">{getStatusBadge(orderData.status)}</td>
+                    <td className="p-3 text-center text-slate-600">
+                      {orderData.itemCount}
+                    </td>
+                    <td className="p-3 text-right font-medium text-slate-900">
+                      {formatCurrency(
+                        orderData.totalAmount,
+                        orderData.currency,
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between mt-4">
+            <div className="text-sm text-slate-500">
+              第 {currentPage} 页，共 {totalPages} 页
+            </div>
+            <div className="flex items-center space-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage <= 1}
+              >
+                <ChevronLeft className="h-4 w-4" />
+                上一页
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage >= totalPages}
+              >
+                下一页
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Order Detail Modal */}
-      <div
-        id="order-detail-modal"
-        className="fixed inset-0 z-50 flex items-center justify-center hidden"
-        style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
-      >
-        <div className="bg-white rounded-lg shadow-xl w-full max-w-3xl max-h-[90vh] flex flex-col">
-          {/* Modal Header */}
-          <div className="flex justify-between items-center p-4 border-b border-slate-200">
-            <h3 className="text-lg font-semibold text-slate-900">订单详情</h3>
-            <button
-              id="close-modal-btn"
-              className="text-slate-400 hover:text-slate-600"
-            >
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+      {isModalOpen && selectedOrder && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center"
+          style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              closeModal();
+            }
+          }}
+        >
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-3xl max-h-[90vh] flex flex-col">
+            {/* Modal Header */}
+            <div className="flex justify-between items-center p-4 border-b border-slate-200">
+              <h3 className="text-lg font-semibold text-slate-900">订单详情</h3>
+              <button
+                onClick={closeModal}
+                className="text-slate-400 hover:text-slate-600"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M6 18L18 6M6 6l12 12"
-                ></path>
-              </svg>
-            </button>
-          </div>
-
-          {/* Modal Body */}
-          <div className="p-6 overflow-y-auto">
-            {/* Core Information */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-              {/* Order Information */}
-              <div>
-                <h4 className="text-sm font-medium text-slate-900 mb-3">
-                  订单信息
-                </h4>
-                <dl className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <dt className="text-slate-500">订单号:</dt>
-                    <dd
-                      id="modal-order-id"
-                      className="text-slate-900 font-medium"
-                    ></dd>
-                  </div>
-                  <div className="flex justify-between">
-                    <dt className="text-slate-500">下单时间:</dt>
-                    <dd id="modal-order-time" className="text-slate-900"></dd>
-                  </div>
-                  <div className="flex justify-between">
-                    <dt className="text-slate-500">订单状态:</dt>
-                    <dd id="modal-order-status" className="text-slate-900"></dd>
-                  </div>
-                  <div className="flex justify-between">
-                    <dt className="text-slate-500">支付方式:</dt>
-                    <dd
-                      id="modal-payment-method"
-                      className="text-slate-900"
-                    ></dd>
-                  </div>
-                  <div className="flex justify-between">
-                    <dt className="text-slate-500">优惠码:</dt>
-                    <dd
-                      id="modal-discount-code"
-                      className="text-slate-900"
-                    ></dd>
-                  </div>
-                </dl>
-              </div>
-
-              {/* Amount Details */}
-              <div>
-                <h4 className="text-sm font-medium text-slate-900 mb-3">
-                  金额明细
-                </h4>
-                <dl className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <dt className="text-slate-500">商品总价:</dt>
-                    <dd id="modal-subtotal" className="text-slate-900"></dd>
-                  </div>
-                  <div className="flex justify-between">
-                    <dt className="text-slate-500">运费:</dt>
-                    <dd id="modal-shipping" className="text-slate-900"></dd>
-                  </div>
-                  <div className="flex justify-between">
-                    <dt className="text-slate-500">税费:</dt>
-                    <dd id="modal-tax" className="text-slate-900"></dd>
-                  </div>
-                  <div className="flex justify-between">
-                    <dt className="text-slate-500">优惠金额:</dt>
-                    <dd id="modal-discount" className="text-green-600"></dd>
-                  </div>
-                  <div className="flex justify-between pt-2 border-t border-slate-200 font-medium">
-                    <dt className="text-slate-900">订单总金额:</dt>
-                    <dd id="modal-total" className="text-slate-900"></dd>
-                  </div>
-                </dl>
-              </div>
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  ></path>
+                </svg>
+              </button>
             </div>
 
-            {/* Order Items */}
-            <div className="mb-6">
-              <h4 className="text-sm font-medium text-slate-900 mb-3">
-                订单明细
-              </h4>
-              <div className="border border-slate-200 rounded-lg overflow-hidden">
-                <table className="w-full text-sm">
-                  <thead className="bg-slate-50">
-                    <tr>
-                      <th className="p-3 text-left font-medium text-slate-500">
-                        商品名称
-                      </th>
-                      <th className="p-3 text-right font-medium text-slate-500">
-                        单价
-                      </th>
-                      <th className="p-3 text-center font-medium text-slate-500">
-                        数量
-                      </th>
-                      <th className="p-3 text-right font-medium text-slate-500">
-                        总价
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody
-                    id="modal-line-items"
-                    className="divide-y divide-slate-200"
-                  >
-                    {/* Line items will be populated by JavaScript */}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+            {/* Modal Body */}
+            <div className="p-6 overflow-y-auto">
+              {/* Core Information */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                {/* Order Information */}
+                <div>
+                  <h4 className="text-sm font-medium text-slate-900 mb-3">
+                    订单信息
+                  </h4>
+                  <dl className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <dt className="text-slate-500">订单号:</dt>
+                      <dd className="text-slate-900 font-medium">
+                        {selectedOrder.sn}
+                      </dd>
+                    </div>
+                    <div className="flex justify-between">
+                      <dt className="text-slate-500">下单时间:</dt>
+                      <dd className="text-slate-900">
+                        {selectedOrder.orderTime}
+                      </dd>
+                    </div>
+                    <div className="flex justify-between">
+                      <dt className="text-slate-500">订单状态:</dt>
+                      <dd className="text-slate-900">
+                        {getStatusBadge(selectedOrder.status)}
+                      </dd>
+                    </div>
+                    <div className="flex justify-between">
+                      <dt className="text-slate-500">支付方式:</dt>
+                      <dd className="text-slate-900">
+                        {selectedOrder.paymentMethod || "未知"}
+                      </dd>
+                    </div>
+                    <div className="flex justify-between">
+                      <dt className="text-slate-500">收货人:</dt>
+                      <dd className="text-slate-900">
+                        {selectedOrder.consignee || "未知"}
+                      </dd>
+                    </div>
+                    <div className="flex justify-between">
+                      <dt className="text-slate-500">联系电话:</dt>
+                      <dd className="text-slate-900">
+                        {selectedOrder.phone || "未知"}
+                      </dd>
+                    </div>
+                  </dl>
+                </div>
 
-            {/* Address Information */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <h4 className="text-sm font-medium text-slate-900 mb-3">
-                  收货地址
-                </h4>
-                <p
-                  id="modal-shipping-address"
-                  className="text-sm text-slate-600"
-                ></p>
+                {/* Amount Details */}
+                <div>
+                  <h4 className="text-sm font-medium text-slate-900 mb-3">
+                    金额明细
+                  </h4>
+                  <dl className="space-y-2 text-sm">
+                    <div className="flex justify-between  border-slate-200 font-medium">
+                      <dt className="text-slate-900">订单汇总金额:</dt>
+                      <dd className="text-slate-900">
+                        {formatCurrency(
+                          selectedOrder.subtotalAmount,
+                          selectedOrder.currency,
+                        )}
+                      </dd>
+                    </div>
+                    <div className="flex justify-between  border-slate-200 font-medium">
+                      <dt className="text-slate-900">运费:</dt>
+                      <dd className="text-slate-900">
+                        {formatCurrency(
+                          selectedOrder.shippingAmount,
+                          selectedOrder.currency,
+                        )}
+                      </dd>
+                    </div>
+                    <div className="flex justify-between  border-slate-200 font-medium">
+                      <dt className="text-slate-900">税费:</dt>
+                      <dd className="text-slate-900">
+                        {formatCurrency(
+                          selectedOrder.taxAmount,
+                          selectedOrder.currency,
+                        )}
+                      </dd>
+                    </div>
+                    <div className="flex justify-between pt-2 border-t border-slate-200 font-medium">
+                      <dt className="text-slate-900">订单总金额:</dt>
+                      <dd className="text-slate-900">
+                        {formatCurrency(
+                          selectedOrder.totalAmount,
+                          selectedOrder.currency,
+                        )}
+                      </dd>
+                    </div>
+                  </dl>
+                </div>
               </div>
-              <div>
+
+              {/* Order Items */}
+              <div className="mb-6">
                 <h4 className="text-sm font-medium text-slate-900 mb-3">
-                  账单地址
+                  订单明细
                 </h4>
-                <p
-                  id="modal-billing-address"
-                  className="text-sm text-slate-600"
-                ></p>
+                <div className="border border-slate-200 rounded-lg overflow-hidden">
+                  <table className="w-full text-sm">
+                    <thead className="bg-slate-50">
+                      <tr>
+                        <th className="p-3 text-left font-medium text-slate-500">
+                          商品编号
+                        </th>
+                        <th className="p-3 text-right font-medium text-slate-500">
+                          单价
+                        </th>
+                        <th className="p-3 text-center font-medium text-slate-500">
+                          数量
+                        </th>
+                        <th className="p-3 text-right font-medium text-slate-500">
+                          总价
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-200">
+                      {selectedOrder.lineItems.map((item, index) => (
+                        <tr key={index}>
+                          <td className="p-3 text-slate-900">{item.sn}</td>
+                          <td className="p-3 text-right text-slate-600">
+                            {formatCurrency(item.price, selectedOrder.currency)}
+                          </td>
+                          <td className="p-3 text-center text-slate-600">
+                            {item.count}
+                          </td>
+                          <td className="p-3 text-right font-medium text-slate-900">
+                            {formatCurrency(
+                              item.totalPrice,
+                              selectedOrder.currency,
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Address Information */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h4 className="text-sm font-medium text-slate-900 mb-3">
+                    收货地址
+                  </h4>
+                  <p className="text-sm text-slate-600">
+                    {selectedOrder.userName || ""} {"  "}
+                    {selectedOrder.phone || ""}
+                  </p>
+                  <p className="text-sm text-slate-600">
+                    {selectedOrder.consignee || ""}
+                    {selectedOrder.shippingAddress || ""}
+                  </p>
+                </div>
+                <div>
+                  <h4 className="text-sm font-medium text-slate-900 mb-3">
+                    账单地址
+                  </h4>
+                  <p className="text-sm text-slate-600">同收货地址</p>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
     </>
   );
 }

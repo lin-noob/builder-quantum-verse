@@ -47,32 +47,7 @@ export interface DashboardData {
 
 // Mock data for dashboard
 export const mockDashboardData: DashboardData = {
-  kpis: [
-    {
-      title: "总消费金额",
-      value: "¥1,254,680",
-      change: 5.2,
-      isPositive: true,
-    },
-    {
-      title: "总订单数",
-      value: "8,247",
-      change: 12.8,
-      isPositive: true,
-    },
-    {
-      title: "总用户数",
-      value: "3,456",
-      change: -2.1,
-      isPositive: false,
-    },
-    {
-      title: "平均客单价",
-      value: "¥152.3",
-      change: 8.9,
-      isPositive: true,
-    },
-  ],
+  kpis: [],
   performanceMetrics: [
     {
       id: "totalRevenue",
@@ -166,13 +141,7 @@ export const mockDashboardData: DashboardData = {
     { label: "邮件营销", value: 380, percentage: 8.0, color: "#10b981" },
     { label: "其他", value: 220, percentage: 4.6, color: "#6b7280" },
   ],
-  popularTags: [
-    { label: "VIP客户", count: 856 },
-    { label: "企业用户", count: 643 },
-    { label: "高价值用户", count: 421 },
-    { label: "长期合作", count: 298 },
-    { label: "技术导向", count: 187 },
-  ],
+  popularTags: [],
 };
 
 export const getDashboardData = () => mockDashboardData;

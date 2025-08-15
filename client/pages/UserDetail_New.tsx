@@ -464,12 +464,12 @@ export default function UserDetail() {
 
                 {/* Access Timeline Tab - NOW WITH SESSION TIMELINE */}
                 <TabsContent value="timeline" className="space-y-6">
-                  <SessionTimeline />
+                  <SessionTimeline cdpUserId={user.cdpId} />
                 </TabsContent>
 
                 {/* Business Statistics Tab - NOW WITH ORDER HISTORY */}
                 <TabsContent value="statistics">
-                  <OrderHistory />
+                  <OrderHistory cdpUserId={user.cdpId} />
                 </TabsContent>
               </Tabs>
             </CardContent>
