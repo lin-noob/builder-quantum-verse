@@ -74,7 +74,9 @@ const USER_FIELDS: FieldConfig[] = [
 // 事件显示名称
 const EVENT_DISPLAY_NAMES: Record<TriggerEventName, string> = {
   'page_view': '浏览页面',
+  'view_product': '查看商品',
   'add_to_cart': '加入购物车',
+  'remove_from_cart': '从购物车移除',
   'start_checkout': '开始结账',
   'purchase': '完成购买',
   'user_signup': '用户注册',
@@ -320,7 +322,7 @@ export default function TriggerRuleConfigNew({ value, onChange, className = '' }
             </SelectContent>
           </Select>
           <p className="text-xs text-gray-500 mt-2">
-            作为启动规则判断的核心用户行为
+            ���为启动规则判断的核心用户行为
           </p>
         </CardContent>
       </Card>
@@ -390,7 +392,7 @@ export default function TriggerRuleConfigNew({ value, onChange, className = '' }
               </div>
               <div className="text-xs text-gray-500 flex items-start gap-2">
                 <Info className="h-3 w-3 mt-0.5 flex-shrink-0" />
-                对用户本次访问会话的属性进行���滤，如来源渠道、设备类型等
+                对用户本次访问会话的属性进行过滤，如来源渠道、设备类型等
               </div>
               {renderConditions('session', sessionConditions, SESSION_FIELDS)}
             </TabsContent>
