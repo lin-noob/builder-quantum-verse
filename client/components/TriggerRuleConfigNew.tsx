@@ -323,9 +323,8 @@ export default function TriggerRuleConfigNew({ value, onChange, className = '' }
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="event" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="event">事件属性条件</TabsTrigger>
-              <TabsTrigger value="session">会话属性条件</TabsTrigger>
               <TabsTrigger value="user">用户画像条件</TabsTrigger>
             </TabsList>
 
@@ -338,49 +337,41 @@ export default function TriggerRuleConfigNew({ value, onChange, className = '' }
                     {conditions.length} 条
                   </Badge>
                 </div>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => addCondition('event')}
-                  className="flex items-center gap-1"
-                >
-                  <Plus className="h-3 w-3" />
-                  添加条件
-                </Button>
+                {getAvailableEventFields().length > 0 ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => addCondition('event')}
+                    className="flex items-center gap-1"
+                  >
+                    <Plus className="h-3 w-3" />
+                    添加条件
+                  </Button>
+                ) : (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    disabled
+                    className="flex items-center gap-1"
+                  >
+                    <Plus className="h-3 w-3" />
+                    添加条件
+                  </Button>
+                )}
               </div>
               <div className="text-xs text-gray-500 flex items-start gap-2">
                 <Info className="h-3 w-3 mt-0.5 flex-shrink-0" />
                 对主要触发事件的属性进行过滤，如页面URL、商品价格等
               </div>
-              {renderConditions('event', conditions, getAvailableEventFields())}
-            </TabsContent>
-
-            {/* 会话属性条件 */}
-            <TabsContent value="session" className="space-y-4 mt-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <h4 className="font-medium">会话属性条件</h4>
-                  <Badge variant="outline" className="text-xs">
-                    {sessionConditions.length} 条
-                  </Badge>
+              {getAvailableEventFields().length > 0 ? (
+                renderConditions('event', conditions, getAvailableEventFields())
+              ) : (
+                <div className="text-sm text-gray-500 italic bg-yellow-50 border border-yellow-200 p-3 rounded-lg">
+                  ⚠️ 当前触发事件"{EVENT_DISPLAY_NAMES[selectedEvent]}"无需设置事件属性条件
                 </div>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => addCondition('session')}
-                  className="flex items-center gap-1"
-                >
-                  <Plus className="h-3 w-3" />
-                  添加条件
-                </Button>
-              </div>
-              <div className="text-xs text-gray-500 flex items-start gap-2">
-                <Info className="h-3 w-3 mt-0.5 flex-shrink-0" />
-                对用户本次访问会话的属性进行过滤，如来源渠道、设备类型等
-              </div>
-              {renderConditions('session', sessionConditions, SESSION_FIELDS)}
+              )}
             </TabsContent>
 
             {/* 用户画像条件 */}
@@ -405,7 +396,7 @@ export default function TriggerRuleConfigNew({ value, onChange, className = '' }
               </div>
               <div className="text-xs text-gray-500 flex items-start gap-2">
                 <Info className="h-3 w-3 mt-0.5 flex-shrink-0" />
-                对触发事件的用户本人的画像进行过滤，如用户分层、消费记录等
+                对触发事件的用户本人的画像进行过滤，如用户标签、消费记录等
               </div>
               {renderConditions('user', userConditions, USER_FIELDS)}
             </TabsContent>
