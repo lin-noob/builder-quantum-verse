@@ -54,12 +54,14 @@ interface FieldConfig {
 // 事件属性字段
 const EVENT_FIELDS: FieldConfig[] = [
   { id: 'page_url', name: '页面URL', dataType: 'text', description: '事件发生时所在页面的网址', applicableEvents: ['page_view'] },
-  { id: 'page_title', name: '页面标题', dataType: 'text', description: '事件发生时所在��面的标题', applicableEvents: ['page_view'] },
+  { id: 'page_title', name: '页面标题', dataType: 'text', description: '事件发生时所在页面的标题', applicableEvents: ['page_view'] },
   { id: 'page_dwell_time_seconds', name: '页面停留时长(秒)', dataType: 'number', description: '用户在该页面已停留的总秒数', applicableEvents: ['page_view'] },
   { id: 'page_scroll_depth', name: '页面滚动深度(%)', dataType: 'number', description: '用户在该页面向下的最大滚动位置', applicableEvents: ['page_view'] },
   { id: 'product_name', name: '商品名称', dataType: 'text', description: '相关的商品名称', applicableEvents: ['view_product', 'add_to_cart', 'remove_from_cart'] },
   { id: 'category', name: '商品品类', dataType: 'text', description: '相关的商品品类', applicableEvents: ['view_product', 'add_to_cart', 'remove_from_cart'] },
-  { id: 'price', name: '商品价格', dataType: 'number', description: '相关的商品单价', applicableEvents: ['view_product', 'add_to_cart'] },
+  { id: 'price', name: '商品价格', dataType: 'number', description: '相关的商品单价', applicableEvents: ['view_product', 'add_to_cart', 'remove_from_cart'] },
+  { id: 'cart_total_amount', name: '当前购物车总金额', dataType: 'number', description: '购物车商品总价', applicableEvents: ['add_to_cart', 'remove_from_cart'] },
+  { id: 'form_name', name: '表单名称/ID', dataType: 'text', description: '提交的表单名称或ID', applicableEvents: ['submit_form'] },
   { id: 'search_term', name: '搜索关键词', dataType: 'text', description: '用户输入的搜索词', applicableEvents: ['search'] },
 ];
 
@@ -68,7 +70,7 @@ const USER_FIELDS: FieldConfig[] = [
   { id: 'tag', name: '用户标签', dataType: 'text', description: '用户所拥有的标签' },
   { id: 'total_spend', name: '累计消费金额', dataType: 'number', description: '用户历史累计的总消费' },
   { id: 'total_orders', name: '总订单数', dataType: 'number', description: '用户历史累计的总订单数' },
-  { id: 'last_purchase_days', name: '距上次购买天数', dataType: 'number', description: '距离该用户上一次购买过去了多少天' },
+  { id: 'last_purchase_days', name: '���上次购买天数', dataType: 'number', description: '距离该用户上一次购买过去了多少天' },
 ];
 
 // 事件显示名称
@@ -106,7 +108,7 @@ export default function TriggerRuleConfigNew({ value, onChange, className = '' }
   const [conditions, setConditions] = useState<ConditionItem[]>(value.config.conditions || []);
   const [userConditions, setUserConditions] = useState<ConditionItem[]>(value.config.userConditions || []);
 
-  // 更新父组件
+  // ���新父组件
   useEffect(() => {
     onChange({
       type: 'REAL_TIME',
