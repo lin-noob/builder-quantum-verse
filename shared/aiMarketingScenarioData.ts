@@ -127,7 +127,7 @@ export const predefinedScenarios: MarketingScenario[] = [
           reasoning: 'AI不会在用户加购的瞬间立即打扰，而是会持续分析后续行为。只有当用户表现出离开意图（如鼠标快速移向关闭按钮）或长时间无操作时，才会触发。',
           examples: [
             '高意图用户: 若用户加购后仍在活跃浏览，AI会保持静默。',
-            '犹豫用户: 若用户加购后在页面停留超过90秒���无任何点击，AI会判断其为犹豫，并主动介入。'
+            '犹���用户: 若用户加购后在页面停留超过90秒���无任何点击，AI会判断其为犹豫，并主动介入。'
           ]
         },
         {
@@ -212,7 +212,7 @@ export const predefinedScenarios: MarketingScenario[] = [
       timingStrategy: 'SMART_DELAY',
       contentStrategy: 'FULLY_GENERATIVE',
       description: 'AI会根据用户浏览行为和商品特征，生成个性化的推荐或优惠内容',
-      strategySummary: '在此场景下，AI的目标是识别用户的兴趣点，通过提供增值信息或适时激励，推动用户从"考虑"进入"决策"阶段（例如加入购物车）。',
+      strategySummary: '识别用户兴趣，通过激励或提供信息，推动用户进入购买决策。',
       dimensions: [
         {
           dimension: '营销方式',
@@ -226,7 +226,7 @@ export const predefinedScenarios: MarketingScenario[] = [
         {
           dimension: '营销时机',
           strategy: '采用"智能延迟"',
-          reasoning: 'AI会���于用户的投入度来决策。核心信号是页面停留时长和滚动深度。',
+          reasoning: 'AI会���于用户的投入度来���策。核心信号是页面停留时长和滚动深度。',
           examples: [
             '深度浏览者: 当用户在商品页停留超过120秒，并滚动到页面底部时，AI判断其兴趣浓厚，可能会触发互动。',
             '准备离开者: 当用户在商品页停留较长时间后，表现出离开意图，AI会尝试进行挽留。'
