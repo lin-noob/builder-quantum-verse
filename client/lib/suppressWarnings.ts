@@ -10,14 +10,22 @@ if (typeof console !== "undefined" && typeof window !== "undefined") {
       return true;
     }
 
-    // Suppress React development warnings from third-party libraries
+    // Suppress specific Recharts component warnings
     if (message.includes("defaultProps") && (
-      message.includes("recharts") ||
-      message.includes("/deps/recharts.js") ||
       message.includes("XAxis") ||
       message.includes("YAxis") ||
       message.includes("LineChart") ||
-      message.includes("ResponsiveContainer")
+      message.includes("ResponsiveContainer") ||
+      message.includes("recharts") ||
+      message.includes("/deps/recharts.js")
+    )) {
+      return true;
+    }
+
+    // Suppress the exact warning format we're seeing
+    if (message.includes("Use JavaScript default parameters instead") && (
+      message.includes("XAxis") ||
+      message.includes("YAxis")
     )) {
       return true;
     }
