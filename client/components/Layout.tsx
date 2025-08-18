@@ -201,7 +201,7 @@ export default function Layout({ children }: LayoutProps) {
       {/* Left Sidebar */}
       <div
         className={cn(
-          "hidden lg:flex bg-white border-r border-gray-200 flex-col transition-all duration-300 ease-in-out relative",
+          "hidden lg:flex bg-card border-r border-border flex-col transition-all duration-300 ease-in-out relative",
           isSidebarCollapsed ? "w-16" : "w-64",
         )}
       >
