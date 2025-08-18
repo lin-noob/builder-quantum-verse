@@ -278,7 +278,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
       };
 
       if (rule) {
-        // ���新现有规则
+        // 更新现有规则
         await updateOverrideRule(scenario.scenarioId, rule.ruleId, ruleData);
         toast({
           title: "规则已更新",
@@ -525,7 +525,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
           <Tabs value={currentTab} onValueChange={setCurrentTab}>
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="conditions">触发条件</TabsTrigger>
-              <TabsTrigger value="action">响应动作</TabsTrigger>
+              <TabsTrigger value="action">响应动��</TabsTrigger>
             </TabsList>
 
             <TabsContent value="conditions" className="space-y-4">
@@ -552,12 +552,15 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
               <Card>
                 <CardHeader>
                   <CardTitle className="text-base">营销方式</CardTitle>
+                  <div className="text-xs text-muted-foreground">
+                    目前仅��持网页弹窗，邮件和短信功能正在开发中
+                  </div>
                 </CardHeader>
                 <CardContent>
                   <Select
                     value={responseAction.actionType}
-                    onValueChange={(value) => setResponseAction(prev => ({ 
-                      ...prev, 
+                    onValueChange={(value) => setResponseAction(prev => ({
+                      ...prev,
                       actionType: value as ActionType,
                       actionConfig: {} // 重置配置
                     }))}
