@@ -129,7 +129,7 @@ export const predefinedScenarios: MarketingScenario[] = [
           reasoning: 'AI不会在用户加购的瞬间立即打扰，而是会持续分析后续行为。只有当用户表现出离开意图（如鼠标快速移向关闭按钮）或长时间无操作时，才会触发。',
           examples: [
             '高意图用户: 若用户加购后仍在活跃浏览，AI会保持静默。',
-            '犹豫用户: 若用户加购后在页面停留超过90秒且无任何点击，AI���判断其为犹豫，并主动介入。'
+            '犹豫用户: 若用户加购后在页面停留超过90秒且无任何点击，AI会判断其为犹豫，并主动���入。'
           ]
         },
         {
@@ -238,7 +238,7 @@ export const predefinedScenarios: MarketingScenario[] = [
         {
           dimension: '营销内容',
           strategy: '进行"价值匹配生成"',
-          reasoning: 'AI会根据商品属性和用户��像，生成最能匹配其潜在需求的内容。',
+          reasoning: 'AI会根据商品属性和用户画像，生成最能匹配其潜在需求的内容。',
           examples: [
             '针对高价复杂商品: AI可能会提供社会认同信息，如："已有超过5000名用户购买并给出了98%的好评。"',
             '针对有配件的商品: AI可能会进行交叉销售推荐，如："别忘了搭配专用清洁套装，组合购买可享优惠。"'
@@ -342,7 +342,7 @@ export const predefinedScenarios: MarketingScenario[] = [
           ]
         },
         {
-          dimension: '营销时机',
+          dimension: '营��时机',
           strategy: '"立即触发"',
           reasoning: '与注册类似，登录成功是一个需要即时响应的明确信号。',
           examples: [
@@ -369,7 +369,7 @@ export const predefinedScenarios: MarketingScenario[] = [
       ],
       user: [
         { field: 'tag', label: '用户标签', type: 'string' },
-        { field: 'user_segment', label: '用��分层', type: 'string' },
+        { field: 'user_segment', label: '用户分层', type: 'string' },
         { field: 'last_purchase_days', label: '距上次购买天数', type: 'number' },
         { field: 'total_spend', label: '累计消费', type: 'number' }
       ]
