@@ -1,5 +1,5 @@
 /**
- * 用��画像列表数据定义
+ * 用户画像列表数据定义
  * 定义了用户画像列表页面所需的所有数据字段类型和结构
  */
 
@@ -246,7 +246,7 @@ export interface ErrorInfo {
  * API响应基础结构
  */
 export interface ApiResponse<T = any> {
-  /** 响��状态码 */
+  /** 响应状态码 */
   code: number;
 
   /** 响应消息 */

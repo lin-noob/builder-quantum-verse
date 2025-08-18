@@ -15,16 +15,23 @@ import UserList2 from "./pages/UserList2";
 import UserDetail from "./pages/UserDetail";
 import UserDetailNew from "./pages/UserDetail_New";
 import UserDetail2 from "./pages/UserDetail2";
+import AIMarketingStrategies from "./pages/AIMarketingStrategies";
+import AIMarketingStrategyCreate from "./pages/AIMarketingStrategyCreate";
+import AIMarketingStrategyDetail from "./pages/AIMarketingStrategyDetail";
 import ResponseActions from "./pages/ResponseActions";
 import ResponseActionDetail from "./pages/ResponseActionDetail";
 import ResponseActionCreate from "./pages/ResponseActionCreate";
-import ResponseActionEdit from "./pages/ResponseActionEdit";
 import MonitoringCenter from "./pages/AIMarketing/MonitoringCenter";
 import FullyAuto from "./pages/AIMarketing/FullyAuto";
 import SemiAuto from "./pages/AIMarketing/SemiAuto";
 import ScriptCreate from "./pages/AIMarketing/ScriptCreate";
 import OrderHistoryDemo from "./pages/OrderHistoryDemo";
 import NotFound from "./pages/NotFound";
+import Auth from "./pages/Auth";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
+import UserProfile from "./pages/UserProfile";
+import EffectTracking from "./pages/EffectTracking";
 
 const queryClient = new QueryClient();
 
@@ -35,7 +42,32 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
+          {/* Authentication routes - no layout */}
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
+
+          {/* User Profile route */}
+          <Route
+            path="/profile"
+            element={
+              <Layout>
+                <UserProfile />
+              </Layout>
+            }
+          />
+
+          <Route
+            path="/effect-tracking"
+            element={
+              <Layout>
+                <EffectTracking />
+              </Layout>
+            }
+          />
+
           <Route
             path="/dashboard"
             element={
@@ -85,6 +117,39 @@ const App = () => (
             }
           />
           <Route
+            path="/ai-marketing-strategies"
+            element={
+              <Layout>
+                <AIMarketingStrategies />
+              </Layout>
+            }
+          />
+          <Route
+            path="/ai-marketing-strategies/create"
+            element={
+              <Layout>
+                <AIMarketingStrategyCreate />
+              </Layout>
+            }
+          />
+          <Route
+            path="/ai-marketing-strategies/edit/:id"
+            element={
+              <Layout>
+                <AIMarketingStrategyCreate />
+              </Layout>
+            }
+          />
+          <Route
+            path="/ai-marketing-strategies/:id"
+            element={
+              <Layout>
+                <AIMarketingStrategyDetail />
+              </Layout>
+            }
+          />
+          {/* 原有的响应动作库路由 */}
+          <Route
             path="/response-actions"
             element={
               <Layout>
@@ -104,7 +169,7 @@ const App = () => (
             path="/response-actions/edit/:id"
             element={
               <Layout>
-                <ResponseActionEdit />
+                <ResponseActionCreate />
               </Layout>
             }
           />

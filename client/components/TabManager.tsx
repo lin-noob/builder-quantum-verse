@@ -50,13 +50,16 @@ export default function TabManager() {
     "/users": "用户画像",
     "/users2": "用户画像2.0",
     "/response-actions": "响应动作库",
-    "/ai-marketing/monitoring-center": "AI营销 - 监控中心",
-    "/ai-marketing/fully-auto": "AI营销 - 全自动模式",
-    "/ai-marketing/semi-auto": "AI营销 - 半自动模式",
-    "/ai-marketing/semi-auto/create": "AI营销 - 创建剧本",
-    "/ai-marketing/strategy-goals": "AI营销 - 战略与目标",
-    "/ai-marketing/live-monitoring": "AI营销 - 实时监控",
-    "/ai-marketing/performance-analytics": "AI营销 - 效果分析",
+    "/ai-marketing-strategies": "营销策略",
+    "/ai-marketing/monitoring-center": "监控中心",
+    "/ai-marketing/fully-auto": "全自动营销",
+    "/ai-marketing/semi-auto": "半自动模式",
+    "/ai-marketing/semi-auto/create": "创建剧本",
+    "/ai-marketing/strategy-goals": "战略与目标",
+    "/ai-marketing/live-monitoring": "实时监控",
+    "/ai-marketing/performance-analytics": "效果分析",
+    "/effect-tracking": "效果追踪",
+    "/profile": "个人信息",
   };
 
   // 检查滚动状态
@@ -111,6 +114,18 @@ export default function TabManager() {
           } else {
             title = "响应动作详情";
           }
+        } else if (currentPath.includes("/ai-marketing-strategies/")) {
+          if (currentPath.includes("/create")) {
+            title = "创建营销策略";
+          } else if (currentPath.includes("/edit/")) {
+            title = "编辑营销策略";
+          } else {
+            title = "营销策略详情";
+          }
+        } else if (currentPath.includes("/response-actions")) {
+          title = "响应动作库";
+        } else if (currentPath.includes("/ai-marketing-strategies")) {
+          title = "营销策略";
         } else {
           // 默认使用路径最后一部分作为标题
           const pathParts = currentPath.split("/").filter(Boolean);
@@ -227,7 +242,7 @@ export default function TabManager() {
     setContextMenu({ isOpen: false, x: 0, y: 0, targetTab: null });
   };
 
-  // 点击页面其他地方关闭右键菜单
+  // ��击页面其他地方关闭右键菜单
   useEffect(() => {
     const handleClick = () => closeContextMenu();
     if (contextMenu.isOpen) {
@@ -268,7 +283,7 @@ export default function TabManager() {
               onClick={() => handleTabClick(tab)}
               onContextMenu={(e) => handleContextMenu(e, tab)}
             >
-              {/* 标签页��标 */}
+              {/* 标签页图标 */}
               {tab.isHome && <Home className="h-3 w-3 flex-shrink-0" />}
 
               {/* 标签页标题 */}

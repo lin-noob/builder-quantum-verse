@@ -47,17 +47,29 @@ export default function UserComposition({ data }: UserCompositionProps) {
         <div className="h-80">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data} barCategoryGap="25%">
-              <XAxis 
-                dataKey="date" 
+              <XAxis
+                dataKey="date"
                 axisLine={false}
                 tickLine={false}
                 tick={{ fontSize: 12, fill: '#6b7280' }}
+                hide={false}
+                tickCount={5}
+                minTickGap={5}
+                mirror={false}
+                reversed={false}
+                includeHidden={false}
               />
-              <YAxis 
+              <YAxis
                 axisLine={false}
                 tickLine={false}
                 tick={{ fontSize: 12, fill: '#6b7280' }}
                 tickFormatter={(value) => value.toLocaleString()}
+                hide={false}
+                tickCount={5}
+                minTickGap={5}
+                mirror={false}
+                reversed={false}
+                includeHidden={false}
               />
               <Tooltip content={<CustomTooltip />} />
               <Bar 

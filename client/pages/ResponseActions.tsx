@@ -2,423 +2,207 @@ import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Plus, MoreVertical, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import {
-  Plus,
-  Loader2,
-  AlertCircle,
-  ArrowUpDown,
-  ArrowUp,
-  ArrowDown,
-} from "lucide-react";
-import {
-  Rule,
-  mockRules,
-  getTriggerSummary,
-  getActionTypeDisplay,
-  getStatusDisplay,
-} from "@shared/ruleData";
-import ConfirmationModal from "@/components/ConfirmationModal";
+  actionsData,
+  ActionData,
+  ActionStatus,
+  MonitoringScope,
+  STATUS_DISPLAY,
+  formatNumber
+} from "@shared/actionLibraryData";
 import { useToast } from "@/hooks/use-toast";
 
-interface FiltersState {
+// 筛选状态接口
+interface FilterState {
   search: string;
   status: string;
-  dateRange: string;
 }
 
-interface ConfirmationState {
-  isOpen: boolean;
-  type: "enable" | "disable" | "delete";
-  ruleId: string;
-  ruleName: string;
-}
-
+// 排序状态接口
 interface SortState {
   field: string | null;
   direction: "asc" | "desc";
 }
 
-type SortableFields =
-  | "totalExecutions"
-  | "totalInteractions"
-  | "totalConversions";
+type SortableFields = "totalExecutions" | "conversions" | "lastUpdated";
 
 export default function ResponseActions() {
   const navigate = useNavigate();
   const { toast } = useToast();
-
-  // Use mock data for now
-  const [rules] = useState<Rule[]>(mockRules);
-  const [loading] = useState(false);
-  const [error] = useState<string | null>(null);
-
-  const [filters, setFilters] = useState<FiltersState>({
-    search: "",
-    status: "all",
-    dateRange: "all",
+  
+  // 筛选状态
+  const [filters, setFilters] = useState<FilterState>({
+    search: '',
+    status: 'all'
   });
 
-  const [confirmationModal, setConfirmationModal] = useState<ConfirmationState>(
-    {
-      isOpen: false,
-      type: "enable",
-      ruleId: "",
-      ruleName: "",
-    },
-  );
-  const [operationLoading, setOperationLoading] = useState(false);
+  // 排序状态 - 默认按最后更新时间排序
   const [sortState, setSortState] = useState<SortState>({
-    field: null,
-    direction: "desc",
+    field: 'lastUpdated',
+    direction: 'desc'
   });
 
-  // Filter and sort rules based on current filter and sort state
-  const filteredAndSortedRules = useMemo(() => {
-    let filtered = rules.filter((rule) => {
-      const matchesSearch =
-        filters.search === "" ||
-        rule.ruleName.toLowerCase().includes(filters.search.toLowerCase());
+  // 分页状态
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
-      const matchesStatus =
-        filters.status === "all" || rule.status === filters.status;
+  // 下拉菜单状态
+  const [dropdownOpen, setDropdownOpen] = useState<string | null>(null);
 
-      // Date filtering
-      let matchesDate = true;
-      if (filters.dateRange !== "all") {
-        const ruleDate = new Date(rule.createdAt);
-        const now = new Date();
+  // 过滤、排序和分页后的数据
+  const processedData = useMemo(() => {
+    // 1. 过滤数据
+    let filtered = actionsData.filter(action => {
+      const matchesSearch = filters.search === '' ||
+        action.name.toLowerCase().includes(filters.search.toLowerCase());
 
-        switch (filters.dateRange) {
-          case "today":
-            matchesDate = ruleDate.toDateString() === now.toDateString();
-            break;
-          case "week":
-            const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-            matchesDate = ruleDate >= weekAgo;
-            break;
-          case "month":
-            const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-            matchesDate = ruleDate >= monthAgo;
-            break;
-          case "quarter":
-            const quarterAgo = new Date(
-              now.getTime() - 90 * 24 * 60 * 60 * 1000,
-            );
-            matchesDate = ruleDate >= quarterAgo;
-            break;
-        }
-      }
+      const matchesStatus = filters.status === 'all' ||
+        action.status === filters.status;
 
-      return matchesSearch && matchesStatus && matchesDate;
+      return matchesSearch && matchesStatus;
     });
 
-    // Apply sorting
+    // 2. 排序数据
     if (sortState.field) {
       filtered.sort((a, b) => {
-        const aValue = a[sortState.field as keyof Rule];
-        const bValue = b[sortState.field as keyof Rule];
+        let aValue: any;
+        let bValue: any;
 
-        if (sortState.direction === "asc") {
-          return aValue > bValue ? 1 : -1;
+        switch (sortState.field) {
+          case 'totalExecutions':
+            aValue = a.totalExecutions;
+            bValue = b.totalExecutions;
+            break;
+          case 'conversions':
+            aValue = a.conversions;
+            bValue = b.conversions;
+            break;
+          case 'lastUpdated':
+            aValue = new Date(a.lastUpdated);
+            bValue = new Date(b.lastUpdated);
+            break;
+          default:
+            return 0;
+        }
+
+        if (sortState.direction === 'asc') {
+          return aValue > bValue ? 1 : aValue < bValue ? -1 : 0;
         } else {
-          return aValue < bValue ? 1 : -1;
+          return aValue < bValue ? 1 : aValue > bValue ? -1 : 0;
         }
       });
     }
 
-    return filtered;
-  }, [rules, filters, sortState]);
+    // 3. 分页数据
+    const totalCount = filtered.length;
+    const totalPages = Math.ceil(totalCount / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const paginatedData = filtered.slice(startIndex, startIndex + itemsPerPage);
 
-  // Handle sorting
-  const handleSort = (field: SortableFields) => {
-    setSortState((prev) => ({
-      field,
-      direction:
-        prev.field === field && prev.direction === "desc" ? "asc" : "desc",
-    }));
+    return {
+      data: paginatedData,
+      totalCount,
+      totalPages
+    };
+  }, [filters, sortState, currentPage, itemsPerPage]);
+
+  // 重置筛选
+  const resetFilters = () => {
+    setFilters({
+      search: '',
+      status: 'all'
+    });
+    setCurrentPage(1);
   };
 
-  // Get sort icon for column headers
+  // 处理排序
+  const handleSort = (field: SortableFields) => {
+    setSortState(prev => ({
+      field,
+      direction: prev.field === field && prev.direction === 'desc' ? 'asc' : 'desc'
+    }));
+    setCurrentPage(1);
+  };
+
+  // 获取排序图标
   const getSortIcon = (field: SortableFields) => {
     if (sortState.field !== field) {
       return <ArrowUpDown className="h-4 w-4 text-gray-400" />;
     }
-    return sortState.direction === "desc" ? (
+    return sortState.direction === 'desc' ? (
       <ArrowDown className="h-4 w-4 text-blue-600" />
     ) : (
       <ArrowUp className="h-4 w-4 text-blue-600" />
     );
   };
 
-  // Format date for display
-  const formatDate = (dateString: string): string => {
-    const date = new Date(dateString);
-    return date.toLocaleString("zh-CN", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
+  // 查询函数（刷新数据）
+  const renderActionList = () => {
+    // 筛选逻辑已在 useMemo 中处理，这里可以添加刷新逻辑
+    setCurrentPage(1); // 重置到第一页
+    toast({
+      title: "数据已刷新",
+      description: `找到 ${processedData.totalCount} 条动作记录`
     });
   };
 
-  // Handle rule operations
-  const handleEdit = (rule: Rule) => {
-    navigate(`/response-actions/edit/${rule.id}`);
-  };
+  // 处理操作按钮点击
+  const handleActionOperation = (actionId: string, operation: string) => {
+    const action = actionsData.find(a => a.id === actionId);
+    if (!action) return;
 
-  const handleViewDetail = (ruleId: string) => {
-    navigate(`/response-actions/${ruleId}`);
-  };
-
-  const handleEnable = (rule: Rule) => {
-    setConfirmationModal({
-      isOpen: true,
-      type: "enable",
-      ruleId: rule.id,
-      ruleName: rule.ruleName,
-    });
-  };
-
-  const handleDisable = (rule: Rule) => {
-    setConfirmationModal({
-      isOpen: true,
-      type: "disable",
-      ruleId: rule.id,
-      ruleName: rule.ruleName,
-    });
-  };
-
-  const handleDelete = (rule: Rule) => {
-    setConfirmationModal({
-      isOpen: true,
-      type: "delete",
-      ruleId: rule.id,
-      ruleName: rule.ruleName,
-    });
-  };
-
-  // Handle confirmation actions
-  const handleConfirmation = async () => {
-    const { type, ruleName } = confirmationModal;
-
-    try {
-      setOperationLoading(true);
-
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      switch (type) {
-        case "enable":
-          toast({
-            title: "启用成功",
-            description: `规则"${ruleName}"已成功启用`,
-          });
-          break;
-        case "disable":
-          toast({
-            title: "停用成功",
-            description: `规则"${ruleName}"已成功停用`,
-          });
-          break;
-        case "delete":
-          toast({
-            title: "删除成功",
-            description: `规则"${ruleName}"已成功删除`,
-          });
-          break;
-      }
-    } catch (err) {
-      toast({
-        title: "操作失败",
-        description: err instanceof Error ? err.message : "未知错误",
-        variant: "destructive",
-      });
-    } finally {
-      setOperationLoading(false);
-      setConfirmationModal((prev) => ({ ...prev, isOpen: false }));
+    switch (operation) {
+      case 'enable':
+        toast({
+          title: "启用成功",
+          description: `动作"${action.name}"已启用`
+        });
+        break;
+      case 'disable':
+        toast({
+          title: "停用成功", 
+          description: `动作"${action.name}"已停用`
+        });
+        break;
+      case 'delete':
+        toast({
+          title: "删除成功",
+          description: `动作"${action.name}"已删除`
+        });
+        break;
     }
-  };
-
-  // Render action links based on status
-  const renderActionLinks = (rule: Rule) => {
-    const isDisabled = operationLoading;
-    const linkClass =
-      "text-blue-600 hover:text-blue-800 cursor-pointer text-sm";
-    const disabledClass = "text-gray-400 cursor-not-allowed text-sm";
-
-    switch (rule.status) {
-      case "draft":
-        return (
-          <div className="flex gap-3 text-sm">
-            <span
-              className={isDisabled ? disabledClass : linkClass}
-              onClick={() => !isDisabled && handleViewDetail(rule.id)}
-            >
-              详情
-            </span>
-            <span
-              className={isDisabled ? disabledClass : linkClass}
-              onClick={() => !isDisabled && handleEdit(rule)}
-            >
-              编辑
-            </span>
-            <span
-              className={
-                isDisabled
-                  ? disabledClass
-                  : "text-green-600 hover:text-green-800 cursor-pointer text-sm"
-              }
-              onClick={() => !isDisabled && handleEnable(rule)}
-            >
-              启用
-            </span>
-            <span
-              className={
-                isDisabled
-                  ? disabledClass
-                  : "text-red-600 hover:text-red-800 cursor-pointer text-sm"
-              }
-              onClick={() => !isDisabled && handleDelete(rule)}
-            >
-              删除
-            </span>
-          </div>
-        );
-
-      case "active":
-        return (
-          <div className="flex gap-3 text-sm">
-            <span
-              className={isDisabled ? disabledClass : linkClass}
-              onClick={() => !isDisabled && handleViewDetail(rule.id)}
-            >
-              详情
-            </span>
-            <span
-              className={isDisabled ? disabledClass : linkClass}
-              onClick={() => !isDisabled && handleEdit(rule)}
-            >
-              编辑
-            </span>
-            <span
-              className={
-                isDisabled
-                  ? disabledClass
-                  : "text-orange-600 hover:text-orange-800 cursor-pointer text-sm"
-              }
-              onClick={() => !isDisabled && handleDisable(rule)}
-            >
-              停用
-            </span>
-          </div>
-        );
-
-      case "archived":
-        return (
-          <div className="flex gap-3 text-sm">
-            <span
-              className={isDisabled ? disabledClass : linkClass}
-              onClick={() => !isDisabled && handleViewDetail(rule.id)}
-            >
-              详情
-            </span>
-            <span
-              className={isDisabled ? disabledClass : linkClass}
-              onClick={() => !isDisabled && handleEdit(rule)}
-            >
-              编辑
-            </span>
-            <span
-              className={
-                isDisabled
-                  ? disabledClass
-                  : "text-red-600 hover:text-red-800 cursor-pointer text-sm"
-              }
-              onClick={() => !isDisabled && handleDelete(rule)}
-            >
-              删除
-            </span>
-          </div>
-        );
-
-      default:
-        return null;
-    }
+    setDropdownOpen(null);
   };
 
   return (
-    <div className="p-6">
-      {/* Action Bar */}
-      <div className="flex justify-end mb-6">
-        <Button
-          onClick={() => navigate("/response-actions/create")}
-          className="flex items-center gap-2"
-          disabled={operationLoading}
-        >
-          <Plus className="h-4 w-4" />
-          创建新规则
-        </Button>
-      </div>
-
-      {/* Error Display */}
-      {error && (
-        <Alert variant="destructive" className="mb-6">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription className="flex items-center justify-between">
-            {error}
-            <Button variant="outline" size="sm">
-              关闭
-            </Button>
-          </AlertDescription>
-        </Alert>
-      )}
-
-      {/* Filters & Search Bar */}
-      <div className="bg-white rounded-lg border border-gray-200 p-4 mb-6">
-        <div className="flex flex-col md:flex-row gap-4">
-          {/* Search */}
+    <div className="p-6 space-y-6 bg-gray-50 min-h-full">
+      {/* 筛选区 */}
+      <Card className="bg-white p-4 rounded-lg shadow-sm">
+        <div className="flex flex-col md:flex-row gap-4 items-end">
+          {/* 搜索框 */}
           <div className="flex-1">
             <Input
-              placeholder="搜索规则名称"
+              placeholder="搜索动作名称..."
               value={filters.search}
-              onChange={(e) =>
-                setFilters((prev) => ({ ...prev, search: e.target.value }))
-              }
-              className="w-full"
+              onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
             />
           </div>
 
-          {/* Status Filter */}
+          {/* 状态筛选 */}
           <div className="w-full md:w-48">
             <Select
               value={filters.status}
-              onValueChange={(value) =>
-                setFilters((prev) => ({ ...prev, status: value }))
-              }
+              onValueChange={(value) => setFilters(prev => ({ ...prev, status: value }))}
             >
               <SelectTrigger>
-                <SelectValue placeholder="状态" />
+                <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">全部状态</SelectItem>
+                <SelectItem value="all">所有状态</SelectItem>
                 <SelectItem value="draft">草稿</SelectItem>
                 <SelectItem value="active">生效中</SelectItem>
                 <SelectItem value="archived">已归档</SelectItem>
@@ -426,165 +210,191 @@ export default function ResponseActions() {
             </Select>
           </div>
 
-          {/* Date Filter */}
-          <div className="w-full md:w-48">
-            <Select
-              value={filters.dateRange}
-              onValueChange={(value) =>
-                setFilters((prev) => ({ ...prev, dateRange: value }))
-              }
+          {/* 操作按钮 */}
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              className="bg-slate-200 text-slate-700"
+              onClick={resetFilters}
             >
-              <SelectTrigger>
-                <SelectValue placeholder="创建时间" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">全部时间</SelectItem>
-                <SelectItem value="today">今天</SelectItem>
-                <SelectItem value="week">近一周</SelectItem>
-                <SelectItem value="month">近一月</SelectItem>
-                <SelectItem value="quarter">三月</SelectItem>
-              </SelectContent>
-            </Select>
+              重置
+            </Button>
+            <Button
+              className="bg-sky-600 text-white"
+              onClick={renderActionList}
+            >
+              查询
+            </Button>
           </div>
         </div>
+      </Card>
+
+      {/* 主操作区 */}
+      <div className="mb-4">
+        <Button 
+          className="bg-sky-600 text-white flex items-center gap-2"
+          onClick={() => navigate('/response-actions/create')}
+        >
+          <Plus className="h-4 w-4" />
+          创建新动作
+        </Button>
       </div>
 
-      {/* Rules Table */}
-      <div className="bg-white rounded-lg border border-gray-200">
-        {loading ? (
-          <div className="p-12 text-center">
-            <Loader2 className="h-8 w-8 mx-auto mb-4 animate-spin text-gray-400" />
-            <p className="text-gray-500">正在加载规则...</p>
-          </div>
-        ) : filteredAndSortedRules.length === 0 ? (
-          <div className="p-12 text-center">
-            <div className="text-gray-400 mb-2">
-              <Plus className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">暂无规则</h3>
-            <p className="text-gray-500 mb-4">
-              {filters.search ||
-              filters.status !== "all" ||
-              filters.dateRange !== "all"
-                ? "没有找到符合条件的规则，请尝试调整筛选条件"
-                : '请点击右上角"创建新规则"开始使用'}
-            </p>
-            {!filters.search &&
-              filters.status === "all" &&
-              filters.dateRange === "all" && (
-                <Button
-                  onClick={() => navigate("/response-actions/create")}
-                  className="flex items-center gap-2"
-                  disabled={operationLoading}
-                >
-                  <Plus className="h-4 w-4" />
-                  创建新规则
-                </Button>
-              )}
-          </div>
-        ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>规则名称</TableHead>
-                <TableHead>响应动作</TableHead>
-                <TableHead>状态</TableHead>
-                <TableHead>触发器摘要</TableHead>
-                <TableHead>创建时间</TableHead>
-                <TableHead
-                  className="cursor-pointer select-none hover:bg-gray-50"
-                  onClick={() => handleSort("totalExecutions")}
-                >
+      {/* 数据表格 */}
+      <Card className="bg-white rounded-lg shadow-sm overflow-x-auto">
+        <table className="w-full">
+          <thead className="bg-slate-50">
+            <tr>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">动作名称</th>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">状态</th>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">响应动作用途</th>
+              <th
+                className="px-6 py-4 text-left text-sm font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100"
+                onClick={() => handleSort('totalExecutions')}
+              >
+                <div className="flex items-center gap-2">
+                  累计执行次数
+                  {getSortIcon('totalExecutions')}
+                </div>
+              </th>
+              <th
+                className="px-6 py-4 text-left text-sm font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100"
+                onClick={() => handleSort('conversions')}
+              >
+                <div className="flex items-center gap-2">
+                  累计转化数
+                  {getSortIcon('conversions')}
+                </div>
+              </th>
+              <th
+                className="px-6 py-4 text-left text-sm font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100"
+                onClick={() => handleSort('lastUpdated')}
+              >
+                <div className="flex items-center gap-2">
+                  最后更新
+                  {getSortIcon('lastUpdated')}
+                </div>
+              </th>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">操作</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-200">
+            {processedData.data.map((action) => (
+              <tr key={action.id} className="hover:bg-gray-50">
+                <td className="px-6 py-4 text-sm font-medium text-gray-900">{action.name}</td>
+                <td className="px-6 py-4">
+                  <Badge
+                    variant={STATUS_DISPLAY[action.status].color === 'green' ? 'default' : 'secondary'}
+                    className={STATUS_DISPLAY[action.status].color === 'green' ? 'bg-green-100 text-green-800' : ''}
+                  >
+                    {STATUS_DISPLAY[action.status].text}
+                  </Badge>
+                </td>
+                <td className="px-6 py-4 text-sm text-gray-600">{action.purpose}</td>
+                <td className="px-6 py-4 text-sm text-gray-900">{formatNumber(action.totalExecutions)}</td>
+                <td className="px-6 py-4 text-sm text-gray-900">{formatNumber(action.conversions)}</td>
+                <td className="px-6 py-4 text-sm text-gray-600">{action.lastUpdated}</td>
+                <td className="px-6 py-4 text-sm">
                   <div className="flex items-center gap-2">
-                    累计执行次数
-                    {getSortIcon("totalExecutions")}
-                  </div>
-                </TableHead>
-                <TableHead
-                  className="cursor-pointer select-none hover:bg-gray-50"
-                  onClick={() => handleSort("totalInteractions")}
-                >
-                  <div className="flex items-center gap-2">
-                    累计互动次数
-                    {getSortIcon("totalInteractions")}
-                  </div>
-                </TableHead>
-                <TableHead
-                  className="cursor-pointer select-none hover:bg-gray-50"
-                  onClick={() => handleSort("totalConversions")}
-                >
-                  <div className="flex items-center gap-2">
-                    累计转化
-                    {getSortIcon("totalConversions")}
-                  </div>
-                </TableHead>
-                <TableHead className="text-right">操作</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredAndSortedRules.map((rule) => {
-                const statusDisplay = getStatusDisplay(rule.status);
-                return (
-                  <TableRow key={rule.id}>
-                    <TableCell className="font-medium">
-                      {rule.ruleName}
-                    </TableCell>
-                    <TableCell>{getActionTypeDisplay(rule.action)}</TableCell>
-                    <TableCell>
-                      <Badge
-                        variant={
-                          statusDisplay.color === "green"
-                            ? "default"
-                            : "secondary"
-                        }
-                        className={
-                          statusDisplay.color === "green"
-                            ? "bg-green-100 text-green-800"
-                            : ""
-                        }
+                    <button
+                      className="text-sky-600 hover:underline"
+                      onClick={() => navigate(`/response-actions/${action.id}`)}
+                    >
+                      详情
+                    </button>
+                    <div className="relative">
+                      <button
+                        className="text-gray-600 hover:text-gray-800 p-1"
+                        onClick={() => setDropdownOpen(dropdownOpen === action.id ? null : action.id)}
                       >
-                        {statusDisplay.text}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="max-w-md">
-                      <div className="truncate">
-                        {getTriggerSummary(rule.trigger)}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-sm text-gray-600">
-                      {formatDate(rule.createdAt)}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      {rule.totalExecutions.toLocaleString()}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      {rule.totalInteractions.toLocaleString()}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      {rule.totalConversions.toLocaleString()}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {renderActionLinks(rule)}
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        )}
-      </div>
-
-      {/* Confirmation Modal */}
-      <ConfirmationModal
-        isOpen={confirmationModal.isOpen}
-        onClose={() =>
-          !operationLoading &&
-          setConfirmationModal((prev) => ({ ...prev, isOpen: false }))
-        }
-        onConfirm={handleConfirmation}
-        type={confirmationModal.type}
-        actionName={confirmationModal.ruleName}
-      />
+                        <MoreVertical className="h-4 w-4" />
+                      </button>
+                      {dropdownOpen === action.id && (
+                        <div className="absolute right-0 top-6 bg-white border rounded-lg shadow-lg py-1 z-50 min-w-[100px]">
+                          <button
+                            className="block w-full text-left px-3 py-1 text-sm text-sky-600 hover:bg-gray-100"
+                            onClick={() => navigate(`/response-actions/edit/${action.id}`)}
+                          >
+                            编辑
+                          </button>
+                          {action.status === 'active' && (
+                            <button
+                              className="block w-full text-left px-3 py-1 text-sm text-gray-700 hover:bg-gray-100"
+                              onClick={() => handleActionOperation(action.id, 'disable')}
+                            >
+                              停用
+                            </button>
+                          )}
+                          {action.status === 'draft' && (
+                            <>
+                              <button
+                                className="block w-full text-left px-3 py-1 text-sm text-gray-700 hover:bg-gray-100"
+                                onClick={() => handleActionOperation(action.id, 'enable')}
+                              >
+                                启用
+                              </button>
+                              <button
+                                className="block w-full text-left px-3 py-1 text-sm text-red-600 hover:bg-gray-100"
+                                onClick={() => handleActionOperation(action.id, 'delete')}
+                              >
+                                删除
+                              </button>
+                            </>
+                          )}
+                          {action.status === 'archived' && (
+                            <button
+                              className="block w-full text-left px-3 py-1 text-sm text-red-600 hover:bg-gray-100"
+                              onClick={() => handleActionOperation(action.id, 'delete')}
+                            >
+                              删除
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {/* 分页区域 */}
+        <div className="px-6 py-4 border-t bg-gray-50 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="text-sm text-gray-700 order-2 sm:order-1">
+            正在显示 {((currentPage - 1) * itemsPerPage) + 1} - {Math.min(currentPage * itemsPerPage, processedData.totalCount)} 条，共 {processedData.totalCount} 条
+            {(filters.search || filters.status !== 'all') && ` (已筛选，共 ${actionsData.length} 条)`}
+          </div>
+          <div className="flex items-center gap-2 order-1 sm:order-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+              disabled={currentPage === 1}
+            >
+              上一页
+            </Button>
+            <span className="text-sm text-gray-600">
+              第 {currentPage} 页，共 {processedData.totalPages} 页
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(Math.min(processedData.totalPages, currentPage + 1))}
+              disabled={currentPage >= processedData.totalPages}
+            >
+              下一页
+            </Button>
+          </div>
+        </div>
+      </Card>
+      
+      {/* 点击外部关闭下拉菜单 */}
+      {dropdownOpen && (
+        <div 
+          className="fixed inset-0 z-40"
+          onClick={() => setDropdownOpen(null)}
+        />
+      )}
     </div>
   );
 }

@@ -1,24 +1,24 @@
-import { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, Save, Wand2 } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ArrowLeft, Save, Wand2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface FormData {
   scriptName: string;
-  triggerType: 'real_time_event' | 'user_segment';
+  triggerType: "real_time_event" | "user_segment";
   eventName: string;
   eventField: string;
   eventOperator: string;
@@ -27,7 +27,7 @@ interface FormData {
   segmentOperator: string;
   segmentValue: string;
   schedule: string;
-  actionType: 'content_generation' | 'smart_recommendation' | 'smart_discount';
+  actionType: "content_generation" | "smart_recommendation" | "smart_discount";
   prompt: string;
 }
 
@@ -38,18 +38,18 @@ export default function ScriptCreate() {
   const isEditing = Boolean(id);
 
   const [formData, setFormData] = useState<FormData>({
-    scriptName: '',
-    triggerType: 'real_time_event',
-    eventName: '',
-    eventField: '',
-    eventOperator: '',
-    eventValue: '',
-    segmentField: '',
-    segmentOperator: '',
-    segmentValue: '',
-    schedule: '',
-    actionType: 'content_generation',
-    prompt: ''
+    scriptName: "",
+    triggerType: "real_time_event",
+    eventName: "",
+    eventField: "",
+    eventOperator: "",
+    eventValue: "",
+    segmentField: "",
+    segmentOperator: "",
+    segmentValue: "",
+    schedule: "",
+    actionType: "content_generation",
+    prompt: "",
   });
 
   const [loading, setLoading] = useState(false);
@@ -62,26 +62,26 @@ export default function ScriptCreate() {
       // Validate form
       if (!formData.scriptName.trim()) {
         toast({
-          title: '请填写剧本名称',
-          variant: 'destructive'
+          title: "请填写剧本名称",
+          variant: "destructive",
         });
         return;
       }
 
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       toast({
-        title: isEditing ? '更新成功' : '创建成功',
-        description: `剧本"${formData.scriptName}"已保存`
+        title: isEditing ? "更新成功" : "创建成功",
+        description: `剧本"${formData.scriptName}"已保存`,
       });
 
-      navigate('/ai-marketing/semi-auto');
+      navigate("/ai-marketing/semi-auto");
     } catch (error) {
       toast({
-        title: '保存失败',
-        description: error instanceof Error ? error.message : '未知错误',
-        variant: 'destructive'
+        title: "保存失败",
+        description: error instanceof Error ? error.message : "未知错误",
+        variant: "destructive",
       });
     } finally {
       setLoading(false);
@@ -90,37 +90,37 @@ export default function ScriptCreate() {
 
   // Handle input changes
   const handleInputChange = (field: keyof FormData, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   // Event name options
   const eventNameOptions = [
-    { value: 'add_to_cart', label: '加入购物车' },
-    { value: 'page_view', label: '浏览页面' },
-    { value: 'submit_form', label: '提交表单' },
-    { value: 'user_register', label: '用户注册' },
-    { value: 'start_checkout', label: '开始结账' }
+    { value: "add_to_cart", label: "加入购物车" },
+    { value: "page_view", label: "浏览页面" },
+    { value: "submit_form", label: "提交表单" },
+    { value: "user_register", label: "用户注册" },
+    { value: "start_checkout", label: "开始结账" },
   ];
 
   // Event field options based on selected event
   const getEventFieldOptions = () => {
     switch (formData.eventName) {
-      case 'add_to_cart':
+      case "add_to_cart":
         return [
-          { value: '价格', label: '价格' },
-          { value: '商品ID', label: '商品ID' },
-          { value: '品类', label: '品类' }
+          { value: "价格", label: "价格" },
+          { value: "商品ID", label: "商品ID" },
+          { value: "品类", label: "品类" },
         ];
-      case 'page_view':
+      case "page_view":
         return [
-          { value: 'URL', label: 'URL' },
-          { value: '页面标题', label: '页面标题' },
-          { value: '停留时长', label: '停留时长' }
+          { value: "URL", label: "URL" },
+          { value: "页面标题", label: "页面标题" },
+          { value: "停留时长", label: "停留时长" },
         ];
-      case 'submit_form':
+      case "submit_form":
         return [
-          { value: '表单名', label: '表单名' },
-          { value: '表单字段', label: '表单字段' }
+          { value: "表单名", label: "表单名" },
+          { value: "表单字段", label: "表单字段" },
         ];
       default:
         return [];
@@ -129,28 +129,28 @@ export default function ScriptCreate() {
 
   // User segment field options
   const segmentFieldOptions = [
-    { value: '总订单数', label: '总订单数' },
-    { value: '最后访问', label: '最后访问距今天数' },
-    { value: '用户标签', label: '用户标签' },
-    { value: '生日', label: '生日' },
-    { value: '累计消费', label: '累计消费金额' }
+    { value: "总订单数", label: "总订单数" },
+    { value: "最后访问", label: "最后访问距今天数" },
+    { value: "用户标签", label: "用户标签" },
+    { value: "生日", label: "生日" },
+    { value: "累计消费", label: "累计消费金额" },
   ];
 
   // Operator options
   const operatorOptions = [
-    { value: '=', label: '等于' },
-    { value: '!=', label: '不等于' },
-    { value: '>', label: '大于' },
-    { value: '<', label: '小于' },
-    { value: '包含', label: '包含' },
-    { value: '不包含', label: '不包含' }
+    { value: "=", label: "等于" },
+    { value: "!=", label: "不等于" },
+    { value: ">", label: "大于" },
+    { value: "<", label: "小于" },
+    { value: "包含", label: "包含" },
+    { value: "不包含", label: "不包含" },
   ];
 
   // Schedule options
   const scheduleOptions = [
-    { value: '每日', label: '每日' },
-    { value: '每周', label: '每周' },
-    { value: '每月', label: '每月' }
+    { value: "每日", label: "每日" },
+    { value: "每周", label: "每周" },
+    { value: "每月", label: "每月" },
   ];
 
   return (
@@ -160,7 +160,7 @@ export default function ScriptCreate() {
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => navigate('/ai-marketing/semi-auto')}
+          onClick={() => navigate("/ai-marketing/semi-auto")}
           className="flex items-center gap-2"
         >
           <ArrowLeft className="h-4 w-4" />
@@ -182,7 +182,9 @@ export default function ScriptCreate() {
                 className="mt-1"
                 placeholder="例如：高价商品加购挽留"
                 value={formData.scriptName}
-                onChange={(e) => handleInputChange('scriptName', e.target.value)}
+                onChange={(e) =>
+                  handleInputChange("scriptName", e.target.value)
+                }
               />
             </div>
 
@@ -191,7 +193,9 @@ export default function ScriptCreate() {
               <Label className="text-base font-medium">触发器类型</Label>
               <RadioGroup
                 value={formData.triggerType}
-                onValueChange={(value: 'real_time_event' | 'user_segment') => handleInputChange('triggerType', value)}
+                onValueChange={(value: "real_time_event" | "user_segment") =>
+                  handleInputChange("triggerType", value)
+                }
                 className="mt-2"
               >
                 <div className="flex items-center space-x-2">
@@ -206,13 +210,15 @@ export default function ScriptCreate() {
             </div>
 
             {/* Real Time Event Configuration */}
-            {formData.triggerType === 'real_time_event' && (
+            {formData.triggerType === "real_time_event" && (
               <div className="space-y-4 border-t pt-4">
                 <div>
-                  <Label>当以下事件发生时</Label>
+                  <Label>当以下��件发生时</Label>
                   <Select
                     value={formData.eventName}
-                    onValueChange={(value) => handleInputChange('eventName', value)}
+                    onValueChange={(value) =>
+                      handleInputChange("eventName", value)
+                    }
                   >
                     <SelectTrigger className="mt-1">
                       <SelectValue placeholder="选择事件类型" />
@@ -233,7 +239,9 @@ export default function ScriptCreate() {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-1">
                       <Select
                         value={formData.eventField}
-                        onValueChange={(value) => handleInputChange('eventField', value)}
+                        onValueChange={(value) =>
+                          handleInputChange("eventField", value)
+                        }
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="字段" />
@@ -248,7 +256,9 @@ export default function ScriptCreate() {
                       </Select>
                       <Select
                         value={formData.eventOperator}
-                        onValueChange={(value) => handleInputChange('eventOperator', value)}
+                        onValueChange={(value) =>
+                          handleInputChange("eventOperator", value)
+                        }
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="操作符" />
@@ -264,7 +274,9 @@ export default function ScriptCreate() {
                       <Input
                         placeholder="值"
                         value={formData.eventValue}
-                        onChange={(e) => handleInputChange('eventValue', e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("eventValue", e.target.value)
+                        }
                       />
                     </div>
                   </div>
@@ -273,14 +285,16 @@ export default function ScriptCreate() {
             )}
 
             {/* User Segment Configuration */}
-            {formData.triggerType === 'user_segment' && (
+            {formData.triggerType === "user_segment" && (
               <div className="space-y-4 border-t pt-4">
                 <div>
                   <Label>筛选用户</Label>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-1">
                     <Select
                       value={formData.segmentField}
-                      onValueChange={(value) => handleInputChange('segmentField', value)}
+                      onValueChange={(value) =>
+                        handleInputChange("segmentField", value)
+                      }
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="字段" />
@@ -295,10 +309,12 @@ export default function ScriptCreate() {
                     </Select>
                     <Select
                       value={formData.segmentOperator}
-                      onValueChange={(value) => handleInputChange('segmentOperator', value)}
+                      onValueChange={(value) =>
+                        handleInputChange("segmentOperator", value)
+                      }
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="操作��" />
+                        <SelectValue placeholder="操作类型" />
                       </SelectTrigger>
                       <SelectContent>
                         {operatorOptions.map((op) => (
@@ -311,7 +327,9 @@ export default function ScriptCreate() {
                     <Input
                       placeholder="值"
                       value={formData.segmentValue}
-                      onChange={(e) => handleInputChange('segmentValue', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("segmentValue", e.target.value)
+                      }
                     />
                   </div>
                 </div>
@@ -320,7 +338,9 @@ export default function ScriptCreate() {
                   <Label>执行频率</Label>
                   <Select
                     value={formData.schedule}
-                    onValueChange={(value) => handleInputChange('schedule', value)}
+                    onValueChange={(value) =>
+                      handleInputChange("schedule", value)
+                    }
                   >
                     <SelectTrigger className="mt-1">
                       <SelectValue placeholder="选择执行频率" />
@@ -350,7 +370,12 @@ export default function ScriptCreate() {
               <Label className="text-base font-medium">动作类型</Label>
               <RadioGroup
                 value={formData.actionType}
-                onValueChange={(value: 'content_generation' | 'smart_recommendation' | 'smart_discount') => handleInputChange('actionType', value)}
+                onValueChange={(
+                  value:
+                    | "content_generation"
+                    | "smart_recommendation"
+                    | "smart_discount",
+                ) => handleInputChange("actionType", value)}
                 className="mt-2"
               >
                 <div className="flex items-center space-x-2">
@@ -369,7 +394,7 @@ export default function ScriptCreate() {
             </div>
 
             {/* AI Prompt for Content Generation */}
-            {formData.actionType === 'content_generation' && (
+            {formData.actionType === "content_generation" && (
               <div className="border-t pt-4">
                 <Label>AI指令简报 (Prompt)</Label>
                 <Textarea
@@ -377,7 +402,7 @@ export default function ScriptCreate() {
                   placeholder="请描述您希望AI生成什么样的内容。例如：根据用户加购的高价商品，生成个性化的挽留邮件，强调商品价值和限时优惠..."
                   rows={6}
                   value={formData.prompt}
-                  onChange={(e) => handleInputChange('prompt', e.target.value)}
+                  onChange={(e) => handleInputChange("prompt", e.target.value)}
                 />
                 <p className="text-sm text-gray-500 mt-1">
                   请详细描述AI应该如何生成内容，包括语调、重点信息、目标效果等。
@@ -386,12 +411,14 @@ export default function ScriptCreate() {
             )}
 
             {/* Configuration for Smart Recommendation */}
-            {formData.actionType === 'smart_recommendation' && (
+            {formData.actionType === "smart_recommendation" && (
               <div className="border-t pt-4">
                 <div className="p-4 bg-blue-50 rounded-lg">
                   <div className="flex items-center gap-2">
                     <Wand2 className="h-5 w-5 text-blue-600" />
-                    <span className="font-medium text-blue-900">AI智能推荐</span>
+                    <span className="font-medium text-blue-900">
+                      AI智能推荐
+                    </span>
                   </div>
                   <p className="text-sm text-blue-800 mt-2">
                     AI将根据用户行为和偏好，自动推荐最相关的产品或服务。
@@ -401,12 +428,14 @@ export default function ScriptCreate() {
             )}
 
             {/* Configuration for Smart Discount */}
-            {formData.actionType === 'smart_discount' && (
+            {formData.actionType === "smart_discount" && (
               <div className="border-t pt-4">
                 <div className="p-4 bg-green-50 rounded-lg">
                   <div className="flex items-center gap-2">
                     <Wand2 className="h-5 w-5 text-green-600" />
-                    <span className="font-medium text-green-900">AI智能优惠</span>
+                    <span className="font-medium text-green-900">
+                      AI智能优惠
+                    </span>
                   </div>
                   <p className="text-sm text-green-800 mt-2">
                     AI将根据用户价值和行为特征，自动计算并提供个性化的优惠方案。
@@ -425,7 +454,7 @@ export default function ScriptCreate() {
             className="flex items-center gap-2"
           >
             <Save className="h-4 w-4" />
-            {loading ? '保存中...' : '保存剧本'}
+            {loading ? "保存中..." : "保存剧本"}
           </Button>
         </div>
       </div>

@@ -245,7 +245,7 @@ export default function UserDetail2() {
         {/* Key Metrics Card - Full Width */}
         <Card className="bg-background rounded-lg border">
           <CardHeader>
-            <CardTitle className="text-lg">���键指标</CardTitle>
+            <CardTitle className="text-lg">关键指标</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-9 gap-4">
@@ -432,8 +432,8 @@ export default function UserDetail2() {
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={mockActivityData}>
                       <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="date" />
-                      <YAxis />
+                      <XAxis dataKey="date" tickCount={5} minTickGap={5} />
+                      <YAxis tickCount={5} minTickGap={5} />
                       <Tooltip />
                       <Line
                         type="monotone"
@@ -531,7 +531,7 @@ export default function UserDetail2() {
                               {order.payment}
                             </div>
                             <div>
-                              <span className="font-medium">��单状态:</span>{" "}
+                              <span className="font-medium">订单状态:</span>{" "}
                               {order.status}
                             </div>
                           </div>

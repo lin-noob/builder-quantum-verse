@@ -337,7 +337,7 @@ export default function UserDetail() {
               <Tabs defaultValue="timeline" className="w-full">
                 <TabsList className="grid w-full grid-cols-2">
                   <TabsTrigger value="timeline">访问时间线</TabsTrigger>
-                  <TabsTrigger value="statistics">业务统��</TabsTrigger>
+                  <TabsTrigger value="statistics">业务统计</TabsTrigger>
                 </TabsList>
 
                 {/* Access Timeline Tab */}
@@ -668,7 +668,7 @@ export default function UserDetail() {
                               <div className="text-sm text-gray-700 order-2 sm:order-1">
                                 正在显示 {startOrderIndex + 1} -{" "}
                                 {Math.min(endOrderIndex, user.orders.length)}{" "}
-                                ��，共 {user.orders.length} 条订单
+                                条，共 {user.orders.length} 条订单
                               </div>
                               <div className="flex items-center gap-2 order-1 sm:order-2">
                                 <Button

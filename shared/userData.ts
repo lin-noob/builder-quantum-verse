@@ -25,7 +25,7 @@ export interface User {
   orderCount: number;
   /** 最后登录时间 */
   loginDate: string;
-  /** 地区 */
+  /** 地址 */
   location: string;
   /** tenant_id */
   shopid: string;
@@ -88,8 +88,8 @@ export interface Order {
   totalAmount: number; // 最终支付总金额
   currency: string;
   paymentMethod: string;
-  discountCode?: string; // 优惠码（可选）
-  shippingAddress?: Address; // 收货地址（可选）
+  discountCode?: string; // 优惠码（��选）
+  shippingAddress?: Address; // 收货地址（可选��
   billingAddress?: Address; // 账单地址（可选）
   items: OrderItem[];
 }
@@ -118,7 +118,7 @@ export interface CartItem {
   quantity: number;
   totalPrice: number;
   addedTime: string; // 加入购物车时间
-  lastUpdated: string; // 最后更新时间
+  lastUpdated: string; // 最��更新时间
 }
 
 export const mockUsers: User[] = [
@@ -170,7 +170,7 @@ export const mockUsers: User[] = [
           },
           {
             timestamp: "09:25:35",
-            eventType: "页面访问",
+            eventType: "��面访问",
             pageTitle: "价格对比",
             pageUrl: "/pricing",
             stayDuration: "4分15秒",
@@ -224,9 +224,9 @@ export const mockUsers: User[] = [
           {
             timestamp: "14:49:12",
             eventType: "页面访问",
-            pageTitle: "结算页面",
+            pageTitle: "��算页面",
             pageUrl: "/checkout",
-            stayDuration: "5分20秒",
+            stayDuration: "5分20��",
             scrollDepth: "100%",
           },
         ],
@@ -245,7 +245,7 @@ export const mockUsers: User[] = [
           {
             timestamp: "16:45:10",
             eventType: "页面访问",
-            pageTitle: "技术支持",
+            pageTitle: "技��支持",
             pageUrl: "/support",
             stayDuration: "3分20秒",
             scrollDepth: "90%",
@@ -271,7 +271,7 @@ export const mockUsers: User[] = [
       {
         id: "session-4",
         date: "2024-01-08 11:20",
-        summary: "账户管理和历史订单查看",
+        summary: "用户管理和历史订单查看",
         source: "直接访问",
         deviceType: "桌面端",
         os: "Windows 11",
@@ -281,7 +281,7 @@ export const mockUsers: User[] = [
         events: [
           {
             timestamp: "11:20:00",
-            eventType: "页面访���",
+            eventType: "页面访问",
             pageTitle: "登录页面",
             pageUrl: "/login",
             stayDuration: "1分10秒",
@@ -310,7 +310,7 @@ export const mockUsers: User[] = [
       {
         orderNumber: "ORD-2024-003",
         orderDate: "2024-01-15",
-        status: "已��成",
+        status: "已完成",
         subtotalAmount: 5200.0,
         shippingAmount: 0.0,
         taxAmount: 0.0,
@@ -322,7 +322,7 @@ export const mockUsers: User[] = [
           name: "张伟",
           street: "深圳市南山区科技园南区R4-B栋20层",
           city: "深圳",
-          state: "��东省",
+          state: "广东省",
           postalCode: "518057",
           country: "中国",
           phone: "13800138000",
@@ -357,7 +357,7 @@ export const mockUsers: User[] = [
         paymentMethod: "支付宝",
         shippingAddress: {
           name: "张伟",
-          street: "深圳市南山区科技园南区R4-B栋20层",
+          street: "深圳市南山区科技园高新区R4-B栋20层",
           city: "深圳",
           state: "广东省",
           postalCode: "518057",
@@ -366,7 +366,7 @@ export const mockUsers: User[] = [
         },
         billingAddress: {
           name: "腾讯科技（深圳）有限公司",
-          street: "深圳市南山区技园南区R4-B栋",
+          street: "深圳市南山��技园南区R4-B栋",
           city: "深圳",
           state: "广东省",
           postalCode: "518057",
@@ -472,7 +472,7 @@ export const mockUsers: User[] = [
       {
         id: "session-lm-1",
         date: "2024-01-20 10:30",
-        summary: "产品演示和技术��估",
+        summary: "产品演示和技术评估",
         source: "社交媒体广告",
         deviceType: "桌面端",
         os: "macOS 14",
@@ -493,7 +493,7 @@ export const mockUsers: User[] = [
             eventType: "页面访问",
             pageTitle: "技术规格",
             pageUrl: "/specs",
-            stayDuration: "8分45秒",
+            stayDuration: "8分45��",
             scrollDepth: "90%",
           },
           {
@@ -514,7 +514,7 @@ export const mockUsers: User[] = [
         deviceType: "桌面端",
         os: "macOS 14",
         browser: "Chrome 120",
-        location: "杭州, ��国",
+        location: "杭州, 中国",
         ipAddress: "120.55.162.203",
         events: [
           {
@@ -554,9 +554,9 @@ export const mockUsers: User[] = [
       {
         id: "session-lm-3",
         date: "2024-01-05 16:20",
-        summary: "产品对比和价格咨��",
+        summary: "产品对比和价格咨询",
         source: "搜索引擎",
-        deviceType: "��动端",
+        deviceType: "移动端",
         os: "iOS 17",
         browser: "Safari 17",
         location: "杭州, 中国",
@@ -593,7 +593,7 @@ export const mockUsers: User[] = [
       {
         orderNumber: "ORD-2024-015",
         orderDate: "2024-01-10",
-        status: "已完成",
+        status: "已��成",
         totalAmount: 4800.0,
         currency: "CNY",
         paymentMethod: "支付宝",
@@ -615,7 +615,7 @@ export const mockUsers: User[] = [
         paymentMethod: "企业转账",
         items: [
           {
-            productName: "专业��软件授权",
+            productName: "专业版软件授权",
             unitPrice: 2800.0,
             quantity: 1,
             totalPrice: 2800.0,
@@ -665,7 +665,7 @@ export const mockUsers: User[] = [
             totalPrice: 4800.0,
           },
           {
-            productName: "���装服务",
+            productName: "安装服务",
             unitPrice: 150.0,
             quantity: 1,
             totalPrice: 150.0,
@@ -687,7 +687,7 @@ export const mockUsers: User[] = [
             totalPrice: 1200.0,
           },
           {
-            productName: "技术支持服务",
+            productName: "技��支持服务",
             unitPrice: 650.0,
             quantity: 1,
             totalPrice: 650.0,
@@ -703,7 +703,7 @@ export const mockUsers: User[] = [
         paymentMethod: "支付宝",
         items: [
           {
-            productName: "插���扩展包",
+            productName: "插件扩展包",
             unitPrice: 700.0,
             quantity: 2,
             totalPrice: 1400.0,
@@ -734,7 +734,7 @@ export const mockUsers: User[] = [
       {
         id: "session-wf-1",
         date: "2024-01-21 13:45",
-        summary: "新功能体验和反��提交",
+        summary: "新功能体验和反馈提交",
         source: "邮件通知",
         deviceType: "桌面端",
         os: "Windows 11",
@@ -818,7 +818,7 @@ export const mockUsers: User[] = [
         events: [
           {
             timestamp: "15:20:30",
-            eventType: "页面访��",
+            eventType: "页面访问",
             pageTitle: "数据分析",
             pageUrl: "/analytics",
             stayDuration: "18分45秒",
@@ -900,7 +900,7 @@ export const mockUsers: User[] = [
           },
           {
             timestamp: "16:57:25",
-            eventType: "页面��问",
+            eventType: "页面访问",
             pageTitle: "开发者控制台",
             pageUrl: "/dev/console",
             stayDuration: "15分30秒",
@@ -937,7 +937,7 @@ export const mockUsers: User[] = [
       {
         orderNumber: "ORD-2024-018",
         orderDate: "2024-01-15",
-        status: "已完成",
+        status: "已完��",
         totalAmount: 4280.75,
         currency: "CNY",
         paymentMethod: "支付宝",
@@ -959,7 +959,7 @@ export const mockUsers: User[] = [
       {
         orderNumber: "ORD-2024-008",
         orderDate: "2024-01-08",
-        status: "已完成",
+        status: "已��成",
         totalAmount: 3650.0,
         currency: "CNY",
         paymentMethod: "微信支付",
@@ -1003,13 +1003,13 @@ export const mockUsers: User[] = [
       {
         orderNumber: "ORD-2023-167",
         orderDate: "2023-12-10",
-        status: "已完成",
+        status: "已完��",
         totalAmount: 2100.0,
         currency: "CNY",
         paymentMethod: "支付宝",
         items: [
           {
-            productName: "准版软件授权",
+            productName: "企业版软件授权",
             unitPrice: 1500.0,
             quantity: 1,
             totalPrice: 1500.0,
@@ -1053,7 +1053,7 @@ export const mockUsers: User[] = [
         paymentMethod: "微信支付",
         items: [
           {
-            productName: "基础版软件授权",
+            productName: "基础版软��授权",
             unitPrice: 1200.0,
             quantity: 1,
             totalPrice: 1200.0,
@@ -1091,7 +1091,7 @@ export const mockUsers: User[] = [
         paymentMethod: "支付宝",
         items: [
           {
-            productName: "插件扩展包",
+            productName: "软件扩展包",
             unitPrice: 550.0,
             quantity: 4,
             totalPrice: 2200.0,
@@ -1159,7 +1159,7 @@ export const mockUsers: User[] = [
     lastPurchaseDate: "2024-01-22",
     maxOrderAmount: 8900.0,
     averagePurchaseCycle: 18,
-    tags: ["VIP客户", "长期合作"],
+    tags: ["VIP��户", "长期合作"],
     firstVisitTime: "2023-04-08 12:15:30",
     registrationTime: "2023-04-08 12:45:50",
     firstPurchaseTime: "2023-04-12 09:30:00",
@@ -1195,7 +1195,7 @@ export const mockUsers: User[] = [
   {
     cdpId: "f1g7h8i9-0d1e-7890",
     name: "赵敏",
-    company: "小米��技",
+    company: "小米科技",
     country: "中国",
     city: "北京",
     contact: "zhaomin@xiaomi.com",
@@ -1259,7 +1259,7 @@ export interface OrderSummaryDto {
   endDate?: string;
   /** 搜索关键词 */
   keywords?: string;
-  /** 排序类型(desc降序，asc升序) */
+  /** 排序类型(desc降��，asc升序) */
   order?: "desc" | "asc";
   /** 每页记录数 */
   pagesize?: number;
@@ -1279,22 +1279,22 @@ export interface OrderSummaryDto {
  * 用户画像列表查询参数
  */
 export interface UserProfileListParams {
-  /** 每页数量 */
+  /** 分页数量 */
   limit?: number;
   /** 用户名 */
   name?: string;
   /** 页码 */
   page?: number;
-  /** 请求体参数 */
+  /** 请求��参数 */
   body?: OrderSummaryDto;
 }
 
 /**
- * 生���符合新API规范的用户数据
+ * 生成符合新API规范的用户数据
  */
 function generateNewFormatUser(id: number): User {
   const companies = [
-    "阿里巴巴集团",
+    "阿里��巴集团",
     "腾讯科技",
     "字节跳动",
     "华为技术",
@@ -1416,7 +1416,7 @@ export function getMockUserProfileList(params: UserProfileListParams = {}) {
   const { page = 1, limit = 10, name, body = {} } = params;
   const { keywords, searchtype, sort, order } = body;
 
-  // 生成用户列表
+  // 生成用��列表
   const totalUsers = 1286;
   const allUsers: User[] = [];
 

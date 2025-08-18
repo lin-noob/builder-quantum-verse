@@ -229,7 +229,9 @@ export class Request {
   private createTimeoutController(timeout: number) {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => {
-      controller.abort();
+      if (!controller.signal.aborted) {
+        controller.abort();
+      }
     }, timeout);
 
     return { controller, timeoutId };
@@ -253,6 +255,8 @@ export class Request {
       responseType = "json",
     } = config;
 
+    let timeoutId: number | undefined;
+
     try {
       // 执行请求拦截器
       const processedConfig = this.defaultConfig.beforeRequest
@@ -267,7 +271,8 @@ export class Request {
       );
 
       // 创建超时控制器
-      const { controller, timeoutId } = this.createTimeoutController(timeout);
+      const { controller, timeoutId: tid } = this.createTimeoutController(timeout);
+      timeoutId = tid;
 
       const fetchOptions: RequestInit = {
         method,
@@ -287,6 +292,11 @@ export class Request {
 
       return await this.processResponse<T>(processedResponse, responseType);
     } catch (error) {
+      // 确保清理超时定时器
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+
       // 执行错误处理器
       if (this.defaultConfig.onError) {
         this.defaultConfig.onError(error as Error);
@@ -297,8 +307,8 @@ export class Request {
         throw error;
       }
 
-      // 处理超时错误
-      if (error instanceof Error && error.name === "AbortError") {
+      // 处理超时错误和中断错误
+      if (error instanceof Error && (error.name === "AbortError" || error.message.includes("aborted"))) {
         throw new RequestError("Request timeout", 408, "Request Timeout");
       }
 

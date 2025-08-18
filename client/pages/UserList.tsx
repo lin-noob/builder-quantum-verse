@@ -32,7 +32,7 @@ interface SortConfig {
   direction: "asc" | "desc";
 }
 
-// API相关���型定义
+// API相关类型定义
 interface ApiUser {
   id: string;
   cdpUserId: number;
@@ -155,10 +155,35 @@ export default function UserList() {
     }
   };
 
+  // 测试连通性
+  const testConnectivity = async () => {
+    try {
+      console.log("测试代理连通性...");
+      const response = await fetch("/api/quote/api/v1/profile/list", {
+        method: "OPTIONS",
+        headers: {
+          "Access-Control-Request-Method": "POST",
+          "Access-Control-Request-Headers": "Content-Type",
+        },
+      });
+      console.log("连通性测试响应:", response.status, response.statusText);
+      return response.ok;
+    } catch (error) {
+      console.error("连通性测试失败:", error);
+      return false;
+    }
+  };
+
   // 调用API获取用户数据
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
+      // 首先测试连通性
+      const isConnected = await testConnectivity();
+      if (!isConnected) {
+        console.warn("代理连通性测试失败，但仍然尝试API请求...");
+      }
+
       // 根据API文档，主要参数通过POST body传递，query参数可选
 
       const requestBody: OrderSummaryDto = {
@@ -222,8 +247,61 @@ export default function UserList() {
       }
     } catch (error) {
       console.error("获取用户数据失败:", error);
-      // 不显示toast，让用户专注于控制台的错误信息
-      console.log("请检查控制台中的详细错误信息");
+      console.error("请求参数:", { requestBody });
+
+      // 详细显示错误信息
+      if (error && typeof error === "object") {
+        console.error("错误对象:", error);
+        if ("response" in error) {
+          console.error("HTTP响应:", error.response);
+        }
+        if ("status" in error) {
+          console.error("HTTP状态码:", error.status);
+        }
+        if ("data" in error) {
+          console.error("错误数据:", error.data);
+        }
+      }
+
+      let errorMessage = "获取用户数据失败";
+      if (error instanceof Error) {
+        if (
+          error.message.includes("timeout") ||
+          error.message.includes("Request timeout")
+        ) {
+          errorMessage = "请求超时，请检查网络连接或稍后重试";
+        } else if (error.message.includes("Network Error")) {
+          errorMessage = "网络连接失败，请检查网络设置";
+        } else {
+          errorMessage = `获取数据��败: ${error.message}`;
+        }
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
+        console.error("错误详情:", error.message);
+        console.error("错误堆栈:", error.stack);
+
+        // 针对不同类型的错误给出更具体的提示
+        if (error.message.includes("Failed to fetch")) {
+          console.error("网络连接失败，可能的原因:");
+          console.error("1. 代理服务器 192.168.1.128:8099 无法访问");
+          console.error("2. 网络连接问题");
+          console.error("3. CORS 配置问题");
+          errorMessage = "网络连接失败，请检查代理服务器是否可访问";
+        } else if (error.message.includes("timeout")) {
+          console.error("请求超时，可能的原因:");
+          console.error("1. 服务器响应缓慢");
+          console.error("2. 网络延迟过高");
+          errorMessage = "请求超时，请稍后重试";
+        }
+      }
+
+      // 显示用户友好的错误提示
+      toast({
+        title: "请求失败",
+        description: errorMessage,
+        variant: "destructive",
+      });
+
       setUsers([]);
       setTotalCount(0);
     } finally {
@@ -298,7 +376,7 @@ export default function UserList() {
     setCurrentPage(1);
   };
 
-  // 手��刷新数据
+  // 手动刷新数据
   const handleRefresh = () => {
     fetchUsers();
   };
@@ -317,20 +395,6 @@ export default function UserList() {
   return (
     <div className="p-6 space-y-6 bg-gray-50 min-h-full">
       <div className="max-w-none">
-        {/* Page Header */}
-        <div className="mb-6 flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">用户画像</h1>
-            <p className="text-gray-600 mt-1">管理和分析用户画像数据</p>
-          </div>
-          <Button onClick={handleRefresh} variant="outline" disabled={loading}>
-            <RefreshCw
-              className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`}
-            />
-            刷新
-          </Button>
-        </div>
-
         {/* Search and Filter Card */}
         <Card className="p-6 mb-8 bg-white shadow-sm">
           <div className="flex flex-col md:flex-row gap-4 items-end">
@@ -398,6 +462,15 @@ export default function UserList() {
               >
                 <RotateCcw className="h-4 w-4" />
                 重置
+              </Button>
+              <Button
+                variant="outline"
+                size="default"
+                onClick={testConnectivity}
+                className="flex items-center gap-2 h-10"
+                title="测试代理服务器连通性"
+              >
+                测试连接
               </Button>
             </div>
           </div>
@@ -521,7 +594,7 @@ export default function UserList() {
                           to={`/users/${user.id}`}
                           className="text-blue-600 hover:text-blue-800 text-sm font-medium"
                         >
-                          查看详情
+                          查看��情
                         </Link>
                       </td>
                     </tr>

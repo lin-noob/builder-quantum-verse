@@ -1,4 +1,4 @@
-import { ReactNode, useState } from "react";
+import { ReactNode, useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import {
@@ -13,8 +13,13 @@ import {
   Activity,
   ChevronLeft,
   ChevronRight,
+  Zap,
+  User,
+  Settings,
 } from "lucide-react";
 import TabManager from "./TabManager";
+// import { ThemeToggle } from "./ThemeToggle"; // 已隐藏主题切换功能
+import { authService } from "@/services/authService";
 
 interface LayoutProps {
   children: ReactNode;
@@ -31,6 +36,13 @@ export default function Layout({ children }: LayoutProps) {
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [currentUser, setCurrentUser] = useState(authService.getCurrentUser());
+
+  // 监听用户状态变化
+  useEffect(() => {
+    const user = authService.getCurrentUser();
+    setCurrentUser(user);
+  }, [location]); // 当路由变化时重新检查用户状态
 
   const menuItems: MenuItem[] = [
     {
@@ -46,17 +58,42 @@ export default function Layout({ children }: LayoutProps) {
       icon: <Users className="h-5 w-5" />,
     },
     {
-      id: "response-actions",
-      label: "响应动作库",
-      path: "/response-actions",
-      icon: <MessageSquare className="h-5 w-5" />,
-    },
-    {
-      id: "ai-marketing",
-      label: "AI自动营销",
-      path: "/ai-marketing/monitoring-center",
+      id: "fully-auto",
+      label: "全自动营销",
+      path: "/ai-marketing/fully-auto",
       icon: <Bot className="h-5 w-5" />,
     },
+    // {
+    //   id: "response-actions",
+    //   label: "响应动作库",
+    //   path: "/response-actions",
+    //   icon: <MessageSquare className="h-5 w-5" />,
+    // },
+    {
+      id: "ai-marketing-strategies",
+      label: "营销策略",
+      path: "/ai-marketing-strategies",
+      icon: <Zap className="h-5 w-5" />,
+    },
+    {
+      id: "monitoring-center",
+      label: "监控中心",
+      path: "/ai-marketing/monitoring-center",
+      icon: <Activity className="h-5 w-5" />,
+    },
+    {
+      id: "effect-tracking",
+      label: "效果追踪",
+      path: "/effect-tracking",
+      icon: <Target className="h-5 w-5" />,
+    },
+    // 隐藏自动营销入口
+    // {
+    //   id: "ai-marketing",
+    //   label: "自动营销",
+    //   path: "/ai-marketing/monitoring-center",
+    //   icon: <Bot className="h-5 w-5" />,
+    // },
     {
       id: "dashboard2",
       label: "仪表盘2.0",
@@ -72,25 +109,46 @@ export default function Layout({ children }: LayoutProps) {
   ];
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-background-secondary">
       {/* Mobile Header */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 z-50">
+      <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-card border-b border-border flex items-center justify-between px-4 z-50">
         <div className="flex items-center gap-3">
+          {/* User Profile Icon */}
+          <Link
+            to={currentUser ? "/profile" : "/auth"}
+            className={cn(
+              "w-8 h-8 rounded-full flex items-center justify-center transition-colors",
+              currentUser
+                ? "bg-primary hover:bg-primary/90"
+                : "bg-gray-200 hover:bg-gray-300 border border-dashed border-gray-400",
+            )}
+            title={currentUser ? "个人信息" : "点击登录"}
+          >
+            <User
+              className={cn(
+                "h-4 w-4",
+                currentUser ? "text-primary-foreground" : "text-gray-500",
+              )}
+            />
+          </Link>
           <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
             <BarChart3 className="h-5 w-5 text-white" />
           </div>
-          <span className="text-xl font-bold text-gray-900">CDP Pro</span>
+          <span className="text-xl font-bold text-gray-900">AI营销平台</span>
         </div>
-        <button
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="p-2 rounded-lg text-gray-600 hover:bg-gray-100"
-        >
-          {isMobileMenuOpen ? (
-            <X className="h-5 w-5" />
-          ) : (
-            <Menu className="h-5 w-5" />
-          )}
-        </button>
+        <div className="flex items-center gap-2">
+          {/* <ThemeToggle /> */}
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="p-2 rounded-lg text-gray-600 hover:bg-gray-100"
+          >
+            {isMobileMenuOpen ? (
+              <X className="h-5 w-5" />
+            ) : (
+              <Menu className="h-5 w-5" />
+            )}
+          </button>
+        </div>
       </div>
 
       {/* Mobile Menu Overlay */}
@@ -106,8 +164,22 @@ export default function Layout({ children }: LayoutProps) {
                   const isActive =
                     location.pathname === item.path ||
                     (item.path === "/dashboard" && location.pathname === "/") ||
-                    (item.id === "ai-marketing" &&
-                      location.pathname.startsWith("/ai-marketing"));
+                    (item.id === "response-actions" &&
+                      location.pathname.startsWith("/response-actions")) ||
+                    (item.id === "ai-marketing-strategies" &&
+                      location.pathname.startsWith(
+                        "/ai-marketing-strategies",
+                      )) ||
+                    (item.id === "fully-auto" &&
+                      location.pathname.startsWith(
+                        "/ai-marketing/fully-auto",
+                      )) ||
+                    (item.id === "monitoring-center" &&
+                      location.pathname.startsWith(
+                        "/ai-marketing/monitoring-center",
+                      )) ||
+                    (item.id === "effect-tracking" &&
+                      location.pathname.startsWith("/effect-tracking"));
 
                   return (
                     <li key={item.id}>
@@ -124,28 +196,6 @@ export default function Layout({ children }: LayoutProps) {
                         {item.icon}
                         {item.label}
                       </Link>
-
-                      {/* AI Marketing Sub-links for Mobile */}
-                      {item.id === "ai-marketing" && (
-                        <div className="ml-6 mt-2 space-y-1">
-                          <Link
-                            to="/ai-marketing/strategy-goals"
-                            onClick={() => setIsMobileMenuOpen(false)}
-                            className="flex items-center gap-2 px-3 py-2 text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-md transition-colors"
-                          >
-                            <Target className="h-3 w-3" />
-                            战与目标
-                          </Link>
-                          <Link
-                            to="/ai-marketing/live-monitoring"
-                            onClick={() => setIsMobileMenuOpen(false)}
-                            className="flex items-center gap-2 px-3 py-2 text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-md transition-colors"
-                          >
-                            <Activity className="h-3 w-3" />
-                            实时监控
-                          </Link>
-                        </div>
-                      )}
                     </li>
                   );
                 })}
@@ -158,7 +208,7 @@ export default function Layout({ children }: LayoutProps) {
       {/* Left Sidebar */}
       <div
         className={cn(
-          "hidden lg:flex bg-white border-r border-gray-200 flex-col transition-all duration-300 ease-in-out relative",
+          "hidden lg:flex bg-card border-r border-border flex-col transition-all duration-300 ease-in-out relative",
           isSidebarCollapsed ? "w-16" : "w-64",
         )}
       >
@@ -170,7 +220,7 @@ export default function Layout({ children }: LayoutProps) {
             </div>
             {!isSidebarCollapsed && (
               <span className="text-xl font-bold text-gray-900 whitespace-nowrap overflow-hidden">
-                CDP Pro
+                AI营销平台
               </span>
             )}
           </div>
@@ -183,8 +233,18 @@ export default function Layout({ children }: LayoutProps) {
               const isActive =
                 location.pathname === item.path ||
                 (item.path === "/dashboard" && location.pathname === "/") ||
-                (item.id === "ai-marketing" &&
-                  location.pathname.startsWith("/ai-marketing"));
+                (item.id === "response-actions" &&
+                  location.pathname.startsWith("/response-actions")) ||
+                (item.id === "ai-marketing-strategies" &&
+                  location.pathname.startsWith("/ai-marketing-strategies")) ||
+                (item.id === "fully-auto" &&
+                  location.pathname.startsWith("/ai-marketing/fully-auto")) ||
+                (item.id === "monitoring-center" &&
+                  location.pathname.startsWith(
+                    "/ai-marketing/monitoring-center",
+                  )) ||
+                (item.id === "effect-tracking" &&
+                  location.pathname.startsWith("/effect-tracking"));
 
               return (
                 <li key={item.id} className="relative group">
@@ -242,6 +302,74 @@ export default function Layout({ children }: LayoutProps) {
             })}
           </ul>
         </nav>
+
+        {/* User Profile Section */}
+        <div className="border-t border-gray-200 p-3 space-y-2">
+          {/* 主题切换 - 已隐藏 */}
+          {/*
+          <div className={cn(
+            "flex",
+            isSidebarCollapsed ? "justify-center" : "justify-between items-center"
+          )}>
+            {!isSidebarCollapsed && (
+              <span className="text-xs text-muted-foreground">主题模式</span>
+            )}
+            <ThemeToggle />
+          </div>
+          */}
+
+          {/* 用户信息 */}
+          {currentUser ? (
+            <Link
+              to="/profile"
+              className={cn(
+                "flex items-center gap-3 p-2 rounded-lg text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-colors",
+                isSidebarCollapsed ? "justify-center" : "justify-start",
+              )}
+              title={
+                isSidebarCollapsed ? `${currentUser.username} - 个人信息` : ""
+              }
+            >
+              <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
+                <User className="h-4 w-4 text-primary-foreground" />
+              </div>
+              {!isSidebarCollapsed && (
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-gray-900 truncate">
+                    {currentUser.username}
+                  </p>
+                  <p className="text-xs text-gray-500 truncate">
+                    {currentUser.isAdmin ? "管理员" : "用户"}
+                  </p>
+                </div>
+              )}
+              {!isSidebarCollapsed && (
+                <Settings className="h-4 w-4 text-gray-400" />
+              )}
+            </Link>
+          ) : (
+            <Link
+              to="/auth"
+              className={cn(
+                "flex items-center gap-3 p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-colors border border-dashed border-gray-300",
+                isSidebarCollapsed ? "justify-center" : "justify-start",
+              )}
+              title={isSidebarCollapsed ? "点击登录" : ""}
+            >
+              <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center flex-shrink-0">
+                <User className="h-4 w-4 text-gray-500" />
+              </div>
+              {!isSidebarCollapsed && (
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-gray-700 truncate">
+                    点击登录
+                  </p>
+                  <p className="text-xs text-gray-500 truncate">未登录状态</p>
+                </div>
+              )}
+            </Link>
+          )}
+        </div>
 
         {/* Collapse Toggle Button */}
         <div className="border-t border-gray-200 p-2">
