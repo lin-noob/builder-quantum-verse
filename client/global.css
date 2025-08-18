@@ -4,94 +4,173 @@
 
 @layer base {
   /**
-   * Tailwind CSS theme
-   * tailwind.config.ts expects the following color variables to be expressed as HSL values.
-   * A different format will require also updating the theme in tailwind.config.ts.
-  */
+   * Modern SaaS Design System - Color Tokens
+   * 基于现代SaaS应用的设计语言，使用紫色系作为主色调
+   * 支持浅色和深色模式，提供丰富的语义化颜色变量
+   */
   :root {
+    /* === Core Background Colors === */
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background-secondary: 247 47% 99%;
+    --background-tertiary: 247 47% 97%;
+    --foreground: 230 13% 9%;
 
+    /* === Surface Colors (Cards, Modals, etc.) === */
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 230 13% 9%;
+    --card-hover: 247 47% 99%;
 
+    /* === Interactive Surfaces === */
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 230 13% 9%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* === Brand Primary Colors (Modern Purple) === */
+    --primary: 259 94% 51%;
+    --primary-hover: 259 94% 46%;
+    --primary-light: 259 94% 95%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* === Secondary Action Colors === */
+    --secondary: 247 47% 96%;
+    --secondary-hover: 247 47% 92%;
+    --secondary-foreground: 230 13% 9%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    /* === Subtle Backgrounds === */
+    --muted: 247 47% 96%;
+    --muted-foreground: 230 9% 46%;
+    --muted-hover: 247 47% 92%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* === Accent Colors (Success, Warning, etc.) === */
+    --accent: 142 76% 36%;
+    --accent-foreground: 0 0% 100%;
+    --accent-light: 142 76% 95%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    /* === Status Colors === */
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
+    --success-light: 142 76% 95%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+    --warning-light: 38 92% 95%;
 
-    --radius: 0.5rem;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --destructive-light: 0 84% 95%;
 
-    --sidebar-background: 0 0% 98%;
+    --info: 217 91% 60%;
+    --info-foreground: 0 0% 100%;
+    --info-light: 217 91% 95%;
 
-    --sidebar-foreground: 240 5.3% 26.1%;
+    /* === Border & Input === */
+    --border: 230 14% 89%;
+    --border-light: 230 14% 94%;
+    --input: 230 14% 89%;
+    --input-focus: 259 94% 51%;
+    --ring: 259 94% 51%;
 
-    --sidebar-primary: 240 5.9% 10%;
+    /* === Design System Values === */
+    --radius: 0.75rem;
+    --radius-sm: 0.5rem;
+    --radius-lg: 1rem;
 
-    --sidebar-primary-foreground: 0 0% 98%;
+    /* === Data Visualization Colors === */
+    --chart-1: 259 94% 51%;
+    --chart-2: 142 76% 36%;
+    --chart-3: 38 92% 50%;
+    --chart-4: 0 84% 60%;
+    --chart-5: 217 91% 60%;
+    --chart-6: 281 83% 54%;
 
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* === Sidebar (Modern Dark Variant) === */
+    --sidebar-background: 230 22% 8%;
+    --sidebar-foreground: 230 9% 85%;
+    --sidebar-primary: 259 94% 51%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 230 17% 12%;
+    --sidebar-accent-foreground: 230 9% 85%;
+    --sidebar-border: 230 17% 15%;
+    --sidebar-ring: 259 94% 51%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    /* === Core Background Colors === */
+    --background: 230 22% 8%;
+    --background-secondary: 230 17% 10%;
+    --background-tertiary: 230 17% 12%;
+    --foreground: 230 9% 92%;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    /* === Surface Colors === */
+    --card: 230 17% 10%;
+    --card-foreground: 230 9% 92%;
+    --card-hover: 230 17% 12%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    /* === Interactive Surfaces === */
+    --popover: 230 17% 10%;
+    --popover-foreground: 230 9% 92%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    /* === Brand Primary Colors === */
+    --primary: 259 94% 61%;
+    --primary-hover: 259 94% 66%;
+    --primary-light: 259 94% 15%;
+    --primary-foreground: 230 22% 8%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    /* === Secondary Action Colors === */
+    --secondary: 230 17% 15%;
+    --secondary-hover: 230 17% 18%;
+    --secondary-foreground: 230 9% 92%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    /* === Subtle Backgrounds === */
+    --muted: 230 17% 15%;
+    --muted-foreground: 230 9% 65%;
+    --muted-hover: 230 17% 18%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    /* === Accent Colors === */
+    --accent: 142 76% 46%;
+    --accent-foreground: 230 22% 8%;
+    --accent-light: 142 76% 15%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    /* === Status Colors === */
+    --success: 142 76% 46%;
+    --success-foreground: 230 22% 8%;
+    --success-light: 142 76% 15%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --warning: 38 92% 60%;
+    --warning-foreground: 230 22% 8%;
+    --warning-light: 38 92% 15%;
+
+    --destructive: 0 84% 70%;
+    --destructive-foreground: 230 22% 8%;
+    --destructive-light: 0 84% 15%;
+
+    --info: 217 91% 70%;
+    --info-foreground: 230 22% 8%;
+    --info-light: 217 91% 15%;
+
+    /* === Border & Input === */
+    --border: 230 17% 20%;
+    --border-light: 230 17% 25%;
+    --input: 230 17% 20%;
+    --input-focus: 259 94% 61%;
+    --ring: 259 94% 61%;
+
+    /* === Data Visualization Colors === */
+    --chart-1: 259 94% 61%;
+    --chart-2: 142 76% 46%;
+    --chart-3: 38 92% 60%;
+    --chart-4: 0 84% 70%;
+    --chart-5: 217 91% 70%;
+    --chart-6: 281 83% 64%;
+
+    /* === Sidebar Colors === */
+    --sidebar-background: 230 22% 6%;
+    --sidebar-foreground: 230 9% 92%;
+    --sidebar-primary: 259 94% 61%;
+    --sidebar-primary-foreground: 230 22% 8%;
+    --sidebar-accent: 230 17% 10%;
+    --sidebar-accent-foreground: 230 9% 92%;
+    --sidebar-border: 230 17% 12%;
+    --sidebar-ring: 259 94% 61%;
   }
 }
 
