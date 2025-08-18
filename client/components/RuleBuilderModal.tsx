@@ -501,7 +501,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
-            {rule ? '编辑自定义规则' : '创建自定义规则'}
+            {rule ? '编��自定义规则' : '创建自定义规则'}
           </DialogTitle>
         </DialogHeader>
 
@@ -561,8 +561,13 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
                     </SelectTrigger>
                     <SelectContent>
                       {Object.entries(actionTypeLabels).map(([value, label]) => (
-                        <SelectItem key={value} value={value}>
-                          {label}
+                        <SelectItem
+                          key={value}
+                          value={value}
+                          disabled={value === 'EMAIL' || value === 'SMS'}
+                          className={value === 'EMAIL' || value === 'SMS' ? 'text-muted-foreground' : ''}
+                        >
+                          {label}{(value === 'EMAIL' || value === 'SMS') && ' (暂不可用)'}
                         </SelectItem>
                       ))}
                     </SelectContent>
