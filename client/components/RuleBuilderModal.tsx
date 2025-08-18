@@ -314,72 +314,80 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
 
     const availableFields = scenario.availableFields[category] || [];
 
+    // 如果没有可用字段，不显示此条件类型
+    if (availableFields.length === 0) return null;
+
     return (
-      <Card>
-        <CardHeader>
+      <Card className="border-l-4 border-l-primary/20">
+        <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-base">{categoryLabel}</CardTitle>
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <CardTitle className="text-base font-medium">{categoryLabel}</CardTitle>
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => addCondition(category)}
+              className="h-8 px-3 text-xs"
             >
-              <Plus className="h-4 w-4 mr-1" />
+              <Plus className="h-3 w-3 mr-1" />
               添加条件
             </Button>
           </div>
         </CardHeader>
-        <CardContent className="space-y-3">
+        <CardContent className="space-y-3 pt-0">
           {conditions.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-4">
-              暂无{categoryLabel}条件
-            </p>
+            <div className="text-center py-6 text-muted-foreground">
+              <div className="text-sm">暂无{categoryLabel}</div>
+              <div className="text-xs mt-1">点击上方按钮添加条件</div>
+            </div>
           ) : (
             conditions.map((condition, index) => (
-              <div key={condition.id} className="flex items-center gap-2 p-3 border rounded-lg">
-                <Select
-                  value={condition.field}
-                  onValueChange={(value) => updateCondition(category, condition.id, { field: value })}
-                >
-                  <SelectTrigger className="w-[150px]">
-                    <SelectValue placeholder="选择字段" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {availableFields.map((field) => (
-                      <SelectItem key={field.field} value={field.field}>
-                        {field.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              <div key={condition.id} className="flex items-center gap-3 p-4 bg-muted/30 rounded-lg border">
+                <div className="flex-1 grid grid-cols-3 gap-3">
+                  <Select
+                    value={condition.field}
+                    onValueChange={(value) => updateCondition(category, condition.id, { field: value })}
+                  >
+                    <SelectTrigger className="h-9">
+                      <SelectValue placeholder="选择字段" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availableFields.map((field) => (
+                        <SelectItem key={field.field} value={field.field}>
+                          {field.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
 
-                <Select
-                  value={condition.operator}
-                  onValueChange={(value) => updateCondition(category, condition.id, { operator: value as ConditionOperator })}
-                >
-                  <SelectTrigger className="w-[120px]">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.entries(operatorLabels).map(([value, label]) => (
-                      <SelectItem key={value} value={value}>
-                        {label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  <Select
+                    value={condition.operator}
+                    onValueChange={(value) => updateCondition(category, condition.id, { operator: value as ConditionOperator })}
+                  >
+                    <SelectTrigger className="h-9">
+                      <SelectValue placeholder="操作符" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(operatorLabels).map(([value, label]) => (
+                        <SelectItem key={value} value={value}>
+                          {label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
 
-                <Input
-                  placeholder="输入值"
-                  value={condition.value}
-                  onChange={(e) => updateCondition(category, condition.id, { value: e.target.value })}
-                  className="flex-1"
-                />
+                  <Input
+                    placeholder="输入值"
+                    value={condition.value}
+                    onChange={(e) => updateCondition(category, condition.id, { value: e.target.value })}
+                    className="h-9"
+                  />
+                </div>
 
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => removeCondition(category, condition.id)}
+                  className="h-9 w-9 p-0 text-muted-foreground hover:text-destructive"
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
@@ -507,7 +515,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
-            {rule ? '编辑自定义规则' : '创建自定义规则'}
+            {rule ? '编辑自定义规则' : '创���自定义规则'}
           </DialogTitle>
         </DialogHeader>
 
