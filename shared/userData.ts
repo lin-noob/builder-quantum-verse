@@ -25,7 +25,7 @@ export interface User {
   orderCount: number;
   /** 最后登录时间 */
   loginDate: string;
-  /** 地区 */
+  /** 地��� */
   location: string;
   /** tenant_id */
   shopid: string;
@@ -381,7 +381,7 @@ export const mockUsers: User[] = [
             totalPrice: 2800.0,
           },
           {
-            productName: "技术支持服���",
+            productName: "技术支持服务",
             unitPrice: 480.5,
             quantity: 1,
             totalPrice: 480.5,
@@ -1091,7 +1091,7 @@ export const mockUsers: User[] = [
         paymentMethod: "支付宝",
         items: [
           {
-            productName: "插件扩展包",
+            productName: "���件扩展包",
             unitPrice: 550.0,
             quantity: 4,
             totalPrice: 2200.0,

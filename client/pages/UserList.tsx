@@ -281,7 +281,7 @@ export default function UserList() {
       if (error && typeof error === "object") {
         console.error("错误对象:", error);
         if ("response" in error) {
-          console.error("HTTP���应:", error.response);
+          console.error("HTTP响应:", error.response);
         }
         if ("status" in error) {
           console.error("HTTP状态码:", error.status);
@@ -623,7 +623,7 @@ export default function UserList() {
                           to={`/users/${user.cdpId || user.id}`}
                           className="text-blue-600 hover:text-blue-800 text-sm font-medium"
                         >
-                          查看详情
+                          查看��情
                         </Link>
                       </td>
                     </tr>
