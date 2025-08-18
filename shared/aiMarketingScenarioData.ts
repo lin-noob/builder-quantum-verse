@@ -110,7 +110,7 @@ export const predefinedScenarios: MarketingScenario[] = [
       allowedActionTypes: ['POPUP'],
       timingStrategy: 'SMART_DELAY',
       contentStrategy: 'FULLY_GENERATIVE',
-      description: 'AI将根据用户画像、购物车商品等信息，自主生成最合适的挽留或激励文案',
+      description: 'AI将根据用户画像、���物车商品等信息，自主生成最合适的挽留或激励文案',
       strategySummary: '在用户犹豫或准备离开时进行精准挽留，提升订单转化率。',
       coreStrategies: ['网页弹窗', '智能延迟', '个性化生成'],
       dimensions: [
@@ -129,7 +129,7 @@ export const predefinedScenarios: MarketingScenario[] = [
           reasoning: 'AI不会在用户加购的瞬间立即打扰，而是会持续分析后续行为。只有当用户表现出离开意图（如鼠标快速移向关闭按钮）或长时间无操作时，才会触发。',
           examples: [
             '高意图用户: 若用户加购后仍在活跃浏览，AI会保持静默。',
-            '犹豫用户: 若用户加购后在页面停留超过90秒且无任何点击，AI会判断其为犹豫，并主动���入。'
+            '犹豫用户: 若用户加购后在页面停留超过90秒且无任何点击，AI会判断其为犹豫，并主动介入。'
           ]
         },
         {
@@ -206,7 +206,7 @@ export const predefinedScenarios: MarketingScenario[] = [
     scenarioId: 'view_product',
     scenarioName: '查看商品',
     isAIEnabled: true,
-    businessValue: '用户对特定商品产生兴趣，适合提供信息或激励',
+    businessValue: '用户对特定商���产生兴趣，适合提供信息或激励',
     createdAt: '2024-01-08T09:00:00Z',
     updatedAt: '2024-01-12T16:45:00Z',
     defaultAIConfig: {
@@ -252,7 +252,7 @@ export const predefinedScenarios: MarketingScenario[] = [
         { field: 'product_name', label: '商品名称', type: 'string' },
         { field: 'category', label: '商品类别', type: 'string' },
         { field: 'price', label: '商品价格', type: 'number' },
-        { field: 'page_dwell_time_seconds', label: '页面停��时间(秒)', type: 'number' }
+        { field: 'page_dwell_time_seconds', label: '页面停留时间(秒)', type: 'number' }
       ],
       session: [
         { field: 'source_info', label: '来源信息', type: 'string' }
@@ -342,8 +342,8 @@ export const predefinedScenarios: MarketingScenario[] = [
           ]
         },
         {
-          dimension: '营��时机',
-          strategy: '"立即触发"',
+          dimension: '营销时机',
+          strategy: '"���即触发"',
           reasoning: '与注册类似，登录成功是一个需要即时响应的明确信号。',
           examples: [
             '欢迎信息: 登录成功后的第一个页面加载时立即显示。',
