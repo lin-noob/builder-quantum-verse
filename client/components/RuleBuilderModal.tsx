@@ -55,7 +55,7 @@ const operatorLabels: Record<ConditionOperator, string> = {
   '<': '小于',
   '>=': '大于等于',
   '<=': '小于等于',
-  'CONTAINS': '包含',
+  'CONTAINS': '包��',
   '!CONTAINS': '不包含',
   'IN': '在列表中',
   '!IN': '不在列表中',
@@ -70,7 +70,6 @@ const actionTypeLabels: Record<ActionType, string> = {
 const timingLabels: Record<TimingStrategy, string> = {
   'IMMEDIATE': '立即触发',
   'SMART_DELAY': '智能延迟',
-  'DELAYED': '延迟触发',
 };
 
 const contentStrategyLabels: Record<ContentStrategy, string> = {
@@ -102,7 +101,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
   useEffect(() => {
     if (open) {
       if (rule) {
-        // 编辑模式 - 如果是邮件或短信，强制改为弹窗
+        // 编辑模式 - 如果是邮件或短信，强制改��弹窗
         setRuleName(rule.ruleName);
         setTriggerConditions(rule.triggerConditions);
         const actionType = (rule.responseAction.actionType === 'EMAIL' || rule.responseAction.actionType === 'SMS')
@@ -469,7 +468,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
               <Label htmlFor="subject">邮件主题 *</Label>
               <Input
                 id="subject"
-                placeholder="输入邮件主题"
+                placeholder="��入邮件主题"
                 value={responseAction.actionConfig.subject || ''}
                 onChange={(e) => updateActionConfig({ subject: e.target.value })}
               />
