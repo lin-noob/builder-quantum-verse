@@ -190,24 +190,12 @@ const ScenariosList = () => {
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <button
-                      className="p-1.5 hover:bg-muted rounded text-muted-foreground hover:text-foreground transition-colors"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        navigate(`/ai-marketing/scenarios/${scenario.scenarioId}`);
-                      }}
-                      title="管理策略"
-                    >
-                      <Settings className="h-4 w-4" />
-                    </button>
-                    <div onClick={(e) => e.stopPropagation()}>
-                      <Switch
-                        checked={scenario.isAIEnabled}
-                        onCheckedChange={(checked) => handleAIToggle(scenario, checked)}
-                        disabled={isSwitching}
-                      />
-                    </div>
+                  <div onClick={(e) => e.stopPropagation()}>
+                    <Switch
+                      checked={scenario.isAIEnabled}
+                      onCheckedChange={(checked) => handleAIToggle(scenario, checked)}
+                      disabled={isSwitching}
+                    />
                   </div>
                 </div>
 
