@@ -242,15 +242,6 @@ const ScenariosList = () => {
                   </span>
                 </div>
 
-                {/* 策略管理按钮 */}
-                <Button 
-                  className="w-full" 
-                  variant="outline"
-                  onClick={() => navigate(`/ai-marketing/scenarios/${scenario.scenarioId}`)}
-                >
-                  <Settings className="h-4 w-4 mr-2" />
-                  管理策略
-                </Button>
               </CardContent>
             </Card>
           );
