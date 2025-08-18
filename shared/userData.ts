@@ -43,7 +43,7 @@ export interface User {
   averagePurchaseCycle?: number; // 兼容字段
   tags?: string[]; // 兼容字段
   sessions?: Session[]; // 兼容字段
-  orders?: Order[]; // 兼容字段
+  orders?: Order[]; // 兼容字���
   firstVisitTime?: string; // 兼容字段
   registrationTime?: string; // 兼容字段
   firstPurchaseTime?: string; // 兼容字段
@@ -89,7 +89,7 @@ export interface Order {
   currency: string;
   paymentMethod: string;
   discountCode?: string; // 优惠码（可选）
-  shippingAddress?: Address; // 收货地址（可选）
+  shippingAddress?: Address; // 收货地址（可选��
   billingAddress?: Address; // 账单地址（可选）
   items: OrderItem[];
 }
@@ -330,7 +330,7 @@ export const mockUsers: User[] = [
         billingAddress: {
           name: "腾讯科技（深圳）有限公司",
           street: "深圳市南山区科技园南区R4-B栋",
-          city: "深���",
+          city: "深圳",
           state: "广东省",
           postalCode: "518057",
           country: "中国",
@@ -357,7 +357,7 @@ export const mockUsers: User[] = [
         paymentMethod: "支付宝",
         shippingAddress: {
           name: "张伟",
-          street: "深圳市南山区科技园高新区R4-B栋20层",
+          street: "���圳市南山区科技园高新区R4-B栋20层",
           city: "深圳",
           state: "广东省",
           postalCode: "518057",
@@ -514,7 +514,7 @@ export const mockUsers: User[] = [
         deviceType: "桌面端",
         os: "macOS 14",
         browser: "Chrome 120",
-        location: "杭州, ���国",
+        location: "杭州, 中国",
         ipAddress: "120.55.162.203",
         events: [
           {
@@ -1053,7 +1053,7 @@ export const mockUsers: User[] = [
         paymentMethod: "微信支付",
         items: [
           {
-            productName: "基础版软件授权",
+            productName: "基础版软��授权",
             unitPrice: 1200.0,
             quantity: 1,
             totalPrice: 1200.0,
