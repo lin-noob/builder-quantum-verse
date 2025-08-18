@@ -115,7 +115,7 @@ export const predefinedScenarios: MarketingScenario[] = [
         {
           dimension: '营销方式',
           strategy: '优先使用"网页弹窗"',
-          reasoning: 'AI会优先选择干预性最强、最能实时触达的网页弹窗，以抓住转瞬即逝的挽留机会。',
+          reasoning: 'AI会优先选择干预性最强、最能实时触达的网页弹窗，以抓住���瞬即逝的挽留机会。',
           examples: [
             '桌面端: 可能会选择模态框弹窗，信息更完整。',
             '移动端: 可能会选择更轻量的底部横幅或顶部通知，避免影响体验。'
@@ -136,7 +136,7 @@ export const predefinedScenarios: MarketingScenario[] = [
           reasoning: 'AI会基于触发用户的画像和购物车内容，动态生成最合适的挽留文案。',
           examples: [
             '针对VIP客户: AI可能会生成稀缺性文案，如："尊敬的VIP，您购物车中的限量商品库存仅剩3件。"',
-            '针对新用户: AI可能会生成利益引诱文案，如："新朋友您好！您购物车中的商品可享首单95折优惠。"'
+            '针对新用户: AI可能会生成利益引诱文案，如："新朋友您好！��购物车中的商品可享首单95折优惠。"'
           ]
         }
       ]
@@ -235,7 +235,7 @@ export const predefinedScenarios: MarketingScenario[] = [
         {
           dimension: '营销内容',
           strategy: '进行"价值匹配生成"',
-          reasoning: 'AI会根据商品属性和用户画像，生成最能匹配其潜在需求的内容。',
+          reasoning: 'AI会根据商品属性和用户��像，生成最能匹配其潜在需求的内容。',
           examples: [
             '针对高价复杂商品: AI可能会提供社会认同信息，如："已有超过5000名用户购买并给出了98%的好评。"',
             '针对有配件的商品: AI可能会进行交叉销售推荐，如："别忘了搭配专用清洁套装，组合购买可享优惠。"'
@@ -293,7 +293,7 @@ export const predefinedScenarios: MarketingScenario[] = [
           ]
         },
         {
-          dimension: '营���内容',
+          dimension: '营销内容',
           strategy: '进行"兴趣引导"',
           reasoning: 'AI会分析该用户在注册前的匿名浏览行为，将这些兴趣点融入到欢迎内容中。',
           examples: [
@@ -324,7 +324,37 @@ export const predefinedScenarios: MarketingScenario[] = [
       allowedActionTypes: ['POPUP'],
       timingStrategy: 'IMMEDIATE',
       contentStrategy: 'FULLY_GENERATIVE',
-      description: 'AI会根据用户的分层、距上次购买时间等，生成不同类型的个性化问候'
+      description: 'AI会根据用户的分层、距上次购买时间等，��成不同类型的个性化问候',
+      strategySummary: '在此场景下，AI的目标是识别回访用户，并根据其生命周期阶段和历史数据，提供高度相关的个性化体验，以提升用户粘性和复购率。',
+      dimensions: [
+        {
+          dimension: '营销方式',
+          strategy: '优先使用"网页弹窗"',
+          reasoning: '登录是一个关键的身份确认节点，AI会优先使用网页弹窗来传递最直接、最个性化的"欢迎回来"信息。',
+          examples: [
+            '顶部横幅: 可能会在页面顶部显示一个非打扰式的欢迎横幅。',
+            '个性化推荐模块: 可能会在页面侧边栏动态生成一个"猜你喜欢"的商品推荐模块。'
+          ]
+        },
+        {
+          dimension: '营销时机',
+          strategy: '"立即触发"',
+          reasoning: '与注册类似，登录成功是一个需要即时响应的明确信号。',
+          examples: [
+            '欢迎信息: 登录成功后的第一个页面加载时立即显示。',
+            '购物车提醒: 如果用户购物车有商品，欢迎信息可能会与购物车提醒结合。'
+          ]
+        },
+        {
+          dimension: '营销内容',
+          strategy: '进行"身份感知生成"',
+          reasoning: 'AI会深度分析用户的历史数据，生成最符合其当前状态的沟通内容。',
+          examples: [
+            '针对"潜在流失"VIP: AI可能会生成唤醒文案，如："欢迎回来，[用户姓名]！我们为您准备了一张专属的VIP回访礼券。"',
+            '针对"购物车有商品"的用户: AI可能会生成提醒文案，如："欢迎回来！您上次购物车中的商品还在等您哦。"'
+          ]
+        }
+      ]
     },
     overrideRules: [],
     availableFields: {
@@ -389,7 +419,7 @@ export const addOverrideRule = (scenarioId: string, rule: Omit<OverrideRule, 'ru
           updatedAt: new Date().toISOString()
         };
         scenario.overrideRules.push(newRule);
-        // 重新排序优先级
+        // 重���排序优先级
         scenario.overrideRules.sort((a, b) => a.priority - b.priority);
         resolve(newRule.ruleId);
       } else {
