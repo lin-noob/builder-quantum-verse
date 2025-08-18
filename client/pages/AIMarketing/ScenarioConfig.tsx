@@ -187,7 +187,7 @@ const ScenarioConfig = () => {
       setScenario(prev => prev ? { ...prev, overrideRules: scenario.overrideRules } : null);
       toast({
         title: "更新失败",
-        description: "无法调整���则优先级，请重试",
+        description: "无法调整规则优先级，请重试",
         variant: "destructive",
       });
     }
@@ -274,7 +274,7 @@ const ScenarioConfig = () => {
         <div className="text-center">
           <AlertTriangle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
           <h3 className="text-lg font-medium">场景不存在</h3>
-          <p className="text-muted-foreground mb-4">找不到指定的营销场景</p>
+          <p className="text-muted-foreground mb-4">找不到指定的营���场景</p>
           <Button onClick={() => navigate("/ai-marketing/scenarios")}>
             返回场景列表
           </Button>
@@ -292,7 +292,7 @@ const ScenarioConfig = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* 左侧主要信息 */}
         <div className="lg:col-span-2 space-y-6">
-          {/* 基���信息卡片 */}
+          {/* 基础信息卡片 */}
           <Card>
             <CardHeader>
               <CardTitle className="text-lg font-semibold">基础信息</CardTitle>
@@ -558,7 +558,7 @@ const ScenarioConfig = () => {
 
                 <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
                   <div>
-                    <div className="text-sm font-medium text-muted-foreground">互���次数</div>
+                    <div className="text-sm font-medium text-muted-foreground">互动次数</div>
                     <div className="text-xs text-muted-foreground">用户点击互动数</div>
                   </div>
                   <div className="text-right">
