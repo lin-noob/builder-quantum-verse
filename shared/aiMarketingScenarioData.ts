@@ -93,6 +93,8 @@ export const predefinedScenarios: MarketingScenario[] = [
     scenarioName: '加入购物车',
     isAIEnabled: true,
     businessValue: '捕获强购买意向，进行交叉销售或挽留',
+    createdAt: '2024-01-10T10:00:00Z',
+    updatedAt: '2024-01-15T14:30:00Z',
     defaultAIConfig: {
       allowedActionTypes: ['POPUP', 'EMAIL'],
       timingStrategy: 'SMART_DELAY',
@@ -268,7 +270,7 @@ export const updateMarketingScenario = (scenarioId: string, updates: Partial<Mar
   });
 };
 
-// 添加自定���规则
+// 添加自定义规则
 export const addOverrideRule = (scenarioId: string, rule: Omit<OverrideRule, 'ruleId' | 'createdAt' | 'updatedAt'>): Promise<string> => {
   return new Promise((resolve) => {
     setTimeout(() => {
