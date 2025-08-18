@@ -22,7 +22,7 @@ export type TriggerEventName =
 
 export type ComparisonOperator = '=' | '!=' | '>' | '<' | 'CONTAINS' | '!CONTAINS';
 
-// ���件接口
+// 条件接口
 export interface ConditionItem {
   field: string;
   operator: ComparisonOperator;
@@ -55,7 +55,7 @@ interface FieldConfig {
 const EVENT_FIELDS: FieldConfig[] = [
   { id: 'page_url', name: '页面URL', dataType: 'text', description: '事件发生时所在页面的网址', applicableEvents: ['page_view'] },
   { id: 'page_title', name: '页面标题', dataType: 'text', description: '事件发生时所在页面的标题', applicableEvents: ['page_view'] },
-  { id: 'page_dwell_time_seconds', name: '页面停留时长(秒)', dataType: 'number', description: '用户在��页面已停留的总秒数', applicableEvents: ['page_view'] },
+  { id: 'page_dwell_time_seconds', name: '页面停留时长(秒)', dataType: 'number', description: '用户在该页面已停留的总秒数', applicableEvents: ['page_view'] },
   { id: 'page_scroll_depth', name: '页面滚动深度(%)', dataType: 'number', description: '用户在该页面向下的最大滚动位置', applicableEvents: ['page_view'] },
   { id: 'product_name', name: '商品名称', dataType: 'text', description: '相关的商品名称', applicableEvents: ['view_product', 'add_to_cart', 'remove_from_cart'] },
   { id: 'category', name: '商品品类', dataType: 'text', description: '相关的商品品类', applicableEvents: ['view_product', 'add_to_cart', 'remove_from_cart'] },
@@ -69,8 +69,8 @@ const EVENT_FIELDS: FieldConfig[] = [
 const USER_FIELDS: FieldConfig[] = [
   { id: 'tag', name: '用户标签', dataType: 'text', description: '用户所拥有的标签' },
   { id: 'total_spend', name: '累计消费金额', dataType: 'number', description: '用户历史累计的总消费' },
-  { id: 'total_orders', name: '总订单数', dataType: 'number', description: '用户历史��计的总订单数' },
-  { id: 'last_purchase_days', name: '���上次购买天数', dataType: 'number', description: '距离该用户上一次购买过去了多少天' },
+  { id: 'total_orders', name: '总订单数', dataType: 'number', description: '用户历史累计的总订单数' },
+  { id: 'last_purchase_days', name: '距上次购买天数', dataType: 'number', description: '距离该用户上一次购买过去了多少天' },
 ];
 
 // 事件显示名称
@@ -108,7 +108,7 @@ export default function TriggerRuleConfigNew({ value, onChange, className = '' }
   const [conditions, setConditions] = useState<ConditionItem[]>(value.config.conditions || []);
   const [userConditions, setUserConditions] = useState<ConditionItem[]>(value.config.userConditions || []);
 
-  // ���新父组件
+  // 更新父组件
   useEffect(() => {
     onChange({
       type: 'REAL_TIME',
@@ -370,7 +370,7 @@ export default function TriggerRuleConfigNew({ value, onChange, className = '' }
               </div>
               <div className="text-xs text-gray-500 flex items-start gap-2">
                 <Info className="h-3 w-3 mt-0.5 flex-shrink-0" />
-                对主要触发事件的属性进行过滤，���页面URL、商品价格等
+                对主要触发事件的属性进行过滤，如页面URL、商品价格等
               </div>
               {getAvailableEventFields().length > 0 ? (
                 renderConditions('event', conditions, getAvailableEventFields())
@@ -385,7 +385,7 @@ export default function TriggerRuleConfigNew({ value, onChange, className = '' }
             <TabsContent value="user" className="space-y-4 mt-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <h4 className="font-medium">用户画像条件</h4>
+                  <h4 className="font-medium">用户画像条��</h4>
                   <Badge variant="outline" className="text-xs">
                     {userConditions.length} 条
                   </Badge>
