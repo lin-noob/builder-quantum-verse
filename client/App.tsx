@@ -184,6 +184,22 @@ const App = () => (
             }
           />
           <Route
+            path="/ai-marketing/scenarios"
+            element={
+              <Layout>
+                <ScenariosList />
+              </Layout>
+            }
+          />
+          <Route
+            path="/ai-marketing/scenarios/:scenarioId"
+            element={
+              <Layout>
+                <ScenarioConfig />
+              </Layout>
+            }
+          />
+          <Route
             path="/ai-marketing/monitoring-center"
             element={
               <Layout>
