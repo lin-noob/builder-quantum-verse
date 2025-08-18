@@ -11,7 +11,7 @@ import {
   MarketingScenario,
   getMarketingScenarios,
   updateMarketingScenario
-} from "@/../../shared/aiMarketingScenarioData";
+} from "../../../shared/aiMarketingScenarioData";
 import {
   AlertDialog,
   AlertDialogAction,
