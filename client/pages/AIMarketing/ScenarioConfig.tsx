@@ -492,7 +492,7 @@ const ScenarioConfig = () => {
                                         </span>
                                       </div>
                                       <div>
-                                        <span className="text-muted-foreground">内容���式：</span>
+                                        <span className="text-muted-foreground">内容模式：</span>
                                         <span className="ml-1">
                                           {formatContentMode(rule.responseAction.contentMode)}
                                         </span>
@@ -585,20 +585,12 @@ const ScenarioConfig = () => {
               <CardTitle className="text-lg font-semibold">快速操作</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <Button 
-                className="w-full" 
+              <Button
+                className="w-full"
                 onClick={() => setRuleBuilderOpen(true)}
               >
                 <Plus className="h-4 w-4 mr-2" />
                 添加自定义规则
-              </Button>
-              
-              <Button 
-                variant="outline" 
-                className="w-full"
-                onClick={() => navigate("/ai-marketing/scenarios")}
-              >
-                返回场景列表
               </Button>
             </CardContent>
           </Card>
@@ -636,7 +628,7 @@ const ScenarioConfig = () => {
           <AlertDialogFooter>
             <AlertDialogCancel>取消</AlertDialogCancel>
             <AlertDialogAction onClick={handleDeleteRule}>
-              确认删除
+              确认删��
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
