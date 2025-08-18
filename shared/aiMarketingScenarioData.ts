@@ -171,7 +171,7 @@ export const predefinedScenarios: MarketingScenario[] = [
       allowedActionTypes: ['POPUP'],
       timingStrategy: 'SMART_DELAY',
       contentStrategy: 'FULLY_GENERATIVE',
-      description: 'AI会根据用户浏览行为和商品特征，生成个性化的推荐或优惠内容'
+      description: 'AI会根据用户浏览行为和商���特征，生成个性化的推荐或优惠内容'
     },
     overrideRules: [],
     availableFields: {
@@ -179,7 +179,7 @@ export const predefinedScenarios: MarketingScenario[] = [
         { field: 'product_name', label: '商品名称', type: 'string' },
         { field: 'category', label: '商品类别', type: 'string' },
         { field: 'price', label: '商品价格', type: 'number' },
-        { field: 'page_dwell_time_seconds', label: '页面停留时���(秒)', type: 'number' }
+        { field: 'page_dwell_time_seconds', label: '页面停留时间(秒)', type: 'number' }
       ],
       session: [
         { field: 'source_info', label: '来源信息', type: 'string' }
@@ -198,7 +198,7 @@ export const predefinedScenarios: MarketingScenario[] = [
     createdAt: '2024-01-05T11:30:00Z',
     updatedAt: '2024-01-10T13:20:00Z',
     defaultAIConfig: {
-      allowedActionTypes: ['EMAIL', 'POPUP'],
+      allowedActionTypes: ['POPUP'],
       timingStrategy: 'IMMEDIATE',
       contentStrategy: 'FULLY_GENERATIVE',
       description: 'AI会根据用户注册前的浏览行为和来源渠道，生成个性化的欢迎和引导内容'
