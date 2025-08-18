@@ -329,7 +329,7 @@ export const mockUsers: User[] = [
         },
         billingAddress: {
           name: "腾讯科技（深圳）有限公司",
-          street: "深圳市南山区科技���南区R4-B栋",
+          street: "深圳市南山区科技园南区R4-B栋",
           city: "深圳",
           state: "广东省",
           postalCode: "518057",
@@ -453,7 +453,7 @@ export const mockUsers: User[] = [
   {
     cdpId: "b7c3d8e9-4f2a-1234",
     name: "李明",
-    company: "阿里巴巴",
+    company: "阿���巴巴",
     country: "中国",
     city: "杭州",
     contact: "liming@alibaba.com",
@@ -493,7 +493,7 @@ export const mockUsers: User[] = [
             eventType: "页面访问",
             pageTitle: "技术规格",
             pageUrl: "/specs",
-            stayDuration: "8分45秒",
+            stayDuration: "8分45��",
             scrollDepth: "90%",
           },
           {
@@ -609,7 +609,7 @@ export const mockUsers: User[] = [
       {
         orderNumber: "ORD-2023-156",
         orderDate: "2023-12-25",
-        status: "���完成",
+        status: "已完成",
         totalAmount: 3650.25,
         currency: "CNY",
         paymentMethod: "企业转账",
@@ -1159,7 +1159,7 @@ export const mockUsers: User[] = [
     lastPurchaseDate: "2024-01-22",
     maxOrderAmount: 8900.0,
     averagePurchaseCycle: 18,
-    tags: ["VIP客户", "长期合作"],
+    tags: ["VIP��户", "长期合作"],
     firstVisitTime: "2023-04-08 12:15:30",
     registrationTime: "2023-04-08 12:45:50",
     firstPurchaseTime: "2023-04-12 09:30:00",
@@ -1313,7 +1313,7 @@ function generateNewFormatUser(id: number): User {
 
   const locations = [
     "北京市",
-    "上海市",
+    "上海��",
     "深圳市",
     "广州市",
     "杭州市",
