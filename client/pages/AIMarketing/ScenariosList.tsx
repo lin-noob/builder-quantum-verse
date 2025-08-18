@@ -199,16 +199,6 @@ const ScenariosList = () => {
                   </div>
                 </div>
 
-                {/* 状态指示 */}
-                <div className="flex items-center gap-2 text-sm">
-                  <span className="text-muted-foreground">状态：</span>
-                  <span className={`font-medium ${scenario.isAIEnabled ? 'text-success' : 'text-muted-foreground'}`}>
-                    {scenario.isAIEnabled ? '运行中' : '已暂停'}
-                  </span>
-                  {scenario.isAIEnabled && (
-                    <div className="w-2 h-2 bg-success rounded-full animate-pulse"></div>
-                  )}
-                </div>
               </CardHeader>
 
               <CardContent className="space-y-4">
