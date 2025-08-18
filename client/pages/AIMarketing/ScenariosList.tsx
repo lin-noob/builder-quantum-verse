@@ -157,11 +157,18 @@ const ScenariosList = () => {
           return (
             <Card key={scenario.scenarioId} className="relative">
               <CardHeader className="pb-3">
-                <div className="flex items-center gap-2">
-                  <div className="text-primary">
-                    {getScenarioIcon(scenario.scenarioId)}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="text-primary">
+                      {getScenarioIcon(scenario.scenarioId)}
+                    </div>
+                    <CardTitle className="text-lg">{scenario.scenarioName}</CardTitle>
                   </div>
-                  <CardTitle className="text-lg">{scenario.scenarioName}</CardTitle>
+                  <Switch
+                    checked={scenario.isAIEnabled}
+                    onCheckedChange={(checked) => handleAIToggle(scenario, checked)}
+                    disabled={isSwitching}
+                  />
                 </div>
                 <p className="text-sm text-muted-foreground">
                   {scenario.businessValue}
@@ -267,7 +274,7 @@ const ScenariosList = () => {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>取消</AlertDialogCancel>
+            <AlertDialogCancel>取���</AlertDialogCancel>
             <AlertDialogAction onClick={confirmAIToggle}>
               确认{confirmDialog.newState ? '启动' : '暂停'}
             </AlertDialogAction>
