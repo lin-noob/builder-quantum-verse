@@ -111,7 +111,7 @@ export const predefinedScenarios: MarketingScenario[] = [
       timingStrategy: 'SMART_DELAY',
       contentStrategy: 'FULLY_GENERATIVE',
       description: 'AI将根据用户画像、购物车商品等信息，自主生成最合适的挽留或激励文案',
-      strategySummary: '在用户犹豫或准备离开时进行精准挽留，提升订单转化率。',
+      strategySummary: '在���户犹豫或准备离开时进行精准挽留，提升订单转化率。',
       coreStrategies: ['网页弹窗', '智能延迟', '个性化生成'],
       dimensions: [
         {
@@ -204,7 +204,7 @@ export const predefinedScenarios: MarketingScenario[] = [
   },
   {
     scenarioId: 'view_product',
-    scenarioName: '查��商品',
+    scenarioName: '查看商品',
     isAIEnabled: true,
     businessValue: '用户对特定商品产生兴趣，适合提供信息或激励',
     createdAt: '2024-01-08T09:00:00Z',
@@ -424,7 +424,7 @@ export const addOverrideRule = (scenarioId: string, rule: Omit<OverrideRule, 'ru
           updatedAt: new Date().toISOString()
         };
         scenario.overrideRules.push(newRule);
-        // 重���排序优先级
+        // 重新排序优先级
         scenario.overrideRules.sort((a, b) => a.priority - b.priority);
         resolve(newRule.ruleId);
       } else {
