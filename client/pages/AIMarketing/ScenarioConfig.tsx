@@ -126,8 +126,8 @@ const ScenarioConfig = () => {
       });
 
       toast({
-        title: newState ? "规则已启用" : "规则��停用",
-        description: `自定义规则「${rule.ruleName}」已${newState ? '启用' : '��用'}`,
+        title: newState ? "规则已启用" : "规则已停用",
+        description: `自定义规则「${rule.ruleName}」已${newState ? '启用' : '停用'}`,
       });
     } catch (error) {
       toast({
@@ -403,11 +403,11 @@ const ScenarioConfig = () => {
                   <Bot className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                   <h3 className="text-lg font-medium">暂无自定义规则</h3>
                   <p className="text-muted-foreground mb-4">
-                    创建自定义规则来对特定用户群体���行���准营销
+                    创建自定义规则来对特定用户群体进行���准营销
                   </p>
                   <Button onClick={() => setRuleBuilderOpen(true)}>
                     <Plus className="h-4 w-4 mr-2" />
-                    创建第一��规则
+                    创建第一条规则
                   </Button>
                 </div>
               ) : (
@@ -562,7 +562,7 @@ const ScenarioConfig = () => {
                   </div>
                   <div>
                     <div className="font-medium text-foreground">规则优先</div>
-                    <div>系统优先匹配您设定的自定义规则。</div>
+                    <div>系统优先匹配您设定的���定义规则。</div>
                   </div>
                 </div>
 
