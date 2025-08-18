@@ -245,7 +245,7 @@ export default function UserList() {
           retries--;
 
           if (retries < 0) {
-            console.error("所有重试尝试都失败���抛出最终错误");
+            console.error("所有重试尝试都失败，抛出最终错误");
             throw error; // 重试用完后抛出错误
           }
 

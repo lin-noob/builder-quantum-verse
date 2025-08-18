@@ -252,7 +252,7 @@ export const mockUsers: User[] = [
           },
           {
             timestamp: "16:48:30",
-            eventType: "���面访问",
+            eventType: "页面访问",
             pageTitle: "API文档",
             pageUrl: "/docs/api",
             stayDuration: "12分15秒",
@@ -482,7 +482,7 @@ export const mockUsers: User[] = [
         events: [
           {
             timestamp: "10:30:20",
-            eventType: "页面访问",
+            eventType: "页面��问",
             pageTitle: "产品演示",
             pageUrl: "/demo",
             stayDuration: "15分30秒",
