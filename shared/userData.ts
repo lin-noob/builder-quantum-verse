@@ -19,7 +19,7 @@ export interface User {
   maxBuyTime: string;
   /** 最大订单金额（保留5位小数） */
   maxOrderAmount: number;
-  /** 总消费金额（保留5位小数） */
+  /** 总消费金额（保留5���小数） */
   totalOrders: number;
   /** 订单数量 */
   orderCount: number;
@@ -208,7 +208,7 @@ export const mockUsers: User[] = [
           {
             timestamp: "14:37:57",
             eventType: "页面访问",
-            pageTitle: "企业版详���",
+            pageTitle: "企业版详情",
             pageUrl: "/products/enterprise",
             stayDuration: "7分30秒",
             scrollDepth: "100%",
@@ -245,7 +245,7 @@ export const mockUsers: User[] = [
           {
             timestamp: "16:45:10",
             eventType: "页面访问",
-            pageTitle: "技术支持",
+            pageTitle: "技��支持",
             pageUrl: "/support",
             stayDuration: "3分20秒",
             scrollDepth: "90%",
@@ -472,7 +472,7 @@ export const mockUsers: User[] = [
       {
         id: "session-lm-1",
         date: "2024-01-20 10:30",
-        summary: "产品演示和技术评估",
+        summary: "产品演示和技术���估",
         source: "社交媒体广告",
         deviceType: "桌面端",
         os: "macOS 14",
@@ -514,7 +514,7 @@ export const mockUsers: User[] = [
         deviceType: "桌面端",
         os: "macOS 14",
         browser: "Chrome 120",
-        location: "杭州, ��国",
+        location: "杭���, ��国",
         ipAddress: "120.55.162.203",
         events: [
           {
@@ -753,7 +753,7 @@ export const mockUsers: User[] = [
           {
             timestamp: "13:57:35",
             eventType: "页面访问",
-            pageTitle: "功能试用",
+            pageTitle: "功���试用",
             pageUrl: "/trial/features",
             stayDuration: "25分30秒",
             scrollDepth: "95%",
@@ -1279,7 +1279,7 @@ export interface OrderSummaryDto {
  * 用户画像列表查询参数
  */
 export interface UserProfileListParams {
-  /** 分页数量 */
+  /** 分���数量 */
   limit?: number;
   /** 用户名 */
   name?: string;
