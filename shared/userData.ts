@@ -43,7 +43,7 @@ export interface User {
   averagePurchaseCycle?: number; // 兼容字段
   tags?: string[]; // 兼容字段
   sessions?: Session[]; // 兼容字段
-  orders?: Order[]; // 兼容字���
+  orders?: Order[]; // 兼容字段
   firstVisitTime?: string; // 兼容字段
   registrationTime?: string; // 兼容字段
   firstPurchaseTime?: string; // 兼容字段
@@ -88,7 +88,7 @@ export interface Order {
   totalAmount: number; // 最终支付总金额
   currency: string;
   paymentMethod: string;
-  discountCode?: string; // 优惠码（可选）
+  discountCode?: string; // 优惠码（��选）
   shippingAddress?: Address; // 收货地址（可选��
   billingAddress?: Address; // 账单地址（可选）
   items: OrderItem[];
@@ -224,7 +224,7 @@ export const mockUsers: User[] = [
           {
             timestamp: "14:49:12",
             eventType: "页面访问",
-            pageTitle: "结算页面",
+            pageTitle: "��算页面",
             pageUrl: "/checkout",
             stayDuration: "5分20��",
             scrollDepth: "100%",
@@ -357,7 +357,7 @@ export const mockUsers: User[] = [
         paymentMethod: "支付宝",
         shippingAddress: {
           name: "张伟",
-          street: "���圳市南山区科技园高新区R4-B栋20层",
+          street: "深圳市南山区科技园高新区R4-B栋20层",
           city: "深圳",
           state: "广东省",
           postalCode: "518057",
@@ -1312,7 +1312,7 @@ function generateNewFormatUser(id: number): User {
   ];
 
   const locations = [
-    "北京市",
+    "���京市",
     "上海��",
     "深圳市",
     "广州市",
