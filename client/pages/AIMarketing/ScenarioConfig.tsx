@@ -99,12 +99,12 @@ const ScenarioConfig = () => {
       
       toast({
         title: newState ? "AI自动化已启动" : "AI自动化已暂停",
-        description: `${scenario.scenarioName}场景的自动化营销已${newState ? '启动' : '暂���'}`,
+        description: `${scenario.scenarioName}场景的自动化营销已${newState ? '启动' : '暂停'}`,
       });
     } catch (error) {
       toast({
         title: "操作失败",
-        description: "无法更新AI开关状态，请重试",
+        description: "无法更新AI开关���态，请重试",
         variant: "destructive",
       });
     }
@@ -512,7 +512,7 @@ const ScenarioConfig = () => {
 
         {/* 右侧信息 */}
         <div className="space-y-6">
-          {/* ��础信息卡片 */}
+          {/* 基础信息卡片 */}
           <Card>
             <CardHeader>
               <CardTitle className="text-lg font-semibold">基础信息</CardTitle>
