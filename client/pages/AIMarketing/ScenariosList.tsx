@@ -173,8 +173,7 @@ const ScenariosList = () => {
           return (
             <Card
               key={scenario.scenarioId}
-              className={`relative cursor-pointer hover:shadow-md transition-shadow ${!scenario.isAIEnabled ? 'opacity-60 border-muted' : ''}`}
-              onClick={() => navigate(`/ai-marketing/scenarios/${scenario.scenarioId}`)}
+              className={`relative ${!scenario.isAIEnabled ? 'opacity-60 border-muted' : ''}`}
             >
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
