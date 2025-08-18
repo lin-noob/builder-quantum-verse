@@ -154,7 +154,7 @@ const ScenarioConfig = () => {
 
       toast({
         title: "规则已删除",
-        description: `自定义规则「${rule.ruleName}」已删除`,
+        description: `自定义规则���${rule.ruleName}」已删除`,
       });
     } catch (error) {
       toast({
@@ -305,7 +305,7 @@ const ScenarioConfig = () => {
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg font-semibold flex items-center gap-2">
                   <Bot className="h-5 w-5 text-primary" />
-                  AI全自动营销
+                  AI策略配置
                 </CardTitle>
                 <Switch
                   checked={scenario.isAIEnabled}
