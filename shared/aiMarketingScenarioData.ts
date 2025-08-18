@@ -77,6 +77,7 @@ export interface DefaultAIConfig {
   description: string;
   strategySummary: string;
   dimensions: StrategyDimension[];
+  coreStrategies: string[];
 }
 
 // 营销场景
@@ -127,7 +128,7 @@ export const predefinedScenarios: MarketingScenario[] = [
           reasoning: 'AI不会在用户加购的瞬间立即打扰，而是会持续分析后续行为。只有当用户表现出离开意图（如鼠标快速移向关闭按钮）或长时间无操作时，才会触发。',
           examples: [
             '高意图用户: 若用户加购后仍在活跃浏览，AI会保持静默。',
-            '犹���用户: ���用户加购后在页面停留超过90秒����无任何点击，AI会判断其为犹豫，并主动介入。'
+            '犹���用户: 若用户加购后在页面停留超过90秒����无任何点击，AI会判断其为犹豫，并主动介入。'
           ]
         },
         {
@@ -238,7 +239,7 @@ export const predefinedScenarios: MarketingScenario[] = [
           reasoning: 'AI会根据商品属性和用户��像，生成最能匹配其潜在需求的内容。',
           examples: [
             '针对高价复杂商品: AI可能会提供社会认同信息，如："已有超过5000名用户购买并给出了98%的好评。"',
-            '针对有配件的商品: AI可能会进行交叉销售推荐，如："别忘了搭配专用清洁套装，组合购买可享优惠。"'
+            '针对有配件的商品: AI可能会进行交叉销售推荐，��："别忘了搭配专用清洁套装，组合购买可享优惠。"'
           ]
         }
       ]
@@ -280,7 +281,7 @@ export const predefinedScenarios: MarketingScenario[] = [
           reasoning: 'AI会结合使用多种方式。首先通过网页弹窗给予即时反馈，然后在短时间内通过发送邮件提供更详细的引导，以覆盖不同场景。',
           examples: [
             '即时反馈: 用户注册成功后，立即在当前页弹出欢迎弹窗。',
-            '��续��进: 5分钟后，自动发送一封欢迎��件到用户的注册邮箱。'
+            '后续��进: 5分钟后，自动发送一封欢迎��件到用户的注册邮箱。'
           ]
         },
         {
@@ -351,7 +352,7 @@ export const predefinedScenarios: MarketingScenario[] = [
           reasoning: 'AI会深度分析用户的历史数据，生成最符合其当前状态的沟通内容。',
           examples: [
             '针对"潜在流失"VIP: AI可能会生成唤醒文案，如："欢迎回来，[用户姓名]！我们为您准备了一张专属的VIP回访礼券。"',
-            '针对"购物车有商品"的用户: AI可能会生成提醒文案，如："欢迎回来！您上次购物车中的商品还在等您哦。"'
+            '针对"购物车有商品"的用户: AI可能会生成提醒文案，如："欢迎回来！您上次购物车中的商品还在等您哦���"'
           ]
         }
       ]
