@@ -414,7 +414,7 @@ const ScenarioConfig = () => {
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle className="text-lg font-semibold">自定义覆盖规则</CardTitle>
+                <CardTitle className="text-lg font-semibold">自定义规则</CardTitle>
                 <Button onClick={() => setRuleBuilderOpen(true)}>
                   <Plus className="h-4 w-4 mr-2" />
                   添加规则
@@ -427,7 +427,7 @@ const ScenarioConfig = () => {
                   <Bot className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                   <h3 className="text-lg font-medium">暂无自定义规则</h3>
                   <p className="text-muted-foreground mb-4">
-                    创建自定义规则来对特定用户群体进行精准营销
+                    创建自定义规则来对特定用户群���进行精准营销
                   </p>
                   <Button onClick={() => setRuleBuilderOpen(true)}>
                     <Plus className="h-4 w-4 mr-2" />
@@ -622,7 +622,7 @@ const ScenarioConfig = () => {
                   </div>
                   <div>
                     <div className="font-medium text-foreground">效果追踪归因</div>
-                    <div>记录每一次营销动作的最终效果，为您的策略优化提供数据支持。</div>
+                    <div>记录每一次营销动作的最终效果，���您的策略优化提供数据支持。</div>
                   </div>
                 </div>
               </div>
@@ -653,7 +653,7 @@ const ScenarioConfig = () => {
       }>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>删除自��义规则</AlertDialogTitle>
+            <AlertDialogTitle>删除自定义规则</AlertDialogTitle>
             <AlertDialogDescription>
               您确定要删除规则「{deleteDialog.rule?.ruleName}」吗？
               此操作无法撤销。
