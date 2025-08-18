@@ -180,7 +180,7 @@ const ScenarioConfig = () => {
       await updateRulePriorities(scenario.scenarioId, ruleIds);
       
       toast({
-        title: "优先级已���新",
+        title: "优先级已更新",
         description: "规则执行优先级已调整",
       });
     } catch (error) {
@@ -351,46 +351,59 @@ const ScenarioConfig = () => {
             <CardHeader>
               <CardTitle className="text-lg font-semibold flex items-center gap-2">
                 <Bot className="h-5 w-5 text-primary" />
-                AI工作原理
+                AI全自动营销
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 <div>
-                  <dt className="text-sm font-medium text-muted-foreground mb-2">策略描述</dt>
-                  <div className="p-3 bg-primary/5 border border-primary/20 rounded-lg">
-                    <p className="text-sm font-medium">
+                  <dt className="text-sm font-medium text-muted-foreground mb-2">智能策略描述</dt>
+                  <div className="p-4 bg-primary/5 border border-primary/20 rounded-lg">
+                    <p className="text-sm font-medium leading-relaxed">
                       {scenario.defaultAIConfig.description}
                     </p>
+                    <div className="mt-3 text-xs text-muted-foreground">
+                      AI将深度分析用户画像、浏览轨迹、商品属性等多维度数据，智能匹配最佳营销时机，
+                      自适应生成个性化内容，确保每一次营销触达都精准有效。
+                    </div>
                   </div>
                 </div>
 
-                <div className="grid md:grid-cols-3 gap-4">
-                  <div>
-                    <dt className="text-sm font-medium text-muted-foreground">允许的营销方式</dt>
-                    <dd className="mt-1 flex gap-1 flex-wrap">
-                      {scenario.defaultAIConfig.allowedActionTypes.map((type) => (
-                        <Badge key={type} variant="secondary">
-                          {formatActionType(type)}
-                        </Badge>
-                      ))}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="text-sm font-medium text-muted-foreground">营销时机策略</dt>
-                    <dd className="mt-1">
-                      <Badge variant="outline">
+                <div className="grid md:grid-cols-1 gap-4">
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+                      <div>
+                        <dt className="text-sm font-medium text-foreground">营销方式</dt>
+                        <dd className="text-xs text-muted-foreground">支持的触达渠道</dd>
+                      </div>
+                      <div className="flex gap-1 flex-wrap">
+                        {scenario.defaultAIConfig.allowedActionTypes.map((type) => (
+                          <Badge key={type} variant="secondary" className="text-xs">
+                            {formatActionType(type)}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+                      <div>
+                        <dt className="text-sm font-medium text-foreground">触发时机</dt>
+                        <dd className="text-xs text-muted-foreground">AI决策执行时点</dd>
+                      </div>
+                      <Badge variant="outline" className="text-xs">
                         {formatTiming(scenario.defaultAIConfig.timingStrategy)}
                       </Badge>
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="text-sm font-medium text-muted-foreground">内容策略</dt>
-                    <dd className="mt-1">
-                      <Badge variant="outline">
+                    </div>
+
+                    <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+                      <div>
+                        <dt className="text-sm font-medium text-foreground">内容生成</dt>
+                        <dd className="text-xs text-muted-foreground">个性化程度设定</dd>
+                      </div>
+                      <Badge variant="outline" className="text-xs">
                         {formatContentMode(scenario.defaultAIConfig.contentStrategy)}
                       </Badge>
-                    </dd>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -640,7 +653,7 @@ const ScenarioConfig = () => {
       }>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>删除自定义规则</AlertDialogTitle>
+            <AlertDialogTitle>删除自��义规则</AlertDialogTitle>
             <AlertDialogDescription>
               您确定要删除规则「{deleteDialog.rule?.ruleName}」吗？
               此操作无法撤销。
