@@ -61,12 +61,22 @@ export interface OverrideRule {
   updatedAt: string;
 }
 
+// 策略决策维度
+export interface StrategyDimension {
+  dimension: string;
+  strategy: string;
+  reasoning: string;
+  examples: string[];
+}
+
 // 默认AI策略配置
 export interface DefaultAIConfig {
   allowedActionTypes: ActionType[];
   timingStrategy: TimingStrategy;
   contentStrategy: ContentStrategy;
   description: string;
+  strategySummary: string;
+  dimensions: StrategyDimension[];
 }
 
 // 营销场景
@@ -90,7 +100,7 @@ export interface MarketingScenario {
 export const predefinedScenarios: MarketingScenario[] = [
   {
     scenarioId: 'add_to_cart',
-    scenarioName: '加入购物车',
+    scenarioName: '加��购物车',
     isAIEnabled: true,
     businessValue: '捕获强购买意向，进行交叉销售或挽留',
     createdAt: '2024-01-10T10:00:00Z',
@@ -171,7 +181,7 @@ export const predefinedScenarios: MarketingScenario[] = [
       allowedActionTypes: ['POPUP'],
       timingStrategy: 'SMART_DELAY',
       contentStrategy: 'FULLY_GENERATIVE',
-      description: 'AI会根据用户浏览行为和商���特征，生成个性化的推荐或优惠内容'
+      description: 'AI会根据用户浏览行为和商品特征，生成个性化的推荐或优惠内容'
     },
     overrideRules: [],
     availableFields: {
@@ -236,7 +246,7 @@ export const predefinedScenarios: MarketingScenario[] = [
         { field: 'tag', label: '用户标签', type: 'string' },
         { field: 'user_segment', label: '用户分层', type: 'string' },
         { field: 'last_purchase_days', label: '距上次购买天数', type: 'number' },
-        { field: 'total_spend', label: '累计消费', type: 'number' }
+        { field: 'total_spend', label: '累���消费', type: 'number' }
       ]
     }
   }
