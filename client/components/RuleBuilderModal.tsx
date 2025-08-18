@@ -240,7 +240,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
       } else if (responseAction.actionType === 'SMS') {
         if (!responseAction.actionConfig.smsContent) {
           toast({
-            title: "请填写短信内��",
+            title: "请填写短信内容",
             variant: "destructive",
           });
           setCurrentTab("action");
@@ -286,7 +286,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
         await addOverrideRule(scenario.scenarioId, ruleData);
         toast({
           title: "规则已创建",
-          description: `自定义规则「${ruleName}」已创建`,
+          description: `���定义规则「${ruleName}」已创建`,
         });
       }
 
@@ -521,7 +521,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
             <Label htmlFor="ruleName">规则名称 *</Label>
             <Input
               id="ruleName"
-              placeholder="为这条规则取个名字，例如：VIP客户高价值���物车挽留"
+              placeholder="为这条规则取个名字，例如：VIP客户高价值购物车挽留"
               value={ruleName}
               onChange={(e) => setRuleName(e.target.value)}
             />
