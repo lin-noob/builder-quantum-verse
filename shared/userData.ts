@@ -1312,15 +1312,15 @@ function generateNewFormatUser(id: number): User {
   ];
 
   const locations = [
-    "���京市",
-    "上海��",
+    "北京市",
+    "上海市",
     "深圳市",
     "广州市",
     "杭州市",
     "成都市",
     "武汉市",
     "西安市",
-    "南京��",
+    "南京市",
     "重庆市",
   ];
 
