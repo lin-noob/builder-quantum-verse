@@ -69,7 +69,7 @@ export interface DefaultAIConfig {
   description: string;
 }
 
-// 营销场景
+// ���销场景
 export interface MarketingScenario {
   scenarioId: string;
   scenarioName: string;
@@ -147,7 +147,7 @@ export const predefinedScenarios: MarketingScenario[] = [
         { field: 'product_name', label: '商品名称', type: 'string' },
         { field: 'category', label: '商品类别', type: 'string' },
         { field: 'price', label: '商品价格', type: 'number' },
-        { field: 'cart_total_amount', label: '购物车总金额', type: 'number' }
+        { field: 'cart_total_amount', label: '购���车总金额', type: 'number' }
       ],
       session: [
         { field: 'source_info', label: '来源信息', type: 'string' },
@@ -165,6 +165,8 @@ export const predefinedScenarios: MarketingScenario[] = [
     scenarioName: '查看商品',
     isAIEnabled: true,
     businessValue: '用户对特定商品产生兴趣，适合提供信息或激励',
+    createdAt: '2024-01-08T09:00:00Z',
+    updatedAt: '2024-01-12T16:45:00Z',
     defaultAIConfig: {
       allowedActionTypes: ['POPUP'],
       timingStrategy: 'SMART_DELAY',
@@ -177,7 +179,7 @@ export const predefinedScenarios: MarketingScenario[] = [
         { field: 'product_name', label: '商品名称', type: 'string' },
         { field: 'category', label: '商品类别', type: 'string' },
         { field: 'price', label: '商品价格', type: 'number' },
-        { field: 'page_dwell_time_seconds', label: '页面停留时间(秒)', type: 'number' }
+        { field: 'page_dwell_time_seconds', label: '页面停留时间(���)', type: 'number' }
       ],
       session: [
         { field: 'source_info', label: '来源信息', type: 'string' }
@@ -193,6 +195,8 @@ export const predefinedScenarios: MarketingScenario[] = [
     scenarioName: '用户注册',
     isAIEnabled: true,
     businessValue: '捕获新用户加入的关键时刻',
+    createdAt: '2024-01-05T11:30:00Z',
+    updatedAt: '2024-01-10T13:20:00Z',
     defaultAIConfig: {
       allowedActionTypes: ['EMAIL', 'POPUP'],
       timingStrategy: 'IMMEDIATE',
@@ -214,6 +218,8 @@ export const predefinedScenarios: MarketingScenario[] = [
     scenarioName: '用户登录',
     isAIEnabled: true,
     businessValue: '识别用户回访，进行个性化互动',
+    createdAt: '2024-01-03T08:15:00Z',
+    updatedAt: '2024-01-14T10:10:00Z',
     defaultAIConfig: {
       allowedActionTypes: ['POPUP'],
       timingStrategy: 'IMMEDIATE',
@@ -293,7 +299,7 @@ export const addOverrideRule = (scenarioId: string, rule: Omit<OverrideRule, 'ru
   });
 };
 
-// 更新自定义规则
+// 更���自定义规则
 export const updateOverrideRule = (scenarioId: string, ruleId: string, updates: Partial<OverrideRule>): Promise<boolean> => {
   return new Promise((resolve) => {
     setTimeout(() => {
