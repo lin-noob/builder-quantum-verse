@@ -176,15 +176,23 @@ const ScenariosList = () => {
               className={`relative cursor-pointer hover:shadow-md transition-shadow ${!scenario.isAIEnabled ? 'opacity-60 border-muted' : ''}`}
               onClick={() => navigate(`/ai-marketing/scenarios/${scenario.scenarioId}`)}
             >
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
+              <CardHeader className="pb-4">
+                {/* 顶部：场景名称和开关 */}
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-3">
                     <div className="text-primary">
                       {getScenarioIcon(scenario.scenarioId)}
                     </div>
-                    <CardTitle className="text-lg">{scenario.scenarioName}</CardTitle>
+                    <div>
+                      <CardTitle className="text-lg">{scenario.scenarioName}</CardTitle>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        {scenario.businessValue}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
                     <button
-                      className="p-1 hover:bg-muted rounded text-muted-foreground hover:text-foreground transition-colors"
+                      className="p-1.5 hover:bg-muted rounded text-muted-foreground hover:text-foreground transition-colors"
                       onClick={(e) => {
                         e.stopPropagation();
                         navigate(`/ai-marketing/scenarios/${scenario.scenarioId}`);
@@ -193,43 +201,51 @@ const ScenariosList = () => {
                     >
                       <Settings className="h-4 w-4" />
                     </button>
-                  </div>
-                  <div onClick={(e) => e.stopPropagation()}>
-                    <Switch
-                      checked={scenario.isAIEnabled}
-                      onCheckedChange={(checked) => handleAIToggle(scenario, checked)}
-                      disabled={isSwitching}
-                    />
+                    <div onClick={(e) => e.stopPropagation()}>
+                      <Switch
+                        checked={scenario.isAIEnabled}
+                        onCheckedChange={(checked) => handleAIToggle(scenario, checked)}
+                        disabled={isSwitching}
+                      />
+                    </div>
                   </div>
                 </div>
-                <p className="text-sm text-muted-foreground">
-                  {scenario.businessValue}
-                </p>
-              </CardHeader>
-              
-              <CardContent className="space-y-4">
 
-                {/* 默认AI策略信息 */}
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium">默认AI策略</span>
+                {/* 状态指示 */}
+                <div className="flex items-center gap-2 text-sm">
+                  <span className="text-muted-foreground">状态：</span>
+                  <span className={`font-medium ${scenario.isAIEnabled ? 'text-success' : 'text-muted-foreground'}`}>
+                    {scenario.isAIEnabled ? '运行中' : '已暂停'}
+                  </span>
+                  {scenario.isAIEnabled && (
+                    <div className="w-2 h-2 bg-success rounded-full animate-pulse"></div>
+                  )}
+                </div>
+              </CardHeader>
+
+              <CardContent className="space-y-4">
+                {/* AI策略配置 */}
+                <div className="bg-muted/30 rounded-lg p-3 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium flex items-center gap-2">
+                      <Bot className="h-4 w-4 text-primary" />
+                      AI策略配置
+                    </span>
                     <Badge variant="secondary" className="text-xs">
-                      {scenario.defaultAIConfig.timingStrategy === 'IMMEDIATE' 
-                        ? '立即触发' 
+                      {scenario.defaultAIConfig.timingStrategy === 'IMMEDIATE'
+                        ? '立即触发'
                         : scenario.defaultAIConfig.timingStrategy === 'SMART_DELAY'
                         ? '智能延迟'
                         : '延迟触发'
                       }
                     </Badge>
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    {scenario.defaultAIConfig.description}
-                  </p>
+
                   <div className="flex gap-1 flex-wrap">
                     {scenario.defaultAIConfig.allowedActionTypes.map((type) => (
                       <Badge key={type} variant="outline" className="text-xs">
-                        {type === 'POPUP' ? '网页弹窗' : 
-                         type === 'EMAIL' ? '邮件' : 
+                        {type === 'POPUP' ? '网页弹窗' :
+                         type === 'EMAIL' ? '邮件' :
                          type === 'SMS' ? '短信' : type}
                       </Badge>
                     ))}
@@ -237,21 +253,22 @@ const ScenariosList = () => {
                 </div>
 
                 {/* 自定义规则统计 */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium">自定义规则</span>
-                    <Badge 
-                      variant={enabledRulesCount > 0 ? "default" : "secondary"}
-                      className="text-xs"
-                    >
-                      {enabledRulesCount} 条已启用
-                    </Badge>
+                <div className="bg-muted/30 rounded-lg p-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium">自定义规则</span>
+                      <Badge
+                        variant={enabledRulesCount > 0 ? "default" : "secondary"}
+                        className="text-xs"
+                      >
+                        {enabledRulesCount} / {scenario.overrideRules.length}
+                      </Badge>
+                    </div>
+                    <span className="text-xs text-muted-foreground">
+                      {enabledRulesCount > 0 ? '已配置' : '未配置'}
+                    </span>
                   </div>
-                  <span className="text-xs text-muted-foreground">
-                    共 {scenario.overrideRules.length} 条
-                  </span>
                 </div>
-
               </CardContent>
             </Card>
           );
