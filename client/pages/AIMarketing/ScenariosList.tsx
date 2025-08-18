@@ -173,9 +173,6 @@ const ScenariosList = () => {
                 <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
                   <div className="flex flex-col">
                     <span className="text-sm font-medium">AI总开关</span>
-                    <span className="text-xs text-muted-foreground">
-                      控制所有自动化营销
-                    </span>
                   </div>
                   <Switch
                     checked={scenario.isAIEnabled}
