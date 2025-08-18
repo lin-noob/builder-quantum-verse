@@ -97,7 +97,7 @@ export default function AIMarketingStrategyCreate() {
     },
     {
       title: '帮助用户找到相关产品，提升用户体验',
-      content: '当用户在网站上搜索无结果、浏览时间较长但未发生点击行为、或在某个类目页面反复浏览时，系统将主动提供智能搜索建议和产品推荐服务。基于用户的搜索历史、浏览轨��������类用户购买行为等数据，提供精准的替��产品推荐、相关类目引导、热门搜索词提示等。通过智能客服��器人主动询问用户需求，提供个性化购物助手服务，包括产品对比、尺寸建议、搭配推荐等，显著提升用户的购物体验和找到心仪商品的效率。'
+      content: '当用户在网站上搜索无结果、浏览时间较长但未发生点击行为、或在某个类目页面反复浏览时，系统将主动提供智能搜索建议���产品推荐服务。基于用户的搜索历史、浏览轨��������类用户购买行为等数据，提供精准的替��产品推荐、相关类目引导、热门搜索词提示等。通过智能客服��器人主动询问用户需求，提供个性化购物助手服务，包括产品对比、尺寸建议、搭配推荐等，显著提升用户的购物体验和找到心仪商品的效率。'
     },
     {
       title: '推荐个性化商品，提高转化率',
@@ -115,7 +115,7 @@ export default function AIMarketingStrategyCreate() {
       return;
     }
 
-    // 半自动模式需要检查业���用途
+    // 半自动模式需要检查业务用途
     if (formData.executionMode === 'SEMI_AUTO' && !formData.actionPurpose?.trim()) {
       toast({
         title: "请填写业务用途",
@@ -212,7 +212,7 @@ export default function AIMarketingStrategyCreate() {
       case 4:
         if (!formData.actionParameters?.title?.trim()) {
           toast({
-            title: "请填写弹窗标题",
+            title: "请��写弹窗标题",
             variant: "destructive"
           });
           return false;
@@ -479,7 +479,7 @@ export default function AIMarketingStrategyCreate() {
         <p className="text-sm text-muted-foreground">
           {formData.executionMode === 'SEMI_AUTO'
             ? '设计一个基础的弹窗内容，AI将以此为参考进行个性化优化和安全降级'
-            : '设计固定的弹窗内容，系统将严格按照此内容展示给用户'
+            : '设计固定的弹窗内容，系统将严格按照��内容展示给用户'
           }
         </p>
       </CardHeader>
@@ -516,7 +516,7 @@ export default function AIMarketingStrategyCreate() {
               }))}
               placeholder={
                 formData.executionMode === 'SEMI_AUTO' 
-                  ? "例如���完成我的订单"
+                  ? "例如：完成我的订单"
                   : "例如：查看详情"
               }
               className="text-sm"
