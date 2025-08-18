@@ -201,38 +201,19 @@ const ScenariosList = () => {
                       <Bot className="h-4 w-4 text-primary" />
                       AI策略配置
                     </span>
-                    <Badge variant="secondary" className="text-xs">
-                      {scenario.defaultAIConfig.timingStrategy === 'IMMEDIATE'
-                        ? '立即触发'
-                        : scenario.defaultAIConfig.timingStrategy === 'SMART_DELAY'
-                        ? '智能延迟'
-                        : '延迟触发'
-                      }
-                    </Badge>
+                    {/* 核心策略显示在右边 */}
+                    <div className="flex gap-1 flex-wrap">
+                      {scenario.defaultAIConfig.coreStrategies.map((strategy, index) => (
+                        <Badge key={index} variant="outline" className="text-xs">
+                          {strategy}
+                        </Badge>
+                      ))}
+                    </div>
                   </div>
 
                   {/* 策略摘要 */}
                   <div className="text-xs text-muted-foreground">
                     {scenario.defaultAIConfig.strategySummary}
-                  </div>
-
-                  {/* 核心策略 */}
-                  <div className="flex gap-1 flex-wrap">
-                    {scenario.defaultAIConfig.coreStrategies.map((strategy, index) => (
-                      <Badge key={index} variant="outline" className="text-xs">
-                        {strategy}
-                      </Badge>
-                    ))}
-                  </div>
-
-                  <div className="flex gap-1 flex-wrap">
-                    {scenario.defaultAIConfig.allowedActionTypes.map((type) => (
-                      <Badge key={type} variant="outline" className="text-xs">
-                        {type === 'POPUP' ? '网页弹窗' :
-                         type === 'EMAIL' ? '邮件' :
-                         type === 'SMS' ? '短信' : type}
-                      </Badge>
-                    ))}
                   </div>
                 </div>
 
