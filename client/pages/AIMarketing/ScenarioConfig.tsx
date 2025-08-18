@@ -154,7 +154,7 @@ const ScenarioConfig = () => {
 
       toast({
         title: "规则已删除",
-        description: `自定义规则���${rule.ruleName}」已删除`,
+        description: `自定义规则「${rule.ruleName}」已删除`,
       });
     } catch (error) {
       toast({
@@ -315,16 +315,6 @@ const ScenarioConfig = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
-                {/* 策略摘要 */}
-                <div>
-                  <dt className="text-sm font-medium text-muted-foreground mb-2">策略摘要</dt>
-                  <div className="p-4 bg-primary/5 border border-primary/20 rounded-lg">
-                    <p className="text-sm font-medium leading-relaxed">
-                      {scenario.defaultAIConfig.strategySummary}
-                    </p>
-                  </div>
-                </div>
-
                 {/* 决策维度详情 */}
                 <div>
                   <dt className="text-sm font-medium text-muted-foreground mb-3">决策维度</dt>
@@ -413,11 +403,11 @@ const ScenarioConfig = () => {
                   <Bot className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                   <h3 className="text-lg font-medium">暂无自定义规则</h3>
                   <p className="text-muted-foreground mb-4">
-                    创建自定义规则来对特定用户群体进行���准营销
+                    创建自定义规则来对特定用户群体���行���准营销
                   </p>
                   <Button onClick={() => setRuleBuilderOpen(true)}>
                     <Plus className="h-4 w-4 mr-2" />
-                    创建第一条规则
+                    创建第一��规则
                   </Button>
                 </div>
               ) : (
