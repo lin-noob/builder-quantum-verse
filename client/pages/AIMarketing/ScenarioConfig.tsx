@@ -98,7 +98,7 @@ const ScenarioConfig = () => {
       
       toast({
         title: newState ? "AI自动化已启动" : "AI自动化已暂停",
-        description: `${scenario.scenarioName}场���的自动化营销已${newState ? '启动' : '暂停'}`,
+        description: `${scenario.scenarioName}场�����的自动化营销已${newState ? '启动' : '暂停'}`,
       });
     } catch (error) {
       toast({
@@ -233,11 +233,6 @@ const ScenarioConfig = () => {
   if (loading) {
     return (
       <div className="p-6 space-y-6">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="sm">
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-        </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
@@ -612,7 +607,7 @@ const ScenarioConfig = () => {
         }}
       />
 
-      {/* 删除确认对话框 */}
+      {/* 删除确认对话�� */}
       <AlertDialog open={deleteDialog.show} onOpenChange={(open) => 
         !open && setDeleteDialog({ show: false, rule: null })
       }>
