@@ -135,7 +135,7 @@ export default function Layout({ children }: LayoutProps) {
           <span className="text-xl font-bold text-gray-900">AI营销平台</span>
         </div>
         <div className="flex items-center gap-2">
-          <ThemeToggle />
+          {/* <ThemeToggle /> */}
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className="p-2 rounded-lg text-gray-600 hover:bg-gray-100"
@@ -296,7 +296,8 @@ export default function Layout({ children }: LayoutProps) {
 
         {/* User Profile Section */}
         <div className="border-t border-gray-200 p-3 space-y-2">
-          {/* 主题切换 */}
+          {/* 主题切换 - 已隐藏 */}
+          {/*
           <div className={cn(
             "flex",
             isSidebarCollapsed ? "justify-center" : "justify-between items-center"
@@ -306,6 +307,7 @@ export default function Layout({ children }: LayoutProps) {
             )}
             <ThemeToggle />
           </div>
+          */}
 
           {/* 用户信息 */}
           {currentUser ? (
