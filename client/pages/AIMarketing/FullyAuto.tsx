@@ -58,7 +58,7 @@ export default function FullyAuto() {
       setCustomRuleDialog(false);
       
       toast({
-        title: '规则添加成功',
+        title: '规则添加���功',
         description: '自定义筛选规则已添加到应用范围'
       });
     }
@@ -79,7 +79,7 @@ export default function FullyAuto() {
       lastOrderDays: '最后下单天数',
       userTag: '用户标签',
       registrationDays: '注册天数',
-      avgOrderValue: '平均订单��额'
+      avgOrderValue: '平均订单金额'
     };
     return fieldMap[field] || field;
   };
