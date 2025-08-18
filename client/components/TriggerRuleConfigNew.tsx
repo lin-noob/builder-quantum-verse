@@ -557,7 +557,7 @@ export default function TriggerRuleConfigNew({
         <CardContent>
           <div className="space-y-3">
             <div className="flex items-center gap-2">
-              <Badge className="bg-blue-100 text-blue-800">触发事���</Badge>
+              <Badge className="bg-blue-100 text-blue-800">触发事件</Badge>
               <span className="text-sm font-medium">
                 {EVENT_DISPLAY_NAMES[selectedEvent]}
               </span>
