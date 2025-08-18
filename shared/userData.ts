@@ -207,8 +207,8 @@ export const mockUsers: User[] = [
           },
           {
             timestamp: "14:37:57",
-            eventType: "页���访问",
-            pageTitle: "企业版详情",
+            eventType: "页面访问",
+            pageTitle: "企业版详���",
             pageUrl: "/products/enterprise",
             stayDuration: "7分30秒",
             scrollDepth: "100%",
@@ -429,7 +429,7 @@ export const mockUsers: User[] = [
       {
         orderNumber: "ORD-2023-045",
         orderDate: "2023-10-28",
-        status: "���完成",
+        status: "已完成",
         totalAmount: 6750.0,
         currency: "CNY",
         paymentMethod: "企业转账",
@@ -482,7 +482,7 @@ export const mockUsers: User[] = [
         events: [
           {
             timestamp: "10:30:20",
-            eventType: "页面����问",
+            eventType: "页面访问",
             pageTitle: "产品演示",
             pageUrl: "/demo",
             stayDuration: "15分30秒",
