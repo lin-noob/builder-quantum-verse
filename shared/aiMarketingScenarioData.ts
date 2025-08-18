@@ -127,7 +127,7 @@ export const predefinedScenarios: MarketingScenario[] = [
           reasoning: 'AI不会在用户加购的瞬间立即打扰，而是会持续分析后续行为。只有当用户表现出离开意图（如鼠标快速移向关闭按钮）或长时间无操作时，才会触发。',
           examples: [
             '高意图用户: 若用户加购后仍在活跃浏览，AI会保持静默。',
-            '犹���用户: 若用户加购后在页面停留超过90秒���无任何点击，AI会判断其为犹豫，并主动介入。'
+            '犹���用户: 若用户加购后在页面停留超过90秒����无任何点击，AI会判断其为犹豫，并主动介入。'
           ]
         },
         {
@@ -272,7 +272,7 @@ export const predefinedScenarios: MarketingScenario[] = [
       timingStrategy: 'IMMEDIATE',
       contentStrategy: 'FULLY_GENERATIVE',
       description: 'AI会根据用户注册前的浏览行为和来源渠道，生成个性化的欢迎和引导内容',
-      strategySummary: '在此场景下，AI的目标是给予新用户即时的、个性化的欢迎和引导，提升其首次体验和激活率。',
+      strategySummary: '给予新用户个性化的即时欢迎和引导，提升激活率。',
       dimensions: [
         {
           dimension: '营销方式',
@@ -280,7 +280,7 @@ export const predefinedScenarios: MarketingScenario[] = [
           reasoning: 'AI会结合使用多种方式。首先通过网页弹窗给予即时反馈，然后在短时间内通过发送邮件提供更详细的引导，以覆盖不同场景。',
           examples: [
             '即时反馈: 用户注册成功后，立即在当前页弹出欢迎弹窗。',
-            '后续��进: 5分钟后，自动发送一封欢迎邮件到用户的注册邮箱。'
+            '后续��进: 5分钟后，自动发送一封欢迎��件到用户的注册邮箱。'
           ]
         },
         {
@@ -365,7 +365,7 @@ export const predefinedScenarios: MarketingScenario[] = [
       user: [
         { field: 'tag', label: '用户标签', type: 'string' },
         { field: 'user_segment', label: '用户分层', type: 'string' },
-        { field: 'last_purchase_days', label: '距上次购买天数', type: 'number' },
+        { field: 'last_purchase_days', label: '距上次购买��数', type: 'number' },
         { field: 'total_spend', label: '累计消���', type: 'number' }
       ]
     }
