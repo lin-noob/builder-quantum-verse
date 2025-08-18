@@ -329,7 +329,7 @@ export const mockUsers: User[] = [
         },
         billingAddress: {
           name: "腾讯科技（深圳）有限公司",
-          street: "深圳市南山区科技园南区R4-B栋",
+          street: "深圳市南山区科技���南区R4-B栋",
           city: "深圳",
           state: "广东省",
           postalCode: "518057",
@@ -435,7 +435,7 @@ export const mockUsers: User[] = [
         paymentMethod: "企业转账",
         items: [
           {
-            productName: "企业版软���授权",
+            productName: "企业版软件授权",
             unitPrice: 5200.0,
             quantity: 1,
             totalPrice: 5200.0,
@@ -609,7 +609,7 @@ export const mockUsers: User[] = [
       {
         orderNumber: "ORD-2023-156",
         orderDate: "2023-12-25",
-        status: "已完成",
+        status: "���完成",
         totalAmount: 3650.25,
         currency: "CNY",
         paymentMethod: "企业转账",
