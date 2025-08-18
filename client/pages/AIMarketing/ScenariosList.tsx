@@ -211,6 +211,20 @@ const ScenariosList = () => {
                     </Badge>
                   </div>
 
+                  {/* 策略摘要 */}
+                  <div className="text-xs text-muted-foreground">
+                    {scenario.defaultAIConfig.strategySummary}
+                  </div>
+
+                  {/* 核心策略 */}
+                  <div className="flex gap-1 flex-wrap">
+                    {scenario.defaultAIConfig.coreStrategies.map((strategy, index) => (
+                      <Badge key={index} variant="outline" className="text-xs">
+                        {strategy}
+                      </Badge>
+                    ))}
+                  </div>
+
                   <div className="flex gap-1 flex-wrap">
                     {scenario.defaultAIConfig.allowedActionTypes.map((type) => (
                       <Badge key={type} variant="outline" className="text-xs">
@@ -256,7 +270,7 @@ const ScenariosList = () => {
             </AlertDialogTitle>
             <AlertDialogDescription>
               您确定要{confirmDialog.newState ? '启动' : '暂停'}
-              「{confirmDialog.scenario?.scenarioName}」场景下的所有自动化营销吗？
+              「{confirmDialog.scenario?.scenarioName}」场景下的所有自动化营销吗���
               {confirmDialog.newState ? '' : ' 这将同时暂停默认AI策略和所有自定义规则。'}
             </AlertDialogDescription>
           </AlertDialogHeader>
