@@ -102,7 +102,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
   useEffect(() => {
     if (open) {
       if (rule) {
-        // 编辑模式 - 如果是邮件或短信，强制改为弹窗
+        // 编辑���式 - 如果是邮件或短信，强制改为弹窗
         setRuleName(rule.ruleName);
         setTriggerConditions(rule.triggerConditions);
         const actionType = (rule.responseAction.actionType === 'EMAIL' || rule.responseAction.actionType === 'SMS')
@@ -188,9 +188,8 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
       return false;
     }
 
-    const totalConditions = 
+    const totalConditions =
       triggerConditions.eventConditions.length +
-      triggerConditions.sessionConditions.length +
       triggerConditions.userConditions.length;
 
     if (totalConditions === 0) {
@@ -329,7 +328,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
               className="h-8 px-3 text-xs"
             >
               <Plus className="h-3 w-3 mr-1" />
-              添加条件
+              ��加条件
             </Button>
           </div>
         </CardHeader>
@@ -515,7 +514,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
-            {rule ? '编辑自定义规则' : '创���自定义规则'}
+            {rule ? '编辑自定义规则' : '创建自定义规则'}
           </DialogTitle>
         </DialogHeader>
 
