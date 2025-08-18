@@ -180,7 +180,7 @@ export default function ScriptCreate() {
               <Label>剧本名称</Label>
               <Input
                 className="mt-1"
-                placeholder="例如：高���商品加购挽留"
+                placeholder="例如：高价商品加购挽留"
                 value={formData.scriptName}
                 onChange={(e) => handleInputChange('scriptName', e.target.value)}
               />
