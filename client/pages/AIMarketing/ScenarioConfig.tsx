@@ -531,35 +531,36 @@ const ScenarioConfig = () => {
                 核心指标
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent>
               <div className="space-y-4">
-                <div className="text-center p-4 bg-primary/5 rounded-lg">
-                  <div className="text-2xl font-bold text-primary">0</div>
-                  <div className="text-sm font-medium">执行次数</div>
-                  <div className="text-xs text-muted-foreground">策略触发总次数</div>
+                <div className="flex items-center justify-between p-3 bg-primary/5 rounded-lg">
+                  <div>
+                    <div className="text-sm font-medium text-muted-foreground">执行次数</div>
+                    <div className="text-xs text-muted-foreground">策略触发总次数</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-lg font-bold text-foreground">0</div>
+                  </div>
                 </div>
 
-                <div className="text-center p-4 bg-muted/50 rounded-lg">
-                  <div className="text-2xl font-bold">0</div>
-                  <div className="text-sm font-medium">互动次数</div>
-                  <div className="text-xs text-muted-foreground">用户点击互动数</div>
+                <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                  <div>
+                    <div className="text-sm font-medium text-muted-foreground">互动次数</div>
+                    <div className="text-xs text-muted-foreground">用户点击互动数</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-lg font-bold text-foreground">0</div>
+                  </div>
                 </div>
 
-                <div className="text-center p-4 bg-success/10 rounded-lg">
-                  <div className="text-2xl font-bold text-success">0</div>
-                  <div className="text-sm font-medium">转化数</div>
-                  <div className="text-xs text-muted-foreground">最终完成转化数</div>
-                </div>
-              </div>
-
-              <div className="pt-3 border-t">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Activity className="h-4 w-4" />
-                  <span>AI默认策略作为兜底</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
-                  <Target className="h-4 w-4" />
-                  <span>人工规则优先执行</span>
+                <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
+                  <div>
+                    <div className="text-sm font-medium text-muted-foreground">转化数</div>
+                    <div className="text-xs text-muted-foreground">最终完成转化数</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-lg font-bold text-foreground">0</div>
+                  </div>
                 </div>
               </div>
             </CardContent>
