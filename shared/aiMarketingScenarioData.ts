@@ -115,7 +115,7 @@ export const predefinedScenarios: MarketingScenario[] = [
         {
           dimension: '营销方式',
           strategy: '优先使用"网页弹窗"',
-          reasoning: 'AI会优先选择干预性���强、最能实时触达的网页弹窗，以抓住转瞬即逝的挽留机会。',
+          reasoning: 'AI会优先选择干预性最强、最能实时触达的网页弹窗，以抓住转瞬即逝的挽留机会。',
           examples: [
             '桌面端: 可能会选择模态框弹窗，信息更完整。',
             '移动端: 可能会选择更轻量的底部横幅或顶部通知，避免影响体验。'
@@ -136,7 +136,7 @@ export const predefinedScenarios: MarketingScenario[] = [
           reasoning: 'AI会基于触发用户的画像和购物车内容，动态生成最合适的挽留文案。',
           examples: [
             '针对VIP客户: AI可能会生成稀缺性文案，如："尊敬的VIP，您购物车中的限量商品库存仅剩3件。"',
-            '针对新用户: AI可能会���成利益引诱文案，如："新朋友您好！您购物车中的商品可享首单95折优惠。"'
+            '针对新用户: AI可能会生成利益引诱文案，如："新朋友您好！您购物车中的商品可享首单95折优惠。"'
           ]
         }
       ]
@@ -271,7 +271,37 @@ export const predefinedScenarios: MarketingScenario[] = [
       allowedActionTypes: ['POPUP'],
       timingStrategy: 'IMMEDIATE',
       contentStrategy: 'FULLY_GENERATIVE',
-      description: 'AI会根据用户注册前的浏览行为和来源渠道，生成个性化的欢迎和引导内容'
+      description: 'AI会根据用户注册前的浏览行为和来源渠道，生成个性化的欢迎和引导内容',
+      strategySummary: '在此场景下，AI的目标是给予新用户即时的、个性化的欢迎和引导，提升其首次体验和激活率。',
+      dimensions: [
+        {
+          dimension: '营销方式',
+          strategy: '采用"组合拳"',
+          reasoning: 'AI会结合使用多种方式。首先通过网页弹窗给予即时反馈，然后在短时间内通过发送邮件提供更详细的引导，以覆盖不同场景。',
+          examples: [
+            '即时反馈: 用户注册成功后，立即在当前页弹出欢迎弹窗。',
+            '后续跟进: 5分钟后，自动发送一封欢迎邮件到用户的注册邮箱。'
+          ]
+        },
+        {
+          dimension: '营销时机',
+          strategy: '"立即触发"为主',
+          reasoning: '用户的注册行为是一个明确的"里程碑"事件，需要立即给予积极的反馈和引导，以巩固用户关系。',
+          examples: [
+            '欢迎弹窗: 注册成功后 0-2 秒内立即显示。',
+            '欢迎邮件: 注册成功后 1-5 分钟内发送。'
+          ]
+        },
+        {
+          dimension: '营���内容',
+          strategy: '进行"兴趣引导"',
+          reasoning: 'AI会分析该用户在注册前的匿名浏览行为，将这些兴趣点融入到欢迎内容中。',
+          examples: [
+            '如果用户注册前浏览了户外商品: AI生成的欢迎邮件标题可能是："欢迎加入！开启您的户外探索之旅吧。"',
+            '如果用户无明确行为: AI则会生成通用的欢迎内容，并引导用户探索核心产品品类。'
+          ]
+        }
+      ]
     },
     overrideRules: [],
     availableFields: {
@@ -346,7 +376,7 @@ export const updateMarketingScenario = (scenarioId: string, updates: Partial<Mar
   });
 };
 
-// 添加自定义��则
+// 添加自定义规则
 export const addOverrideRule = (scenarioId: string, rule: Omit<OverrideRule, 'ruleId' | 'createdAt' | 'updatedAt'>): Promise<string> => {
   return new Promise((resolve) => {
     setTimeout(() => {
