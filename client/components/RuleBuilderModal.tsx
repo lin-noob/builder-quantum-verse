@@ -516,7 +516,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
             <Label htmlFor="ruleName">规则名称 *</Label>
             <Input
               id="ruleName"
-              placeholder="为这条规则取个名字，例如：VIP客户高价值购物车挽留"
+              placeholder="为这条规则取个名字，例如：VIP客户高价值���物车挽留"
               value={ruleName}
               onChange={(e) => setRuleName(e.target.value)}
             />
@@ -525,7 +525,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
           <Tabs value={currentTab} onValueChange={setCurrentTab}>
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="conditions">触发条件</TabsTrigger>
-              <TabsTrigger value="action">响应动��</TabsTrigger>
+              <TabsTrigger value="action">响应动作</TabsTrigger>
             </TabsList>
 
             <TabsContent value="conditions" className="space-y-4">
@@ -553,7 +553,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
                 <CardHeader>
                   <CardTitle className="text-base">营销方式</CardTitle>
                   <div className="text-xs text-muted-foreground">
-                    目前仅��持网页弹窗，邮件和短信功能正在开发中
+                    目前仅支持网页弹窗，邮件和短信功能正在开发中
                   </div>
                 </CardHeader>
                 <CardContent>
