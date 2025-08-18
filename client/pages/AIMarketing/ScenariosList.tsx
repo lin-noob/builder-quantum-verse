@@ -164,7 +164,7 @@ const ScenariosList = () => {
           const isSwitching = switchingScenario === scenario.scenarioId;
           
           return (
-            <Card key={scenario.scenarioId} className="relative">
+            <Card key={scenario.scenarioId} className={`relative ${!scenario.isAIEnabled ? 'opacity-60 border-muted' : ''}`}>
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
