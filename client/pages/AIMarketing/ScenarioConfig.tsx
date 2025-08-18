@@ -26,7 +26,7 @@ import {
   updateOverrideRule,
   deleteOverrideRule,
   updateRulePriorities
-} from "@/../../shared/aiMarketingScenarioData";
+} from "../../../shared/aiMarketingScenarioData";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -488,7 +488,7 @@ const ScenarioConfig = () => {
         </CardContent>
       </Card>
 
-      {/* 规则构建器���态框 */}
+      {/* 规则构建器模态框 */}
       <RuleBuilderModal
         open={ruleBuilderOpen}
         onClose={() => {
