@@ -137,12 +137,6 @@ export default function PerformanceTrend({
                 tickLine={false}
                 tick={{ fontSize: 12, fill: "#6b7280" }}
                 interval="preserveStartEnd"
-                type="category"
-                allowDuplicatedCategory={false}
-                hide={false}
-                mirror={false}
-                reversed={false}
-                includeHidden={false}
               />
 
               {/* Multiple Y-Axes for different metric types */}
@@ -178,12 +172,6 @@ export default function PerformanceTrend({
                         formatValue(value, representativeMetricId)
                       }
                       width={70}
-                      type="number"
-                      allowDataOverflow={false}
-                      hide={false}
-                      mirror={false}
-                      reversed={false}
-                      includeHidden={false}
                     />
                   );
                 });
