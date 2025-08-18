@@ -43,24 +43,7 @@ import {
   Draggable,
   DropResult
 } from "@hello-pangea/dnd";
-
-// 规则构建器模态框组件（稍后实现）
-const RuleBuilderModal = ({ 
-  open, 
-  onClose, 
-  scenario, 
-  rule = null,
-  onSave 
-}: {
-  open: boolean;
-  onClose: () => void;
-  scenario: MarketingScenario | null;
-  rule?: OverrideRule | null;
-  onSave: () => void;
-}) => {
-  // 占位实现，稍后完善
-  return null;
-};
+import RuleBuilderModal from "@/components/RuleBuilderModal";
 
 const ScenarioConfig = () => {
   const { scenarioId } = useParams<{ scenarioId: string }>();
@@ -172,7 +155,7 @@ const ScenarioConfig = () => {
 
       toast({
         title: "规则已删除",
-        description: `自定义规则「${rule.ruleName}」已���除`,
+        description: `自定义规则「${rule.ruleName}」已删除`,
       });
     } catch (error) {
       toast({
@@ -505,7 +488,7 @@ const ScenarioConfig = () => {
         </CardContent>
       </Card>
 
-      {/* 规则构建器模态框 */}
+      {/* 规则构建器���态框 */}
       <RuleBuilderModal
         open={ruleBuilderOpen}
         onClose={() => {
