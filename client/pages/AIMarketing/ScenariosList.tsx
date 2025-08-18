@@ -250,7 +250,7 @@ const ScenariosList = () => {
             </AlertDialogTitle>
             <AlertDialogDescription>
               您确定要{confirmDialog.newState ? '启动' : '暂停'}
-              「{confirmDialog.scenario?.scenarioName}」场景下的所有自动化营销吗���
+              「{confirmDialog.scenario?.scenarioName}」场景下的所有自动化营销吗？
               {confirmDialog.newState ? '' : ' 这将同时暂停默认AI策略和所有自定义规则。'}
             </AlertDialogDescription>
           </AlertDialogHeader>
