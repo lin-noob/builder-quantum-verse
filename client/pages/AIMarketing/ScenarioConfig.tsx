@@ -369,41 +369,55 @@ const ScenarioConfig = () => {
                 {/* 决策维度详情 */}
                 <div>
                   <dt className="text-sm font-medium text-muted-foreground mb-3">决策维度</dt>
-                  <div className="space-y-4">
+                  <Tabs defaultValue="0" className="w-full">
+                    <TabsList className="grid w-full grid-cols-3">
+                      {scenario.defaultAIConfig.dimensions.map((dimension, index) => (
+                        <TabsTrigger
+                          key={index}
+                          value={index.toString()}
+                          className="text-xs"
+                        >
+                          {dimension.dimension}
+                        </TabsTrigger>
+                      ))}
+                    </TabsList>
+
                     {scenario.defaultAIConfig.dimensions.map((dimension, index) => (
-                      <div key={index} className="border rounded-lg p-4 bg-muted/20">
-                        <div className="flex items-center justify-between mb-3">
-                          <h4 className="font-medium text-foreground">{dimension.dimension}</h4>
-                          <Badge variant="outline" className="text-xs">
-                            {dimension.strategy}
-                          </Badge>
-                        </div>
-
-                        <div className="space-y-3">
-                          <div>
-                            <dt className="text-xs font-medium text-muted-foreground">决策依据</dt>
-                            <dd className="text-xs text-foreground mt-1 leading-relaxed">
-                              {dimension.reasoning}
-                            </dd>
+                      <TabsContent key={index} value={index.toString()} className="mt-4">
+                        <div className="border rounded-lg p-4 bg-muted/20">
+                          <div className="flex items-center justify-between mb-4">
+                            <h4 className="font-medium text-foreground">{dimension.dimension}</h4>
+                            <Badge variant="outline" className="text-xs">
+                              {dimension.strategy}
+                            </Badge>
                           </div>
 
-                          <div>
-                            <dt className="text-xs font-medium text-muted-foreground">策略示例</dt>
-                            <dd className="mt-1 space-y-1">
-                              {dimension.examples.map((example, exampleIndex) => (
-                                <div
-                                  key={exampleIndex}
-                                  className="text-xs text-foreground bg-background/50 p-2 rounded border-l-2 border-primary/30"
-                                >
-                                  {example}
-                                </div>
-                              ))}
-                            </dd>
+                          <div className="space-y-4">
+                            <div>
+                              <dt className="text-sm font-medium text-muted-foreground mb-2">决策依据</dt>
+                              <dd className="text-sm text-foreground leading-relaxed">
+                                {dimension.reasoning}
+                              </dd>
+                            </div>
+
+                            <div>
+                              <dt className="text-sm font-medium text-muted-foreground mb-2">策略示例</dt>
+                              <dd className="space-y-2">
+                                {dimension.examples.map((example, exampleIndex) => (
+                                  <div
+                                    key={exampleIndex}
+                                    className="text-sm text-foreground bg-background/60 p-3 rounded border-l-3 border-primary/40"
+                                  >
+                                    {example}
+                                  </div>
+                                ))}
+                              </dd>
+                            </div>
                           </div>
                         </div>
-                      </div>
+                      </TabsContent>
                     ))}
-                  </div>
+                  </Tabs>
                 </div>
 
                 {/* 配置概览 */}
@@ -686,7 +700,7 @@ const ScenarioConfig = () => {
           <AlertDialogFooter>
             <AlertDialogCancel>取消</AlertDialogCancel>
             <AlertDialogAction onClick={handleDeleteRule}>
-              确认删除
+              确认���除
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
