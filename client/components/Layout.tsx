@@ -18,7 +18,7 @@ import {
   Settings,
 } from "lucide-react";
 import TabManager from "./TabManager";
-import { ThemeToggle } from "./ThemeToggle";
+// import { ThemeToggle } from "./ThemeToggle"; // 已隐藏主题切换功能
 import { authService } from "@/services/authService";
 
 interface LayoutProps {
