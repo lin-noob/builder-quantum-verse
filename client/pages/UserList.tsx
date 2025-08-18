@@ -186,7 +186,7 @@ export default function UserList() {
         pagesize: itemsPerPage,
       };
 
-      // 只有在有值的时候才添加这些字���
+      // 只有在有值的时候才添加这些字段
       if (searchQuery.trim()) {
         requestBody.keyword = searchQuery.trim();
       }
@@ -208,7 +208,7 @@ export default function UserList() {
         requestBody.order = sortConfig.direction;
       }
 
-      console.log("发送API请求:", {
+      console.log("发送API请��:", {
         url: "/api/quote/api/v1/profile/list",
         method: "POST",
         requestBody,
@@ -245,7 +245,7 @@ export default function UserList() {
           retries--;
 
           if (retries < 0) {
-            console.error("所有重试尝试都失败，抛出最终错误");
+            console.error("所有重试尝试都失败���抛出最终错误");
             throw error; // 重试用完后抛出错误
           }
 
@@ -281,7 +281,7 @@ export default function UserList() {
       if (error && typeof error === "object") {
         console.error("错误对象:", error);
         if ("response" in error) {
-          console.error("HTTP响应:", error.response);
+          console.error("HTTP���应:", error.response);
         }
         if ("status" in error) {
           console.error("HTTP状态码:", error.status);
