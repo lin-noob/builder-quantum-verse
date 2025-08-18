@@ -69,7 +69,7 @@ export interface DefaultAIConfig {
   description: string;
 }
 
-// ���销场景
+// 营销场景
 export interface MarketingScenario {
   scenarioId: string;
   scenarioName: string;
@@ -96,7 +96,7 @@ export const predefinedScenarios: MarketingScenario[] = [
     createdAt: '2024-01-10T10:00:00Z',
     updatedAt: '2024-01-15T14:30:00Z',
     defaultAIConfig: {
-      allowedActionTypes: ['POPUP', 'EMAIL'],
+      allowedActionTypes: ['POPUP'],
       timingStrategy: 'SMART_DELAY',
       contentStrategy: 'FULLY_GENERATIVE',
       description: 'AI将根据用户画像、购物车商品等信息，自主生成最合适的挽留或激励文案'
@@ -147,7 +147,7 @@ export const predefinedScenarios: MarketingScenario[] = [
         { field: 'product_name', label: '商品名称', type: 'string' },
         { field: 'category', label: '商品类别', type: 'string' },
         { field: 'price', label: '商品价格', type: 'number' },
-        { field: 'cart_total_amount', label: '购���车总金额', type: 'number' }
+        { field: 'cart_total_amount', label: '购物车总金额', type: 'number' }
       ],
       session: [
         { field: 'source_info', label: '来源信息', type: 'string' },
@@ -179,7 +179,7 @@ export const predefinedScenarios: MarketingScenario[] = [
         { field: 'product_name', label: '商品名称', type: 'string' },
         { field: 'category', label: '商品类别', type: 'string' },
         { field: 'price', label: '商品价格', type: 'number' },
-        { field: 'page_dwell_time_seconds', label: '页面停留时间(���)', type: 'number' }
+        { field: 'page_dwell_time_seconds', label: '页面停留时���(秒)', type: 'number' }
       ],
       session: [
         { field: 'source_info', label: '来源信息', type: 'string' }
@@ -299,7 +299,7 @@ export const addOverrideRule = (scenarioId: string, rule: Omit<OverrideRule, 'ru
   });
 };
 
-// 更���自定义规则
+// 更新自定义规则
 export const updateOverrideRule = (scenarioId: string, ruleId: string, updates: Partial<OverrideRule>): Promise<boolean> => {
   return new Promise((resolve) => {
     setTimeout(() => {
