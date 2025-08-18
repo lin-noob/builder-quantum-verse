@@ -24,11 +24,22 @@ if (typeof console !== "undefined") {
         "Line",
         "Surface",
         "ChartLayoutContextProvider",
+        "ChartLayoutContextProvider2",
         "CategoricalChartWrapper",
         "recharts",
         "LineChart",
         "ResponsiveContainer",
         "Legend",
+        "BarChart",
+        "Area",
+        "AreaChart",
+        "PieChart",
+        "ScatterChart",
+        "RadarChart",
+        "ComposedChart",
+        "Treemap",
+        "Sankey",
+        "Funnel",
       ];
 
       if (rechartsComponents.some((component) => message.includes(component))) {
@@ -39,6 +50,15 @@ if (typeof console !== "undefined") {
     // Also suppress if the stack trace contains recharts references
     if (message.includes("defaultProps") && message.includes("recharts.js")) {
       return;
+    }
+
+    // Suppress any warning that contains both "defaultProps" and references to recharts in the stack trace
+    if (message.includes("defaultProps")) {
+      // Check if any of the arguments contain recharts in the stack trace
+      const fullMessage = args.join(" ");
+      if (fullMessage.includes("recharts.js") || fullMessage.includes("at XAxis") || fullMessage.includes("at YAxis")) {
+        return;
+      }
     }
 
     // Allow other warnings through
