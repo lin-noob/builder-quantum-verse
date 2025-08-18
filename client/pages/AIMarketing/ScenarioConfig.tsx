@@ -132,7 +132,7 @@ const ScenarioConfig = () => {
     } catch (error) {
       toast({
         title: "操作失败",
-        description: "无法更新规则状态，请重试",
+        description: "无法更新���则状态，请重试",
         variant: "destructive",
       });
     }
@@ -535,10 +535,6 @@ const ScenarioConfig = () => {
             <CardContent>
               <dl className="space-y-3">
                 <div>
-                  <dt className="text-sm font-medium text-muted-foreground">场景名称</dt>
-                  <dd className="mt-1 text-sm font-medium">{scenario.scenarioName}</dd>
-                </div>
-                <div>
                   <dt className="text-sm font-medium text-muted-foreground">场景状态</dt>
                   <dd className="mt-1 flex items-center gap-2">
                     <span className="text-sm">
@@ -611,7 +607,7 @@ const ScenarioConfig = () => {
                   </div>
                   <div>
                     <div className="font-medium text-foreground">效果追踪</div>
-                    <div>记录所有动作效果，供您分析优化。</div>
+                    <div>记录所有动作效果，��您分析优化。</div>
                   </div>
                 </div>
               </div>
