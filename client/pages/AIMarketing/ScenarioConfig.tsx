@@ -292,7 +292,7 @@ const ScenarioConfig = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* 左侧主要信息 */}
         <div className="lg:col-span-2 space-y-6">
-          {/* 基础信息卡片 */}
+          {/* 基���信息卡片 */}
           <Card>
             <CardHeader>
               <CardTitle className="text-lg font-semibold">基础信息</CardTitle>
@@ -351,7 +351,7 @@ const ScenarioConfig = () => {
             <CardHeader>
               <CardTitle className="text-lg font-semibold flex items-center gap-2">
                 <Bot className="h-5 w-5 text-primary" />
-                AI全自动营销
+                AI全自动��销
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -374,7 +374,7 @@ const ScenarioConfig = () => {
                     <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
                       <div>
                         <dt className="text-sm font-medium text-foreground">营销方式</dt>
-                        <dd className="text-xs text-muted-foreground">支持的触达渠道</dd>
+                        <dd className="text-xs text-muted-foreground">支持的触达渠��</dd>
                       </div>
                       <div className="flex gap-1 flex-wrap">
                         {scenario.defaultAIConfig.allowedActionTypes.map((type) => (
@@ -398,7 +398,7 @@ const ScenarioConfig = () => {
                     <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
                       <div>
                         <dt className="text-sm font-medium text-foreground">内容生成</dt>
-                        <dd className="text-xs text-muted-foreground">个性化程度设定</dd>
+                        <dd className="text-xs text-muted-foreground">个性化程度���定</dd>
                       </div>
                       <Badge variant="outline" className="text-xs">
                         {formatContentMode(scenario.defaultAIConfig.contentStrategy)}
@@ -427,7 +427,7 @@ const ScenarioConfig = () => {
                   <Bot className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                   <h3 className="text-lg font-medium">暂无自定义规则</h3>
                   <p className="text-muted-foreground mb-4">
-                    创建自定义规则来对特定用户群���进行精准营销
+                    创建自定义规则来对特定用户群体进行精准营销
                   </p>
                   <Button onClick={() => setRuleBuilderOpen(true)}>
                     <Plus className="h-4 w-4 mr-2" />
@@ -591,8 +591,8 @@ const ScenarioConfig = () => {
                     1
                   </div>
                   <div>
-                    <div className="font-medium text-foreground">默认AI监控</div>
-                    <div>AI持续监控此场景下的所有用户行为，确保不错过任何营销机会。</div>
+                    <div className="font-medium text-foreground">规则优先</div>
+                    <div>系统优先匹配您设定的自定义规则。</div>
                   </div>
                 </div>
 
@@ -601,8 +601,8 @@ const ScenarioConfig = () => {
                     2
                   </div>
                   <div>
-                    <div className="font-medium text-foreground">规则优先匹配</div>
-                    <div>当行为发生时，系统会优先检查是否命中您设定的任何一条自定义规则。</div>
+                    <div className="font-medium text-foreground">AI决策</div>
+                    <div>若无规则命中，则由默认AI自主决策。</div>
                   </div>
                 </div>
 
@@ -611,8 +611,8 @@ const ScenarioConfig = () => {
                     3
                   </div>
                   <div>
-                    <div className="font-medium text-foreground">分层智能执行</div>
-                    <div>若命中则严格执行您的自定义动作；若未命中，则由默认AI自主决策并执行个性化响应。</div>
+                    <div className="font-medium text-foreground">个性化执行</div>
+                    <div>根据匹配结果，执行最合适的响应动作。</div>
                   </div>
                 </div>
 
@@ -621,8 +621,8 @@ const ScenarioConfig = () => {
                     4
                   </div>
                   <div>
-                    <div className="font-medium text-foreground">效果追踪归因</div>
-                    <div>记录每一次营销动作的最终效果，���您的策略优化提供数据支持。</div>
+                    <div className="font-medium text-foreground">效果追踪</div>
+                    <div>记录所有动作效果，供您分析优化。</div>
                   </div>
                 </div>
               </div>
