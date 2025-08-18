@@ -101,7 +101,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
   useEffect(() => {
     if (open) {
       if (rule) {
-        // 编辑模式 - 如果是邮件或短信，强制改��弹窗
+        // 编辑模式 - 如果是邮件或短信，强制改为弹窗
         setRuleName(rule.ruleName);
         setTriggerConditions(rule.triggerConditions);
         const actionType = (rule.responseAction.actionType === 'EMAIL' || rule.responseAction.actionType === 'SMS')
@@ -200,7 +200,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
       return false;
     }
 
-    // 检查所有条件是否��写完整
+    // 检查所有条件是否填写完整
     const allConditions = [
       ...triggerConditions.eventConditions,
       ...triggerConditions.userConditions
