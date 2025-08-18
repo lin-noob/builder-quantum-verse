@@ -58,6 +58,12 @@ export default function Layout({ children }: LayoutProps) {
       icon: <Users className="h-5 w-5" />,
     },
     {
+      id: "ai-marketing-scenarios",
+      label: "AI营销",
+      path: "/ai-marketing/scenarios",
+      icon: <Bot className="h-5 w-5" />,
+    },
+    {
       id: "fully-auto",
       label: "全自动营销",
       path: "/ai-marketing/fully-auto",
