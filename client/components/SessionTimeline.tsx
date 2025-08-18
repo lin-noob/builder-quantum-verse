@@ -1,5 +1,4 @@
 import { useEffect, useState, useCallback } from "react";
-import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import {
