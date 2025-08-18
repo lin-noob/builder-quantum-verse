@@ -393,7 +393,7 @@ const ScenarioConfig = () => {
                 <CardTitle className="text-lg font-semibold">自定义规则</CardTitle>
                 <Button onClick={() => setRuleBuilderOpen(true)}>
                   <Plus className="h-4 w-4 mr-2" />
-                  添加规���
+                  添加规则
                 </Button>
               </div>
             </CardHeader>
