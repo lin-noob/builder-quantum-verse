@@ -188,7 +188,7 @@ const ScenarioConfig = () => {
       setScenario(prev => prev ? { ...prev, overrideRules: scenario.overrideRules } : null);
       toast({
         title: "更新失败",
-        description: "无法调整规则优先级，���重试",
+        description: "无法调整���则优先级，请重试",
         variant: "destructive",
       });
     }
@@ -403,7 +403,7 @@ const ScenarioConfig = () => {
                   <Bot className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                   <h3 className="text-lg font-medium">暂无自定义规则</h3>
                   <p className="text-muted-foreground mb-4">
-                    创建自定义规则来对特定用户群体进行���准营销
+                    创建自定义规则来对特定用户群体进行精准营销
                   </p>
                   <Button onClick={() => setRuleBuilderOpen(true)}>
                     <Plus className="h-4 w-4 mr-2" />
@@ -483,7 +483,7 @@ const ScenarioConfig = () => {
                                     </div>
                                     
                                     <div className="text-xs text-muted-foreground">
-                                      ��发条���：
+                                      ����发条件：
                                       {rule.triggerConditions.eventConditions.length > 0 && 
                                         ` 事件属性(${rule.triggerConditions.eventConditions.length})`
                                       }
@@ -512,7 +512,7 @@ const ScenarioConfig = () => {
 
         {/* 右侧信息 */}
         <div className="space-y-6">
-          {/* ��础���息卡片 */}
+          {/* ��础信息卡片 */}
           <Card>
             <CardHeader>
               <CardTitle className="text-lg font-semibold">基础信息</CardTitle>
