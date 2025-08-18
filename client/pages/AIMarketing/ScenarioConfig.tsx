@@ -7,16 +7,15 @@ import { Switch } from "@/components/ui/switch";
 import { 
   ArrowLeft, 
   Plus, 
-  Settings, 
   Edit, 
   Trash2, 
   GripVertical,
   Bot,
-  Shield,
   AlertTriangle,
-  Info
+  TrendingUp,
+  Activity,
+  Target
 } from "lucide-react";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import {
   MarketingScenario,
@@ -175,7 +174,6 @@ const ScenarioConfig = () => {
     const [reorderedRule] = newRules.splice(result.source.index, 1);
     newRules.splice(result.destination.index, 0, reorderedRule);
 
-    // 更新本地状态
     setScenario(prev => prev ? { ...prev, overrideRules: newRules } : null);
 
     try {
@@ -187,7 +185,6 @@ const ScenarioConfig = () => {
         description: "规则执行优先级已调整",
       });
     } catch (error) {
-      // 回滚状态
       setScenario(prev => prev ? { ...prev, overrideRules: scenario.overrideRules } : null);
       toast({
         title: "更新失败",
@@ -224,31 +221,54 @@ const ScenarioConfig = () => {
     }
   };
 
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('zh-CN', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
   if (loading) {
     return (
-      <div className="space-y-6">
+      <div className="p-6 space-y-6">
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="sm">
             <ArrowLeft className="h-4 w-4" />
           </Button>
-          <div>
-            <div className="h-6 bg-muted rounded w-48 mb-2"></div>
-            <div className="h-4 bg-muted rounded w-32"></div>
-          </div>
         </div>
         
-        <div className="grid gap-6">
-          <Card className="animate-pulse">
-            <CardHeader>
-              <div className="h-5 bg-muted rounded w-32"></div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <div className="h-4 bg-muted rounded"></div>
-                <div className="h-4 bg-muted rounded w-2/3"></div>
-              </div>
-            </CardContent>
-          </Card>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 space-y-6">
+            {[1, 2, 3].map((i) => (
+              <Card key={i} className="animate-pulse">
+                <CardHeader>
+                  <div className="h-5 bg-muted rounded w-32"></div>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    <div className="h-4 bg-muted rounded"></div>
+                    <div className="h-4 bg-muted rounded w-2/3"></div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+          <div className="space-y-6">
+            <Card className="animate-pulse">
+              <CardHeader>
+                <div className="h-5 bg-muted rounded w-24"></div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="h-4 bg-muted rounded"></div>
+                  <div className="h-4 bg-muted rounded w-1/2"></div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     );
@@ -269,9 +289,12 @@ const ScenarioConfig = () => {
     );
   }
 
+  const enabledRulesCount = scenario.overrideRules.filter(rule => rule.isEnabled).length;
+  const totalRulesCount = scenario.overrideRules.length;
+
   return (
-    <div className="space-y-6">
-      {/* 页面头部 */}
+    <div className="p-6 space-y-6">
+      {/* 返回按钮 */}
       <div className="flex items-center gap-4">
         <Button 
           variant="ghost" 
@@ -280,213 +303,317 @@ const ScenarioConfig = () => {
         >
           <ArrowLeft className="h-4 w-4" />
         </Button>
-        <div>
-          <h1 className="text-2xl font-bold">策略配置：{scenario.scenarioName}</h1>
-          <p className="text-muted-foreground">{scenario.businessValue}</p>
-        </div>
       </div>
 
-      {/* AI总开关 */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Shield className="h-5 w-5 text-primary" />
-              <CardTitle>AI总开关</CardTitle>
-            </div>
-            <Switch
-              checked={scenario.isAIEnabled}
-              onCheckedChange={handleAIToggle}
-            />
-          </div>
-        </CardHeader>
-        <CardContent>
-          <Alert>
-            <Info className="h-4 w-4" />
-            <AlertDescription>
-              {scenario.isAIEnabled 
-                ? "AI自动化已启动，系统将根据下方配置执行营销策略"
-                : "AI自动化已暂停，所有自动化营销（包括默认AI和自定义规则）都将停止执行"
-              }
-            </AlertDescription>
-          </Alert>
-        </CardContent>
-      </Card>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* 左侧主要信息 */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* 基础信息卡片 */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg font-semibold">基础信息</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <dl className="grid grid-cols-2 gap-4">
+                <div>
+                  <dt className="text-sm font-medium text-muted-foreground">场景名称</dt>
+                  <dd className="mt-1 text-sm font-medium">{scenario.scenarioName}</dd>
+                </div>
+                <div>
+                  <dt className="text-sm font-medium text-muted-foreground">场景状态</dt>
+                  <dd className="mt-1 flex items-center gap-2">
+                    <span className="text-sm">
+                      {scenario.isAIEnabled ? '已启用' : '已暂停'}
+                    </span>
+                    {scenario.isAIEnabled && (
+                      <div className="flex items-center gap-1 text-success">
+                        <div className="w-2 h-2 bg-success rounded-full animate-pulse"></div>
+                        <span className="text-xs">运行中</span>
+                      </div>
+                    )}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-sm font-medium text-muted-foreground">场景ID</dt>
+                  <dd className="mt-1 text-sm text-muted-foreground font-mono">{scenario.scenarioId}</dd>
+                </div>
+                <div>
+                  <dt className="text-sm font-medium text-muted-foreground">AI开关</dt>
+                  <dd className="mt-1">
+                    <Switch
+                      checked={scenario.isAIEnabled}
+                      onCheckedChange={handleAIToggle}
+                    />
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-sm font-medium text-muted-foreground">创建时间</dt>
+                  <dd className="mt-1 text-sm">{formatDate(scenario.createdAt)}</dd>
+                </div>
+                <div>
+                  <dt className="text-sm font-medium text-muted-foreground">更新时间</dt>
+                  <dd className="mt-1 text-sm">{formatDate(scenario.updatedAt)}</dd>
+                </div>
+                <div className="col-span-2">
+                  <dt className="text-sm font-medium text-muted-foreground">业务价值</dt>
+                  <dd className="mt-1 text-sm">{scenario.businessValue}</dd>
+                </div>
+              </dl>
+            </CardContent>
+          </Card>
 
-      {/* 默认AI策略 */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <Bot className="h-5 w-5 text-primary" />
-            <CardTitle>默认AI策略（兜底策略）</CardTitle>
-          </div>
-          <p className="text-sm text-muted-foreground">
-            当用户的行为未满足下方任何一条自定义规则时，系统将执行此默认策略
-          </p>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid md:grid-cols-3 gap-4">
-            <div>
-              <label className="text-sm font-medium text-muted-foreground">允许的营销方式</label>
-              <div className="flex gap-1 flex-wrap mt-1">
-                {scenario.defaultAIConfig.allowedActionTypes.map((type) => (
-                  <Badge key={type} variant="secondary">
-                    {formatActionType(type)}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-            <div>
-              <label className="text-sm font-medium text-muted-foreground">营销时机策略</label>
-              <div className="mt-1">
-                <Badge variant="outline">
-                  {formatTiming(scenario.defaultAIConfig.timingStrategy)}
-                </Badge>
-              </div>
-            </div>
-            <div>
-              <label className="text-sm font-medium text-muted-foreground">内容策略</label>
-              <div className="mt-1">
-                <Badge variant="outline">
-                  {formatContentMode(scenario.defaultAIConfig.contentStrategy)}
-                </Badge>
-              </div>
-            </div>
-          </div>
-          <div>
-            <label className="text-sm font-medium text-muted-foreground">策略描述</label>
-            <p className="text-sm mt-1">{scenario.defaultAIConfig.description}</p>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* 自定义覆盖规则 */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>自定义覆盖规则</CardTitle>
-              <p className="text-sm text-muted-foreground mt-1">
-                优先级高于默认AI策略的精确规则，支持拖拽调整执行顺序
-              </p>
-            </div>
-            <Button onClick={() => setRuleBuilderOpen(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              添加自定义规则
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent>
-          {scenario.overrideRules.length === 0 ? (
-            <div className="text-center py-12">
-              <Settings className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-medium">暂无自定义规则</h3>
-              <p className="text-muted-foreground mb-4">
-                创建自定义规则来对特定用户群体进行精准营销
-              </p>
-              <Button onClick={() => setRuleBuilderOpen(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                创建第一条规则
-              </Button>
-            </div>
-          ) : (
-            <DragDropContext onDragEnd={handleDragEnd}>
-              <Droppable droppableId="rules">
-                {(provided) => (
-                  <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-3">
-                    {scenario.overrideRules.map((rule, index) => (
-                      <Draggable key={rule.ruleId} draggableId={rule.ruleId} index={index}>
-                        {(provided, snapshot) => (
-                          <div
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            className={`p-4 border rounded-lg bg-card ${
-                              snapshot.isDragging ? 'shadow-lg' : ''
-                            } ${!rule.isEnabled ? 'opacity-60' : ''}`}
-                          >
-                            <div className="flex items-center gap-3">
-                              <div 
-                                {...provided.dragHandleProps}
-                                className="text-muted-foreground cursor-grab active:cursor-grabbing"
-                              >
-                                <GripVertical className="h-4 w-4" />
-                              </div>
-                              
-                              <div className="flex-1 space-y-2">
-                                <div className="flex items-center justify-between">
-                                  <div className="flex items-center gap-2">
-                                    <Badge variant="outline" className="text-xs">
-                                      优先级 {rule.priority}
-                                    </Badge>
-                                    <h4 className="font-medium">{rule.ruleName}</h4>
-                                  </div>
-                                  <div className="flex items-center gap-2">
-                                    <Switch
-                                      checked={rule.isEnabled}
-                                      onCheckedChange={(checked) => handleRuleToggle(rule, checked)}
-                                      size="sm"
-                                    />
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      onClick={() => {
-                                        setEditingRule(rule);
-                                        setRuleBuilderOpen(true);
-                                      }}
-                                    >
-                                      <Edit className="h-4 w-4" />
-                                    </Button>
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      onClick={() => setDeleteDialog({ show: true, rule })}
-                                    >
-                                      <Trash2 className="h-4 w-4" />
-                                    </Button>
-                                  </div>
-                                </div>
-                                
-                                <div className="grid md:grid-cols-2 gap-4 text-sm">
-                                  <div>
-                                    <span className="text-muted-foreground">响应动作：</span>
-                                    <span className="ml-1">
-                                      {formatActionType(rule.responseAction.actionType)} • {formatTiming(rule.responseAction.timing)}
-                                    </span>
-                                  </div>
-                                  <div>
-                                    <span className="text-muted-foreground">内容模式：</span>
-                                    <span className="ml-1">
-                                      {formatContentMode(rule.responseAction.contentMode)}
-                                    </span>
-                                  </div>
-                                </div>
-                                
-                                <div className="text-xs text-muted-foreground">
-                                  触发条件：
-                                  {rule.triggerConditions.eventConditions.length > 0 && 
-                                    ` 事件属性(${rule.triggerConditions.eventConditions.length})`
-                                  }
-                                  {rule.triggerConditions.sessionConditions.length > 0 && 
-                                    ` 会话属性(${rule.triggerConditions.sessionConditions.length})`
-                                  }
-                                  {rule.triggerConditions.userConditions.length > 0 && 
-                                    ` 用户画像(${rule.triggerConditions.userConditions.length})`
-                                  }
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                      </Draggable>
-                    ))}
-                    {provided.placeholder}
+          {/* AI工作原理 */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                <Bot className="h-5 w-5 text-primary" />
+                AI工作原理
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div>
+                  <dt className="text-sm font-medium text-muted-foreground mb-2">策略描述</dt>
+                  <div className="p-3 bg-primary/5 border border-primary/20 rounded-lg">
+                    <p className="text-sm font-medium">
+                      {scenario.defaultAIConfig.description}
+                    </p>
                   </div>
-                )}
-              </Droppable>
-            </DragDropContext>
-          )}
-        </CardContent>
-      </Card>
+                </div>
+
+                <div className="grid md:grid-cols-3 gap-4">
+                  <div>
+                    <dt className="text-sm font-medium text-muted-foreground">允许的营销方式</dt>
+                    <dd className="mt-1 flex gap-1 flex-wrap">
+                      {scenario.defaultAIConfig.allowedActionTypes.map((type) => (
+                        <Badge key={type} variant="secondary">
+                          {formatActionType(type)}
+                        </Badge>
+                      ))}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-sm font-medium text-muted-foreground">营销时机策略</dt>
+                    <dd className="mt-1">
+                      <Badge variant="outline">
+                        {formatTiming(scenario.defaultAIConfig.timingStrategy)}
+                      </Badge>
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-sm font-medium text-muted-foreground">内容策略</dt>
+                    <dd className="mt-1">
+                      <Badge variant="outline">
+                        {formatContentMode(scenario.defaultAIConfig.contentStrategy)}
+                      </Badge>
+                    </dd>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* 自定义覆盖规则 */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg font-semibold">自定义覆盖规则</CardTitle>
+                <Button onClick={() => setRuleBuilderOpen(true)}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  添加规则
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {scenario.overrideRules.length === 0 ? (
+                <div className="text-center py-12">
+                  <Bot className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-medium">暂无自定义规则</h3>
+                  <p className="text-muted-foreground mb-4">
+                    创建自定义规则来对特定用户群体进行精准营销
+                  </p>
+                  <Button onClick={() => setRuleBuilderOpen(true)}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    创建第一条规则
+                  </Button>
+                </div>
+              ) : (
+                <DragDropContext onDragEnd={handleDragEnd}>
+                  <Droppable droppableId="rules">
+                    {(provided) => (
+                      <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-3">
+                        {scenario.overrideRules.map((rule, index) => (
+                          <Draggable key={rule.ruleId} draggableId={rule.ruleId} index={index}>
+                            {(provided, snapshot) => (
+                              <div
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                className={`p-4 border rounded-lg bg-card ${
+                                  snapshot.isDragging ? 'shadow-lg' : ''
+                                } ${!rule.isEnabled ? 'opacity-60' : ''}`}
+                              >
+                                <div className="flex items-center gap-3">
+                                  <div 
+                                    {...provided.dragHandleProps}
+                                    className="text-muted-foreground cursor-grab active:cursor-grabbing"
+                                  >
+                                    <GripVertical className="h-4 w-4" />
+                                  </div>
+                                  
+                                  <div className="flex-1 space-y-2">
+                                    <div className="flex items-center justify-between">
+                                      <div className="flex items-center gap-2">
+                                        <Badge variant="outline" className="text-xs">
+                                          优先级 {rule.priority}
+                                        </Badge>
+                                        <h4 className="font-medium">{rule.ruleName}</h4>
+                                      </div>
+                                      <div className="flex items-center gap-2">
+                                        <Switch
+                                          checked={rule.isEnabled}
+                                          onCheckedChange={(checked) => handleRuleToggle(rule, checked)}
+                                          size="sm"
+                                        />
+                                        <Button
+                                          variant="ghost"
+                                          size="sm"
+                                          onClick={() => {
+                                            setEditingRule(rule);
+                                            setRuleBuilderOpen(true);
+                                          }}
+                                        >
+                                          <Edit className="h-4 w-4" />
+                                        </Button>
+                                        <Button
+                                          variant="ghost"
+                                          size="sm"
+                                          onClick={() => setDeleteDialog({ show: true, rule })}
+                                        >
+                                          <Trash2 className="h-4 w-4" />
+                                        </Button>
+                                      </div>
+                                    </div>
+                                    
+                                    <div className="grid md:grid-cols-2 gap-4 text-sm">
+                                      <div>
+                                        <span className="text-muted-foreground">响应动作：</span>
+                                        <span className="ml-1">
+                                          {formatActionType(rule.responseAction.actionType)} • {formatTiming(rule.responseAction.timing)}
+                                        </span>
+                                      </div>
+                                      <div>
+                                        <span className="text-muted-foreground">内容模式：</span>
+                                        <span className="ml-1">
+                                          {formatContentMode(rule.responseAction.contentMode)}
+                                        </span>
+                                      </div>
+                                    </div>
+                                    
+                                    <div className="text-xs text-muted-foreground">
+                                      触发条件：
+                                      {rule.triggerConditions.eventConditions.length > 0 && 
+                                        ` 事件属性(${rule.triggerConditions.eventConditions.length})`
+                                      }
+                                      {rule.triggerConditions.sessionConditions.length > 0 && 
+                                        ` 会话属性(${rule.triggerConditions.sessionConditions.length})`
+                                      }
+                                      {rule.triggerConditions.userConditions.length > 0 && 
+                                        ` 用户画像(${rule.triggerConditions.userConditions.length})`
+                                      }
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </Draggable>
+                        ))}
+                        {provided.placeholder}
+                      </div>
+                    )}
+                  </Droppable>
+                </DragDropContext>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* 右侧核心指标 */}
+        <div className="space-y-6">
+          {/* 核心指标 */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                <TrendingUp className="h-5 w-5 text-primary" />
+                核心指标
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="text-center p-3 bg-primary/5 rounded-lg">
+                  <div className="text-2xl font-bold text-primary">{enabledRulesCount}</div>
+                  <div className="text-xs text-muted-foreground">已启用规则</div>
+                </div>
+                <div className="text-center p-3 bg-muted/50 rounded-lg">
+                  <div className="text-2xl font-bold">{totalRulesCount}</div>
+                  <div className="text-xs text-muted-foreground">总规则数</div>
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">规则覆盖率</span>
+                  <span className="font-medium">
+                    {totalRulesCount > 0 ? Math.round((enabledRulesCount / totalRulesCount) * 100) : 0}%
+                  </span>
+                </div>
+                <div className="w-full bg-muted rounded-full h-2">
+                  <div 
+                    className="bg-primary h-2 rounded-full transition-all duration-300" 
+                    style={{ 
+                      width: `${totalRulesCount > 0 ? (enabledRulesCount / totalRulesCount) * 100 : 0}%` 
+                    }}
+                  ></div>
+                </div>
+              </div>
+
+              <div className="pt-3 border-t">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Activity className="h-4 w-4" />
+                  <span>AI默认策略作为兜底</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
+                  <Target className="h-4 w-4" />
+                  <span>人工规则优先执行</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* 快速操作 */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg font-semibold">快速操作</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Button 
+                className="w-full" 
+                onClick={() => setRuleBuilderOpen(true)}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                添加自定义规则
+              </Button>
+              
+              <Button 
+                variant="outline" 
+                className="w-full"
+                onClick={() => navigate("/ai-marketing/scenarios")}
+              >
+                返回场景列表
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
 
       {/* 规则构建器模态框 */}
       <RuleBuilderModal
@@ -500,7 +627,7 @@ const ScenarioConfig = () => {
         onSave={() => {
           setRuleBuilderOpen(false);
           setEditingRule(null);
-          loadScenario(); // 重新加载数据
+          loadScenario();
         }}
       />
 
