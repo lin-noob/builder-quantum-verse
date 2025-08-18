@@ -98,7 +98,7 @@ const ScenarioConfig = () => {
       
       toast({
         title: newState ? "AI自动化已启动" : "AI自动化已暂停",
-        description: `${scenario.scenarioName}场�����的自动化营销已${newState ? '启动' : '暂停'}`,
+        description: `${scenario.scenarioName}场���的自动化营销已${newState ? '启动' : '暂停'}`,
       });
     } catch (error) {
       toast({
@@ -532,31 +532,23 @@ const ScenarioConfig = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="text-center p-3 bg-primary/5 rounded-lg">
-                  <div className="text-2xl font-bold text-primary">{enabledRulesCount}</div>
-                  <div className="text-xs text-muted-foreground">已启用规则</div>
+              <div className="space-y-4">
+                <div className="text-center p-4 bg-primary/5 rounded-lg">
+                  <div className="text-2xl font-bold text-primary">0</div>
+                  <div className="text-sm font-medium">执行次数</div>
+                  <div className="text-xs text-muted-foreground">策略触发总次数</div>
                 </div>
-                <div className="text-center p-3 bg-muted/50 rounded-lg">
-                  <div className="text-2xl font-bold">{totalRulesCount}</div>
-                  <div className="text-xs text-muted-foreground">总规则数</div>
+
+                <div className="text-center p-4 bg-muted/50 rounded-lg">
+                  <div className="text-2xl font-bold">0</div>
+                  <div className="text-sm font-medium">互动次数</div>
+                  <div className="text-xs text-muted-foreground">用户点击互动数</div>
                 </div>
-              </div>
-              
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">规则覆盖率</span>
-                  <span className="font-medium">
-                    {totalRulesCount > 0 ? Math.round((enabledRulesCount / totalRulesCount) * 100) : 0}%
-                  </span>
-                </div>
-                <div className="w-full bg-muted rounded-full h-2">
-                  <div 
-                    className="bg-primary h-2 rounded-full transition-all duration-300" 
-                    style={{ 
-                      width: `${totalRulesCount > 0 ? (enabledRulesCount / totalRulesCount) * 100 : 0}%` 
-                    }}
-                  ></div>
+
+                <div className="text-center p-4 bg-success/10 rounded-lg">
+                  <div className="text-2xl font-bold text-success">0</div>
+                  <div className="text-sm font-medium">转化数</div>
+                  <div className="text-xs text-muted-foreground">最终完成转化数</div>
                 </div>
               </div>
 
@@ -607,7 +599,7 @@ const ScenarioConfig = () => {
         }}
       />
 
-      {/* 删除确认对话�� */}
+      {/* 删除确认对话框 */}
       <AlertDialog open={deleteDialog.show} onOpenChange={(open) => 
         !open && setDeleteDialog({ show: false, rule: null })
       }>
