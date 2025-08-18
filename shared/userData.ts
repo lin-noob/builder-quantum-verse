@@ -19,7 +19,7 @@ export interface User {
   maxBuyTime: string;
   /** 最大订单金额（保留5位小数） */
   maxOrderAmount: number;
-  /** 总消费金额（保留5���小数） */
+  /** 总消费金额（保留5位小数） */
   totalOrders: number;
   /** 订单数量 */
   orderCount: number;
@@ -170,7 +170,7 @@ export const mockUsers: User[] = [
           },
           {
             timestamp: "09:25:35",
-            eventType: "页面访问",
+            eventType: "��面访问",
             pageTitle: "价格对比",
             pageUrl: "/pricing",
             stayDuration: "4分15秒",
@@ -435,7 +435,7 @@ export const mockUsers: User[] = [
         paymentMethod: "企业转账",
         items: [
           {
-            productName: "企业版软件授权",
+            productName: "企业版软���授权",
             unitPrice: 5200.0,
             quantity: 1,
             totalPrice: 5200.0,
@@ -472,7 +472,7 @@ export const mockUsers: User[] = [
       {
         id: "session-lm-1",
         date: "2024-01-20 10:30",
-        summary: "产品演示和技术���估",
+        summary: "产品演示和技术评估",
         source: "社交媒体广告",
         deviceType: "桌面端",
         os: "macOS 14",
@@ -514,7 +514,7 @@ export const mockUsers: User[] = [
         deviceType: "桌面端",
         os: "macOS 14",
         browser: "Chrome 120",
-        location: "杭���, ��国",
+        location: "杭州, 中国",
         ipAddress: "120.55.162.203",
         events: [
           {
@@ -753,7 +753,7 @@ export const mockUsers: User[] = [
           {
             timestamp: "13:57:35",
             eventType: "页面访问",
-            pageTitle: "功���试用",
+            pageTitle: "功能试用",
             pageUrl: "/trial/features",
             stayDuration: "25分30秒",
             scrollDepth: "95%",
@@ -937,7 +937,7 @@ export const mockUsers: User[] = [
       {
         orderNumber: "ORD-2024-018",
         orderDate: "2024-01-15",
-        status: "已完成",
+        status: "已完��",
         totalAmount: 4280.75,
         currency: "CNY",
         paymentMethod: "支付宝",
@@ -1279,7 +1279,7 @@ export interface OrderSummaryDto {
  * 用户画像列表查询参数
  */
 export interface UserProfileListParams {
-  /** 分���数量 */
+  /** 分页数量 */
   limit?: number;
   /** 用户名 */
   name?: string;
@@ -1294,7 +1294,7 @@ export interface UserProfileListParams {
  */
 function generateNewFormatUser(id: number): User {
   const companies = [
-    "阿里巴巴集团",
+    "阿里��巴集团",
     "腾讯科技",
     "字节跳动",
     "华为技术",
