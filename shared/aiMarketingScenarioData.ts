@@ -61,7 +61,7 @@ export interface OverrideRule {
   updatedAt: string;
 }
 
-// 策略���策维度
+// 策略����策维度
 export interface StrategyDimension {
   dimension: string;
   strategy: string;
@@ -126,9 +126,9 @@ export const predefinedScenarios: MarketingScenario[] = [
         {
           dimension: '营销时机',
           strategy: '采用"智能延迟"',
-          reasoning: 'AI不会在用户加购的瞬间立即打扰，而是会持续分析后续行为。只有当用户表现出离开意图（如鼠标快速移向关闭按钮）或长时间无操作时，才会触发��',
+          reasoning: 'AI不会在用户加购的瞬间立即打扰，而是会持续分析后续行为。只有当用户表现出离开意图（如鼠标快速移向关闭按钮）或长时间无操作时，才会触发。',
           examples: [
-            '高意图用户: 若用户加购后仍在活跃浏览，AI会保持静默。',
+            '高意图用户: 若用户加购后仍在活跃���览，AI会保持静默。',
             '犹���用户: 若用户加购后在页面停留超过90秒����无任何点击，AI会判断其为犹豫，并主动介入。'
           ]
         },
@@ -215,6 +215,7 @@ export const predefinedScenarios: MarketingScenario[] = [
       contentStrategy: 'FULLY_GENERATIVE',
       description: 'AI会根据用户浏览行为和商品特征，生成个性化的推荐或优惠内容',
       strategySummary: '识别用户兴趣，通过激励或提供信息，推动用户进入购买决策。',
+      coreStrategies: ['网页弹窗', '智能延迟', '价值匹配生成'],
       dimensions: [
         {
           dimension: '营销方式',
@@ -279,7 +280,7 @@ export const predefinedScenarios: MarketingScenario[] = [
         {
           dimension: '营销方式',
           strategy: '采用"组合拳"',
-          reasoning: 'AI会结合使用多种方式。首先通过网页弹窗给予即时反馈，然后在短时间内通过发送邮件提供更详细的引导，以��盖不同场景。',
+          reasoning: 'AI会结合使用多种方式。首先通过网页弹窗给予即时反馈，然后在短时间内通过发送邮件提供更详细的引导，以覆盖不同场景。',
           examples: [
             '即时反馈: 用户注册成功后，立即在当前页弹出欢迎弹窗。',
             '后续��进: 5分钟后，自动发送一封欢迎��件到用户的注册邮箱。'
