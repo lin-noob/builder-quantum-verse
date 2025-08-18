@@ -94,14 +94,21 @@ const ScenariosList = () => {
     
     try {
       await updateMarketingScenario(scenario.scenarioId, { isAIEnabled: newState });
-      
-      setScenarios(prev => 
-        prev.map(s => 
-          s.scenarioId === scenario.scenarioId 
+
+      setScenarios(prev => {
+        const updated = prev.map(s =>
+          s.scenarioId === scenario.scenarioId
             ? { ...s, isAIEnabled: newState }
             : s
-        )
-      );
+        );
+        // 重新排序：启用的在前，暂停的在后
+        return updated.sort((a, b) => {
+          if (a.isAIEnabled !== b.isAIEnabled) {
+            return b.isAIEnabled ? 1 : -1;
+          }
+          return a.scenarioId > b.scenarioId ? -1 : 1;
+        });
+      });
 
       toast({
         title: newState ? "AI自动化已启动" : "AI自动化已暂停",
