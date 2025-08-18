@@ -117,7 +117,7 @@ export const predefinedScenarios: MarketingScenario[] = [
         {
           dimension: '营销方式',
           strategy: '优先使用"网页弹窗"',
-          reasoning: 'AI会优先选择干预性最强、最能实时触达的网页弹窗，以抓住���瞬即逝的挽留机会。',
+          reasoning: 'AI会优先选择干预性最强、最能实时触达的网页弹窗，以抓住稍瞬即逝的挽留机会。',
           examples: [
             '桌面端: 可能会选择模态框弹窗，信息更完整。',
             '移动端: 可能会选择更轻量的底部横幅或顶部通知，避免影响体验。'
@@ -252,7 +252,7 @@ export const predefinedScenarios: MarketingScenario[] = [
         { field: 'product_name', label: '商品名称', type: 'string' },
         { field: 'category', label: '商品类别', type: 'string' },
         { field: 'price', label: '商品价格', type: 'number' },
-        { field: 'page_dwell_time_seconds', label: '页面停��时间(秒)', type: 'number' }
+        { field: 'page_dwell_time_seconds', label: '页面停����时间(秒)', type: 'number' }
       ],
       session: [
         { field: 'source_info', label: '来源信息', type: 'string' }
@@ -284,7 +284,7 @@ export const predefinedScenarios: MarketingScenario[] = [
           reasoning: 'AI会结合使用多种方式。首先通过网页弹窗给予即时反馈，然后在短时间内通过发送邮件提供更详细的引导，以覆盖不同场景。',
           examples: [
             '即时反馈: 用户注册成功后，立即在当前页弹出欢迎弹窗。',
-            '后续����: 5分钟后，自动发送一封欢迎��件到用户的注册邮箱。'
+            '后续��进: 5分钟后，自动发送一封欢迎��件到用户的注册邮箱。'
           ]
         },
         {
