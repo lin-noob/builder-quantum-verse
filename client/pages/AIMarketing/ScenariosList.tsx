@@ -183,6 +183,16 @@ const ScenariosList = () => {
                       {getScenarioIcon(scenario.scenarioId)}
                     </div>
                     <CardTitle className="text-lg">{scenario.scenarioName}</CardTitle>
+                    <button
+                      className="p-1 hover:bg-muted rounded text-muted-foreground hover:text-foreground transition-colors"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/ai-marketing/scenarios/${scenario.scenarioId}`);
+                      }}
+                      title="管理策略"
+                    >
+                      <Settings className="h-4 w-4" />
+                    </button>
                   </div>
                   <div onClick={(e) => e.stopPropagation()}>
                     <Switch
