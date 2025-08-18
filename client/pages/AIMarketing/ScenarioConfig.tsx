@@ -289,6 +289,11 @@ const ScenarioConfig = () => {
 
   return (
     <div className="p-6 space-y-6">
+      {/* 页面标题 */}
+      <div className="border-b pb-4">
+        <h1 className="text-2xl font-bold text-foreground">{scenario.scenarioName}</h1>
+        <p className="text-sm text-muted-foreground mt-1">场景配置和规则管理</p>
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* 左侧主要信息 */}
