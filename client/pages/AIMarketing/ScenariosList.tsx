@@ -57,7 +57,16 @@ const ScenariosList = () => {
   const loadScenarios = async () => {
     try {
       const data = await getMarketingScenarios();
-      setScenarios(data);
+      // 排序：启用的在前，暂停的在后，同类型内按更新时间倒序
+      const sortedData = data.sort((a, b) => {
+        // 首先按启用状态排序（启用的在前）
+        if (a.isAIEnabled !== b.isAIEnabled) {
+          return b.isAIEnabled ? 1 : -1;
+        }
+        // 同样状态内按更新时间倒序（假设有updatedAt字段，这里用场景ID模拟）
+        return a.scenarioId > b.scenarioId ? -1 : 1;
+      });
+      setScenarios(sortedData);
     } catch (error) {
       toast({
         title: "加载失败",
