@@ -148,23 +148,6 @@ const ScenariosList = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">AI营销</h1>
-          <p className="text-muted-foreground">
-            自动化打底，分层覆盖 - 管理您的智能营销策略
-          </p>
-        </div>
-      </div>
-
-      <Alert>
-        <AlertTriangle className="h-4 w-4" />
-        <AlertDescription>
-          <strong>核心设计哲学：</strong>
-          系统已为核心业务场景内置AI全自动策略，商家可通过自定义规则进行精确覆盖和优化。
-          执行逻辑遵循"人工规则优先，AI自动兜底"的原则。
-        </AlertDescription>
-      </Alert>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {scenarios.map((scenario) => {
