@@ -434,20 +434,12 @@ export default function UserDetail2() {
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis
                         dataKey="date"
-                        hide={false}
                         tickCount={5}
                         minTickGap={5}
-                        mirror={false}
-                        reversed={false}
-                        includeHidden={false}
                       />
                       <YAxis
-                        hide={false}
                         tickCount={5}
                         minTickGap={5}
-                        mirror={false}
-                        reversed={false}
-                        includeHidden={false}
                       />
                       <Tooltip />
                       <Line
