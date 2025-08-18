@@ -27,6 +27,13 @@ export default function Dashboard() {
 	const [overviewKpis, setOverviewKpis] = useState<Array<{ title: string; value: string }>>([]);
 
 	useEffect(() => {
+		// Skip API calls in development mode to avoid fetch errors
+		if (process.env.NODE_ENV === 'development') {
+			console.log("��发模式：跳过热门标签 API 调用");
+			setHotTags([]);
+			return;
+		}
+
 		(async () => {
 			try {
 				const res = await request.get("/quote/api/v1/dashboard/hot");
@@ -38,12 +45,7 @@ export default function Dashboard() {
 				}));
 				setHotTags(mapped);
 			} catch (e) {
-				// Silently handle API failures in development
-				if (process.env.NODE_ENV === 'development') {
-					console.warn("热门标签 API 不可用，使用默认数据");
-				} else {
-					console.error("热门标签 API 调用失败:", e);
-				}
+				console.error("热门标签 API 调用失败:", e);
 				setHotTags([]);
 			}
 		})();
