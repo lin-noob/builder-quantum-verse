@@ -77,7 +77,12 @@ export default function Dashboard() {
 					{ title: "平均客单价", value: fmtMoney(data.avgPrice) },
 				]);
 			} catch (e) {
-				console.error("数据概览 API 调用失败:", e);
+				// Silently handle API failures in development
+				if (process.env.NODE_ENV === 'development') {
+					console.warn("数据概览 API 不可用，使用默认数据");
+				} else {
+					console.error("数据概览 API 调用失败:", e);
+				}
 				setOverviewKpis([]);
 			}
 		})();
