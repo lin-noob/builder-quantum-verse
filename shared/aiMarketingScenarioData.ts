@@ -7,7 +7,7 @@ export type ContentStrategy = 'FULLY_GENERATIVE' | 'STATIC' | 'AI_ASSISTED';
 export type ConditionOperator = '=' | '!=' | '>' | '<' | '>=' | '<=' | 'CONTAINS' | '!CONTAINS' | 'IN' | '!IN';
 export type ConditionCategory = 'event' | 'session' | 'user';
 
-// 触发条件单个条件
+// ��发条件单个条件
 export interface TriggerCondition {
   id: string;
   category: ConditionCategory;
@@ -110,7 +110,7 @@ export const predefinedScenarios: MarketingScenario[] = [
       allowedActionTypes: ['POPUP'],
       timingStrategy: 'SMART_DELAY',
       contentStrategy: 'FULLY_GENERATIVE',
-      description: 'AI将根据用户画像、购物车商品等信息，自主生成最合适的挽留或激励文案',
+      description: 'AI将根据用户画像、购物车商品等信息��自主生成最合适的挽留或激励文案',
       strategySummary: '在用户犹豫或准备离开时进行精准挽留，提升订单转化率。',
       coreStrategies: ['网页弹窗', '智能延迟', '个性化生成'],
       dimensions: [
@@ -206,7 +206,7 @@ export const predefinedScenarios: MarketingScenario[] = [
     scenarioId: 'view_product',
     scenarioName: '查看商品',
     isAIEnabled: true,
-    businessValue: '用户对���定商品产生兴趣，适合提供信息或激励',
+    businessValue: '用户对���定商品产生兴趣，��合提供信息或激励',
     createdAt: '2024-01-08T09:00:00Z',
     updatedAt: '2024-01-12T16:45:00Z',
     defaultAIConfig: {
@@ -229,7 +229,7 @@ export const predefinedScenarios: MarketingScenario[] = [
         {
           dimension: '营销时机',
           strategy: '采用"智能延迟"',
-          reasoning: 'AI会�����于用户的投入度来���策。核心信号是页面停留时长和滚动深度。',
+          reasoning: 'AI会���于用户的投入度来���策。核心信号是页面停留时长和滚动深度。',
           examples: [
             '深度浏览者: 当用户在商品页停留超过120秒，并滚动到页面底部时，AI判断其兴趣浓厚，可能会触发互动。',
             '准备离开者: 当用户在商品页停留较长时间后，表现出离开意图，AI会尝试进行挽留。'
@@ -252,7 +252,7 @@ export const predefinedScenarios: MarketingScenario[] = [
         { field: 'product_name', label: '商品名称', type: 'string' },
         { field: 'category', label: '商品类别', type: 'string' },
         { field: 'price', label: '商品价格', type: 'number' },
-        { field: 'page_dwell_time_seconds', label: '页��停��时间(秒)', type: 'number' }
+        { field: 'page_dwell_time_seconds', label: '页面停��时间(秒)', type: 'number' }
       ],
       session: [
         { field: 'source_info', label: '来源信息', type: 'string' }
@@ -284,7 +284,7 @@ export const predefinedScenarios: MarketingScenario[] = [
           reasoning: 'AI会结合使用多种方式。首先通过网页弹窗给予即时反馈，然后在短时间内通过发送邮件提供更详细的引导，以覆盖不同场景。',
           examples: [
             '即时反馈: 用户注册成功后，立即在当前页弹出欢迎弹窗。',
-            '后续��进: 5分钟后，自动发送一封欢迎��件到用户的注册邮箱。'
+            '后续����进: 5分钟后，自动发送一封欢迎��件到用户的注册邮箱。'
           ]
         },
         {
@@ -338,12 +338,12 @@ export const predefinedScenarios: MarketingScenario[] = [
           reasoning: '登录是一个关键的身份确认节点，AI会优先使用网页弹窗来传递最直接、最个性化的"欢迎回来"信息。',
           examples: [
             '顶部横幅: 可能会在页面顶部显示一个非打扰式的欢迎横幅。',
-            '个性化推荐模块: 可能会在页面侧边栏动态生成一个"猜你喜欢"的���品推��模块。'
+            '个性化推荐模块: 可能会在页面侧边栏动态生成一个"猜你喜欢"的商品推��模块。'
           ]
         },
         {
           dimension: '营销时机',
-          strategy: '"立即触发"',
+          strategy: '"��即触发"',
           reasoning: '与注册类似，登录成功是一个需要即时响应的明确信号。',
           examples: [
             '欢迎信息: 登录成功后的第一个页面加载时立即显示。',
@@ -371,7 +371,7 @@ export const predefinedScenarios: MarketingScenario[] = [
         { field: 'tag', label: '用户标签', type: 'string' },
         { field: 'user_segment', label: '用户分层', type: 'string' },
         { field: 'last_purchase_days', label: '距上次购买��数', type: 'number' },
-        { field: 'total_spend', label: '累计消���', type: 'number' }
+        { field: 'total_spend', label: '累计消费', type: 'number' }
       ]
     }
   }
