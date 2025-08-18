@@ -207,7 +207,7 @@ export const mockUsers: User[] = [
           },
           {
             timestamp: "14:37:57",
-            eventType: "页面访问",
+            eventType: "页���访问",
             pageTitle: "企业版详情",
             pageUrl: "/products/enterprise",
             stayDuration: "7分30秒",
@@ -429,7 +429,7 @@ export const mockUsers: User[] = [
       {
         orderNumber: "ORD-2023-045",
         orderDate: "2023-10-28",
-        status: "已完成",
+        status: "���完成",
         totalAmount: 6750.0,
         currency: "CNY",
         paymentMethod: "企业转账",
@@ -454,7 +454,7 @@ export const mockUsers: User[] = [
     cdpId: "b7c3d8e9-4f2a-1234",
     name: "李明",
     company: "阿里巴巴",
-    country: "中���",
+    country: "中国",
     city: "杭州",
     contact: "liming@alibaba.com",
     totalSpent: 18900.25,
@@ -482,7 +482,7 @@ export const mockUsers: User[] = [
         events: [
           {
             timestamp: "10:30:20",
-            eventType: "页面��问",
+            eventType: "页面����问",
             pageTitle: "产品演示",
             pageUrl: "/demo",
             stayDuration: "15分30秒",
@@ -819,7 +819,7 @@ export const mockUsers: User[] = [
           {
             timestamp: "15:20:30",
             eventType: "页面访问",
-            pageTitle: "���据分析",
+            pageTitle: "数据分析",
             pageUrl: "/analytics",
             stayDuration: "18分45秒",
             scrollDepth: "100%",
@@ -903,7 +903,7 @@ export const mockUsers: User[] = [
             eventType: "页面访问",
             pageTitle: "开发者控制台",
             pageUrl: "/dev/console",
-            stayDuration: "15���30秒",
+            stayDuration: "15分30秒",
             scrollDepth: "90%",
           },
           {
@@ -1285,7 +1285,7 @@ export interface UserProfileListParams {
   name?: string;
   /** 页码 */
   page?: number;
-  /** 请求体参数 */
+  /** 请求��参数 */
   body?: OrderSummaryDto;
 }
 
