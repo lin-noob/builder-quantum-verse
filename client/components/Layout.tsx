@@ -292,7 +292,19 @@ export default function Layout({ children }: LayoutProps) {
         </nav>
 
         {/* User Profile Section */}
-        <div className="border-t border-gray-200 p-3">
+        <div className="border-t border-gray-200 p-3 space-y-2">
+          {/* 主题切换 */}
+          <div className={cn(
+            "flex",
+            isSidebarCollapsed ? "justify-center" : "justify-between items-center"
+          )}>
+            {!isSidebarCollapsed && (
+              <span className="text-xs text-muted-foreground">主题模式</span>
+            )}
+            <ThemeToggle />
+          </div>
+
+          {/* 用户信息 */}
           {currentUser ? (
             <Link
               to="/profile"
