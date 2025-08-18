@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Plus,
   Edit,
@@ -126,7 +127,7 @@ const ScenarioConfig = () => {
 
       toast({
         title: newState ? "规则已启用" : "规则已停用",
-        description: `自定义规则「${rule.ruleName}」已${newState ? '启用' : '停用'}`,
+        description: `自定义规则「${rule.ruleName}」已${newState ? '启用' : '��用'}`,
       });
     } catch (error) {
       toast({
