@@ -61,7 +61,7 @@ export interface OverrideRule {
   updatedAt: string;
 }
 
-// 策略决策维度
+// 策略���策维度
 export interface StrategyDimension {
   dimension: string;
   strategy: string;
@@ -110,7 +110,7 @@ export const predefinedScenarios: MarketingScenario[] = [
       timingStrategy: 'SMART_DELAY',
       contentStrategy: 'FULLY_GENERATIVE',
       description: 'AI将根据用户画像、购物车商品等信息，自主生成最合适的挽留或激励文案',
-      strategySummary: '在此场景下，AI的目标是在用户犹豫或准备离开时进行精准挽留，以提升订单转化率。',
+      strategySummary: '在用户犹豫或准备离开时进行精准挽留，提升订单转化率。',
       dimensions: [
         {
           dimension: '营销方式',
@@ -127,7 +127,7 @@ export const predefinedScenarios: MarketingScenario[] = [
           reasoning: 'AI不会在用户加购的瞬间立即打扰，而是会持续分析后续行为。只有当用户表现出离开意图（如鼠标快速移向关闭按钮）或长时间无操作时，才会触发。',
           examples: [
             '高意图用户: 若用户加购后仍在活跃浏览，AI会保持静默。',
-            '犹豫用户: 若用户加购后在页面停留超过90秒且无任何点击，AI会判断其为犹豫，并主动介入。'
+            '犹豫用户: 若用户加购后在页面停留超过90秒���无任何点击，AI会判断其为犹豫，并主动介入。'
           ]
         },
         {
@@ -226,7 +226,7 @@ export const predefinedScenarios: MarketingScenario[] = [
         {
           dimension: '营销时机',
           strategy: '采用"智能延迟"',
-          reasoning: 'AI会基于用户的投入度来决策。核心信号是页面停留时长和滚动深度。',
+          reasoning: 'AI会���于用户的投入度来决策。核心信号是页面停留时长和滚动深度。',
           examples: [
             '深度浏览者: 当用户在商品页停留超过120秒，并滚动到页面底部时，AI判断其兴趣浓厚，可能会触发互动。',
             '准备离开者: 当用户在商品页停留较长时间后，表现出离开意图，AI会尝试进行挽留。'
@@ -249,7 +249,7 @@ export const predefinedScenarios: MarketingScenario[] = [
         { field: 'product_name', label: '商品名称', type: 'string' },
         { field: 'category', label: '商品类别', type: 'string' },
         { field: 'price', label: '商品价格', type: 'number' },
-        { field: 'page_dwell_time_seconds', label: '页面停留时间(秒)', type: 'number' }
+        { field: 'page_dwell_time_seconds', label: '页面停��时间(秒)', type: 'number' }
       ],
       session: [
         { field: 'source_info', label: '来源信息', type: 'string' }
@@ -333,7 +333,7 @@ export const predefinedScenarios: MarketingScenario[] = [
           reasoning: '登录是一个关键的身份确认节点，AI会优先使用网页弹窗来传递最直接、最个性化的"欢迎回来"信息。',
           examples: [
             '顶部横幅: 可能会在页面顶部显示一个非打扰式的欢迎横幅。',
-            '个性化推荐模块: 可能会在页面侧边栏动态生成一个"猜你喜欢"的商品推荐模块。'
+            '个性化推荐模块: 可能会在页面侧边栏动态生成一个"猜你喜欢"的商品推��模块。'
           ]
         },
         {
@@ -366,7 +366,7 @@ export const predefinedScenarios: MarketingScenario[] = [
         { field: 'tag', label: '用户标签', type: 'string' },
         { field: 'user_segment', label: '用户分层', type: 'string' },
         { field: 'last_purchase_days', label: '距上次购买天数', type: 'number' },
-        { field: 'total_spend', label: '累计消费', type: 'number' }
+        { field: 'total_spend', label: '累计消���', type: 'number' }
       ]
     }
   }
