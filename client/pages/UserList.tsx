@@ -169,7 +169,7 @@ export default function UserList() {
       console.log("连通性测试响应:", response.status, response.statusText);
       return response.ok;
     } catch (error) {
-      console.error("连通性测试失��:", error);
+      console.error("连通性测试失败:", error);
       return false;
     }
   };
@@ -273,7 +273,7 @@ export default function UserList() {
         } else if (error.message.includes("Network Error")) {
           errorMessage = "网络连接失败，请检查网络设置";
         } else {
-          errorMessage = `获取数据��败: ${error.message}`;
+          errorMessage = `获取数据失败: ${error.message}`;
         }
       } else if (error instanceof Error) {
         errorMessage = error.message;
@@ -594,7 +594,7 @@ export default function UserList() {
                           to={`/users/${user.id}`}
                           className="text-blue-600 hover:text-blue-800 text-sm font-medium"
                         >
-                          查看��情
+                          查看详情
                         </Link>
                       </td>
                     </tr>
