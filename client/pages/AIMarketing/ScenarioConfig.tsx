@@ -132,7 +132,7 @@ const ScenarioConfig = () => {
     } catch (error) {
       toast({
         title: "操作失败",
-        description: "无法更新���则状态，请重试",
+        description: "无法更新规则状态，请重试",
         variant: "destructive",
       });
     }
@@ -188,7 +188,7 @@ const ScenarioConfig = () => {
       setScenario(prev => prev ? { ...prev, overrideRules: scenario.overrideRules } : null);
       toast({
         title: "更新失败",
-        description: "无法调整规则优先级，请重试",
+        description: "无法调整规则优先级，���重试",
         variant: "destructive",
       });
     }
@@ -483,7 +483,7 @@ const ScenarioConfig = () => {
                                     </div>
                                     
                                     <div className="text-xs text-muted-foreground">
-                                      ��发条件：
+                                      ��发条���：
                                       {rule.triggerConditions.eventConditions.length > 0 && 
                                         ` 事件属性(${rule.triggerConditions.eventConditions.length})`
                                       }
@@ -512,7 +512,7 @@ const ScenarioConfig = () => {
 
         {/* 右侧信息 */}
         <div className="space-y-6">
-          {/* ��础信息卡片 */}
+          {/* ��础���息卡片 */}
           <Card>
             <CardHeader>
               <CardTitle className="text-lg font-semibold">基础信息</CardTitle>
@@ -562,7 +562,7 @@ const ScenarioConfig = () => {
                   </div>
                   <div>
                     <div className="font-medium text-foreground">规则优先</div>
-                    <div>系统优先匹配您设定的���定义规则。</div>
+                    <div>系统优先匹配您设定的自定义规则。</div>
                   </div>
                 </div>
 
