@@ -240,7 +240,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
       } else if (responseAction.actionType === 'SMS') {
         if (!responseAction.actionConfig.smsContent) {
           toast({
-            title: "请填写短信内容",
+            title: "请填写短信内��",
             variant: "destructive",
           });
           setCurrentTab("action");
@@ -468,7 +468,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
               <Label htmlFor="subject">邮件主题 *</Label>
               <Input
                 id="subject"
-                placeholder="��入邮件主题"
+                placeholder="输入邮件主题"
                 value={responseAction.actionConfig.subject || ''}
                 onChange={(e) => updateActionConfig({ subject: e.target.value })}
               />
