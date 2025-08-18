@@ -25,7 +25,7 @@ export interface User {
   orderCount: number;
   /** 最后登录时间 */
   loginDate: string;
-  /** 地��� */
+  /** 地址 */
   location: string;
   /** tenant_id */
   shopid: string;
@@ -454,7 +454,7 @@ export const mockUsers: User[] = [
     cdpId: "b7c3d8e9-4f2a-1234",
     name: "李明",
     company: "阿里巴巴",
-    country: "中国",
+    country: "中���",
     city: "杭州",
     contact: "liming@alibaba.com",
     totalSpent: 18900.25,
@@ -687,7 +687,7 @@ export const mockUsers: User[] = [
             totalPrice: 1200.0,
           },
           {
-            productName: "技术支持服务",
+            productName: "技��支持服务",
             unitPrice: 650.0,
             quantity: 1,
             totalPrice: 650.0,
@@ -819,7 +819,7 @@ export const mockUsers: User[] = [
           {
             timestamp: "15:20:30",
             eventType: "页面访问",
-            pageTitle: "数据分析",
+            pageTitle: "���据分析",
             pageUrl: "/analytics",
             stayDuration: "18分45秒",
             scrollDepth: "100%",
@@ -903,7 +903,7 @@ export const mockUsers: User[] = [
             eventType: "页面访问",
             pageTitle: "开发者控制台",
             pageUrl: "/dev/console",
-            stayDuration: "15分30秒",
+            stayDuration: "15���30秒",
             scrollDepth: "90%",
           },
           {
@@ -1003,7 +1003,7 @@ export const mockUsers: User[] = [
       {
         orderNumber: "ORD-2023-167",
         orderDate: "2023-12-10",
-        status: "已完成",
+        status: "已完��",
         totalAmount: 2100.0,
         currency: "CNY",
         paymentMethod: "支付宝",
@@ -1091,7 +1091,7 @@ export const mockUsers: User[] = [
         paymentMethod: "支付宝",
         items: [
           {
-            productName: "���件扩展包",
+            productName: "软件扩展包",
             unitPrice: 550.0,
             quantity: 4,
             totalPrice: 2200.0,
