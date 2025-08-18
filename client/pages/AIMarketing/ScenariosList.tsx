@@ -171,7 +171,11 @@ const ScenariosList = () => {
           const isSwitching = switchingScenario === scenario.scenarioId;
           
           return (
-            <Card key={scenario.scenarioId} className={`relative ${!scenario.isAIEnabled ? 'opacity-60 border-muted' : ''}`}>
+            <Card
+              key={scenario.scenarioId}
+              className={`relative cursor-pointer hover:shadow-md transition-shadow ${!scenario.isAIEnabled ? 'opacity-60 border-muted' : ''}`}
+              onClick={() => navigate(`/ai-marketing/scenarios/${scenario.scenarioId}`)}
+            >
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -196,7 +200,7 @@ const ScenariosList = () => {
                 {/* 默认AI策略信息 */}
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium">默认AI策略</span>
+                    <span className="text-sm font-medium">���认AI策略</span>
                     <Badge variant="secondary" className="text-xs">
                       {scenario.defaultAIConfig.timingStrategy === 'IMMEDIATE' 
                         ? '立即触发' 
