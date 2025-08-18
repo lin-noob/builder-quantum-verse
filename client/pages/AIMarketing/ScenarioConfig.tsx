@@ -294,16 +294,6 @@ const ScenarioConfig = () => {
 
   return (
     <div className="p-6 space-y-6">
-      {/* 返回按钮 */}
-      <div className="flex items-center gap-4">
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          onClick={() => navigate("/ai-marketing/scenarios")}
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* 左侧主要信息 */}
@@ -502,7 +492,7 @@ const ScenarioConfig = () => {
                                         </span>
                                       </div>
                                       <div>
-                                        <span className="text-muted-foreground">内容模式：</span>
+                                        <span className="text-muted-foreground">内容���式：</span>
                                         <span className="ml-1">
                                           {formatContentMode(rule.responseAction.contentMode)}
                                         </span>
