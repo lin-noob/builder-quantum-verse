@@ -196,24 +196,23 @@ const ScenariosList = () => {
               <CardContent className="space-y-4">
                 {/* AI策略配置 */}
                 <div className="bg-muted/30 rounded-lg p-3 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium flex items-center gap-2">
-                      <Bot className="h-4 w-4 text-primary" />
-                      AI策略配置
-                    </span>
-                    {/* 核心策略显示在右边 */}
-                    <div className="flex gap-1 flex-wrap">
-                      {scenario.defaultAIConfig.coreStrategies.map((strategy, index) => (
-                        <Badge key={index} variant="outline" className="text-xs">
-                          {strategy}
-                        </Badge>
-                      ))}
-                    </div>
+                  <div className="flex items-center gap-2">
+                    <Bot className="h-4 w-4 text-primary" />
+                    <span className="text-sm font-medium">AI策略配置</span>
                   </div>
 
                   {/* 策略摘要 */}
                   <div className="text-xs text-muted-foreground">
                     {scenario.defaultAIConfig.strategySummary}
+                  </div>
+
+                  {/* 核心策略显示在下方 */}
+                  <div className="flex gap-1 flex-wrap">
+                    {scenario.defaultAIConfig.coreStrategies.map((strategy, index) => (
+                      <Badge key={index} variant="outline" className="text-xs">
+                        {strategy}
+                      </Badge>
+                    ))}
                   </div>
                 </div>
 
