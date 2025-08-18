@@ -126,7 +126,7 @@ const ScenarioConfig = () => {
       });
 
       toast({
-        title: newState ? "规则已启用" : "规则已停用",
+        title: newState ? "规则已启用" : "规则��停用",
         description: `自定义规则「${rule.ruleName}」已${newState ? '启用' : '��用'}`,
       });
     } catch (error) {
@@ -293,59 +293,6 @@ const ScenarioConfig = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* 左侧主要信息 */}
         <div className="lg:col-span-2 space-y-6">
-          {/* 基础信息卡片 */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg font-semibold">基础信息</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <dl className="grid grid-cols-2 gap-4">
-                <div>
-                  <dt className="text-sm font-medium text-muted-foreground">场景名称</dt>
-                  <dd className="mt-1 text-sm font-medium">{scenario.scenarioName}</dd>
-                </div>
-                <div>
-                  <dt className="text-sm font-medium text-muted-foreground">场景状态</dt>
-                  <dd className="mt-1 flex items-center gap-2">
-                    <span className="text-sm">
-                      {scenario.isAIEnabled ? '已启用' : '已暂停'}
-                    </span>
-                    {scenario.isAIEnabled && (
-                      <div className="flex items-center gap-1 text-success">
-                        <div className="w-2 h-2 bg-success rounded-full animate-pulse"></div>
-                        <span className="text-xs">运行中</span>
-                      </div>
-                    )}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-sm font-medium text-muted-foreground">场景ID</dt>
-                  <dd className="mt-1 text-sm text-muted-foreground font-mono">{scenario.scenarioId}</dd>
-                </div>
-                <div>
-                  <dt className="text-sm font-medium text-muted-foreground">AI开关</dt>
-                  <dd className="mt-1">
-                    <Switch
-                      checked={scenario.isAIEnabled}
-                      onCheckedChange={handleAIToggle}
-                    />
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-sm font-medium text-muted-foreground">创建时间</dt>
-                  <dd className="mt-1 text-sm">{formatDate(scenario.createdAt)}</dd>
-                </div>
-                <div>
-                  <dt className="text-sm font-medium text-muted-foreground">更新时间</dt>
-                  <dd className="mt-1 text-sm">{formatDate(scenario.updatedAt)}</dd>
-                </div>
-                <div className="col-span-2">
-                  <dt className="text-sm font-medium text-muted-foreground">业务价值</dt>
-                  <dd className="mt-1 text-sm">{scenario.businessValue}</dd>
-                </div>
-              </dl>
-            </CardContent>
-          </Card>
 
           {/* AI工作原理 */}
           <Card>
@@ -546,7 +493,7 @@ const ScenarioConfig = () => {
                                     </div>
                                     
                                     <div className="text-xs text-muted-foreground">
-                                      触发条件：
+                                      ��发条件：
                                       {rule.triggerConditions.eventConditions.length > 0 && 
                                         ` 事件属性(${rule.triggerConditions.eventConditions.length})`
                                       }
@@ -573,48 +520,46 @@ const ScenarioConfig = () => {
           </Card>
         </div>
 
-        {/* 右侧核心指标 */}
+        {/* 右侧信息 */}
         <div className="space-y-6">
-          {/* 核心指标 */}
+          {/* ��础信息卡片 */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                <TrendingUp className="h-5 w-5 text-primary" />
-                核心指标
-              </CardTitle>
+              <CardTitle className="text-lg font-semibold">基础信息</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-3 bg-primary/5 rounded-lg">
-                  <div>
-                    <div className="text-sm font-medium text-muted-foreground">执行次数</div>
-                    <div className="text-xs text-muted-foreground">策略触发总次数</div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-lg font-bold text-foreground">0</div>
-                  </div>
+              <dl className="space-y-3">
+                <div>
+                  <dt className="text-sm font-medium text-muted-foreground">场景名称</dt>
+                  <dd className="mt-1 text-sm font-medium">{scenario.scenarioName}</dd>
                 </div>
-
-                <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
-                  <div>
-                    <div className="text-sm font-medium text-muted-foreground">互动次数</div>
-                    <div className="text-xs text-muted-foreground">用户点击互动数</div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-lg font-bold text-foreground">0</div>
-                  </div>
+                <div>
+                  <dt className="text-sm font-medium text-muted-foreground">场景状态</dt>
+                  <dd className="mt-1 flex items-center gap-2">
+                    <span className="text-sm">
+                      {scenario.isAIEnabled ? '已启用' : '已暂停'}
+                    </span>
+                    {scenario.isAIEnabled && (
+                      <div className="flex items-center gap-1 text-success">
+                        <div className="w-2 h-2 bg-success rounded-full animate-pulse"></div>
+                        <span className="text-xs">运行中</span>
+                      </div>
+                    )}
+                  </dd>
                 </div>
-
-                <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
-                  <div>
-                    <div className="text-sm font-medium text-muted-foreground">转化数</div>
-                    <div className="text-xs text-muted-foreground">最终完成转化数</div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-lg font-bold text-foreground">0</div>
-                  </div>
+                <div>
+                  <dt className="text-sm font-medium text-muted-foreground">场景ID</dt>
+                  <dd className="mt-1 text-sm text-muted-foreground font-mono">{scenario.scenarioId}</dd>
                 </div>
-              </div>
+                <div>
+                  <dt className="text-sm font-medium text-muted-foreground">创建时间</dt>
+                  <dd className="mt-1 text-sm">{formatDate(scenario.createdAt)}</dd>
+                </div>
+                <div>
+                  <dt className="text-sm font-medium text-muted-foreground">更新时间</dt>
+                  <dd className="mt-1 text-sm">{formatDate(scenario.updatedAt)}</dd>
+                </div>
+              </dl>
             </CardContent>
           </Card>
 
