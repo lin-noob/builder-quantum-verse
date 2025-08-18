@@ -61,7 +61,7 @@ export interface OverrideRule {
   updatedAt: string;
 }
 
-// 策略���策维度
+// 策略决策维度
 export interface StrategyDimension {
   dimension: string;
   strategy: string;
@@ -198,7 +198,7 @@ export const predefinedScenarios: MarketingScenario[] = [
       user: [
         { field: 'tag', label: '用户标签', type: 'string' },
         { field: 'user_segment', label: '用户分层', type: 'string' },
-        { field: 'total_spend', label: '累计消��', type: 'number' }
+        { field: 'total_spend', label: '累计消费', type: 'number' }
       ]
     }
   },
@@ -251,7 +251,7 @@ export const predefinedScenarios: MarketingScenario[] = [
       event: [
         { field: 'product_name', label: '商品名称', type: 'string' },
         { field: 'category', label: '商品类别', type: 'string' },
-        { field: 'price', label: '商品价��', type: 'number' },
+        { field: 'price', label: '商品价格', type: 'number' },
         { field: 'page_dwell_time_seconds', label: '页面停��时间(秒)', type: 'number' }
       ],
       session: [
@@ -281,10 +281,10 @@ export const predefinedScenarios: MarketingScenario[] = [
         {
           dimension: '营销方式',
           strategy: '采用"组合拳"',
-          reasoning: 'AI会结合使用多种方式。首先通过网页弹窗给予即时反馈，然后在短时间内通过��送邮件提供更详细的引导，以覆盖不同场景。',
+          reasoning: 'AI会结合使用多种方式。首先通过网页弹窗给予即时反馈，然后在短时间内通过发送邮件提供更详细的引导，以覆盖不同场景。',
           examples: [
             '即时反馈: 用户注册成功后，立即在当前页弹出欢迎弹窗。',
-            '后续��进: 5分钟后，自动发送一封欢迎��件到用户的注册邮箱。'
+            '后续����: 5分钟后，自动发送一封欢迎��件到用户的注册邮箱。'
           ]
         },
         {
@@ -338,7 +338,7 @@ export const predefinedScenarios: MarketingScenario[] = [
           reasoning: '登录是一个关键的身份确认节点，AI会优先使用网页弹窗来传递最直接、最个性化的"欢迎回来"信息。',
           examples: [
             '顶部横幅: 可能会在页面顶部显示一个非打扰式的欢迎横幅。',
-            '个性��推荐模块: 可能会在页面侧边栏动态生成一个"猜你喜欢"的商品推��模块。'
+            '个性化推荐模块: 可能会在页面侧边栏动态生成一个"猜你喜欢"的商品推��模块。'
           ]
         },
         {
