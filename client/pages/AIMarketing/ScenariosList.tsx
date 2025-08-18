@@ -239,18 +239,6 @@ const ScenariosList = () => {
                   管理策略
                 </Button>
               </CardContent>
-
-              {/* AI关闭时的遮罩 */}
-              {!scenario.isAIEnabled && (
-                <div className="absolute inset-0 bg-background/80 rounded-lg flex items-center justify-center">
-                  <div className="text-center">
-                    <AlertTriangle className="h-8 w-8 text-warning mx-auto mb-2" />
-                    <p className="text-sm font-medium text-muted-foreground">
-                      AI自动化已暂停
-                    </p>
-                  </div>
-                </div>
-              )}
             </Card>
           );
         })}
