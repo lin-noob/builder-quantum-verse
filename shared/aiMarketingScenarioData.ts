@@ -129,7 +129,7 @@ export const predefinedScenarios: MarketingScenario[] = [
           reasoning: 'AI不会在用户加购的瞬间立即打扰，而是会持续分析后续行为。只有当用户表现出离开意图（如鼠标快速移向关闭按钮）或长时间无操作时，才会触发。',
           examples: [
             '高意图用户: 若用户加购后仍在活跃浏览，AI会保持静默。',
-            '犹豫用户: 若用户加购后在页面停留��过90秒且无任何点击，AI会判断其为犹豫，并主动介入。'
+            '犹豫用户: 若用户加购后在页面停留超过90秒且无任何点击，AI会判断其为犹豫，并主动介入。'
           ]
         },
         {
@@ -138,7 +138,7 @@ export const predefinedScenarios: MarketingScenario[] = [
           reasoning: 'AI会基于触发用户的画像和购物车内容，动态生成最合适的挽留文案。',
           examples: [
             '针对VIP客户: AI可能会生成稀缺性文案，如："尊敬的VIP，您购物车中的限量商品库存仅剩3件。"',
-            '针对新用户: AI可能会生成利益引诱文案，如："新朋友您好！��购物车中的商品可享首单95折优惠。"'
+            '针对新用户: AI可能会生成利益引诱文案，如："新朋友您好！您购物车中的商品可享首单95折优惠。"'
           ]
         }
       ]
@@ -229,7 +229,7 @@ export const predefinedScenarios: MarketingScenario[] = [
         {
           dimension: '营销时机',
           strategy: '采用"智能延迟"',
-          reasoning: 'AI会���于用户的投入度来���策。核心信号是页面停留时长和滚动深度。',
+          reasoning: 'AI会�����于用户的投入度来���策。核心信号是页面停留时长和滚动深度。',
           examples: [
             '深度浏览者: 当用户在商品页停留超过120秒，并滚动到页面底部时，AI判断其兴趣浓厚，可能会触发互动。',
             '准备离开者: 当用户在商品页停留较长时间后，表现出离开意图，AI会尝试进行挽留。'
@@ -252,7 +252,7 @@ export const predefinedScenarios: MarketingScenario[] = [
         { field: 'product_name', label: '商品名称', type: 'string' },
         { field: 'category', label: '商品类别', type: 'string' },
         { field: 'price', label: '商品价格', type: 'number' },
-        { field: 'page_dwell_time_seconds', label: '页���停��时间(秒)', type: 'number' }
+        { field: 'page_dwell_time_seconds', label: '页��停��时间(秒)', type: 'number' }
       ],
       session: [
         { field: 'source_info', label: '来源信息', type: 'string' }
@@ -338,7 +338,7 @@ export const predefinedScenarios: MarketingScenario[] = [
           reasoning: '登录是一个关键的身份确认节点，AI会优先使用网页弹窗来传递最直接、最个性化的"欢迎回来"信息。',
           examples: [
             '顶部横幅: 可能会在页面顶部显示一个非打扰式的欢迎横幅。',
-            '个性化推荐模块: 可能会在页面侧边栏动态生成一个"猜你喜欢"的商品推��模块。'
+            '个性化推荐模块: 可能会在页面侧边栏动态生成一个"猜你喜欢"的���品推��模块。'
           ]
         },
         {
