@@ -77,6 +77,8 @@ export interface MarketingScenario {
   defaultAIConfig: DefaultAIConfig;
   overrideRules: OverrideRule[];
   businessValue: string;
+  createdAt: string;
+  updatedAt: string;
   availableFields: {
     event: { field: string; label: string; type: 'string' | 'number' | 'boolean' }[];
     session: { field: string; label: string; type: 'string' | 'number' | 'boolean' }[];
@@ -160,7 +162,7 @@ export const predefinedScenarios: MarketingScenario[] = [
     scenarioId: 'view_product',
     scenarioName: '查看商品',
     isAIEnabled: true,
-    businessValue: '用户对特定商品���生兴趣，适合提供信息或激励',
+    businessValue: '用户对特定商品产生兴趣，适合提供信息或激励',
     defaultAIConfig: {
       allowedActionTypes: ['POPUP'],
       timingStrategy: 'SMART_DELAY',
@@ -193,7 +195,7 @@ export const predefinedScenarios: MarketingScenario[] = [
       allowedActionTypes: ['EMAIL', 'POPUP'],
       timingStrategy: 'IMMEDIATE',
       contentStrategy: 'FULLY_GENERATIVE',
-      description: 'AI会根据用户注册前的浏览���为和来源渠道，生成个性化的欢迎和引导内容'
+      description: 'AI会根据用户注册前的浏览行为和来源渠道，生成个性化的欢迎和引导内容'
     },
     overrideRules: [],
     availableFields: {
@@ -266,7 +268,7 @@ export const updateMarketingScenario = (scenarioId: string, updates: Partial<Mar
   });
 };
 
-// 添加自定义规则
+// 添加自定���规则
 export const addOverrideRule = (scenarioId: string, rule: Omit<OverrideRule, 'ruleId' | 'createdAt' | 'updatedAt'>): Promise<string> => {
   return new Promise((resolve) => {
     setTimeout(() => {
