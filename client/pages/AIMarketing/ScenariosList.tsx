@@ -117,7 +117,7 @@ const ScenariosList = () => {
     } catch (error) {
       toast({
         title: "操作失败",
-        description: "无法更新AI开关状态���请重试",
+        description: "无法更新AI开关状态，请重试",
         variant: "destructive",
       });
     } finally {
