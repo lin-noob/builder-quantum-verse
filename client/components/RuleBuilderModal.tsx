@@ -509,14 +509,14 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
+      <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col">
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle>
             {rule ? '编辑自定义规则' : '创建自定义规则'}
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="flex-1 overflow-y-auto space-y-4">
           <div>
             <Label htmlFor="ruleName">规则名称 *</Label>
             <Input
@@ -600,9 +600,9 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
                 <CardContent>
                   <Select
                     value={responseAction.timing}
-                    onValueChange={(value) => setResponseAction(prev => ({ 
-                      ...prev, 
-                      timing: value as TimingStrategy 
+                    onValueChange={(value) => setResponseAction(prev => ({
+                      ...prev,
+                      timing: value as TimingStrategy
                     }))}
                   >
                     <SelectTrigger>
@@ -626,8 +626,8 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
                 <CardContent className="space-y-4">
                   <RadioGroup
                     value={responseAction.contentMode}
-                    onValueChange={(value) => setResponseAction(prev => ({ 
-                      ...prev, 
+                    onValueChange={(value) => setResponseAction(prev => ({
+                      ...prev,
                       contentMode: value as ContentStrategy,
                       actionConfig: {} // 重置配置
                     }))}
@@ -647,7 +647,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
           </Tabs>
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="flex-shrink-0 border-t pt-4">
           <Button variant="outline" onClick={onClose}>
             取消
           </Button>
