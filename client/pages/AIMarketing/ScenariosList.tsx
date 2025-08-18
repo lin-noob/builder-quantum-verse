@@ -184,11 +184,13 @@ const ScenariosList = () => {
                     </div>
                     <CardTitle className="text-lg">{scenario.scenarioName}</CardTitle>
                   </div>
-                  <Switch
-                    checked={scenario.isAIEnabled}
-                    onCheckedChange={(checked) => handleAIToggle(scenario, checked)}
-                    disabled={isSwitching}
-                  />
+                  <div onClick={(e) => e.stopPropagation()}>
+                    <Switch
+                      checked={scenario.isAIEnabled}
+                      onCheckedChange={(checked) => handleAIToggle(scenario, checked)}
+                      disabled={isSwitching}
+                    />
+                  </div>
                 </div>
                 <p className="text-sm text-muted-foreground">
                   {scenario.businessValue}
@@ -200,7 +202,7 @@ const ScenariosList = () => {
                 {/* 默认AI策略信息 */}
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium">���认AI策略</span>
+                    <span className="text-sm font-medium">默认AI策略</span>
                     <Badge variant="secondary" className="text-xs">
                       {scenario.defaultAIConfig.timingStrategy === 'IMMEDIATE' 
                         ? '立即触发' 
