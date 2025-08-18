@@ -274,7 +274,7 @@ const ScenarioConfig = () => {
         <div className="text-center">
           <AlertTriangle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
           <h3 className="text-lg font-medium">场景不存在</h3>
-          <p className="text-muted-foreground mb-4">找不到指定的营���场景</p>
+          <p className="text-muted-foreground mb-4">找不到指定的营销场景</p>
           <Button onClick={() => navigate("/ai-marketing/scenarios")}>
             返回场景列表
           </Button>
@@ -355,54 +355,78 @@ const ScenarioConfig = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
+              <div className="space-y-6">
+                {/* 策略摘要 */}
                 <div>
-                  <dt className="text-sm font-medium text-muted-foreground mb-2">智能策略描述</dt>
+                  <dt className="text-sm font-medium text-muted-foreground mb-2">策略摘要</dt>
                   <div className="p-4 bg-primary/5 border border-primary/20 rounded-lg">
                     <p className="text-sm font-medium leading-relaxed">
-                      {scenario.defaultAIConfig.description}
+                      {scenario.defaultAIConfig.strategySummary}
                     </p>
-                    <div className="mt-3 text-xs text-muted-foreground">
-                      AI将深度分析用户画像、浏览轨迹、商品属性等多维度数据，智能匹配最佳营销时机，
-                      自适应生成个性化内容，确保每一次营销触达都精准有效。
-                    </div>
                   </div>
                 </div>
 
-                <div className="grid md:grid-cols-1 gap-4">
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
-                      <div>
-                        <dt className="text-sm font-medium text-foreground">营销方式</dt>
-                        <dd className="text-xs text-muted-foreground">支持的触达渠道</dd>
-                      </div>
-                      <div className="flex gap-1 flex-wrap">
-                        {scenario.defaultAIConfig.allowedActionTypes.map((type) => (
-                          <Badge key={type} variant="secondary" className="text-xs">
-                            {formatActionType(type)}
+                {/* 决策维度详情 */}
+                <div>
+                  <dt className="text-sm font-medium text-muted-foreground mb-3">决策维度</dt>
+                  <div className="space-y-4">
+                    {scenario.defaultAIConfig.dimensions.map((dimension, index) => (
+                      <div key={index} className="border rounded-lg p-4 bg-muted/20">
+                        <div className="flex items-center justify-between mb-3">
+                          <h4 className="font-medium text-foreground">{dimension.dimension}</h4>
+                          <Badge variant="outline" className="text-xs">
+                            {dimension.strategy}
                           </Badge>
-                        ))}
+                        </div>
+
+                        <div className="space-y-3">
+                          <div>
+                            <dt className="text-xs font-medium text-muted-foreground">决策依据</dt>
+                            <dd className="text-xs text-foreground mt-1 leading-relaxed">
+                              {dimension.reasoning}
+                            </dd>
+                          </div>
+
+                          <div>
+                            <dt className="text-xs font-medium text-muted-foreground">策略示例</dt>
+                            <dd className="mt-1 space-y-1">
+                              {dimension.examples.map((example, exampleIndex) => (
+                                <div
+                                  key={exampleIndex}
+                                  className="text-xs text-foreground bg-background/50 p-2 rounded border-l-2 border-primary/30"
+                                >
+                                  {example}
+                                </div>
+                              ))}
+                            </dd>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 配置概览 */}
+                <div>
+                  <dt className="text-sm font-medium text-muted-foreground mb-3">配置概览</dt>
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="text-center p-3 bg-muted/30 rounded-lg">
+                      <div className="text-xs text-muted-foreground">营销方式</div>
+                      <div className="text-sm font-medium mt-1">
+                        {formatActionType(scenario.defaultAIConfig.allowedActionTypes[0])}
                       </div>
                     </div>
-
-                    <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
-                      <div>
-                        <dt className="text-sm font-medium text-foreground">触发时机</dt>
-                        <dd className="text-xs text-muted-foreground">AI决策执行时点</dd>
-                      </div>
-                      <Badge variant="outline" className="text-xs">
+                    <div className="text-center p-3 bg-muted/30 rounded-lg">
+                      <div className="text-xs text-muted-foreground">触发时机</div>
+                      <div className="text-sm font-medium mt-1">
                         {formatTiming(scenario.defaultAIConfig.timingStrategy)}
-                      </Badge>
-                    </div>
-
-                    <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
-                      <div>
-                        <dt className="text-sm font-medium text-foreground">内容生成</dt>
-                        <dd className="text-xs text-muted-foreground">个性化程度设定</dd>
                       </div>
-                      <Badge variant="outline" className="text-xs">
+                    </div>
+                    <div className="text-center p-3 bg-muted/30 rounded-lg">
+                      <div className="text-xs text-muted-foreground">内容生成</div>
+                      <div className="text-sm font-medium mt-1">
                         {formatContentMode(scenario.defaultAIConfig.contentStrategy)}
-                      </Badge>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -427,7 +451,7 @@ const ScenarioConfig = () => {
                   <Bot className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                   <h3 className="text-lg font-medium">暂无自定义规则</h3>
                   <p className="text-muted-foreground mb-4">
-                    创建自定义规则来对特定用户群体进行精准营销
+                    创建自定义规则来对特定用户群体进行���准营销
                   </p>
                   <Button onClick={() => setRuleBuilderOpen(true)}>
                     <Plus className="h-4 w-4 mr-2" />
@@ -631,7 +655,7 @@ const ScenarioConfig = () => {
         </div>
       </div>
 
-      {/* 规则构建器模态框 */}
+      {/* 规��构建器模态框 */}
       <RuleBuilderModal
         open={ruleBuilderOpen}
         onClose={() => {
