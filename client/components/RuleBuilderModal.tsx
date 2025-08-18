@@ -536,9 +536,13 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
                 </AlertDescription>
               </Alert>
 
-              {renderConditionBuilder('event', triggerConditions.eventConditions, '事件属性条件')}
-              {renderConditionBuilder('session', triggerConditions.sessionConditions, '会话属性条件')}
-              {renderConditionBuilder('user', triggerConditions.userConditions, '用户画像条件')}
+              {/* 只显示有可用字段的条件类型 */}
+              {scenario && scenario.availableFields.event.length > 0 &&
+                renderConditionBuilder('event', triggerConditions.eventConditions, '事件属性条件')
+              }
+              {scenario && scenario.availableFields.user.length > 0 &&
+                renderConditionBuilder('user', triggerConditions.userConditions, '用户画像条件')
+              }
             </TabsContent>
 
             <TabsContent value="action" className="space-y-4">
