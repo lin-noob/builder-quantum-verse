@@ -118,7 +118,7 @@ export interface CartItem {
   quantity: number;
   totalPrice: number;
   addedTime: string; // 加入购物车时间
-  lastUpdated: string; // 最后更新时间
+  lastUpdated: string; // 最��更新时间
 }
 
 export const mockUsers: User[] = [
@@ -330,7 +330,7 @@ export const mockUsers: User[] = [
         billingAddress: {
           name: "腾讯科技（深圳）有限公司",
           street: "深圳市南山区科技园南区R4-B栋",
-          city: "深圳",
+          city: "深���",
           state: "广东省",
           postalCode: "518057",
           country: "中国",
@@ -453,7 +453,7 @@ export const mockUsers: User[] = [
   {
     cdpId: "b7c3d8e9-4f2a-1234",
     name: "李明",
-    company: "阿���巴巴",
+    company: "阿里巴巴",
     country: "中国",
     city: "杭州",
     contact: "liming@alibaba.com",
@@ -514,7 +514,7 @@ export const mockUsers: User[] = [
         deviceType: "桌面端",
         os: "macOS 14",
         browser: "Chrome 120",
-        location: "杭州, 中国",
+        location: "杭州, ���国",
         ipAddress: "120.55.162.203",
         events: [
           {
@@ -1416,7 +1416,7 @@ export function getMockUserProfileList(params: UserProfileListParams = {}) {
   const { page = 1, limit = 10, name, body = {} } = params;
   const { keywords, searchtype, sort, order } = body;
 
-  // 生成用户列表
+  // 生成用��列表
   const totalUsers = 1286;
   const allUsers: User[] = [];
 
