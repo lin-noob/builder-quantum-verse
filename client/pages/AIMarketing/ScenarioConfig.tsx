@@ -99,7 +99,7 @@ const ScenarioConfig = () => {
       
       toast({
         title: newState ? "AI自动化已启动" : "AI自动化已暂停",
-        description: `${scenario.scenarioName}场景的自动化营销已${newState ? '启动' : '暂停'}`,
+        description: `${scenario.scenarioName}场景的自动化营销已${newState ? '启动' : '暂���'}`,
       });
     } catch (error) {
       toast({
@@ -188,7 +188,7 @@ const ScenarioConfig = () => {
       setScenario(prev => prev ? { ...prev, overrideRules: scenario.overrideRules } : null);
       toast({
         title: "更新失败",
-        description: "无法调整���则优先级，请重试",
+        description: "无法调整规则优先级，请重试",
         variant: "destructive",
       });
     }
@@ -483,7 +483,7 @@ const ScenarioConfig = () => {
                                     </div>
                                     
                                     <div className="text-xs text-muted-foreground">
-                                      ����发条件：
+                                      触发条件：
                                       {rule.triggerConditions.eventConditions.length > 0 && 
                                         ` 事件属性(${rule.triggerConditions.eventConditions.length})`
                                       }
