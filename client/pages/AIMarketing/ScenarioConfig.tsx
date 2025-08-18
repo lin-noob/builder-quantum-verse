@@ -379,28 +379,17 @@ const ScenarioConfig = () => {
                   </Tabs>
                 </div>
 
-                {/* 配置概览 */}
+                {/* 核心策略 */}
                 <div>
-                  <dt className="text-sm font-medium text-muted-foreground mb-3">配置概览</dt>
-                  <div className="grid grid-cols-3 gap-3">
-                    <div className="text-center p-3 bg-muted/30 rounded-lg">
-                      <div className="text-xs text-muted-foreground">营销方式</div>
-                      <div className="text-sm font-medium mt-1">
-                        {formatActionType(scenario.defaultAIConfig.allowedActionTypes[0])}
+                  <dt className="text-sm font-medium text-muted-foreground mb-3">核心策略</dt>
+                  <div className="flex gap-3 flex-wrap">
+                    {scenario.defaultAIConfig.coreStrategies.map((strategy, index) => (
+                      <div key={index} className="px-3 py-2 bg-primary/10 border border-primary/20 rounded-lg">
+                        <div className="text-sm font-medium text-primary">
+                          {strategy}
+                        </div>
                       </div>
-                    </div>
-                    <div className="text-center p-3 bg-muted/30 rounded-lg">
-                      <div className="text-xs text-muted-foreground">触发时机</div>
-                      <div className="text-sm font-medium mt-1">
-                        {formatTiming(scenario.defaultAIConfig.timingStrategy)}
-                      </div>
-                    </div>
-                    <div className="text-center p-3 bg-muted/30 rounded-lg">
-                      <div className="text-xs text-muted-foreground">内容生成</div>
-                      <div className="text-sm font-medium mt-1">
-                        {formatContentMode(scenario.defaultAIConfig.contentStrategy)}
-                      </div>
-                    </div>
+                    ))}
                   </div>
                 </div>
               </div>
