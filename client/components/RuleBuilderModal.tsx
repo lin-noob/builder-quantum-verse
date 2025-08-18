@@ -102,10 +102,16 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
   useEffect(() => {
     if (open) {
       if (rule) {
-        // 编辑模式
+        // 编辑模式 - 如果是邮件或短信，强制改为弹窗
         setRuleName(rule.ruleName);
         setTriggerConditions(rule.triggerConditions);
-        setResponseAction(rule.responseAction);
+        const actionType = (rule.responseAction.actionType === 'EMAIL' || rule.responseAction.actionType === 'SMS')
+          ? 'POPUP'
+          : rule.responseAction.actionType;
+        setResponseAction({
+          ...rule.responseAction,
+          actionType
+        });
       } else {
         // 创建模式
         setRuleName("");
@@ -272,7 +278,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
       };
 
       if (rule) {
-        // 更新现有规则
+        // ���新现有规则
         await updateOverrideRule(scenario.scenarioId, rule.ruleId, ruleData);
         toast({
           title: "规则已更新",
@@ -501,7 +507,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
-            {rule ? '编��自定义规则' : '创建自定义规则'}
+            {rule ? '编辑自定义规则' : '创建自定义规则'}
           </DialogTitle>
         </DialogHeader>
 
