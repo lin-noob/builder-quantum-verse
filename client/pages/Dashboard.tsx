@@ -38,7 +38,12 @@ export default function Dashboard() {
 				}));
 				setHotTags(mapped);
 			} catch (e) {
-				console.error("热门标签 API 调用失败:", e);
+				// Silently handle API failures in development
+				if (process.env.NODE_ENV === 'development') {
+					console.warn("热门标签 API 不可用，使用默认数据");
+				} else {
+					console.error("热门标签 API 调用失败:", e);
+				}
 				setHotTags([]);
 			}
 		})();
