@@ -503,7 +503,7 @@ export default function TriggerRuleConfigNew({
             <TabsContent value="user" className="space-y-4 mt-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <h4 className="font-medium">用户画像条��</h4>
+                  <h4 className="font-medium">用户画像条件</h4>
                   <Badge variant="outline" className="text-xs">
                     {userConditions.length} 条
                   </Badge>
@@ -557,7 +557,7 @@ export default function TriggerRuleConfigNew({
         <CardContent>
           <div className="space-y-3">
             <div className="flex items-center gap-2">
-              <Badge className="bg-blue-100 text-blue-800">触发事件</Badge>
+              <Badge className="bg-blue-100 text-blue-800">触发事���</Badge>
               <span className="text-sm font-medium">
                 {EVENT_DISPLAY_NAMES[selectedEvent]}
               </span>
