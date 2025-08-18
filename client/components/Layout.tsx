@@ -18,6 +18,7 @@ import {
   Settings,
 } from "lucide-react";
 import TabManager from "./TabManager";
+import { ThemeToggle } from "./ThemeToggle";
 import { authService } from "@/services/authService";
 
 interface LayoutProps {
