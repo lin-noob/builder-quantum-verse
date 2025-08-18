@@ -169,7 +169,7 @@ export default function UserList() {
       console.log("连通性测试响应:", response.status, response.statusText);
       return response.ok;
     } catch (error) {
-      console.error("连通性测试失败:", error);
+      console.error("连通性测试失��:", error);
       return false;
     }
   };
@@ -213,54 +213,6 @@ export default function UserList() {
         requestBody.order = sortConfig.direction;
       }
 
-<<<<<<< HEAD
-      console.log("发送API请��:", {
-        url: "/api/quote/api/v1/profile/list",
-        method: "POST",
-        requestBody,
-        timestamp: new Date().toISOString(),
-      });
-
-      console.log("当前网络状态:", navigator.onLine ? "在线" : "离线");
-      console.log("代理配置目标:", "http://192.168.1.128:8099");
-
-      // 使用通用request方法明确指定POST，增加超时时间并添加重试逻辑
-      let response;
-      let retries = 2;
-
-      while (retries >= 0) {
-        try {
-          console.log(`开始请求尝试 (剩余重试次数: ${retries})`);
-          response = await request.request<{
-            code: string;
-            records: ApiUser[];
-            msg: string;
-            total: number;
-          }>("/quote/api/v1/profile/list", {
-            method: "POST",
-            data: requestBody,
-            timeout: 30000, // 30秒超时
-            headers: {
-              "Content-Type": "application/json",
-            },
-          });
-          console.log("请求成功完成");
-          break; // 成功则跳出重试循环
-        } catch (error) {
-          console.error(`请求尝试失败 (剩余重试次数: ${retries}):`, error);
-          retries--;
-
-          if (retries < 0) {
-            console.error("所有重试尝试都失败，抛出最终错误");
-            throw error; // 重试用完后抛出错误
-          }
-
-          console.log(`等待2秒后进行重试...`);
-          // 等待2秒后重试
-          await new Promise((resolve) => setTimeout(resolve, 2000));
-        }
-      }
-=======
       // 使用通用request方法明确指定POST
       const response = await request.request<{
         code: string;
@@ -274,7 +226,6 @@ export default function UserList() {
           "Content-Type": "application/json",
         },
       });
->>>>>>> refs/remotes/origin/main
 
       // 不管成功失败都显示原始响应，让用户能看到完整信息
       if (response.data.records) {
