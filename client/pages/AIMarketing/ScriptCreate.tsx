@@ -213,7 +213,7 @@ export default function ScriptCreate() {
             {formData.triggerType === "real_time_event" && (
               <div className="space-y-4 border-t pt-4">
                 <div>
-                  <Label>当以下��件发生时</Label>
+                  <Label>当以下事件发生时</Label>
                   <Select
                     value={formData.eventName}
                     onValueChange={(value) =>
