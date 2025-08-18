@@ -124,7 +124,7 @@ export const mockMarketingScripts: MarketingScript[] = [
   {
     id: 'script-001',
     scriptName: '高价商品加购挽留',
-    triggerSummary: '实时事件: 当加入购物车且价格>1000',
+    triggerSummary: '实时事件: 当加入购物���且价格>1000',
     aiAction: 'AI内容生成 (邮件)',
     status: 'active',
     triggerType: 'real_time_event',
@@ -159,7 +159,7 @@ export const mockMarketingScripts: MarketingScript[] = [
   {
     id: 'script-004',
     scriptName: '填写表单后答谢',
-    triggerSummary: '实时事件: 当提交表单且表单名包含"试用申请"',
+    triggerSummary: '实时事件: 当提交表单且表��名包含"试用申请"',
     aiAction: 'AI内容生成 (邮件)',
     status: 'active',
     triggerType: 'real_time_event',
@@ -187,7 +187,7 @@ export const getModeDisplay = (mode: 'fully-auto' | 'semi-auto') => {
 };
 
 export const getModeColor = (mode: 'fully-auto' | 'semi-auto') => {
-  return mode === 'fully-auto' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800';
+  return mode === 'fully-auto' ? 'bg-success-light text-success' : 'bg-info-light text-info';
 };
 
 export const getStatusDisplay = (status: 'generating' | 'executed' | 'revoked') => {
@@ -195,7 +195,7 @@ export const getStatusDisplay = (status: 'generating' | 'executed' | 'revoked') 
     case 'generating':
       return { text: '内容生成中...', color: 'text-orange-600' };
     case 'executed':
-      return { text: '已执行', color: 'text-green-600' };
+      return { text: '已执行', color: 'text-success' };
     case 'revoked':
       return { text: '已撤销', color: 'text-gray-500' };
     default:
@@ -206,7 +206,7 @@ export const getStatusDisplay = (status: 'generating' | 'executed' | 'revoked') 
 export const getScriptStatusDisplay = (status: 'active' | 'paused' | 'draft') => {
   switch (status) {
     case 'active':
-      return { text: '生效中', variant: 'default' as const, color: 'bg-green-100 text-green-800' };
+      return { text: '生效中', variant: 'default' as const, color: 'bg-success-light text-success' };
     case 'paused':
       return { text: '已暂停', variant: 'secondary' as const, color: 'bg-orange-100 text-orange-800' };
     case 'draft':
