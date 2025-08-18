@@ -115,7 +115,7 @@ export const predefinedScenarios: MarketingScenario[] = [
         {
           dimension: '营销方式',
           strategy: '优先使用"网页弹窗"',
-          reasoning: 'AI会优先选择干预性最强、��能实时触达的网页弹窗，以抓住转瞬即逝的挽留机会。',
+          reasoning: 'AI会优先选择干预性���强、最能实时触达的网页弹窗，以抓住转瞬即逝的挽留机会。',
           examples: [
             '桌面端: 可能会选择模态框弹窗，信息更完整。',
             '移动端: 可能会选择更轻量的底部横幅或顶部通知，避免影响体验。'
@@ -136,7 +136,7 @@ export const predefinedScenarios: MarketingScenario[] = [
           reasoning: 'AI会基于触发用户的画像和购物车内容，动态生成最合适的挽留文案。',
           examples: [
             '针对VIP客户: AI可能会生成稀缺性文案，如："尊敬的VIP，您购物车中的限量商品库存仅剩3件。"',
-            '针对新用户: AI可能会生成利��引诱文案，如："新朋友您好！您购物车中的商品可享首单95折优惠。"'
+            '针对新用户: AI可能会���成利益引诱文案，如："新朋友您好！您购物车中的商品可享首单95折优惠。"'
           ]
         }
       ]
@@ -211,7 +211,37 @@ export const predefinedScenarios: MarketingScenario[] = [
       allowedActionTypes: ['POPUP'],
       timingStrategy: 'SMART_DELAY',
       contentStrategy: 'FULLY_GENERATIVE',
-      description: 'AI会根据用户浏览行为和商品特征，生成个性化的推荐或优惠内容'
+      description: 'AI会根据用户浏览行为和商品特征，生成个性化的推荐或优惠内容',
+      strategySummary: '在此场景下，AI的目标是识别用户的兴趣点，通过提供增值信息或适时激励，推动用户从"考虑"进入"决策"阶段（例如加入购物车）。',
+      dimensions: [
+        {
+          dimension: '营销方式',
+          strategy: '优先使用"网页弹窗"',
+          reasoning: '与"加入购物车"场景类似，实时性是关键。AI会选择最适合在当前页面进行即时互动的网页弹窗。',
+          examples: [
+            '信息提供: 可能会使用右下角滑入式通知，提供信息而不打断浏览。',
+            '激励动作: 可能会使用更醒目的居中模态框，确保优惠信息被看到。'
+          ]
+        },
+        {
+          dimension: '营销时机',
+          strategy: '采用"智能延迟"',
+          reasoning: 'AI会基于用户的投入度来决策。核心信号是页面停留时长和滚动深度。',
+          examples: [
+            '深度浏览者: 当用户在商品页停留超过120秒，并滚动到页面底部时，AI判断其兴趣浓厚，可能会触发互动。',
+            '准备离开者: 当用户在商品页停留较长时间后，表现出离开意图，AI会尝试进行挽留。'
+          ]
+        },
+        {
+          dimension: '营销内容',
+          strategy: '进行"价值匹配生成"',
+          reasoning: 'AI会根据商品属性和用户画像，生成最能匹配其潜在需求的内容。',
+          examples: [
+            '针对高价复杂商品: AI可能会提供社会认同信息，如："已有超过5000名用户购买并给出了98%的好评。"',
+            '针对有配件的商品: AI可能会进行交叉销售推荐，如："别忘了搭配专用清洁套装，组合购买可享优惠。"'
+          ]
+        }
+      ]
     },
     overrideRules: [],
     availableFields: {
@@ -316,7 +346,7 @@ export const updateMarketingScenario = (scenarioId: string, updates: Partial<Mar
   });
 };
 
-// 添加自定义规则
+// 添加自定义��则
 export const addOverrideRule = (scenarioId: string, rule: Omit<OverrideRule, 'ruleId' | 'createdAt' | 'updatedAt'>): Promise<string> => {
   return new Promise((resolve) => {
     setTimeout(() => {
