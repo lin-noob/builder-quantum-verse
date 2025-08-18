@@ -100,7 +100,7 @@ export interface MarketingScenario {
 export const predefinedScenarios: MarketingScenario[] = [
   {
     scenarioId: 'add_to_cart',
-    scenarioName: '加��购物车',
+    scenarioName: '加入购物车',
     isAIEnabled: true,
     businessValue: '捕获强购买意向，进行交叉销售或挽留',
     createdAt: '2024-01-10T10:00:00Z',
@@ -109,7 +109,37 @@ export const predefinedScenarios: MarketingScenario[] = [
       allowedActionTypes: ['POPUP'],
       timingStrategy: 'SMART_DELAY',
       contentStrategy: 'FULLY_GENERATIVE',
-      description: 'AI将根据用户画像、购物车商品等信息，自主生成最合适的挽留或激励文案'
+      description: 'AI将根据用户画像、购物车商品等信息，自主生成最合适的挽留或激励文案',
+      strategySummary: '在此场景下，AI的目标是在用户犹豫或准备离开时进行精准挽留，以提升订单转化率。',
+      dimensions: [
+        {
+          dimension: '营销方式',
+          strategy: '优先使用"网页弹窗"',
+          reasoning: 'AI会优先选择干预性最强、��能实时触达的网页弹窗，以抓住转瞬即逝的挽留机会。',
+          examples: [
+            '桌面端: 可能会选择模态框弹窗，信息更完整。',
+            '移动端: 可能会选择更轻量的底部横幅或顶部通知，避免影响体验。'
+          ]
+        },
+        {
+          dimension: '营销时机',
+          strategy: '采用"智能延迟"',
+          reasoning: 'AI不会在用户加购的瞬间立即打扰，而是会持续分析后续行为。只有当用户表现出离开意图（如鼠标快速移向关闭按钮）或长时间无操作时，才会触发。',
+          examples: [
+            '高意图用户: 若用户加购后仍在活跃浏览，AI会保持静默。',
+            '犹豫用户: 若用户加购后在页面停留超过90秒且无任何点击，AI会判断其为犹豫，并主动介入。'
+          ]
+        },
+        {
+          dimension: '营销内容',
+          strategy: '进行"个性化生成"',
+          reasoning: 'AI会基于触发用户的画像和购物车内容，动态生成最合适的挽留文案。',
+          examples: [
+            '针对VIP客户: AI可能会生成稀缺性文案，如："尊敬的VIP，您购物车中的限量商品库存仅剩3件。"',
+            '针对新用户: AI可能会生成利��引诱文案，如："新朋友您好！您购物车中的商品可享首单95折优惠。"'
+          ]
+        }
+      ]
     },
     overrideRules: [
       {
@@ -246,7 +276,7 @@ export const predefinedScenarios: MarketingScenario[] = [
         { field: 'tag', label: '用户标签', type: 'string' },
         { field: 'user_segment', label: '用户分层', type: 'string' },
         { field: 'last_purchase_days', label: '距上次购买天数', type: 'number' },
-        { field: 'total_spend', label: '累���消费', type: 'number' }
+        { field: 'total_spend', label: '累计消费', type: 'number' }
       ]
     }
   }
