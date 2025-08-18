@@ -58,7 +58,7 @@ export default function FullyAuto() {
       setCustomRuleDialog(false);
       
       toast({
-        title: '规则添加���功',
+        title: '规则添加成功',
         description: '自定义筛选规则已添加到应用范围'
       });
     }
@@ -107,7 +107,7 @@ export default function FullyAuto() {
     
     toast({
       title: '边界设置已更新',
-      description: '行为边界配置已保存'
+      description: '行为边界���置已保存'
     });
   };
 
