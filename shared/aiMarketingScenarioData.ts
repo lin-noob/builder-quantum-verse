@@ -110,7 +110,7 @@ export const predefinedScenarios: MarketingScenario[] = [
       allowedActionTypes: ['POPUP'],
       timingStrategy: 'SMART_DELAY',
       contentStrategy: 'FULLY_GENERATIVE',
-      description: 'AI将根据用��画像、购物车商品等信息，自主生成最合适的挽留或激励文案',
+      description: 'AI将根据用户画像、购物车商品等信息，自主生成最合适的挽留或激励文案',
       strategySummary: '在用户犹豫或准备离开时进行精准挽留，提升订单转化率。',
       coreStrategies: ['网页弹窗', '智能延迟', '个性化生成'],
       dimensions: [
@@ -129,7 +129,7 @@ export const predefinedScenarios: MarketingScenario[] = [
           reasoning: 'AI不会在用户加购的瞬间立即打扰，而是会持续分析后续行为。只有当用户表现出离开意图（如鼠标快速移向关闭按钮）或长时间无操作时，才会触发。',
           examples: [
             '高意图用户: 若用户加购后仍在活跃浏览，AI会保持静默。',
-            '犹豫用户: 若用户加购后在页面停留超过90秒且无任何点击，AI会判断其为犹豫，并主动介入。'
+            '犹豫用户: 若用户加购后在页面停留超过90秒且无任何点击，AI会判断其��犹豫，并主动介入。'
           ]
         },
         {
@@ -206,7 +206,7 @@ export const predefinedScenarios: MarketingScenario[] = [
     scenarioId: 'view_product',
     scenarioName: '查看商品',
     isAIEnabled: true,
-    businessValue: '用户��特定商品产生兴趣，适合提供信息或激励',
+    businessValue: '用户对特定商品产生兴趣，适合提供信息或激励',
     createdAt: '2024-01-08T09:00:00Z',
     updatedAt: '2024-01-12T16:45:00Z',
     defaultAIConfig: {
@@ -229,7 +229,7 @@ export const predefinedScenarios: MarketingScenario[] = [
         {
           dimension: '营销时机',
           strategy: '采用"智能延迟"',
-          reasoning: 'AI会基于用户的投入度来决策。核心信号是页面停留时长和滚动深度。',
+          reasoning: 'AI会基于用户的投入度来决策。核心信号是页面停���时长和滚动深度。',
           examples: [
             '深度浏览者: 当用户在商品页停留超过120秒，并滚动到页面底部时，AI判断其兴趣浓厚，可能会触发互动。',
             '准备离开者: 当用户在商品页停留较长时间后，表现出离开意图，AI会尝试进行挽留。'
@@ -283,7 +283,7 @@ export const predefinedScenarios: MarketingScenario[] = [
           strategy: '采用"组合拳"',
           reasoning: 'AI会结合使用多种方式。首先通过网页弹窗给予即时反馈，然后在短时间内通过发送邮件提供更详细的引导，以覆盖不同场景。',
           examples: [
-            '即时反馈: 用户注册成功后，立即在当前页弹出欢迎弹窗。',
+            '即时反馈: 用户注册成功后，立即在当���页弹出欢迎弹窗。',
             '后续跟进: 5分钟后，自动发送一封欢迎邮件到用户的注册邮箱。'
           ]
         },
@@ -328,7 +328,7 @@ export const predefinedScenarios: MarketingScenario[] = [
       allowedActionTypes: ['POPUP'],
       timingStrategy: 'IMMEDIATE',
       contentStrategy: 'FULLY_GENERATIVE',
-      description: 'AI会根据用户的分层、距上次购买时间等，��成不同类型的个性化问候',
+      description: 'AI会根据用户的分层、距上次购买时间等，生成不同类型的个性化问候',
       strategySummary: '为回访用户提供个性化体验，提升用户粘性与复购。',
       coreStrategies: ['网页弹窗', '立即触发', '身份感知生成'],
       dimensions: [
@@ -458,7 +458,7 @@ export const updateOverrideRule = (scenarioId: string, ruleId: string, updates: 
   });
 };
 
-// 删除自定义规则
+// 删��自定义规则
 export const deleteOverrideRule = (scenarioId: string, ruleId: string): Promise<boolean> => {
   return new Promise((resolve) => {
     setTimeout(() => {
