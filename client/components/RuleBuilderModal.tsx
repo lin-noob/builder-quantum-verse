@@ -102,7 +102,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
   useEffect(() => {
     if (open) {
       if (rule) {
-        // 编辑���式 - 如果是邮件或短信，强制改为弹窗
+        // 编辑模式 - 如果是邮件或短信，强制改为弹窗
         setRuleName(rule.ruleName);
         setTriggerConditions(rule.triggerConditions);
         const actionType = (rule.responseAction.actionType === 'EMAIL' || rule.responseAction.actionType === 'SMS')
@@ -204,7 +204,6 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
     // 检查所有条件是否填写完整
     const allConditions = [
       ...triggerConditions.eventConditions,
-      ...triggerConditions.sessionConditions,
       ...triggerConditions.userConditions
     ];
 
@@ -233,7 +232,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
       } else if (responseAction.actionType === 'EMAIL') {
         if (!responseAction.actionConfig.subject || !responseAction.actionConfig.emailBody) {
           toast({
-            title: "请填写邮件主题和内容",
+            title: "请填写邮件主题和��容",
             variant: "destructive",
           });
           setCurrentTab("action");
@@ -328,7 +327,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
               className="h-8 px-3 text-xs"
             >
               <Plus className="h-3 w-3 mr-1" />
-              ��加条件
+              添加条件
             </Button>
           </div>
         </CardHeader>
@@ -543,7 +542,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
                 </AlertDescription>
               </Alert>
 
-              {/* 只显示有可用字段的条件类型 */}
+              {/* 只显示有可用字段的条件��型 */}
               {scenario && scenario.availableFields.event.length > 0 &&
                 renderConditionBuilder('event', triggerConditions.eventConditions, '事件属性条件')
               }
