@@ -110,8 +110,8 @@ export const predefinedScenarios: MarketingScenario[] = [
       allowedActionTypes: ['POPUP'],
       timingStrategy: 'SMART_DELAY',
       contentStrategy: 'FULLY_GENERATIVE',
-      description: 'AI将根据用户画像、购物车商品等信息，自主生成最合适的挽留或激励文案',
-      strategySummary: '在���户犹豫或准备离开时进行精准挽留，提升订单转化率。',
+      description: 'AI��根据用户画像、购物车商品等信息，自主生成最合适的挽留或激励文案',
+      strategySummary: '在用户犹豫或准备离开时进行精准挽留，提升订单转化率。',
       coreStrategies: ['网页弹窗', '智能延迟', '个性化生成'],
       dimensions: [
         {
