@@ -231,7 +231,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
       } else if (responseAction.actionType === 'EMAIL') {
         if (!responseAction.actionConfig.subject || !responseAction.actionConfig.emailBody) {
           toast({
-            title: "请填写邮件主题和��容",
+            title: "请填写邮件主题和内容",
             variant: "destructive",
           });
           setCurrentTab("action");
