@@ -104,7 +104,7 @@ const ScenarioConfig = () => {
     } catch (error) {
       toast({
         title: "操作失败",
-        description: "无法更新AI开关状态，请重试",
+        description: "无��更新AI开关状态，请重试",
         variant: "destructive",
       });
     }
@@ -601,7 +601,7 @@ const ScenarioConfig = () => {
         </div>
       </div>
 
-      {/* 规��构建器模态框 */}
+      {/* 规则构建器模态框 */}
       <RuleBuilderModal
         open={ruleBuilderOpen}
         onClose={() => {
