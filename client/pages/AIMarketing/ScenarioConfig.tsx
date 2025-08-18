@@ -302,10 +302,16 @@ const ScenarioConfig = () => {
           {/* AI工作原理 */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                <Bot className="h-5 w-5 text-primary" />
-                AI全自动营销
-              </CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                  <Bot className="h-5 w-5 text-primary" />
+                  AI全自动营销
+                </CardTitle>
+                <Switch
+                  checked={scenario.isAIEnabled}
+                  onCheckedChange={handleAIToggle}
+                />
+              </div>
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
