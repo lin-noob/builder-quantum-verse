@@ -144,7 +144,7 @@ export const mockUsers: User[] = [
       {
         id: "session-1",
         date: "2024-01-22 09:15",
-        summary: "查���新产品发布和价格对比",
+        summary: "查看新产品发布和价格对比",
         source: "邮件链接",
         deviceType: "桌面端",
         os: "Windows 11",
@@ -252,7 +252,7 @@ export const mockUsers: User[] = [
           },
           {
             timestamp: "16:48:30",
-            eventType: "页面访问",
+            eventType: "���面访问",
             pageTitle: "API文档",
             pageUrl: "/docs/api",
             stayDuration: "12分15秒",
@@ -271,7 +271,7 @@ export const mockUsers: User[] = [
       {
         id: "session-4",
         date: "2024-01-08 11:20",
-        summary: "���户管理和历史订单查看",
+        summary: "用户管理和历史订单查看",
         source: "直接访问",
         deviceType: "桌面端",
         os: "Windows 11",
@@ -357,9 +357,9 @@ export const mockUsers: User[] = [
         paymentMethod: "支付宝",
         shippingAddress: {
           name: "张伟",
-          street: "深圳市南山区科技园���区R4-B栋20层",
+          street: "深圳市南山区科技园高新区R4-B栋20层",
           city: "深圳",
-          state: "广东��",
+          state: "广东省",
           postalCode: "518057",
           country: "中国",
           phone: "13800138000",
@@ -381,7 +381,7 @@ export const mockUsers: User[] = [
             totalPrice: 2800.0,
           },
           {
-            productName: "技术支持服务",
+            productName: "技术支持服���",
             unitPrice: 480.5,
             quantity: 1,
             totalPrice: 480.5,
@@ -1205,7 +1205,7 @@ export const mockUsers: User[] = [
     lastPurchaseDate: "2024-01-18",
     maxOrderAmount: 7200.0,
     averagePurchaseCycle: 30,
-    tags: ["企业用户", "���术导向"],
+    tags: ["企业用户", "技术导向"],
     firstVisitTime: "2023-07-12 10:20:15",
     registrationTime: "2023-07-15 14:35:45",
     firstPurchaseTime: "2023-07-22 16:50:30",
