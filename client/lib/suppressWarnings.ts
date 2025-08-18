@@ -49,4 +49,5 @@ if (typeof console !== "undefined" && typeof window !== "undefined") {
   };
 }
 
-export {};
+// This file only sets up console warning suppression
+// No exports needed
