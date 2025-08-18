@@ -300,7 +300,7 @@ const ScenarioConfig = () => {
             <CardContent>
               <dl className="grid grid-cols-2 gap-4">
                 <div>
-                  <dt className="text-sm font-medium text-muted-foreground">��景名称</dt>
+                  <dt className="text-sm font-medium text-muted-foreground">场景名称</dt>
                   <dd className="mt-1 text-sm font-medium">{scenario.scenarioName}</dd>
                 </div>
                 <div>
@@ -351,7 +351,7 @@ const ScenarioConfig = () => {
             <CardHeader>
               <CardTitle className="text-lg font-semibold flex items-center gap-2">
                 <Bot className="h-5 w-5 text-primary" />
-                AI全自动��销
+                AI全自动营销
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -374,7 +374,7 @@ const ScenarioConfig = () => {
                     <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
                       <div>
                         <dt className="text-sm font-medium text-foreground">营销方式</dt>
-                        <dd className="text-xs text-muted-foreground">支持的触达渠��</dd>
+                        <dd className="text-xs text-muted-foreground">支持的触达渠道</dd>
                       </div>
                       <div className="flex gap-1 flex-wrap">
                         {scenario.defaultAIConfig.allowedActionTypes.map((type) => (
@@ -398,7 +398,7 @@ const ScenarioConfig = () => {
                     <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
                       <div>
                         <dt className="text-sm font-medium text-foreground">内容生成</dt>
-                        <dd className="text-xs text-muted-foreground">个性化程度���定</dd>
+                        <dd className="text-xs text-muted-foreground">个性化程度设定</dd>
                       </div>
                       <Badge variant="outline" className="text-xs">
                         {formatContentMode(scenario.defaultAIConfig.contentStrategy)}
