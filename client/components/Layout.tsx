@@ -59,7 +59,7 @@ export default function Layout({ children }: LayoutProps) {
     },
     {
       id: "fully-auto",
-      label: "全自动营销",
+      label: "全���动营销",
       path: "/ai-marketing/fully-auto",
       icon: <Bot className="h-5 w-5" />,
     },
@@ -134,16 +134,19 @@ export default function Layout({ children }: LayoutProps) {
           </div>
           <span className="text-xl font-bold text-gray-900">AI营销平台</span>
         </div>
-        <button
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="p-2 rounded-lg text-gray-600 hover:bg-gray-100"
-        >
-          {isMobileMenuOpen ? (
-            <X className="h-5 w-5" />
-          ) : (
-            <Menu className="h-5 w-5" />
-          )}
-        </button>
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="p-2 rounded-lg text-gray-600 hover:bg-gray-100"
+          >
+            {isMobileMenuOpen ? (
+              <X className="h-5 w-5" />
+            ) : (
+              <Menu className="h-5 w-5" />
+            )}
+          </button>
+        </div>
       </div>
 
       {/* Mobile Menu Overlay */}
