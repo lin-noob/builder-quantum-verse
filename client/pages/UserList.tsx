@@ -49,10 +49,12 @@ interface ApiUser {
   loginDate: string;
   location: string;
   shopid: string;
+  currencySymbol: string;
 }
 
 // 转换为UI需要的用户格式
 interface User {
+  id: string;
   cdpId: string;
   name: string;
   company: string;
@@ -62,6 +64,7 @@ interface User {
   firstPurchaseTime: string;
   lastActiveTime: string;
   totalSpent: number;
+  currency: string;
 }
 
 interface OrderSummaryDto {
@@ -104,6 +107,7 @@ export default function UserList() {
   // 转换API用户数据为UI格式
   const convertApiUserToUser = (apiUser: ApiUser): User => {
     return {
+      id: apiUser.id || "",
       cdpId: apiUser.cdpUserId.toString(),
       name: apiUser.fullName || "",
       company: apiUser.companyName || "",
@@ -113,6 +117,7 @@ export default function UserList() {
       firstPurchaseTime: apiUser.minBuyTime || "",
       lastActiveTime: apiUser.loginDate || "",
       totalSpent: apiUser.totalOrders || 0,
+      currency: apiUser.currencySymbol || "",
     };
   };
 
@@ -208,6 +213,7 @@ export default function UserList() {
         requestBody.order = sortConfig.direction;
       }
 
+<<<<<<< HEAD
       console.log("发送API请��:", {
         url: "/api/quote/api/v1/profile/list",
         method: "POST",
@@ -254,6 +260,21 @@ export default function UserList() {
           await new Promise((resolve) => setTimeout(resolve, 2000));
         }
       }
+=======
+      // 使用通用request方法明确指定POST
+      const response = await request.request<{
+        code: string;
+        records: ApiUser[];
+        msg: string;
+        total: number;
+      }>("/quote/api/v1/profile/list", {
+        method: "POST",
+        data: requestBody,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+>>>>>>> refs/remotes/origin/main
 
       // 不管成功失败都显示原始响应，让用户能看到完整信息
       if (response.data.records) {
@@ -387,12 +408,8 @@ export default function UserList() {
   const endIndex = Math.min(startIndex + itemsPerPage, totalCount);
   const currentUsers = users; // API已经返回了当前页的数据
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      minimumFractionDigits: 2,
-    }).format(amount);
+  const formatCurrency = (amount: number, currency: string) => {
+    return currency + amount;
   };
 
   const handleDateRangeChange = (range: DateRange) => {
@@ -619,11 +636,11 @@ export default function UserList() {
                         {formatDateTime(user.lastActiveTime || "")}
                       </td>
                       <td className="px-6 py-4 text-sm font-semibold text-gray-900">
-                        {formatCurrency(user.totalSpent || 0)}
+                        {formatCurrency(user.totalSpent || 0, user.currency)}
                       </td>
                       <td className="px-6 py-4">
                         <Link
-                          to={`/users/${user.cdpId || user.id}`}
+                          to={`/users/${user.id}`}
                           className="text-blue-600 hover:text-blue-800 text-sm font-medium"
                         >
                           查看��情

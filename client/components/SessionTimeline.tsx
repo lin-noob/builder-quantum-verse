@@ -1,320 +1,280 @@
-import { useEffect } from "react";
+import { useEffect, useState, useCallback } from "react";
+import { Button } from "@/components/ui/button";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  getUserEventList,
+  type ApiEvent,
+  type ApiEventListResponse,
+} from "@/lib/profile";
 
-// 会话数据结构
-const sessionsData = [
-  {
-    sessionId: "session-1",
-    session_start_time: "2025-08-05 14:30:15",
-    source_info: "Google搜索",
-    device_type: "桌面端",
-    os: "macOS",
-    browser: "Chrome",
-    location: "上海市",
-    ip_address: "116.228.***.***",
-    session_duration: "25分钟",
-    event_count: 3,
-    events: [
-      {
-        event_time: "14:30:15",
-        event_type: "page_view",
-        page_title: "首页 - 我们的网站",
-        page_url: "/",
-        page_dwell_time: "1分20秒",
-        page_scroll_depth: "85%",
-      },
-      {
-        event_time: "14:31:35",
-        event_type: "page_view",
-        page_title: "产品列表 - 电子产品",
-        page_url: "/products",
-        page_dwell_time: "5分10秒",
-        page_scroll_depth: "100%",
-      },
-      {
-        event_time: "14:36:45",
-        event_type: "add_to_cart",
-        page_title: '将"ProBook X1"加入购物车',
-        page_url: "/products/probook-x1",
-        page_dwell_time: "N/A",
-        page_scroll_depth: "N/A",
-      },
-    ],
-  },
-  {
-    sessionId: "session-2",
-    session_start_time: "2025-08-01 10:05:30",
-    source_info: "直接访问",
-    device_type: "移动端",
-    os: "iOS",
-    browser: "Safari",
-    location: "上海市",
-    ip_address: "116.228.***.***",
-    session_duration: "13分钟",
-    event_count: 4,
-    events: [
-      {
-        event_time: "10:05:30",
-        event_type: "page_view",
-        page_title: "购物车",
-        page_url: "/cart",
-        page_dwell_time: "3分",
-        page_scroll_depth: "60%",
-      },
-      {
-        event_time: "10:08:30",
-        event_type: "start_checkout",
-        page_title: "开始结账流程",
-        page_url: "/checkout",
-        page_dwell_time: "N/A",
-        page_scroll_depth: "N/A",
-      },
-      {
-        event_time: "10:12:00",
-        event_type: "page_view",
-        page_title: "支付页面",
-        page_url: "/checkout/pay",
-        page_dwell_time: "3分",
-        page_scroll_depth: "100%",
-      },
-      {
-        event_time: "10:15:00",
-        event_type: "purchase",
-        page_title: "完成订单 ORD-20250801-001",
-        page_url: "/thank-you",
-        page_dwell_time: "N/A",
-        page_scroll_depth: "N/A",
-      },
-    ],
-  },
-  {
-    sessionId: "session-3",
-    session_start_time: "2025-07-20 09:15:00",
-    source_info: "邮件营销",
-    device_type: "桌面端",
-    os: "Windows",
-    browser: "Edge",
-    location: "北京市",
-    ip_address: "220.181.***.***",
-    session_duration: "5分钟",
-    event_count: 1,
-    events: [
-      {
-        event_time: "09:15:00",
-        event_type: "page_view",
-        page_title: "夏季促销活动页",
-        page_url: "/promo/summer-sale",
-        page_dwell_time: "5分钟",
-        page_scroll_depth: "95%",
-      },
-    ],
-  },
-];
+// Event types mapping
+type EventType = "PageView" | "PageLeave" | "ScrollDepth" | "Click";
 
-export default function SessionTimeline() {
+// Parsed event data structure
+interface ParsedEventData {
+  id: string;
+  eventTime: string;
+  eventType: EventType;
+  source: string;
+  deviceType: string;
+  pageTitle: string;
+  pageURL: string;
+  browser?: string;
+  os?: string;
+  dwellTimeMs?: number;
+  maxScrollDepth?: number;
+  maxDepthPercent?: number;
+  elementTag?: string;
+  elementText?: string;
+  referrer?: string;
+}
+export default function SessionTimeline({ cdpUserId }: { cdpUserId: string }) {
+  const [loading, setLoading] = useState(false);
+  const [eventData, setEventData] = useState<ApiEventListResponse | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [selectedEvent, setSelectedEvent] = useState<ParsedEventData | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const pageSize = 10;
+
+  // Parse properties JSON string to extract event details
+  const parseEventProperties = (propertiesStr: string): any => {
+    try {
+      return JSON.parse(propertiesStr);
+    } catch (error) {
+      console.error('Failed to parse event properties:', error);
+      return {};
+    }
+  };
+
+  // Convert API event to parsed event data
+  const convertEventToData = (event: ApiEvent): ParsedEventData => {
+    const properties = parseEventProperties(event.properties);
+
+    return {
+      id: event.id,
+      eventTime: event.gmtCreate,
+      eventType: event.eventName as EventType,
+      source: properties.source || '',
+      deviceType: properties.deviceType || '',
+      pageTitle: properties.pageTitle || '',
+      pageURL: properties.pageURL || '',
+      browser: properties.browser || '',
+      os: properties.os || '',
+      dwellTimeMs: properties.dwellTimeMs,
+      maxScrollDepth: properties.maxScrollDepth,
+      maxDepthPercent: properties.maxDepthPercent,
+      elementTag: properties.elementTag,
+      elementText: properties.elementText,
+      referrer: properties.referrer,
+    };
+  };
+
+  // Fetch event data
+  const fetchEventData = useCallback(
+    async (page: number) => {
+      if (!cdpUserId) return;
+
+      setLoading(true);
+      try {
+        const data = await getUserEventList(cdpUserId, page, pageSize, 2); // 2 for behavior data
+        setEventData(data);
+      } catch (error) {
+        console.error("Failed to fetch event data:", error);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [cdpUserId, pageSize],
+  );
+
+  // Load data on component mount and page change
   useEffect(() => {
-    // 初始化会话列表
-    renderSessionList();
+    fetchEventData(currentPage);
+  }, [fetchEventData, currentPage]);
 
-    // 添加事件监听器
-    setupEventListeners();
-
-    return () => {
-      // 清理事件监听器
-      const tbody = document.getElementById("session-list-body");
-      const closeBtn = document.getElementById("close-modal-btn");
-      const modal = document.getElementById("session-detail-modal");
-
-      if (tbody) {
-        tbody.removeEventListener("click", handleRowClick);
-      }
-      if (closeBtn) {
-        closeBtn.removeEventListener("click", closeModal);
-      }
-      if (modal) {
-        modal.removeEventListener("click", handleModalBackgroundClick);
-      }
-    };
-  }, []);
-
-  const getEventTypeBadge = (eventType: string) => {
-    const badgeClass =
-      "px-2 py-0.5 text-xs font-medium bg-slate-200 text-slate-700 rounded-full";
-    const typeMap: { [key: string]: string } = {
-      page_view: "页面浏览",
-      add_to_cart: "加入购物车",
-      start_checkout: "开始结账",
-      purchase: "完成购买",
-    };
-    return `<span class="${badgeClass}">${typeMap[eventType] || eventType}</span>`;
+  // Handle page change
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
   };
 
-  const renderSessionList = () => {
-    const tbody = document.getElementById("session-list-body");
-    if (!tbody) return;
-
-    tbody.innerHTML = sessionsData
-      .map(
-        (session) => `
-      <tr class="hover:bg-slate-50 cursor-pointer" data-session-id="${session.sessionId}">
-        <td class="p-3 text-slate-900 font-medium">${session.session_start_time}</td>
-        <td class="p-3 text-slate-600">${session.source_info}</td>
-        <td class="p-3 text-slate-600">${session.device_type}</td>
-        <td class="p-3 text-slate-600">${session.session_duration}</td>
-        <td class="p-3 text-center text-slate-600">${session.event_count}</td>
-        <td class="p-3 text-slate-600">${session.location}</td>
-      </tr>
-    `,
-      )
-      .join("");
+  // Handle row click to show event details
+  const handleRowClick = (event: ApiEvent) => {
+    const eventData = convertEventToData(event);
+    setSelectedEvent(eventData);
+    setIsModalOpen(true);
   };
 
-  const handleRowClick = (e: Event) => {
-    const row = (e.target as Element).closest("tr");
-    if (!row) return;
-
-    const sessionId = row.getAttribute("data-session-id");
-    if (!sessionId) return;
-
-    const sessionData = sessionsData.find(
-      (session) => session.sessionId === sessionId,
-    );
-    if (!sessionData) return;
-
-    populateModal(sessionData);
-    openModal();
-  };
-
-  const populateModal = (session: any) => {
-    // 填充访问概览
-    const modalSessionSummary = document.getElementById(
-      "modal-session-summary",
-    );
-    if (modalSessionSummary) {
-      modalSessionSummary.innerHTML = `
-        <div>
-          <div class="text-xs text-slate-500">会话开始时间</div>
-          <div class="font-medium text-slate-900">${session.session_start_time}</div>
-        </div>
-        <div>
-          <div class="text-xs text-slate-500">访问来源</div>
-          <div class="font-medium text-slate-900">${session.source_info}</div>
-        </div>
-        <div>
-          <div class="text-xs text-slate-500">设备信息</div>
-          <div class="font-medium text-slate-900">${session.device_type} (${session.os}, ${session.browser})</div>
-        </div>
-        <div>
-          <div class="text-xs text-slate-500">位置 & IP</div>
-          <div class="font-medium text-slate-900">${session.location}, ${session.ip_address}</div>
-        </div>
-        <div>
-          <div class="text-xs text-slate-500">会话时长</div>
-          <div class="font-medium text-slate-900">${session.session_duration}</div>
-        </div>
-        <div>
-          <div class="text-xs text-slate-500">事件总数</div>
-          <div class="font-medium text-slate-900">${session.event_count} 个事件</div>
-        </div>
-      `;
-    }
-
-    // 填充事件时间线
-    const modalEventTimeline = document.getElementById("modal-event-timeline");
-    if (modalEventTimeline) {
-      modalEventTimeline.innerHTML = session.events
-        .map(
-          (event: any) => `
-        <tr>
-          <td class="p-3 text-slate-900 font-medium">${event.event_time}</td>
-          <td class="p-3">${getEventTypeBadge(event.event_type)}</td>
-          <td class="p-3 text-slate-900">
-            <div class="font-medium">${event.page_title}</div>
-            <div class="text-xs text-slate-500 mt-1">${event.page_url}</div>
-          </td>
-          <td class="p-3 text-slate-600">${event.page_dwell_time}</td>
-          <td class="p-3 text-slate-600">${event.page_scroll_depth}</td>
-        </tr>
-      `,
-        )
-        .join("");
-    }
-  };
-
-  const openModal = () => {
-    const modal = document.getElementById("session-detail-modal");
-    if (modal) {
-      modal.classList.remove("hidden");
-      document.body.style.overflow = "hidden";
-    }
-  };
-
+  // Close modal
   const closeModal = () => {
-    const modal = document.getElementById("session-detail-modal");
-    if (modal) {
-      modal.classList.add("hidden");
-      document.body.style.overflow = "";
-    }
+    setIsModalOpen(false);
+    setSelectedEvent(null);
   };
 
-  const handleModalBackgroundClick = (e: Event) => {
-    if (e.target === e.currentTarget) {
-      closeModal();
+  // Get event type badge component
+  const getEventTypeBadge = (eventType: EventType) => {
+    let bgColor = "bg-slate-100";
+    let textColor = "text-slate-800";
+    let displayName: string = eventType;
+
+    switch (eventType) {
+      case "PageView":
+        bgColor = "bg-blue-100";
+        textColor = "text-blue-800";
+        displayName = "页面浏览";
+        break;
+      case "PageLeave":
+        bgColor = "bg-orange-100";
+        textColor = "text-orange-800";
+        displayName = "页面离开";
+        break;
+      case "ScrollDepth":
+        bgColor = "bg-green-100";
+        textColor = "text-green-800";
+        displayName = "滚动深度";
+        break;
+      case "Click":
+        bgColor = "bg-purple-100";
+        textColor = "text-purple-800";
+        displayName = "点击事件";
+        break;
     }
+
+    return (
+      <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${bgColor} ${textColor}`}>
+        {displayName}
+      </span>
+    );
   };
 
-  const setupEventListeners = () => {
-    const tbody = document.getElementById("session-list-body");
-    const closeBtn = document.getElementById("close-modal-btn");
-    const modal = document.getElementById("session-detail-modal");
+  // Format dwell time from milliseconds
+  const formatDwellTime = (dwellTimeMs?: number): string => {
+    if (!dwellTimeMs) return 'N/A';
+    const seconds = Math.floor(dwellTimeMs / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
 
-    if (tbody) {
-      tbody.addEventListener("click", handleRowClick);
+    if (minutes > 0) {
+      return `${minutes}分${remainingSeconds}秒`;
     }
-
-    if (closeBtn) {
-      closeBtn.addEventListener("click", closeModal);
-    }
-
-    if (modal) {
-      modal.addEventListener("click", handleModalBackgroundClick);
-    }
-
-    // ESC键关闭模态框
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") {
-        closeModal();
-      }
-    });
+    return `${remainingSeconds}秒`;
   };
+
+  // Calculate pagination info
+  const totalPages = eventData ? Math.ceil(eventData.total / pageSize) : 0;
+  const startItem = (currentPage - 1) * pageSize + 1;
+  const endItem = Math.min(currentPage * pageSize, eventData?.total || 0);
+
+  if (loading) {
+    return (
+      <div className="bg-white p-6 rounded-lg shadow-sm">
+        <h3 className="text-lg font-semibold text-slate-900 mb-4">访问与行为时间线</h3>
+        <div className="flex items-center justify-center py-8">
+          <div className="text-slate-500">加载中...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!eventData || eventData.records.length === 0) {
+    return (
+      <div className="bg-white p-6 rounded-lg shadow-sm">
+        <h3 className="text-lg font-semibold text-slate-900 mb-4">访问与行为时间线</h3>
+        <div className="flex items-center justify-center py-8">
+          <div className="text-slate-500">暂无行为数据</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
-      {/* 会话概览列表 */}
+      {/* 行为事件列表 */}
       <div className="bg-white p-6 rounded-lg shadow-sm font-[Inter]">
-        <h3 className="text-lg font-semibold text-slate-900 mb-4">
-          访问与行为时间线
-        </h3>
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-semibold text-slate-900">访问与行为时间线</h3>
+          <div className="text-sm text-slate-500">
+            共 {eventData.total} 条记录，显示第 {startItem}-{endItem} 条
+          </div>
+        </div>
 
         {/* 数据表格 */}
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
             <thead className="bg-slate-50 text-slate-500">
               <tr>
-                <th className="p-3 font-medium">访问时间</th>
+                <th className="p-3 font-medium">事件时间</th>
                 <th className="p-3 font-medium">来源</th>
-                <th className="p-3 font-medium">设备</th>
-                <th className="p-3 font-medium">会话时长</th>
-                <th className="p-3 font-medium text-center">事件数</th>
-                <th className="p-3 font-medium">位置</th>
+                <th className="p-3 font-medium">设备类型</th>
+                <th className="p-3 font-medium">事件类型</th>
+                <th className="p-3 font-medium">页面URL</th>
+                <th className="p-3 font-medium">页面标题</th>
               </tr>
             </thead>
-            <tbody id="session-list-body" className="divide-y divide-slate-200">
-              {/* 会话行将由 JavaScript 渲染 */}
+            <tbody className="divide-y divide-slate-200">
+              {eventData.records.map((event) => {
+                const eventData = convertEventToData(event);
+                return (
+                  <tr
+                    key={event.id}
+                    className="hover:bg-slate-50 cursor-pointer"
+                    onClick={() => handleRowClick(event)}
+                  >
+                    <td className="p-3 text-slate-900 font-medium">
+                      {eventData.eventTime}
+                    </td>
+                    <td className="p-3 text-slate-600">
+                      {eventData.source}
+                    </td>
+                    <td className="p-3 text-slate-600">
+                      {eventData.deviceType}
+                    </td>
+                    <td className="p-3">
+                      {getEventTypeBadge(eventData.eventType)}
+                    </td>
+                    <td className="p-3 text-slate-600">
+                      {eventData.pageURL}
+                    </td>
+                    <td className="p-3 text-slate-600">
+                      {eventData.pageTitle}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between mt-4">
+            <div className="text-sm text-slate-500">
+              第 {currentPage} 页，共 {totalPages} 页
+            </div>
+            <div className="flex items-center space-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage <= 1}
+              >
+                <ChevronLeft className="h-4 w-4" />
+                上一页
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage >= totalPages}
+              >
+                下一页
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
 
+<<<<<<< HEAD
       {/* 会话详情弹窗 */}
       <div
         id="session-detail-modal"
@@ -334,70 +294,151 @@ export default function SessionTimeline() {
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
+=======
+      {/* 事件详情弹窗 */}
+      {isModalOpen && selectedEvent && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center"
+          style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              closeModal();
+            }
+          }}
+        >
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col">
+            {/* 弹窗头部 */}
+            <div className="flex justify-between items-center p-4 border-b border-slate-200">
+              <h3 className="text-lg font-semibold text-slate-900">事件详情</h3>
+              <button
+                onClick={closeModal}
+                className="text-slate-400 hover:text-slate-600"
+>>>>>>> refs/remotes/origin/main
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M6 18L18 6M6 6l12 12"
-                ></path>
-              </svg>
-            </button>
-          </div>
-
-          {/* 弹窗主体 */}
-          <div className="p-6 overflow-y-auto">
-            {/* 访问概览区 */}
-            <div className="mb-6">
-              <h4 className="text-sm font-medium text-slate-900 mb-3">
-                访问概览
-              </h4>
-              <div
-                id="modal-session-summary"
-                className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm p-4 bg-slate-50 rounded-lg"
-              >
-                {/* 概览信息将由 JavaScript 填充 */}
-              </div>
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  ></path>
+                </svg>
+              </button>
             </div>
 
-            {/* 事件时间线区 */}
-            <div>
-              <h4 className="text-sm font-medium text-slate-900 mb-3">
-                事件时间线
-              </h4>
-              <div className="border border-slate-200 rounded-lg overflow-hidden">
-                <table className="w-full text-sm">
-                  <thead className="bg-slate-50">
-                    <tr>
-                      <th className="p-3 text-left font-medium text-slate-500">
-                        事件时间
-                      </th>
-                      <th className="p-3 text-left font-medium text-slate-500">
-                        事件类型
-                      </th>
-                      <th className="p-3 text-left font-medium text-slate-500">
-                        页面/事件描述
-                      </th>
-                      <th className="p-3 text-left font-medium text-slate-500">
-                        停留时长
-                      </th>
-                      <th className="p-3 text-left font-medium text-slate-500">
-                        滚动深度
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody
-                    id="modal-event-timeline"
-                    className="divide-y divide-slate-200"
-                  >
-                    {/* 事件行将由 JavaScript 填充 */}
-                  </tbody>
-                </table>
+            {/* 弹窗主体 */}
+            <div className="p-6 overflow-y-auto">
+              {/* 事件基本信息 */}
+              <div className="mb-6">
+                <h4 className="text-sm font-medium text-slate-900 mb-3">
+                  事件基本信息
+                </h4>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm p-4 bg-slate-50 rounded-lg">
+                  <div>
+                    <div className="text-xs text-slate-500">事件时间</div>
+                    <div className="font-medium text-slate-900">{selectedEvent.eventTime}</div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-slate-500">事件类型</div>
+                    <div className="font-medium text-slate-900">
+                      {getEventTypeBadge(selectedEvent.eventType)}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-slate-500">来源</div>
+                    <div className="font-medium text-slate-900">{selectedEvent.source}</div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-slate-500">设备类型</div>
+                    <div className="font-medium text-slate-900">{selectedEvent.deviceType}</div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-slate-500">浏览器</div>
+                    <div className="font-medium text-slate-900">{selectedEvent.browser || 'N/A'}</div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-slate-500">操作系统</div>
+                    <div className="font-medium text-slate-900">{selectedEvent.os || 'N/A'}</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 页面信息 */}
+              <div className="mb-6">
+                <h4 className="text-sm font-medium text-slate-900 mb-3">
+                  页面信息
+                </h4>
+                <div className="space-y-3 text-sm">
+                  <div>
+                    <div className="text-xs text-slate-500">页面标题</div>
+                    <div className="font-medium text-slate-900">{selectedEvent.pageTitle}</div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-slate-500">页面URL</div>
+                    <div className="font-medium text-slate-900 break-all">{selectedEvent.pageURL}</div>
+                  </div>
+                  {selectedEvent.referrer && (
+                    <div>
+                      <div className="text-xs text-slate-500">来源页面</div>
+                      <div className="font-medium text-slate-900 break-all">{selectedEvent.referrer}</div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* 事件特定信息 */}
+              <div>
+                <h4 className="text-sm font-medium text-slate-900 mb-3">
+                  事件详细信息
+                </h4>
+                <div className="space-y-3 text-sm">
+                  {selectedEvent.eventType === "PageLeave" && selectedEvent.dwellTimeMs && (
+                    <div>
+                      <div className="text-xs text-slate-500">页面停留时长</div>
+                      <div className="font-medium text-slate-900">{formatDwellTime(selectedEvent.dwellTimeMs)}</div>
+                    </div>
+                  )}
+                  {selectedEvent.eventType === "PageLeave" && selectedEvent.maxScrollDepth && (
+                    <div>
+                      <div className="text-xs text-slate-500">最大滚动深度</div>
+                      <div className="font-medium text-slate-900">{selectedEvent.maxScrollDepth}%</div>
+                    </div>
+                  )}
+                  {selectedEvent.eventType === "ScrollDepth" && selectedEvent.maxDepthPercent && (
+                    <div>
+                      <div className="text-xs text-slate-500">滚动深度</div>
+                      <div className="font-medium text-slate-900">{selectedEvent.maxDepthPercent}%</div>
+                    </div>
+                  )}
+                  {selectedEvent.eventType === "Click" && (
+                    <>
+                      {selectedEvent.elementTag && (
+                        <div>
+                          <div className="text-xs text-slate-500">点击元素标签</div>
+                          <div className="font-medium text-slate-900">{selectedEvent.elementTag}</div>
+                        </div>
+                      )}
+                      {selectedEvent.elementText && (
+                        <div>
+                          <div className="text-xs text-slate-500">元素文本内容</div>
+                          <div className="font-medium text-slate-900 max-h-32 overflow-y-auto">
+                            {selectedEvent.elementText}
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
     </>
   );
 }
