@@ -180,7 +180,7 @@ const ScenarioConfig = () => {
       await updateRulePriorities(scenario.scenarioId, ruleIds);
       
       toast({
-        title: "优先级已更新",
+        title: "优先级已���新",
         description: "规则执行优先级已调整",
       });
     } catch (error) {
@@ -566,19 +566,53 @@ const ScenarioConfig = () => {
             </CardContent>
           </Card>
 
-          {/* 快速操作 */}
+          {/* AI工作原理 */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg font-semibold">快速操作</CardTitle>
+              <CardTitle className="text-lg font-semibold">AI工作原理</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
-              <Button
-                className="w-full"
-                onClick={() => setRuleBuilderOpen(true)}
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                添加自定义规则
-              </Button>
+            <CardContent>
+              <div className="space-y-3 text-sm text-muted-foreground">
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center text-xs font-bold text-blue-700 mt-0.5">
+                    1
+                  </div>
+                  <div>
+                    <div className="font-medium text-foreground">默认AI监控</div>
+                    <div>AI持续监控此场景下的所有用户行为，确保不错过任何营销机会。</div>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center text-xs font-bold text-green-700 mt-0.5">
+                    2
+                  </div>
+                  <div>
+                    <div className="font-medium text-foreground">规则优先匹配</div>
+                    <div>当行为发生时，系统会优先检查是否命中您设定的任何一条自定义规则。</div>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center text-xs font-bold text-purple-700 mt-0.5">
+                    3
+                  </div>
+                  <div>
+                    <div className="font-medium text-foreground">分层智能执行</div>
+                    <div>若命中则严格执行您的自定义动作；若未命中，则由默认AI自主决策并执行个性化响应。</div>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 bg-orange-100 rounded-full flex items-center justify-center text-xs font-bold text-orange-700 mt-0.5">
+                    4
+                  </div>
+                  <div>
+                    <div className="font-medium text-foreground">效果追踪归因</div>
+                    <div>记录每一次营销动作的最终效果，为您的策略优化提供数据支持。</div>
+                  </div>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>
