@@ -4,11 +4,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { 
-  ArrowLeft, 
-  Plus, 
-  Edit, 
-  Trash2, 
+import {
+  Plus,
+  Edit,
+  Trash2,
   GripVertical,
   Bot,
   AlertTriangle,
@@ -99,7 +98,7 @@ const ScenarioConfig = () => {
       
       toast({
         title: newState ? "AI自动化已启动" : "AI自动化已暂停",
-        description: `${scenario.scenarioName}场景的自动化营销已${newState ? '启动' : '暂停'}`,
+        description: `${scenario.scenarioName}场���的自动化营销已${newState ? '启动' : '暂停'}`,
       });
     } catch (error) {
       toast({
@@ -306,7 +305,7 @@ const ScenarioConfig = () => {
             <CardContent>
               <dl className="grid grid-cols-2 gap-4">
                 <div>
-                  <dt className="text-sm font-medium text-muted-foreground">场景名称</dt>
+                  <dt className="text-sm font-medium text-muted-foreground">��景名称</dt>
                   <dd className="mt-1 text-sm font-medium">{scenario.scenarioName}</dd>
                 </div>
                 <div>
@@ -628,7 +627,7 @@ const ScenarioConfig = () => {
           <AlertDialogFooter>
             <AlertDialogCancel>取消</AlertDialogCancel>
             <AlertDialogAction onClick={handleDeleteRule}>
-              确认删��
+              确认删除
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
