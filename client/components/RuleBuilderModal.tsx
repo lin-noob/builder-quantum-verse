@@ -55,7 +55,7 @@ const operatorLabels: Record<ConditionOperator, string> = {
   '<': '小于',
   '>=': '大于等于',
   '<=': '小于等于',
-  'CONTAINS': '包��',
+  'CONTAINS': '包含',
   '!CONTAINS': '不包含',
   'IN': '在列表中',
   '!IN': '不在列表中',
@@ -200,7 +200,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
       return false;
     }
 
-    // 检查所有条件是否填写完整
+    // 检查所有条件是否��写完整
     const allConditions = [
       ...triggerConditions.eventConditions,
       ...triggerConditions.userConditions
