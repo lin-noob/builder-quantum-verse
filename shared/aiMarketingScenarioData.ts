@@ -110,7 +110,7 @@ export const predefinedScenarios: MarketingScenario[] = [
       allowedActionTypes: ['POPUP'],
       timingStrategy: 'SMART_DELAY',
       contentStrategy: 'FULLY_GENERATIVE',
-      description: 'AI将根据用户画像、购物���商品等信息，自主生成最合适的挽留或激励文案',
+      description: 'AI将根据用户画像、购物车商品���信息，自主生成最合适的挽留或激励文案',
       strategySummary: '在用户犹豫或准备离开时进行精准挽留，提升订单转化率。',
       coreStrategies: ['网页弹窗', '智能延迟', '个性化生成'],
       dimensions: [
@@ -206,7 +206,7 @@ export const predefinedScenarios: MarketingScenario[] = [
     scenarioId: 'view_product',
     scenarioName: '查看商品',
     isAIEnabled: true,
-    businessValue: '用户对���定商���产生兴趣，适合提供信息或激励',
+    businessValue: '用户对特定商品产生兴趣���适合提供信息或激励',
     createdAt: '2024-01-08T09:00:00Z',
     updatedAt: '2024-01-12T16:45:00Z',
     defaultAIConfig: {
@@ -255,7 +255,7 @@ export const predefinedScenarios: MarketingScenario[] = [
         { field: 'page_dwell_time_seconds', label: '页面停��时间(秒)', type: 'number' }
       ],
       session: [
-        { field: 'source_info', label: '来源信息', type: 'string' }
+        { field: 'source_info', label: '来源信��', type: 'string' }
       ],
       user: [
         { field: 'tag', label: '用户标签', type: 'string' },
