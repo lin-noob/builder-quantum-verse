@@ -63,7 +63,7 @@ export const mockDecisionRecords: DecisionRecord[] = [
     id: 'decision-002',
     timestamp: '12:22:45',
     mode: 'fully-auto',
-    content: '用户ID: U-8857 - [交叉销售机会] 依据用户将"Lusso-V2咖啡机"加入购物车的行为，AI发现其购物车缺少核心配件，决策执行实时弹窗推荐。',
+    content: '用户ID: U-8857 - [交叉销售机会] 依据用户将"Lusso-V2咖啡机"加入购物车的行为，AI发现其购物车缺少核心配件，��策执行实时弹窗推荐。',
     status: 'executed',
     userId: 'U-8857',
     actionType: 'smart_recommendation',
@@ -124,7 +124,7 @@ export const mockMarketingScripts: MarketingScript[] = [
   {
     id: 'script-001',
     scriptName: '高价商品加购挽留',
-    triggerSummary: '实时事件: 当加入购物���且价格>1000',
+    triggerSummary: '实时事件: 当加入购物车且价格>1000',
     aiAction: 'AI内容生成 (邮件)',
     status: 'active',
     triggerType: 'real_time_event',
