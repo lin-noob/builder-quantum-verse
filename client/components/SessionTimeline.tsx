@@ -274,27 +274,6 @@ export default function SessionTimeline({ cdpUserId }: { cdpUserId: string }) {
         )}
       </div>
 
-<<<<<<< HEAD
-      {/* 会话详情弹窗 */}
-      <div
-        id="session-detail-modal"
-        className="fixed inset-0 z-50 flex items-center justify-center hidden"
-        style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
-      >
-        <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col">
-          {/* 弹窗头部 */}
-          <div className="flex justify-between items-center p-4 border-b border-slate-200">
-            <h3 className="text-lg font-semibold text-slate-900">会话详情</h3>
-            <button
-              id="close-modal-btn"
-              className="text-slate-400 hover:text-slate-600"
-            >
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-=======
       {/* 事件详情弹窗 */}
       {isModalOpen && selectedEvent && (
         <div
@@ -313,7 +292,6 @@ export default function SessionTimeline({ cdpUserId }: { cdpUserId: string }) {
               <button
                 onClick={closeModal}
                 className="text-slate-400 hover:text-slate-600"
->>>>>>> refs/remotes/origin/main
               >
                 <svg
                   className="w-6 h-6"
