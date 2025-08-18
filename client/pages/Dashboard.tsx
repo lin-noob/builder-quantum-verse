@@ -29,7 +29,7 @@ export default function Dashboard() {
 	useEffect(() => {
 		// Skip API calls in development mode to avoid fetch errors
 		if (process.env.NODE_ENV === 'development') {
-			console.log("��发模式：跳过热门标签 API 调用");
+			console.log("开发模式：跳过热门标签 API 调用");
 			setHotTags([]);
 			return;
 		}
@@ -53,6 +53,14 @@ export default function Dashboard() {
 
 	useEffect(() => {
 		if (!dateRange.start || !dateRange.end) return;
+
+		// Skip API calls in development mode to avoid fetch errors
+		if (process.env.NODE_ENV === 'development') {
+			console.log("开发模式：跳过数据概览 API 调用");
+			setOverviewKpis([]);
+			return;
+		}
+
 		const startDate = dateRange.start.toISOString();
 		const endDate = dateRange.end.toISOString();
 		(async () => {
@@ -79,12 +87,7 @@ export default function Dashboard() {
 					{ title: "平均客单价", value: fmtMoney(data.avgPrice) },
 				]);
 			} catch (e) {
-				// Silently handle API failures in development
-				if (process.env.NODE_ENV === 'development') {
-					console.warn("数据概览 API 不可用，使用默认数据");
-				} else {
-					console.error("数据概览 API 调用失败:", e);
-				}
+				console.error("数据概览 API 调用失败:", e);
 				setOverviewKpis([]);
 			}
 		})();
