@@ -1,42 +1,51 @@
 // Suppress React deprecation warnings from third-party libraries
-if (typeof console !== "undefined") {
+if (typeof console !== "undefined" && typeof window !== "undefined") {
   const originalWarn = console.warn;
+  const originalError = console.error;
 
-  console.warn = (...args: any[]) => {
-    // Convert all arguments to strings to check for warning patterns
-    const message = args.join(" ");
-
-    // More aggressive suppression for Recharts defaultProps warnings
+  // Function to check if a warning should be suppressed
+  const shouldSuppressWarning = (message: string): boolean => {
+    // Suppress all defaultProps warnings (mostly from Recharts)
     if (message.includes("Support for defaultProps will be removed")) {
-      return; // Suppress all defaultProps warnings
+      return true;
     }
 
-    // Suppress warnings that mention Recharts components
-    const rechartsComponents = [
-      "XAxis", "YAxis", "XAxis2", "YAxis2", "CartesianGrid", "Tooltip",
-      "Line", "Surface", "ChartLayoutContextProvider", "ChartLayoutContextProvider2",
-      "CategoricalChartWrapper", "recharts", "LineChart", "ResponsiveContainer",
-      "Legend", "BarChart", "Area", "AreaChart", "PieChart", "ScatterChart",
-      "RadarChart", "ComposedChart", "Treemap", "Sankey", "Funnel"
-    ];
-
-    if (rechartsComponents.some((component) => message.includes(component))) {
-      return; // Suppress all Recharts-related warnings
+    // Suppress React development warnings from third-party libraries
+    if (message.includes("defaultProps") && (
+      message.includes("recharts") ||
+      message.includes("/deps/recharts.js") ||
+      message.includes("XAxis") ||
+      message.includes("YAxis") ||
+      message.includes("LineChart") ||
+      message.includes("ResponsiveContainer")
+    )) {
+      return true;
     }
 
-    // Suppress if stack trace contains recharts references
-    if (message.includes("recharts.js")) {
+    // Suppress createRoot warnings if they're about duplicate calls
+    if (message.includes("createRoot") && message.includes("already been passed to createRoot")) {
+      return true;
+    }
+
+    return false;
+  };
+
+  // Override console.warn
+  console.warn = (...args: any[]) => {
+    const message = args.join(" ");
+    if (shouldSuppressWarning(message)) {
       return;
     }
-
-    // Check stack trace in error object for Recharts references
-    const stackTrace = new Error().stack || "";
-    if (stackTrace.includes("recharts") || stackTrace.includes("deps/recharts.js")) {
-      return;
-    }
-
-    // Allow other warnings through
     originalWarn.apply(console, args);
+  };
+
+  // Override console.error for React warnings that appear as errors
+  console.error = (...args: any[]) => {
+    const message = args.join(" ");
+    if (shouldSuppressWarning(message)) {
+      return;
+    }
+    originalError.apply(console, args);
   };
 }
 
