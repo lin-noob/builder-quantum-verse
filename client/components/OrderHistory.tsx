@@ -156,8 +156,8 @@ export default function OrderHistory({ cdpUserId }: { cdpUserId: string }) {
 
     switch (status) {
       case "已完成":
-        bgColor = "bg-green-100";
-        textColor = "text-green-800";
+        bgColor = "bg-success-light";
+        textColor = "text-success";
         break;
       case "已取消":
         bgColor = "bg-red-100";
