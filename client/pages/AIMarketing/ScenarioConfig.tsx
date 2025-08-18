@@ -104,7 +104,7 @@ const ScenarioConfig = () => {
     } catch (error) {
       toast({
         title: "操作失败",
-        description: "无��更新AI开关状态，请重试",
+        description: "无法更新AI开关状态，请重试",
         variant: "destructive",
       });
     }
@@ -393,7 +393,7 @@ const ScenarioConfig = () => {
                 <CardTitle className="text-lg font-semibold">自定义规则</CardTitle>
                 <Button onClick={() => setRuleBuilderOpen(true)}>
                   <Plus className="h-4 w-4 mr-2" />
-                  添加规则
+                  添加规���
                 </Button>
               </div>
             </CardHeader>
@@ -632,7 +632,7 @@ const ScenarioConfig = () => {
           <AlertDialogFooter>
             <AlertDialogCancel>取消</AlertDialogCancel>
             <AlertDialogAction onClick={handleDeleteRule}>
-              确认���除
+              确认删除
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
