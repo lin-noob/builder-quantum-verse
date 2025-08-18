@@ -1,5 +1,5 @@
-import "./global.css";
 import "./lib/suppressWarnings";
+import "./global.css";
 
 import { Toaster } from "@/components/ui/toaster";
 import { createRoot } from "react-dom/client";
