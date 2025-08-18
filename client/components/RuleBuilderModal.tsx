@@ -286,7 +286,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
         await addOverrideRule(scenario.scenarioId, ruleData);
         toast({
           title: "规则已创建",
-          description: `���定义规则「${ruleName}」已创建`,
+          description: `自定义规则「${ruleName}」已创建`,
         });
       }
 
@@ -541,7 +541,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
                 </AlertDescription>
               </Alert>
 
-              {/* 只显示有可用字段的条件��型 */}
+              {/* 只显示有可用字段的条件类型 */}
               {scenario && scenario.availableFields.event.length > 0 &&
                 renderConditionBuilder('event', triggerConditions.eventConditions, '事件属性条件')
               }
