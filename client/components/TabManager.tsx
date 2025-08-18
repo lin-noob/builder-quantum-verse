@@ -242,7 +242,7 @@ export default function TabManager() {
     setContextMenu({ isOpen: false, x: 0, y: 0, targetTab: null });
   };
 
-  // ��击页面其他地方关闭右键菜单
+  // 点击页面其他地方关闭右键菜单
   useEffect(() => {
     const handleClick = () => closeContextMenu();
     if (contextMenu.isOpen) {
