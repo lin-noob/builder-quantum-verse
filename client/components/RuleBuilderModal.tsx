@@ -38,7 +38,7 @@ import {
   ConditionCategory,
   addOverrideRule,
   updateOverrideRule
-} from "@/../../shared/aiMarketingScenarioData";
+} from "../../shared/aiMarketingScenarioData";
 
 interface RuleBuilderModalProps {
   open: boolean;
