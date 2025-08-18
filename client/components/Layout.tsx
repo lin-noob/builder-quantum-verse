@@ -120,14 +120,16 @@ export default function Layout({ children }: LayoutProps) {
               "w-8 h-8 rounded-full flex items-center justify-center transition-colors",
               currentUser
                 ? "bg-primary hover:bg-primary/90"
-                : "bg-gray-200 hover:bg-gray-300 border border-dashed border-gray-400"
+                : "bg-gray-200 hover:bg-gray-300 border border-dashed border-gray-400",
             )}
             title={currentUser ? "个人信息" : "点击登录"}
           >
-            <User className={cn(
-              "h-4 w-4",
-              currentUser ? "text-primary-foreground" : "text-gray-500"
-            )} />
+            <User
+              className={cn(
+                "h-4 w-4",
+                currentUser ? "text-primary-foreground" : "text-gray-500",
+              )}
+            />
           </Link>
           <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
             <BarChart3 className="h-5 w-5 text-white" />
@@ -165,11 +167,17 @@ export default function Layout({ children }: LayoutProps) {
                     (item.id === "response-actions" &&
                       location.pathname.startsWith("/response-actions")) ||
                     (item.id === "ai-marketing-strategies" &&
-                      location.pathname.startsWith("/ai-marketing-strategies")) ||
+                      location.pathname.startsWith(
+                        "/ai-marketing-strategies",
+                      )) ||
                     (item.id === "fully-auto" &&
-                      location.pathname.startsWith("/ai-marketing/fully-auto")) ||
+                      location.pathname.startsWith(
+                        "/ai-marketing/fully-auto",
+                      )) ||
                     (item.id === "monitoring-center" &&
-                      location.pathname.startsWith("/ai-marketing/monitoring-center")) ||
+                      location.pathname.startsWith(
+                        "/ai-marketing/monitoring-center",
+                      )) ||
                     (item.id === "effect-tracking" &&
                       location.pathname.startsWith("/effect-tracking"));
 
@@ -188,7 +196,6 @@ export default function Layout({ children }: LayoutProps) {
                         {item.icon}
                         {item.label}
                       </Link>
-
                     </li>
                   );
                 })}
@@ -233,7 +240,9 @@ export default function Layout({ children }: LayoutProps) {
                 (item.id === "fully-auto" &&
                   location.pathname.startsWith("/ai-marketing/fully-auto")) ||
                 (item.id === "monitoring-center" &&
-                  location.pathname.startsWith("/ai-marketing/monitoring-center")) ||
+                  location.pathname.startsWith(
+                    "/ai-marketing/monitoring-center",
+                  )) ||
                 (item.id === "effect-tracking" &&
                   location.pathname.startsWith("/effect-tracking"));
 
@@ -315,9 +324,11 @@ export default function Layout({ children }: LayoutProps) {
               to="/profile"
               className={cn(
                 "flex items-center gap-3 p-2 rounded-lg text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-colors",
-                isSidebarCollapsed ? "justify-center" : "justify-start"
+                isSidebarCollapsed ? "justify-center" : "justify-start",
               )}
-              title={isSidebarCollapsed ? `${currentUser.username} - 个人信息` : ""}
+              title={
+                isSidebarCollapsed ? `${currentUser.username} - 个人信息` : ""
+              }
             >
               <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
                 <User className="h-4 w-4 text-primary-foreground" />
@@ -341,7 +352,7 @@ export default function Layout({ children }: LayoutProps) {
               to="/auth"
               className={cn(
                 "flex items-center gap-3 p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-colors border border-dashed border-gray-300",
-                isSidebarCollapsed ? "justify-center" : "justify-start"
+                isSidebarCollapsed ? "justify-center" : "justify-start",
               )}
               title={isSidebarCollapsed ? "点击登录" : ""}
             >
@@ -353,9 +364,7 @@ export default function Layout({ children }: LayoutProps) {
                   <p className="text-sm font-medium text-gray-700 truncate">
                     点击登录
                   </p>
-                  <p className="text-xs text-gray-500 truncate">
-                    未登录状态
-                  </p>
+                  <p className="text-xs text-gray-500 truncate">未登录状态</p>
                 </div>
               )}
             </Link>

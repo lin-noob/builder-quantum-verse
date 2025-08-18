@@ -46,7 +46,11 @@ export function ThemeToggle() {
     if (theme === "system") {
       return <Monitor className="h-4 w-4" />;
     }
-    return actualTheme === "light" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />;
+    return actualTheme === "light" ? (
+      <Sun className="h-4 w-4" />
+    ) : (
+      <Moon className="h-4 w-4" />
+    );
   };
 
   const getTitle = () => {

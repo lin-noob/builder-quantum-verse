@@ -56,7 +56,11 @@ if (typeof console !== "undefined") {
     if (message.includes("defaultProps")) {
       // Check if any of the arguments contain recharts in the stack trace
       const fullMessage = args.join(" ");
-      if (fullMessage.includes("recharts.js") || fullMessage.includes("at XAxis") || fullMessage.includes("at YAxis")) {
+      if (
+        fullMessage.includes("recharts.js") ||
+        fullMessage.includes("at XAxis") ||
+        fullMessage.includes("at YAxis")
+      ) {
         return;
       }
     }

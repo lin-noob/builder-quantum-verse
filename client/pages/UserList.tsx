@@ -212,7 +212,7 @@ export default function UserList() {
         url: "/api/quote/api/v1/profile/list",
         method: "POST",
         requestBody,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
 
       console.log("当前网络状态:", navigator.onLine ? "在线" : "离线");
@@ -251,7 +251,7 @@ export default function UserList() {
 
           console.log(`等待2秒后进行重试...`);
           // 等待2秒后重试
-          await new Promise(resolve => setTimeout(resolve, 2000));
+          await new Promise((resolve) => setTimeout(resolve, 2000));
         }
       }
 
@@ -293,7 +293,10 @@ export default function UserList() {
 
       let errorMessage = "获取用户数据失败";
       if (error instanceof Error) {
-        if (error.message.includes("timeout") || error.message.includes("Request timeout")) {
+        if (
+          error.message.includes("timeout") ||
+          error.message.includes("Request timeout")
+        ) {
           errorMessage = "请求超时，请检查网络连接或稍后重试";
         } else if (error.message.includes("Network Error")) {
           errorMessage = "网络连接失败，请检查网络设置";
