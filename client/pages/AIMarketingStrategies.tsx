@@ -400,7 +400,7 @@ export default function AIMarketingStrategies() {
                             {/* 状态控制按钮 */}
                             {strategy.status === 'DRAFT' && (
                               <button
-                                className="block w-full text-left px-3 py-1 text-sm text-green-600 hover:bg-muted"
+                                className="block w-full text-left px-3 py-1 text-sm text-success hover:bg-muted"
                                 onClick={() => handleStatusToggle(strategy.strategyId, strategy.status)}
                               >
                                 启用策略
@@ -418,7 +418,7 @@ export default function AIMarketingStrategies() {
                             
                             {strategy.status === 'ARCHIVED' && (
                               <button
-                                className="block w-full text-left px-3 py-1 text-sm text-green-600 hover:bg-muted"
+                                className="block w-full text-left px-3 py-1 text-sm text-success hover:bg-muted"
                                 onClick={() => handleStatusToggle(strategy.strategyId, strategy.status)}
                               >
                                 重新启用
