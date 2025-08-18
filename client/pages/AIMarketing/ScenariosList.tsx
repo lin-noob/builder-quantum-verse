@@ -121,7 +121,7 @@ const ScenariosList = () => {
           <div>
             <h1 className="text-2xl font-bold">AI营销</h1>
             <p className="text-muted-foreground">
-              自动化打底，分层覆盖 - 管理您的智能营销策略
+              自动化打底，分层覆盖 - 管理您的智能���销策略
             </p>
           </div>
         </div>
@@ -176,17 +176,6 @@ const ScenariosList = () => {
               </CardHeader>
               
               <CardContent className="space-y-4">
-                {/* AI总开关 */}
-                <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-                  <div className="flex flex-col">
-                    <span className="text-sm font-medium">AI总开关</span>
-                  </div>
-                  <Switch
-                    checked={scenario.isAIEnabled}
-                    onCheckedChange={(checked) => handleAIToggle(scenario, checked)}
-                    disabled={isSwitching}
-                  />
-                </div>
 
                 {/* 默认AI策略信息 */}
                 <div className="space-y-2">
@@ -274,7 +263,7 @@ const ScenariosList = () => {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>取���</AlertDialogCancel>
+            <AlertDialogCancel>取消</AlertDialogCancel>
             <AlertDialogAction onClick={confirmAIToggle}>
               确认{confirmDialog.newState ? '启动' : '暂停'}
             </AlertDialogAction>
