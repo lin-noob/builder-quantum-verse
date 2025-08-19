@@ -12,6 +12,7 @@
     "typecheck": "tsc"
   },
   "dependencies": {
+    "@hello-pangea/dnd": "^18.0.1",
     "chart.js": "^4.5.0",
     "zod": "^3.23.8"
   },

@@ -63,7 +63,7 @@ export const mockDecisionRecords: DecisionRecord[] = [
     id: 'decision-002',
     timestamp: '12:22:45',
     mode: 'fully-auto',
-    content: '用户ID: U-8857 - [交叉销售机会] 依据用户将"Lusso-V2咖啡机"加入购物车的行为，AI发现其购物车缺少核心配件，决策执行实时弹窗推荐。',
+    content: '用户ID: U-8857 - [交叉销售机会] 依据用户将"Lusso-V2咖啡机"加入购物车的行为，AI发���其购物车缺少核心配件，决策执行实时弹窗推荐。',
     status: 'executed',
     userId: 'U-8857',
     actionType: 'smart_recommendation',
@@ -187,7 +187,7 @@ export const getModeDisplay = (mode: 'fully-auto' | 'semi-auto') => {
 };
 
 export const getModeColor = (mode: 'fully-auto' | 'semi-auto') => {
-  return mode === 'fully-auto' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800';
+  return mode === 'fully-auto' ? 'bg-success-light text-success' : 'bg-info-light text-info';
 };
 
 export const getStatusDisplay = (status: 'generating' | 'executed' | 'revoked') => {
@@ -195,7 +195,7 @@ export const getStatusDisplay = (status: 'generating' | 'executed' | 'revoked') 
     case 'generating':
       return { text: '内容生成中...', color: 'text-orange-600' };
     case 'executed':
-      return { text: '已执行', color: 'text-green-600' };
+      return { text: '已执行', color: 'text-success' };
     case 'revoked':
       return { text: '已撤销', color: 'text-gray-500' };
     default:
@@ -206,7 +206,7 @@ export const getStatusDisplay = (status: 'generating' | 'executed' | 'revoked') 
 export const getScriptStatusDisplay = (status: 'active' | 'paused' | 'draft') => {
   switch (status) {
     case 'active':
-      return { text: '生效中', variant: 'default' as const, color: 'bg-green-100 text-green-800' };
+      return { text: '生效中', variant: 'default' as const, color: 'bg-success-light text-success' };
     case 'paused':
       return { text: '已暂停', variant: 'secondary' as const, color: 'bg-orange-100 text-orange-800' };
     case 'draft':

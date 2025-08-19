@@ -1,3 +1,5 @@
+import { ErrorHandler } from "./errorHandler";
+
 /**
  * 通用请求配置接口
  */
@@ -96,11 +98,47 @@ export class RequestError extends Error {
 }
 
 /**
+ * 请求管理器 - 用于跟踪和管理进行中的请求
+ */
+class RequestManager {
+  private requests = new Map<string, AbortController>();
+
+  createController(requestId: string): AbortController {
+    // 如果已存在相同ID的请求，先取消它
+    if (this.requests.has(requestId)) {
+      this.requests.get(requestId)?.abort();
+    }
+
+    const controller = new AbortController();
+    this.requests.set(requestId, controller);
+    return controller;
+  }
+
+  removeRequest(requestId: string) {
+    this.requests.delete(requestId);
+  }
+
+  abortRequest(requestId: string) {
+    const controller = this.requests.get(requestId);
+    if (controller) {
+      controller.abort();
+      this.requests.delete(requestId);
+    }
+  }
+
+  abortAllRequests() {
+    this.requests.forEach((controller) => controller.abort());
+    this.requests.clear();
+  }
+}
+
+/**
  * 通用HTTP请求类
  */
 export class Request {
   private baseURL: string;
   private defaultConfig: RequestConfig;
+  private requestManager = new RequestManager();
 
   constructor(baseURL: string = "", config: RequestConfig = {}) {
     this.baseURL = baseURL;
@@ -226,11 +264,12 @@ export class Request {
   /**
    * 创建超时控制器
    */
-  private createTimeoutController(timeout: number) {
-    const controller = new AbortController();
+  private createTimeoutController(timeout: number, requestId: string) {
+    const controller = this.requestManager.createController(requestId);
     const timeoutId = setTimeout(() => {
       if (!controller.signal.aborted) {
-        controller.abort();
+        console.warn(`Request timeout after ${timeout}ms: ${requestId}`);
+        controller.abort(new Error("Request timeout"));
       }
     }, timeout);
 
@@ -250,12 +289,13 @@ export class Request {
       data,
       params,
       headers = {},
-      timeout = this.defaultConfig.timeout || 10000,
+      timeout = this.defaultConfig.timeout || 15000, // 增加超时时间到15秒
       credentials = this.defaultConfig.credentials,
       responseType = "json",
     } = config;
 
     let timeoutId: number | undefined;
+    let requestId: string;
 
     try {
       // 执行请求拦截器
@@ -264,6 +304,7 @@ export class Request {
         : config;
 
       const fullURL = this.buildURL(url, params);
+      requestId = `${method}_${fullURL}_${Date.now()}`;
       const mergedHeaders = { ...this.defaultConfig.headers, ...headers };
       const { body, headers: finalHeaders } = this.processRequestData(
         data,
@@ -271,7 +312,10 @@ export class Request {
       );
 
       // 创建超时控制器
-      const { controller, timeoutId: tid } = this.createTimeoutController(timeout);
+      const { controller, timeoutId: tid } = this.createTimeoutController(
+        timeout,
+        requestId,
+      );
       timeoutId = tid;
 
       const fetchOptions: RequestInit = {
@@ -283,7 +327,13 @@ export class Request {
       };
 
       const response = await fetch(fullURL, fetchOptions);
-      clearTimeout(timeoutId);
+
+      // 请求成功，清理资源
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+        timeoutId = undefined;
+      }
+      this.requestManager.removeRequest(requestId);
 
       // 执行响应拦截器
       const processedResponse = this.defaultConfig.afterResponse
@@ -292,12 +342,25 @@ export class Request {
 
       return await this.processResponse<T>(processedResponse, responseType);
     } catch (error) {
-      // 确保清理超时定时器
+      // 确保清理资源
       if (timeoutId) {
         clearTimeout(timeoutId);
       }
+      if (requestId) {
+        this.requestManager.removeRequest(requestId);
+      }
 
-      // 执行错误处理器
+      // 使用新的���误处理系统
+      const errorContext = {
+        url: fullURL,
+        method,
+        isTimeout: timeoutId !== undefined,
+        requestId,
+      };
+
+      const errorInfo = ErrorHandler.handleError(error as Error, errorContext);
+
+      // 执行用户自定义错误处理器
       if (this.defaultConfig.onError) {
         this.defaultConfig.onError(error as Error);
       }
@@ -307,17 +370,25 @@ export class Request {
         throw error;
       }
 
-      // 处理超时错误和中断错误
-      if (error instanceof Error && (error.name === "AbortError" || error.message.includes("aborted"))) {
-        throw new RequestError("Request timeout", 408, "Request Timeout");
+      // 根据错误类型抛出相应的错误
+      switch (errorInfo.type) {
+        case "TIMEOUT":
+          throw new RequestError("Request timeout", 408, "Request Timeout");
+        case "ABORT":
+          throw new RequestError(
+            "Request aborted",
+            499,
+            "Client Closed Request",
+          );
+        case "NETWORK":
+          throw new RequestError("Network error", 0, "Network Error");
+        default:
+          throw new RequestError(
+            error instanceof Error ? error.message : "Unknown error",
+            0,
+            "Unknown Error",
+          );
       }
-
-      // 处理网络错误
-      throw new RequestError(
-        error instanceof Error ? error.message : "Unknown error",
-        0,
-        "Network Error",
-      );
     }
   }
 
@@ -480,6 +551,20 @@ export class Request {
     options?: Omit<RequestOptions, "method" | "data">,
   ): Promise<T> {
     return this.businessRequest<T>(url, { ...options, method: "PATCH", data });
+  }
+
+  /**
+   * 取消指定请求
+   */
+  abortRequest(requestId: string) {
+    this.requestManager.abortRequest(requestId);
+  }
+
+  /**
+   * 取消所有进行中的请求
+   */
+  abortAllRequests() {
+    this.requestManager.abortAllRequests();
   }
 }
 

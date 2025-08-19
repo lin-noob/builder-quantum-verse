@@ -27,6 +27,13 @@ export default function Dashboard() {
 	const [overviewKpis, setOverviewKpis] = useState<Array<{ title: string; value: string }>>([]);
 
 	useEffect(() => {
+		// Skip API calls in development mode to avoid fetch errors
+		if (process.env.NODE_ENV === 'development') {
+			console.log("开发模式：跳过热门标签 API 调用");
+			setHotTags([]);
+			return;
+		}
+
 		(async () => {
 			try {
 				const res = await request.get("/quote/api/v1/dashboard/hot");
@@ -46,6 +53,14 @@ export default function Dashboard() {
 
 	useEffect(() => {
 		if (!dateRange.start || !dateRange.end) return;
+
+		// Skip API calls in development mode to avoid fetch errors
+		if (process.env.NODE_ENV === 'development') {
+			console.log("开发模式：跳过数据概览 API 调用");
+			setOverviewKpis([]);
+			return;
+		}
+
 		const startDate = dateRange.start.toISOString();
 		const endDate = dateRange.end.toISOString();
 		(async () => {

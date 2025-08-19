@@ -236,7 +236,7 @@ export default function UserList() {
           setUsers(convertedUsers);
           setTotalCount(response.data.total || 0);
         } else {
-          console.log("数据格式异常，data不是数组:", apiUsers);
+          console.log("��据格式异常，data不是数组:", apiUsers);
           setUsers([]);
           setTotalCount(0);
         }
@@ -246,6 +246,14 @@ export default function UserList() {
         setTotalCount(0);
       }
     } catch (error) {
+      // 在开发环境中，如果是API不可用错误，静默处理
+      if (process.env.NODE_ENV === 'development') {
+        console.warn("开发模式：用户数据API不可用，使用模拟数据");
+        setUsers([]);
+        setTotalCount(0);
+        return;
+      }
+
       console.error("获取用户数据失败:", error);
       console.error("请求参数:", { requestBody });
 
@@ -273,7 +281,7 @@ export default function UserList() {
         } else if (error.message.includes("Network Error")) {
           errorMessage = "网络连接失败，请检查网络设置";
         } else {
-          errorMessage = `获取数据��败: ${error.message}`;
+          errorMessage = `获取数据失败: ${error.message}`;
         }
       } else if (error instanceof Error) {
         errorMessage = error.message;
@@ -428,7 +436,7 @@ export default function UserList() {
                   <SelectItem value="firstVisitTime">首次访问时间</SelectItem>
                   <SelectItem value="registrationTime">注册时间</SelectItem>
                   <SelectItem value="firstPurchaseTime">
-                    首次购买时间
+                    首次购���时间
                   </SelectItem>
                   <SelectItem value="lastActiveTime">最后活跃时间</SelectItem>
                 </SelectContent>

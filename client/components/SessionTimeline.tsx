@@ -142,8 +142,8 @@ export default function SessionTimeline({
         displayName = "页面离开";
         break;
       case "ScrollDepth":
-        bgColor = "bg-green-100";
-        textColor = "text-green-800";
+        bgColor = "bg-success-light";
+        textColor = "text-success";
         displayName = "滚动深度";
         break;
       case "Click":

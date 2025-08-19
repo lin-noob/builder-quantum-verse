@@ -7,6 +7,7 @@ import { createRoot } from "react-dom/client";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { usePageRequestManager } from "./hooks/useRequestManager";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Layout from "./components/Layout";
 import ErrorBoundary from "./components/ErrorBoundary";
@@ -29,22 +30,19 @@ import SemiAuto from "./pages/AIMarketing/SemiAuto";
 import ScriptCreate from "./pages/AIMarketing/ScriptCreate";
 import ScenariosList from "./pages/AIMarketing/ScenariosList";
 import ScenarioConfig from "./pages/AIMarketing/ScenarioConfig";
-import PerformanceAnalytics from "./pages/AIMarketing/PerformanceAnalytics";
-import LiveMonitoring from "./pages/AIMarketing/LiveMonitoring";
+import OrderHistoryDemo from "./pages/OrderHistoryDemo";
+import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import UserProfile from "./pages/UserProfile";
 import EffectTracking from "./pages/EffectTracking";
-import { usePageRequestManager } from "./hooks/useRequestManager";
 
 const queryClient = new QueryClient();
 
-// 请求管理包装组件
-const AppWithRequestManager = () => {
-  usePageRequestManager(); // 使用页面级请求管理
-
-  return (
+const App = () => (
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
       <Sonner />
@@ -84,7 +82,6 @@ const AppWithRequestManager = () => {
               </Layout>
             }
           />
-
           <Route
             path="/dashboard2"
             element={
@@ -93,7 +90,6 @@ const AppWithRequestManager = () => {
               </Layout>
             }
           />
-
           <Route
             path="/users"
             element={
@@ -102,7 +98,6 @@ const AppWithRequestManager = () => {
               </Layout>
             }
           />
-
           <Route
             path="/users2"
             element={
@@ -111,25 +106,14 @@ const AppWithRequestManager = () => {
               </Layout>
             }
           />
-
           <Route
-            path="/users/:userId"
-            element={
-              <Layout>
-                <UserDetail />
-              </Layout>
-            }
-          />
-
-          <Route
-            path="/users-new/:userId"
+            path="/users/:cdpId"
             element={
               <Layout>
                 <UserDetailNew />
               </Layout>
             }
           />
-
           <Route
             path="/users2/:userId"
             element={
@@ -138,8 +122,6 @@ const AppWithRequestManager = () => {
               </Layout>
             }
           />
-
-          {/* AI营销策略管理 */}
           <Route
             path="/ai-marketing-strategies"
             element={
@@ -148,7 +130,6 @@ const AppWithRequestManager = () => {
               </Layout>
             }
           />
-
           <Route
             path="/ai-marketing-strategies/create"
             element={
@@ -157,17 +138,23 @@ const AppWithRequestManager = () => {
               </Layout>
             }
           />
-
           <Route
-            path="/ai-marketing-strategies/:strategyId"
+            path="/ai-marketing-strategies/edit/:id"
+            element={
+              <Layout>
+                <AIMarketingStrategyCreate />
+              </Layout>
+            }
+          />
+          <Route
+            path="/ai-marketing-strategies/:id"
             element={
               <Layout>
                 <AIMarketingStrategyDetail />
               </Layout>
             }
           />
-
-          {/* 响应动作管理 */}
+          {/* 原有的响���动作库路由 */}
           <Route
             path="/response-actions"
             element={
@@ -176,7 +163,6 @@ const AppWithRequestManager = () => {
               </Layout>
             }
           />
-
           <Route
             path="/response-actions/create"
             element={
@@ -185,53 +171,22 @@ const AppWithRequestManager = () => {
               </Layout>
             }
           />
-
           <Route
-            path="/response-actions/:actionId"
+            path="/response-actions/edit/:id"
+            element={
+              <Layout>
+                <ResponseActionCreate />
+              </Layout>
+            }
+          />
+          <Route
+            path="/response-actions/:id"
             element={
               <Layout>
                 <ResponseActionDetail />
               </Layout>
             }
           />
-
-          {/* AI营销功能模块 */}
-          <Route
-            path="/ai-marketing/monitoring"
-            element={
-              <Layout>
-                <MonitoringCenter />
-              </Layout>
-            }
-          />
-
-          <Route
-            path="/ai-marketing/fully-auto"
-            element={
-              <Layout>
-                <FullyAuto />
-              </Layout>
-            }
-          />
-
-          <Route
-            path="/ai-marketing/semi-auto"
-            element={
-              <Layout>
-                <SemiAuto />
-              </Layout>
-            }
-          />
-
-          <Route
-            path="/ai-marketing/script-create"
-            element={
-              <Layout>
-                <ScriptCreate />
-              </Layout>
-            }
-          />
-
           <Route
             path="/ai-marketing/scenarios"
             element={
@@ -240,7 +195,6 @@ const AppWithRequestManager = () => {
               </Layout>
             }
           />
-
           <Route
             path="/ai-marketing/scenarios/:scenarioId"
             element={
@@ -249,34 +203,66 @@ const AppWithRequestManager = () => {
               </Layout>
             }
           />
-
           <Route
-            path="/ai-marketing/performance"
+            path="/ai-marketing/monitoring-center"
             element={
               <Layout>
-                <PerformanceAnalytics />
+                <MonitoringCenter />
               </Layout>
             }
           />
-
           <Route
-            path="/ai-marketing/live-monitoring"
+            path="/ai-marketing/fully-auto"
             element={
               <Layout>
-                <LiveMonitoring />
+                <FullyAuto />
+              </Layout>
+            }
+          />
+          <Route
+            path="/ai-marketing/semi-auto"
+            element={
+              <Layout>
+                <SemiAuto />
+              </Layout>
+            }
+          />
+          <Route
+            path="/ai-marketing/semi-auto/create"
+            element={
+              <Layout>
+                <ScriptCreate />
+              </Layout>
+            }
+          />
+          <Route
+            path="/ai-marketing/semi-auto/edit/:id"
+            element={
+              <Layout>
+                <ScriptCreate />
+              </Layout>
+            }
+          />
+          <Route
+            path="/order-history-demo"
+            element={
+              <Layout>
+                <OrderHistoryDemo />
+              </Layout>
+            }
+          />
+          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route
+            path="*"
+            element={
+              <Layout>
+                <NotFound />
               </Layout>
             }
           />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
-  );
-};
-
-const App = () => (
-  <ErrorBoundary>
-    <QueryClientProvider client={queryClient}>
-      <AppWithRequestManager />
     </QueryClientProvider>
   </ErrorBoundary>
 );

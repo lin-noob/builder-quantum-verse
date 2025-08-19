@@ -81,8 +81,8 @@ export default function AIMarketingStrategyDetail() {
                       {STATUS_DISPLAY_NAMES[strategy.status]}
                     </span>
                     {strategy.status === 'ACTIVE' && (
-                      <div className="flex items-center gap-1 text-green-600">
-                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                      <div className="flex items-center gap-1 text-success">
+                        <div className="w-2 h-2 bg-success rounded-full animate-pulse"></div>
                         <span className="text-xs">运行中</span>
                       </div>
                     )}
