@@ -315,6 +315,18 @@ const ScenarioConfig = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
+                {/* 核心策略 */}
+                <div>
+                  <dt className="text-sm font-medium text-muted-foreground mb-3">核心策略</dt>
+                  <div className="flex gap-2 flex-wrap">
+                    {scenario.defaultAIConfig.coreStrategies.map((strategy, index) => (
+                      <Badge key={index} variant="secondary" className="text-xs">
+                        {strategy}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+
                 {/* 决策维度详情 */}
                 <div>
                   <dt className="text-sm font-medium text-muted-foreground mb-3">决策维度</dt>
@@ -367,20 +379,6 @@ const ScenarioConfig = () => {
                       </TabsContent>
                     ))}
                   </Tabs>
-                </div>
-
-                {/* 核心策略 */}
-                <div>
-                  <dt className="text-sm font-medium text-muted-foreground mb-3">核心策略</dt>
-                  <div className="flex gap-3 flex-wrap">
-                    {scenario.defaultAIConfig.coreStrategies.map((strategy, index) => (
-                      <div key={index} className="px-3 py-2 bg-primary/10 border border-primary/20 rounded-lg">
-                        <div className="text-sm font-medium text-primary">
-                          {strategy}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
                 </div>
               </div>
             </CardContent>
