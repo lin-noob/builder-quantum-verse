@@ -171,7 +171,7 @@ const ScenarioConfig = () => {
       });
       
       toast({
-        title: "规则已删���",
+        title: "规则已删除",
         description: `自定义规则「${deleteDialog.rule.ruleName}」已删除`,
       });
       
@@ -281,13 +281,13 @@ const ScenarioConfig = () => {
                 </CardTitle>
                 <Switch
                   checked={scenario.isAIEnabled}
-                  onCheckedChange={handleToggleScenario}
+                  onCheckedChange={handleAIToggle}
                 />
               </div>
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
-                {/* 决策��度详情 */}
+                {/* 决策维度详情 */}
                 <div>
                   <Tabs defaultValue="0" className="w-full">
                     <TabsList className="grid w-full grid-cols-3">
