@@ -24,7 +24,6 @@ import ResponseActions from "./pages/ResponseActions";
 import ResponseActionDetail from "./pages/ResponseActionDetail";
 import ResponseActionCreate from "./pages/ResponseActionCreate";
 import MonitoringCenter from "./pages/AIMarketing/MonitoringCenter";
-import MonitoringCenterTest from "./pages/AIMarketing/MonitoringCenterTest";
 import FullyAuto from "./pages/AIMarketing/FullyAuto";
 import SemiAuto from "./pages/AIMarketing/SemiAuto";
 import ScriptCreate from "./pages/AIMarketing/ScriptCreate";
@@ -227,7 +226,7 @@ const AppWithRequestManager = () => {
             }
           />
 
-          {/* AI营销功��模块 */}
+          {/* AI营销功能模块 */}
           <Route
             path="/ai-marketing/monitoring-center"
             element={
