@@ -24,7 +24,7 @@ export interface RequestConfig {
 export type RequestMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
 
 /**
- * 请求数据类型
+ * 请求数据类���
  */
 export type RequestData =
   | Record<string, any>
@@ -323,11 +323,12 @@ export class Request {
 
       const response = await fetch(fullURL, fetchOptions);
 
-      // 请求成功，清理超时定时器
+      // 请求成功，清理资源
       if (timeoutId) {
         clearTimeout(timeoutId);
         timeoutId = undefined;
       }
+      this.requestManager.removeRequest(requestId);
 
       // 执行响应拦截器
       const processedResponse = this.defaultConfig.afterResponse
@@ -336,9 +337,12 @@ export class Request {
 
       return await this.processResponse<T>(processedResponse, responseType);
     } catch (error) {
-      // 确保清理超时定时器
+      // 确保清理资源
       if (timeoutId) {
         clearTimeout(timeoutId);
+      }
+      if (requestId) {
+        this.requestManager.removeRequest(requestId);
       }
 
       // 执行错误处理器
