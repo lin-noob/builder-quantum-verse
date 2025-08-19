@@ -103,7 +103,13 @@ export default function PerformanceTrend({
       return `¥${value.toLocaleString()}`;
     }
     if (metricId === "avgOrderValue") {
-      return `¥${value.toFixed(1)}`;
+      return `¥${value.toFixed(2)}`;
+    }
+    if (metricId === "totalOrders") {
+      return `${value.toLocaleString()} 单`;
+    }
+    if (metricId === "totalUsers") {
+      return `${value.toLocaleString()} 人`;
     }
     return value.toLocaleString();
   };
