@@ -84,6 +84,8 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [currentTab, setCurrentTab] = useState("conditions");
+  const [conflictDetection, setConflictDetection] = useState<ConflictDetectionResult | null>(null);
+  const [showConflicts, setShowConflicts] = useState(false);
   
   // 表单数据
   const [ruleName, setRuleName] = useState("");
