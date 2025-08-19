@@ -98,7 +98,7 @@ const ScenarioConfig = () => {
       setScenario(prev => prev ? { ...prev, isAIEnabled: newState } : null);
       
       toast({
-        title: newState ? "AI自动化已启动" : "AI自动化已暂停",
+        title: newState ? "AI自动化已��动" : "AI自动化已暂停",
         description: `${scenario.scenarioName}场景的自动化营销已${newState ? '启动' : '暂停'}`,
       });
     } catch (error) {
@@ -131,7 +131,7 @@ const ScenarioConfig = () => {
       });
     } catch (error) {
       toast({
-        title: "��作失败",
+        title: "操作失败",
         description: "无法更新规则状态，请重试",
         variant: "destructive",
       });
@@ -315,83 +315,19 @@ const ScenarioConfig = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
-                {/* 配置概览 */}
-                <div>
-                  <dt className="text-sm font-medium text-muted-foreground mb-3">配置概览</dt>
-                  <div className="grid grid-cols-3 gap-3">
-                    <div className="text-center p-3 bg-muted/30 rounded-lg">
-                      <div className="text-xs text-muted-foreground">营销方式</div>
-                      <div className="text-sm font-medium mt-1">
-                        {formatActionType(scenario.defaultAIConfig.allowedActionTypes[0])}
-                      </div>
-                    </div>
-                    <div className="text-center p-3 bg-muted/30 rounded-lg">
-                      <div className="text-xs text-muted-foreground">触发时机</div>
-                      <div className="text-sm font-medium mt-1">
-                        {formatTiming(scenario.defaultAIConfig.timingStrategy)}
-                      </div>
-                    </div>
-                    <div className="text-center p-3 bg-muted/30 rounded-lg">
-                      <div className="text-xs text-muted-foreground">内容生成</div>
-                      <div className="text-sm font-medium mt-1">
-                        {formatContentMode(scenario.defaultAIConfig.contentStrategy)}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
                 {/* 决策维度详情 */}
                 <div>
                   <dt className="text-sm font-medium text-muted-foreground mb-3">决策维度</dt>
-                  <Tabs defaultValue="0" className="w-full">
-                    <TabsList className="grid w-full grid-cols-3">
-                      {scenario.defaultAIConfig.dimensions.map((dimension, index) => (
-                        <TabsTrigger
-                          key={index}
-                          value={index.toString()}
-                          className="text-xs"
-                        >
-                          {dimension.dimension}
-                        </TabsTrigger>
-                      ))}
-                    </TabsList>
-
+                  <div className="grid grid-cols-3 gap-3">
                     {scenario.defaultAIConfig.dimensions.map((dimension, index) => (
-                      <TabsContent key={index} value={index.toString()} className="mt-4">
-                        <div className="border rounded-lg p-4 bg-muted/20">
-                          <div className="flex items-center justify-between mb-4">
-                            <h4 className="font-medium text-foreground">{dimension.dimension}</h4>
-                            <Badge variant="outline" className="text-xs">
-                              {dimension.strategy}
-                            </Badge>
-                          </div>
-
-                          <div className="space-y-4">
-                            <div>
-                              <dt className="text-sm font-medium text-muted-foreground mb-2">决策依据</dt>
-                              <dd className="text-sm text-foreground leading-relaxed">
-                                {dimension.reasoning}
-                              </dd>
-                            </div>
-
-                            <div>
-                              <dt className="text-sm font-medium text-muted-foreground mb-2">策略示例</dt>
-                              <dd className="space-y-2">
-                                {dimension.examples.map((example, exampleIndex) => (
-                                  <div
-                                    key={exampleIndex}
-                                    className="text-sm text-foreground bg-background/60 p-3 rounded border-l-3 border-primary/40"
-                                  >
-                                    {example}
-                                  </div>
-                                ))}
-                              </dd>
-                            </div>
-                          </div>
+                      <div key={index} className="text-center p-3 bg-muted/30 rounded-lg">
+                        <div className="text-xs text-muted-foreground">{dimension.dimension}</div>
+                        <div className="text-sm font-medium mt-1">
+                          {dimension.strategy}
                         </div>
-                      </TabsContent>
+                      </div>
                     ))}
-                  </Tabs>
+                  </div>
                 </div>
               </div>
             </CardContent>
@@ -496,7 +432,7 @@ const ScenarioConfig = () => {
                                     <div className="text-xs text-muted-foreground">
                                       触发条件：
                                       {rule.triggerConditions.eventConditions.length > 0 && 
-                                        ` ���件属性(${rule.triggerConditions.eventConditions.length})`
+                                        ` 事件属性(${rule.triggerConditions.eventConditions.length})`
                                       }
                                       {rule.triggerConditions.sessionConditions.length > 0 && 
                                         ` 会话属性(${rule.triggerConditions.sessionConditions.length})`
@@ -612,7 +548,7 @@ const ScenarioConfig = () => {
         </div>
       </div>
 
-      {/* 规���构建器模态框 */}
+      {/* 规则构建器模态框 */}
       <RuleBuilderModal
         open={ruleBuilderOpen}
         onClose={() => {
