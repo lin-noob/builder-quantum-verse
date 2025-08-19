@@ -143,7 +143,17 @@ export default function PerformanceTrend({
       <CardContent>
         {/* Multi-Line Chart */}
         <div className="h-80">
-          <SuppressedChart>
+          {chartData.length === 0 ? (
+            <div className="flex items-center justify-center h-full">
+              <div className="text-center">
+                <p className="text-muted-foreground">暂无数据</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  可用指标: {availableMetricIds.join(", ") || "无"}
+                </p>
+              </div>
+            </div>
+          ) : (
+            <SuppressedChart>
             <ResponsiveContainer
             width="100%"
             height="100%"
@@ -224,7 +234,8 @@ export default function PerformanceTrend({
               })}
             </LineChart>
             </ResponsiveContainer>
-          </SuppressedChart>
+            </SuppressedChart>
+          )}
         </div>
       </CardContent>
     </Card>
