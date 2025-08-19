@@ -145,12 +145,15 @@ export default function PerformanceTrend({
     <Card className="bg-white border border-gray-200">
       <CardHeader>
         <CardTitle className="text-lg font-semibold text-gray-900">
-          业绩走势
+          业绩走���
         </CardTitle>
       </CardHeader>
       <CardContent>
         {/* Multi-Line Chart */}
         <div className="h-80 w-full bg-gray-50 rounded border">
+          <div className="p-2 text-xs text-gray-500">
+            数据点: {chartData.length} | 指标: {selectedMetrics.join(", ")}
+          </div>
           {chartData.length === 0 ? (
             <div className="flex items-center justify-center h-full">
               <div className="text-center">
@@ -158,10 +161,13 @@ export default function PerformanceTrend({
                 <p className="text-xs text-muted-foreground mt-1">
                   可用指标: {availableMetricIds.join(", ") || "无"}
                 </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  选中指标: {selectedMetrics.join(", ") || "无"}
+                </p>
               </div>
             </div>
           ) : (
-            <SuppressedChart>
+            <div className="h-72">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart
                   data={chartData}
@@ -213,7 +219,7 @@ export default function PerformanceTrend({
                   })}
                 </LineChart>
               </ResponsiveContainer>
-            </SuppressedChart>
+            </div>
           )}
         </div>
       </CardContent>
