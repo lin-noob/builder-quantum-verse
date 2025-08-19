@@ -76,8 +76,28 @@ const AppWithRequestManager = () => {
             }
           />
 
+          {/* Main routes now point to 2.0 versions */}
           <Route
             path="/dashboard"
+            element={
+              <Layout>
+                <Dashboard2 />
+              </Layout>
+            }
+          />
+
+          <Route
+            path="/users"
+            element={
+              <Layout>
+                <UserList2 />
+              </Layout>
+            }
+          />
+
+          {/* Legacy routes for direct access to old versions */}
+          <Route
+            path="/dashboard1"
             element={
               <Layout>
                 <Dashboard />
@@ -95,7 +115,7 @@ const AppWithRequestManager = () => {
           />
 
           <Route
-            path="/users"
+            path="/users1"
             element={
               <Layout>
                 <UserList />
