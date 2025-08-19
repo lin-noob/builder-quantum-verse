@@ -63,8 +63,16 @@ if (typeof window !== "undefined" && typeof console !== "undefined") {
       "Use JavaScript default parameters instead",
       "XAxis",
       "YAxis",
+      "XAxis2",
+      "YAxis2",
       "recharts",
       "Warning: %s",
+      "/deps/recharts.js",
+      "function components in a future major release",
+      "at XAxis2",
+      "at YAxis2",
+      "CategoricalChartWrapper",
+      "ChartLayoutContextProvider2",
     ];
 
     const shouldSuppress = suppressPatterns.some((pattern) =>
