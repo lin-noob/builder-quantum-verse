@@ -157,41 +157,23 @@ if (typeof console !== "undefined" && typeof window !== "undefined") {
     }
   });
 
-  // Intercept React warnings at the source if React is available
-  if (typeof window !== 'undefined') {
-    const originalSetTimeout = window.setTimeout;
-    window.setTimeout = function(callback: any, delay?: number, ...args: any[]) {
-      // Wrap callback to suppress warnings
-      const wrappedCallback = function(...callbackArgs: any[]) {
-        const originalConsoleWarn = console.warn;
-        const originalConsoleError = console.error;
-
-        // Temporarily disable warnings during React renders
-        console.warn = (...warnArgs: any[]) => {
-          const message = String(warnArgs[0] || '');
-          if (!shouldSuppressWarning(message, ...warnArgs)) {
-            originalConsoleWarn.apply(console, warnArgs);
+  // Additional suppression for React DevTools if available
+  if (typeof window !== 'undefined' && (window as any).__REACT_DEVTOOLS_GLOBAL_HOOK__) {
+    try {
+      const devTools = (window as any).__REACT_DEVTOOLS_GLOBAL_HOOK__;
+      if (devTools.onCommitFiberRoot) {
+        const originalCommit = devTools.onCommitFiberRoot;
+        devTools.onCommitFiberRoot = function(...args: any[]) {
+          try {
+            return originalCommit.apply(this, args);
+          } catch (e) {
+            // Suppress React DevTools errors silently
           }
         };
-
-        console.error = (...errorArgs: any[]) => {
-          const message = String(errorArgs[0] || '');
-          if (!shouldSuppressWarning(message, ...errorArgs)) {
-            originalConsoleError.apply(console, errorArgs);
-          }
-        };
-
-        try {
-          return callback.apply(this, callbackArgs);
-        } finally {
-          // Restore original console methods
-          console.warn = originalConsoleWarn;
-          console.error = originalConsoleError;
-        }
-      };
-
-      return originalSetTimeout.call(this, wrappedCallback, delay, ...args);
-    };
+      }
+    } catch (e) {
+      // Ignore any errors in DevTools suppression
+    }
   }
 }
 
