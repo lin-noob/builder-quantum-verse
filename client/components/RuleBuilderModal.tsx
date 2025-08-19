@@ -373,7 +373,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
                   </Select>
 
                   <Input
-                    placeholder="��入值"
+                    placeholder="输入值"
                     value={condition.value}
                     onChange={(e) => updateCondition(category, condition.id, { value: e.target.value })}
                     className="h-9"
@@ -493,7 +493,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
               <Label htmlFor="smsContent">短信内容 *</Label>
               <Textarea
                 id="smsContent"
-                placeholder="输入短信内��（建议控制在70字以内）"
+                placeholder="输入短信内容（建议控制在70字以内）"
                 value={responseAction.actionConfig.smsContent || ''}
                 onChange={(e) => updateActionConfig({ smsContent: e.target.value })}
                 rows={2}
@@ -538,19 +538,30 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
             />
           </div>
 
-          <Tabs value={currentTab} onValueChange={setCurrentTab}>
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="conditions">触发条件</TabsTrigger>
-              <TabsTrigger value="action">响应动作</TabsTrigger>
+          <Tabs value={currentTab} onValueChange={setCurrentTab} className="space-y-6">
+            <TabsList className="grid w-full grid-cols-2 h-12 bg-muted/30">
+              <TabsTrigger value="conditions" className="flex items-center gap-2 text-sm font-medium">
+                <Target className="h-4 w-4" />
+                触发条件
+              </TabsTrigger>
+              <TabsTrigger value="action" className="flex items-center gap-2 text-sm font-medium">
+                <Activity className="h-4 w-4" />
+                响应动作
+              </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="conditions" className="space-y-4">
-              <Alert>
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>
-                  请设置触发此规则的精确条件。多个条件之间为"且"的关系，即需同时满足所有条件。
-                </AlertDescription>
-              </Alert>
+            <TabsContent value="conditions" className="space-y-6 mt-6">
+              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="flex items-start gap-3">
+                  <AlertCircle className="h-5 w-5 text-blue-600 mt-0.5" />
+                  <div>
+                    <h4 className="font-medium text-blue-900 mb-1">条件设置说明</h4>
+                    <p className="text-sm text-blue-700">
+                      请设置触发此规则的精确条件。多个条件���间为"且"的关系，即需同时满足所有条件。
+                    </p>
+                  </div>
+                </div>
+              </div>
 
               {/* 只显示有可用字段的条件类型 */}
               {scenario && scenario.availableFields.event.length > 0 &&
