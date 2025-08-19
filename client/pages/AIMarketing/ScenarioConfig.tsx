@@ -43,7 +43,7 @@ import {
   DropResult
 } from "@hello-pangea/dnd";
 import RuleBuilderModal from "@/components/RuleBuilderModal";
-import RuleConflictManager from "@/components/RuleConflictManager";
+import CustomRulesWithConflictManager from "@/components/CustomRulesWithConflictManager";
 
 const ScenarioConfig = () => {
   const { scenarioId } = useParams<{ scenarioId: string }>();
@@ -128,7 +128,7 @@ const ScenarioConfig = () => {
 
       toast({
         title: newState ? "规则已启用" : "规则已停用",
-        description: `自定义规则「${rule.ruleName}��已${newState ? '启用' : '停用'}`,
+        description: `自定义规则「${rule.ruleName}」已${newState ? '启用' : '停用'}`,
       });
     } catch (error) {
       toast({
