@@ -126,14 +126,14 @@
     --muted-hover: 230 17% 18%;
 
     /* === Accent Colors === */
-    --accent: 300 60% 55%;
+    --accent: 300 30% 60%;
     --accent-foreground: 230 22% 8%;
-    --accent-light: 300 60% 15%;
+    --accent-light: 300 30% 15%;
 
     /* === Status Colors === */
-    --success: 300 60% 55%;
+    --success: 300 30% 60%;
     --success-foreground: 230 22% 8%;
-    --success-light: 300 60% 15%;
+    --success-light: 300 30% 15%;
 
     --warning: 38 92% 60%;
     --warning-foreground: 230 22% 8%;
