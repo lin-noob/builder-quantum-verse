@@ -250,7 +250,7 @@ export class Request {
       data,
       params,
       headers = {},
-      timeout = this.defaultConfig.timeout || 10000,
+      timeout = this.defaultConfig.timeout || 15000, // 增加超时时间到15秒
       credentials = this.defaultConfig.credentials,
       responseType = "json",
     } = config;
