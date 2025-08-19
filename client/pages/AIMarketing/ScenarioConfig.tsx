@@ -43,6 +43,7 @@ import {
   DropResult
 } from "@hello-pangea/dnd";
 import RuleBuilderModal from "@/components/RuleBuilderModal";
+import RuleConflictManager from "@/components/RuleConflictManager";
 
 const ScenarioConfig = () => {
   const { scenarioId } = useParams<{ scenarioId: string }>();
@@ -508,7 +509,7 @@ const ScenarioConfig = () => {
                   <dt className="text-sm font-medium text-muted-foreground">场景状态</dt>
                   <dd className="mt-1 flex items-center gap-2">
                     <span className="text-sm">
-                      {scenario.isAIEnabled ? '已启用' : '已暂停'}
+                      {scenario.isAIEnabled ? '已启用' : '已��停'}
                     </span>
                     {scenario.isAIEnabled && (
                       <div className="flex items-center gap-1 text-success">
