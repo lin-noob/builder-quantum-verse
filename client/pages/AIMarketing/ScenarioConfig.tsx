@@ -372,7 +372,7 @@ const ScenarioConfig = () => {
             </CardContent>
           </Card>
 
-          {/* 自定义覆盖规则 */}
+          {/* 自定义规则与冲突管理 */}
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
@@ -477,7 +477,7 @@ const ScenarioConfig = () => {
                                         ` 会话属���(${rule.triggerConditions.sessionConditions.length})`
                                       }
                                       {rule.triggerConditions.userConditions.length > 0 && 
-                                        ` 用户画像(${rule.triggerConditions.userConditions.length})`
+                                        ` ��户画像(${rule.triggerConditions.userConditions.length})`
                                       }
                                     </div>
                                   </div>
