@@ -80,7 +80,13 @@ const CustomRulesWithConflictManager = ({
 
   useEffect(() => {
     if (scenario.overrideRules.length > 0) {
-      analyzeAllRules();
+      // 添加延迟避免频繁调用
+      const timeoutId = setTimeout(() => {
+        analyzeAllRules();
+      }, 200);
+      return () => clearTimeout(timeoutId);
+    } else {
+      setConflictAnalyses([]);
     }
   }, [scenario.overrideRules]);
 
