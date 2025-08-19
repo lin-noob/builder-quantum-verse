@@ -194,9 +194,20 @@ const ScenariosList = () => {
               </CardHeader>
 
               <CardContent>
-                <div className="flex gap-4">
-                  {/* 左侧：AI策略配置 */}
-                  <div className="flex-1 bg-muted/30 rounded-lg p-3 space-y-3">
+                {/* AI策略配置 - 主要区域 */}
+                <div className="bg-muted/30 rounded-lg p-4 relative">
+                  {/* 右上角自定义规则角标 */}
+                  <div className="absolute top-3 right-3">
+                    <Badge
+                      variant={enabledRulesCount > 0 ? "default" : "secondary"}
+                      className="text-xs"
+                    >
+                      自定义 {enabledRulesCount}/{scenario.overrideRules.length}
+                    </Badge>
+                  </div>
+
+                  {/* AI策略配置内容 */}
+                  <div className="space-y-3 pr-20">
                     <div className="flex items-center gap-2">
                       <Bot className="h-4 w-4 text-primary" />
                       <span className="text-sm font-medium">AI策略配置</span>
@@ -214,20 +225,6 @@ const ScenariosList = () => {
                           {strategy}
                         </Badge>
                       ))}
-                    </div>
-                  </div>
-
-                  {/* 右侧：自定义规则 */}
-                  <div className="w-32 bg-muted/30 rounded-lg p-3 flex flex-col items-center justify-center text-center">
-                    <div className="text-xs font-medium mb-2">自定义规则</div>
-                    <Badge
-                      variant={enabledRulesCount > 0 ? "default" : "secondary"}
-                      className="text-xs mb-1"
-                    >
-                      {enabledRulesCount} / {scenario.overrideRules.length}
-                    </Badge>
-                    <div className="text-xs text-muted-foreground">
-                      {enabledRulesCount > 0 ? "已配置" : "未配置"}
                     </div>
                   </div>
                 </div>
@@ -249,7 +246,7 @@ const ScenariosList = () => {
             <AlertDialogDescription>
               您确定要{confirmDialog.newState ? '启动' : '暂停'}
               「{confirmDialog.scenario?.scenarioName}」场景下的所有自动化营销吗？
-              {confirmDialog.newState ? '' : ' 这将同���暂停默认AI策略和所有自定义规则。'}
+              {confirmDialog.newState ? '' : ' 这将同时暂停默认AI策略和所有自定义���则。'}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
