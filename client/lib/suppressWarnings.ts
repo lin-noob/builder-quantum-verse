@@ -30,17 +30,21 @@ if (typeof console !== "undefined" && typeof window !== "undefined") {
     // Convert message to string for consistent handling
     const msg = String(message);
 
-    // Suppress all defaultProps warnings (mostly from Recharts)
-    if (msg.includes("Support for defaultProps will be removed")) {
+    // AGGRESSIVE: Suppress all defaultProps related warnings
+    if (msg.includes("defaultProps") || msg.includes("Default props")) {
+      return true;
+    }
+
+    // AGGRESSIVE: Suppress all function component warnings
+    if (msg.includes("function components") || msg.includes("Function components")) {
       return true;
     }
 
     // Suppress React warning format with %s placeholders - more comprehensive check
-    if (msg.includes("defaultProps will be removed from function components") ||
+    if (msg.includes("Support for defaultProps will be removed") ||
         msg.includes("Use JavaScript default parameters instead") ||
         msg.includes("%s: Support for defaultProps") ||
-        msg.includes("defaultProps will be removed") ||
-        msg.includes("function components in a future major release")) {
+        msg.includes("future major release")) {
       return true;
     }
 
