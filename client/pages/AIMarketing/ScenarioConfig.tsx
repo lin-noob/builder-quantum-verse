@@ -44,6 +44,7 @@ import {
 } from "@hello-pangea/dnd";
 import RuleBuilderModal from "@/components/RuleBuilderModal";
 import RuleConflictManager from "@/components/RuleConflictManager";
+import RuleConflictGuide from "@/components/RuleConflictGuide";
 
 const ScenarioConfig = () => {
   const { scenarioId } = useParams<{ scenarioId: string }>();
