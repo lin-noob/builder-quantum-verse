@@ -125,23 +125,23 @@ export default function MonitoringCenter() {
           );
         } else if (record.revokeReason) {
           return (
-            <div className="flex items-center gap-2">
-              <span className={statusDisplay.color}>{statusDisplay.text}</span>
-              <div className="group relative">
-                <button
-                  disabled
-                  className="text-gray-400 text-sm cursor-not-allowed"
-                >
-                  撤销
-                </button>
-                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block">
-                  <div className="bg-gray-800 text-white text-xs rounded py-1 px-2 whitespace-nowrap">
-                    {record.revokeReason}
-                  </div>
+          <div className="flex items-center gap-2">
+            <span className="text-green-600">{statusDisplay.text}</span>
+            <div className="group relative">
+              <button
+                disabled
+                className="text-gray-400 text-sm cursor-not-allowed"
+              >
+                撤销
+              </button>
+              <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block">
+                <div className="bg-gray-800 text-white text-xs rounded py-1 px-2 whitespace-nowrap">
+                  {record.revokeReason}
                 </div>
               </div>
             </div>
-          );
+          </div>
+        );
         } else {
           return <span className={statusDisplay.color}>{statusDisplay.text}</span>;
         }
