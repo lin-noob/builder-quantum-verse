@@ -84,27 +84,6 @@ const ScenarioConfig = () => {
     }
   }, [scenarioId]);
 
-  const handleToggleScenario = async (enabled: boolean) => {
-    if (!scenario) return;
-
-    try {
-      await updateMarketingScenario(scenario.scenarioId, {
-        isEnabled: enabled
-      });
-      setScenario(prev => prev ? { ...prev, isEnabled: enabled } : null);
-      toast({
-        title: enabled ? "场景已启用" : "场景已停用",
-        description: `AI营销场景「${scenario.scenarioName}」已${enabled ? '启用' : '停用'}`,
-      });
-    } catch (error) {
-      toast({
-        title: "操作失败",
-        description: "场景状态更新失败",
-        variant: "destructive"
-      });
-    }
-  };
-
   const handleAIToggle = async (newState: boolean) => {
     if (!scenario) return;
 
@@ -114,7 +93,7 @@ const ScenarioConfig = () => {
 
       toast({
         title: newState ? "AI自动化已启用" : "AI自动化已暂停",
-        description: `${scenario.scenarioName}场景的���动化营销已${newState ? '启动' : '暂停'}`,
+        description: `${scenario.scenarioName}场景的自动化营销已${newState ? '启动' : '暂停'}`,
       });
     } catch (error) {
       toast({
@@ -248,7 +227,7 @@ const ScenarioConfig = () => {
 
   return (
     <div className="container mx-auto py-6 space-y-6">
-      {/* 场景标��� */}
+      {/* 场景标题 */}
       <div>
         <h1 className="text-2xl font-bold">{scenario.scenarioName}</h1>
         <p className="text-muted-foreground mt-1">{scenario.description}</p>
