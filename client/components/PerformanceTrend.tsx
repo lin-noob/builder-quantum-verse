@@ -167,44 +167,20 @@ export default function PerformanceTrend({
                     interval="preserveStartEnd"
                   />
 
-                  {/* Multiple Y-Axes for different metric types */}
-                  {(() => {
-                    // 获取唯一的分组
-                    const groups = [
-                      ...new Set(selectedMetrics.map(getMetricGroup)),
-                    ];
-
-                    return groups.map((group, groupIndex) => {
-                      // 找到第一个属于这个分组的指标作为代表
-                      const representativeMetricId = selectedMetrics.find(
-                        (id) => getMetricGroup(id) === group,
-                      );
-                      if (!representativeMetricId) return null;
-
-                      const orientation =
-                        groupIndex % 2 === 0 ? "left" : "right";
-                      const yAxisId = group; // 使用分组名作为yAxisId
-
-                      return (
-                        <YAxis
-                          key={`yAxis-${group}`}
-                          yAxisId={yAxisId}
-                          orientation={orientation}
-                          axisLine={false}
-                          tickLine={false}
-                          tick={{
-                            fontSize: 11,
-                            fill: colors[groupIndex % colors.length],
-                            dx: orientation === "left" ? -5 : 5,
-                          }}
-                          tickFormatter={(value) =>
-                            formatValue(value, representativeMetricId)
-                          }
-                          width={70}
-                        />
-                      );
-                    });
-                  })()}
+                  <YAxis
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fontSize: 11, fill: "#6b7280" }}
+                    tickFormatter={(value) => {
+                      // 简化格式化，使用数字格式
+                      if (value >= 1000000) {
+                        return `${(value / 1000000).toFixed(1)}M`;
+                      } else if (value >= 1000) {
+                        return `${(value / 1000).toFixed(1)}K`;
+                      }
+                      return value.toLocaleString();
+                    }}
+                  />
 
                   <Tooltip content={<CustomTooltip />} />
                   <Legend />
