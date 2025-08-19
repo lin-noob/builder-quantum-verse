@@ -98,7 +98,7 @@ const ScenarioConfig = () => {
       setScenario(prev => prev ? { ...prev, isAIEnabled: newState } : null);
       
       toast({
-        title: newState ? "AI自动化已启动" : "AI自动化已暂停",
+        title: newState ? "AI自动化已启��" : "AI自动化已暂停",
         description: `${scenario.scenarioName}场景的自动化营销已${newState ? '启动' : '暂停'}`,
       });
     } catch (error) {
@@ -388,7 +388,7 @@ const ScenarioConfig = () => {
                   <Bot className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                   <h3 className="text-lg font-medium">暂无自定义规则</h3>
                   <p className="text-muted-foreground mb-4">
-                    创建自定义规则来对特定用户��体进行精准营销
+                    创建自定义���则来对特定用户群体进行精准营销
                   </p>
                   <Button onClick={() => setRuleBuilderOpen(true)}>
                     <Plus className="h-4 w-4 mr-2" />
@@ -537,7 +537,7 @@ const ScenarioConfig = () => {
           {/* AI工作原理 */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg font-semibold">AI工作原理</CardTitle>
+              <CardTitle className="text-lg font-semibold">AI工作原���</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-3 text-sm text-muted-foreground">
@@ -602,7 +602,7 @@ const ScenarioConfig = () => {
         }}
       />
 
-      {/* 删除确认对话框 */}
+      {/* 删除确认对话��� */}
       <AlertDialog open={deleteDialog.show} onOpenChange={(open) => 
         !open && setDeleteDialog({ show: false, rule: null })
       }>
