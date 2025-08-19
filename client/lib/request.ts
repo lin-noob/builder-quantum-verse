@@ -1,3 +1,5 @@
+import { ErrorHandler } from './errorHandler';
+
 /**
  * 通用请求配置接口
  */
@@ -43,7 +45,7 @@ export interface RequestOptions
   method?: RequestMethod;
   /** 请求数据 */
   data?: RequestData;
-  /** 查���参数 */
+  /** 查询参数 */
   params?: Record<string, string | number | boolean>;
   /** 响应类型 */
   responseType?: "json" | "text" | "blob" | "arrayBuffer";
@@ -323,7 +325,7 @@ export class Request {
 
       const response = await fetch(fullURL, fetchOptions);
 
-      // 请求成功，清理资源
+      // 请求成功，清���资源
       if (timeoutId) {
         clearTimeout(timeoutId);
         timeoutId = undefined;
@@ -413,7 +415,7 @@ export class Request {
   }
 
   /**
-   * DELETE请求
+   * DELETE��求
    */
   async delete<T = any>(
     url: string,
