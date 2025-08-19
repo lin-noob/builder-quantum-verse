@@ -142,7 +142,7 @@ export default function PerformanceTrend({
       </CardHeader>
       <CardContent>
         {/* Multi-Line Chart */}
-        <div className="h-80">
+        <div className="h-80 w-full bg-gray-50 rounded border">
           {chartData.length === 0 ? (
             <div className="flex items-center justify-center h-full">
               <div className="text-center">
