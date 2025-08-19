@@ -293,7 +293,7 @@ const ScenarioConfig = () => {
                             <div className="space-y-4">
                               <div>
                                 <dt className="text-sm font-medium text-muted-foreground mb-2">
-                                  决策依��
+                                  决策依据
                                 </dt>
                                 <dd className="text-sm text-foreground leading-relaxed">
                                   {dimension.reasoning}
@@ -361,12 +361,6 @@ const ScenarioConfig = () => {
                 </div>
                 <div>
                   <dt className="text-sm font-medium text-muted-foreground">
-                    场景名称
-                  </dt>
-                  <dd className="mt-1 text-sm">{scenario.scenarioName}</dd>
-                </div>
-                <div>
-                  <dt className="text-sm font-medium text-muted-foreground">
                     AI自动化状态
                   </dt>
                   <dd className="mt-1 flex items-center gap-2">
@@ -375,19 +369,6 @@ const ScenarioConfig = () => {
                     >
                       {scenario.isAIEnabled ? "已启用" : "已停用"}
                     </Badge>
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-sm font-medium text-muted-foreground">
-                    自定义规则
-                  </dt>
-                  <dd className="mt-1 text-sm">
-                    {scenario.overrideRules.length} 条规则
-                    <span className="text-muted-foreground">
-                      （
-                      {scenario.overrideRules.filter((r) => r.isEnabled).length}{" "}
-                      条启用）
-                    </span>
                   </dd>
                 </div>
                 <div>
@@ -458,7 +439,7 @@ const ScenarioConfig = () => {
         </div>
       </div>
 
-      {/* 规则构建器模态框 */}
+      {/* 规则构建器模态��� */}
       <RuleBuilderModal
         open={ruleBuilderOpen}
         onClose={() => {
