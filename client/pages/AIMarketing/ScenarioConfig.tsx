@@ -132,7 +132,7 @@ const ScenarioConfig = () => {
     } catch (error) {
       toast({
         title: "操作失败",
-        description: "无法更新规则状态，请重试",
+        description: "无法更新规则状态，请���试",
         variant: "destructive",
       });
     }
@@ -299,7 +299,7 @@ const ScenarioConfig = () => {
         {/* 左侧主要信息 */}
         <div className="lg:col-span-2 space-y-6">
 
-          {/* AI工作原理 */}
+          {/* AI工作原�� */}
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
@@ -315,24 +315,8 @@ const ScenarioConfig = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
-                {/* 决策维度概览 */}
-                <div>
-                  <dt className="text-sm font-medium text-muted-foreground mb-3">决策维度概览</dt>
-                  <div className="grid grid-cols-3 gap-3">
-                    {scenario.defaultAIConfig.dimensions.map((dimension, index) => (
-                      <div key={index} className="text-center p-3 bg-muted/30 rounded-lg">
-                        <div className="text-xs text-muted-foreground">{dimension.dimension}</div>
-                        <div className="text-sm font-medium mt-1">
-                          {dimension.strategy}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
                 {/* 决策维度详情 */}
                 <div>
-                  <dt className="text-sm font-medium text-muted-foreground mb-3">决策维度详情</dt>
                   <Tabs defaultValue="0" className="w-full">
                     <TabsList className="grid w-full grid-cols-3">
                       {scenario.defaultAIConfig.dimensions.map((dimension, index) => (
@@ -404,7 +388,7 @@ const ScenarioConfig = () => {
                   <Bot className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                   <h3 className="text-lg font-medium">暂无自定义规则</h3>
                   <p className="text-muted-foreground mb-4">
-                    创建自定义规则来对特定用户群体进行���准营销
+                    创建自定义规则来对特定用户��体进行精准营销
                   </p>
                   <Button onClick={() => setRuleBuilderOpen(true)}>
                     <Plus className="h-4 w-4 mr-2" />
@@ -470,7 +454,7 @@ const ScenarioConfig = () => {
                                     
                                     <div className="grid md:grid-cols-2 gap-4 text-sm">
                                       <div>
-                                        <span className="text-muted-foreground">响应动作：</span>
+                                        <span className="text-muted-foreground">响���动作：</span>
                                         <span className="ml-1">
                                           {formatActionType(rule.responseAction.actionType)} • {formatTiming(rule.responseAction.timing)}
                                         </span>
@@ -489,7 +473,7 @@ const ScenarioConfig = () => {
                                         ` 事件属性(${rule.triggerConditions.eventConditions.length})`
                                       }
                                       {rule.triggerConditions.sessionConditions.length > 0 && 
-                                        ` 会话属性(${rule.triggerConditions.sessionConditions.length})`
+                                        ` 会话属���(${rule.triggerConditions.sessionConditions.length})`
                                       }
                                       {rule.triggerConditions.userConditions.length > 0 && 
                                         ` 用户画像(${rule.triggerConditions.userConditions.length})`
