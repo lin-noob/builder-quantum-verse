@@ -35,6 +35,11 @@ if (typeof console !== "undefined" && typeof window !== "undefined") {
       return true;
     }
 
+    // Suppress ResizeObserver warnings
+    if (message.includes("ResizeObserver loop completed with undelivered notifications")) {
+      return true;
+    }
+
     return false;
   };
 
