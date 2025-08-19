@@ -143,19 +143,19 @@ export default function MonitoringCenter() {
           </div>
         );
         } else {
-          return <span className={statusDisplay.color}>{statusDisplay.text}</span>;
+          return <span className="text-green-600">{statusDisplay.text}</span>;
         }
 
       case 'revoked':
         return (
           <div className="flex items-center gap-2">
             <CheckCircle className="h-4 w-4 text-gray-400" />
-            <span className={statusDisplay.color}>{statusDisplay.text}</span>
+            <span className="text-gray-500">{statusDisplay.text}</span>
           </div>
         );
 
       default:
-        return <span className={statusDisplay.color}>{statusDisplay.text}</span>;
+        return <span className="text-gray-600">{statusDisplay.text}</span>;
     }
   };
 
