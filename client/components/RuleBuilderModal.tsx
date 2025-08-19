@@ -675,11 +675,16 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base">内容模式</CardTitle>
+              <Card className="border border-border/60 shadow-sm">
+                <CardHeader className="pb-4 bg-gradient-to-r from-amber-50 to-orange-50">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 bg-amber-100 rounded flex items-center justify-center">
+                      <Bot className="h-3 w-3 text-amber-600" />
+                    </div>
+                    <CardTitle className="text-sm font-semibold">内容模式</CardTitle>
+                  </div>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-4 pt-4">
                   <RadioGroup
                     value={responseAction.contentMode}
                     onValueChange={(value) => setResponseAction(prev => ({
