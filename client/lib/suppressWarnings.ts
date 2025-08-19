@@ -4,35 +4,59 @@ if (typeof console !== "undefined" && typeof window !== "undefined") {
   const originalError = console.error;
 
   // Function to check if a warning should be suppressed
-  const shouldSuppressWarning = (message: string): boolean => {
+  const shouldSuppressWarning = (message: string, ...allArgs: any[]): boolean => {
+    // Convert message to string for consistent handling
+    const msg = String(message);
+
     // Suppress all defaultProps warnings (mostly from Recharts)
-    if (message.includes("Support for defaultProps will be removed")) {
+    if (msg.includes("Support for defaultProps will be removed")) {
       return true;
     }
 
-    // Suppress React warning format with %s placeholders - check for the exact pattern
-    if (message.includes("%s: Support for defaultProps will be removed from function components") ||
-        message.includes("Use JavaScript default parameters instead.%s")) {
+    // Suppress React warning format with %s placeholders - more comprehensive check
+    if (msg.includes("defaultProps will be removed from function components") ||
+        msg.includes("Use JavaScript default parameters instead") ||
+        msg.includes("%s: Support for defaultProps") ||
+        msg.includes("defaultProps will be removed") ||
+        msg.includes("function components in a future major release")) {
       return true;
     }
 
-    // Suppress specific Recharts component warnings by name
-    if ((message.includes("XAxis") || message.includes("YAxis") ||
-         message.includes("LineChart") || message.includes("ResponsiveContainer") ||
-         message.includes("XAxis2") || message.includes("YAxis2")) &&
-        (message.includes("defaultProps") || message.includes("function components"))) {
-      return true;
+    // Check if any argument contains recharts component names with defaultProps warnings
+    const rechartsComponents = ["XAxis", "YAxis", "XAxis2", "YAxis2", "LineChart", "ResponsiveContainer", "Line", "Tooltip", "Legend"];
+    for (const component of rechartsComponents) {
+      if (msg.includes(component) &&
+          (msg.includes("defaultProps") || msg.includes("function components"))) {
+        return true;
+      }
+
+      // Also check in other arguments
+      for (const arg of allArgs) {
+        if (typeof arg === 'string' && arg.includes(component)) {
+          return true;
+        }
+      }
     }
 
     // Suppress by file path - recharts library files
-    if (message.includes("/deps/recharts.js") &&
-        (message.includes("defaultProps") || message.includes("function components"))) {
+    if (msg.includes("/deps/recharts.js") &&
+        (msg.includes("defaultProps") || msg.includes("function components"))) {
       return true;
     }
 
-    // Catch-all for any Recharts related defaultProps warnings
-    if (message.includes("recharts") && message.includes("defaultProps")) {
+    // More comprehensive recharts detection
+    if ((msg.includes("recharts") || msg.toLowerCase().includes("chart")) &&
+        (msg.includes("defaultProps") || msg.includes("function components"))) {
       return true;
+    }
+
+    // Check all arguments for recharts patterns
+    for (const arg of allArgs) {
+      const argStr = String(arg);
+      if (argStr.includes("recharts.js") ||
+          rechartsComponents.some(comp => argStr.includes(comp))) {
+        return true;
+      }
     }
 
     // Suppress createRoot warnings if they're about duplicate calls
