@@ -79,7 +79,9 @@ const ScenarioConfig = () => {
   };
 
   useEffect(() => {
-    loadScenario();
+    if (scenarioId) {
+      loadScenario();
+    }
   }, [scenarioId]);
 
   const handleToggleScenario = async (enabled: boolean) => {
@@ -183,7 +185,7 @@ const ScenarioConfig = () => {
       
       toast({
         title: "优先级已更新",
-        description: "规则优先级调整成功",
+        description: "规则优先级调整��功",
       });
     } catch (error) {
       // Revert on error
