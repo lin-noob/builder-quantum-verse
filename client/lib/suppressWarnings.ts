@@ -10,15 +10,16 @@ if (typeof console !== "undefined" && typeof window !== "undefined") {
       return true;
     }
 
-    // Suppress React warning format with %s placeholders
-    if (message.includes("Support for defaultProps will be removed from function components") ||
-        message.includes("Use JavaScript default parameters instead")) {
+    // Suppress React warning format with %s placeholders - check for the exact pattern
+    if (message.includes("%s: Support for defaultProps will be removed from function components") ||
+        message.includes("Use JavaScript default parameters instead.%s")) {
       return true;
     }
 
     // Suppress specific Recharts component warnings by name
     if ((message.includes("XAxis") || message.includes("YAxis") ||
-         message.includes("LineChart") || message.includes("ResponsiveContainer")) &&
+         message.includes("LineChart") || message.includes("ResponsiveContainer") ||
+         message.includes("XAxis2") || message.includes("YAxis2")) &&
         (message.includes("defaultProps") || message.includes("function components"))) {
       return true;
     }
@@ -26,6 +27,11 @@ if (typeof console !== "undefined" && typeof window !== "undefined") {
     // Suppress by file path - recharts library files
     if (message.includes("/deps/recharts.js") &&
         (message.includes("defaultProps") || message.includes("function components"))) {
+      return true;
+    }
+
+    // Catch-all for any Recharts related defaultProps warnings
+    if (message.includes("recharts") && message.includes("defaultProps")) {
       return true;
     }
 
