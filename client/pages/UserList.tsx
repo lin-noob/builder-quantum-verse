@@ -108,7 +108,7 @@ export default function UserList() {
   const convertApiUserToUser = (apiUser: ApiUser): User => {
     return {
       id: apiUser.id || "",
-      cdpId: apiUser.cdpUserId.toString(),
+      cdpId: apiUser.cdpUserId ? apiUser.cdpUserId.toString() : "",
       name: apiUser.fullName || "",
       company: apiUser.companyName || "",
       contact: apiUser.contactInfo || "",
@@ -594,7 +594,7 @@ export default function UserList() {
                           to={`/users/${user.id}`}
                           className="text-blue-600 hover:text-blue-800 text-sm font-medium"
                         >
-                          查看��情
+                          查看详情
                         </Link>
                       </td>
                     </tr>

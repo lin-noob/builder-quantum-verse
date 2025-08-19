@@ -19,6 +19,10 @@ export const formatCurrency = (
 };
 
 export function getDaysBetween(date1, date2) {
+  if (!date1 || !date2) {
+    return 0;
+  }
+
   // 转成时间戳（避免时区影响建议用 UTC 零点）
   const start = new Date(date1).setHours(0, 0, 0, 0);
   const end = new Date(date2).setHours(0, 0, 0, 0);

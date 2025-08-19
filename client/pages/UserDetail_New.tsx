@@ -83,7 +83,7 @@ export default function UserDetail() {
           ? Number(apiUser.totalOrders) /
             Math.max(1, Number(apiUser.orderCount))
           : 0,
-      lastPurchaseDate: apiUser.maxBuyTime,
+      lastPurchaseDate: apiUser.maxBuyTime || "",
       maxOrderAmount: apiUser.maxOrderAmount,
       averagePurchaseCycle: (() => {
         const daysSpan = getDaysBetween(apiUser.maxBuyTime, apiUser.minBuyTime);
@@ -101,6 +101,7 @@ export default function UserDetail() {
       tags: [],
       sessions: [],
       orders: [],
+      sessionId: apiUser.sessionId
     } as any;
   }, [apiUser, cdpId]);
 
@@ -227,7 +228,10 @@ export default function UserDetail() {
     setOpenSessions(newOpenSessions);
   };
 
-  function formatWithSymbol(amount: number, symbol: string) {
+  function formatWithSymbol(amount: number, symbol?: string) {
+    if (!symbol) {
+      return amount;
+    }
     const formatted = new Intl.NumberFormat("en-US", {
       style: "decimal", // 只格式化数字，不加货币
       minimumFractionDigits: 2, // 保留两位小数
@@ -464,12 +468,12 @@ export default function UserDetail() {
 
                 {/* Access Timeline Tab - NOW WITH SESSION TIMELINE */}
                 <TabsContent value="timeline" className="space-y-6">
-                  <SessionTimeline cdpUserId={user.cdpId} />
+                  <SessionTimeline cdpUserId={user.cdpId} sessionId={user.sessionId} />
                 </TabsContent>
 
                 {/* Business Statistics Tab - NOW WITH ORDER HISTORY */}
                 <TabsContent value="statistics">
-                  <OrderHistory cdpUserId={user.cdpId} />
+                  <OrderHistory cdpUserId={user.cdpId} sessionId={user.sessionId} />
                 </TabsContent>
               </Tabs>
             </CardContent>

@@ -55,6 +55,7 @@ export interface ApiUser {
   location: string;
   shopid: string;
   currencySymbol: string;
+  sessionId: string;
   labelList?: ApiLabel[]; // backend field name
   eventList?: ApiEventListResponse; // Add eventList field
 }
@@ -85,37 +86,41 @@ export async function getProfileView(id: string): Promise<ApiUser | null> {
 // Get user event/order list with pagination
 export async function getUserEventList(
   userId: string,
+  sessionId: string,
   page: number = 1,
   size: number = 10,
-  eventType: number = 0 // 0 for order data, 1 for behavior data
+  eventType: number = 0, // 0 for order data, 1 for behavior data
 ): Promise<ApiEventListResponse | null> {
   try {
     const requestBody = {
       currentpage: page,
       eventType: eventType,
       pagesize: size,
-      userId: userId
+      userId: userId,
+      sessionId,
     };
 
     const response = await request.request<ApiEnvelope<ApiEventListResponse>>(
-      '/quote/api/v1/profile/order/list',
+      "/quote/api/v1/profile/order/list",
       {
-        method: 'POST',
+        method: "POST",
         data: requestBody,
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-      }
+      },
     );
 
-    const envelope = response as unknown as ApiEnvelope<ApiEventListResponse> | any;
+    const envelope = response as unknown as
+      | ApiEnvelope<ApiEventListResponse>
+      | any;
     if (envelope && envelope.data) {
       return envelope.data as ApiEventListResponse;
     }
 
     return (response as any)?.data ?? null;
   } catch (error) {
-    console.error('Failed to fetch user event list:', error);
+    console.error("Failed to fetch user event list:", error);
     return null;
   }
 }
@@ -136,7 +141,8 @@ export async function addProfileLabel(
     { headers: { "Content-Type": "application/json" } },
   );
   const envelope = res as unknown as ApiEnvelope<unknown> | any;
-  if (envelope && (envelope.code === "201" || envelope.code === "200")) return true;
+  if (envelope && (envelope.code === "201" || envelope.code === "200"))
+    return true;
   if ((res as any)?.success) return true;
   throw new Error((envelope && envelope.msg) || "添加标签失败");
 }
@@ -148,7 +154,8 @@ export async function deleteProfileLabel(id: string): Promise<boolean> {
     { headers: { "Content-Type": "application/json" } },
   );
   const envelope = res as unknown as ApiEnvelope<unknown> | any;
-  if (envelope && (envelope.code === "201" || envelope.code === "200")) return true;
+  if (envelope && (envelope.code === "201" || envelope.code === "200"))
+    return true;
   if ((res as any)?.success) return true;
   throw new Error((envelope && envelope.msg) || "删除标签失败");
-} 
+}
