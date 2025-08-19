@@ -55,7 +55,14 @@ export default function PerformanceTrend({
 
   // Combine data from all selected metrics
   const chartData = useMemo(() => {
-    console.log("Generating chart data, selectedMetrics:", selectedMetrics);
+    console.log("=== Chart Data Generation ===");
+    console.log("metrics:", metrics);
+    console.log("selectedMetrics:", selectedMetrics);
+
+    if (!metrics || metrics.length === 0) {
+      console.log("No metrics available");
+      return [];
+    }
 
     if (selectedMetrics.length === 0) {
       console.log("No selected metrics, returning empty array");
@@ -63,12 +70,12 @@ export default function PerformanceTrend({
     }
 
     const firstMetric = metrics.find((m) => m.id === selectedMetrics[0]);
-    if (!firstMetric) {
-      console.log("First metric not found:", selectedMetrics[0]);
+    if (!firstMetric || !firstMetric.data) {
+      console.log("First metric not found or has no data:", selectedMetrics[0]);
       return [];
     }
 
-    console.log("First metric found:", firstMetric);
+    console.log("First metric data length:", firstMetric.data.length);
 
     const result = firstMetric.data.map((dataPoint, index) => {
       const resultPoint: any = {
@@ -78,7 +85,7 @@ export default function PerformanceTrend({
 
       selectedMetrics.forEach((metricId) => {
         const metric = metrics.find((m) => m.id === metricId);
-        if (metric && metric.data[index]) {
+        if (metric && metric.data && metric.data[index]) {
           resultPoint[metricId] = metric.data[index].value;
         }
       });
@@ -86,7 +93,8 @@ export default function PerformanceTrend({
       return resultPoint;
     });
 
-    console.log("Generated chart data:", result);
+    console.log("Generated chart data length:", result.length);
+    console.log("First data point:", result[0]);
     return result;
   }, [metrics, selectedMetrics]);
 
