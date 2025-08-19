@@ -46,6 +46,16 @@ const getScenarioIcon = (scenarioId: string) => {
       return <Users className="h-5 w-5" />;
     case "user_login":
       return <LogIn className="h-5 w-5" />;
+    case "start_checkout":
+      return <CreditCard className="h-5 w-5" />;
+    case "purchase":
+      return <CheckCircle className="h-5 w-5" />;
+    case "search":
+      return <Search className="h-5 w-5" />;
+    case "exit_intent":
+      return <MousePointer className="h-5 w-5" />;
+    case "submit_form":
+      return <FileText className="h-5 w-5" />;
     default:
       return <Settings className="h-5 w-5" />;
   }
