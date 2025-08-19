@@ -353,7 +353,7 @@ const RuleBuilderModal = ({
     } else if (responseAction.contentMode === "AI_ASSISTED") {
       if (!responseAction.actionConfig.aiPrompt) {
         toast({
-          title: "请填写AI指令",
+          title: "���填写AI指令",
           variant: "destructive",
         });
         setCurrentTab("action");
@@ -367,7 +367,7 @@ const RuleBuilderModal = ({
   const handleSave = async () => {
     if (!scenario || !validateForm()) return;
 
-    // 如果有严重冲突，��止提交
+    // 如果有严重冲突，阻止提交
     if (conflictDetection && conflictDetection.riskScore > 80) {
       toast({
         title: "无法保存规则",
@@ -446,7 +446,7 @@ const RuleBuilderModal = ({
           {conditions.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <p>暂无{categoryLabel}</p>
-              <p className="text-sm mt-1">点击上方按钮添加第一个条件</p>
+              <p className="text-sm mt-1">点击上方按钮添加��一个条件</p>
             </div>
           ) : (
             conditions.map((condition) => (
@@ -655,7 +655,8 @@ const RuleBuilderModal = ({
     <Sheet
       open={open}
       onOpenChange={(isOpen) => {
-        if (!isOpen) {
+        // 只在确实需要关闭时才调用onClose
+        if (!isOpen && open) {
           onClose();
         }
       }}
@@ -846,7 +847,7 @@ const RuleBuilderModal = ({
                   </div>
 
                   <div>
-                    <Label>营��时机</Label>
+                    <Label>营销时机</Label>
                     <Select
                       value={responseAction.timing}
                       onValueChange={(value) =>
