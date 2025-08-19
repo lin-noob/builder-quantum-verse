@@ -41,14 +41,14 @@
     --muted-hover: 247 47% 92%;
 
     /* === Accent Colors (Success, Warning, etc.) === */
-    --accent: 142 76% 36%;
+    --accent: 210 100% 50%;
     --accent-foreground: 0 0% 100%;
-    --accent-light: 142 76% 95%;
+    --accent-light: 210 100% 95%;
 
     /* === Status Colors === */
-    --success: 142 76% 36%;
+    --success: 210 100% 50%;
     --success-foreground: 0 0% 100%;
-    --success-light: 142 76% 95%;
+    --success-light: 210 100% 95%;
 
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
