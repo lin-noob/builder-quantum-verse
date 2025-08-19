@@ -5,6 +5,7 @@ import PerformanceTrend from "@/components/PerformanceTrend";
 import TagChart from "@/components/TagChart";
 import AdvancedDateRangePicker from "@/components/AdvancedDateRangePicker";
 import { request } from "@/lib/request";
+import ChartDebug from "@/components/ChartDebug";
 
 interface DateRange {
 	start: Date | null;
