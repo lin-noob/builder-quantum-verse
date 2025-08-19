@@ -114,7 +114,7 @@ const ScenarioConfig = () => {
 
       toast({
         title: newState ? "AI自动化已启用" : "AI自动化已暂停",
-        description: `${scenario.scenarioName}场景的自动化营销已${newState ? '启动' : '暂停'}`,
+        description: `${scenario.scenarioName}场景的���动化营销已${newState ? '启动' : '暂停'}`,
       });
     } catch (error) {
       toast({
@@ -248,24 +248,10 @@ const ScenarioConfig = () => {
 
   return (
     <div className="container mx-auto py-6 space-y-6">
-      {/* 场景标题和状态 */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">{scenario.scenarioName}</h1>
-          <p className="text-muted-foreground mt-1">{scenario.description}</p>
-        </div>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">场景状态</span>
-            <Switch
-              checked={scenario.isEnabled}
-              onCheckedChange={handleToggleScenario}
-            />
-          </div>
-          <Badge variant={scenario.isEnabled ? "default" : "secondary"}>
-            {scenario.isEnabled ? "已启用" : "已停用"}
-          </Badge>
-        </div>
+      {/* 场景标��� */}
+      <div>
+        <h1 className="text-2xl font-bold">{scenario.scenarioName}</h1>
+        <p className="text-muted-foreground mt-1">{scenario.description}</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
