@@ -3,6 +3,28 @@ if (typeof console !== "undefined" && typeof window !== "undefined") {
   const originalWarn = console.warn;
   const originalError = console.error;
 
+  // Suppress React DevTools warnings globally
+  const originalReactDevToolsGlobalHook = (window as any).__REACT_DEVTOOLS_GLOBAL_HOOK__;
+  if (originalReactDevToolsGlobalHook) {
+    (window as any).__REACT_DEVTOOLS_GLOBAL_HOOK__ = {
+      ...originalReactDevToolsGlobalHook,
+      onCommitFiberRoot: (...args: any[]) => {
+        try {
+          return originalReactDevToolsGlobalHook.onCommitFiberRoot?.(...args);
+        } catch (e) {
+          // Suppress React DevTools errors
+        }
+      },
+      onCommitFiberUnmount: (...args: any[]) => {
+        try {
+          return originalReactDevToolsGlobalHook.onCommitFiberUnmount?.(...args);
+        } catch (e) {
+          // Suppress React DevTools errors
+        }
+      }
+    };
+  }
+
   // Function to check if a warning should be suppressed
   const shouldSuppressWarning = (message: string, ...allArgs: any[]): boolean => {
     // Convert message to string for consistent handling
