@@ -185,7 +185,7 @@ const ScenarioConfig = () => {
       
       toast({
         title: "优先级已更新",
-        description: "规则优先级调整��功",
+        description: "规则优先级调整成功",
       });
     } catch (error) {
       // Revert on error
@@ -393,7 +393,10 @@ const ScenarioConfig = () => {
         onSave={() => {
           setRuleBuilderOpen(false);
           setEditingRule(null);
-          loadScenario();
+          // 延迟重新加载避免状态冲突
+          setTimeout(() => {
+            loadScenario();
+          }, 100);
         }}
       />
 
