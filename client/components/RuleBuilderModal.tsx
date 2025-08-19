@@ -22,7 +22,6 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Plus, Trash2, AlertCircle, Bot, Target, Activity, AlertTriangle } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -98,7 +97,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
     actionConfig: {}
   });
 
-  // 初���化表单数据
+  // 初始化表单数据
   useEffect(() => {
     if (open) {
       if (rule) {
@@ -557,26 +556,13 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
         <div className="flex-1 overflow-y-auto space-y-6 py-4">
           <div className="space-y-2">
             <Label htmlFor="ruleName" className="text-sm font-medium">规则名称 *</Label>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Input
-                    id="ruleName"
-                    placeholder="为这条规则取个名字，例如：VIP客户高价值购物车挽留"
-                    value={ruleName}
-                    onChange={(e) => setRuleName(e.target.value)}
-                    className="h-10"
-                  />
-                </TooltipTrigger>
-                <TooltipContent
-                  side="top"
-                  className="max-w-sm break-words"
-                  sideOffset={5}
-                >
-                  <p>{ruleName || "请输入规则名称"}</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            <Input
+              id="ruleName"
+              placeholder="为这条规则取个名字，例如：VIP客户高价值购物车挽留"
+              value={ruleName}
+              onChange={(e) => setRuleName(e.target.value)}
+              className="h-10"
+            />
           </div>
 
           {(() => {
@@ -601,7 +587,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
                     </div>
                   </div>
 
-                  {/* 直接显示响应动作配置 */}
+                  {/* 直��显示响应动作配置 */}
                   <div className="space-y-6">
                     <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
                       <div className="flex items-start gap-3">
@@ -763,7 +749,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
                       <div>
                         <h4 className="font-medium text-green-900 mb-1">动作配置说明</h4>
                         <p className="text-sm text-green-700">
-                          配置当���则被触发时，系统应执行的营销动作和内容。
+                          配置当规则被触发时，系统应执行的营销动作和内容。
                         </p>
                       </div>
                     </div>
