@@ -161,10 +161,31 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
   // 当规则配置改变时检测冲突
   useEffect(() => {
     if (open && ruleName.trim()) {
-      const timeoutId = setTimeout(detectRuleConflicts, 500);
+      const timeoutId = setTimeout(() => {
+        if (!scenario || !ruleName.trim()) return;
+
+        const detector = new RuleConflictDetector();
+        const existingRules = scenario.overrideRules || [];
+
+        const newRule: OverrideRule = {
+          ruleId: rule?.ruleId || `rule_${Date.now()}`,
+          ruleName: ruleName,
+          priority: rule?.priority || Math.max(...existingRules.map(r => r.priority), 0) + 1,
+          isEnabled: true,
+          triggerConditions,
+          responseAction,
+          createdAt: rule?.createdAt || new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        };
+
+        const filteredExistingRules = existingRules.filter(r => r.ruleId !== newRule.ruleId);
+        const result = detector.detectConflicts(newRule, filteredExistingRules);
+        setConflictDetection(result);
+        setShowConflicts(result.hasConflicts);
+      }, 500);
       return () => clearTimeout(timeoutId);
     }
-  }, [ruleName, triggerConditions, responseAction, open]);
+  }, [ruleName, triggerConditions, responseAction, open, scenario, rule]);
 
   const addCondition = (category: ConditionCategory) => {
     const newCondition: TriggerCondition = {
@@ -553,7 +574,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
         return (
           <div className="space-y-4">
             <div>
-              <Label htmlFor="smsContent">���信内容 *</Label>
+              <Label htmlFor="smsContent">����信内容 *</Label>
               <Textarea
                 id="smsContent"
                 placeholder="输入短信内容（建议控制在70字以内）"
