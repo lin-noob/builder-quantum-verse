@@ -293,6 +293,7 @@ export class Request {
     } = config;
 
     let timeoutId: number | undefined;
+    let requestId: string;
 
     try {
       // 执行请求拦截器
@@ -301,6 +302,7 @@ export class Request {
         : config;
 
       const fullURL = this.buildURL(url, params);
+      requestId = `${method}_${fullURL}_${Date.now()}`;
       const mergedHeaders = { ...this.defaultConfig.headers, ...headers };
       const { body, headers: finalHeaders } = this.processRequestData(
         data,
@@ -308,7 +310,7 @@ export class Request {
       );
 
       // 创建超时控制器
-      const { controller, timeoutId: tid } = this.createTimeoutController(timeout);
+      const { controller, timeoutId: tid } = this.createTimeoutController(timeout, requestId);
       timeoutId = tid;
 
       const fetchOptions: RequestInit = {
@@ -351,7 +353,7 @@ export class Request {
 
       // 处理超时错误和中断错误
       if (error instanceof Error && (error.name === "AbortError" || error.message.includes("aborted"))) {
-        // 检查是否是我们主动中止的请求（��时）
+        // 检查是否是我们主动中止的请求（超时）
         const isTimeout = error.message.includes("timeout") || timeoutId !== undefined;
 
         if (isTimeout) {
