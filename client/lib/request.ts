@@ -325,7 +325,7 @@ export class Request {
 
       const response = await fetch(fullURL, fetchOptions);
 
-      // 请求成功，清���资源
+      // 请求成功，清理资源
       if (timeoutId) {
         clearTimeout(timeoutId);
         timeoutId = undefined;
@@ -347,7 +347,17 @@ export class Request {
         this.requestManager.removeRequest(requestId);
       }
 
-      // 执行错误处理器
+      // 使用新的���误处理系统
+      const errorContext = {
+        url: fullURL,
+        method,
+        isTimeout: timeoutId !== undefined,
+        requestId
+      };
+
+      const errorInfo = ErrorHandler.handleError(error as Error, errorContext);
+
+      // 执行用户自定义错误处理器
       if (this.defaultConfig.onError) {
         this.defaultConfig.onError(error as Error);
       }
@@ -357,27 +367,21 @@ export class Request {
         throw error;
       }
 
-      // 处理超时错误和中断错误
-      if (error instanceof Error && (error.name === "AbortError" || error.message.includes("aborted"))) {
-        // 检查是否是我们主动中止的请求（超时）
-        const isTimeout = error.message.includes("timeout") || timeoutId !== undefined;
-
-        if (isTimeout) {
-          console.warn(`请求超时: ${fullURL}`);
+      // 根据错误类型抛出相应的错误
+      switch (errorInfo.type) {
+        case 'TIMEOUT':
           throw new RequestError("Request timeout", 408, "Request Timeout");
-        } else {
-          // 其他原因的中止（如用户取消、页面卸载等）
-          console.warn(`请求被中止: ${fullURL}`, error.message);
+        case 'ABORT':
           throw new RequestError("Request aborted", 499, "Client Closed Request");
-        }
+        case 'NETWORK':
+          throw new RequestError("Network error", 0, "Network Error");
+        default:
+          throw new RequestError(
+            error instanceof Error ? error.message : "Unknown error",
+            0,
+            "Unknown Error",
+          );
       }
-
-      // 处理网络错误
-      throw new RequestError(
-        error instanceof Error ? error.message : "Unknown error",
-        0,
-        "Network Error",
-      );
     }
   }
 
@@ -415,7 +419,7 @@ export class Request {
   }
 
   /**
-   * DELETE��求
+   * DELETE请求
    */
   async delete<T = any>(
     url: string,
