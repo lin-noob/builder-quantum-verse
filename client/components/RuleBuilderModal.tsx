@@ -308,6 +308,16 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
   const handleSave = async () => {
     if (!scenario || !validateForm()) return;
 
+    // 如果有严重冲突，阻止提交
+    if (conflictDetection && conflictDetection.riskScore > 80) {
+      toast({
+        title: "无法保存规则",
+        description: "存在严重冲突，请先解决冲突问题",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setLoading(true);
     try {
       const ruleData = {
@@ -594,7 +604,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
                   <Alert>
                     <AlertCircle className="h-4 w-4" />
                     <AlertDescription>
-                      当前场景下无可用的触发条件字段，规则将直接应用于该场景的所有触发事件。
+                      当前场景下无可用的触发条件字段，规则将直接应用于该场景的��有触发事件。
                     </AlertDescription>
                   </Alert>
                   
