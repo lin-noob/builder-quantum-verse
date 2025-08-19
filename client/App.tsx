@@ -1,6 +1,6 @@
+import "./lib/aggressiveWarningSuppress"; // 最激进的警告抑制
 import "./lib/suppressWarnings";
 import "./global.css";
-import "./lib/suppressWarnings"; // 导入警告抑制器
 
 import { Toaster } from "@/components/ui/toaster";
 import { createRoot } from "react-dom/client";
