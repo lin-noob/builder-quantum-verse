@@ -59,63 +59,58 @@ const ScenarioConfig = () => {
     rule: OverrideRule | null;
   }>({ show: false, rule: null });
 
-  useEffect(() => {
-    if (scenarioId) {
-      loadScenario();
-    }
-  }, [scenarioId]);
-
   const loadScenario = async () => {
     if (!scenarioId) return;
     
     try {
+      setLoading(true);
       const data = await getMarketingScenario(scenarioId);
-      if (data) {
-        setScenario(data);
-      } else {
-        toast({
-          title: "场景不存在",
-          description: "找不到指定的营销场景",
-          variant: "destructive",
-        });
-        navigate("/ai-marketing/scenarios");
-      }
+      setScenario(data);
     } catch (error) {
+      console.error('Failed to load scenario:', error);
       toast({
         title: "加载失败",
-        description: "无法加载场景配置，请重试",
-        variant: "destructive",
+        description: "无法加载场景配置",
+        variant: "destructive"
       });
     } finally {
       setLoading(false);
     }
   };
 
-  const handleAIToggle = async (newState: boolean) => {
-    if (!scenario) return;
+  useEffect(() => {
+    loadScenario();
+  }, [scenarioId]);
 
+  const handleToggleScenario = async (enabled: boolean) => {
+    if (!scenario) return;
+    
     try {
-      await updateMarketingScenario(scenario.scenarioId, { isAIEnabled: newState });
-      setScenario(prev => prev ? { ...prev, isAIEnabled: newState } : null);
-      
+      await updateMarketingScenario(scenario.scenarioId, { 
+        isEnabled: enabled 
+      });
+      setScenario(prev => prev ? { ...prev, isEnabled: enabled } : null);
       toast({
-        title: newState ? "AI自动化已启��" : "AI自动化已暂停",
-        description: `${scenario.scenarioName}场景的自动化营销已${newState ? '启动' : '暂停'}`,
+        title: enabled ? "场景已启用" : "场景已停用",
+        description: `AI营销场景「${scenario.scenarioName}」已${enabled ? '启用' : '停用'}`,
       });
     } catch (error) {
       toast({
         title: "操作失败",
-        description: "无法更新AI开关状态，请重试",
-        variant: "destructive",
+        description: "场景状态更新失败",
+        variant: "destructive"
       });
     }
   };
 
   const handleRuleToggle = async (rule: OverrideRule, newState: boolean) => {
     if (!scenario) return;
-
+    
     try {
-      await updateOverrideRule(scenario.scenarioId, rule.ruleId, { isEnabled: newState });
+      await updateOverrideRule(scenario.scenarioId, rule.ruleId, {
+        isEnabled: newState
+      });
+      
       setScenario(prev => {
         if (!prev) return null;
         return {
@@ -125,7 +120,7 @@ const ScenarioConfig = () => {
           )
         };
       });
-
+      
       toast({
         title: newState ? "规则已启用" : "规则已停用",
         description: `自定义规则「${rule.ruleName}」已${newState ? '启用' : '停用'}`,
@@ -133,138 +128,80 @@ const ScenarioConfig = () => {
     } catch (error) {
       toast({
         title: "操作失败",
-        description: "无法更新规则状态，请���试",
-        variant: "destructive",
+        description: "规则状态更新失败",
+        variant: "destructive"
       });
     }
   };
 
   const handleDeleteRule = async () => {
-    const { rule } = deleteDialog;
-    if (!rule || !scenario) return;
-
+    if (!scenario || !deleteDialog.rule) return;
+    
     try {
-      await deleteOverrideRule(scenario.scenarioId, rule.ruleId);
+      await deleteOverrideRule(scenario.scenarioId, deleteDialog.rule.ruleId);
+      
       setScenario(prev => {
         if (!prev) return null;
         return {
           ...prev,
-          overrideRules: prev.overrideRules.filter(r => r.ruleId !== rule.ruleId)
+          overrideRules: prev.overrideRules.filter(r => r.ruleId !== deleteDialog.rule?.ruleId)
         };
       });
-
+      
       toast({
         title: "规则已删除",
-        description: `自定义规则「${rule.ruleName}」已删除`,
+        description: `自定义规则「${deleteDialog.rule.ruleName}」已删除`,
       });
+      
+      setDeleteDialog({ show: false, rule: null });
     } catch (error) {
       toast({
         title: "删除失败",
-        description: "无法删除规则，请重试",
-        variant: "destructive",
+        description: "规则删除失败",
+        variant: "destructive"
       });
-    } finally {
-      setDeleteDialog({ show: false, rule: null });
     }
   };
 
   const handleDragEnd = async (result: DropResult) => {
     if (!result.destination || !scenario) return;
 
-    const newRules = Array.from(scenario.overrideRules);
-    const [reorderedRule] = newRules.splice(result.source.index, 1);
-    newRules.splice(result.destination.index, 0, reorderedRule);
+    const items = Array.from(scenario.overrideRules);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
 
-    setScenario(prev => prev ? { ...prev, overrideRules: newRules } : null);
+    // Update local state immediately for better UX
+    setScenario(prev => prev ? { ...prev, overrideRules: items } : null);
 
     try {
-      const ruleIds = newRules.map(rule => rule.ruleId);
-      await updateRulePriorities(scenario.scenarioId, ruleIds);
+      const priorities = items.map((rule, index) => ({
+        ruleId: rule.ruleId,
+        priority: index + 1
+      }));
+      
+      await updateRulePriorities(scenario.scenarioId, priorities);
       
       toast({
         title: "优先级已更新",
-        description: "规则执行优先级已调整",
+        description: "规则优先级调整成功",
       });
     } catch (error) {
-      setScenario(prev => prev ? { ...prev, overrideRules: scenario.overrideRules } : null);
+      // Revert on error
+      loadScenario();
       toast({
         title: "更新失败",
-        description: "无法调整规则优先级，请重试",
-        variant: "destructive",
+        description: "规则优先级更新失败",
+        variant: "destructive"
       });
     }
-  };
-
-  const formatActionType = (actionType: string) => {
-    switch (actionType) {
-      case 'POPUP': return '网页弹窗';
-      case 'EMAIL': return '邮件';
-      case 'SMS': return '短信';
-      default: return actionType;
-    }
-  };
-
-  const formatTiming = (timing: string) => {
-    switch (timing) {
-      case 'IMMEDIATE': return '立即触发';
-      case 'SMART_DELAY': return '智能延迟';
-      case 'DELAYED': return '延迟触发';
-      default: return timing;
-    }
-  };
-
-  const formatContentMode = (mode: string) => {
-    switch (mode) {
-      case 'STATIC': return '静态内容';
-      case 'AI_ASSISTED': return 'AI辅助';
-      case 'FULLY_GENERATIVE': return '完全生成';
-      default: return mode;
-    }
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('zh-CN', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
   };
 
   if (loading) {
     return (
-      <div className="p-6 space-y-6">
-        
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 space-y-6">
-            {[1, 2, 3].map((i) => (
-              <Card key={i} className="animate-pulse">
-                <CardHeader>
-                  <div className="h-5 bg-muted rounded w-32"></div>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    <div className="h-4 bg-muted rounded"></div>
-                    <div className="h-4 bg-muted rounded w-2/3"></div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-          <div className="space-y-6">
-            <Card className="animate-pulse">
-              <CardHeader>
-                <div className="h-5 bg-muted rounded w-24"></div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <div className="h-4 bg-muted rounded"></div>
-                  <div className="h-4 bg-muted rounded w-1/2"></div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center space-y-4">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+          <p className="text-muted-foreground">加载场景配置中...</p>
         </div>
       </div>
     );
@@ -273,11 +210,13 @@ const ScenarioConfig = () => {
   if (!scenario) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <AlertTriangle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <h3 className="text-lg font-medium">场景不存在</h3>
-          <p className="text-muted-foreground mb-4">找不到指定的营销场景</p>
-          <Button onClick={() => navigate("/ai-marketing/scenarios")}>
+        <div className="text-center space-y-4">
+          <AlertTriangle className="h-12 w-12 text-muted-foreground mx-auto" />
+          <div>
+            <h3 className="text-lg font-medium">场景不存在</h3>
+            <p className="text-muted-foreground">指定的营销场景未找到</p>
+          </div>
+          <Button onClick={() => navigate('/ai-marketing/scenarios')}>
             返回场景列表
           </Button>
         </div>
@@ -285,215 +224,88 @@ const ScenarioConfig = () => {
     );
   }
 
-  const enabledRulesCount = scenario.overrideRules.filter(rule => rule.isEnabled).length;
-  const totalRulesCount = scenario.overrideRules.length;
-
   return (
-    <div className="p-6 space-y-6">
-      {/* 页面标题 */}
-      <div className="border-b pb-4">
-        <h1 className="text-2xl font-bold text-foreground">{scenario.scenarioName}</h1>
-        <p className="text-sm text-muted-foreground mt-1">场景配置和规则管理</p>
+    <div className="container mx-auto py-6 space-y-6">
+      {/* 场景标题和状态 */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">{scenario.scenarioName}</h1>
+          <p className="text-muted-foreground mt-1">{scenario.description}</p>
+        </div>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">场景状态</span>
+            <Switch
+              checked={scenario.isEnabled}
+              onCheckedChange={handleToggleScenario}
+            />
+          </div>
+          <Badge variant={scenario.isEnabled ? "default" : "secondary"}>
+            {scenario.isEnabled ? "已启用" : "已停用"}
+          </Badge>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* 左侧主要信息 */}
+        {/* 左侧主要内容 */}
         <div className="lg:col-span-2 space-y-6">
-
-          {/* AI工作原�� */}
+          {/* AI配置信息 */}
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg font-semibold flex items-center gap-2">
                   <Bot className="h-5 w-5 text-primary" />
-                  AI策略配置
+                  AI配置信息
                 </CardTitle>
-                <Switch
-                  checked={scenario.isAIEnabled}
-                  onCheckedChange={handleAIToggle}
-                />
               </div>
             </CardHeader>
             <CardContent>
-              <div className="space-y-6">
-                {/* 决策维度详情 */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Tabs defaultValue="0" className="w-full">
-                    <TabsList className="grid w-full grid-cols-3">
-                      {scenario.defaultAIConfig.dimensions.map((dimension, index) => (
-                        <TabsTrigger
-                          key={index}
-                          value={index.toString()}
-                          className="text-xs"
-                        >
-                          {dimension.dimension}
-                        </TabsTrigger>
-                      ))}
-                    </TabsList>
-
-                    {scenario.defaultAIConfig.dimensions.map((dimension, index) => (
-                      <TabsContent key={index} value={index.toString()} className="mt-4">
-                        <div className="border rounded-lg p-4 bg-muted/20">
-                          <div className="flex items-center justify-between mb-4">
-                            <h4 className="font-medium text-foreground">{dimension.dimension}</h4>
-                            <Badge variant="outline" className="text-xs">
-                              {dimension.strategy}
-                            </Badge>
-                          </div>
-
-                          <div className="space-y-4">
-                            <div>
-                              <dt className="text-sm font-medium text-muted-foreground mb-2">决策依据</dt>
-                              <dd className="text-sm text-foreground leading-relaxed">
-                                {dimension.reasoning}
-                              </dd>
-                            </div>
-
-                            <div>
-                              <dt className="text-sm font-medium text-muted-foreground mb-2">策略示例</dt>
-                              <dd className="space-y-2">
-                                {dimension.examples.map((example, exampleIndex) => (
-                                  <div
-                                    key={exampleIndex}
-                                    className="text-sm text-foreground bg-background/60 p-3 rounded border-l-3 border-primary/40"
-                                  >
-                                    {example}
-                                  </div>
-                                ))}
-                              </dd>
-                            </div>
-                          </div>
+                  <span className="text-sm text-muted-foreground">业务价值描述</span>
+                  <p className="text-sm mt-1">{scenario.businessValue}</p>
+                </div>
+                <div>
+                  <span className="text-sm text-muted-foreground">决策维度</span>
+                  <div className="mt-2">
+                    <Tabs defaultValue="strategy">
+                      <TabsList className="grid w-full grid-cols-2">
+                        <TabsTrigger value="strategy" className="text-xs">策略配置</TabsTrigger>
+                        <TabsTrigger value="content" className="text-xs">内容策略</TabsTrigger>
+                      </TabsList>
+                      <TabsContent value="strategy" className="space-y-2 mt-3">
+                        <div className="text-xs space-y-1">
+                          <div>目标群体定位：{scenario.aiConfig?.targetAudience}</div>
+                          <div>营销时机：{scenario.aiConfig?.triggerTiming}</div>
+                          <div>内容个性化：{scenario.aiConfig?.personalizationLevel}</div>
                         </div>
                       </TabsContent>
-                    ))}
-                  </Tabs>
+                      <TabsContent value="content" className="space-y-2 mt-3">
+                        <div className="text-xs space-y-1">
+                          <div>内容风格：{scenario.aiConfig?.contentTone}</div>
+                          <div>文案长度：{scenario.aiConfig?.contentLength}</div>
+                          <div>行动引导：{scenario.aiConfig?.callToAction}</div>
+                        </div>
+                      </TabsContent>
+                    </Tabs>
+                  </div>
                 </div>
               </div>
             </CardContent>
           </Card>
 
           {/* 自定义规则与冲突管理 */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-lg font-semibold">自定义规则</CardTitle>
-                <Button onClick={() => setRuleBuilderOpen(true)}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  添加规则
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              {scenario.overrideRules.length === 0 ? (
-                <div className="text-center py-12">
-                  <Bot className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-medium">暂无自定义规则</h3>
-                  <p className="text-muted-foreground mb-4">
-                    创建自定义���则来对特定用户群体进行精准营销
-                  </p>
-                  <Button onClick={() => setRuleBuilderOpen(true)}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    创建第一条规则
-                  </Button>
-                </div>
-              ) : (
-                <DragDropContext onDragEnd={handleDragEnd}>
-                  <Droppable droppableId="rules">
-                    {(provided) => (
-                      <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-3">
-                        {scenario.overrideRules.map((rule, index) => (
-                          <Draggable key={rule.ruleId} draggableId={rule.ruleId} index={index}>
-                            {(provided, snapshot) => (
-                              <div
-                                ref={provided.innerRef}
-                                {...provided.draggableProps}
-                                className={`p-4 border rounded-lg bg-card ${
-                                  snapshot.isDragging ? 'shadow-lg' : ''
-                                } ${!rule.isEnabled ? 'opacity-60' : ''}`}
-                              >
-                                <div className="flex items-center gap-3">
-                                  <div 
-                                    {...provided.dragHandleProps}
-                                    className="text-muted-foreground cursor-grab active:cursor-grabbing"
-                                  >
-                                    <GripVertical className="h-4 w-4" />
-                                  </div>
-                                  
-                                  <div className="flex-1 space-y-2">
-                                    <div className="flex items-center justify-between">
-                                      <div className="flex items-center gap-2">
-                                        <Badge variant="outline" className="text-xs">
-                                          优先级 {rule.priority}
-                                        </Badge>
-                                        <h4 className="font-medium">{rule.ruleName}</h4>
-                                      </div>
-                                      <div className="flex items-center gap-2">
-                                        <Switch
-                                          checked={rule.isEnabled}
-                                          onCheckedChange={(checked) => handleRuleToggle(rule, checked)}
-                                          size="sm"
-                                        />
-                                        <Button
-                                          variant="ghost"
-                                          size="sm"
-                                          onClick={() => {
-                                            setEditingRule(rule);
-                                            setRuleBuilderOpen(true);
-                                          }}
-                                        >
-                                          <Edit className="h-4 w-4" />
-                                        </Button>
-                                        <Button
-                                          variant="ghost"
-                                          size="sm"
-                                          onClick={() => setDeleteDialog({ show: true, rule })}
-                                        >
-                                          <Trash2 className="h-4 w-4" />
-                                        </Button>
-                                      </div>
-                                    </div>
-                                    
-                                    <div className="grid md:grid-cols-2 gap-4 text-sm">
-                                      <div>
-                                        <span className="text-muted-foreground">响���动作：</span>
-                                        <span className="ml-1">
-                                          {formatActionType(rule.responseAction.actionType)} • {formatTiming(rule.responseAction.timing)}
-                                        </span>
-                                      </div>
-                                      <div>
-                                        <span className="text-muted-foreground">内容模式：</span>
-                                        <span className="ml-1">
-                                          {formatContentMode(rule.responseAction.contentMode)}
-                                        </span>
-                                      </div>
-                                    </div>
-                                    
-                                    <div className="text-xs text-muted-foreground">
-                                      触发条件：
-                                      {rule.triggerConditions.eventConditions.length > 0 && 
-                                        ` 事件属性(${rule.triggerConditions.eventConditions.length})`
-                                      }
-                                      {rule.triggerConditions.sessionConditions.length > 0 && 
-                                        ` 会话属���(${rule.triggerConditions.sessionConditions.length})`
-                                      }
-                                      {rule.triggerConditions.userConditions.length > 0 && 
-                                        ` ��户画像(${rule.triggerConditions.userConditions.length})`
-                                      }
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            )}
-                          </Draggable>
-                        ))}
-                        {provided.placeholder}
-                      </div>
-                    )}
-                  </Droppable>
-                </DragDropContext>
-              )}
-            </CardContent>
-          </Card>
+          <CustomRulesWithConflictManager
+            scenario={scenario}
+            onAddRule={() => setRuleBuilderOpen(true)}
+            onEditRule={(rule) => {
+              setEditingRule(rule);
+              setRuleBuilderOpen(true);
+            }}
+            onDeleteRule={(rule) => setDeleteDialog({ show: true, rule })}
+            onToggleRule={handleRuleToggle}
+            onDragEnd={handleDragEnd}
+          />
         </div>
 
         {/* 右侧信息 */}
@@ -508,28 +320,26 @@ const ScenarioConfig = () => {
                 <div>
                   <dt className="text-sm font-medium text-muted-foreground">场景状态</dt>
                   <dd className="mt-1 flex items-center gap-2">
-                    <span className="text-sm">
-                      {scenario.isAIEnabled ? '已启用' : '已��停'}
-                    </span>
-                    {scenario.isAIEnabled && (
-                      <div className="flex items-center gap-1 text-success">
-                        <div className="w-2 h-2 bg-success rounded-full animate-pulse"></div>
-                        <span className="text-xs">运行中</span>
-                      </div>
-                    )}
+                    <Badge variant={scenario.isEnabled ? "default" : "secondary"}>
+                      {scenario.isEnabled ? "已启用" : "已停用"}
+                    </Badge>
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-sm font-medium text-muted-foreground">场景ID</dt>
-                  <dd className="mt-1 text-sm text-muted-foreground font-mono">{scenario.scenarioId}</dd>
+                  <dt className="text-sm font-medium text-muted-foreground">应用场景</dt>
+                  <dd className="mt-1 text-sm">{scenario.scenarioType}</dd>
+                </div>
+                <div>
+                  <dt className="text-sm font-medium text-muted-foreground">自定义规则</dt>
+                  <dd className="mt-1 text-sm">{scenario.overrideRules.length} 条规则</dd>
                 </div>
                 <div>
                   <dt className="text-sm font-medium text-muted-foreground">创建时间</dt>
-                  <dd className="mt-1 text-sm">{formatDate(scenario.createdAt)}</dd>
+                  <dd className="mt-1 text-sm">{new Date(scenario.createdAt).toLocaleDateString('zh-CN')}</dd>
                 </div>
                 <div>
-                  <dt className="text-sm font-medium text-muted-foreground">更新时间</dt>
-                  <dd className="mt-1 text-sm">{formatDate(scenario.updatedAt)}</dd>
+                  <dt className="text-sm font-medium text-muted-foreground">最后更新</dt>
+                  <dd className="mt-1 text-sm">{new Date(scenario.updatedAt).toLocaleDateString('zh-CN')}</dd>
                 </div>
               </dl>
             </CardContent>
@@ -538,44 +348,26 @@ const ScenarioConfig = () => {
           {/* AI工作原理 */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg font-semibold">AI工作原���</CardTitle>
+              <CardTitle className="text-lg font-semibold">AI工作原理</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-3 text-sm text-muted-foreground">
                 <div className="flex items-start gap-3">
-                  <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center text-xs font-bold text-blue-700 mt-0.5">
-                    1
+                  <Target className="h-4 w-4 text-blue-500 mt-0.5" />
+                  <div>
+                    <div className="font-medium text-foreground">智能分析</div>
+                    <div>AI分析用户行为和偏好，识别最佳营销时机。</div>
                   </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <Activity className="h-4 w-4 text-green-500 mt-0.5" />
                   <div>
                     <div className="font-medium text-foreground">规则优先</div>
                     <div>系统优先匹配您设定的自定义规则。</div>
                   </div>
                 </div>
-
                 <div className="flex items-start gap-3">
-                  <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center text-xs font-bold text-green-700 mt-0.5">
-                    2
-                  </div>
-                  <div>
-                    <div className="font-medium text-foreground">AI决策</div>
-                    <div>若无规则命中，则由默认AI自主决策。</div>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <div className="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center text-xs font-bold text-purple-700 mt-0.5">
-                    3
-                  </div>
-                  <div>
-                    <div className="font-medium text-foreground">个性化执行</div>
-                    <div>根据匹配结果，执行最合适的响应动作。</div>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <div className="w-6 h-6 bg-orange-100 rounded-full flex items-center justify-center text-xs font-bold text-orange-700 mt-0.5">
-                    4
-                  </div>
+                  <TrendingUp className="h-4 w-4 text-purple-500 mt-0.5" />
                   <div>
                     <div className="font-medium text-foreground">效果追踪</div>
                     <div>记录所有动作效果，供您分析优化。</div>
@@ -603,7 +395,7 @@ const ScenarioConfig = () => {
         }}
       />
 
-      {/* 删除确认对话��� */}
+      {/* 删除确认对话框 */}
       <AlertDialog open={deleteDialog.show} onOpenChange={(open) => 
         !open && setDeleteDialog({ show: false, rule: null })
       }>
@@ -611,14 +403,13 @@ const ScenarioConfig = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>删除自定义规则</AlertDialogTitle>
             <AlertDialogDescription>
-              您确定要删除规则「{deleteDialog.rule?.ruleName}」吗？
-              此操作无法撤销。
+              确定要删除规则「{deleteDialog.rule?.ruleName}」吗？此操作无法撤销。
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>取消</AlertDialogCancel>
             <AlertDialogAction onClick={handleDeleteRule}>
-              确认删除
+              删除
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
