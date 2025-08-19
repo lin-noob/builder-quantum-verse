@@ -134,6 +134,29 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
     }
   }, [open, rule]);
 
+  // 手动重新检测冲突
+  const handleRedetectConflicts = () => {
+    if (!scenario || !ruleName.trim()) return;
+
+    const detector = new RuleConflictDetector();
+    const existingRules = scenario.overrideRules || [];
+
+    const newRule: OverrideRule = {
+      ruleId: rule?.ruleId || `rule_${Date.now()}`,
+      ruleName: ruleName,
+      priority: rule?.priority || Math.max(...existingRules.map(r => r.priority), 0) + 1,
+      isEnabled: true,
+      triggerConditions,
+      responseAction,
+      createdAt: rule?.createdAt || new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    const filteredExistingRules = existingRules.filter(r => r.ruleId !== newRule.ruleId);
+    const result = detector.detectConflicts(newRule, filteredExistingRules);
+    setConflictDetection(result);
+    setShowConflicts(result.hasConflicts);
+  };
 
   // 当规则配置改变时检测冲突
   useEffect(() => {
@@ -602,7 +625,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
                   <Alert>
                     <AlertCircle className="h-4 w-4" />
                     <AlertDescription>
-                      当前场景下无可用的触发条件字段，规则将直接应用于该场景的��有触发事件。
+                      当前场景下无可用的触发条件字段，规则将直接应用于���场景的��有触发事件。
                     </AlertDescription>
                   </Alert>
                   
@@ -634,7 +657,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
                   </div>
 
                   <div>
-                    <Label>营销时机</Label>
+                    <Label>营��时机</Label>
                     <Select
                       value={responseAction.timing}
                       onValueChange={(value) => setResponseAction(prev => ({
