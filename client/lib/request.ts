@@ -302,23 +302,24 @@ export class Request {
         this.defaultConfig.onError(error as Error);
       }
 
-      // 重新抛出���误
+      // 重新抛出错误
       if (error instanceof RequestError) {
         throw error;
       }
 
       // 处理超时错误和中断错误
       if (error instanceof Error && (error.name === "AbortError" || error.message.includes("aborted"))) {
-        // 在开发环境中，跳过某些API调用以避免错误
-        if (process.env.NODE_ENV === 'development' && fullURL.includes('/quote/api/')) {
-          console.warn(`开发模式：跳过API调用 ${fullURL}`);
-          return {
-            code: '200',
-            data: null,
-            message: 'Development mode: API skipped'
-          } as ApiResponse<T>;
+        // 检查是否是我们主动中止的请求（超时）
+        const isTimeout = error.message.includes("timeout") || timeoutId !== undefined;
+
+        if (isTimeout) {
+          console.warn(`请求超时: ${fullURL}`);
+          throw new RequestError("Request timeout", 408, "Request Timeout");
+        } else {
+          // 其他原因的中止（如用户取消、页面卸载等）
+          console.warn(`请求被中止: ${fullURL}`, error.message);
+          throw new RequestError("Request aborted", 499, "Client Closed Request");
         }
-        throw new RequestError("Request timeout", 408, "Request Timeout");
       }
 
       // 处理网络错误
