@@ -98,7 +98,7 @@ const ScenarioConfig = () => {
       setScenario(prev => prev ? { ...prev, isAIEnabled: newState } : null);
       
       toast({
-        title: newState ? "AI自动化已��动" : "AI自动化已暂停",
+        title: newState ? "AI自动化已启动" : "AI自动化已暂停",
         description: `${scenario.scenarioName}场景的自动化营销已${newState ? '启动' : '暂停'}`,
       });
     } catch (error) {
@@ -315,9 +315,9 @@ const ScenarioConfig = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
-                {/* 决策维度详情 */}
+                {/* 决策维度概览 */}
                 <div>
-                  <dt className="text-sm font-medium text-muted-foreground mb-3">决策维度</dt>
+                  <dt className="text-sm font-medium text-muted-foreground mb-3">决策维度概览</dt>
                   <div className="grid grid-cols-3 gap-3">
                     {scenario.defaultAIConfig.dimensions.map((dimension, index) => (
                       <div key={index} className="text-center p-3 bg-muted/30 rounded-lg">
@@ -328,6 +328,60 @@ const ScenarioConfig = () => {
                       </div>
                     ))}
                   </div>
+                </div>
+
+                {/* 决策维度详情 */}
+                <div>
+                  <dt className="text-sm font-medium text-muted-foreground mb-3">决策维度详情</dt>
+                  <Tabs defaultValue="0" className="w-full">
+                    <TabsList className="grid w-full grid-cols-3">
+                      {scenario.defaultAIConfig.dimensions.map((dimension, index) => (
+                        <TabsTrigger
+                          key={index}
+                          value={index.toString()}
+                          className="text-xs"
+                        >
+                          {dimension.dimension}
+                        </TabsTrigger>
+                      ))}
+                    </TabsList>
+
+                    {scenario.defaultAIConfig.dimensions.map((dimension, index) => (
+                      <TabsContent key={index} value={index.toString()} className="mt-4">
+                        <div className="border rounded-lg p-4 bg-muted/20">
+                          <div className="flex items-center justify-between mb-4">
+                            <h4 className="font-medium text-foreground">{dimension.dimension}</h4>
+                            <Badge variant="outline" className="text-xs">
+                              {dimension.strategy}
+                            </Badge>
+                          </div>
+
+                          <div className="space-y-4">
+                            <div>
+                              <dt className="text-sm font-medium text-muted-foreground mb-2">决策依据</dt>
+                              <dd className="text-sm text-foreground leading-relaxed">
+                                {dimension.reasoning}
+                              </dd>
+                            </div>
+
+                            <div>
+                              <dt className="text-sm font-medium text-muted-foreground mb-2">策略示例</dt>
+                              <dd className="space-y-2">
+                                {dimension.examples.map((example, exampleIndex) => (
+                                  <div
+                                    key={exampleIndex}
+                                    className="text-sm text-foreground bg-background/60 p-3 rounded border-l-3 border-primary/40"
+                                  >
+                                    {example}
+                                  </div>
+                                ))}
+                              </dd>
+                            </div>
+                          </div>
+                        </div>
+                      </TabsContent>
+                    ))}
+                  </Tabs>
                 </div>
               </div>
             </CardContent>
@@ -350,7 +404,7 @@ const ScenarioConfig = () => {
                   <Bot className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                   <h3 className="text-lg font-medium">暂无自定义规则</h3>
                   <p className="text-muted-foreground mb-4">
-                    创建自定义规则来对特定用户群体进行精准营销
+                    创建自定义规则来对特定用户群体进行���准营销
                   </p>
                   <Button onClick={() => setRuleBuilderOpen(true)}>
                     <Plus className="h-4 w-4 mr-2" />
