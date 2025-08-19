@@ -24,7 +24,7 @@ export interface RequestConfig {
 export type RequestMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
 
 /**
- * 请求数据类���
+ * 请求数据类型
  */
 export type RequestData =
   | Record<string, any>
@@ -43,7 +43,7 @@ export interface RequestOptions
   method?: RequestMethod;
   /** 请求数据 */
   data?: RequestData;
-  /** 查询参数 */
+  /** 查���参数 */
   params?: Record<string, string | number | boolean>;
   /** 响应类型 */
   responseType?: "json" | "text" | "blob" | "arrayBuffer";
@@ -538,6 +538,20 @@ export class Request {
     options?: Omit<RequestOptions, "method" | "data">,
   ): Promise<T> {
     return this.businessRequest<T>(url, { ...options, method: "PATCH", data });
+  }
+
+  /**
+   * 取消指定请求
+   */
+  abortRequest(requestId: string) {
+    this.requestManager.abortRequest(requestId);
+  }
+
+  /**
+   * 取消所有进行中的请求
+   */
+  abortAllRequests() {
+    this.requestManager.abortAllRequests();
   }
 }
 
