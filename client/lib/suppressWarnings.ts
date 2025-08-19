@@ -48,12 +48,11 @@ if (typeof console !== "undefined" && typeof window !== "undefined") {
       return true;
     }
 
-    // Check if any argument contains recharts component names with defaultProps warnings
-    const rechartsComponents = ["XAxis", "YAxis", "XAxis2", "YAxis2", "LineChart", "ResponsiveContainer", "Line", "Tooltip", "Legend"];
+    // SUPER AGGRESSIVE: Check if any argument contains recharts component names
+    const rechartsComponents = ["XAxis", "YAxis", "XAxis2", "YAxis2", "LineChart", "ResponsiveContainer", "Line", "Tooltip", "Legend", "Chart", "Recharts"];
     for (const component of rechartsComponents) {
-      if (msg.includes(component) &&
-          (msg.includes("defaultProps") || msg.includes("function components"))) {
-        return true;
+      if (msg.includes(component)) {
+        return true; // Suppress ANY warning containing these component names
       }
 
       // Also check in other arguments
@@ -62,6 +61,12 @@ if (typeof console !== "undefined" && typeof window !== "undefined") {
           return true;
         }
       }
+    }
+
+    // AGGRESSIVE: Suppress any warning from recharts.js file
+    if (msg.includes("recharts.js") || msg.includes("/deps/recharts") ||
+        allArgs.some(arg => String(arg).includes("recharts"))) {
+      return true;
     }
 
     // Suppress by file path - recharts library files
