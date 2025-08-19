@@ -63,24 +63,24 @@ export default function Layout({ children }: LayoutProps) {
       path: "/ai-marketing/scenarios",
       icon: <Bot className="h-5 w-5" />,
     },
-    {
-      id: "fully-auto",
-      label: "全自动营销",
-      path: "/ai-marketing/fully-auto",
-      icon: <Bot className="h-5 w-5" />,
-    },
+    // {
+    //   id: "fully-auto",
+    //   label: "全自动营销",
+    //   path: "/ai-marketing/fully-auto",
+    //   icon: <Bot className="h-5 w-5" />,
+    // },
     // {
     //   id: "response-actions",
     //   label: "响应动作库",
     //   path: "/response-actions",
     //   icon: <MessageSquare className="h-5 w-5" />,
     // },
-    {
-      id: "ai-marketing-strategies",
-      label: "营销策略",
-      path: "/ai-marketing-strategies",
-      icon: <Zap className="h-5 w-5" />,
-    },
+    // {
+    //   id: "ai-marketing-strategies",
+    //   label: "营销策略",
+    //   path: "/ai-marketing-strategies",
+    //   icon: <Zap className="h-5 w-5" />,
+    // },
     {
       id: "monitoring-center",
       label: "监控中心",
