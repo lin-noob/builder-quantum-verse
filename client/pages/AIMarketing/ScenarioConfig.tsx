@@ -251,46 +251,73 @@ const ScenarioConfig = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* 左侧主要内容 */}
         <div className="lg:col-span-2 space-y-6">
-          {/* AI配置信息 */}
+          {/* AI策略配置 */}
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg font-semibold flex items-center gap-2">
                   <Bot className="h-5 w-5 text-primary" />
-                  AI配置信息
+                  AI策略配置
                 </CardTitle>
+                <Switch
+                  checked={scenario.isAIEnabled}
+                  onCheckedChange={handleToggleScenario}
+                />
               </div>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-6">
+                {/* 决策维度详情 */}
                 <div>
-                  <span className="text-sm text-muted-foreground">业务价值描述</span>
-                  <p className="text-sm mt-1">{scenario.businessValue}</p>
-                </div>
-                <div>
-                  <span className="text-sm text-muted-foreground">决策维度</span>
-                  <div className="mt-2">
-                    <Tabs defaultValue="strategy">
-                      <TabsList className="grid w-full grid-cols-2">
-                        <TabsTrigger value="strategy" className="text-xs">策略配置</TabsTrigger>
-                        <TabsTrigger value="content" className="text-xs">内容策略</TabsTrigger>
-                      </TabsList>
-                      <TabsContent value="strategy" className="space-y-2 mt-3">
-                        <div className="text-xs space-y-1">
-                          <div>目标群体定位：{scenario.aiConfig?.targetAudience}</div>
-                          <div>营销时机：{scenario.aiConfig?.triggerTiming}</div>
-                          <div>内容个性化：{scenario.aiConfig?.personalizationLevel}</div>
+                  <Tabs defaultValue="0" className="w-full">
+                    <TabsList className="grid w-full grid-cols-3">
+                      {scenario.defaultAIConfig.dimensions.map((dimension, index) => (
+                        <TabsTrigger
+                          key={index}
+                          value={index.toString()}
+                          className="text-xs"
+                        >
+                          {dimension.dimension}
+                        </TabsTrigger>
+                      ))}
+                    </TabsList>
+
+                    {scenario.defaultAIConfig.dimensions.map((dimension, index) => (
+                      <TabsContent key={index} value={index.toString()} className="mt-4">
+                        <div className="border rounded-lg p-4 bg-muted/20">
+                          <div className="flex items-center justify-between mb-4">
+                            <h4 className="font-medium text-foreground">{dimension.dimension}</h4>
+                            <Badge variant="outline" className="text-xs">
+                              {dimension.strategy}
+                            </Badge>
+                          </div>
+
+                          <div className="space-y-4">
+                            <div>
+                              <dt className="text-sm font-medium text-muted-foreground mb-2">决策依据</dt>
+                              <dd className="text-sm text-foreground leading-relaxed">
+                                {dimension.reasoning}
+                              </dd>
+                            </div>
+
+                            <div>
+                              <dt className="text-sm font-medium text-muted-foreground mb-2">策略示例</dt>
+                              <dd className="space-y-2">
+                                {dimension.examples.map((example, exampleIndex) => (
+                                  <div
+                                    key={exampleIndex}
+                                    className="text-sm text-foreground bg-background/60 p-3 rounded border-l-3 border-primary/40"
+                                  >
+                                    {example}
+                                  </div>
+                                ))}
+                              </dd>
+                            </div>
+                          </div>
                         </div>
                       </TabsContent>
-                      <TabsContent value="content" className="space-y-2 mt-3">
-                        <div className="text-xs space-y-1">
-                          <div>内容风格：{scenario.aiConfig?.contentTone}</div>
-                          <div>文案长度：{scenario.aiConfig?.contentLength}</div>
-                          <div>行动引导：{scenario.aiConfig?.callToAction}</div>
-                        </div>
-                      </TabsContent>
-                    </Tabs>
-                  </div>
+                    ))}
+                  </Tabs>
                 </div>
               </div>
             </CardContent>
