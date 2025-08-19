@@ -178,10 +178,14 @@ const RuleBuilderModal = ({
 
   // 当规则配置改变时检测冲突
   useEffect(() => {
-    if (open && ruleName.trim()) {
-      const timeoutId = setTimeout(() => {
-        if (!scenario || !ruleName.trim()) return;
+    if (!open || !ruleName.trim() || !scenario) {
+      setConflictDetection(null);
+      setShowConflicts(false);
+      return;
+    }
 
+    const timeoutId = setTimeout(() => {
+      try {
         const detector = new RuleConflictDetector();
         const existingRules = scenario.overrideRules || [];
 
@@ -204,9 +208,12 @@ const RuleBuilderModal = ({
         const result = detector.detectConflicts(newRule, filteredExistingRules);
         setConflictDetection(result);
         setShowConflicts(result.hasConflicts);
-      }, 500);
-      return () => clearTimeout(timeoutId);
-    }
+      } catch (error) {
+        console.error("Conflict detection error:", error);
+      }
+    }, 800); // 增加延迟时间
+
+    return () => clearTimeout(timeoutId);
   }, [ruleName, triggerConditions, responseAction, open, scenario, rule?.ruleId]);
 
   const addCondition = (category: ConditionCategory) => {
@@ -360,7 +367,7 @@ const RuleBuilderModal = ({
   const handleSave = async () => {
     if (!scenario || !validateForm()) return;
 
-    // 如果有严重冲突，阻止提交
+    // 如果有严重冲突，��止提交
     if (conflictDetection && conflictDetection.riskScore > 80) {
       toast({
         title: "无法保存规则",
@@ -839,7 +846,7 @@ const RuleBuilderModal = ({
                   </div>
 
                   <div>
-                    <Label>营销时机</Label>
+                    <Label>营��时机</Label>
                     <Select
                       value={responseAction.timing}
                       onValueChange={(value) =>
