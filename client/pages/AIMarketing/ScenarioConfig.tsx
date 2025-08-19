@@ -316,7 +316,7 @@ const ScenarioConfig = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
-                {/* 决策维度���情 */}
+                {/* 决策维度详情 */}
                 <div>
                   <Tabs defaultValue="0" className="w-full">
                     <TabsList className="grid w-full grid-cols-3">
@@ -389,7 +389,7 @@ const ScenarioConfig = () => {
                   <Bot className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                   <h3 className="text-lg font-medium">暂无自定义规则</h3>
                   <p className="text-muted-foreground mb-4">
-                    创建自定义���则来对特定用户群体进行精准营销
+                    创建自定义���则来对特定用户群体进���精准营销
                   </p>
                   <Button onClick={() => setRuleBuilderOpen(true)}>
                     <Plus className="h-4 w-4 mr-2" />
@@ -569,7 +569,7 @@ const ScenarioConfig = () => {
                   </div>
                   <div>
                     <div className="font-medium text-foreground">AI决策</div>
-                    <div>若无规则命中，则由默认AI自主决策。</div>
+                    <div>若无���则命中，则由默认AI自主决策。</div>
                   </div>
                 </div>
 
@@ -595,9 +595,6 @@ const ScenarioConfig = () => {
               </div>
             </CardContent>
           </Card>
-
-          {/* 规则冲突预防指南 */}
-          <RuleConflictGuide />
         </div>
       </div>
 
