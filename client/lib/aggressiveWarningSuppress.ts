@@ -31,6 +31,13 @@ if (typeof window !== "undefined" && typeof console !== "undefined") {
       "Warning: %s",
       "at XAxis2",
       "at YAxis2",
+      "at svg",
+      "at Surface",
+      "at ChartLayoutContextProvider2",
+      "at CategoricalChartWrapper",
+      "https://736abde510b74e08aed97b2f9a8bd1a4-1ace5ac283d148ebbec32708f.fly.dev/node_modules/.vite/deps/recharts.js",
+      "Recharts",
+      "RECHARTS",
     ];
 
     // Check if any pattern matches
