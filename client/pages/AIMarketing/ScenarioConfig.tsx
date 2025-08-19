@@ -44,7 +44,6 @@ import {
 } from "@hello-pangea/dnd";
 import RuleBuilderModal from "@/components/RuleBuilderModal";
 import RuleConflictManager from "@/components/RuleConflictManager";
-import RuleConflictGuide from "@/components/RuleConflictGuide";
 
 const ScenarioConfig = () => {
   const { scenarioId } = useParams<{ scenarioId: string }>();
@@ -134,7 +133,7 @@ const ScenarioConfig = () => {
     } catch (error) {
       toast({
         title: "操作失败",
-        description: "无法更新规则状态，������试",
+        description: "无法更新规则状态，请���试",
         variant: "destructive",
       });
     }
@@ -301,7 +300,7 @@ const ScenarioConfig = () => {
         {/* 左侧主要信息 */}
         <div className="lg:col-span-2 space-y-6">
 
-          {/* AI��作原�� */}
+          {/* AI工作原�� */}
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
@@ -317,7 +316,7 @@ const ScenarioConfig = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
-                {/* 决策维度详情 */}
+                {/* 决策维度���情 */}
                 <div>
                   <Tabs defaultValue="0" className="w-full">
                     <TabsList className="grid w-full grid-cols-3">
