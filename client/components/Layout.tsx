@@ -48,13 +48,13 @@ export default function Layout({ children }: LayoutProps) {
     {
       id: "dashboard",
       label: "仪表盘",
-      path: "/dashboard",
+      path: "/dashboard2",
       icon: <BarChart3 className="h-5 w-5" />,
     },
     {
       id: "users",
       label: "用户画像",
-      path: "/users",
+      path: "/users2",
       icon: <Users className="h-5 w-5" />,
     },
     {
@@ -93,25 +93,19 @@ export default function Layout({ children }: LayoutProps) {
       path: "/effect-tracking",
       icon: <Target className="h-5 w-5" />,
     },
-    // 隐藏自动营销入口
+    // 隐藏旧版本
     // {
-    //   id: "ai-marketing",
-    //   label: "自动营销",
-    //   path: "/ai-marketing/monitoring-center",
-    //   icon: <Bot className="h-5 w-5" />,
+    //   id: "old-dashboard",
+    //   label: "仪表盘1.0",
+    //   path: "/dashboard",
+    //   icon: <BarChart3 className="h-5 w-5" />,
     // },
-    {
-      id: "dashboard2",
-      label: "仪表盘2.0",
-      path: "/dashboard2",
-      icon: <BarChart3 className="h-5 w-5" />,
-    },
-    {
-      id: "users2",
-      label: "用户画像2.0",
-      path: "/users2",
-      icon: <Users className="h-5 w-5" />,
-    },
+    // {
+    //   id: "old-users",
+    //   label: "用户画像1.0",
+    //   path: "/users",
+    //   icon: <Users className="h-5 w-5" />,
+    // },
   ];
 
   return (
