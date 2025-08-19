@@ -136,9 +136,6 @@ export default function Dashboard() {
         ))}
       </div>
 
-      {/* Test Chart */}
-      <SimpleChart />
-
       {/* Second Row: Performance Trend (仍使用本地 mock 数据) */}
       <div className="w-full">
         <PerformanceTrend
