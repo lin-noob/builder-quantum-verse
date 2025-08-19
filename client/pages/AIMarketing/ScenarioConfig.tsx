@@ -86,10 +86,10 @@ const ScenarioConfig = () => {
 
   const handleToggleScenario = async (enabled: boolean) => {
     if (!scenario) return;
-    
+
     try {
-      await updateMarketingScenario(scenario.scenarioId, { 
-        isEnabled: enabled 
+      await updateMarketingScenario(scenario.scenarioId, {
+        isEnabled: enabled
       });
       setScenario(prev => prev ? { ...prev, isEnabled: enabled } : null);
       toast({
@@ -101,6 +101,26 @@ const ScenarioConfig = () => {
         title: "操作失败",
         description: "场景状态更新失败",
         variant: "destructive"
+      });
+    }
+  };
+
+  const handleAIToggle = async (newState: boolean) => {
+    if (!scenario) return;
+
+    try {
+      await updateMarketingScenario(scenario.scenarioId, { isAIEnabled: newState });
+      setScenario(prev => prev ? { ...prev, isAIEnabled: newState } : null);
+
+      toast({
+        title: newState ? "AI自动化已启用" : "AI自动化已暂停",
+        description: `${scenario.scenarioName}场景的自动化营销已${newState ? '启动' : '暂停'}`,
+      });
+    } catch (error) {
+      toast({
+        title: "操作失败",
+        description: "无法更新AI开关状态，请重试",
+        variant: "destructive",
       });
     }
   };
@@ -151,7 +171,7 @@ const ScenarioConfig = () => {
       });
       
       toast({
-        title: "规则已删除",
+        title: "规则已删���",
         description: `自定义规则「${deleteDialog.rule.ruleName}」已删除`,
       });
       
@@ -267,7 +287,7 @@ const ScenarioConfig = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
-                {/* 决策维度详情 */}
+                {/* 决策��度详情 */}
                 <div>
                   <Tabs defaultValue="0" className="w-full">
                     <TabsList className="grid w-full grid-cols-3">
