@@ -63,7 +63,7 @@ const ScenariosList = () => {
         if (a.isAIEnabled !== b.isAIEnabled) {
           return b.isAIEnabled ? 1 : -1;
         }
-        // 同样状态内按更新时间倒序（假设有updatedAt字段，这里用场景ID模拟）
+        // 同样状态内按更新时间倒序（假设有updatedAt字���，这里用场景ID模拟）
         return a.scenarioId > b.scenarioId ? -1 : 1;
       });
       setScenarios(sortedData);
@@ -176,10 +176,7 @@ const ScenariosList = () => {
                       {getScenarioIcon(scenario.scenarioId)}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <CardTitle className="text-lg font-semibold mb-1">{scenario.scenarioName}</CardTitle>
-                      <p className="text-sm text-muted-foreground leading-relaxed">
-                        {scenario.businessValue}
-                      </p>
+                      <CardTitle className="text-lg font-semibold">{scenario.scenarioName}</CardTitle>
                     </div>
                   </div>
                   <div className="flex-shrink-0 ml-4" onClick={(e) => e.stopPropagation()}>
@@ -212,6 +209,11 @@ const ScenariosList = () => {
 
                   {/* AI策略配置内容 */}
                   <div className="space-y-3">
+                    {/* 业务价值说明 */}
+                    <div className="text-xs text-muted-foreground border-l-2 border-primary/20 pl-2">
+                      {scenario.businessValue}
+                    </div>
+
                     {/* 策略摘要 */}
                     <div className="text-xs text-muted-foreground">
                       {scenario.defaultAIConfig.strategySummary}
