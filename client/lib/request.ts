@@ -262,10 +262,11 @@ export class Request {
   /**
    * 创建超时控制器
    */
-  private createTimeoutController(timeout: number) {
-    const controller = new AbortController();
+  private createTimeoutController(timeout: number, requestId: string) {
+    const controller = this.requestManager.createController(requestId);
     const timeoutId = setTimeout(() => {
       if (!controller.signal.aborted) {
+        console.warn(`Request timeout after ${timeout}ms: ${requestId}`);
         controller.abort(new Error('Request timeout'));
       }
     }, timeout);
@@ -350,7 +351,7 @@ export class Request {
 
       // 处理超时错误和中断错误
       if (error instanceof Error && (error.name === "AbortError" || error.message.includes("aborted"))) {
-        // 检查是否是我们主动中止的请求（超时）
+        // 检查是否是我们主动中止的请求（��时）
         const isTimeout = error.message.includes("timeout") || timeoutId !== undefined;
 
         if (isTimeout) {
