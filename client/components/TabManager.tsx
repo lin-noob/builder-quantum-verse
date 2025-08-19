@@ -104,7 +104,7 @@ export default function TabManager() {
         })),
       );
     } else {
-      // 如果标签页不存在，创建新标签页
+      // 如果标��页不存在，创建新标签页
       let title = pathToTitle[currentPath as keyof typeof pathToTitle];
 
       // 如果没有预定义标题，尝试从路径生成友好的标题
@@ -127,14 +127,37 @@ export default function TabManager() {
           } else {
             title = "营销策略详情";
           }
+        } else if (currentPath.includes("/ai-marketing/scenarios/")) {
+          // 处理AI营销场景的动态路径
+          const scenarioId = currentPath.split("/").pop();
+          const scenarioNames = {
+            "add_to_cart": "加入购物车",
+            "view_product": "查看商品",
+            "user_signup": "用户注册",
+            "user_login": "用户登录"
+          };
+          title = scenarioNames[scenarioId as keyof typeof scenarioNames] || "AI营销场景";
         } else if (currentPath.includes("/response-actions")) {
           title = "响应动作库";
         } else if (currentPath.includes("/ai-marketing-strategies")) {
           title = "营销策略";
+        } else if (currentPath.includes("/ai-marketing")) {
+          title = "AI营销";
         } else {
-          // 默认使用路径最后一部分作为标题
+          // 默认使用路径最后一部分作为标题，但尝试转换为中文
           const pathParts = currentPath.split("/").filter(Boolean);
-          title = pathParts[pathParts.length - 1] || "页面";
+          const lastPart = pathParts[pathParts.length - 1] || "页面";
+
+          // 简单的英文到中文映射
+          const englishToChinese = {
+            "scenarios": "场景列表",
+            "monitoring": "监控",
+            "analytics": "分析",
+            "strategies": "策略",
+            "dashboard": "仪表盘"
+          };
+
+          title = englishToChinese[lastPart as keyof typeof englishToChinese] || lastPart;
         }
       }
 
