@@ -22,6 +22,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Plus, Trash2, AlertCircle, Bot, Target, Activity, AlertTriangle } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -97,7 +98,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
     actionConfig: {}
   });
 
-  // 初始化表单数据
+  // 初���化表单数据
   useEffect(() => {
     if (open) {
       if (rule) {
@@ -187,33 +188,41 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
       return false;
     }
 
-    const totalConditions =
-      triggerConditions.eventConditions.length +
-      triggerConditions.userConditions.length;
+    // 检查是否有可用的触发条件字段
+    const hasEventFields = scenario?.availableFields?.event?.length > 0;
+    const hasUserFields = scenario?.availableFields?.user?.length > 0;
+    const hasTriggerConditions = hasEventFields || hasUserFields;
 
-    if (totalConditions === 0) {
-      toast({
-        title: "请至少添加一个触发条件",
-        variant: "destructive",
-      });
-      setCurrentTab("conditions");
-      return false;
-    }
+    // 如果有可用的触发条件字段，才验证条件
+    if (hasTriggerConditions) {
+      const totalConditions =
+        triggerConditions.eventConditions.length +
+        triggerConditions.userConditions.length;
 
-    // 检查所有条件是否填写完整
-    const allConditions = [
-      ...triggerConditions.eventConditions,
-      ...triggerConditions.userConditions
-    ];
-
-    for (const condition of allConditions) {
-      if (!condition.field || condition.value === '') {
+      if (totalConditions === 0) {
         toast({
-          title: "请完整填写所有触发条件",
+          title: "请至少添加一个触发条件",
           variant: "destructive",
         });
         setCurrentTab("conditions");
         return false;
+      }
+
+      // 检查所有条件是否填写完整
+      const allConditions = [
+        ...triggerConditions.eventConditions,
+        ...triggerConditions.userConditions
+      ];
+
+      for (const condition of allConditions) {
+        if (!condition.field || condition.value === '') {
+          toast({
+            title: "请完整填写所有触发条件",
+            variant: "destructive",
+          });
+          setCurrentTab("conditions");
+          return false;
+        }
       }
     }
 
@@ -548,164 +557,322 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
         <div className="flex-1 overflow-y-auto space-y-6 py-4">
           <div className="space-y-2">
             <Label htmlFor="ruleName" className="text-sm font-medium">规则名称 *</Label>
-            <Input
-              id="ruleName"
-              placeholder="为这条规则取个名字，例如：VIP客户高价值购物车挽留"
-              value={ruleName}
-              onChange={(e) => setRuleName(e.target.value)}
-              className="h-10"
-            />
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Input
+                    id="ruleName"
+                    placeholder="为这条规则取个名字，例如：VIP客户高价值购物车挽留"
+                    value={ruleName}
+                    onChange={(e) => setRuleName(e.target.value)}
+                    className="h-10"
+                  />
+                </TooltipTrigger>
+                <TooltipContent
+                  side="top"
+                  className="max-w-sm break-words"
+                  sideOffset={5}
+                >
+                  <p>{ruleName || "请输入规则名称"}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
 
-          <Tabs value={currentTab} onValueChange={setCurrentTab} className="space-y-6">
-            <TabsList className="grid w-full grid-cols-2 h-12 bg-muted/30">
-              <TabsTrigger value="conditions" className="flex items-center gap-2 text-sm font-medium">
-                <Target className="h-4 w-4" />
-                触发条件
-              </TabsTrigger>
-              <TabsTrigger value="action" className="flex items-center gap-2 text-sm font-medium">
-                <Activity className="h-4 w-4" />
-                响应动作
-              </TabsTrigger>
-            </TabsList>
+          {(() => {
+            // 检查是否有可用的触发条件字段
+            const hasEventFields = scenario?.availableFields?.event?.length > 0;
+            const hasUserFields = scenario?.availableFields?.user?.length > 0;
+            const hasTriggerConditions = hasEventFields || hasUserFields;
 
-            <TabsContent value="conditions" className="space-y-6 mt-6">
-              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <div className="flex items-start gap-3">
-                  <AlertCircle className="h-5 w-5 text-blue-600 mt-0.5" />
-                  <div>
-                    <h4 className="font-medium text-blue-900 mb-1">条件设置说明</h4>
-                    <p className="text-sm text-blue-700">
-                      请设置触发此规则的精确条件。多个条件之间为"且"的关系，即需同时满足所有条件。
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* 只显示有可用字段的条件类型 */}
-              {scenario && scenario.availableFields.event.length > 0 &&
-                renderConditionBuilder('event', triggerConditions.eventConditions, '事件属性条件')
-              }
-              {scenario && scenario.availableFields.user.length > 0 &&
-                renderConditionBuilder('user', triggerConditions.userConditions, '用户画像条件')
-              }
-            </TabsContent>
-
-            <TabsContent value="action" className="space-y-6 mt-6">
-              <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-                <div className="flex items-start gap-3">
-                  <Activity className="h-5 w-5 text-green-600 mt-0.5" />
-                  <div>
-                    <h4 className="font-medium text-green-900 mb-1">动作配置说明</h4>
-                    <p className="text-sm text-green-700">
-                      配置当规则被触发时，系统应执行的营销动作和内容。
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <Card className="border border-border/60 shadow-sm">
-                <CardHeader className="pb-4 bg-gradient-to-r from-blue-50 to-indigo-50">
-                  <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 bg-blue-100 rounded flex items-center justify-center">
-                      <Activity className="h-3 w-3 text-blue-600" />
-                    </div>
-                    <CardTitle className="text-sm font-semibold">营销方式</CardTitle>
-                  </div>
-                  <div className="text-xs text-muted-foreground mt-2">
-                    目前仅支持网页弹窗，邮件和短信功能正在开发中
-                  </div>
-                </CardHeader>
-                <CardContent className="pt-4">
-                  <Select
-                    value={responseAction.actionType}
-                    onValueChange={(value) => setResponseAction(prev => ({
-                      ...prev,
-                      actionType: value as ActionType,
-                      actionConfig: {} // 重置配置
-                    }))}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Object.entries(actionTypeLabels).map(([value, label]) => (
-                        <SelectItem
-                          key={value}
-                          value={value}
-                          disabled={value === 'EMAIL' || value === 'SMS'}
-                          className={value === 'EMAIL' || value === 'SMS' ? 'text-muted-foreground' : ''}
-                        >
-                          {label}{(value === 'EMAIL' || value === 'SMS') && ' (暂不可用)'}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </CardContent>
-              </Card>
-
-              <Card className="border border-border/60 shadow-sm">
-                <CardHeader className="pb-4 bg-gradient-to-r from-purple-50 to-pink-50">
-                  <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 bg-purple-100 rounded flex items-center justify-center">
-                      <AlertTriangle className="h-3 w-3 text-purple-600" />
-                    </div>
-                    <CardTitle className="text-sm font-semibold">营销时机</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent className="pt-4">
-                  <Select
-                    value={responseAction.timing}
-                    onValueChange={(value) => setResponseAction(prev => ({
-                      ...prev,
-                      timing: value as TimingStrategy
-                    }))}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Object.entries(timingLabels).map(([value, label]) => (
-                        <SelectItem key={value} value={value}>
-                          {label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </CardContent>
-              </Card>
-
-              <Card className="border border-border/60 shadow-sm">
-                <CardHeader className="pb-4 bg-gradient-to-r from-amber-50 to-orange-50">
-                  <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 bg-amber-100 rounded flex items-center justify-center">
-                      <Bot className="h-3 w-3 text-amber-600" />
-                    </div>
-                    <CardTitle className="text-sm font-semibold">内容模式</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4 pt-4">
-                  <RadioGroup
-                    value={responseAction.contentMode}
-                    onValueChange={(value) => setResponseAction(prev => ({
-                      ...prev,
-                      contentMode: value as ContentStrategy,
-                      actionConfig: {} // 重置配置
-                    }))}
-                  >
-                    {Object.entries(contentStrategyLabels).map(([value, label]) => (
-                      <div key={value} className="flex items-center space-x-2">
-                        <RadioGroupItem value={value} id={value} />
-                        <Label htmlFor={value}>{label}</Label>
+            // 如果没有触发条件，直接显示响应动作
+            if (!hasTriggerConditions) {
+              return (
+                <div className="space-y-6">
+                  <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                    <div className="flex items-start gap-3">
+                      <AlertCircle className="h-5 w-5 text-amber-600 mt-0.5" />
+                      <div>
+                        <h4 className="font-medium text-amber-900 mb-1">无需配置触发条件</h4>
+                        <p className="text-sm text-amber-700">
+                          当前场景下无可用的触发条件字段，规则将直接应用于该场景的所有触发事件。
+                        </p>
                       </div>
-                    ))}
-                  </RadioGroup>
+                    </div>
+                  </div>
 
-                  {renderActionConfig()}
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
+                  {/* 直接显示响应动作配置 */}
+                  <div className="space-y-6">
+                    <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                      <div className="flex items-start gap-3">
+                        <Activity className="h-5 w-5 text-green-600 mt-0.5" />
+                        <div>
+                          <h4 className="font-medium text-green-900 mb-1">动作配置说明</h4>
+                          <p className="text-sm text-green-700">
+                            配置当规则被触发时，系统应执行的营销动作和内容。
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <Card className="border border-border/60 shadow-sm">
+                      <CardHeader className="pb-4 bg-gradient-to-r from-blue-50 to-indigo-50">
+                        <div className="flex items-center gap-2">
+                          <div className="w-6 h-6 bg-blue-100 rounded flex items-center justify-center">
+                            <Activity className="h-3 w-3 text-blue-600" />
+                          </div>
+                          <CardTitle className="text-sm font-semibold">营销方式</CardTitle>
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-2">
+                          目前仅支持网页弹窗，邮件和短信功能正在开发中
+                        </div>
+                      </CardHeader>
+                      <CardContent className="pt-4">
+                        <Select
+                          value={responseAction.actionType}
+                          onValueChange={(value) => setResponseAction(prev => ({
+                            ...prev,
+                            actionType: value as ActionType,
+                            actionConfig: {} // 重置配置
+                          }))}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {Object.entries(actionTypeLabels).map(([value, label]) => (
+                              <SelectItem
+                                key={value}
+                                value={value}
+                                disabled={value === 'EMAIL' || value === 'SMS'}
+                                className={value === 'EMAIL' || value === 'SMS' ? 'text-muted-foreground' : ''}
+                              >
+                                {label}{(value === 'EMAIL' || value === 'SMS') && ' (暂不可用)'}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </CardContent>
+                    </Card>
+
+                    <Card className="border border-border/60 shadow-sm">
+                      <CardHeader className="pb-4 bg-gradient-to-r from-purple-50 to-pink-50">
+                        <div className="flex items-center gap-2">
+                          <div className="w-6 h-6 bg-purple-100 rounded flex items-center justify-center">
+                            <AlertTriangle className="h-3 w-3 text-purple-600" />
+                          </div>
+                          <CardTitle className="text-sm font-semibold">营销时机</CardTitle>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="pt-4">
+                        <Select
+                          value={responseAction.timing}
+                          onValueChange={(value) => setResponseAction(prev => ({
+                            ...prev,
+                            timing: value as TimingStrategy
+                          }))}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {Object.entries(timingLabels).map(([value, label]) => (
+                              <SelectItem key={value} value={value}>
+                                {label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </CardContent>
+                    </Card>
+
+                    <Card className="border border-border/60 shadow-sm">
+                      <CardHeader className="pb-4 bg-gradient-to-r from-amber-50 to-orange-50">
+                        <div className="flex items-center gap-2">
+                          <div className="w-6 h-6 bg-amber-100 rounded flex items-center justify-center">
+                            <Bot className="h-3 w-3 text-amber-600" />
+                          </div>
+                          <CardTitle className="text-sm font-semibold">内容模式</CardTitle>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="space-y-4 pt-4">
+                        <RadioGroup
+                          value={responseAction.contentMode}
+                          onValueChange={(value) => setResponseAction(prev => ({
+                            ...prev,
+                            contentMode: value as ContentStrategy,
+                            actionConfig: {} // 重置配置
+                          }))}
+                        >
+                          {Object.entries(contentStrategyLabels).map(([value, label]) => (
+                            <div key={value} className="flex items-center space-x-2">
+                              <RadioGroupItem value={value} id={value} />
+                              <Label htmlFor={value}>{label}</Label>
+                            </div>
+                          ))}
+                        </RadioGroup>
+
+                        {renderActionConfig()}
+                      </CardContent>
+                    </Card>
+                  </div>
+                </div>
+              );
+            }
+
+            // 有触发条件时显示标签页
+            return (
+              <Tabs value={currentTab} onValueChange={setCurrentTab} className="space-y-6">
+                <TabsList className="grid w-full grid-cols-2 h-12 bg-muted/30">
+                  <TabsTrigger value="conditions" className="flex items-center gap-2 text-sm font-medium">
+                    <Target className="h-4 w-4" />
+                    触发条件
+                  </TabsTrigger>
+                  <TabsTrigger value="action" className="flex items-center gap-2 text-sm font-medium">
+                    <Activity className="h-4 w-4" />
+                    响应动作
+                  </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="conditions" className="space-y-6 mt-6">
+                  <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div className="flex items-start gap-3">
+                      <AlertCircle className="h-5 w-5 text-blue-600 mt-0.5" />
+                      <div>
+                        <h4 className="font-medium text-blue-900 mb-1">条件设置说明</h4>
+                        <p className="text-sm text-blue-700">
+                          请设置触发此规则的精确条件。多个条件之间为"且"的关系，即需同时满足所有条件。
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 只显示有可用字段的条件类型 */}
+                  {scenario && scenario.availableFields.event.length > 0 &&
+                    renderConditionBuilder('event', triggerConditions.eventConditions, '事件属性条件')
+                  }
+                  {scenario && scenario.availableFields.user.length > 0 &&
+                    renderConditionBuilder('user', triggerConditions.userConditions, '用户画像条件')
+                  }
+                </TabsContent>
+
+                <TabsContent value="action" className="space-y-6 mt-6">
+                  <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                    <div className="flex items-start gap-3">
+                      <Activity className="h-5 w-5 text-green-600 mt-0.5" />
+                      <div>
+                        <h4 className="font-medium text-green-900 mb-1">动作配置说明</h4>
+                        <p className="text-sm text-green-700">
+                          配置当���则被触发时，系统应执行的营销动作和内容。
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <Card className="border border-border/60 shadow-sm">
+                    <CardHeader className="pb-4 bg-gradient-to-r from-blue-50 to-indigo-50">
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 bg-blue-100 rounded flex items-center justify-center">
+                          <Activity className="h-3 w-3 text-blue-600" />
+                        </div>
+                        <CardTitle className="text-sm font-semibold">营销方式</CardTitle>
+                      </div>
+                      <div className="text-xs text-muted-foreground mt-2">
+                        目前仅支持网页弹窗，邮件和短信功能正在开发中
+                      </div>
+                    </CardHeader>
+                    <CardContent className="pt-4">
+                      <Select
+                        value={responseAction.actionType}
+                        onValueChange={(value) => setResponseAction(prev => ({
+                          ...prev,
+                          actionType: value as ActionType,
+                          actionConfig: {} // 重置配置
+                        }))}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Object.entries(actionTypeLabels).map(([value, label]) => (
+                            <SelectItem
+                              key={value}
+                              value={value}
+                              disabled={value === 'EMAIL' || value === 'SMS'}
+                              className={value === 'EMAIL' || value === 'SMS' ? 'text-muted-foreground' : ''}
+                            >
+                              {label}{(value === 'EMAIL' || value === 'SMS') && ' (暂不可用)'}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="border border-border/60 shadow-sm">
+                    <CardHeader className="pb-4 bg-gradient-to-r from-purple-50 to-pink-50">
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 bg-purple-100 rounded flex items-center justify-center">
+                          <AlertTriangle className="h-3 w-3 text-purple-600" />
+                        </div>
+                        <CardTitle className="text-sm font-semibold">营销时机</CardTitle>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="pt-4">
+                      <Select
+                        value={responseAction.timing}
+                        onValueChange={(value) => setResponseAction(prev => ({
+                          ...prev,
+                          timing: value as TimingStrategy
+                        }))}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Object.entries(timingLabels).map(([value, label]) => (
+                            <SelectItem key={value} value={value}>
+                              {label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="border border-border/60 shadow-sm">
+                    <CardHeader className="pb-4 bg-gradient-to-r from-amber-50 to-orange-50">
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 bg-amber-100 rounded flex items-center justify-center">
+                          <Bot className="h-3 w-3 text-amber-600" />
+                        </div>
+                        <CardTitle className="text-sm font-semibold">内容模式</CardTitle>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-4 pt-4">
+                      <RadioGroup
+                        value={responseAction.contentMode}
+                        onValueChange={(value) => setResponseAction(prev => ({
+                          ...prev,
+                          contentMode: value as ContentStrategy,
+                          actionConfig: {} // 重置配置
+                        }))}
+                      >
+                        {Object.entries(contentStrategyLabels).map(([value, label]) => (
+                          <div key={value} className="flex items-center space-x-2">
+                            <RadioGroupItem value={value} id={value} />
+                            <Label htmlFor={value}>{label}</Label>
+                          </div>
+                        ))}
+                      </RadioGroup>
+
+                      {renderActionConfig()}
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              </Tabs>
+            );
+          })()}
         </div>
 
         <DialogFooter className="flex-shrink-0 border-t pt-6 bg-muted/20">
