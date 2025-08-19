@@ -183,7 +183,7 @@ const ScenarioConfig = () => {
       await updateRulePriorities(scenario.scenarioId, priorities);
       
       toast({
-        title: "优先级已更新",
+        title: "���先级已更新",
         description: "规则优先级调整成功",
       });
     } catch (error) {
@@ -332,20 +332,84 @@ const ScenarioConfig = () => {
             <CardContent>
               <dl className="space-y-3">
                 <div>
-                  <dt className="text-sm font-medium text-muted-foreground">应用场景</dt>
-                  <dd className="mt-1 text-sm">{scenario.scenarioType}</dd>
+                  <dt className="text-sm font-medium text-muted-foreground">场景ID</dt>
+                  <dd className="mt-1 text-sm font-mono text-xs bg-muted px-2 py-1 rounded">
+                    {scenario.scenarioId}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-sm font-medium text-muted-foreground">场景名称</dt>
+                  <dd className="mt-1 text-sm">{scenario.scenarioName}</dd>
+                </div>
+                <div>
+                  <dt className="text-sm font-medium text-muted-foreground">AI自动化状态</dt>
+                  <dd className="mt-1 flex items-center gap-2">
+                    <Badge variant={scenario.isAIEnabled ? "default" : "secondary"}>
+                      {scenario.isAIEnabled ? "已启用" : "已停用"}
+                    </Badge>
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-sm font-medium text-muted-foreground">业务价值</dt>
+                  <dd className="mt-1 text-sm text-muted-foreground leading-relaxed">
+                    {scenario.businessValue}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-sm font-medium text-muted-foreground">内容策略</dt>
+                  <dd className="mt-1 text-sm">{scenario.defaultAIConfig.contentStrategy === 'FULLY_GENERATIVE' ? '完全生成' :
+                    scenario.defaultAIConfig.contentStrategy === 'AI_ASSISTED' ? 'AI辅助' : '静态内容'}</dd>
+                </div>
+                <div>
+                  <dt className="text-sm font-medium text-muted-foreground">时机策略</dt>
+                  <dd className="mt-1 text-sm">{scenario.defaultAIConfig.timingStrategy === 'IMMEDIATE' ? '立即触发' : '智能延迟'}</dd>
+                </div>
+                <div>
+                  <dt className="text-sm font-medium text-muted-foreground">支持动作</dt>
+                  <dd className="mt-1 flex gap-1">
+                    {scenario.defaultAIConfig.allowedActionTypes.map(action => (
+                      <Badge key={action} variant="outline" className="text-xs">
+                        {action === 'POPUP' ? '弹窗' : action === 'EMAIL' ? '邮件' : '短信'}
+                      </Badge>
+                    ))}
+                  </dd>
                 </div>
                 <div>
                   <dt className="text-sm font-medium text-muted-foreground">自定义规则</dt>
-                  <dd className="mt-1 text-sm">{scenario.overrideRules.length} 条规则</dd>
+                  <dd className="mt-1 text-sm">
+                    {scenario.overrideRules.length} 条规则
+                    <span className="text-muted-foreground">
+                      （{scenario.overrideRules.filter(r => r.isEnabled).length} 条启用）
+                    </span>
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-sm font-medium text-muted-foreground">可用字段</dt>
+                  <dd className="mt-1 text-sm">
+                    事件({scenario.availableFields.event.length}) •
+                    会话({scenario.availableFields.session.length}) •
+                    用户({scenario.availableFields.user.length})
+                  </dd>
                 </div>
                 <div>
                   <dt className="text-sm font-medium text-muted-foreground">创建时间</dt>
-                  <dd className="mt-1 text-sm">{new Date(scenario.createdAt).toLocaleDateString('zh-CN')}</dd>
+                  <dd className="mt-1 text-sm">{new Date(scenario.createdAt).toLocaleDateString('zh-CN', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}</dd>
                 </div>
                 <div>
                   <dt className="text-sm font-medium text-muted-foreground">最后更新</dt>
-                  <dd className="mt-1 text-sm">{new Date(scenario.updatedAt).toLocaleDateString('zh-CN')}</dd>
+                  <dd className="mt-1 text-sm">{new Date(scenario.updatedAt).toLocaleDateString('zh-CN', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}</dd>
                 </div>
               </dl>
             </CardContent>
