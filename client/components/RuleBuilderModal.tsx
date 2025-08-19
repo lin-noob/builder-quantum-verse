@@ -105,7 +105,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
   useEffect(() => {
     if (open) {
       if (rule) {
-        // 编辑模式 - ��果是邮件或短信，强制改为弹窗
+        // 编辑模式 - 如果是邮件或短信，强制改为弹窗
         setRuleName(rule.ruleName);
         setTriggerConditions(rule.triggerConditions);
         const actionType = (rule.responseAction.actionType === 'EMAIL' || rule.responseAction.actionType === 'SMS')
@@ -842,8 +842,17 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
           <Button variant="outline" onClick={onClose}>
             取消
           </Button>
-          <Button onClick={handleSave} disabled={loading}>
+          <Button
+            onClick={handleSave}
+            disabled={loading || (conflictDetection?.riskScore && conflictDetection.riskScore > 80)}
+            className={cn(
+              conflictDetection?.riskScore && conflictDetection.riskScore > 80 && "opacity-50 cursor-not-allowed"
+            )}
+          >
             {loading ? "保存中..." : "保存规则"}
+            {conflictDetection?.hasConflicts && (
+              <AlertTriangle className="w-4 h-4 ml-1 text-yellow-500" />
+            )}
           </Button>
         </SheetFooter>
       </SheetContent>
