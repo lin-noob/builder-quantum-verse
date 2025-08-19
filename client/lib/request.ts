@@ -230,7 +230,7 @@ export class Request {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => {
       if (!controller.signal.aborted) {
-        controller.abort();
+        controller.abort(new Error('Request timeout'));
       }
     }, timeout);
 
@@ -302,7 +302,7 @@ export class Request {
         this.defaultConfig.onError(error as Error);
       }
 
-      // 重新抛出错误
+      // 重新抛出���误
       if (error instanceof RequestError) {
         throw error;
       }
