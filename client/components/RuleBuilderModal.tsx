@@ -134,6 +134,38 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
     }
   }, [open, rule]);
 
+  // 检测规则冲突
+  const detectRuleConflicts = () => {
+    if (!scenario || !ruleName.trim()) return;
+
+    const detector = new RuleConflictDetector();
+    const existingRules = scenario.overrideRules || [];
+
+    const newRule: OverrideRule = {
+      ruleId: rule?.ruleId || `rule_${Date.now()}`,
+      ruleName: ruleName,
+      priority: rule?.priority || Math.max(...existingRules.map(r => r.priority), 0) + 1,
+      isEnabled: true,
+      triggerConditions,
+      responseAction,
+      createdAt: rule?.createdAt || new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    const filteredExistingRules = existingRules.filter(r => r.ruleId !== newRule.ruleId);
+    const result = detector.detectConflicts(newRule, filteredExistingRules);
+    setConflictDetection(result);
+    setShowConflicts(result.hasConflicts);
+  };
+
+  // 当规则配置改变时检测冲突
+  useEffect(() => {
+    if (open && ruleName.trim()) {
+      const timeoutId = setTimeout(detectRuleConflicts, 500);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [ruleName, triggerConditions, responseAction, open]);
+
   const addCondition = (category: ConditionCategory) => {
     const newCondition: TriggerCondition = {
       id: `condition_${Date.now()}`,
@@ -646,7 +678,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
             return (
               <Tabs value={currentTab} onValueChange={setCurrentTab}>
                 <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="conditions">触发条件</TabsTrigger>
+                  <TabsTrigger value="conditions">触发��件</TabsTrigger>
                   <TabsTrigger value="action">响应动作</TabsTrigger>
                 </TabsList>
 
