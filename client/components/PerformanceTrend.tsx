@@ -145,7 +145,7 @@ export default function PerformanceTrend({
     <Card className="bg-white border border-gray-200">
       <CardHeader>
         <CardTitle className="text-lg font-semibold text-gray-900">
-          业绩走���
+          业绩走势
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -181,18 +181,35 @@ export default function PerformanceTrend({
                     interval="preserveStartEnd"
                   />
 
+                  {/* ���Y轴：金额类数据 (totalRevenue, avgOrderValue) */}
                   <YAxis
+                    yAxisId="left"
+                    orientation="left"
                     axisLine={false}
                     tickLine={false}
-                    tick={{ fontSize: 11, fill: "#6b7280" }}
+                    tick={{ fontSize: 11, fill: "#3b82f6" }}
                     tickFormatter={(value) => {
-                      // 简化格式化，使用数字格式
                       if (value >= 1000000) {
-                        return `${(value / 1000000).toFixed(1)}M`;
+                        return `¥${(value / 1000000).toFixed(1)}M`;
                       } else if (value >= 1000) {
+                        return `¥${(value / 1000).toFixed(1)}K`;
+                      }
+                      return `¥${value}`;
+                    }}
+                  />
+
+                  {/* 右Y轴：数量类数据 (totalOrders, totalUsers) */}
+                  <YAxis
+                    yAxisId="right"
+                    orientation="right"
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fontSize: 11, fill: "#ef4444" }}
+                    tickFormatter={(value) => {
+                      if (value >= 1000) {
                         return `${(value / 1000).toFixed(1)}K`;
                       }
-                      return value.toLocaleString();
+                      return value.toString();
                     }}
                   />
 
