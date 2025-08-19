@@ -332,14 +332,6 @@ const ScenarioConfig = () => {
             <CardContent>
               <dl className="space-y-3">
                 <div>
-                  <dt className="text-sm font-medium text-muted-foreground">场景状态</dt>
-                  <dd className="mt-1 flex items-center gap-2">
-                    <Badge variant={scenario.isEnabled ? "default" : "secondary"}>
-                      {scenario.isEnabled ? "已启用" : "已停用"}
-                    </Badge>
-                  </dd>
-                </div>
-                <div>
                   <dt className="text-sm font-medium text-muted-foreground">应用场景</dt>
                   <dd className="mt-1 text-sm">{scenario.scenarioType}</dd>
                 </div>
