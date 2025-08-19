@@ -21,13 +21,20 @@ export default function PerformanceTrend({
   metrics,
   dateRange = "30days",
 }: PerformanceTrendProps) {
-  // Default to show all 4 metrics
+  // Debug: log the received metrics
+  console.log("PerformanceTrend received metrics:", metrics);
+
+  // Filter selectedMetrics to only include metrics that actually exist in the data
+  const availableMetricIds = metrics.map(m => m.id);
   const selectedMetrics = [
     "totalRevenue",
     "totalOrders",
     "totalUsers",
     "avgOrderValue",
-  ];
+  ].filter(id => availableMetricIds.includes(id));
+
+  console.log("Available metrics:", availableMetricIds);
+  console.log("Selected metrics:", selectedMetrics);
 
   const colors = ["#3b82f6", "#ef4444", "#10b981", "#f59e0b", "#8b5cf6"];
 
