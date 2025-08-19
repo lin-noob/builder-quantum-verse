@@ -232,7 +232,7 @@ const AppWithRequestManager = () => {
             path="/ai-marketing/monitoring-center"
             element={
               <Layout>
-                <MonitoringCenter />
+                <MonitoringCenterTest />
               </Layout>
             }
           />
