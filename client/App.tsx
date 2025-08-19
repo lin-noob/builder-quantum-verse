@@ -9,6 +9,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Layout from "./components/Layout";
+import ErrorBoundary from "./components/ErrorBoundary";
 import Dashboard from "./pages/Dashboard";
 import Dashboard2 from "./pages/Dashboard2";
 import UserList from "./pages/UserList";
@@ -151,7 +152,7 @@ const App = () => (
               </Layout>
             }
           />
-          {/* 原有的响应动作库路由 */}
+          {/* 原有的响���动作库路由 */}
           <Route
             path="/response-actions"
             element={
