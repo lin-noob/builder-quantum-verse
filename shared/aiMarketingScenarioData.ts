@@ -128,7 +128,7 @@ export const predefinedScenarios: MarketingScenario[] = [
           strategy: '采用"智能延迟"',
           reasoning: 'AI不会在用户加购的瞬间立即打扰，而是会持续分析后续行为。只有当用户表现出离开意图（如鼠标快速移向关闭按钮）或长时间无操作时，才会触发。',
           examples: [
-            '高意图用户: 若用户加购后仍在活跃浏览，AI会保持静默。',
+            '高意���用户: 若用户加购后仍在活跃浏览，AI会保持静默。',
             '犹豫用户: 若用户加购后在页面停留超过90秒且无任何点击，AI会判断其为犹豫，并主动介入。'
           ]
         },
@@ -372,6 +372,293 @@ export const predefinedScenarios: MarketingScenario[] = [
         { field: 'user_segment', label: '用户分层', type: 'string' },
         { field: 'last_purchase_days', label: '距上次购买天数', type: 'number' },
         { field: 'total_spend', label: '累计消费', type: 'number' }
+      ]
+    }
+  },
+  {
+    scenarioId: 'start_checkout',
+    scenarioName: '开始结账',
+    isAIEnabled: true,
+    businessValue: '用户进入购买漏斗最后阶段，意图极强。',
+    createdAt: '2024-01-16T10:00:00Z',
+    updatedAt: '2024-01-16T10:00:00Z',
+    defaultAIConfig: {
+      allowedActionTypes: ['POPUP'],
+      timingStrategy: 'SMART_DELAY',
+      contentStrategy: 'FULLY_GENERATIVE',
+      description: 'AI会分析用户画像，决策是提供"免运费"等小激励，还是用"社会认同"（如"已有XXX人购买"）来增强其购买信心。',
+      strategySummary: '在用户于结账页停留过久或准备离开时触发，提升最终转化率。',
+      coreStrategies: ['网页弹窗', '智能延迟', '购买激励生成'],
+      dimensions: [
+        {
+          dimension: '营销方式',
+          strategy: '优先使用"网页弹窗"',
+          reasoning: '用户已进入购买流程最后阶段，需要最直接的干预来促成转化。',
+          examples: [
+            '激励弹窗: 购物车金额较高时，可能展示"免运费"或"限时优惠"。',
+            '信任提升: 可能展示"已有XXX人购买"等社会认同信息。'
+          ]
+        },
+        {
+          dimension: '营销时机',
+          strategy: '采用"智能延迟"',
+          reasoning: 'AI不会在用户刚进入结账页时立即打扰，而是持续监测用户行为。',
+          examples: [
+            '停留过久: 用户在结账页停留超过2分钟且无操作时触发。',
+            '离开意图: 检测到用户鼠标移向关闭按钮或返回时触发。'
+          ]
+        },
+        {
+          dimension: '营销内容',
+          strategy: '进行"购买激励生成"',
+          reasoning: 'AI基于购物车内容和用户画像，生成最有效的购买激励。',
+          examples: [
+            '价格敏感用户: 生成优惠券或免运费等价格激励。',
+            '品质导向用户: 生成产品保障或用户评价等信任激励。'
+          ]
+        }
+      ]
+    },
+    overrideRules: [],
+    availableFields: {
+      event: [
+        { field: 'cart_total_amount', label: '购物车总金额', type: 'number' }
+      ],
+      session: [
+        { field: 'device_type', label: '设备类型', type: 'string' }
+      ],
+      user: [
+        { field: 'tag', label: '用户标签', type: 'string' },
+        { field: 'total_orders', label: '累计订单数', type: 'number' }
+      ]
+    }
+  },
+  {
+    scenarioId: 'purchase',
+    scenarioName: '完成购买',
+    isAIEnabled: true,
+    businessValue: '提升客单价和复购率的最佳时机。',
+    createdAt: '2024-01-16T10:05:00Z',
+    updatedAt: '2024-01-16T10:05:00Z',
+    defaultAIConfig: {
+      allowedActionTypes: ['EMAIL'],
+      timingStrategy: 'IMMEDIATE',
+      contentStrategy: 'FULLY_GENERATIVE',
+      description: 'AI会根据本次购买的商品，智能推荐关联配件或消耗品，并生成个性化的感谢与交叉销售邮件。',
+      strategySummary: '立即感谢并确认订单，通过智能延迟推荐关联商品，提升复购率。',
+      coreStrategies: ['发送邮件', '立即触发', '交叉销售生成'],
+      dimensions: [
+        {
+          dimension: '营销方式',
+          strategy: '优先使用"发送邮件"',
+          reasoning: '购买完成后，邮件是最合适的跟进方式，既能确认订单又能进行后续营销。',
+          examples: [
+            '订单确认: 立即发送包含订单详情的确认邮件。',
+            '关联推荐: 在确认邮件中包含相关商品推荐。'
+          ]
+        },
+        {
+          dimension: '营销时机',
+          strategy: '"立即触发"与"智能延迟"结合',
+          reasoning: '立即发送订单确认，根据商品特性智能安排后续推荐时机。',
+          examples: [
+            '立即确认: 购买完成后立即发送订单确认邮件。',
+            '7天评价: 收货后7天邀请用户评价商品。',
+            '30天复购: 30天后推荐相关或补充商品。'
+          ]
+        },
+        {
+          dimension: '营销内容',
+          strategy: '进行"交叉销售生成"',
+          reasoning: 'AI分析购买商品，推荐最相关的配件、消耗品或升级产品。',
+          examples: [
+            '配件推荐: 购买相机后推荐镜头、存储卡等配件。',
+            '消耗品推荐: 购买打印机后定期推荐墨盒、纸张等。'
+          ]
+        }
+      ]
+    },
+    overrideRules: [],
+    availableFields: {
+      event: [
+        { field: 'product_name', label: '商品名称', type: 'string' },
+        { field: 'category', label: '商品类别', type: 'string' },
+        { field: 'total_amount', label: '订单总金额', type: 'number' }
+      ],
+      session: [],
+      user: [
+        { field: 'tag', label: '用户标签', type: 'string' },
+        { field: 'total_orders', label: '累计订单数', type: 'number' }
+      ]
+    }
+  },
+  {
+    scenarioId: 'search',
+    scenarioName: '执行搜索',
+    isAIEnabled: true,
+    businessValue: '捕获用户最直接的需求，主动引导。',
+    createdAt: '2024-01-16T10:10:00Z',
+    updatedAt: '2024-01-16T10:10:00Z',
+    defaultAIConfig: {
+      allowedActionTypes: ['POPUP'],
+      timingStrategy: 'IMMEDIATE',
+      contentStrategy: 'FULLY_GENERATIVE',
+      description: 'AI会分析搜索关键词。如果匹配到热门商品或活动，会立即生成一个包含相关商品链接的推荐弹窗；如果搜索结果为空，则会生成引导用户联系客服或浏览相关品类的弹窗。',
+      strategySummary: '根据搜索内容立即提供精准推荐或引导，提升搜索转化率。',
+      coreStrategies: ['网页弹窗', '立即触发', '搜索引导生成'],
+      dimensions: [
+        {
+          dimension: '营销方式',
+          strategy: '优先使用"网页弹窗"',
+          reasoning: '搜索是用户主动表达需求的行为，需要立即在搜索结果页提供相关引导。',
+          examples: [
+            '商品推荐: 搜索"笔记本"时弹出热门笔记本推荐。',
+            '空结果引导: 搜索无结果时引导用户联系客服或浏览相关分类。'
+          ]
+        },
+        {
+          dimension: '营销时机',
+          strategy: '"立即触发"',
+          reasoning: '搜索行为表明用户有明确需求，应立即响应以提供帮助���',
+          examples: [
+            '搜索结果页: 在搜索结果加载完成后立即显示推荐。',
+            '无结果页面: 在显示"无搜索结果"的同时提供替代方案。'
+          ]
+        },
+        {
+          dimension: '营销内容',
+          strategy: '进行"搜索引导生成"',
+          reasoning: 'AI分析搜索词意图，提供最相关的商品推荐或引导信息。',
+          examples: [
+            '精确匹配: 搜索"iPhone 15"时推荐相关型号和配件。',
+            '意图理解: 搜索"生日礼物"时推荐热门礼品分类。'
+          ]
+        }
+      ]
+    },
+    overrideRules: [],
+    availableFields: {
+      event: [
+        { field: 'search_term', label: '搜索关键词', type: 'string' }
+      ],
+      session: [],
+      user: [
+        { field: 'tag', label: '用户标签', type: 'string' },
+        { field: 'user_segment', label: '用户分层', type: 'string' }
+      ]
+    }
+  },
+  {
+    scenarioId: 'exit_intent',
+    scenarioName: '离开意图',
+    isAIEnabled: true,
+    businessValue: '在用户准备关闭网站的瞬间进行最终挽留。',
+    createdAt: '2024-01-16T10:15:00Z',
+    updatedAt: '2024-01-16T10:15:00Z',
+    defaultAIConfig: {
+      allowedActionTypes: ['POPUP'],
+      timingStrategy: 'IMMEDIATE',
+      contentStrategy: 'FULLY_GENERATIVE',
+      description: 'AI会根据用户准备离开的页面和用户身份，进行场景化挽留。例如，在博客页离开时推荐订阅，在定价页离开时提供限时优惠，对新用户则弹出"首次下单立减"的通用挽留。',
+      strategySummary: '在最后时刻进行场景化挽留，降低流失率。',
+      coreStrategies: ['网页弹窗', '立即触发', '场景化挽留'],
+      dimensions: [
+        {
+          dimension: '营销方式',
+          strategy: '使用"网页弹窗"',
+          reasoning: '离开意图检测到后，需要立即用最显眼的方式挽留用户。',
+          examples: [
+            '挽留弹窗: 检测到离开意图时立即弹出挽留信息。',
+            '优惠券: 对价格敏感用户展示限时优惠券。'
+          ]
+        },
+        {
+          dimension: '营销时机',
+          strategy: '"立即触发"',
+          reasoning: '离开意图检测是最后的挽留机会，必须立即行动。',
+          examples: [
+            '鼠标移出: 检测到鼠标移向浏览器关闭按钮时触发。',
+            '页面切换: 用户准备切换到其他标签页时触发。'
+          ]
+        },
+        {
+          dimension: '营销内容',
+          strategy: '进行"场景化挽留"',
+          reasoning: 'AI根据用户当前页面和身份生成最相关的挽留内容。',
+          examples: [
+            '购物车有商品: 提醒"您的购物车中还有商品，确定要离开吗？"',
+            '新用户: 提供"首次购买专享优惠"等新用户激励。'
+          ]
+        }
+      ]
+    },
+    overrideRules: [],
+    availableFields: {
+      event: [
+        { field: 'page_url', label: '页面地址', type: 'string' }
+      ],
+      session: [
+        { field: 'session_duration_seconds', label: '会话时长(秒)', type: 'number' }
+      ],
+      user: [
+        { field: 'tag', label: '用户标签', type: 'string' },
+        { field: 'user_segment', label: '用户分层', type: 'string' }
+      ]
+    }
+  },
+  {
+    scenarioId: 'submit_form',
+    scenarioName: '提交表单',
+    isAIEnabled: true,
+    businessValue: '用户主动提交信息，是建立深度关系的机会。',
+    createdAt: '2024-01-16T10:20:00Z',
+    updatedAt: '2024-01-16T10:20:00Z',
+    defaultAIConfig: {
+      allowedActionTypes: ['EMAIL'],
+      timingStrategy: 'IMMEDIATE',
+      contentStrategy: 'FULLY_GENERATIVE',
+      description: 'AI会根据表单名称（如"产品演示申请"），自动生成一封专业的确认邮件，告���用户后续流程，并根据其公司、职位等信息，附上最相关的案例或白皮书。',
+      strategySummary: '立即确认表单提交，提供相关资源，建立专业关系。',
+      coreStrategies: ['发送邮件', '立即触发', '专业跟进'],
+      dimensions: [
+        {
+          dimension: '营销方式',
+          strategy: '优先使用"发送邮件"',
+          reasoning: '表单提交是正式的联系方式，邮件是最专业的跟进方式。',
+          examples: [
+            '确认邮件: 立即发送表单提交确认和后续流程说明。',
+            '资源推送: 根据表单内容推送相关白皮书或案例。'
+          ]
+        },
+        {
+          dimension: '营销时机',
+          strategy: '"立即触发"',
+          reasoning: '表单提交需要立即确认，让用户知道信息已收到。',
+          examples: [
+            '即时确认: 表单提交成功后立即发送确认邮件。',
+            '后续跟进: 根据表单类型安排后续跟进时间。'
+          ]
+        },
+        {
+          dimension: '营销内容',
+          strategy: '进行"专业跟进"',
+          reasoning: 'AI根据表单内容和用户信息生成专业的跟进内容。',
+          examples: [
+            '产品咨询: 提供相关产品资料和演示安排。',
+            '商务合作: 发送公司介绍和成功案例。'
+          ]
+        }
+      ]
+    },
+    overrideRules: [],
+    availableFields: {
+      event: [
+        { field: 'form_name', label: '表单名称', type: 'string' }
+      ],
+      session: [],
+      user: [
+        { field: 'company', label: '公司名称', type: 'string' },
+        { field: 'title', label: '职位', type: 'string' }
       ]
     }
   }
