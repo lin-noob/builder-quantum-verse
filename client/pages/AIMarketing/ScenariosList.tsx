@@ -12,6 +12,11 @@ import {
   Eye,
   LogIn,
   Bot,
+  CreditCard,
+  CheckCircle,
+  Search,
+  MousePointer,
+  FileText,
 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
