@@ -181,7 +181,7 @@ export default function PerformanceTrend({
                     interval="preserveStartEnd"
                   />
 
-                  {/* ���Y轴：金额类数据 (totalRevenue, avgOrderValue) */}
+                  {/* 左Y轴：金额类数据 (totalRevenue, avgOrderValue) */}
                   <YAxis
                     yAxisId="left"
                     orientation="left"
@@ -220,9 +220,15 @@ export default function PerformanceTrend({
                     const metric = metrics.find((m) => m.id === metricId);
                     if (!metric) return null;
 
+                    // 根据指标类型选择Y轴
+                    const yAxisId = (metricId === 'totalRevenue' || metricId === 'avgOrderValue')
+                      ? 'left'
+                      : 'right';
+
                     return (
                       <Line
                         key={metricId}
+                        yAxisId={yAxisId}
                         type="monotone"
                         dataKey={metricId}
                         name={metric.label}
