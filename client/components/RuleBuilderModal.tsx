@@ -708,13 +708,22 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
           </Tabs>
         </div>
 
-        <DialogFooter className="flex-shrink-0 border-t pt-4">
-          <Button variant="outline" onClick={onClose}>
-            取消
-          </Button>
-          <Button onClick={handleSave} disabled={loading}>
-            {loading ? '保存中...' : '保存规则'}
-          </Button>
+        <DialogFooter className="flex-shrink-0 border-t pt-6 bg-muted/20">
+          <div className="flex gap-3">
+            <Button variant="outline" onClick={onClose} className="px-6">
+              取消
+            </Button>
+            <Button onClick={handleSave} disabled={loading} className="px-6">
+              {loading ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  保存中...
+                </div>
+              ) : (
+                '保存规则'
+              )}
+            </Button>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>
