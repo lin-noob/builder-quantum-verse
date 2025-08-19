@@ -45,7 +45,7 @@ export default function PerformanceTrend({
     return "label"; // 默认显示label
   };
 
-  // 定义数据类型分组，���似的数据类型使用同一个Y轴
+  // 定义数据类型分组，相似的数据类型使用同一个Y轴
   const getMetricGroup = (metricId: string) => {
     if (metricId === "totalRevenue" || metricId === "avgOrderValue")
       return "revenue"; // 金额类
@@ -183,6 +183,8 @@ export default function PerformanceTrend({
                     tickLine={false}
                     tick={{ fontSize: 12, fill: "#6b7280" }}
                     interval="preserveStartEnd"
+                    type="category"
+                    allowDataOverflow={false}
                   />
 
                   {/* 左Y轴：金额类数据 (totalRevenue, avgOrderValue) */}
