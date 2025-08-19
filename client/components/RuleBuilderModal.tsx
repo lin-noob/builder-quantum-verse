@@ -134,29 +134,6 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
     }
   }, [open, rule]);
 
-  // 检测规则冲突
-  const detectRuleConflicts = () => {
-    if (!scenario || !ruleName.trim()) return;
-
-    const detector = new RuleConflictDetector();
-    const existingRules = scenario.overrideRules || [];
-
-    const newRule: OverrideRule = {
-      ruleId: rule?.ruleId || `rule_${Date.now()}`,
-      ruleName: ruleName,
-      priority: rule?.priority || Math.max(...existingRules.map(r => r.priority), 0) + 1,
-      isEnabled: true,
-      triggerConditions,
-      responseAction,
-      createdAt: rule?.createdAt || new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-
-    const filteredExistingRules = existingRules.filter(r => r.ruleId !== newRule.ruleId);
-    const result = detector.detectConflicts(newRule, filteredExistingRules);
-    setConflictDetection(result);
-    setShowConflicts(result.hasConflicts);
-  };
 
   // 当规则配置改变时检测冲突
   useEffect(() => {
@@ -264,7 +241,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
         return false;
       }
 
-      // 检查所有条件是否��写完整
+      // 检查所有条件是否���写完整
       const allConditions = [
         ...triggerConditions.eventConditions,
         ...triggerConditions.userConditions
@@ -574,7 +551,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
         return (
           <div className="space-y-4">
             <div>
-              <Label htmlFor="smsContent">����信内容 *</Label>
+              <Label htmlFor="smsContent">���信内容 *</Label>
               <Textarea
                 id="smsContent"
                 placeholder="输入短信内容（建议控制在70字以内）"
