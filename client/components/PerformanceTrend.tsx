@@ -189,19 +189,17 @@ export default function PerformanceTrend({
                     const metric = metrics.find((m) => m.id === metricId);
                     if (!metric) return null;
 
-                    const group = getMetricGroup(metricId);
-
                     return (
                       <Line
                         key={metricId}
-                        yAxisId={group} // 使用分组名
                         type="monotone"
                         dataKey={metricId}
                         name={metric.label}
                         stroke={colors[index % colors.length]}
                         strokeWidth={2}
-                        dot={{ r: 4 }}
-                        activeDot={{ r: 6 }}
+                        dot={{ r: 3 }}
+                        activeDot={{ r: 5 }}
+                        connectNulls={false}
                       />
                     );
                   })}
