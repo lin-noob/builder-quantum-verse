@@ -659,7 +659,7 @@ const RuleBuilderModal = ({
           <SheetTitle>{rule ? "编辑自定义规则" : "创建自定义规则"}</SheetTitle>
         </SheetHeader>
 
-        <div className="flex-1 overflow-y-auto space-y-6">
+        <div className="flex-1 overflow-y-auto space-y-6 px-1">
           <div>
             <Label htmlFor="ruleName">规则名称 *</Label>
             <Input

@@ -108,7 +108,7 @@ export default function UserList() {
   const convertApiUserToUser = (apiUser: ApiUser): User => {
     return {
       id: apiUser.id || "",
-      cdpId: apiUser.cdpUserId.toString(),
+      cdpId: apiUser.cdpUserId ? apiUser.cdpUserId.toString() : "",
       name: apiUser.fullName || "",
       company: apiUser.companyName || "",
       contact: apiUser.contactInfo || "",

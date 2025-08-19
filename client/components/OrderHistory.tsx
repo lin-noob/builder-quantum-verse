@@ -35,7 +35,13 @@ interface ParsedOrderData {
   userName: string;
 }
 
-export default function OrderHistory({ cdpUserId }: { cdpUserId: string }) {
+export default function OrderHistory({
+  cdpUserId,
+  sessionId,
+}: {
+  cdpUserId: string;
+  sessionId: string;
+}) {
   const { cdpId } = useParams<{ cdpId: string }>();
   const [loading, setLoading] = useState(false);
   const [eventData, setEventData] = useState<ApiEventListResponse | null>(null);
@@ -105,7 +111,13 @@ export default function OrderHistory({ cdpUserId }: { cdpUserId: string }) {
 
       setLoading(true);
       try {
-        const data = await getUserEventList(cdpUserId, page, pageSize, 1); // 0 for order data
+        const data = await getUserEventList(
+          cdpUserId,
+          sessionId,
+          page,
+          pageSize,
+          1,
+        ); // 0 for order data
         setEventData(data);
       } catch (error) {
         console.error("Failed to fetch event data:", error);
@@ -113,7 +125,7 @@ export default function OrderHistory({ cdpUserId }: { cdpUserId: string }) {
         setLoading(false);
       }
     },
-    [cdpUserId, pageSize],
+    [cdpUserId, pageSize, sessionId],
   );
 
   // Load data on component mount and page change

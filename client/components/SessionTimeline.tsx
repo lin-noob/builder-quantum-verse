@@ -28,11 +28,19 @@ interface ParsedEventData {
   elementText?: string;
   referrer?: string;
 }
-export default function SessionTimeline({ cdpUserId }: { cdpUserId: string }) {
+export default function SessionTimeline({
+  cdpUserId,
+  sessionId,
+}: {
+  cdpUserId: string;
+  sessionId: string;
+}) {
   const [loading, setLoading] = useState(false);
   const [eventData, setEventData] = useState<ApiEventListResponse | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedEvent, setSelectedEvent] = useState<ParsedEventData | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<ParsedEventData | null>(
+    null,
+  );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const pageSize = 10;
 
@@ -41,7 +49,7 @@ export default function SessionTimeline({ cdpUserId }: { cdpUserId: string }) {
     try {
       return JSON.parse(propertiesStr);
     } catch (error) {
-      console.error('Failed to parse event properties:', error);
+      console.error("Failed to parse event properties:", error);
       return {};
     }
   };
@@ -54,12 +62,12 @@ export default function SessionTimeline({ cdpUserId }: { cdpUserId: string }) {
       id: event.id,
       eventTime: event.gmtCreate,
       eventType: event.eventName as EventType,
-      source: properties.source || '',
-      deviceType: properties.deviceType || '',
-      pageTitle: properties.pageTitle || '',
-      pageURL: properties.pageURL || '',
-      browser: properties.browser || '',
-      os: properties.os || '',
+      source: properties.source || "",
+      deviceType: properties.deviceType || "",
+      pageTitle: properties.pageTitle || "",
+      pageURL: properties.pageURL || "",
+      browser: properties.browser || "",
+      os: properties.os || "",
       dwellTimeMs: properties.dwellTimeMs,
       maxScrollDepth: properties.maxScrollDepth,
       maxDepthPercent: properties.maxDepthPercent,
@@ -76,7 +84,13 @@ export default function SessionTimeline({ cdpUserId }: { cdpUserId: string }) {
 
       setLoading(true);
       try {
-        const data = await getUserEventList(cdpUserId, page, pageSize, 2); // 2 for behavior data
+        const data = await getUserEventList(
+          cdpUserId,
+          sessionId,
+          page,
+          pageSize,
+          2,
+        ); // 2 for behavior data
         setEventData(data);
       } catch (error) {
         console.error("Failed to fetch event data:", error);
@@ -84,7 +98,7 @@ export default function SessionTimeline({ cdpUserId }: { cdpUserId: string }) {
         setLoading(false);
       }
     },
-    [cdpUserId, pageSize],
+    [cdpUserId, pageSize, sessionId],
   );
 
   // Load data on component mount and page change
@@ -140,7 +154,9 @@ export default function SessionTimeline({ cdpUserId }: { cdpUserId: string }) {
     }
 
     return (
-      <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${bgColor} ${textColor}`}>
+      <span
+        className={`px-2 py-0.5 text-xs font-medium rounded-full ${bgColor} ${textColor}`}
+      >
         {displayName}
       </span>
     );
@@ -148,7 +164,7 @@ export default function SessionTimeline({ cdpUserId }: { cdpUserId: string }) {
 
   // Format dwell time from milliseconds
   const formatDwellTime = (dwellTimeMs?: number): string => {
-    if (!dwellTimeMs) return 'N/A';
+    if (!dwellTimeMs) return "N/A";
     const seconds = Math.floor(dwellTimeMs / 1000);
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
@@ -167,7 +183,9 @@ export default function SessionTimeline({ cdpUserId }: { cdpUserId: string }) {
   if (loading) {
     return (
       <div className="bg-white p-6 rounded-lg shadow-sm">
-        <h3 className="text-lg font-semibold text-slate-900 mb-4">访问与行为时间线</h3>
+        <h3 className="text-lg font-semibold text-slate-900 mb-4">
+          访问与行为时间线
+        </h3>
         <div className="flex items-center justify-center py-8">
           <div className="text-slate-500">加载中...</div>
         </div>
@@ -178,7 +196,9 @@ export default function SessionTimeline({ cdpUserId }: { cdpUserId: string }) {
   if (!eventData || eventData.records.length === 0) {
     return (
       <div className="bg-white p-6 rounded-lg shadow-sm">
-        <h3 className="text-lg font-semibold text-slate-900 mb-4">访问与行为时间线</h3>
+        <h3 className="text-lg font-semibold text-slate-900 mb-4">
+          访问与行为时间线
+        </h3>
         <div className="flex items-center justify-center py-8">
           <div className="text-slate-500">暂无行为数据</div>
         </div>
@@ -191,7 +211,9 @@ export default function SessionTimeline({ cdpUserId }: { cdpUserId: string }) {
       {/* 行为事件列表 */}
       <div className="bg-white p-6 rounded-lg shadow-sm font-[Inter]">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-semibold text-slate-900">访问与行为时间线</h3>
+          <h3 className="text-lg font-semibold text-slate-900">
+            访问与行为时间线
+          </h3>
           <div className="text-sm text-slate-500">
             共 {eventData.total} 条记录，显示第 {startItem}-{endItem} 条
           </div>
@@ -222,18 +244,14 @@ export default function SessionTimeline({ cdpUserId }: { cdpUserId: string }) {
                     <td className="p-3 text-slate-900 font-medium">
                       {eventData.eventTime}
                     </td>
-                    <td className="p-3 text-slate-600">
-                      {eventData.source}
-                    </td>
+                    <td className="p-3 text-slate-600">{eventData.source}</td>
                     <td className="p-3 text-slate-600">
                       {eventData.deviceType}
                     </td>
                     <td className="p-3">
                       {getEventTypeBadge(eventData.eventType)}
                     </td>
-                    <td className="p-3 text-slate-600">
-                      {eventData.pageURL}
-                    </td>
+                    <td className="p-3 text-slate-600">{eventData.pageURL}</td>
                     <td className="p-3 text-slate-600">
                       {eventData.pageTitle}
                     </td>
@@ -319,7 +337,9 @@ export default function SessionTimeline({ cdpUserId }: { cdpUserId: string }) {
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm p-4 bg-slate-50 rounded-lg">
                   <div>
                     <div className="text-xs text-slate-500">事件时间</div>
-                    <div className="font-medium text-slate-900">{selectedEvent.eventTime}</div>
+                    <div className="font-medium text-slate-900">
+                      {selectedEvent.eventTime}
+                    </div>
                   </div>
                   <div>
                     <div className="text-xs text-slate-500">事件类型</div>
@@ -329,19 +349,27 @@ export default function SessionTimeline({ cdpUserId }: { cdpUserId: string }) {
                   </div>
                   <div>
                     <div className="text-xs text-slate-500">来源</div>
-                    <div className="font-medium text-slate-900">{selectedEvent.source}</div>
+                    <div className="font-medium text-slate-900">
+                      {selectedEvent.source}
+                    </div>
                   </div>
                   <div>
                     <div className="text-xs text-slate-500">设备类型</div>
-                    <div className="font-medium text-slate-900">{selectedEvent.deviceType}</div>
+                    <div className="font-medium text-slate-900">
+                      {selectedEvent.deviceType}
+                    </div>
                   </div>
                   <div>
                     <div className="text-xs text-slate-500">浏览器</div>
-                    <div className="font-medium text-slate-900">{selectedEvent.browser || 'N/A'}</div>
+                    <div className="font-medium text-slate-900">
+                      {selectedEvent.browser || "N/A"}
+                    </div>
                   </div>
                   <div>
                     <div className="text-xs text-slate-500">操作系统</div>
-                    <div className="font-medium text-slate-900">{selectedEvent.os || 'N/A'}</div>
+                    <div className="font-medium text-slate-900">
+                      {selectedEvent.os || "N/A"}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -354,16 +382,22 @@ export default function SessionTimeline({ cdpUserId }: { cdpUserId: string }) {
                 <div className="space-y-3 text-sm">
                   <div>
                     <div className="text-xs text-slate-500">页面标题</div>
-                    <div className="font-medium text-slate-900">{selectedEvent.pageTitle}</div>
+                    <div className="font-medium text-slate-900">
+                      {selectedEvent.pageTitle}
+                    </div>
                   </div>
                   <div>
                     <div className="text-xs text-slate-500">页面URL</div>
-                    <div className="font-medium text-slate-900 break-all">{selectedEvent.pageURL}</div>
+                    <div className="font-medium text-slate-900 break-all">
+                      {selectedEvent.pageURL}
+                    </div>
                   </div>
                   {selectedEvent.referrer && (
                     <div>
                       <div className="text-xs text-slate-500">来源页面</div>
-                      <div className="font-medium text-slate-900 break-all">{selectedEvent.referrer}</div>
+                      <div className="font-medium text-slate-900 break-all">
+                        {selectedEvent.referrer}
+                      </div>
                     </div>
                   )}
                 </div>
@@ -375,35 +409,54 @@ export default function SessionTimeline({ cdpUserId }: { cdpUserId: string }) {
                   事件详细信息
                 </h4>
                 <div className="space-y-3 text-sm">
-                  {selectedEvent.eventType === "PageLeave" && selectedEvent.dwellTimeMs && (
-                    <div>
-                      <div className="text-xs text-slate-500">页面停留时长</div>
-                      <div className="font-medium text-slate-900">{formatDwellTime(selectedEvent.dwellTimeMs)}</div>
-                    </div>
-                  )}
-                  {selectedEvent.eventType === "PageLeave" && selectedEvent.maxScrollDepth && (
-                    <div>
-                      <div className="text-xs text-slate-500">最大滚动深度</div>
-                      <div className="font-medium text-slate-900">{selectedEvent.maxScrollDepth}%</div>
-                    </div>
-                  )}
-                  {selectedEvent.eventType === "ScrollDepth" && selectedEvent.maxDepthPercent && (
-                    <div>
-                      <div className="text-xs text-slate-500">滚动深度</div>
-                      <div className="font-medium text-slate-900">{selectedEvent.maxDepthPercent}%</div>
-                    </div>
-                  )}
+                  {selectedEvent.eventType === "PageLeave" &&
+                    selectedEvent.dwellTimeMs && (
+                      <div>
+                        <div className="text-xs text-slate-500">
+                          页面停留时长
+                        </div>
+                        <div className="font-medium text-slate-900">
+                          {formatDwellTime(selectedEvent.dwellTimeMs)}
+                        </div>
+                      </div>
+                    )}
+                  {selectedEvent.eventType === "PageLeave" &&
+                    selectedEvent.maxScrollDepth && (
+                      <div>
+                        <div className="text-xs text-slate-500">
+                          最大滚动深度
+                        </div>
+                        <div className="font-medium text-slate-900">
+                          {selectedEvent.maxScrollDepth}%
+                        </div>
+                      </div>
+                    )}
+                  {selectedEvent.eventType === "ScrollDepth" &&
+                    selectedEvent.maxDepthPercent && (
+                      <div>
+                        <div className="text-xs text-slate-500">滚动深度</div>
+                        <div className="font-medium text-slate-900">
+                          {selectedEvent.maxDepthPercent}%
+                        </div>
+                      </div>
+                    )}
                   {selectedEvent.eventType === "Click" && (
                     <>
                       {selectedEvent.elementTag && (
                         <div>
-                          <div className="text-xs text-slate-500">点击元素标签</div>
-                          <div className="font-medium text-slate-900">{selectedEvent.elementTag}</div>
+                          <div className="text-xs text-slate-500">
+                            点击元素标签
+                          </div>
+                          <div className="font-medium text-slate-900">
+                            {selectedEvent.elementTag}
+                          </div>
                         </div>
                       )}
                       {selectedEvent.elementText && (
                         <div>
-                          <div className="text-xs text-slate-500">元素文本内容</div>
+                          <div className="text-xs text-slate-500">
+                            元素文本内容
+                          </div>
                           <div className="font-medium text-slate-900 max-h-32 overflow-y-auto">
                             {selectedEvent.elementText}
                           </div>
