@@ -55,13 +55,23 @@ export default function PerformanceTrend({
 
   // Combine data from all selected metrics
   const chartData = useMemo(() => {
-    if (selectedMetrics.length === 0) return [];
+    console.log("Generating chart data, selectedMetrics:", selectedMetrics);
+
+    if (selectedMetrics.length === 0) {
+      console.log("No selected metrics, returning empty array");
+      return [];
+    }
 
     const firstMetric = metrics.find((m) => m.id === selectedMetrics[0]);
-    if (!firstMetric) return [];
+    if (!firstMetric) {
+      console.log("First metric not found:", selectedMetrics[0]);
+      return [];
+    }
 
-    return firstMetric.data.map((dataPoint, index) => {
-      const result: any = {
+    console.log("First metric found:", firstMetric);
+
+    const result = firstMetric.data.map((dataPoint, index) => {
+      const resultPoint: any = {
         label: dataPoint.label,
         date: dataPoint.date,
       };
@@ -69,13 +79,16 @@ export default function PerformanceTrend({
       selectedMetrics.forEach((metricId) => {
         const metric = metrics.find((m) => m.id === metricId);
         if (metric && metric.data[index]) {
-          result[metricId] = metric.data[index].value;
+          resultPoint[metricId] = metric.data[index].value;
         }
       });
 
-      return result;
+      return resultPoint;
     });
-  }, [metrics]);
+
+    console.log("Generated chart data:", result);
+    return result;
+  }, [metrics, selectedMetrics]);
 
   const formatValue = (value: number, metricId: string) => {
     if (metricId === "totalRevenue") {
