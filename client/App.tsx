@@ -132,8 +132,19 @@ const AppWithRequestManager = () => {
             }
           />
 
+          {/* Main user detail route now points to 2.0 version */}
           <Route
             path="/users/:userId"
+            element={
+              <Layout>
+                <UserDetail2 />
+              </Layout>
+            }
+          />
+
+          {/* Legacy routes for old versions */}
+          <Route
+            path="/users1/:userId"
             element={
               <Layout>
                 <UserDetail />
