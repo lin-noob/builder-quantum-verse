@@ -105,7 +105,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
   useEffect(() => {
     if (open) {
       if (rule) {
-        // 编辑模式 - 如果是邮件或短信，强制改为弹窗
+        // 编辑模式 - ��果是邮件或短信，强制改为弹窗
         setRuleName(rule.ruleName);
         setTriggerConditions(rule.triggerConditions);
         const actionType = (rule.responseAction.actionType === 'EMAIL' || rule.responseAction.actionType === 'SMS')
@@ -779,6 +779,64 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
             );
           })()}
         </div>
+
+        {/* 冲突检测结果 */}
+        {conflictDetection?.hasConflicts && showConflicts && (
+          <div className="space-y-3 mt-4 p-4 border-t">
+            <div className="flex items-center justify-between">
+              <h4 className="text-sm font-medium text-red-600">检测到规则冲突</h4>
+              <Badge variant="destructive" className="text-xs">
+                风险评分: {conflictDetection.riskScore}/100
+              </Badge>
+            </div>
+
+            <div className="space-y-2 max-h-32 overflow-y-auto">
+              {conflictDetection.conflicts.map((conflict, index) => (
+                <Alert key={index} className={cn(
+                  "text-xs",
+                  conflict.severity === 'error' && "border-red-200 bg-red-50",
+                  conflict.severity === 'warning' && "border-yellow-200 bg-yellow-50",
+                  conflict.severity === 'info' && "border-blue-200 bg-blue-50"
+                )}>
+                  <div className="flex items-start gap-2">
+                    {conflict.severity === 'error' && <AlertCircle className="h-3 w-3 text-red-500 mt-0.5" />}
+                    {conflict.severity === 'warning' && <AlertTriangle className="h-3 w-3 text-yellow-500 mt-0.5" />}
+                    {conflict.severity === 'info' && <Info className="h-3 w-3 text-blue-500 mt-0.5" />}
+                    <div className="flex-1">
+                      <AlertDescription className="text-xs">
+                        {conflict.description}
+                      </AlertDescription>
+                      {conflict.suggestion && (
+                        <p className="text-xs text-muted-foreground mt-1">
+                          建议: {conflict.suggestion}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </Alert>
+              ))}
+            </div>
+
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowConflicts(false)}
+                className="text-xs"
+              >
+                忽略冲突
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={detectRuleConflicts}
+                className="text-xs"
+              >
+                重新检测
+              </Button>
+            </div>
+          </div>
+        )}
 
         <SheetFooter>
           <Button variant="outline" onClick={onClose}>
