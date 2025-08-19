@@ -154,14 +154,10 @@ export default function PerformanceTrend({
             </div>
           ) : (
             <SuppressedChart>
-              <ResponsiveContainer
-                width="100%"
-                height="100%"
-                margin={{ left: 20, right: 20 }}
-              >
+              <ResponsiveContainer width="100%" height="100%">
                 <LineChart
                   data={chartData}
-                  margin={{ top: 20, right: 80, left: 80, bottom: 20 }}
+                  margin={{ top: 20, right: 30, left: 30, bottom: 20 }}
                 >
                   <XAxis
                     dataKey={getXAxisDataKey()}
