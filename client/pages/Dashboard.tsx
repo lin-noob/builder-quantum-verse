@@ -137,7 +137,6 @@ export default function Dashboard() {
         ))}
       </div>
 
-
       {/* Test Chart */}
       <SimpleChart />
 

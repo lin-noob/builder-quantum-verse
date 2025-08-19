@@ -1,4 +1,11 @@
-import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  ResponsiveContainer,
+  Tooltip,
+} from "recharts";
 
 const testData = [
   { name: "Jan", value: 100 },
@@ -17,7 +24,12 @@ export default function SimpleChart() {
           <XAxis dataKey="name" />
           <YAxis />
           <Tooltip />
-          <Line type="monotone" dataKey="value" stroke="#8884d8" strokeWidth={2} />
+          <Line
+            type="monotone"
+            dataKey="value"
+            stroke="#8884d8"
+            strokeWidth={2}
+          />
         </LineChart>
       </ResponsiveContainer>
     </div>
