@@ -45,7 +45,7 @@ export default function PerformanceTrend({
     return "label"; // 默认显示label
   };
 
-  // 定义数据类型分组，相似的数据类型使用同一个Y轴
+  // 定义数据类型分组，���似的数据类型使用同一个Y轴
   const getMetricGroup = (metricId: string) => {
     if (metricId === "totalRevenue" || metricId === "avgOrderValue")
       return "revenue"; // 金额类
@@ -156,10 +156,8 @@ export default function PerformanceTrend({
       </CardHeader>
       <CardContent>
         {/* Multi-Line Chart */}
-        <div className="h-80 w-full bg-gray-50 rounded border">
-          <div className="p-2 text-xs text-gray-500">
-            数据点: {chartData.length} | 指标: {selectedMetrics.join(", ")}
-          </div>
+        <div className="h-80 w-full">
+          {console.log("Chart rendering with data length:", chartData.length)}
           {chartData.length === 0 ? (
             <div className="flex items-center justify-center h-full">
               <div className="text-center">
