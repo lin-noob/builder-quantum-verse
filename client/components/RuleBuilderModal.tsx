@@ -296,7 +296,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
       } else if (responseAction.actionType === 'EMAIL') {
         if (!responseAction.actionConfig.subject || !responseAction.actionConfig.emailBody) {
           toast({
-            title: "请填写邮件主题和内容",
+            title: "请填写邮��主题和内容",
             variant: "destructive",
           });
           setCurrentTab("action");
@@ -499,7 +499,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
             <Label htmlFor="aiPrompt">AI指令</Label>
             <Textarea
               id="aiPrompt"
-              placeholder="请输入给AI的业务用途和指令，例如：为VIP客��生成专属优惠信息..."
+              placeholder="请输入给AI的��务用途和指令，例如：为VIP客��生成专属优惠信息..."
               value={responseAction.actionConfig.aiPrompt || ''}
               onChange={(e) => updateActionConfig({ aiPrompt: e.target.value })}
               rows={3}
@@ -592,7 +592,11 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
   };
 
   return (
-    <Sheet open={open} onOpenChange={onClose}>
+    <Sheet open={open} onOpenChange={(isOpen) => {
+      if (!isOpen) {
+        onClose();
+      }
+    }}>
       <SheetContent side="right" className="w-[800px] max-w-[90vw] flex flex-col">
         <SheetHeader>
           <SheetTitle>
