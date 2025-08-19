@@ -163,7 +163,8 @@ export default function Layout({ children }: LayoutProps) {
                 {menuItems.map((item) => {
                   const isActive =
                     location.pathname === item.path ||
-                    (item.path === "/dashboard" && location.pathname === "/") ||
+                    (item.id === "dashboard" && (location.pathname === "/" || location.pathname === "/dashboard" || location.pathname === "/dashboard2")) ||
+                    (item.id === "users" && (location.pathname === "/users" || location.pathname === "/users2")) ||
                     (item.id === "response-actions" &&
                       location.pathname.startsWith("/response-actions")) ||
                     (item.id === "ai-marketing-strategies" &&
@@ -327,7 +328,7 @@ export default function Layout({ children }: LayoutProps) {
                 isSidebarCollapsed ? "justify-center" : "justify-start",
               )}
               title={
-                isSidebarCollapsed ? `${currentUser.username} - 个人信息` : ""
+                isSidebarCollapsed ? `${currentUser.username} - ��人信息` : ""
               }
             >
               <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
