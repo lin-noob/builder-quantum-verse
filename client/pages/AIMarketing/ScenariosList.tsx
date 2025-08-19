@@ -219,18 +219,13 @@ const ScenariosList = () => {
                 {/* 自定义规则统计 */}
                 <div className="bg-muted/30 rounded-lg p-3">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium">自定义规则</span>
-                      <Badge
-                        variant={enabledRulesCount > 0 ? "default" : "secondary"}
-                        className="text-xs"
-                      >
-                        {enabledRulesCount} / {scenario.overrideRules.length}
-                      </Badge>
-                    </div>
-                    <span className="text-xs text-muted-foreground">
-                      {enabledRulesCount > 0 ? '已配置' : '未配置'}
-                    </span>
+                    <span className="text-sm font-medium">自定义规则</span>
+                    <Badge
+                      variant={enabledRulesCount > 0 ? "default" : "secondary"}
+                      className="text-xs"
+                    >
+                      {enabledRulesCount} / {scenario.overrideRules.length}
+                    </Badge>
                   </div>
                 </div>
               </CardContent>
