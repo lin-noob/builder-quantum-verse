@@ -78,13 +78,15 @@ if (typeof console !== "undefined" && typeof window !== "undefined") {
     const message = args.length > 0 ? String(args[0]) : "";
     const fullMessage = args.join(" ");
 
-    if (shouldSuppressWarning(message) || shouldSuppressWarning(fullMessage)) {
+    // Pass all arguments to shouldSuppressWarning for comprehensive checking
+    if (shouldSuppressWarning(message, ...args) ||
+        shouldSuppressWarning(fullMessage, ...args)) {
       return;
     }
 
-    // Also check individual arguments for React warning patterns
+    // Additional individual argument checks
     for (const arg of args) {
-      if (typeof arg === 'string' && shouldSuppressWarning(arg)) {
+      if (shouldSuppressWarning(String(arg), ...args)) {
         return;
       }
     }
@@ -97,13 +99,15 @@ if (typeof console !== "undefined" && typeof window !== "undefined") {
     const message = args.length > 0 ? String(args[0]) : "";
     const fullMessage = args.join(" ");
 
-    if (shouldSuppressWarning(message) || shouldSuppressWarning(fullMessage)) {
+    // Pass all arguments to shouldSuppressWarning for comprehensive checking
+    if (shouldSuppressWarning(message, ...args) ||
+        shouldSuppressWarning(fullMessage, ...args)) {
       return;
     }
 
-    // Also check individual arguments for React warning patterns
+    // Additional individual argument checks
     for (const arg of args) {
-      if (typeof arg === 'string' && shouldSuppressWarning(arg)) {
+      if (shouldSuppressWarning(String(arg), ...args)) {
         return;
       }
     }
