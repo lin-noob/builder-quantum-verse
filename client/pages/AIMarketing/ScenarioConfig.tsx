@@ -494,6 +494,17 @@ const ScenarioConfig = () => {
               )}
             </CardContent>
           </Card>
+
+          {/* 规则冲突管理器 */}
+          {scenario.overrideRules.length > 0 && (
+            <RuleConflictManager
+              scenario={scenario}
+              onRuleEdit={(rule) => {
+                setEditingRule(rule);
+                setRuleBuilderOpen(true);
+              }}
+            />
+          )}
         </div>
 
         {/* 右侧信息 */}
