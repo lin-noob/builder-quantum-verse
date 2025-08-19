@@ -194,6 +194,8 @@ export default function PerformanceTrend({
                     axisLine={false}
                     tickLine={false}
                     tick={{ fontSize: 11, fill: "#3b82f6" }}
+                    type="number"
+                    allowDataOverflow={false}
                     tickFormatter={(value) => {
                       if (value >= 1000000) {
                         return `¥${(value / 1000000).toFixed(1)}M`;
@@ -211,6 +213,8 @@ export default function PerformanceTrend({
                     axisLine={false}
                     tickLine={false}
                     tick={{ fontSize: 11, fill: "#ef4444" }}
+                    type="number"
+                    allowDataOverflow={false}
                     tickFormatter={(value) => {
                       if (value >= 1000) {
                         return `${(value / 1000).toFixed(1)}K`;
