@@ -43,7 +43,7 @@ const queryClient = new QueryClient();
 // 请求管理包装组件
 const AppWithRequestManager = () => {
   usePageRequestManager(); // 使用页面级请求管理
-  
+
   return (
     <TooltipProvider>
       <Toaster />

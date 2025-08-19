@@ -24,7 +24,10 @@ import { Plus, Trash2, AlertCircle, AlertTriangle, Info } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { RuleConflictDetector, ConflictDetectionResult } from "../services/ruleConflictDetection";
+import {
+  RuleConflictDetector,
+  ConflictDetectionResult,
+} from "../services/ruleConflictDetection";
 import { cn } from "@/lib/utils";
 import {
   MarketingScenario,
@@ -39,7 +42,7 @@ import {
   ConditionOperator,
   ConditionCategory,
   addOverrideRule,
-  updateOverrideRule
+  updateOverrideRule,
 } from "../../shared/aiMarketingScenarioData";
 
 interface RuleBuilderModalProps {
@@ -51,54 +54,63 @@ interface RuleBuilderModalProps {
 }
 
 const operatorLabels: Record<ConditionOperator, string> = {
-  '=': '等于',
-  '!=': '不等于',
-  '>': '大于',
-  '<': '小于',
-  '>=': '大于等于',
-  '<=': '小于等于',
-  'CONTAINS': '包含',
-  '!CONTAINS': '不包含',
-  'IN': '在列表中',
-  '!IN': '不在列表中',
+  "=": "等于",
+  "!=": "不等于",
+  ">": "大于",
+  "<": "小于",
+  ">=": "大于等于",
+  "<=": "小于等于",
+  CONTAINS: "包含",
+  "!CONTAINS": "不包含",
+  IN: "在列表中",
+  "!IN": "不在列表中",
 };
 
 const actionTypeLabels: Record<ActionType, string> = {
-  'POPUP': '网页弹窗',
-  'EMAIL': '邮件',
-  'SMS': '短信',
+  POPUP: "网页弹窗",
+  EMAIL: "邮件",
+  SMS: "短信",
 };
 
 const timingLabels: Record<TimingStrategy, string> = {
-  'IMMEDIATE': '立即触发',
-  'SMART_DELAY': '智能延迟',
+  IMMEDIATE: "立即触发",
+  SMART_DELAY: "智能延迟",
 };
 
 const contentStrategyLabels: Record<ContentStrategy, string> = {
-  'STATIC': '静态内容',
-  'AI_ASSISTED': 'AI辅助',
-  'FULLY_GENERATIVE': '完全生成',
+  STATIC: "静态内容",
+  AI_ASSISTED: "AI辅助",
+  FULLY_GENERATIVE: "完全生成",
 };
 
-const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilderModalProps) => {
+const RuleBuilderModal = ({
+  open,
+  onClose,
+  scenario,
+  rule,
+  onSave,
+}: RuleBuilderModalProps) => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [currentTab, setCurrentTab] = useState("conditions");
-  const [conflictDetection, setConflictDetection] = useState<ConflictDetectionResult | null>(null);
+  const [conflictDetection, setConflictDetection] =
+    useState<ConflictDetectionResult | null>(null);
   const [showConflicts, setShowConflicts] = useState(false);
-  
+
   // 表单数据
   const [ruleName, setRuleName] = useState("");
-  const [triggerConditions, setTriggerConditions] = useState<TriggerConditions>({
-    eventConditions: [],
-    sessionConditions: [],
-    userConditions: []
-  });
+  const [triggerConditions, setTriggerConditions] = useState<TriggerConditions>(
+    {
+      eventConditions: [],
+      sessionConditions: [],
+      userConditions: [],
+    },
+  );
   const [responseAction, setResponseAction] = useState<ResponseAction>({
-    actionType: 'POPUP',
-    timing: 'IMMEDIATE',
-    contentMode: 'STATIC',
-    actionConfig: {}
+    actionType: "POPUP",
+    timing: "IMMEDIATE",
+    contentMode: "STATIC",
+    actionConfig: {},
   });
 
   // 初始化表单数据
@@ -108,12 +120,14 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
         // 编辑模式 - 如果是邮件或短信，强制改为弹窗
         setRuleName(rule.ruleName);
         setTriggerConditions(rule.triggerConditions);
-        const actionType = (rule.responseAction.actionType === 'EMAIL' || rule.responseAction.actionType === 'SMS')
-          ? 'POPUP'
-          : rule.responseAction.actionType;
+        const actionType =
+          rule.responseAction.actionType === "EMAIL" ||
+          rule.responseAction.actionType === "SMS"
+            ? "POPUP"
+            : rule.responseAction.actionType;
         setResponseAction({
           ...rule.responseAction,
-          actionType
+          actionType,
         });
       } else {
         // 创建模式
@@ -121,13 +135,13 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
         setTriggerConditions({
           eventConditions: [],
           sessionConditions: [],
-          userConditions: []
+          userConditions: [],
         });
         setResponseAction({
-          actionType: 'POPUP',
-          timing: 'IMMEDIATE',
-          contentMode: 'STATIC',
-          actionConfig: {}
+          actionType: "POPUP",
+          timing: "IMMEDIATE",
+          contentMode: "STATIC",
+          actionConfig: {},
         });
       }
       setCurrentTab("conditions");
@@ -144,15 +158,19 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
     const newRule: OverrideRule = {
       ruleId: rule?.ruleId || `rule_${Date.now()}`,
       ruleName: ruleName,
-      priority: rule?.priority || Math.max(...existingRules.map(r => r.priority), 0) + 1,
+      priority:
+        rule?.priority ||
+        Math.max(...existingRules.map((r) => r.priority), 0) + 1,
       isEnabled: true,
       triggerConditions,
       responseAction,
       createdAt: rule?.createdAt || new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     };
 
-    const filteredExistingRules = existingRules.filter(r => r.ruleId !== newRule.ruleId);
+    const filteredExistingRules = existingRules.filter(
+      (r) => r.ruleId !== newRule.ruleId,
+    );
     const result = detector.detectConflicts(newRule, filteredExistingRules);
     setConflictDetection(result);
     setShowConflicts(result.hasConflicts);
@@ -170,15 +188,19 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
         const newRule: OverrideRule = {
           ruleId: rule?.ruleId || `rule_${Date.now()}`,
           ruleName: ruleName,
-          priority: rule?.priority || Math.max(...existingRules.map(r => r.priority), 0) + 1,
+          priority:
+            rule?.priority ||
+            Math.max(...existingRules.map((r) => r.priority), 0) + 1,
           isEnabled: true,
           triggerConditions,
           responseAction,
           createdAt: rule?.createdAt || new Date().toISOString(),
-          updatedAt: new Date().toISOString()
+          updatedAt: new Date().toISOString(),
         };
 
-        const filteredExistingRules = existingRules.filter(r => r.ruleId !== newRule.ruleId);
+        const filteredExistingRules = existingRules.filter(
+          (r) => r.ruleId !== newRule.ruleId,
+        );
         const result = detector.detectConflicts(newRule, filteredExistingRules);
         setConflictDetection(result);
         setShowConflicts(result.hasConflicts);
@@ -191,47 +213,48 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
     const newCondition: TriggerCondition = {
       id: `condition_${Date.now()}`,
       category,
-      field: '',
-      operator: '=',
-      value: ''
+      field: "",
+      operator: "=",
+      value: "",
     };
 
-    setTriggerConditions(prev => ({
+    setTriggerConditions((prev) => ({
       ...prev,
       [`${category}Conditions`]: [
         ...prev[`${category}Conditions` as keyof TriggerConditions],
-        newCondition
-      ]
+        newCondition,
+      ],
     }));
   };
 
   const updateCondition = (
-    category: ConditionCategory, 
-    id: string, 
-    updates: Partial<TriggerCondition>
+    category: ConditionCategory,
+    id: string,
+    updates: Partial<TriggerCondition>,
   ) => {
-    setTriggerConditions(prev => ({
+    setTriggerConditions((prev) => ({
       ...prev,
-      [`${category}Conditions`]: prev[`${category}Conditions` as keyof TriggerConditions].map(
-        (condition: TriggerCondition) => 
-          condition.id === id ? { ...condition, ...updates } : condition
-      )
+      [`${category}Conditions`]: prev[
+        `${category}Conditions` as keyof TriggerConditions
+      ].map((condition: TriggerCondition) =>
+        condition.id === id ? { ...condition, ...updates } : condition,
+      ),
     }));
   };
 
   const removeCondition = (category: ConditionCategory, id: string) => {
-    setTriggerConditions(prev => ({
+    setTriggerConditions((prev) => ({
       ...prev,
-      [`${category}Conditions`]: prev[`${category}Conditions` as keyof TriggerConditions].filter(
-        (condition: TriggerCondition) => condition.id !== id
-      )
+      [`${category}Conditions`]: prev[
+        `${category}Conditions` as keyof TriggerConditions
+      ].filter((condition: TriggerCondition) => condition.id !== id),
     }));
   };
 
   const updateActionConfig = (updates: Partial<ActionConfig>) => {
-    setResponseAction(prev => ({
+    setResponseAction((prev) => ({
       ...prev,
-      actionConfig: { ...prev.actionConfig, ...updates }
+      actionConfig: { ...prev.actionConfig, ...updates },
     }));
   };
 
@@ -248,7 +271,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
     const hasEventFields = scenario?.availableFields?.event?.length > 0;
     const hasUserFields = scenario?.availableFields?.user?.length > 0;
     const hasTriggerConditions = hasEventFields || hasUserFields;
-    
+
     // 如果有可用的触发���件字段，才验证条件
     if (hasTriggerConditions) {
       const totalConditions =
@@ -267,11 +290,11 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
       // 检查所有条件是否���写完整
       const allConditions = [
         ...triggerConditions.eventConditions,
-        ...triggerConditions.userConditions
+        ...triggerConditions.userConditions,
       ];
 
       for (const condition of allConditions) {
-        if (!condition.field || condition.value === '') {
+        if (!condition.field || condition.value === "") {
           toast({
             title: "请完整填写所有触发条件",
             variant: "destructive",
@@ -283,9 +306,12 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
     }
 
     // 检查响应动作配置
-    if (responseAction.contentMode === 'STATIC') {
-      if (responseAction.actionType === 'POPUP') {
-        if (!responseAction.actionConfig.title || !responseAction.actionConfig.body) {
+    if (responseAction.contentMode === "STATIC") {
+      if (responseAction.actionType === "POPUP") {
+        if (
+          !responseAction.actionConfig.title ||
+          !responseAction.actionConfig.body
+        ) {
           toast({
             title: "请填写弹窗标题和内容",
             variant: "destructive",
@@ -293,8 +319,11 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
           setCurrentTab("action");
           return false;
         }
-      } else if (responseAction.actionType === 'EMAIL') {
-        if (!responseAction.actionConfig.subject || !responseAction.actionConfig.emailBody) {
+      } else if (responseAction.actionType === "EMAIL") {
+        if (
+          !responseAction.actionConfig.subject ||
+          !responseAction.actionConfig.emailBody
+        ) {
           toast({
             title: "请填写邮��主题和内容",
             variant: "destructive",
@@ -302,7 +331,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
           setCurrentTab("action");
           return false;
         }
-      } else if (responseAction.actionType === 'SMS') {
+      } else if (responseAction.actionType === "SMS") {
         if (!responseAction.actionConfig.smsContent) {
           toast({
             title: "请填写短信内容",
@@ -312,7 +341,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
           return false;
         }
       }
-    } else if (responseAction.contentMode === 'AI_ASSISTED') {
+    } else if (responseAction.contentMode === "AI_ASSISTED") {
       if (!responseAction.actionConfig.aiPrompt) {
         toast({
           title: "请填写AI指令",
@@ -334,7 +363,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
       toast({
         title: "无法保存规则",
         description: "存在严重冲突，请先解决冲突问题",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
@@ -346,7 +375,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
         priority: scenario.overrideRules.length + 1,
         isEnabled: true,
         triggerConditions,
-        responseAction
+        responseAction,
       };
 
       if (rule) {
@@ -380,7 +409,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
   const renderConditionBuilder = (
     category: ConditionCategory,
     conditions: TriggerCondition[],
-    categoryLabel: string
+    categoryLabel: string,
   ) => {
     if (!scenario) return null;
 
@@ -419,7 +448,11 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
                       <Label className="text-sm">字段</Label>
                       <Select
                         value={condition.field}
-                        onValueChange={(value) => updateCondition(category, condition.id, { field: value })}
+                        onValueChange={(value) =>
+                          updateCondition(category, condition.id, {
+                            field: value,
+                          })
+                        }
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="选择字段" />
@@ -438,17 +471,23 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
                       <Label className="text-sm">操作符</Label>
                       <Select
                         value={condition.operator}
-                        onValueChange={(value) => updateCondition(category, condition.id, { operator: value as ConditionOperator })}
+                        onValueChange={(value) =>
+                          updateCondition(category, condition.id, {
+                            operator: value as ConditionOperator,
+                          })
+                        }
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="操作符" />
                         </SelectTrigger>
                         <SelectContent>
-                          {Object.entries(operatorLabels).map(([value, label]) => (
-                            <SelectItem key={value} value={value}>
-                              {label}
-                            </SelectItem>
-                          ))}
+                          {Object.entries(operatorLabels).map(
+                            ([value, label]) => (
+                              <SelectItem key={value} value={value}>
+                                {label}
+                              </SelectItem>
+                            ),
+                          )}
                         </SelectContent>
                       </Select>
                     </div>
@@ -458,7 +497,11 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
                       <Input
                         placeholder="输入值"
                         value={condition.value}
-                        onChange={(e) => updateCondition(category, condition.id, { value: e.target.value })}
+                        onChange={(e) =>
+                          updateCondition(category, condition.id, {
+                            value: e.target.value,
+                          })
+                        }
                       />
                     </div>
                   </div>
@@ -481,7 +524,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
   };
 
   const renderActionConfig = () => {
-    if (responseAction.contentMode === 'FULLY_GENERATIVE') {
+    if (responseAction.contentMode === "FULLY_GENERATIVE") {
       return (
         <Alert>
           <AlertCircle className="h-4 w-4" />
@@ -492,7 +535,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
       );
     }
 
-    if (responseAction.contentMode === 'AI_ASSISTED') {
+    if (responseAction.contentMode === "AI_ASSISTED") {
       return (
         <div className="space-y-4">
           <div>
@@ -500,7 +543,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
             <Textarea
               id="aiPrompt"
               placeholder="请输入给AI的��务用途和指令，例如：为VIP客��生成专属优惠信息..."
-              value={responseAction.actionConfig.aiPrompt || ''}
+              value={responseAction.actionConfig.aiPrompt || ""}
               onChange={(e) => updateActionConfig({ aiPrompt: e.target.value })}
               rows={3}
             />
@@ -511,7 +554,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
 
     // 静态内容模式
     switch (responseAction.actionType) {
-      case 'POPUP':
+      case "POPUP":
         return (
           <div className="space-y-4">
             <div>
@@ -519,7 +562,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
               <Input
                 id="title"
                 placeholder="输入弹窗标题"
-                value={responseAction.actionConfig.title || ''}
+                value={responseAction.actionConfig.title || ""}
                 onChange={(e) => updateActionConfig({ title: e.target.value })}
               />
             </div>
@@ -528,7 +571,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
               <Textarea
                 id="body"
                 placeholder="输入弹窗正文内容"
-                value={responseAction.actionConfig.body || ''}
+                value={responseAction.actionConfig.body || ""}
                 onChange={(e) => updateActionConfig({ body: e.target.value })}
                 rows={3}
               />
@@ -538,14 +581,16 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
               <Input
                 id="buttonText"
                 placeholder="输入按钮文字，默认为'确定'"
-                value={responseAction.actionConfig.buttonText || ''}
-                onChange={(e) => updateActionConfig({ buttonText: e.target.value })}
+                value={responseAction.actionConfig.buttonText || ""}
+                onChange={(e) =>
+                  updateActionConfig({ buttonText: e.target.value })
+                }
               />
             </div>
           </div>
         );
 
-      case 'EMAIL':
+      case "EMAIL":
         return (
           <div className="space-y-4">
             <div>
@@ -553,8 +598,10 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
               <Input
                 id="subject"
                 placeholder="输入邮件主题"
-                value={responseAction.actionConfig.subject || ''}
-                onChange={(e) => updateActionConfig({ subject: e.target.value })}
+                value={responseAction.actionConfig.subject || ""}
+                onChange={(e) =>
+                  updateActionConfig({ subject: e.target.value })
+                }
               />
             </div>
             <div>
@@ -562,15 +609,17 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
               <Textarea
                 id="emailBody"
                 placeholder="输入邮件正文内容"
-                value={responseAction.actionConfig.emailBody || ''}
-                onChange={(e) => updateActionConfig({ emailBody: e.target.value })}
+                value={responseAction.actionConfig.emailBody || ""}
+                onChange={(e) =>
+                  updateActionConfig({ emailBody: e.target.value })
+                }
                 rows={4}
               />
             </div>
           </div>
         );
 
-      case 'SMS':
+      case "SMS":
         return (
           <div className="space-y-4">
             <div>
@@ -578,8 +627,10 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
               <Textarea
                 id="smsContent"
                 placeholder="输入短信内容（建议控制在70字以内）"
-                value={responseAction.actionConfig.smsContent || ''}
-                onChange={(e) => updateActionConfig({ smsContent: e.target.value })}
+                value={responseAction.actionConfig.smsContent || ""}
+                onChange={(e) =>
+                  updateActionConfig({ smsContent: e.target.value })
+                }
                 rows={2}
               />
             </div>
@@ -592,16 +643,20 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
   };
 
   return (
-    <Sheet open={open} onOpenChange={(isOpen) => {
-      if (!isOpen) {
-        onClose();
-      }
-    }}>
-      <SheetContent side="right" className="w-[800px] max-w-[90vw] flex flex-col">
+    <Sheet
+      open={open}
+      onOpenChange={(isOpen) => {
+        if (!isOpen) {
+          onClose();
+        }
+      }}
+    >
+      <SheetContent
+        side="right"
+        className="w-[800px] max-w-[90vw] flex flex-col"
+      >
         <SheetHeader>
-          <SheetTitle>
-            {rule ? '编辑自定义规则' : '创建自定义规则'}
-          </SheetTitle>
+          <SheetTitle>{rule ? "编辑自定义规则" : "创建自定义规则"}</SheetTitle>
         </SheetHeader>
 
         <div className="flex-1 overflow-y-auto space-y-6">
@@ -621,7 +676,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
             const hasEventFields = scenario?.availableFields?.event?.length > 0;
             const hasUserFields = scenario?.availableFields?.user?.length > 0;
             const hasTriggerConditions = hasEventFields || hasUserFields;
-            
+
             // 如果没有触发条件，直接显示响应动作
             if (!hasTriggerConditions) {
               return (
@@ -632,30 +687,36 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
                       当前场景下无可用的触发条件字段，规则将直接应用于该场景的��有触发事件。
                     </AlertDescription>
                   </Alert>
-                  
+
                   <div>
                     <Label>营销方式</Label>
                     <Select
                       value={responseAction.actionType}
-                      onValueChange={(value) => setResponseAction(prev => ({
-                        ...prev,
-                        actionType: value as ActionType,
-                        actionConfig: {}
-                      }))}
+                      onValueChange={(value) =>
+                        setResponseAction((prev) => ({
+                          ...prev,
+                          actionType: value as ActionType,
+                          actionConfig: {},
+                        }))
+                      }
                     >
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        {Object.entries(actionTypeLabels).map(([value, label]) => (
-                          <SelectItem
-                            key={value}
-                            value={value}
-                            disabled={value === 'EMAIL' || value === 'SMS'}
-                          >
-                            {label}{(value === 'EMAIL' || value === 'SMS') && ' (暂不可用)'}
-                          </SelectItem>
-                        ))}
+                        {Object.entries(actionTypeLabels).map(
+                          ([value, label]) => (
+                            <SelectItem
+                              key={value}
+                              value={value}
+                              disabled={value === "EMAIL" || value === "SMS"}
+                            >
+                              {label}
+                              {(value === "EMAIL" || value === "SMS") &&
+                                " (暂不可用)"}
+                            </SelectItem>
+                          ),
+                        )}
                       </SelectContent>
                     </Select>
                   </div>
@@ -664,10 +725,12 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
                     <Label>营销时机</Label>
                     <Select
                       value={responseAction.timing}
-                      onValueChange={(value) => setResponseAction(prev => ({
-                        ...prev,
-                        timing: value as TimingStrategy
-                      }))}
+                      onValueChange={(value) =>
+                        setResponseAction((prev) => ({
+                          ...prev,
+                          timing: value as TimingStrategy,
+                        }))
+                      }
                     >
                       <SelectTrigger>
                         <SelectValue />
@@ -686,29 +749,34 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
                     <Label>内容模式</Label>
                     <RadioGroup
                       value={responseAction.contentMode}
-                      onValueChange={(value) => setResponseAction(prev => ({
-                        ...prev,
-                        contentMode: value as ContentStrategy,
-                        actionConfig: {}
-                      }))}
+                      onValueChange={(value) =>
+                        setResponseAction((prev) => ({
+                          ...prev,
+                          contentMode: value as ContentStrategy,
+                          actionConfig: {},
+                        }))
+                      }
                       className="mt-2"
                     >
-                      {Object.entries(contentStrategyLabels).map(([value, label]) => (
-                        <div key={value} className="flex items-center space-x-2">
-                          <RadioGroupItem value={value} id={value} />
-                          <Label htmlFor={value}>{label}</Label>
-                        </div>
-                      ))}
+                      {Object.entries(contentStrategyLabels).map(
+                        ([value, label]) => (
+                          <div
+                            key={value}
+                            className="flex items-center space-x-2"
+                          >
+                            <RadioGroupItem value={value} id={value} />
+                            <Label htmlFor={value}>{label}</Label>
+                          </div>
+                        ),
+                      )}
                     </RadioGroup>
 
-                    <div className="mt-4">
-                      {renderActionConfig()}
-                    </div>
+                    <div className="mt-4">{renderActionConfig()}</div>
                   </div>
                 </div>
               );
             }
-            
+
             // 有触发条件时显示标签页
             return (
               <Tabs value={currentTab} onValueChange={setCurrentTab}>
@@ -718,12 +786,20 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
                 </TabsList>
 
                 <TabsContent value="conditions" className="space-y-4 mt-4">
-                  {scenario && scenario.availableFields.event.length > 0 &&
-                    renderConditionBuilder('event', triggerConditions.eventConditions, '事件属性条件')
-                  }
-                  {scenario && scenario.availableFields.user.length > 0 &&
-                    renderConditionBuilder('user', triggerConditions.userConditions, '用户画像条件')
-                  }
+                  {scenario &&
+                    scenario.availableFields.event.length > 0 &&
+                    renderConditionBuilder(
+                      "event",
+                      triggerConditions.eventConditions,
+                      "事件属性条件",
+                    )}
+                  {scenario &&
+                    scenario.availableFields.user.length > 0 &&
+                    renderConditionBuilder(
+                      "user",
+                      triggerConditions.userConditions,
+                      "用户画像条件",
+                    )}
                 </TabsContent>
 
                 <TabsContent value="action" className="space-y-4 mt-4">
@@ -731,25 +807,31 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
                     <Label>营销方式</Label>
                     <Select
                       value={responseAction.actionType}
-                      onValueChange={(value) => setResponseAction(prev => ({
-                        ...prev,
-                        actionType: value as ActionType,
-                        actionConfig: {}
-                      }))}
+                      onValueChange={(value) =>
+                        setResponseAction((prev) => ({
+                          ...prev,
+                          actionType: value as ActionType,
+                          actionConfig: {},
+                        }))
+                      }
                     >
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        {Object.entries(actionTypeLabels).map(([value, label]) => (
-                          <SelectItem
-                            key={value}
-                            value={value}
-                            disabled={value === 'EMAIL' || value === 'SMS'}
-                          >
-                            {label}{(value === 'EMAIL' || value === 'SMS') && ' (暂不可用)'}
-                          </SelectItem>
-                        ))}
+                        {Object.entries(actionTypeLabels).map(
+                          ([value, label]) => (
+                            <SelectItem
+                              key={value}
+                              value={value}
+                              disabled={value === "EMAIL" || value === "SMS"}
+                            >
+                              {label}
+                              {(value === "EMAIL" || value === "SMS") &&
+                                " (暂不可用)"}
+                            </SelectItem>
+                          ),
+                        )}
                       </SelectContent>
                     </Select>
                   </div>
@@ -758,10 +840,12 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
                     <Label>营销时机</Label>
                     <Select
                       value={responseAction.timing}
-                      onValueChange={(value) => setResponseAction(prev => ({
-                        ...prev,
-                        timing: value as TimingStrategy
-                      }))}
+                      onValueChange={(value) =>
+                        setResponseAction((prev) => ({
+                          ...prev,
+                          timing: value as TimingStrategy,
+                        }))
+                      }
                     >
                       <SelectTrigger>
                         <SelectValue />
@@ -780,24 +864,29 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
                     <Label>内容模式</Label>
                     <RadioGroup
                       value={responseAction.contentMode}
-                      onValueChange={(value) => setResponseAction(prev => ({
-                        ...prev,
-                        contentMode: value as ContentStrategy,
-                        actionConfig: {}
-                      }))}
+                      onValueChange={(value) =>
+                        setResponseAction((prev) => ({
+                          ...prev,
+                          contentMode: value as ContentStrategy,
+                          actionConfig: {},
+                        }))
+                      }
                       className="mt-2"
                     >
-                      {Object.entries(contentStrategyLabels).map(([value, label]) => (
-                        <div key={value} className="flex items-center space-x-2">
-                          <RadioGroupItem value={value} id={value} />
-                          <Label htmlFor={value}>{label}</Label>
-                        </div>
-                      ))}
+                      {Object.entries(contentStrategyLabels).map(
+                        ([value, label]) => (
+                          <div
+                            key={value}
+                            className="flex items-center space-x-2"
+                          >
+                            <RadioGroupItem value={value} id={value} />
+                            <Label htmlFor={value}>{label}</Label>
+                          </div>
+                        ),
+                      )}
                     </RadioGroup>
 
-                    <div className="mt-4">
-                      {renderActionConfig()}
-                    </div>
+                    <div className="mt-4">{renderActionConfig()}</div>
                   </div>
                 </TabsContent>
               </Tabs>
@@ -809,7 +898,9 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
         {conflictDetection?.hasConflicts && showConflicts && (
           <div className="space-y-3 mt-4 p-4 border-t">
             <div className="flex items-center justify-between">
-              <h4 className="text-sm font-medium text-red-600">检测到规则冲突</h4>
+              <h4 className="text-sm font-medium text-red-600">
+                检测到规则冲突
+              </h4>
               <Badge variant="destructive" className="text-xs">
                 风险评分: {conflictDetection.riskScore}/100
               </Badge>
@@ -817,16 +908,27 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
 
             <div className="space-y-2 max-h-32 overflow-y-auto">
               {conflictDetection.conflicts.map((conflict, index) => (
-                <Alert key={index} className={cn(
-                  "text-xs",
-                  conflict.severity === 'error' && "border-red-200 bg-red-50",
-                  conflict.severity === 'warning' && "border-yellow-200 bg-yellow-50",
-                  conflict.severity === 'info' && "border-blue-200 bg-blue-50"
-                )}>
+                <Alert
+                  key={index}
+                  className={cn(
+                    "text-xs",
+                    conflict.severity === "error" && "border-red-200 bg-red-50",
+                    conflict.severity === "warning" &&
+                      "border-yellow-200 bg-yellow-50",
+                    conflict.severity === "info" &&
+                      "border-blue-200 bg-blue-50",
+                  )}
+                >
                   <div className="flex items-start gap-2">
-                    {conflict.severity === 'error' && <AlertCircle className="h-3 w-3 text-red-500 mt-0.5" />}
-                    {conflict.severity === 'warning' && <AlertTriangle className="h-3 w-3 text-yellow-500 mt-0.5" />}
-                    {conflict.severity === 'info' && <Info className="h-3 w-3 text-blue-500 mt-0.5" />}
+                    {conflict.severity === "error" && (
+                      <AlertCircle className="h-3 w-3 text-red-500 mt-0.5" />
+                    )}
+                    {conflict.severity === "warning" && (
+                      <AlertTriangle className="h-3 w-3 text-yellow-500 mt-0.5" />
+                    )}
+                    {conflict.severity === "info" && (
+                      <Info className="h-3 w-3 text-blue-500 mt-0.5" />
+                    )}
                     <div className="flex-1">
                       <AlertDescription className="text-xs">
                         {conflict.description}
@@ -869,9 +971,14 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
           </Button>
           <Button
             onClick={handleSave}
-            disabled={loading || (conflictDetection?.riskScore && conflictDetection.riskScore > 80)}
+            disabled={
+              loading ||
+              (conflictDetection?.riskScore && conflictDetection.riskScore > 80)
+            }
             className={cn(
-              conflictDetection?.riskScore && conflictDetection.riskScore > 80 && "opacity-50 cursor-not-allowed"
+              conflictDetection?.riskScore &&
+                conflictDetection.riskScore > 80 &&
+                "opacity-50 cursor-not-allowed",
             )}
           >
             {loading ? "保存中..." : "保存规则"}

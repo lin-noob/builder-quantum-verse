@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 interface SuppressedChartProps {
   children: React.ReactNode;
@@ -9,11 +9,7 @@ interface SuppressedChartProps {
  * Warning suppression is handled globally now
  */
 const SuppressedChart: React.FC<SuppressedChartProps> = ({ children }) => {
-  return (
-    <div className="recharts-container">
-      {children}
-    </div>
-  );
+  return <div className="recharts-container">{children}</div>;
 };
 
 export default SuppressedChart;

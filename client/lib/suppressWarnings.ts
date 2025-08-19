@@ -4,7 +4,8 @@ if (typeof console !== "undefined" && typeof window !== "undefined") {
   const originalError = console.error;
 
   // Suppress React DevTools warnings globally
-  const originalReactDevToolsGlobalHook = (window as any).__REACT_DEVTOOLS_GLOBAL_HOOK__;
+  const originalReactDevToolsGlobalHook = (window as any)
+    .__REACT_DEVTOOLS_GLOBAL_HOOK__;
   if (originalReactDevToolsGlobalHook) {
     (window as any).__REACT_DEVTOOLS_GLOBAL_HOOK__ = {
       ...originalReactDevToolsGlobalHook,
@@ -17,16 +18,21 @@ if (typeof console !== "undefined" && typeof window !== "undefined") {
       },
       onCommitFiberUnmount: (...args: any[]) => {
         try {
-          return originalReactDevToolsGlobalHook.onCommitFiberUnmount?.(...args);
+          return originalReactDevToolsGlobalHook.onCommitFiberUnmount?.(
+            ...args,
+          );
         } catch (e) {
           // Suppress React DevTools errors
         }
-      }
+      },
     };
   }
 
   // Function to check if a warning should be suppressed
-  const shouldSuppressWarning = (message: string, ...allArgs: any[]): boolean => {
+  const shouldSuppressWarning = (
+    message: string,
+    ...allArgs: any[]
+  ): boolean => {
     // Convert message to string for consistent handling
     const msg = String(message);
 
@@ -36,20 +42,37 @@ if (typeof console !== "undefined" && typeof window !== "undefined") {
     }
 
     // AGGRESSIVE: Suppress all function component warnings
-    if (msg.includes("function components") || msg.includes("Function components")) {
+    if (
+      msg.includes("function components") ||
+      msg.includes("Function components")
+    ) {
       return true;
     }
 
     // Suppress React warning format with %s placeholders - more comprehensive check
-    if (msg.includes("Support for defaultProps will be removed") ||
-        msg.includes("Use JavaScript default parameters instead") ||
-        msg.includes("%s: Support for defaultProps") ||
-        msg.includes("future major release")) {
+    if (
+      msg.includes("Support for defaultProps will be removed") ||
+      msg.includes("Use JavaScript default parameters instead") ||
+      msg.includes("%s: Support for defaultProps") ||
+      msg.includes("future major release")
+    ) {
       return true;
     }
 
     // SUPER AGGRESSIVE: Check if any argument contains recharts component names
-    const rechartsComponents = ["XAxis", "YAxis", "XAxis2", "YAxis2", "LineChart", "ResponsiveContainer", "Line", "Tooltip", "Legend", "Chart", "Recharts"];
+    const rechartsComponents = [
+      "XAxis",
+      "YAxis",
+      "XAxis2",
+      "YAxis2",
+      "LineChart",
+      "ResponsiveContainer",
+      "Line",
+      "Tooltip",
+      "Legend",
+      "Chart",
+      "Recharts",
+    ];
     for (const component of rechartsComponents) {
       if (msg.includes(component)) {
         return true; // Suppress ANY warning containing these component names
@@ -57,46 +80,62 @@ if (typeof console !== "undefined" && typeof window !== "undefined") {
 
       // Also check in other arguments
       for (const arg of allArgs) {
-        if (typeof arg === 'string' && arg.includes(component)) {
+        if (typeof arg === "string" && arg.includes(component)) {
           return true;
         }
       }
     }
 
     // AGGRESSIVE: Suppress any warning from recharts.js file
-    if (msg.includes("recharts.js") || msg.includes("/deps/recharts") ||
-        allArgs.some(arg => String(arg).includes("recharts"))) {
+    if (
+      msg.includes("recharts.js") ||
+      msg.includes("/deps/recharts") ||
+      allArgs.some((arg) => String(arg).includes("recharts"))
+    ) {
       return true;
     }
 
     // Suppress by file path - recharts library files
-    if (msg.includes("/deps/recharts.js") &&
-        (msg.includes("defaultProps") || msg.includes("function components"))) {
+    if (
+      msg.includes("/deps/recharts.js") &&
+      (msg.includes("defaultProps") || msg.includes("function components"))
+    ) {
       return true;
     }
 
     // More comprehensive recharts detection
-    if ((msg.includes("recharts") || msg.toLowerCase().includes("chart")) &&
-        (msg.includes("defaultProps") || msg.includes("function components"))) {
+    if (
+      (msg.includes("recharts") || msg.toLowerCase().includes("chart")) &&
+      (msg.includes("defaultProps") || msg.includes("function components"))
+    ) {
       return true;
     }
 
     // Check all arguments for recharts patterns
     for (const arg of allArgs) {
       const argStr = String(arg);
-      if (argStr.includes("recharts.js") ||
-          rechartsComponents.some(comp => argStr.includes(comp))) {
+      if (
+        argStr.includes("recharts.js") ||
+        rechartsComponents.some((comp) => argStr.includes(comp))
+      ) {
         return true;
       }
     }
 
     // Suppress createRoot warnings if they're about duplicate calls
-    if (message.includes("createRoot") && message.includes("already been passed to createRoot")) {
+    if (
+      message.includes("createRoot") &&
+      message.includes("already been passed to createRoot")
+    ) {
       return true;
     }
 
     // Suppress ResizeObserver warnings
-    if (message.includes("ResizeObserver loop completed with undelivered notifications")) {
+    if (
+      message.includes(
+        "ResizeObserver loop completed with undelivered notifications",
+      )
+    ) {
       return true;
     }
 
@@ -110,8 +149,10 @@ if (typeof console !== "undefined" && typeof window !== "undefined") {
     const fullMessage = args.join(" ");
 
     // Pass all arguments to shouldSuppressWarning for comprehensive checking
-    if (shouldSuppressWarning(message, ...args) ||
-        shouldSuppressWarning(fullMessage, ...args)) {
+    if (
+      shouldSuppressWarning(message, ...args) ||
+      shouldSuppressWarning(fullMessage, ...args)
+    ) {
       return;
     }
 
@@ -131,8 +172,10 @@ if (typeof console !== "undefined" && typeof window !== "undefined") {
     const fullMessage = args.join(" ");
 
     // Pass all arguments to shouldSuppressWarning for comprehensive checking
-    if (shouldSuppressWarning(message, ...args) ||
-        shouldSuppressWarning(fullMessage, ...args)) {
+    if (
+      shouldSuppressWarning(message, ...args) ||
+      shouldSuppressWarning(fullMessage, ...args)
+    ) {
       return;
     }
 
@@ -149,7 +192,12 @@ if (typeof console !== "undefined" && typeof window !== "undefined") {
   // Suppress ResizeObserver errors globally
   const originalErrorHandler = window.onerror;
   window.onerror = (message, source, lineno, colno, error) => {
-    if (typeof message === 'string' && message.includes('ResizeObserver loop completed with undelivered notifications')) {
+    if (
+      typeof message === "string" &&
+      message.includes(
+        "ResizeObserver loop completed with undelivered notifications",
+      )
+    ) {
       return true; // Suppress the error
     }
     if (originalErrorHandler) {
@@ -159,20 +207,28 @@ if (typeof console !== "undefined" && typeof window !== "undefined") {
   };
 
   // Handle unhandled promise rejections for ResizeObserver
-  window.addEventListener('unhandledrejection', (event) => {
-    if (event.reason && typeof event.reason === 'string' &&
-        event.reason.includes('ResizeObserver loop completed with undelivered notifications')) {
+  window.addEventListener("unhandledrejection", (event) => {
+    if (
+      event.reason &&
+      typeof event.reason === "string" &&
+      event.reason.includes(
+        "ResizeObserver loop completed with undelivered notifications",
+      )
+    ) {
       event.preventDefault();
     }
   });
 
   // Additional suppression for React DevTools if available
-  if (typeof window !== 'undefined' && (window as any).__REACT_DEVTOOLS_GLOBAL_HOOK__) {
+  if (
+    typeof window !== "undefined" &&
+    (window as any).__REACT_DEVTOOLS_GLOBAL_HOOK__
+  ) {
     try {
       const devTools = (window as any).__REACT_DEVTOOLS_GLOBAL_HOOK__;
       if (devTools.onCommitFiberRoot) {
         const originalCommit = devTools.onCommitFiberRoot;
-        devTools.onCommitFiberRoot = function(...args: any[]) {
+        devTools.onCommitFiberRoot = function (...args: any[]) {
           try {
             return originalCommit.apply(this, args);
           } catch (e) {

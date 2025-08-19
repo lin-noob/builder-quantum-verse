@@ -1,5 +1,5 @@
-import { useEffect, useRef } from 'react';
-import { request } from '../lib/request';
+import { useEffect, useRef } from "react";
+import { request } from "../lib/request";
 
 /**
  * 请求管理Hook - 自动处理组件卸载时的请求清理
@@ -25,7 +25,7 @@ export const useRequestManager = () => {
 
   // 取消所有跟踪的请求
   const cancelAllRequests = () => {
-    requestIdsRef.current.forEach(requestId => {
+    requestIdsRef.current.forEach((requestId) => {
       request.abortRequest(requestId);
     });
     requestIdsRef.current.clear();
@@ -57,12 +57,12 @@ export const usePageRequestManager = () => {
     };
 
     // 注册页面卸载事件
-    window.addEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener("beforeunload", handleBeforeUnload);
 
     return () => {
       // 页面卸载时清理所有请求
       request.abortAllRequests();
-      window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener("beforeunload", handleBeforeUnload);
     };
   }, []);
 };

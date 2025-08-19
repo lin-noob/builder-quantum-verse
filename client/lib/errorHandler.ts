@@ -4,12 +4,12 @@
 
 // 错误类型枚举
 export enum ErrorType {
-  NETWORK = 'NETWORK',
-  TIMEOUT = 'TIMEOUT',
-  ABORT = 'ABORT',
-  VALIDATION = 'VALIDATION',
-  BUSINESS = 'BUSINESS',
-  UNKNOWN = 'UNKNOWN'
+  NETWORK = "NETWORK",
+  TIMEOUT = "TIMEOUT",
+  ABORT = "ABORT",
+  VALIDATION = "VALIDATION",
+  BUSINESS = "BUSINESS",
+  UNKNOWN = "UNKNOWN",
 }
 
 // 错误信息接口
@@ -32,30 +32,33 @@ export class ErrorClassifier {
       message: error.message,
       originalError: error,
       context,
-      timestamp
+      timestamp,
     };
 
     // AbortError 分类
-    if (error.name === 'AbortError' || error.message.includes('aborted')) {
+    if (error.name === "AbortError" || error.message.includes("aborted")) {
       errorInfo.type = ErrorType.ABORT;
-      
+
       // 进一步分析 abort 原因
-      if (error.message.includes('timeout') || context?.isTimeout) {
+      if (error.message.includes("timeout") || context?.isTimeout) {
         errorInfo.type = ErrorType.TIMEOUT;
-        errorInfo.message = '请求超时';
-      } else if (error.message.includes('signal is aborted without reason')) {
-        errorInfo.message = '请求被意外中止（可能由于页面导航或组件卸载）';
+        errorInfo.message = "请求超时";
+      } else if (error.message.includes("signal is aborted without reason")) {
+        errorInfo.message = "请求被意外中止（可能由于页面导航或组件卸载）";
       } else {
-        errorInfo.message = '请求被中止';
+        errorInfo.message = "请求被中止";
       }
     }
     // 网络错误
-    else if (error.message.includes('fetch') || error.message.includes('network')) {
+    else if (
+      error.message.includes("fetch") ||
+      error.message.includes("network")
+    ) {
       errorInfo.type = ErrorType.NETWORK;
-      errorInfo.message = '网络连接错误';
+      errorInfo.message = "网络连接错误";
     }
     // 业务错误
-    else if (error.name === 'RequestError') {
+    else if (error.name === "RequestError") {
       errorInfo.type = ErrorType.BUSINESS;
     }
 
@@ -71,14 +74,14 @@ export class ErrorHandler {
   // 记录错误
   static logError(errorInfo: ErrorInfo) {
     this.errorLog.unshift(errorInfo);
-    
+
     // 保持日志大小
     if (this.errorLog.length > this.maxLogSize) {
       this.errorLog = this.errorLog.slice(0, this.maxLogSize);
     }
 
     // 在开发环境中输出详细信息
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === "development") {
       this.debugError(errorInfo);
     }
   }
@@ -86,7 +89,7 @@ export class ErrorHandler {
   // 调试错误输出
   private static debugError(errorInfo: ErrorInfo) {
     const { type, message, originalError, context, url, method } = errorInfo;
-    
+
     console.group(`🚨 Request Error [${type}]`);
     console.log(`📝 Message: ${message}`);
     if (url) console.log(`🌐 URL: ${method} ${url}`);
@@ -111,10 +114,10 @@ export class ErrorHandler {
     const stats = {
       total: this.errorLog.length,
       byType: {} as Record<ErrorType, number>,
-      recent: this.errorLog.slice(0, 5)
+      recent: this.errorLog.slice(0, 5),
     };
 
-    this.errorLog.forEach(error => {
+    this.errorLog.forEach((error) => {
       stats.byType[error.type] = (stats.byType[error.type] || 0) + 1;
     });
 
@@ -132,12 +135,12 @@ export class ErrorHandler {
 // 全局错误处理器
 export const setupGlobalErrorHandler = () => {
   // 捕获未处理的 Promise 拒绝
-  window.addEventListener('unhandledrejection', (event) => {
+  window.addEventListener("unhandledrejection", (event) => {
     if (event.reason instanceof Error) {
       const errorInfo = ErrorHandler.handleError(event.reason, {
-        source: 'unhandledrejection'
+        source: "unhandledrejection",
       });
-      
+
       // 如果是AbortError，不阻止默认行为（避免在控制台显示）
       if (errorInfo.type === ErrorType.ABORT) {
         event.preventDefault();
@@ -146,25 +149,27 @@ export const setupGlobalErrorHandler = () => {
   });
 
   // 捕获全局错误
-  window.addEventListener('error', (event) => {
+  window.addEventListener("error", (event) => {
     if (event.error instanceof Error) {
       ErrorHandler.handleError(event.error, {
-        source: 'window.error',
+        source: "window.error",
         filename: event.filename,
         lineno: event.lineno,
-        colno: event.colno
+        colno: event.colno,
       });
     }
   });
 
   // 在开发环境中提供调试工具
-  if (process.env.NODE_ENV === 'development') {
+  if (process.env.NODE_ENV === "development") {
     (window as any).errorHandler = {
       getLog: () => ErrorHandler.getErrorLog(),
       getStats: () => ErrorHandler.getErrorStats(),
-      clear: () => ErrorHandler.clearErrorLog()
+      clear: () => ErrorHandler.clearErrorLog(),
     };
-    
-    console.log('🔧 Error Handler initialized. Use window.errorHandler for debugging.');
+
+    console.log(
+      "🔧 Error Handler initialized. Use window.errorHandler for debugging.",
+    );
   }
 };

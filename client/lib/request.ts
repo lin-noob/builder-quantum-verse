@@ -1,4 +1,4 @@
-import { ErrorHandler } from './errorHandler';
+import { ErrorHandler } from "./errorHandler";
 
 /**
  * 通用请求配置接口
@@ -127,7 +127,7 @@ class RequestManager {
   }
 
   abortAllRequests() {
-    this.requests.forEach(controller => controller.abort());
+    this.requests.forEach((controller) => controller.abort());
     this.requests.clear();
   }
 }
@@ -269,7 +269,7 @@ export class Request {
     const timeoutId = setTimeout(() => {
       if (!controller.signal.aborted) {
         console.warn(`Request timeout after ${timeout}ms: ${requestId}`);
-        controller.abort(new Error('Request timeout'));
+        controller.abort(new Error("Request timeout"));
       }
     }, timeout);
 
@@ -312,7 +312,10 @@ export class Request {
       );
 
       // 创建超时控制器
-      const { controller, timeoutId: tid } = this.createTimeoutController(timeout, requestId);
+      const { controller, timeoutId: tid } = this.createTimeoutController(
+        timeout,
+        requestId,
+      );
       timeoutId = tid;
 
       const fetchOptions: RequestInit = {
@@ -352,7 +355,7 @@ export class Request {
         url: fullURL,
         method,
         isTimeout: timeoutId !== undefined,
-        requestId
+        requestId,
       };
 
       const errorInfo = ErrorHandler.handleError(error as Error, errorContext);
@@ -369,11 +372,15 @@ export class Request {
 
       // 根据错误类型抛出相应的错误
       switch (errorInfo.type) {
-        case 'TIMEOUT':
+        case "TIMEOUT":
           throw new RequestError("Request timeout", 408, "Request Timeout");
-        case 'ABORT':
-          throw new RequestError("Request aborted", 499, "Client Closed Request");
-        case 'NETWORK':
+        case "ABORT":
+          throw new RequestError(
+            "Request aborted",
+            499,
+            "Client Closed Request",
+          );
+        case "NETWORK":
           throw new RequestError("Network error", 0, "Network Error");
         default:
           throw new RequestError(

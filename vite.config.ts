@@ -6,8 +6,8 @@ import path from "path";
 export default defineConfig(({ mode }) => ({
   define: {
     // Disable React warnings in development
-    __DEV__: mode === 'development',
-    'process.env.NODE_ENV': JSON.stringify(mode),
+    __DEV__: mode === "development",
+    "process.env.NODE_ENV": JSON.stringify(mode),
   },
   server: {
     host: "::",
@@ -42,7 +42,7 @@ export default defineConfig(({ mode }) => ({
           });
         },
       },
-      '/quote/api': "http://192.168.1.128:8099",
+      "/quote/api": "http://192.168.1.128:8099",
     },
   },
   build: {
