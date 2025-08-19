@@ -96,11 +96,47 @@ export class RequestError extends Error {
 }
 
 /**
+ * 请求管理器 - 用于跟踪和管理进行中的请求
+ */
+class RequestManager {
+  private requests = new Map<string, AbortController>();
+
+  createController(requestId: string): AbortController {
+    // 如果已存在相同ID的请求，先取消它
+    if (this.requests.has(requestId)) {
+      this.requests.get(requestId)?.abort();
+    }
+
+    const controller = new AbortController();
+    this.requests.set(requestId, controller);
+    return controller;
+  }
+
+  removeRequest(requestId: string) {
+    this.requests.delete(requestId);
+  }
+
+  abortRequest(requestId: string) {
+    const controller = this.requests.get(requestId);
+    if (controller) {
+      controller.abort();
+      this.requests.delete(requestId);
+    }
+  }
+
+  abortAllRequests() {
+    this.requests.forEach(controller => controller.abort());
+    this.requests.clear();
+  }
+}
+
+/**
  * 通用HTTP请求类
  */
 export class Request {
   private baseURL: string;
   private defaultConfig: RequestConfig;
+  private requestManager = new RequestManager();
 
   constructor(baseURL: string = "", config: RequestConfig = {}) {
     this.baseURL = baseURL;
