@@ -60,6 +60,26 @@ if (typeof console !== "undefined" && typeof window !== "undefined") {
     }
     originalError.apply(console, args);
   };
+
+  // Suppress ResizeObserver errors globally
+  const originalErrorHandler = window.onerror;
+  window.onerror = (message, source, lineno, colno, error) => {
+    if (typeof message === 'string' && message.includes('ResizeObserver loop completed with undelivered notifications')) {
+      return true; // Suppress the error
+    }
+    if (originalErrorHandler) {
+      return originalErrorHandler(message, source, lineno, colno, error);
+    }
+    return false;
+  };
+
+  // Handle unhandled promise rejections for ResizeObserver
+  window.addEventListener('unhandledrejection', (event) => {
+    if (event.reason && typeof event.reason === 'string' &&
+        event.reason.includes('ResizeObserver loop completed with undelivered notifications')) {
+      event.preventDefault();
+    }
+  });
 }
 
 // This file only sets up console warning suppression
