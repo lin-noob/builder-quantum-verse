@@ -101,7 +101,7 @@ const ScenariosList = () => {
             ? { ...s, isAIEnabled: newState }
             : s
         );
-        // 重新排序：启用的在前，暂停的在后
+        // 重新排序：启用的在前，暂停的在��
         return updated.sort((a, b) => {
           if (a.isAIEnabled !== b.isAIEnabled) {
             return b.isAIEnabled ? 1 : -1;
@@ -170,19 +170,19 @@ const ScenariosList = () => {
             >
               <CardHeader className="pb-4">
                 {/* 顶部：场景名称和开关 */}
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-3">
-                    <div className="text-primary">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-3 flex-1">
+                    <div className="flex-shrink-0 w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center text-primary">
                       {getScenarioIcon(scenario.scenarioId)}
                     </div>
-                    <div>
-                      <CardTitle className="text-lg">{scenario.scenarioName}</CardTitle>
-                      <p className="text-sm text-muted-foreground mt-1">
+                    <div className="flex-1 min-w-0">
+                      <CardTitle className="text-lg font-semibold mb-1">{scenario.scenarioName}</CardTitle>
+                      <p className="text-sm text-muted-foreground leading-relaxed">
                         {scenario.businessValue}
                       </p>
                     </div>
                   </div>
-                  <div onClick={(e) => e.stopPropagation()}>
+                  <div className="flex-shrink-0 ml-4" onClick={(e) => e.stopPropagation()}>
                     <Switch
                       checked={scenario.isAIEnabled}
                       onCheckedChange={(checked) => handleAIToggle(scenario, checked)}
