@@ -537,9 +537,10 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
             <Label htmlFor="ruleName">规则名称 *</Label>
             <Input
               id="ruleName"
-              placeholder="为这条规则取个名字，例如：VIP客户高价值购物车挽留"
+              placeholder="为这条规则取个名字..."
               value={ruleName}
               onChange={(e) => setRuleName(e.target.value)}
+              className="text-ellipsis"
             />
           </div>
 
