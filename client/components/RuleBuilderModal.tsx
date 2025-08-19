@@ -145,8 +145,12 @@ const RuleBuilderModal = ({
         });
       }
       setCurrentTab("conditions");
+
+      // 重置冲突检测状态
+      setConflictDetection(null);
+      setShowConflicts(false);
     }
-  }, [open, rule]);
+  }, [open, rule?.ruleId]); // 只依赖ruleId而不是整个rule对象
 
   // 手动重新检测冲突
   const handleRedetectConflicts = () => {
@@ -353,7 +357,7 @@ const RuleBuilderModal = ({
     } else if (responseAction.contentMode === "AI_ASSISTED") {
       if (!responseAction.actionConfig.aiPrompt) {
         toast({
-          title: "���填写AI指令",
+          title: "请填写AI指令",
           variant: "destructive",
         });
         setCurrentTab("action");
@@ -446,7 +450,7 @@ const RuleBuilderModal = ({
           {conditions.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <p>暂无{categoryLabel}</p>
-              <p className="text-sm mt-1">点击上方按钮添加��一个条件</p>
+              <p className="text-sm mt-1">点击上方按钮添加第一个条件</p>
             </div>
           ) : (
             conditions.map((condition) => (
