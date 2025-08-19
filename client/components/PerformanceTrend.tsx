@@ -123,7 +123,8 @@ export default function PerformanceTrend({
       <CardContent>
         {/* Multi-Line Chart */}
         <div className="h-80">
-          <ResponsiveContainer
+          <SuppressedChart>
+            <ResponsiveContainer
             width="100%"
             height="100%"
             margin={{ left: 20, right: 20 }}
@@ -202,7 +203,8 @@ export default function PerformanceTrend({
                 );
               })}
             </LineChart>
-          </ResponsiveContainer>
+            </ResponsiveContainer>
+          </SuppressedChart>
         </div>
       </CardContent>
     </Card>
