@@ -131,7 +131,7 @@ const ScenarioConfig = () => {
       });
     } catch (error) {
       toast({
-        title: "操作失败",
+        title: "��作失败",
         description: "无法更新规则状态，请重试",
         variant: "destructive",
       });
@@ -315,15 +315,28 @@ const ScenarioConfig = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
-                {/* 核心策略 */}
+                {/* 配置概览 */}
                 <div>
-                  <dt className="text-sm font-medium text-muted-foreground mb-3">核心策略</dt>
-                  <div className="flex gap-2 flex-wrap">
-                    {scenario.defaultAIConfig.coreStrategies.map((strategy, index) => (
-                      <Badge key={index} variant="secondary" className="text-xs">
-                        {strategy}
-                      </Badge>
-                    ))}
+                  <dt className="text-sm font-medium text-muted-foreground mb-3">配置概览</dt>
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="text-center p-3 bg-muted/30 rounded-lg">
+                      <div className="text-xs text-muted-foreground">营销方式</div>
+                      <div className="text-sm font-medium mt-1">
+                        {formatActionType(scenario.defaultAIConfig.allowedActionTypes[0])}
+                      </div>
+                    </div>
+                    <div className="text-center p-3 bg-muted/30 rounded-lg">
+                      <div className="text-xs text-muted-foreground">触发时机</div>
+                      <div className="text-sm font-medium mt-1">
+                        {formatTiming(scenario.defaultAIConfig.timingStrategy)}
+                      </div>
+                    </div>
+                    <div className="text-center p-3 bg-muted/30 rounded-lg">
+                      <div className="text-xs text-muted-foreground">内容生成</div>
+                      <div className="text-sm font-medium mt-1">
+                        {formatContentMode(scenario.defaultAIConfig.contentStrategy)}
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -483,7 +496,7 @@ const ScenarioConfig = () => {
                                     <div className="text-xs text-muted-foreground">
                                       触发条件：
                                       {rule.triggerConditions.eventConditions.length > 0 && 
-                                        ` 事件属性(${rule.triggerConditions.eventConditions.length})`
+                                        ` ���件属性(${rule.triggerConditions.eventConditions.length})`
                                       }
                                       {rule.triggerConditions.sessionConditions.length > 0 && 
                                         ` 会话属性(${rule.triggerConditions.sessionConditions.length})`
@@ -599,7 +612,7 @@ const ScenarioConfig = () => {
         </div>
       </div>
 
-      {/* 规则构建器模态框 */}
+      {/* 规���构建器模态框 */}
       <RuleBuilderModal
         open={ruleBuilderOpen}
         onClose={() => {
