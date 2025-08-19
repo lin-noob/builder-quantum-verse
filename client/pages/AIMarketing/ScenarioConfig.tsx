@@ -128,7 +128,7 @@ const ScenarioConfig = () => {
 
       toast({
         title: newState ? "规则已启用" : "规则已停用",
-        description: `自定义规则「${rule.ruleName}」已${newState ? '启用' : '停用'}`,
+        description: `自定义规则「${rule.ruleName}��已${newState ? '启用' : '停用'}`,
       });
     } catch (error) {
       toast({
@@ -389,7 +389,7 @@ const ScenarioConfig = () => {
                   <Bot className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                   <h3 className="text-lg font-medium">暂无自定义规则</h3>
                   <p className="text-muted-foreground mb-4">
-                    创建自定义���则来对特定用户群体进���精准营销
+                    创建自定义���则来对特定用户群体进行精准营销
                   </p>
                   <Button onClick={() => setRuleBuilderOpen(true)}>
                     <Plus className="h-4 w-4 mr-2" />
@@ -494,17 +494,6 @@ const ScenarioConfig = () => {
               )}
             </CardContent>
           </Card>
-
-          {/* 规则冲突管理器 */}
-          {scenario.overrideRules.length > 0 && (
-            <RuleConflictManager
-              scenario={scenario}
-              onRuleEdit={(rule) => {
-                setEditingRule(rule);
-                setRuleBuilderOpen(true);
-              }}
-            />
-          )}
         </div>
 
         {/* 右侧信息 */}
@@ -569,7 +558,7 @@ const ScenarioConfig = () => {
                   </div>
                   <div>
                     <div className="font-medium text-foreground">AI决策</div>
-                    <div>若无���则命中，则由默认AI自主决策。</div>
+                    <div>若无规则命中，则由默认AI自主决策。</div>
                   </div>
                 </div>
 
