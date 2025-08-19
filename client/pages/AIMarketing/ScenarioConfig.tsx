@@ -293,7 +293,7 @@ const ScenarioConfig = () => {
                             <div className="space-y-4">
                               <div>
                                 <dt className="text-sm font-medium text-muted-foreground mb-2">
-                                  决策依据
+                                  决策依��
                                 </dt>
                                 <dd className="text-sm text-foreground leading-relaxed">
                                   {dimension.reasoning}
@@ -379,60 +379,6 @@ const ScenarioConfig = () => {
                 </div>
                 <div>
                   <dt className="text-sm font-medium text-muted-foreground">
-                    业务价值
-                  </dt>
-                  <dd className="mt-1 text-sm text-muted-foreground leading-relaxed">
-                    {scenario.businessValue}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-sm font-medium text-muted-foreground">
-                    内容策略
-                  </dt>
-                  <dd className="mt-1 text-sm">
-                    {scenario.defaultAIConfig.contentStrategy ===
-                    "FULLY_GENERATIVE"
-                      ? "完全生成"
-                      : scenario.defaultAIConfig.contentStrategy ===
-                          "AI_ASSISTED"
-                        ? "AI辅助"
-                        : "静态内容"}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-sm font-medium text-muted-foreground">
-                    时机策略
-                  </dt>
-                  <dd className="mt-1 text-sm">
-                    {scenario.defaultAIConfig.timingStrategy === "IMMEDIATE"
-                      ? "立即触发"
-                      : "智能延迟"}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-sm font-medium text-muted-foreground">
-                    支持动作
-                  </dt>
-                  <dd className="mt-1 flex gap-1">
-                    {scenario.defaultAIConfig.allowedActionTypes.map(
-                      (action) => (
-                        <Badge
-                          key={action}
-                          variant="outline"
-                          className="text-xs"
-                        >
-                          {action === "POPUP"
-                            ? "弹窗"
-                            : action === "EMAIL"
-                              ? "邮件"
-                              : "短信"}
-                        </Badge>
-                      ),
-                    )}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-sm font-medium text-muted-foreground">
                     自定义规则
                   </dt>
                   <dd className="mt-1 text-sm">
@@ -442,16 +388,6 @@ const ScenarioConfig = () => {
                       {scenario.overrideRules.filter((r) => r.isEnabled).length}{" "}
                       条启用）
                     </span>
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-sm font-medium text-muted-foreground">
-                    可用字段
-                  </dt>
-                  <dd className="mt-1 text-sm">
-                    事件({scenario.availableFields.event.length}) • 会话(
-                    {scenario.availableFields.session.length}) • 用户(
-                    {scenario.availableFields.user.length})
                   </dd>
                 </div>
                 <div>
