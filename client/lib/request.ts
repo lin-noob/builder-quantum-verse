@@ -283,7 +283,12 @@ export class Request {
       };
 
       const response = await fetch(fullURL, fetchOptions);
-      clearTimeout(timeoutId);
+
+      // 请求成功，清理超时定时器
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+        timeoutId = undefined;
+      }
 
       // 执行响应拦截器
       const processedResponse = this.defaultConfig.afterResponse
