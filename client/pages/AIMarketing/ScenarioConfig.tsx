@@ -347,7 +347,7 @@ const ScenarioConfig = () => {
           {/* 基础信息卡片 */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg font-semibold">基础信息</CardTitle>
+              <CardTitle className="text-lg font-semibold">基础信���</CardTitle>
             </CardHeader>
             <CardContent>
               <dl className="space-y-3">
@@ -449,12 +449,13 @@ const ScenarioConfig = () => {
         scenario={scenario}
         rule={editingRule}
         onSave={() => {
+          // 先关闭弹窗，再清理状态
           setRuleBuilderOpen(false);
           setEditingRule(null);
-          // 延迟重新加载避免状态冲突
+          // 增加延迟确保弹��完全关闭后再刷新数据
           setTimeout(() => {
             loadScenario();
-          }, 100);
+          }, 200);
         }}
       />
 
