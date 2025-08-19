@@ -1,3 +1,4 @@
+import "./lib/globalReactSuppress"; // Global React warning override
 import "./lib/reactWarningSuppress"; // React-specific warning suppression
 import "./lib/aggressiveWarningSuppress"; // 最激进的警告抑制
 import "./lib/suppressWarnings";
