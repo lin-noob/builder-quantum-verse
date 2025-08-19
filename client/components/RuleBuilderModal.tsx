@@ -625,7 +625,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
                   <Alert>
                     <AlertCircle className="h-4 w-4" />
                     <AlertDescription>
-                      当前场景下无可用的触发条件字段，规则将直接应用于���场景的��有触发事件。
+                      当前场景下无可用的触发条件字段，规则将直接应用于该场景的��有触发事件。
                     </AlertDescription>
                   </Alert>
                   
@@ -657,7 +657,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
                   </div>
 
                   <div>
-                    <Label>营��时机</Label>
+                    <Label>营销时机</Label>
                     <Select
                       value={responseAction.timing}
                       onValueChange={(value) => setResponseAction(prev => ({
@@ -850,10 +850,10 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
               <Button
                 variant="outline"
                 size="sm"
-                onClick={detectRuleConflicts}
+                onClick={handleRedetectConflicts}
                 className="text-xs"
               >
-                重新检测
+                重���检测
               </Button>
             </div>
           </div>
