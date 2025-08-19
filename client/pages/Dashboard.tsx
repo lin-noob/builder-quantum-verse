@@ -128,6 +128,9 @@ export default function Dashboard() {
 				))}
 			</div>
 
+			{/* Debug Information */}
+			<ChartDebug />
+
 			{/* Second Row: Performance Trend (仍使用本地 mock 数据) */}
 			<div className="w-full">
 				<PerformanceTrend metrics={performanceMetrics} dateRange={currentPreset} />
