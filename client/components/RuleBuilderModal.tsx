@@ -591,22 +591,32 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
               }
             </TabsContent>
 
-            <TabsContent value="action" className="space-y-4">
-              <Alert>
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>
-                  配置当规则被触发时，系统应执行的营销动作和内容。
-                </AlertDescription>
-              </Alert>
+            <TabsContent value="action" className="space-y-6 mt-6">
+              <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                <div className="flex items-start gap-3">
+                  <Activity className="h-5 w-5 text-green-600 mt-0.5" />
+                  <div>
+                    <h4 className="font-medium text-green-900 mb-1">动作配置说明</h4>
+                    <p className="text-sm text-green-700">
+                      配置当规则被触发时，系统应执行的营销动作和内容。
+                    </p>
+                  </div>
+                </div>
+              </div>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base">营销方式</CardTitle>
-                  <div className="text-xs text-muted-foreground">
+              <Card className="border border-border/60 shadow-sm">
+                <CardHeader className="pb-4 bg-gradient-to-r from-blue-50 to-indigo-50">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 bg-blue-100 rounded flex items-center justify-center">
+                      <Activity className="h-3 w-3 text-blue-600" />
+                    </div>
+                    <CardTitle className="text-sm font-semibold">营销方式</CardTitle>
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-2">
                     目前仅支持网页弹窗，邮件和短信功能正在开发中
                   </div>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="pt-4">
                   <Select
                     value={responseAction.actionType}
                     onValueChange={(value) => setResponseAction(prev => ({
