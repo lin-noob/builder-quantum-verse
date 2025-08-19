@@ -4,13 +4,21 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { AlertTriangle, Settings, Users, ShoppingCart, Eye, LogIn, Bot } from "lucide-react";
+import {
+  AlertTriangle,
+  Settings,
+  Users,
+  ShoppingCart,
+  Eye,
+  LogIn,
+  Bot,
+} from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import {
   MarketingScenario,
   getMarketingScenarios,
-  updateMarketingScenario
+  updateMarketingScenario,
 } from "../../../shared/aiMarketingScenarioData";
 import {
   AlertDialog,
@@ -25,13 +33,13 @@ import {
 
 const getScenarioIcon = (scenarioId: string) => {
   switch (scenarioId) {
-    case 'add_to_cart':
+    case "add_to_cart":
       return <ShoppingCart className="h-5 w-5" />;
-    case 'view_product':
+    case "view_product":
       return <Eye className="h-5 w-5" />;
-    case 'user_signup':
+    case "user_signup":
       return <Users className="h-5 w-5" />;
-    case 'user_login':
+    case "user_login":
       return <LogIn className="h-5 w-5" />;
     default:
       return <Settings className="h-5 w-5" />;
@@ -41,7 +49,9 @@ const getScenarioIcon = (scenarioId: string) => {
 const ScenariosList = () => {
   const [scenarios, setScenarios] = useState<MarketingScenario[]>([]);
   const [loading, setLoading] = useState(true);
-  const [switchingScenario, setSwitchingScenario] = useState<string | null>(null);
+  const [switchingScenario, setSwitchingScenario] = useState<string | null>(
+    null,
+  );
   const [confirmDialog, setConfirmDialog] = useState<{
     show: boolean;
     scenario: MarketingScenario | null;
@@ -82,7 +92,7 @@ const ScenariosList = () => {
     setConfirmDialog({
       show: true,
       scenario,
-      newState
+      newState,
     });
   };
 
@@ -91,15 +101,17 @@ const ScenariosList = () => {
     if (!scenario) return;
 
     setSwitchingScenario(scenario.scenarioId);
-    
-    try {
-      await updateMarketingScenario(scenario.scenarioId, { isAIEnabled: newState });
 
-      setScenarios(prev => {
-        const updated = prev.map(s =>
+    try {
+      await updateMarketingScenario(scenario.scenarioId, {
+        isAIEnabled: newState,
+      });
+
+      setScenarios((prev) => {
+        const updated = prev.map((s) =>
           s.scenarioId === scenario.scenarioId
             ? { ...s, isAIEnabled: newState }
-            : s
+            : s,
         );
         // 重新排序：启用的在前，暂停的在��
         return updated.sort((a, b) => {
@@ -112,7 +124,7 @@ const ScenariosList = () => {
 
       toast({
         title: newState ? "AI自动化已启动" : "AI自动化已暂停",
-        description: `${scenario.scenarioName}场景的自动化营销已${newState ? '启动' : '暂停'}`,
+        description: `${scenario.scenarioName}场景的自动化营销已${newState ? "启动" : "暂停"}`,
       });
     } catch (error) {
       toast({
@@ -127,13 +139,12 @@ const ScenariosList = () => {
   };
 
   const getEnabledRulesCount = (scenario: MarketingScenario) => {
-    return scenario.overrideRules.filter(rule => rule.isEnabled).length;
+    return scenario.overrideRules.filter((rule) => rule.isEnabled).length;
   };
 
   if (loading) {
     return (
       <div className="space-y-6">
-          
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {[1, 2, 3, 4].map((i) => (
             <Card key={i} className="animate-pulse">
@@ -156,17 +167,18 @@ const ScenariosList = () => {
 
   return (
     <div className="p-6 space-y-6">
-
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {scenarios.map((scenario) => {
           const enabledRulesCount = getEnabledRulesCount(scenario);
           const isSwitching = switchingScenario === scenario.scenarioId;
-          
+
           return (
             <Card
               key={scenario.scenarioId}
-              className={`relative cursor-pointer hover:shadow-md transition-shadow ${!scenario.isAIEnabled ? 'opacity-60 border-muted' : ''}`}
-              onClick={() => navigate(`/ai-marketing/scenarios/${scenario.scenarioId}`)}
+              className={`relative cursor-pointer hover:shadow-md transition-shadow ${!scenario.isAIEnabled ? "opacity-60 border-muted" : ""}`}
+              onClick={() =>
+                navigate(`/ai-marketing/scenarios/${scenario.scenarioId}`)
+              }
             >
               <CardHeader className="pb-4">
                 {/* 顶部：场景名称和开关 */}
@@ -176,18 +188,24 @@ const ScenariosList = () => {
                       {getScenarioIcon(scenario.scenarioId)}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <CardTitle className="text-lg font-semibold">{scenario.scenarioName}</CardTitle>
+                      <CardTitle className="text-lg font-semibold">
+                        {scenario.scenarioName}
+                      </CardTitle>
                     </div>
                   </div>
-                  <div className="flex-shrink-0 ml-4" onClick={(e) => e.stopPropagation()}>
+                  <div
+                    className="flex-shrink-0 ml-4"
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     <Switch
                       checked={scenario.isAIEnabled}
-                      onCheckedChange={(checked) => handleAIToggle(scenario, checked)}
+                      onCheckedChange={(checked) =>
+                        handleAIToggle(scenario, checked)
+                      }
                       disabled={isSwitching}
                     />
                   </div>
                 </div>
-
               </CardHeader>
 
               <CardContent>
@@ -221,11 +239,17 @@ const ScenariosList = () => {
 
                     {/* 核心策略 */}
                     <div className="flex gap-1 flex-wrap">
-                      {scenario.defaultAIConfig.coreStrategies.map((strategy, index) => (
-                        <Badge key={index} variant="outline" className="text-xs">
-                          {strategy}
-                        </Badge>
-                      ))}
+                      {scenario.defaultAIConfig.coreStrategies.map(
+                        (strategy, index) => (
+                          <Badge
+                            key={index}
+                            variant="outline"
+                            className="text-xs"
+                          >
+                            {strategy}
+                          </Badge>
+                        ),
+                      )}
                     </div>
                   </div>
                 </div>
@@ -236,24 +260,30 @@ const ScenariosList = () => {
       </div>
 
       {/* 确认对话框 */}
-      <AlertDialog open={confirmDialog.show} onOpenChange={(open) => 
-        !open && setConfirmDialog({ show: false, scenario: null, newState: false })
-      }>
+      <AlertDialog
+        open={confirmDialog.show}
+        onOpenChange={(open) =>
+          !open &&
+          setConfirmDialog({ show: false, scenario: null, newState: false })
+        }
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {confirmDialog.newState ? '启动' : '暂停'}AI自动化
+              {confirmDialog.newState ? "启动" : "暂停"}AI自动化
             </AlertDialogTitle>
             <AlertDialogDescription>
-              您确定要{confirmDialog.newState ? '启动' : '暂停'}
-              「{confirmDialog.scenario?.scenarioName}」场景下的所有自动化营销吗？
-              {confirmDialog.newState ? '' : ' 这将同时暂停默认AI策略和所有自定义规则。'}
+              您确定要{confirmDialog.newState ? "启动" : "暂停"}「
+              {confirmDialog.scenario?.scenarioName}」场景下的所有自动化营销吗？
+              {confirmDialog.newState
+                ? ""
+                : " 这将同时暂停默认AI策略和所有自定义规则。"}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>取消</AlertDialogCancel>
             <AlertDialogAction onClick={confirmAIToggle}>
-              确认{confirmDialog.newState ? '启动' : '暂停'}
+              确认{confirmDialog.newState ? "启动" : "暂停"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
