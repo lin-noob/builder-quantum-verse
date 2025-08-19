@@ -373,7 +373,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
                   </Select>
 
                   <Input
-                    placeholder="输入值"
+                    placeholder="��入值"
                     value={condition.value}
                     onChange={(e) => updateCondition(category, condition.id, { value: e.target.value })}
                     className="h-9"
@@ -493,7 +493,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
               <Label htmlFor="smsContent">短信内容 *</Label>
               <Textarea
                 id="smsContent"
-                placeholder="输入短信内容（建议控制在70字以内）"
+                placeholder="输入短信内��（建议控制在70字以内）"
                 value={responseAction.actionConfig.smsContent || ''}
                 onChange={(e) => updateActionConfig({ smsContent: e.target.value })}
                 rows={2}
@@ -509,21 +509,32 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col">
-        <DialogHeader className="flex-shrink-0">
-          <DialogTitle>
-            {rule ? '编辑自定义规则' : '创建自定义规则'}
-          </DialogTitle>
+      <DialogContent className="max-w-5xl max-h-[95vh] flex flex-col">
+        <DialogHeader className="flex-shrink-0 border-b pb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+              <Bot className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <DialogTitle className="text-xl font-semibold">
+                {rule ? '编辑自定义规则' : '创建自定义规则'}
+              </DialogTitle>
+              <p className="text-sm text-muted-foreground mt-1">
+                配置精准的营销触发条件和响应动作
+              </p>
+            </div>
+          </div>
         </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto space-y-4">
-          <div>
-            <Label htmlFor="ruleName">规则名称 *</Label>
+        <div className="flex-1 overflow-y-auto space-y-6 py-4">
+          <div className="space-y-2">
+            <Label htmlFor="ruleName" className="text-sm font-medium">规则名称 *</Label>
             <Input
               id="ruleName"
               placeholder="为这条规则取个名字，例如：VIP客户高价值购物车挽留"
               value={ruleName}
               onChange={(e) => setRuleName(e.target.value)}
+              className="h-10"
             />
           </div>
 
