@@ -44,19 +44,40 @@ if (typeof console !== "undefined" && typeof window !== "undefined") {
 
   // Override console.warn
   console.warn = (...args: any[]) => {
-    const message = args.join(" ");
-    if (shouldSuppressWarning(message)) {
+    // Handle both string messages and formatted messages with placeholders
+    const message = args.length > 0 ? String(args[0]) : "";
+    const fullMessage = args.join(" ");
+
+    if (shouldSuppressWarning(message) || shouldSuppressWarning(fullMessage)) {
       return;
     }
+
+    // Also check individual arguments for React warning patterns
+    for (const arg of args) {
+      if (typeof arg === 'string' && shouldSuppressWarning(arg)) {
+        return;
+      }
+    }
+
     originalWarn.apply(console, args);
   };
 
   // Override console.error for React warnings that appear as errors
   console.error = (...args: any[]) => {
-    const message = args.join(" ");
-    if (shouldSuppressWarning(message)) {
+    const message = args.length > 0 ? String(args[0]) : "";
+    const fullMessage = args.join(" ");
+
+    if (shouldSuppressWarning(message) || shouldSuppressWarning(fullMessage)) {
       return;
     }
+
+    // Also check individual arguments for React warning patterns
+    for (const arg of args) {
+      if (typeof arg === 'string' && shouldSuppressWarning(arg)) {
+        return;
+      }
+    }
+
     originalError.apply(console, args);
   };
 
