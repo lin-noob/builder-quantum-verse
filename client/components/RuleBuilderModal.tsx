@@ -4,12 +4,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetFooter,
+} from "@/components/ui/sheet";
 import {
   Select,
   SelectContent,
@@ -191,7 +191,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
     const hasUserFields = scenario?.availableFields?.user?.length > 0;
     const hasTriggerConditions = hasEventFields || hasUserFields;
     
-    // 如果有可用的触发条件字段，才验证条件
+    // 如果有可用的触发���件字段，才验证条件
     if (hasTriggerConditions) {
       const totalConditions =
         triggerConditions.eventConditions.length +
@@ -431,7 +431,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
             <Label htmlFor="aiPrompt">AI指令</Label>
             <Textarea
               id="aiPrompt"
-              placeholder="请输入给AI的业务用途和指令，例如：为VIP客户生成专属优惠信息..."
+              placeholder="请输入给AI的业务用途和指令，例如：为VIP客��生成专属优惠信息..."
               value={responseAction.actionConfig.aiPrompt || ''}
               onChange={(e) => updateActionConfig({ aiPrompt: e.target.value })}
               rows={3}
@@ -506,7 +506,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
         return (
           <div className="space-y-4">
             <div>
-              <Label htmlFor="smsContent">短信内容 *</Label>
+              <Label htmlFor="smsContent">���信内容 *</Label>
               <Textarea
                 id="smsContent"
                 placeholder="输入短信内容（建议控制在70字以内）"
@@ -524,13 +524,13 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
   };
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col">
-        <DialogHeader>
-          <DialogTitle>
+    <Sheet open={open} onOpenChange={onClose}>
+      <SheetContent side="right" className="w-[800px] max-w-[90vw] flex flex-col">
+        <SheetHeader>
+          <SheetTitle>
             {rule ? '编辑自定义规则' : '创建自定义规则'}
-          </DialogTitle>
-        </DialogHeader>
+          </SheetTitle>
+        </SheetHeader>
 
         <div className="flex-1 overflow-y-auto space-y-6">
           <div>
@@ -732,16 +732,16 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
           })()}
         </div>
 
-        <DialogFooter>
+        <SheetFooter>
           <Button variant="outline" onClick={onClose}>
             取消
           </Button>
           <Button onClick={handleSave} disabled={loading}>
             {loading ? "保存中..." : "保存规则"}
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </SheetFooter>
+      </SheetContent>
+    </Sheet>
   );
 };
 
