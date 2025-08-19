@@ -207,7 +207,7 @@ const RuleBuilderModal = ({
       }, 500);
       return () => clearTimeout(timeoutId);
     }
-  }, [ruleName, triggerConditions, responseAction, open, scenario, rule]);
+  }, [ruleName, triggerConditions, responseAction, open, scenario, rule?.ruleId]);
 
   const addCondition = (category: ConditionCategory) => {
     const newCondition: TriggerCondition = {
@@ -232,23 +232,25 @@ const RuleBuilderModal = ({
     id: string,
     updates: Partial<TriggerCondition>,
   ) => {
-    setTriggerConditions((prev) => ({
-      ...prev,
-      [`${category}Conditions`]: prev[
-        `${category}Conditions` as keyof TriggerConditions
-      ].map((condition: TriggerCondition) =>
-        condition.id === id ? { ...condition, ...updates } : condition,
-      ),
-    }));
+    setTriggerConditions((prev) => {
+      const key = `${category}Conditions` as keyof TriggerConditions;
+      return {
+        ...prev,
+        [key]: prev[key].map((condition: TriggerCondition) =>
+          condition.id === id ? { ...condition, ...updates } : condition
+        ),
+      };
+    });
   };
 
   const removeCondition = (category: ConditionCategory, id: string) => {
-    setTriggerConditions((prev) => ({
-      ...prev,
-      [`${category}Conditions`]: prev[
-        `${category}Conditions` as keyof TriggerConditions
-      ].filter((condition: TriggerCondition) => condition.id !== id),
-    }));
+    setTriggerConditions((prev) => {
+      const key = `${category}Conditions` as keyof TriggerConditions;
+      return {
+        ...prev,
+        [key]: prev[key].filter((condition: TriggerCondition) => condition.id !== id),
+      };
+    });
   };
 
   const updateActionConfig = (updates: Partial<ActionConfig>) => {
