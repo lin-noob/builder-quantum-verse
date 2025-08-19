@@ -315,79 +315,98 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
     if (availableFields.length === 0) return null;
 
     return (
-      <Card className="border-l-4 border-l-primary/20">
-        <CardHeader className="pb-3">
+      <Card className="border border-border/60 shadow-sm">
+        <CardHeader className="pb-4 bg-gradient-to-r from-primary/5 to-primary/10">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-base font-medium">{categoryLabel}</CardTitle>
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 bg-primary/20 rounded flex items-center justify-center">
+                <Target className="h-3 w-3 text-primary" />
+              </div>
+              <CardTitle className="text-sm font-semibold">{categoryLabel}</CardTitle>
+            </div>
             <Button
               variant="outline"
               size="sm"
               onClick={() => addCondition(category)}
-              className="h-8 px-3 text-xs"
+              className="h-8 px-3 text-xs bg-background hover:bg-primary/10"
             >
               <Plus className="h-3 w-3 mr-1" />
               添加条件
             </Button>
           </div>
         </CardHeader>
-        <CardContent className="space-y-3 pt-0">
+        <CardContent className="space-y-4">
           {conditions.length === 0 ? (
-            <div className="text-center py-6 text-muted-foreground">
-              <div className="text-sm">暂无{categoryLabel}</div>
-              <div className="text-xs mt-1">点击上方按钮添加条件</div>
+            <div className="text-center py-8 text-muted-foreground">
+              <div className="w-12 h-12 bg-muted/30 rounded-full flex items-center justify-center mx-auto mb-3">
+                <Plus className="h-5 w-5" />
+              </div>
+              <div className="text-sm font-medium">暂无{categoryLabel}</div>
+              <div className="text-xs mt-1">点击上方按钮添加第一个条件</div>
             </div>
           ) : (
             conditions.map((condition, index) => (
-              <div key={condition.id} className="flex items-center gap-3 p-4 bg-muted/30 rounded-lg border">
-                <div className="flex-1 grid grid-cols-3 gap-3">
-                  <Select
-                    value={condition.field}
-                    onValueChange={(value) => updateCondition(category, condition.id, { field: value })}
-                  >
-                    <SelectTrigger className="h-9">
-                      <SelectValue placeholder="选择字段" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {availableFields.map((field) => (
-                        <SelectItem key={field.field} value={field.field}>
-                          {field.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+              <div key={condition.id} className="group p-4 bg-gradient-to-r from-background to-muted/20 rounded-lg border border-border/40 hover:border-border/60 transition-colors">
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 grid grid-cols-3 gap-3">
+                    <div className="space-y-1">
+                      <label className="text-xs text-muted-foreground">字段</label>
+                      <Select
+                        value={condition.field}
+                        onValueChange={(value) => updateCondition(category, condition.id, { field: value })}
+                      >
+                        <SelectTrigger className="h-9">
+                          <SelectValue placeholder="选择字段" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {availableFields.map((field) => (
+                            <SelectItem key={field.field} value={field.field}>
+                              {field.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                  <Select
-                    value={condition.operator}
-                    onValueChange={(value) => updateCondition(category, condition.id, { operator: value as ConditionOperator })}
-                  >
-                    <SelectTrigger className="h-9">
-                      <SelectValue placeholder="操作符" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Object.entries(operatorLabels).map(([value, label]) => (
-                        <SelectItem key={value} value={value}>
-                          {label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    <div className="space-y-1">
+                      <label className="text-xs text-muted-foreground">操作符</label>
+                      <Select
+                        value={condition.operator}
+                        onValueChange={(value) => updateCondition(category, condition.id, { operator: value as ConditionOperator })}
+                      >
+                        <SelectTrigger className="h-9">
+                          <SelectValue placeholder="操作符" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Object.entries(operatorLabels).map(([value, label]) => (
+                            <SelectItem key={value} value={value}>
+                              {label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                  <Input
-                    placeholder="输入值"
-                    value={condition.value}
-                    onChange={(e) => updateCondition(category, condition.id, { value: e.target.value })}
-                    className="h-9"
-                  />
+                    <div className="space-y-1">
+                      <label className="text-xs text-muted-foreground">值</label>
+                      <Input
+                        placeholder="输入值"
+                        value={condition.value}
+                        onChange={(e) => updateCondition(category, condition.id, { value: e.target.value })}
+                        className="h-9"
+                      />
+                    </div>
+                  </div>
+
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => removeCondition(category, condition.id)}
+                    className="h-9 w-9 p-0 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 </div>
-
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => removeCondition(category, condition.id)}
-                  className="h-9 w-9 p-0 text-muted-foreground hover:text-destructive"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
               </div>
             ))
           )}
@@ -557,7 +576,7 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
                   <div>
                     <h4 className="font-medium text-blue-900 mb-1">条件设置说明</h4>
                     <p className="text-sm text-blue-700">
-                      请设置触发此规则的精确条件。多个条件���间为"且"的关系，即需同时满足所有条件。
+                      请设置触发此规则的精确条件。多个条件之间为"且"的关系，即需同时满足所有条件。
                     </p>
                   </div>
                 </div>
