@@ -96,7 +96,7 @@ export default function Layout({ children }: LayoutProps) {
     // 隐藏旧版本
     // {
     //   id: "old-dashboard",
-    //   label: "仪表盘1.0",
+    //   label: "仪���盘1.0",
     //   path: "/dashboard",
     //   icon: <BarChart3 className="h-5 w-5" />,
     // },
@@ -233,7 +233,8 @@ export default function Layout({ children }: LayoutProps) {
             {menuItems.map((item) => {
               const isActive =
                 location.pathname === item.path ||
-                (item.path === "/dashboard" && location.pathname === "/") ||
+                (item.id === "dashboard" && (location.pathname === "/" || location.pathname === "/dashboard" || location.pathname === "/dashboard2")) ||
+                (item.id === "users" && (location.pathname === "/users" || location.pathname === "/users2")) ||
                 (item.id === "response-actions" &&
                   location.pathname.startsWith("/response-actions")) ||
                 (item.id === "ai-marketing-strategies" &&
