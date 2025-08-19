@@ -644,11 +644,16 @@ const RuleBuilderModal = ({ open, onClose, scenario, rule, onSave }: RuleBuilder
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base">营销时机</CardTitle>
+              <Card className="border border-border/60 shadow-sm">
+                <CardHeader className="pb-4 bg-gradient-to-r from-purple-50 to-pink-50">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 bg-purple-100 rounded flex items-center justify-center">
+                      <AlertTriangle className="h-3 w-3 text-purple-600" />
+                    </div>
+                    <CardTitle className="text-sm font-semibold">营销时机</CardTitle>
+                  </div>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="pt-4">
                   <Select
                     value={responseAction.timing}
                     onValueChange={(value) => setResponseAction(prev => ({
