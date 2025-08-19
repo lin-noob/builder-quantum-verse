@@ -176,6 +176,7 @@ export default function PerformanceTrend({
                 <LineChart
                   data={chartData}
                   margin={{ top: 20, right: 30, left: 30, bottom: 20 }}
+                  syncId="performanceChart"
                 >
                   <XAxis
                     dataKey={getXAxisDataKey()}
