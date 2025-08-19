@@ -195,9 +195,13 @@ const ScenariosList = () => {
 
               <CardContent>
                 {/* AI策略配置 - 主要区域 */}
-                <div className="bg-muted/30 rounded-lg p-4 relative">
-                  {/* 右上角自定义规则角标 */}
-                  <div className="absolute top-3 right-3">
+                <div className="bg-muted/30 rounded-lg p-4">
+                  {/* 顶部标题栏 - 左右分布 */}
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <Bot className="h-4 w-4 text-primary" />
+                      <span className="text-sm font-medium">AI策略配置</span>
+                    </div>
                     <Badge
                       variant={enabledRulesCount > 0 ? "default" : "secondary"}
                       className="text-xs"
@@ -207,12 +211,7 @@ const ScenariosList = () => {
                   </div>
 
                   {/* AI策略配置内容 */}
-                  <div className="space-y-3 pr-20">
-                    <div className="flex items-center gap-2">
-                      <Bot className="h-4 w-4 text-primary" />
-                      <span className="text-sm font-medium">AI策略配置</span>
-                    </div>
-
+                  <div className="space-y-3">
                     {/* 策略摘要 */}
                     <div className="text-xs text-muted-foreground">
                       {scenario.defaultAIConfig.strategySummary}
@@ -246,7 +245,7 @@ const ScenariosList = () => {
             <AlertDialogDescription>
               您确定要{confirmDialog.newState ? '启动' : '暂停'}
               「{confirmDialog.scenario?.scenarioName}」场景下的所有自动化营销吗？
-              {confirmDialog.newState ? '' : ' 这将同时暂停默认AI策略和所有自定义���则。'}
+              {confirmDialog.newState ? '' : ' 这将同时暂停默认AI策略和所有自定义规则。'}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
