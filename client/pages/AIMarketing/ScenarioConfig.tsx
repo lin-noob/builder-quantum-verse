@@ -44,6 +44,7 @@ import {
 } from "@hello-pangea/dnd";
 import RuleBuilderModal from "@/components/RuleBuilderModal";
 import CustomRulesWithConflictManager from "@/components/CustomRulesWithConflictManager";
+import AIStrategyEditor from "@/components/AIStrategyEditor";
 
 const ScenarioConfig = () => {
   const { scenarioId } = useParams<{ scenarioId: string }>();
@@ -416,7 +417,7 @@ const ScenarioConfig = () => {
                   <Target className="h-4 w-4 text-blue-500 mt-0.5" />
                   <div>
                     <div className="font-medium text-foreground">智能分析</div>
-                    <div>AI分析用户行为和偏好，识别最佳营销时机。</div>
+                    <div>AI分���用户行为和偏好，识别最佳营销时机。</div>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
