@@ -153,7 +153,7 @@ const ScenarioConfig = () => {
       });
 
       toast({
-        title: newState ? "规���已启用" : "规则已停用",
+        title: newState ? "规则已启用" : "规则已停用",
         description: `自定义规则「${rule.ruleName}」已${newState ? "启用" : "停用"}`,
       });
     } catch (error) {
@@ -215,7 +215,7 @@ const ScenarioConfig = () => {
       await updateRulePriorities(scenario.scenarioId, priorities);
 
       toast({
-        title: "���先级已更新",
+        title: "����先级已更新",
         description: "规则优先级调整成功",
       });
     } catch (error) {
@@ -495,6 +495,14 @@ const ScenarioConfig = () => {
             loadScenario();
           }, 200);
         }}
+      />
+
+      {/* AI策略编辑弹窗 */}
+      <AIStrategyEditorModal
+        open={aiStrategyModalOpen}
+        onClose={() => setAiStrategyModalOpen(false)}
+        defaultAIConfig={scenario.defaultAIConfig}
+        onSave={handleAIConfigSave}
       />
 
       {/* 删除确认对话框 */}
