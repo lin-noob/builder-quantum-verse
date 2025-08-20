@@ -112,10 +112,10 @@ export default function MonitoringCenter() {
       }
       
       // 时间范围过滤
-      if (dateRange.from || dateRange.to) {
+      if (dateRange.start || dateRange.end) {
         const entryDate = entry.timestamp;
-        if (dateRange.from && entryDate < dateRange.from) return false;
-        if (dateRange.to && entryDate > dateRange.to) return false;
+        if (dateRange.start && entryDate < dateRange.start) return false;
+        if (dateRange.end && entryDate > dateRange.end) return false;
       }
       
       return true;
@@ -488,7 +488,7 @@ export default function MonitoringCenter() {
           
           {snapshotDialog.entry && (
             <div className="space-y-6">
-              {/* 基��信息 */}
+              {/* 基本信息 */}
               <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
                 <div>
                   <Label className="text-sm font-medium text-gray-600">目标用户</Label>
