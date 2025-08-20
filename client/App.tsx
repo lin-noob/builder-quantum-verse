@@ -1,3 +1,4 @@
+import "./lib/directWarningSuppress"; // Direct React warning suppression
 import "./lib/ultimateWarningSuppress"; // Ultimate warning suppression system
 import "./lib/safeWarningSuppress"; // Safe warning suppression without property overrides
 import "./global.css";
