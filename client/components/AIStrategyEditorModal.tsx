@@ -23,9 +23,6 @@ import { Save, X, Plus, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import {
   type StrategyDimension,
-  type ActionType,
-  type TimingStrategy,
-  type ContentStrategy,
   type DefaultAIConfig
 } from '@shared/aiMarketingScenarioData';
 
@@ -35,24 +32,6 @@ interface AIStrategyEditorModalProps {
   defaultAIConfig: DefaultAIConfig;
   onSave: (updatedConfig: DefaultAIConfig) => Promise<void>;
 }
-
-// 预设选项
-const ACTION_TYPE_OPTIONS = [
-  { value: 'POPUP', label: '网页弹窗', description: '在当前页面显示弹窗' },
-  { value: 'EMAIL', label: '发送邮件', description: '向用户邮箱发送邮件' },
-  { value: 'SMS', label: '短信通知', description: '向用户手机发送短信' }
-];
-
-const TIMING_STRATEGY_OPTIONS = [
-  { value: 'IMMEDIATE', label: '立即触发', description: '事件发生后立即执行' },
-  { value: 'SMART_DELAY', label: '智能延迟', description: 'AI智能判断最佳时机' }
-];
-
-const CONTENT_STRATEGY_OPTIONS = [
-  { value: 'FULLY_GENERATIVE', label: '���全生成', description: 'AI完全自主生成内容' },
-  { value: 'STATIC', label: '静态内容', description: '使用预设的固定内容' },
-  { value: 'AI_ASSISTED', label: 'AI辅助', description: 'AI基于模板生成内容' }
-];
 
 export default function AIStrategyEditorModal({ 
   open, 
@@ -123,7 +102,7 @@ export default function AIStrategyEditorModal({
             🤖 编辑AI策略配置
           </DialogTitle>
           <DialogDescription>
-            配置AI在不同营销维度的策略和行���
+            配置AI在不同营销维度的策略和行为
           </DialogDescription>
         </DialogHeader>
 
