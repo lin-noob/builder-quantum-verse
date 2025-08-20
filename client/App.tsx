@@ -1,3 +1,4 @@
+import "./lib/reactDevOverride"; // React development override
 import "./lib/finalWarningFix"; // Final definitive warning suppression
 import "./global.css";
 
