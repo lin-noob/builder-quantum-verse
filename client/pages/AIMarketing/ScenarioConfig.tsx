@@ -107,6 +107,32 @@ const ScenarioConfig = () => {
     }
   };
 
+  const handleAIConfigSave = async (updatedConfig: any) => {
+    if (!scenario) return;
+
+    try {
+      await updateMarketingScenario(scenario.scenarioId, {
+        defaultAIConfig: updatedConfig,
+        updatedAt: new Date().toISOString(),
+      });
+      setScenario((prev) =>
+        prev ? { ...prev, defaultAIConfig: updatedConfig, updatedAt: new Date().toISOString() } : null
+      );
+
+      toast({
+        title: "配置已保存",
+        description: "AI策略配置更新成功",
+      });
+    } catch (error) {
+      toast({
+        title: "保存失败",
+        description: "无法保存AI策略配置，请重试",
+        variant: "destructive",
+      });
+      throw error; // Re-throw to let the editor handle the error
+    }
+  };
+
   const handleRuleToggle = async (rule: OverrideRule, newState: boolean) => {
     if (!scenario) return;
 
@@ -417,7 +443,7 @@ const ScenarioConfig = () => {
                   <Target className="h-4 w-4 text-blue-500 mt-0.5" />
                   <div>
                     <div className="font-medium text-foreground">智能分析</div>
-                    <div>AI分���用户行为和偏好，识别最佳营销时机。</div>
+                    <div>AI分析用户行为和偏好，识别最佳营销时机。</div>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
