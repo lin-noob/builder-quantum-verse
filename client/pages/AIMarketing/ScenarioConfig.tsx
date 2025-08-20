@@ -96,7 +96,7 @@ const ScenarioConfig = () => {
 
       toast({
         title: newState ? "AI自动化已启用" : "AI自动化已暂停",
-        description: `${scenario.scenarioName}场景的自动化营销已${newState ? "启动" : "暂停"}`,
+        description: `${scenario.scenarioName}场��的自动化营销已${newState ? "启动" : "暂停"}`,
       });
     } catch (error) {
       toast({
@@ -107,7 +107,7 @@ const ScenarioConfig = () => {
     }
   };
 
-  const handleAIConfigSave = async (updatedConfig: any) => {
+  const handleAIConfigSave = async (updatedConfig: DefaultAIConfig) => {
     if (!scenario) return;
 
     try {
