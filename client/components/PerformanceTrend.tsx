@@ -170,7 +170,7 @@ export default function PerformanceTrend({
               </div>
             </div>
           ) : (
-            <div className="h-72">
+            <div className="h-72 recharts-container">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart
                   data={chartData}
@@ -230,7 +230,7 @@ export default function PerformanceTrend({
                     const metric = metrics.find((m) => m.id === metricId);
                     if (!metric) return null;
 
-                    // 根据指标类型选择Y轴
+                    // 根据���标类型选择Y轴
                     const yAxisId = (metricId === 'totalRevenue' || metricId === 'avgOrderValue')
                       ? 'left'
                       : 'right';
