@@ -153,7 +153,7 @@ const ScenarioConfig = () => {
       });
 
       toast({
-        title: newState ? "规则已启用" : "规则已停用",
+        title: newState ? "规���已启用" : "规则已停用",
         description: `自定义规则「${rule.ruleName}」已${newState ? "启用" : "停用"}`,
       });
     } catch (error) {
@@ -269,29 +269,102 @@ const ScenarioConfig = () => {
         {/* 左侧主要内容 */}
         <div className="lg:col-span-2 space-y-6">
           {/* AI策略配置 */}
-          <div className="space-y-4">
-            {/* AI开关控制 */}
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                    <Bot className="h-5 w-5 text-primary" />
-                    AI自动化开关
-                  </CardTitle>
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                  <Bot className="h-5 w-5 text-primary" />
+                  AI策略配置
+                </CardTitle>
+                <div className="flex items-center gap-3">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setAiStrategyModalOpen(true)}
+                  >
+                    <Edit className="h-4 w-4 mr-1" />
+                    编辑配置
+                  </Button>
                   <Switch
                     checked={scenario.isAIEnabled}
                     onCheckedChange={handleAIToggle}
                   />
                 </div>
-              </CardHeader>
-            </Card>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                {/* 决策维度详情 - 只读展示 */}
+                <div>
+                  <Tabs defaultValue="0" className="w-full">
+                    <TabsList className="grid w-full grid-cols-3">
+                      {scenario.defaultAIConfig.dimensions.map(
+                        (dimension, index) => (
+                          <TabsTrigger
+                            key={index}
+                            value={index.toString()}
+                            className="text-xs"
+                          >
+                            {dimension.dimension}
+                          </TabsTrigger>
+                        ),
+                      )}
+                    </TabsList>
 
-            {/* 可编辑的AI策略配置 */}
-            <AIStrategyEditor
-              defaultAIConfig={scenario.defaultAIConfig}
-              onSave={handleAIConfigSave}
-            />
-          </div>
+                    {scenario.defaultAIConfig.dimensions.map(
+                      (dimension, index) => (
+                        <TabsContent
+                          key={index}
+                          value={index.toString()}
+                          className="mt-4"
+                        >
+                          <div className="border rounded-lg p-4 bg-muted/20">
+                            <div className="flex items-center justify-between mb-4">
+                              <h4 className="font-medium text-foreground">
+                                {dimension.dimension}
+                              </h4>
+                              <Badge variant="outline" className="text-xs">
+                                {dimension.strategy}
+                              </Badge>
+                            </div>
+
+                            <div className="space-y-4">
+                              <div>
+                                <dt className="text-sm font-medium text-muted-foreground mb-2">
+                                  决策依据
+                                </dt>
+                                <dd className="text-sm text-foreground leading-relaxed">
+                                  {dimension.reasoning}
+                                </dd>
+                              </div>
+
+                              <div>
+                                <dt className="text-sm font-medium text-muted-foreground mb-2">
+                                  策略示例
+                                </dt>
+                                <dd className="space-y-2">
+                                  {dimension.examples.map(
+                                    (example, exampleIndex) => (
+                                      <div
+                                        key={exampleIndex}
+                                        className="text-sm text-foreground bg-background/60 p-3 rounded border-l-3 border-primary/40"
+                                      >
+                                        {example}
+                                      </div>
+                                    ),
+                                  )}
+                                </dd>
+                              </div>
+                            </div>
+                          </div>
+                        </TabsContent>
+                      ),
+                    )}
+                  </Tabs>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
           {/* 自定义规则与冲突管理 */}
           <CustomRulesWithConflictManager
