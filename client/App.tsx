@@ -1,3 +1,4 @@
+import "./lib/nuclearWarningSuppress"; // Nuclear warning suppression - ABSOLUTE FIRST
 import "./lib/ultimateWarningSuppress"; // Ultimate warning suppression - MUST be first
 import "./lib/reactDevOverride"; // React development override
 import "./lib/finalWarningFix"; // Final definitive warning suppression
