@@ -1,8 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import {
   Dialog,
   DialogContent,
@@ -18,74 +26,128 @@ import {
   Undo2, 
   AlertTriangle,
   CheckCircle,
-  Loader2
+  XCircle,
+  Loader2,
+  Eye,
+  Search,
+  Filter,
+  Calendar,
+  Target,
+  Zap,
+  Settings,
+  RefreshCw
 } from 'lucide-react';
 import {
-  DecisionRecord,
-  mockDecisionRecords,
-  getModeDisplay,
-  getModeColor,
-  getStatusDisplay
-} from '@shared/aiMarketingMonitoringData';
+  LogEntry,
+  mockLogEntries,
+  mockCustomRules,
+  MARKETING_SCENARIOS,
+  getScenarioName,
+  getDecisionSourceDisplay,
+  getStatusDisplay,
+  formatTimestamp
+} from '@shared/monitoringLogData';
 import { useToast } from '@/hooks/use-toast';
+import { AdvancedDateRangePicker } from '@/components/AdvancedDateRangePicker';
 
 export default function MonitoringCenter() {
   const { toast } = useToast();
-  const [records, setRecords] = useState<DecisionRecord[]>(mockDecisionRecords);
-  const [animatedRecords, setAnimatedRecords] = useState<string[]>([]);
-  const [revokeDialog, setRevokeDialog] = useState<{
+  
+  // 数据状态
+  const [logEntries, setLogEntries] = useState<LogEntry[]>(mockLogEntries);
+  const [animatedEntries, setAnimatedEntries] = useState<string[]>([]);
+  
+  // 筛选状态
+  const [searchText, setSearchText] = useState('');
+  const [selectedScenario, setSelectedScenario] = useState<string>('all');
+  const [selectedDecisionSource, setSelectedDecisionSource] = useState<string>('all');
+  const [selectedStatus, setSelectedStatus] = useState<string>('all');
+  const [dateRange, setDateRange] = useState<{from?: Date; to?: Date}>({});
+  
+  // 对话框状态
+  const [undoDialog, setUndoDialog] = useState<{
     isOpen: boolean;
-    record: DecisionRecord | null;
-  }>({ isOpen: false, record: null });
-  const [revoking, setRevoking] = useState(false);
+    entry: LogEntry | null;
+  }>({ isOpen: false, entry: null });
+  const [snapshotDialog, setSnapshotDialog] = useState<{
+    isOpen: boolean;
+    entry: LogEntry | null;
+  }>({ isOpen: false, entry: null });
+  const [undoing, setUndoing] = useState(false);
 
-  // Simulate new records appearing with animation
+  // 实时更新动画
   useEffect(() => {
     const timer = setTimeout(() => {
-      setAnimatedRecords([records[0]?.id]);
+      setAnimatedEntries([logEntries[0]?.logId]);
     }, 100);
-
     return () => clearTimeout(timer);
-  }, [records]);
+  }, [logEntries]);
 
-  const handleRevoke = (record: DecisionRecord) => {
-    setRevokeDialog({ isOpen: true, record });
+  // 筛选逻辑
+  const filteredEntries = useMemo(() => {
+    return logEntries.filter(entry => {
+      // 搜索文本过滤
+      if (searchText) {
+        const searchLower = searchText.toLowerCase();
+        const matchesSearch = 
+          entry.userId.toLowerCase().includes(searchLower) ||
+          entry.sourceName.toLowerCase().includes(searchLower) ||
+          entry.actionTaken.toLowerCase().includes(searchLower);
+        if (!matchesSearch) return false;
+      }
+      
+      // 场景过滤
+      if (selectedScenario !== 'all' && entry.scenarioId !== selectedScenario) {
+        return false;
+      }
+      
+      // 决策来源过滤
+      if (selectedDecisionSource !== 'all' && entry.decisionSource !== selectedDecisionSource) {
+        return false;
+      }
+      
+      // 状态过滤
+      if (selectedStatus !== 'all' && entry.status !== selectedStatus) {
+        return false;
+      }
+      
+      // 时间范围过滤
+      if (dateRange.from || dateRange.to) {
+        const entryDate = entry.timestamp;
+        if (dateRange.from && entryDate < dateRange.from) return false;
+        if (dateRange.to && entryDate > dateRange.to) return false;
+      }
+      
+      return true;
+    });
+  }, [logEntries, searchText, selectedScenario, selectedDecisionSource, selectedStatus, dateRange]);
+
+  // 撤销操作
+  const handleUndo = (entry: LogEntry) => {
+    setUndoDialog({ isOpen: true, entry });
   };
 
-  const confirmRevoke = async () => {
-    if (!revokeDialog.record) return;
+  const confirmUndo = async () => {
+    if (!undoDialog.entry) return;
 
-    setRevoking(true);
-    
+    setUndoing(true);
     try {
-      // Simulate API call
+      // 模拟API调用
       await new Promise(resolve => setTimeout(resolve, 1500));
 
-      const recordId = revokeDialog.record.id;
-      const canActuallyRevoke = revokeDialog.record.canRevoke && !revokeDialog.record.revokeReason;
-
-      if (canActuallyRevoke) {
-        // Update record status to revoked
-        setRecords(prev => 
-          prev.map(r => 
-            r.id === recordId 
-              ? { ...r, status: 'revoked' as const, canRevoke: false }
-              : r
-          )
-        );
-        
-        toast({
-          title: '撤销成功',
-          description: `针对用户 ${revokeDialog.record.userId} 的操作已成功撤销`
-        });
-      } else {
-        // For irreversible operations, just record the feedback
-        toast({
-          title: '反馈已记录',
-          description: '操作无法撤销，但您的反馈已记录，将用于优化AI未来决策。',
-          variant: 'default'
-        });
-      }
+      const entryId = undoDialog.entry.logId;
+      setLogEntries(prev => 
+        prev.map(entry => 
+          entry.logId === entryId 
+            ? { ...entry, status: 'UNDONE' as const }
+            : entry
+        )
+      );
+      
+      toast({
+        title: '撤销成功',
+        description: `针对用户 ${undoDialog.entry.userId} 的操作已成功撤销`,
+      });
     } catch (error) {
       toast({
         title: '撤销失败',
@@ -93,169 +155,453 @@ export default function MonitoringCenter() {
         variant: 'destructive'
       });
     } finally {
-      setRevoking(false);
-      setRevokeDialog({ isOpen: false, record: null });
+      setUndoing(false);
+      setUndoDialog({ isOpen: false, entry: null });
     }
   };
 
-  const renderStatusAction = (record: DecisionRecord) => {
-    const statusDisplay = getStatusDisplay(record.status);
+  // 查看决策快照
+  const handleViewSnapshot = (entry: LogEntry) => {
+    setSnapshotDialog({ isOpen: true, entry });
+  };
 
-    switch (record.status) {
-      case 'generating':
-        return (
-          <div className="flex items-center gap-2">
-            <Loader2 className="h-4 w-4 animate-spin text-orange-500" />
-            <span className={statusDisplay.color}>{statusDisplay.text}</span>
-          </div>
-        );
+  // 清空筛选
+  const clearFilters = () => {
+    setSearchText('');
+    setSelectedScenario('all');
+    setSelectedDecisionSource('all');
+    setSelectedStatus('all');
+    setDateRange({});
+  };
 
-      case 'executed':
-        if (record.canRevoke && !record.revokeReason) {
-          return (
-            <div className="flex items-center gap-3">
-              <span className={statusDisplay.color}>{statusDisplay.text}</span>
-              <button
-                onClick={() => handleRevoke(record)}
-                className="text-blue-600 hover:text-blue-800 text-sm font-medium underline"
-              >
-                撤销
-              </button>
+  // 渲染日志条目
+  const renderLogEntry = (entry: LogEntry) => {
+    const decisionDisplay = getDecisionSourceDisplay(entry.decisionSource);
+    const statusDisplay = getStatusDisplay(entry.status);
+
+    return (
+      <div
+        key={entry.logId}
+        className={`
+          p-4 border rounded-lg transition-all duration-500 ease-in-out
+          ${entry.status === 'UNDONE' 
+            ? 'bg-gray-50 border-gray-200 opacity-70' 
+            : 'bg-white border-gray-200 hover:border-gray-300'
+          }
+          ${animatedEntries.includes(entry.logId) 
+            ? 'animate-in slide-in-from-top-2 fade-in-0 duration-500' 
+            : ''
+          }
+        `}
+      >
+        {/* 头部信息 */}
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1 text-sm text-gray-500">
+              <Clock className="h-4 w-4" />
+              {formatTimestamp(entry.timestamp)}
             </div>
-          );
-        } else if (record.revokeReason) {
-          return (
+            <Badge 
+              variant="outline" 
+              className="text-xs bg-gray-50"
+            >
+              {getScenarioName(entry.scenarioId)}
+            </Badge>
+            <Badge 
+              variant="outline" 
+              className={`text-xs border ${decisionDisplay.bgColor} ${decisionDisplay.color}`}
+            >
+              {decisionDisplay.text}
+            </Badge>
+          </div>
+          
           <div className="flex items-center gap-2">
-            <span className="text-green-600">{statusDisplay.text}</span>
-            <div className="group relative">
-              <button
-                disabled
-                className="text-gray-400 text-sm cursor-not-allowed"
-              >
-                撤销
-              </button>
-              <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden group-hover:block">
-                <div className="bg-gray-800 text-white text-xs rounded py-1 px-2 whitespace-nowrap">
-                  {record.revokeReason}
-                </div>
-              </div>
+            {/* 状态显示 */}
+            <div className={`flex items-center gap-1 text-sm ${statusDisplay.color}`}>
+              {entry.status === 'EXECUTED' ? (
+                <CheckCircle className="h-4 w-4" />
+              ) : (
+                <XCircle className="h-4 w-4" />
+              )}
+              {statusDisplay.text}
             </div>
           </div>
-        );
-        } else {
-          return <span className="text-green-600">{statusDisplay.text}</span>;
-        }
+        </div>
 
-      case 'revoked':
-        return (
-          <div className="flex items-center gap-2">
-            <CheckCircle className="h-4 w-4 text-gray-400" />
-            <span className="text-gray-500">{statusDisplay.text}</span>
+        {/* 来源和用户信息 */}
+        <div className="mb-3">
+          <div className="flex items-center gap-4 text-sm">
+            <div className="flex items-center gap-1">
+              <User className="h-4 w-4 text-gray-400" />
+              <span className="text-gray-600">用户:</span>
+              <span className="font-medium text-gray-900">{entry.userId}</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <Settings className="h-4 w-4 text-gray-400" />
+              <span className="text-gray-600">来源:</span>
+              <span className="font-medium text-gray-900">{entry.sourceName}</span>
+            </div>
           </div>
-        );
+        </div>
 
-      default:
-        return <span className="text-gray-600">{statusDisplay.text}</span>;
-    }
+        {/* 执行动作 */}
+        <div className="mb-4">
+          <div className="text-sm text-gray-700 leading-relaxed p-3 bg-gray-50 rounded-md">
+            {entry.actionTaken}
+          </div>
+        </div>
+
+        {/* 操作按钮 */}
+        <div className="flex items-center justify-between">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handleViewSnapshot(entry)}
+            className="flex items-center gap-1 text-xs"
+          >
+            <Eye className="h-3 w-3" />
+            查看决策快照
+          </Button>
+          
+          {entry.status === 'EXECUTED' && entry.isReversible && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleUndo(entry)}
+              className="flex items-center gap-1 text-xs text-red-600 hover:text-red-700 hover:border-red-300"
+            >
+              <Undo2 className="h-3 w-3" />
+              撤销
+            </Button>
+          )}
+        </div>
+      </div>
+    );
   };
 
   return (
     <div className="p-6 space-y-6">
+      {/* 页面标题 */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">监控中心</h1>
+          <p className="text-gray-600 mt-1">实时监控AI营销决策，提供透明的执行路径和干预能力</p>
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => window.location.reload()}
+          className="flex items-center gap-2"
+        >
+          <RefreshCw className="h-4 w-4" />
+          刷新
+        </Button>
+      </div>
 
-      {/* AI Real-time Decision Feed */}
+      {/* 筛选控制区 */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Bot className="h-5 w-5 text-blue-600" />
-            AI实时决策流
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Filter className="h-5 w-5 text-blue-600" />
+            筛选与搜索
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {records.map((record) => (
-              <div
-                key={record.id}
-                className={`
-                  p-4 border rounded-lg transition-all duration-500 ease-in-out
-                  ${record.status === 'revoked' 
-                    ? 'bg-gray-50 border-gray-200 opacity-60' 
-                    : 'bg-white border-gray-200 hover:border-gray-300'
-                  }
-                  ${animatedRecords.includes(record.id) 
-                    ? 'animate-in slide-in-from-top-2 fade-in-0 duration-500' 
-                    : ''
-                  }
-                `}
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1 space-y-2">
-                    {/* Header with timestamp and mode */}
-                    <div className="flex items-center gap-3">
-                      <div className="flex items-center gap-1 text-sm text-gray-500">
-                        <Clock className="h-4 w-4" />
-                        {record.timestamp}
-                      </div>
-                      <Badge
-                        variant={record.mode === 'fully-auto' ? 'default' : 'secondary'}
-                        className={record.mode === 'fully-auto' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}
-                      >
-                        {getModeDisplay(record.mode)}
-                      </Badge>
-                    </div>
-
-                    {/* Content */}
-                    <div className="text-sm text-gray-900 leading-relaxed">
-                      {record.content}
-                    </div>
-                  </div>
-
-                  {/* Status and Actions */}
-                  <div className="flex-shrink-0">
-                    {renderStatusAction(record)}
-                  </div>
-                </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* 搜索框 */}
+            <div className="space-y-2">
+              <Label htmlFor="search" className="text-sm font-medium">
+                搜索用户ID或规则名称
+              </Label>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  id="search"
+                  placeholder="输入关键词..."
+                  value={searchText}
+                  onChange={(e) => setSearchText(e.target.value)}
+                  className="pl-10"
+                />
               </div>
-            ))}
+            </div>
+
+            {/* 营销场景筛选 */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">营销场景</Label>
+              <Select value={selectedScenario} onValueChange={setSelectedScenario}>
+                <SelectTrigger>
+                  <SelectValue placeholder="选择场景" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">全部场景</SelectItem>
+                  {MARKETING_SCENARIOS.map(scenario => (
+                    <SelectItem key={scenario.id} value={scenario.id}>
+                      {scenario.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* 决策来源筛选 */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">决策来源</Label>
+              <Select value={selectedDecisionSource} onValueChange={setSelectedDecisionSource}>
+                <SelectTrigger>
+                  <SelectValue placeholder="选择来源" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">全部来源</SelectItem>
+                  <SelectItem value="DEFAULT_AI">默认AI策略</SelectItem>
+                  <SelectItem value="CUSTOM_RULE">自定义规则</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* 状态筛选 */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">执行状态</Label>
+              <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+                <SelectTrigger>
+                  <SelectValue placeholder="选择状态" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">全部状态</SelectItem>
+                  <SelectItem value="EXECUTED">已执行</SelectItem>
+                  <SelectItem value="UNDONE">已撤销</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* 时间范围选��器 */}
+          <div className="mt-4 flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Label className="text-sm font-medium">时间范围:</Label>
+              <AdvancedDateRangePicker
+                value={dateRange}
+                onChange={setDateRange}
+                placeholder="选择时间范围"
+              />
+            </div>
+            
+            {/* 清空筛选 */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={clearFilters}
+              className="text-gray-600"
+            >
+              清空筛选
+            </Button>
           </div>
         </CardContent>
       </Card>
 
-      {/* Revoke Confirmation Dialog */}
-      <Dialog open={revokeDialog.isOpen} onOpenChange={(open) => {
-        if (!revoking) {
-          setRevokeDialog({ isOpen: open, record: null });
+      {/* 实时日志流 */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Bot className="h-5 w-5 text-blue-600" />
+            实时营销活动日志
+            <Badge variant="secondary" className="ml-2">
+              {filteredEntries.length} 条记录
+            </Badge>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {filteredEntries.length === 0 ? (
+            <div className="text-center py-12">
+              <Target className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+              <p className="text-gray-500">暂无匹配的日志记录</p>
+              <p className="text-sm text-gray-400 mt-2">尝试调整筛选条件或等待新的营销活动</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {filteredEntries.map(renderLogEntry)}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* 撤销确认对话框 */}
+      <Dialog open={undoDialog.isOpen} onOpenChange={(open) => {
+        if (!undoing) {
+          setUndoDialog({ isOpen: open, entry: null });
         }
       }}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <AlertTriangle className="h-5 w-5 text-orange-500" />
-              确认撤销
+              确认撤销操作
             </DialogTitle>
             <DialogDescription className="text-left">
               您确定要撤销针对用户{' '}
-              <span className="font-semibold text-gray-900">{revokeDialog.record?.userId}</span>{' '}
+              <span className="font-semibold text-gray-900">{undoDialog.entry?.userId}</span>{' '}
               的操作吗？
               <br />
               <br />
-              可逆操作将立即执行，不可逆操作仅作为负反馈记录。
+              <span className="text-sm text-gray-600">
+                动作: {undoDialog.entry?.actionTaken}
+              </span>
+              <br />
+              <br />
+              <span className="text-red-600 font-medium">此操作将立即执行反向操作并无法恢复。</span>
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="flex gap-2">
             <Button
               variant="outline"
-              onClick={() => setRevokeDialog({ isOpen: false, record: null })}
-              disabled={revoking}
+              onClick={() => setUndoDialog({ isOpen: false, entry: null })}
+              disabled={undoing}
             >
               取消
             </Button>
             <Button
-              onClick={confirmRevoke}
-              disabled={revoking}
+              onClick={confirmUndo}
+              disabled={undoing}
+              variant="destructive"
               className="flex items-center gap-2"
             >
-              {revoking && <Loader2 className="h-4 w-4 animate-spin" />}
-              {revoking ? '处理中...' : '确认撤销'}
+              {undoing && <Loader2 className="h-4 w-4 animate-spin" />}
+              {undoing ? '撤销中...' : '确认撤销'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* 决策快照对话框 */}
+      <Dialog open={snapshotDialog.isOpen} onOpenChange={(open) => {
+        setSnapshotDialog({ isOpen: open, entry: null });
+      }}>
+        <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Eye className="h-5 w-5 text-blue-600" />
+              决策快照
+            </DialogTitle>
+            <DialogDescription>
+              查看该次营销决策的完整上下文和决策依据
+            </DialogDescription>
+          </DialogHeader>
+          
+          {snapshotDialog.entry && (
+            <div className="space-y-6">
+              {/* 基本信息 */}
+              <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
+                <div>
+                  <Label className="text-sm font-medium text-gray-600">目标用户</Label>
+                  <p className="text-sm font-semibold">{snapshotDialog.entry.userId}</p>
+                </div>
+                <div>
+                  <Label className="text-sm font-medium text-gray-600">执行时间</Label>
+                  <p className="text-sm">{formatTimestamp(snapshotDialog.entry.timestamp)}</p>
+                </div>
+                <div>
+                  <Label className="text-sm font-medium text-gray-600">营销场景</Label>
+                  <p className="text-sm">{getScenarioName(snapshotDialog.entry.scenarioId)}</p>
+                </div>
+                <div>
+                  <Label className="text-sm font-medium text-gray-600">决策来源</Label>
+                  <Badge 
+                    variant="outline" 
+                    className={`text-xs ${getDecisionSourceDisplay(snapshotDialog.entry.decisionSource).bgColor}`}
+                  >
+                    {snapshotDialog.entry.sourceName}
+                  </Badge>
+                </div>
+              </div>
+
+              {/* 用户画像快照 */}
+              {snapshotDialog.entry.userSnapshot && (
+                <div>
+                  <h4 className="font-medium text-gray-900 mb-3">用户画像快照</h4>
+                  <div className="p-4 border rounded-lg space-y-3">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label className="text-sm font-medium text-gray-600">用户分层</Label>
+                        <p className="text-sm">{snapshotDialog.entry.userSnapshot.tier}</p>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-gray-600">用户细分</Label>
+                        <p className="text-sm">{snapshotDialog.entry.userSnapshot.segment}</p>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-gray-600">生命周期价值</Label>
+                        <p className="text-sm font-semibold">¥{snapshotDialog.entry.userSnapshot.ltv.toLocaleString()}</p>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-gray-600">用户标签</Label>
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {snapshotDialog.entry.userSnapshot.tags.map(tag => (
+                            <Badge key={tag} variant="secondary" className="text-xs">
+                              {tag}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* 触发事件 */}
+              {snapshotDialog.entry.triggerEvent && (
+                <div>
+                  <h4 className="font-medium text-gray-900 mb-3">触发事件</h4>
+                  <div className="p-4 border rounded-lg space-y-2">
+                    <div>
+                      <Label className="text-sm font-medium text-gray-600">事件类型</Label>
+                      <p className="text-sm">{snapshotDialog.entry.triggerEvent.eventType}</p>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-gray-600">页面URL</Label>
+                      <p className="text-sm text-blue-600">{snapshotDialog.entry.triggerEvent.pageUrl}</p>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-gray-600">事件数据</Label>
+                      <pre className="text-xs bg-gray-50 p-2 rounded mt-1 overflow-x-auto">
+                        {JSON.stringify(snapshotDialog.entry.triggerEvent.eventData, null, 2)}
+                      </pre>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* AI决策理由 */}
+              {snapshotDialog.entry.aiReasoning && (
+                <div>
+                  <h4 className="font-medium text-gray-900 mb-3">AI决策理由</h4>
+                  <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div className="flex items-start gap-2">
+                      <Zap className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                      <p className="text-sm text-blue-900 leading-relaxed">
+                        {snapshotDialog.entry.aiReasoning}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* 执行动作 */}
+              <div>
+                <h4 className="font-medium text-gray-900 mb-3">执行动作</h4>
+                <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                  <p className="text-sm text-green-900">
+                    {snapshotDialog.entry.actionTaken}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setSnapshotDialog({ isOpen: false, entry: null })}
+            >
+              关闭
             </Button>
           </DialogFooter>
         </DialogContent>
