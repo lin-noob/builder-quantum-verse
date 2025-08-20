@@ -215,7 +215,7 @@ const ScenarioConfig = () => {
       await updateRulePriorities(scenario.scenarioId, priorities);
 
       toast({
-        title: "����先级已更新",
+        title: "���先级已更新",
         description: "规则优先级调整成功",
       });
     } catch (error) {
@@ -276,20 +276,10 @@ const ScenarioConfig = () => {
                   <Bot className="h-5 w-5 text-primary" />
                   AI策略配置
                 </CardTitle>
-                <div className="flex items-center gap-3">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setAiStrategyModalOpen(true)}
-                  >
-                    <Edit className="h-4 w-4 mr-1" />
-                    编辑配置
-                  </Button>
-                  <Switch
-                    checked={scenario.isAIEnabled}
-                    onCheckedChange={handleAIToggle}
-                  />
-                </div>
+                <Switch
+                  checked={scenario.isAIEnabled}
+                  onCheckedChange={handleAIToggle}
+                />
               </div>
             </CardHeader>
             <CardContent>
