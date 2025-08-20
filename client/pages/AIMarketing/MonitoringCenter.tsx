@@ -281,123 +281,89 @@ export default function MonitoringCenter() {
 
   return (
     <div className="p-6 space-y-6">
-      {/* 页面标题 */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">监控中心</h1>
-          <p className="text-gray-600 mt-1">实时监控AI营销决策，提供透明的执行路径和干预能力</p>
-        </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => window.location.reload()}
-          className="flex items-center gap-2"
-        >
-          <RefreshCw className="h-4 w-4" />
-          刷新
-        </Button>
-      </div>
-
       {/* 筛选控制区 */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <Filter className="h-5 w-5 text-blue-600" />
-            筛选与搜索
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* 搜索框 */}
-            <div className="space-y-2">
-              <Label htmlFor="search" className="text-sm font-medium">
-                搜索用户ID或规则名称
-              </Label>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <Input
-                  id="search"
-                  placeholder="输入关键词..."
-                  value={searchText}
-                  onChange={(e) => setSearchText(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-            </div>
+      <Card className="p-6 bg-white shadow-sm">
+        <div className="flex flex-col lg:flex-row gap-4 items-end">
+          {/* 搜索框 */}
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Input
+              placeholder="搜索用户ID或规则名称..."
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              className="pl-10"
+            />
+          </div>
 
-            {/* 营销场景筛选 */}
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">营销场景</Label>
-              <Select value={selectedScenario} onValueChange={setSelectedScenario}>
-                <SelectTrigger>
-                  <SelectValue placeholder="选择场景" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">全部场景</SelectItem>
-                  {MARKETING_SCENARIOS.map(scenario => (
-                    <SelectItem key={scenario.id} value={scenario.id}>
-                      {scenario.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+          {/* 营销场景筛选 */}
+          <div className="lg:w-1/5">
+            <Select value={selectedScenario} onValueChange={setSelectedScenario}>
+              <SelectTrigger>
+                <SelectValue placeholder="营销场景" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">全部场景</SelectItem>
+                {MARKETING_SCENARIOS.map(scenario => (
+                  <SelectItem key={scenario.id} value={scenario.id}>
+                    {scenario.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-            {/* 决策来源筛选 */}
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">决策来源</Label>
-              <Select value={selectedDecisionSource} onValueChange={setSelectedDecisionSource}>
-                <SelectTrigger>
-                  <SelectValue placeholder="选择来源" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">全部来源</SelectItem>
-                  <SelectItem value="DEFAULT_AI">默认AI策略</SelectItem>
-                  <SelectItem value="CUSTOM_RULE">自定义规则</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+          {/* 决策来源筛选 */}
+          <div className="lg:w-1/5">
+            <Select value={selectedDecisionSource} onValueChange={setSelectedDecisionSource}>
+              <SelectTrigger>
+                <SelectValue placeholder="决策来源" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">全部来源</SelectItem>
+                <SelectItem value="DEFAULT_AI">默认AI策略</SelectItem>
+                <SelectItem value="CUSTOM_RULE">自定义规则</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
-            {/* 状态筛选 */}
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">执行状态</Label>
-              <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-                <SelectTrigger>
-                  <SelectValue placeholder="选择状态" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">全部状态</SelectItem>
-                  <SelectItem value="EXECUTED">已执行</SelectItem>
-                  <SelectItem value="UNDONE">已撤销</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+          {/* 状态筛选 */}
+          <div className="lg:w-1/6">
+            <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+              <SelectTrigger>
+                <SelectValue placeholder="执行状态" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">全部状态</SelectItem>
+                <SelectItem value="EXECUTED">已执行</SelectItem>
+                <SelectItem value="UNDONE">已撤销</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           {/* 时间范围选择器 */}
-          <div className="mt-4 flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Label className="text-sm font-medium">时间范围:</Label>
-              <AdvancedDateRangePicker
-                value={dateRange}
-                onChange={setDateRange}
-              />
-            </div>
-            
-            {/* 清空筛选 */}
+          <div className="lg:w-1/4">
+            <AdvancedDateRangePicker
+              value={dateRange}
+              onChange={setDateRange}
+            />
+          </div>
+
+          {/* 清空筛选按钮 */}
+          <div className="flex items-end">
             <Button
               variant="outline"
-              size="sm"
+              size="default"
               onClick={clearFilters}
-              className="text-gray-600"
+              className="flex items-center gap-2 h-10"
             >
-              清空筛选
+              <RotateCcw className="h-4 w-4" />
+              重置
             </Button>
           </div>
-        </CardContent>
+        </div>
       </Card>
 
-      {/* ��时日志流 */}
+      {/* 实时日志流 */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -436,7 +402,7 @@ export default function MonitoringCenter() {
               确认撤销操作
             </DialogTitle>
             <DialogDescription className="text-left">
-              您确定要���销针对用户{' '}
+              您确定要撤销针对用户{' '}
               <span className="font-semibold text-gray-900">{undoDialog.entry?.userId}</span>{' '}
               的操作吗？
               <br />
@@ -481,7 +447,7 @@ export default function MonitoringCenter() {
               决策快照
             </DialogTitle>
             <DialogDescription>
-              查看该次营销决策的完整上下文和决策依据
+              查看该次营销决��的完整上下文和决策依据
             </DialogDescription>
           </DialogHeader>
           
