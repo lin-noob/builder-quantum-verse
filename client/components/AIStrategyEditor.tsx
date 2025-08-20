@@ -16,11 +16,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Edit, Save, X, Plus, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import {
-  StrategyDimension,
-  ActionType,
-  TimingStrategy,
-  ContentStrategy,
-  DefaultAIConfig
+  type StrategyDimension,
+  type ActionType,
+  type TimingStrategy,
+  type ContentStrategy,
+  type DefaultAIConfig
 } from '@shared/aiMarketingScenarioData';
 
 interface AIStrategyEditorProps {
@@ -141,7 +141,7 @@ export default function AIStrategyEditor({ defaultAIConfig, onSave }: AIStrategy
           {/* 全局配置 */}
           {isEditing && (
             <div className="space-y-4 p-4 border rounded-lg bg-muted/10">
-              <h4 className="font-medium">全局配置</h4>
+              <h4 className="font-medium">全局配���</h4>
               
               {/* 允许的营销方式 */}
               <div className="space-y-2">
