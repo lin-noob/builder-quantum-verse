@@ -44,7 +44,7 @@ import {
 } from "@hello-pangea/dnd";
 import RuleBuilderModal from "@/components/RuleBuilderModal";
 import CustomRulesWithConflictManager from "@/components/CustomRulesWithConflictManager";
-import AIStrategyEditor from "@/components/AIStrategyEditor";
+import AIStrategyEditorModal from "@/components/AIStrategyEditorModal";
 
 const ScenarioConfig = () => {
   const { scenarioId } = useParams<{ scenarioId: string }>();
@@ -96,7 +96,7 @@ const ScenarioConfig = () => {
 
       toast({
         title: newState ? "AI自动化已启用" : "AI自动化已暂停",
-        description: `${scenario.scenarioName}场��的自动化营销已${newState ? "启动" : "暂停"}`,
+        description: `${scenario.scenarioName}场景的���动化营销已${newState ? "启动" : "暂停"}`,
       });
     } catch (error) {
       toast({
