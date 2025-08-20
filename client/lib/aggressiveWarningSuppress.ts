@@ -171,21 +171,24 @@ if (typeof window !== "undefined" && typeof console !== "undefined") {
     }
   });
 
-  // Development-only: Completely disable React warnings in development
+  // Development-only: Safely modify React DevTools if possible
   if (process.env.NODE_ENV === "development") {
-    // Try to disable React's warning system entirely
+    // Try to disable React's warning system entirely (safely)
     try {
       if ((globalThis as any).__REACT_DEVTOOLS_GLOBAL_HOOK__) {
-        (globalThis as any).__REACT_DEVTOOLS_GLOBAL_HOOK__ = {
-          isDisabled: true,
-          supportsFiber: true,
-          onCommitFiberRoot: () => {},
-          onCommitFiberUnmount: () => {},
-          inject: () => {},
-        };
+        const hook = (globalThis as any).__REACT_DEVTOOLS_GLOBAL_HOOK__;
+        // Try to modify individual properties instead of replacing the entire object
+        try {
+          hook.isDisabled = true;
+          hook.onCommitFiberRoot = () => {};
+          hook.onCommitFiberUnmount = () => {};
+          hook.inject = () => {};
+        } catch (innerE) {
+          // Properties might be read-only, just ignore
+        }
       }
     } catch (e) {
-      // Ignore
+      // Ignore if we can't access or modify the hook
     }
   }
 }
