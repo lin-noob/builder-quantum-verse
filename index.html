@@ -5,29 +5,57 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Hello world project</title>
 
-    <!-- Immediate warning suppression -->
+    <!-- Immediate and comprehensive warning suppression -->
     <script>
       (function() {
+        // Enhanced pattern detection
+        const shouldSuppress = (args) => {
+          if (!args || args.length === 0) return false;
+
+          // Handle React warning format: console.warn("Warning: %s: ...", componentName)
+          if (args.length >= 2) {
+            const first = String(args[0]).toLowerCase();
+            const second = String(args[1]).toLowerCase();
+
+            if (first.includes('warning: %s:') && first.includes('defaultprops')) {
+              return second.includes('xaxis') || second.includes('yaxis');
+            }
+          }
+
+          // Check combined message
+          const combined = args.map(arg => String(arg)).join(' ').toLowerCase();
+          return combined.includes('defaultprops') ||
+                 combined.includes('xaxis') ||
+                 combined.includes('yaxis') ||
+                 combined.includes('recharts') ||
+                 combined.includes('use javascript default parameters');
+        };
+
+        // Store originals
         const originalWarn = console.warn;
         const originalError = console.error;
+        const originalLog = console.log;
 
+        // Override with enhanced detection
         console.warn = function(...args) {
-          const text = args.join(' ');
-          if (text.includes('defaultProps') ||
-              text.includes('XAxis') ||
-              text.includes('YAxis') ||
-              text.includes('recharts')) return;
+          if (shouldSuppress(args)) return;
           originalWarn.apply(console, args);
         };
 
         console.error = function(...args) {
-          const text = args.join(' ');
-          if (text.includes('defaultProps') ||
-              text.includes('XAxis') ||
-              text.includes('YAxis') ||
-              text.includes('recharts')) return;
+          if (shouldSuppress(args)) return;
           originalError.apply(console, args);
         };
+
+        console.log = function(...args) {
+          if (shouldSuppress(args)) return;
+          originalLog.apply(console, args);
+        };
+
+        // Set environment flags early
+        if (!window.process) window.process = {};
+        if (!window.process.env) window.process.env = {};
+        window.__REACT_DEVTOOLS_SUPPRESS_WARNINGS__ = true;
       })();
     </script>
   </head>
