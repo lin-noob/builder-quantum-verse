@@ -19,11 +19,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { 
-  Clock, 
-  Bot, 
-  User, 
-  Undo2, 
+import {
+  Clock,
+  Bot,
+  User,
+  Undo2,
   AlertTriangle,
   CheckCircle,
   XCircle,
@@ -35,7 +35,8 @@ import {
   Target,
   Zap,
   Settings,
-  RefreshCw
+  RefreshCw,
+  RotateCcw
 } from 'lucide-react';
 import {
   LogEntry,
@@ -447,7 +448,7 @@ export default function MonitoringCenter() {
               决策快照
             </DialogTitle>
             <DialogDescription>
-              查看该次营销决��的完整上下文和决策依据
+              查看该次营销决策的完整上下文和决策依据
             </DialogDescription>
           </DialogHeader>
           
