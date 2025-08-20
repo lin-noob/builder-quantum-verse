@@ -281,7 +281,7 @@ export default function MonitoringCenter() {
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-6 bg-gray-50 min-h-full">
       {/* 筛选控制区 */}
       <Card className="p-6 bg-white shadow-sm">
         <div className="flex flex-col lg:flex-row gap-4 items-end">
@@ -369,7 +369,7 @@ export default function MonitoringCenter() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Bot className="h-5 w-5 text-blue-600" />
-            实时营销活动日志
+            实时营���活动日志
             <Badge variant="secondary" className="ml-2">
               {filteredEntries.length} 条记录
             </Badge>
