@@ -48,7 +48,7 @@ import {
   formatTimestamp
 } from '@shared/monitoringLogData';
 import { useToast } from '@/hooks/use-toast';
-import { AdvancedDateRangePicker } from '@/components/AdvancedDateRangePicker';
+import AdvancedDateRangePicker from '@/components/AdvancedDateRangePicker';
 
 export default function MonitoringCenter() {
   const { toast } = useToast();
@@ -374,7 +374,7 @@ export default function MonitoringCenter() {
             </div>
           </div>
 
-          {/* 时间范围选��器 */}
+          {/* 时间范围选择器 */}
           <div className="mt-4 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Label className="text-sm font-medium">时间范围:</Label>
