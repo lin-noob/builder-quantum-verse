@@ -284,7 +284,7 @@ const ScenarioConfig = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
-                {/* 决策维度详情 - 只读展示 */}
+                {/* ���策维度详情 - 只读展示 */}
                 <div>
                   <Tabs defaultValue="0" className="w-full">
                     <TabsList className="grid w-full grid-cols-3">
@@ -372,6 +372,25 @@ const ScenarioConfig = () => {
 
         {/* 右侧信息 */}
         <div className="space-y-6">
+          {/* AI配置操作 */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg font-semibold">AI配置操作</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Button
+                onClick={() => setAiStrategyModalOpen(true)}
+                className="w-full"
+              >
+                <Edit className="h-4 w-4 mr-2" />
+                编辑AI策略配置
+              </Button>
+              <p className="text-xs text-muted-foreground mt-2">
+                修改营销方式、营销时机、营销内容等策略配置
+              </p>
+            </CardContent>
+          </Card>
+
           {/* 基础信息卡片 */}
           <Card>
             <CardHeader>
@@ -457,7 +476,7 @@ const ScenarioConfig = () => {
                 <div className="flex items-start gap-3">
                   <TrendingUp className="h-4 w-4 text-purple-500 mt-0.5" />
                   <div>
-                    <div className="font-medium text-foreground">效果追踪</div>
+                    <div className="font-medium text-foreground">���果追踪</div>
                     <div>记录所有动作效果，供您分析优化。</div>
                   </div>
                 </div>
