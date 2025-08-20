@@ -36,9 +36,29 @@ if (typeof window !== 'undefined') {
   
   // Function to check if a message should be suppressed
   const shouldSuppress = (args: any[]): boolean => {
+    // Check each argument individually
+    for (const arg of args) {
+      const argStr = String(arg).toLowerCase();
+
+      // Check if any argument contains suppression patterns
+      for (const pattern of suppressPatterns) {
+        if (argStr.includes(pattern.toLowerCase())) {
+          return true;
+        }
+      }
+
+      // Special check for React warning format with %s placeholders
+      if (argStr.includes('support for defaultprops will be removed') ||
+          argStr.includes('use javascript default parameters instead') ||
+          argStr.includes('xaxis') ||
+          argStr.includes('yaxis')) {
+        return true;
+      }
+    }
+
+    // Also check the full concatenated message
     const fullMessage = args.join(' ').toLowerCase();
-    
-    return suppressPatterns.some(pattern => 
+    return suppressPatterns.some(pattern =>
       fullMessage.includes(pattern.toLowerCase())
     );
   };
