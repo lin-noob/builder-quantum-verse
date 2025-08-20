@@ -44,11 +44,11 @@ export default function TabManager() {
 
   // 页面路径到标题的映射
   const pathToTitle = {
-    "/dashboard": "首页",
-    "/": "首页",
-    "/dashboard2": "仪表盘2.0",
+    "/dashboard": "仪表盘",
+    "/": "仪表盘",
+    "/dashboard2": "仪表盘",
     "/users": "用户画像",
-    "/users2": "用户画像2.0",
+    "/users2": "用户画像",
     "/response-actions": "响应动作库",
     "/ai-marketing-strategies": "营销策略",
     "/ai-marketing/monitoring-center": "监控中心",
