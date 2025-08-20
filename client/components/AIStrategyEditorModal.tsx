@@ -49,7 +49,7 @@ const TIMING_STRATEGY_OPTIONS = [
 ];
 
 const CONTENT_STRATEGY_OPTIONS = [
-  { value: 'FULLY_GENERATIVE', label: '完全生成', description: 'AI完全自主生成内容' },
+  { value: 'FULLY_GENERATIVE', label: '���全生成', description: 'AI完全自主生成内容' },
   { value: 'STATIC', label: '静态内容', description: '使用预设的固定内容' },
   { value: 'AI_ASSISTED', label: 'AI辅助', description: 'AI基于模板生成内容' }
 ];
@@ -123,121 +123,13 @@ export default function AIStrategyEditorModal({
             🤖 编辑AI策略配置
           </DialogTitle>
           <DialogDescription>
-            配置AI在不同营销维度的策略和行为
+            配置AI在不同营销维度的策略和行���
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6">
-          {/* 全局配置 */}
-          <div className="space-y-4 p-4 border rounded-lg bg-muted/10">
-            <h4 className="font-medium">全局配置</h4>
-            
-            {/* 允许的营销方式 */}
-            <div className="space-y-2">
-              <Label>允许的营销方式</Label>
-              <div className="flex flex-wrap gap-4">
-                {ACTION_TYPE_OPTIONS.map(option => (
-                  <div key={option.value} className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      id={`action-${option.value}`}
-                      checked={editingConfig.allowedActionTypes.includes(option.value as ActionType)}
-                      onChange={(e) => {
-                        const newActionTypes = e.target.checked
-                          ? [...editingConfig.allowedActionTypes, option.value as ActionType]
-                          : editingConfig.allowedActionTypes.filter(t => t !== option.value);
-                        setEditingConfig({ ...editingConfig, allowedActionTypes: newActionTypes });
-                      }}
-                      className="rounded border-gray-300"
-                    />
-                    <label htmlFor={`action-${option.value}`} className="text-sm">
-                      <div className="font-medium">{option.label}</div>
-                      <div className="text-xs text-muted-foreground">{option.description}</div>
-                    </label>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* 时机策略 */}
-            <div className="space-y-2">
-              <Label>默认时机策略</Label>
-              <Select
-                value={editingConfig.timingStrategy}
-                onValueChange={(value: TimingStrategy) =>
-                  setEditingConfig({ ...editingConfig, timingStrategy: value })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {TIMING_STRATEGY_OPTIONS.map(option => (
-                    <SelectItem key={option.value} value={option.value}>
-                      <div>
-                        <div className="font-medium">{option.label}</div>
-                        <div className="text-sm text-muted-foreground">{option.description}</div>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* 内容策略 */}
-            <div className="space-y-2">
-              <Label>默认内容策略</Label>
-              <Select
-                value={editingConfig.contentStrategy}
-                onValueChange={(value: ContentStrategy) =>
-                  setEditingConfig({ ...editingConfig, contentStrategy: value })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {CONTENT_STRATEGY_OPTIONS.map(option => (
-                    <SelectItem key={option.value} value={option.value}>
-                      <div>
-                        <div className="font-medium">{option.label}</div>
-                        <div className="text-sm text-muted-foreground">{option.description}</div>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* 策略描述 */}
-            <div className="space-y-2">
-              <Label>策略描述</Label>
-              <Textarea
-                value={editingConfig.description}
-                onChange={(e) =>
-                  setEditingConfig({ ...editingConfig, description: e.target.value })
-                }
-                placeholder="描述AI的工作方式和策略"
-                rows={3}
-              />
-            </div>
-
-            {/* 策略总结 */}
-            <div className="space-y-2">
-              <Label>策略总结</Label>
-              <Input
-                value={editingConfig.strategySummary}
-                onChange={(e) =>
-                  setEditingConfig({ ...editingConfig, strategySummary: e.target.value })
-                }
-                placeholder="一句话总结策略目标"
-              />
-            </div>
-          </div>
-
           {/* 决策维度详情 */}
           <div>
-            <h4 className="font-medium mb-4">决策维度配置</h4>
             <Tabs defaultValue="0" className="w-full">
               <TabsList className="grid w-full grid-cols-3">
                 {editingConfig.dimensions.map((dimension, index) => (
