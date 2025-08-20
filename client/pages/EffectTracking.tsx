@@ -304,23 +304,6 @@ export default function EffectTracking() {
 
   return (
     <div className="p-6 space-y-6">
-      {/* 页面标题 */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">效果追踪</h1>
-          <p className="text-gray-600 mt-1">精确量化并对比AI策略与自定义规则的营销成果</p>
-        </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => window.location.reload()}
-          className="flex items-center gap-2"
-        >
-          <RefreshCw className="h-4 w-4" />
-          刷新
-        </Button>
-      </div>
-
       {/* 核心KPI展示 */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {/* 总转化价值 */}
@@ -531,7 +514,7 @@ export default function EffectTracking() {
               归因分析详情
             </DialogTitle>
             <DialogDescription>
-              查看完整的转化路径和归因权重分析
+              查看完整��转化路径和归因权重分析
             </DialogDescription>
           </DialogHeader>
           
