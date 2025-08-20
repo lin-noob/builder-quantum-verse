@@ -1,6 +1,4 @@
-import "./lib/directWarningSuppress"; // Direct React warning suppression
-import "./lib/ultimateWarningSuppress"; // Ultimate warning suppression system
-import "./lib/safeWarningSuppress"; // Safe warning suppression without property overrides
+import "./lib/finalWarningFix"; // Final definitive warning suppression
 import "./global.css";
 
 import { Toaster } from "@/components/ui/toaster";
