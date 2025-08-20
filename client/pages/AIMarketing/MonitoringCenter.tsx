@@ -284,20 +284,9 @@ export default function MonitoringCenter() {
     <div className="p-6 space-y-6 bg-gray-50 min-h-full">
       {/* 筛选控制区 */}
       <Card className="p-6 bg-white shadow-sm">
-        <div className="flex flex-col lg:flex-row gap-4 items-end">
-          {/* 搜索框 */}
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-            <Input
-              placeholder="搜索用户ID或规则名称..."
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-
+        <div className="flex flex-col md:flex-row gap-4 items-end">
           {/* 营销场景筛选 */}
-          <div className="lg:w-1/5">
+          <div className="md:w-1/4">
             <Select value={selectedScenario} onValueChange={setSelectedScenario}>
               <SelectTrigger>
                 <SelectValue placeholder="营销场景" />
@@ -314,7 +303,7 @@ export default function MonitoringCenter() {
           </div>
 
           {/* 决策来源筛选 */}
-          <div className="lg:w-1/5">
+          <div className="md:w-1/4">
             <Select value={selectedDecisionSource} onValueChange={setSelectedDecisionSource}>
               <SelectTrigger>
                 <SelectValue placeholder="决策来源" />
@@ -328,7 +317,7 @@ export default function MonitoringCenter() {
           </div>
 
           {/* 状态筛选 */}
-          <div className="lg:w-1/6">
+          <div className="md:w-1/4">
             <Select value={selectedStatus} onValueChange={setSelectedStatus}>
               <SelectTrigger>
                 <SelectValue placeholder="执行状态" />
@@ -342,7 +331,7 @@ export default function MonitoringCenter() {
           </div>
 
           {/* 时间范围选择器 */}
-          <div className="lg:w-1/4">
+          <div className="md:w-1/4">
             <AdvancedDateRangePicker
               value={dateRange}
               onChange={setDateRange}
@@ -362,6 +351,19 @@ export default function MonitoringCenter() {
             </Button>
           </div>
         </div>
+
+        {/* 搜索框单独一行 */}
+        <div className="mt-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Input
+              placeholder="搜索用户ID或规则名称..."
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+        </div>
       </Card>
 
       {/* 实时日志流 */}
@@ -369,7 +371,7 @@ export default function MonitoringCenter() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Bot className="h-5 w-5 text-blue-600" />
-            实时营���活动日志
+            实时营销活动日志
             <Badge variant="secondary" className="ml-2">
               {filteredEntries.length} 条记录
             </Badge>
