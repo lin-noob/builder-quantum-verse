@@ -79,19 +79,55 @@
         window.__SUPPRESS_ALL_WARNINGS__ = true;
         window.__DISABLE_RECHARTS_WARNINGS__ = true;
 
-        // Block React DevTools hook entirely
-        Object.defineProperty(window, '__REACT_DEVTOOLS_GLOBAL_HOOK__', {
-          get: () => ({
-            isDisabled: true,
-            supportsFiber: true,
-            inject: () => {},
-            onCommitFiberRoot: () => {},
-            onCommitFiberUnmount: () => {},
-            onPostCommitFiberRoot: () => {}
-          }),
-          set: () => {},
-          configurable: false
-        });
+        // Safely handle React DevTools hook
+        try {
+          // Check if property exists and is configurable
+          const descriptor = Object.getOwnPropertyDescriptor(window, '__REACT_DEVTOOLS_GLOBAL_HOOK__');
+
+          if (!descriptor) {
+            // Property doesn't exist, safe to define
+            Object.defineProperty(window, '__REACT_DEVTOOLS_GLOBAL_HOOK__', {
+              get: () => ({
+                isDisabled: true,
+                supportsFiber: true,
+                inject: () => {},
+                onCommitFiberRoot: () => {},
+                onCommitFiberUnmount: () => {},
+                onPostCommitFiberRoot: () => {}
+              }),
+              set: () => {},
+              configurable: true
+            });
+          } else if (window.__REACT_DEVTOOLS_GLOBAL_HOOK__) {
+            // Property exists, try to modify it safely
+            try {
+              var hook = window.__REACT_DEVTOOLS_GLOBAL_HOOK__;
+              hook.isDisabled = true;
+              hook.onCommitFiberRoot = () => {};
+              hook.onCommitFiberUnmount = () => {};
+              hook.onPostCommitFiberRoot = () => {};
+              hook.inject = () => {};
+            } catch (e) {
+              // If we can't modify, that's ok
+            }
+          }
+        } catch (e) {
+          // If everything fails, try direct assignment
+          try {
+            if (!window.__REACT_DEVTOOLS_GLOBAL_HOOK__) {
+              window.__REACT_DEVTOOLS_GLOBAL_HOOK__ = {
+                isDisabled: true,
+                supportsFiber: true,
+                inject: () => {},
+                onCommitFiberRoot: () => {},
+                onCommitFiberUnmount: () => {},
+                onPostCommitFiberRoot: () => {}
+              };
+            }
+          } catch (e2) {
+            // Final fallback - ignore errors
+          }
+        }
 
         // Global error suppression
         window.onerror = function(message) {
