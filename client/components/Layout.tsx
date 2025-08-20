@@ -234,7 +234,7 @@ export default function Layout({ children }: LayoutProps) {
               const isActive =
                 location.pathname === item.path ||
                 (item.id === "dashboard" && (location.pathname === "/" || location.pathname === "/dashboard" || location.pathname === "/dashboard2")) ||
-                (item.id === "users" && (location.pathname === "/users" || location.pathname === "/users2")) ||
+                (item.id === "users" && (location.pathname === "/users" || location.pathname === "/users2" || location.pathname.startsWith("/users/"))) ||
                 (item.id === "response-actions" &&
                   location.pathname.startsWith("/response-actions")) ||
                 (item.id === "ai-marketing-strategies" &&
@@ -307,7 +307,7 @@ export default function Layout({ children }: LayoutProps) {
 
         {/* User Profile Section */}
         <div className="border-t border-gray-200 p-3 space-y-2">
-          {/* 主题切换 - 已隐藏 */}
+          {/* 主题切换 - 已隐��� */}
           {/*
           <div className={cn(
             "flex",
