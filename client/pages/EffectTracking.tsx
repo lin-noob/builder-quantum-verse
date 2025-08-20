@@ -376,105 +376,88 @@ export default function EffectTracking() {
       </div>
 
       {/* 筛选控制区 */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <Filter className="h-5 w-5 text-blue-600" />
-            多维度筛选
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-            {/* 搜索框 */}
-            <div className="space-y-2">
-              <Label htmlFor="search" className="text-sm font-medium">
-                搜索用户ID或规则名称
-              </Label>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <Input
-                  id="search"
-                  placeholder="输入关键词..."
-                  value={searchText}
-                  onChange={(e) => setSearchText(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-            </div>
+      <Card className="p-6 bg-white shadow-sm">
+        <div className="flex flex-col lg:flex-row gap-4 items-end">
+          {/* 搜索框 */}
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Input
+              placeholder="搜索用户ID或规则名称..."
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              className="pl-10"
+            />
+          </div>
 
-            {/* 营销场景筛选 */}
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">营销场景</Label>
-              <Select value={selectedScenario} onValueChange={setSelectedScenario}>
-                <SelectTrigger>
-                  <SelectValue placeholder="选择场景" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">全部场景</SelectItem>
-                  {MARKETING_SCENARIOS.map(scenario => (
-                    <SelectItem key={scenario.id} value={scenario.id}>
-                      {scenario.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+          {/* 营销场景筛选 */}
+          <div className="lg:w-1/5">
+            <Select value={selectedScenario} onValueChange={setSelectedScenario}>
+              <SelectTrigger>
+                <SelectValue placeholder="营销场景" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">全部场景</SelectItem>
+                {MARKETING_SCENARIOS.map(scenario => (
+                  <SelectItem key={scenario.id} value={scenario.id}>
+                    {scenario.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-            {/* 决策来源筛选 */}
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">决策来源</Label>
-              <Select value={selectedDecisionSource} onValueChange={setSelectedDecisionSource}>
-                <SelectTrigger>
-                  <SelectValue placeholder="选择来源" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">全部来源</SelectItem>
-                  <SelectItem value="DEFAULT_AI">默认AI策略</SelectItem>
-                  <SelectItem value="CUSTOM_RULE">自定义规则</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+          {/* 决策来源筛选 */}
+          <div className="lg:w-1/5">
+            <Select value={selectedDecisionSource} onValueChange={setSelectedDecisionSource}>
+              <SelectTrigger>
+                <SelectValue placeholder="决策来源" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">全部来源</SelectItem>
+                <SelectItem value="DEFAULT_AI">默认AI策略</SelectItem>
+                <SelectItem value="CUSTOM_RULE">自定义规则</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
-            {/* 转化类型筛选 */}
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">转化类型</Label>
-              <Select value={selectedConversionType} onValueChange={setSelectedConversionType}>
-                <SelectTrigger>
-                  <SelectValue placeholder="选择类型" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">全部类型</SelectItem>
-                  {CONVERSION_TYPES.map(type => (
-                    <SelectItem key={type.id} value={type.id}>
-                      {type.icon} {type.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* 清空筛选 */}
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">操作</Label>
-              <Button
-                variant="outline"
-                onClick={clearFilters}
-                className="w-full text-gray-600"
-              >
-                清空筛选
-              </Button>
-            </div>
+          {/* 转化类型筛选 */}
+          <div className="lg:w-1/5">
+            <Select value={selectedConversionType} onValueChange={setSelectedConversionType}>
+              <SelectTrigger>
+                <SelectValue placeholder="转化类型" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">全部类型</SelectItem>
+                {CONVERSION_TYPES.map(type => (
+                  <SelectItem key={type.id} value={type.id}>
+                    {type.icon} {type.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           {/* 时间范围选择器 */}
-          <div className="mt-4 flex items-center gap-4">
-            <Label className="text-sm font-medium">时间范围:</Label>
+          <div className="lg:w-1/4">
             <AdvancedDateRangePicker
               value={dateRange}
               onChange={setDateRange}
             />
           </div>
-        </CardContent>
+
+          {/* 清空筛选按钮 */}
+          <div className="flex items-end">
+            <Button
+              variant="outline"
+              size="default"
+              onClick={clearFilters}
+              className="flex items-center gap-2 h-10"
+            >
+              <RotateCcw className="h-4 w-4" />
+              重置
+            </Button>
+          </div>
+        </div>
       </Card>
 
       {/* 转化记录列表 */}
@@ -514,7 +497,7 @@ export default function EffectTracking() {
               归因分析详情
             </DialogTitle>
             <DialogDescription>
-              查看完整��转化路径和归因权重分析
+              查看完整的转化路径和归因权重分析
             </DialogDescription>
           </DialogHeader>
           
