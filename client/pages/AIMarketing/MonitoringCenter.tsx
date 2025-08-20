@@ -171,7 +171,7 @@ export default function MonitoringCenter() {
     setSelectedScenario('all');
     setSelectedDecisionSource('all');
     setSelectedStatus('all');
-    setDateRange({});
+    setDateRange({start: null, end: null});
   };
 
   // 渲染日志条目
