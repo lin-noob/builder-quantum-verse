@@ -46,18 +46,34 @@ if (typeof window !== 'undefined') {
     }
   };
   
-  // Set up React DevTools suppression
-  Object.defineProperty(window, '__REACT_DEVTOOLS_GLOBAL_HOOK__', {
-    value: {
-      isDisabled: false,
-      supportsFiber: true,
-      inject: () => {},
-      onCommitFiberRoot: () => {},
-      onCommitFiberUnmount: () => {},
-    },
-    writable: false,
-    configurable: false
-  });
+  // Set up React DevTools suppression (safely handle existing properties)
+  try {
+    if (!(window as any).__REACT_DEVTOOLS_GLOBAL_HOOK__) {
+      // Only define if it doesn't exist
+      Object.defineProperty(window, '__REACT_DEVTOOLS_GLOBAL_HOOK__', {
+        value: {
+          isDisabled: false,
+          supportsFiber: true,
+          inject: () => {},
+          onCommitFiberRoot: () => {},
+          onCommitFiberUnmount: () => {},
+        },
+        writable: true,
+        configurable: true
+      });
+    } else {
+      // If it exists, just modify the existing object safely
+      const hook = (window as any).__REACT_DEVTOOLS_GLOBAL_HOOK__;
+      try {
+        hook.onCommitFiberRoot = () => {};
+        hook.onCommitFiberUnmount = () => {};
+      } catch (e) {
+        // Ignore if methods are read-only
+      }
+    }
+  } catch (e) {
+    // Silently ignore if we can't modify the hook
+  }
   
   // Suppress React warnings at the source
   const originalObjectDefineProperty = Object.defineProperty;
