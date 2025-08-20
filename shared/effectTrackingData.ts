@@ -40,11 +40,11 @@ export const MARKETING_SCENARIOS = [
 
 // 转化类型配置
 export const CONVERSION_TYPES = [
-  { id: 'purchase', name: '商品购买', icon: '🛒' },
-  { id: 'subscription', name: '会员订阅', icon: '💎' },
-  { id: 'signup', name: '用户注册', icon: '👤' },
-  { id: 'form_submit', name: '表单提交', icon: '📝' },
-  { id: 'download', name: '资源下载', icon: '📥' }
+  { id: 'purchase', name: '商品购买', icon: '' },
+  { id: 'subscription', name: '会员订阅', icon: '' },
+  { id: 'signup', name: '用户注册', icon: '' },
+  { id: 'form_submit', name: '表单提交', icon: '' },
+  { id: 'download', name: '资源下载', icon: '' }
 ];
 
 // Mock数据
@@ -223,29 +223,29 @@ export const getConversionTypeName = (type: string): string => {
 
 export const getConversionTypeIcon = (type: string): string => {
   const conversionType = CONVERSION_TYPES.find(t => t.id === type);
-  return conversionType ? conversionType.icon : '📊';
+  return conversionType ? conversionType.icon : '';
 };
 
-export const getDecisionSourceDisplay = (source: 'DEFAULT_AI' | 'CUSTOM_RULE'): { 
-  text: string; 
-  color: string; 
+export const getDecisionSourceDisplay = (source: 'DEFAULT_AI' | 'CUSTOM_RULE'): {
+  text: string;
+  color: string;
   bgColor: string;
   icon: string;
 } => {
   switch (source) {
     case 'DEFAULT_AI':
-      return { 
-        text: '默认AI策略', 
-        color: 'text-blue-700', 
+      return {
+        text: '默认AI策略',
+        color: 'text-blue-700',
         bgColor: 'bg-blue-50 border-blue-200',
-        icon: '🤖'
+        icon: ''
       };
     case 'CUSTOM_RULE':
-      return { 
-        text: '自定义规则', 
-        color: 'text-purple-700', 
+      return {
+        text: '自定义规则',
+        color: 'text-purple-700',
         bgColor: 'bg-purple-50 border-purple-200',
-        icon: '⚙️'
+        icon: ''
       };
   }
 };
