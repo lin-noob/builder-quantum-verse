@@ -109,7 +109,7 @@ export default function TabManager() {
 
       // 如果没有预定义标题，尝试从路径生成友好的标题
       if (!title) {
-        if (currentPath.includes("/users/")) {
+        if (currentPath.includes("/users/") || currentPath.includes("/users2/")) {
           title = "用户详情";
         } else if (currentPath.includes("/response-actions/")) {
           if (currentPath.includes("/create")) {
