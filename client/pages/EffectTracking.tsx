@@ -1,214 +1,329 @@
-import { useState, useMemo } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useState, useMemo } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { 
-  Search, 
-  Filter, 
-  TrendingUp, 
-  Users, 
-  ShoppingCart, 
+  Search,
+  Filter,
+  TrendingUp,
+  DollarSign,
   Target,
+  Bot,
+  Settings,
+  Eye,
   Calendar,
   ArrowRight,
-  ExternalLink,
-  BarChart3,
-  PieChart,
-  LineChart,
-  DollarSign
-} from "lucide-react";
-
-interface ConversionData {
-  id: string;
-  userId: string;
-  userName: string;
-  conversionTime: string;
-  conversionType: string;
-  conversionValue: number;
-  touchpoints: TouchPoint[];
-  attributionModel: string;
-  campaignSource: string;
-}
-
-interface TouchPoint {
-  id: string;
-  timestamp: string;
-  type: 'strategy' | 'fully-auto' | 'semi-auto';
-  mode: string;
-  strategyName?: string;
-  triggerRule: string;
-  actionTaken: string;
-  influence: number; // 影响权重 0-100
-}
-
-// 模拟数据
-const mockConversions: ConversionData[] = [
-  {
-    id: "conv_001",
-    userId: "user_12345",
-    userName: "张小明",
-    conversionTime: "2024-01-15 14:30:25",
-    conversionType: "purchase",
-    conversionValue: 299.90,
-    attributionModel: "first-touch",
-    campaignSource: "营销策略",
-    touchpoints: [
-      {
-        id: "tp_001",
-        timestamp: "2024-01-12 10:15:30",
-        type: "strategy",
-        mode: "半自动模式",
-        strategyName: "新用户欢迎引导",
-        triggerRule: "新用户首次访问",
-        actionTaken: "展示欢迎弹窗",
-        influence: 35
-      },
-      {
-        id: "tp_002", 
-        timestamp: "2024-01-14 09:22:15",
-        type: "fully-auto",
-        mode: "全动模式",
-        triggerRule: "购物车放弃检测",
-        actionTaken: "发送优惠券邮件",
-        influence: 45
-      },
-      {
-        id: "tp_003",
-        timestamp: "2024-01-15 13:45:10",
-        type: "strategy",
-        mode: "半自动模式", 
-        strategyName: "购买转化促进",
-        triggerRule: "商品页面停留3分钟",
-        actionTaken: "展示限时优惠",
-        influence: 20
-      }
-    ]
-  },
-  {
-    id: "conv_002",
-    userId: "user_67890",
-    userName: "李小红",
-    conversionTime: "2024-01-16 16:20:10",
-    conversionType: "subscription",
-    conversionValue: 99.00,
-    attributionModel: "last-touch",
-    campaignSource: "全动模式",
-    touchpoints: [
-      {
-        id: "tp_004",
-        timestamp: "2024-01-10 15:30:00",
-        type: "strategy",
-        mode: "半自动模式",
-        strategyName: "会员转化策略",
-        triggerRule: "浏览会员页面",
-        actionTaken: "展示会员权益",
-        influence: 25
-      },
-      {
-        id: "tp_005",
-        timestamp: "2024-01-16 15:45:30",
-        type: "fully-auto",
-        mode: "全动模式",
-        triggerRule: "重复访问检测",
-        actionTaken: "推送专属优惠",
-        influence: 75
-      }
-    ]
-  }
-];
-
-const conversionTypeMap = {
-  purchase: "商品购买",
-  subscription: "会员订阅",
-  signup: "用户注册",
-  download: "资源下载"
-};
-
-const attributionModelMap = {
-  "first-touch": "首次触达",
-  "last-touch": "最后触达",
-  "linear": "线性归因",
-  "time-decay": "时间衰减"
-};
+  Clock,
+  Zap,
+  Award,
+  RefreshCw,
+  BarChart3
+} from 'lucide-react';
+import {
+  ConversionEvent,
+  TouchPoint,
+  mockConversionEvents,
+  MARKETING_SCENARIOS,
+  CONVERSION_TYPES,
+  getScenarioName,
+  getConversionTypeName,
+  getConversionTypeIcon,
+  getDecisionSourceDisplay,
+  formatTimestamp,
+  formatCurrency,
+  calculateStats
+} from '@shared/effectTrackingData';
+import AdvancedDateRangePicker from '@/components/AdvancedDateRangePicker';
 
 export default function EffectTracking() {
-  const [filters, setFilters] = useState({
-    search: "",
-    conversionType: "all",
-    attributionModel: "all",
-    dateRange: "7days"
-  });
+  // 数据状态
+  const [conversionEvents, setConversionEvents] = useState<ConversionEvent[]>(mockConversionEvents);
+  
+  // 筛选状态
+  const [searchText, setSearchText] = useState('');
+  const [selectedScenario, setSelectedScenario] = useState<string>('all');
+  const [selectedDecisionSource, setSelectedDecisionSource] = useState<string>('all');
+  const [selectedConversionType, setSelectedConversionType] = useState<string>('all');
+  const [dateRange, setDateRange] = useState<{start: Date | null; end: Date | null}>({start: null, end: null});
+  
+  // 对话框状态
+  const [attributionDialog, setAttributionDialog] = useState<{
+    isOpen: boolean;
+    conversion: ConversionEvent | null;
+  }>({ isOpen: false, conversion: null });
 
-  const [selectedConversion, setSelectedConversion] = useState<ConversionData | null>(null);
-
-  // 过滤数据
+  // 筛选逻辑
   const filteredConversions = useMemo(() => {
-    return mockConversions.filter(conversion => {
-      if (filters.search && !conversion.userName.toLowerCase().includes(filters.search.toLowerCase())) {
+    return conversionEvents.filter(conversion => {
+      // 搜索文本过滤
+      if (searchText) {
+        const searchLower = searchText.toLowerCase();
+        const matchesSearch = 
+          conversion.userId.toLowerCase().includes(searchLower) ||
+          conversion.primaryAttribution.toLowerCase().includes(searchLower) ||
+          conversion.touchpoints.some(tp => tp.sourceName.toLowerCase().includes(searchLower));
+        if (!matchesSearch) return false;
+      }
+      
+      // 营销场景过滤
+      if (selectedScenario !== 'all') {
+        const hasScenario = conversion.touchpoints.some(tp => tp.scenarioId === selectedScenario);
+        if (!hasScenario) return false;
+      }
+      
+      // 决策来源过滤
+      if (selectedDecisionSource !== 'all') {
+        const hasSource = conversion.touchpoints.some(tp => tp.decisionSource === selectedDecisionSource);
+        if (!hasSource) return false;
+      }
+      
+      // 转化类型过滤
+      if (selectedConversionType !== 'all' && conversion.conversionType !== selectedConversionType) {
         return false;
       }
-      if (filters.conversionType !== "all" && conversion.conversionType !== filters.conversionType) {
-        return false;
+      
+      // 时间范围过滤
+      if (dateRange.start || dateRange.end) {
+        const conversionDate = conversion.conversionTime;
+        if (dateRange.start && conversionDate < dateRange.start) return false;
+        if (dateRange.end && conversionDate > dateRange.end) return false;
       }
-      if (filters.attributionModel !== "all" && conversion.attributionModel !== filters.attributionModel) {
-        return false;
-      }
+      
       return true;
     });
-  }, [filters]);
+  }, [conversionEvents, searchText, selectedScenario, selectedDecisionSource, selectedConversionType, dateRange]);
 
   // 统计数据
   const stats = useMemo(() => {
-    const totalConversions = filteredConversions.length;
-    const totalValue = filteredConversions.reduce((sum, conv) => sum + conv.conversionValue, 0);
-    const avgValue = totalConversions > 0 ? totalValue / totalConversions : 0;
-    
-    const sourceDistribution = filteredConversions.reduce((acc, conv) => {
-      acc[conv.campaignSource] = (acc[conv.campaignSource] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
-
-    return {
-      totalConversions,
-      totalValue,
-      avgValue,
-      sourceDistribution
-    };
+    return calculateStats(filteredConversions);
   }, [filteredConversions]);
 
-  const formatCurrency = (value: number) => `¥${value.toFixed(2)}`;
-  const formatDate = (dateString: string) => new Date(dateString).toLocaleString('zh-CN');
+  // 清空筛选
+  const clearFilters = () => {
+    setSearchText('');
+    setSelectedScenario('all');
+    setSelectedDecisionSource('all');
+    setSelectedConversionType('all');
+    setDateRange({start: null, end: null});
+  };
 
-  const getTypeColor = (type: TouchPoint['type']) => {
-    switch (type) {
-      case 'strategy': return 'bg-blue-100 text-blue-700';
-      case 'fully-auto': return 'bg-green-100 text-green-700';
-      case 'semi-auto': return 'bg-purple-100 text-purple-700';
-      default: return 'bg-gray-100 text-gray-700';
-    }
+  // 查看归因分析
+  const handleViewAttribution = (conversion: ConversionEvent) => {
+    setAttributionDialog({ isOpen: true, conversion });
+  };
+
+  // 获取主要归因来源的显示信息
+  const getPrimaryAttributionDisplay = (conversion: ConversionEvent) => {
+    // 找到权重最高的触点
+    const primaryTouchpoint = conversion.touchpoints.reduce((max, tp) => 
+      tp.attributionWeight > max.attributionWeight ? tp : max
+    );
+    
+    const sourceDisplay = getDecisionSourceDisplay(primaryTouchpoint.decisionSource);
+    return {
+      ...sourceDisplay,
+      sourceName: primaryTouchpoint.sourceName,
+      weight: primaryTouchpoint.attributionWeight
+    };
+  };
+
+  // 渲染转化事件
+  const renderConversionEvent = (conversion: ConversionEvent) => {
+    const primaryDisplay = getPrimaryAttributionDisplay(conversion);
+    const conversionTypeIcon = getConversionTypeIcon(conversion.conversionType);
+    const conversionTypeName = getConversionTypeName(conversion.conversionType);
+
+    return (
+      <div
+        key={conversion.conversionId}
+        className="p-4 border rounded-lg bg-white hover:border-gray-300 transition-all duration-200"
+      >
+        {/* 头部信息 */}
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <span className="text-lg">{conversionTypeIcon}</span>
+              <Badge variant="outline" className="text-xs bg-gray-50">
+                {conversionTypeName}
+              </Badge>
+            </div>
+            <div className="flex items-center gap-1 text-sm text-gray-500">
+              <Clock className="h-4 w-4" />
+              {formatTimestamp(conversion.conversionTime)}
+            </div>
+          </div>
+          
+          <div className="text-right">
+            <div className="text-lg font-bold text-green-600">
+              {formatCurrency(conversion.conversionValue)}
+            </div>
+            <div className="text-xs text-gray-500">
+              {conversion.touchpoints.length} 个触点
+            </div>
+          </div>
+        </div>
+
+        {/* 用户和主要归因 */}
+        <div className="mb-3">
+          <div className="flex items-center gap-4 text-sm">
+            <div className="flex items-center gap-1">
+              <Target className="h-4 w-4 text-gray-400" />
+              <span className="text-gray-600">用户:</span>
+              <span className="font-medium text-gray-900">{conversion.userId}</span>
+            </div>
+          </div>
+          
+          <div className="mt-2">
+            <div className="flex items-center gap-2">
+              <Award className="h-4 w-4 text-orange-500" />
+              <span className="text-sm text-gray-600">主要归因来源:</span>
+            </div>
+            <div className="mt-1 flex items-center gap-2">
+              <Badge 
+                variant="outline" 
+                className={`text-xs border ${primaryDisplay.bgColor} ${primaryDisplay.color}`}
+              >
+                <span className="mr-1">{primaryDisplay.icon}</span>
+                {primaryDisplay.text}
+              </Badge>
+              <span className="text-sm font-medium text-gray-900">
+                {primaryDisplay.sourceName}
+              </span>
+              <span className="text-sm text-gray-500">
+                ({primaryDisplay.weight}% 权重)
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* 操作按钮 */}
+        <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+          <div className="text-xs text-gray-500">
+            转化路径: {conversion.touchpoints.map(tp => getScenarioName(tp.scenarioId)).join(' → ')}
+          </div>
+          
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handleViewAttribution(conversion)}
+            className="flex items-center gap-1 text-xs"
+          >
+            <Eye className="h-3 w-3" />
+            查看归因分析
+          </Button>
+        </div>
+      </div>
+    );
+  };
+
+  // 渲染触点时间轴
+  const renderTouchpointTimeline = (touchpoints: TouchPoint[]) => {
+    // 按时间排序
+    const sortedTouchpoints = [...touchpoints].sort((a, b) => 
+      a.timestamp.getTime() - b.timestamp.getTime()
+    );
+
+    return (
+      <div className="space-y-4">
+        {sortedTouchpoints.map((touchpoint, index) => {
+          const sourceDisplay = getDecisionSourceDisplay(touchpoint.decisionSource);
+          
+          return (
+            <div key={touchpoint.logId} className="flex items-start gap-3">
+              {/* 时间轴标记 */}
+              <div className="flex flex-col items-center">
+                <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-bold">
+                  {index + 1}
+                </div>
+                {index < sortedTouchpoints.length - 1 && (
+                  <div className="w-px h-6 bg-gray-300 mt-1"></div>
+                )}
+              </div>
+              
+              {/* 触点内容 */}
+              <div className="flex-1 pb-2">
+                {/* 头部信息 */}
+                <div className="flex items-center gap-2 mb-2">
+                  <Badge 
+                    variant="outline" 
+                    className={`text-xs border ${sourceDisplay.bgColor} ${sourceDisplay.color}`}
+                  >
+                    <span className="mr-1">{sourceDisplay.icon}</span>
+                    {sourceDisplay.text}
+                  </Badge>
+                  <Badge variant="secondary" className="text-xs">
+                    {getScenarioName(touchpoint.scenarioId)}
+                  </Badge>
+                  <span className="text-xs text-orange-600 font-medium">
+                    权重: {touchpoint.attributionWeight}%
+                  </span>
+                </div>
+                
+                {/* 来源名称 */}
+                <div className="mb-1">
+                  <span className="text-sm font-medium text-gray-900">
+                    {touchpoint.sourceName}
+                  </span>
+                </div>
+                
+                {/* 执行动作 */}
+                <div className="mb-2">
+                  <div className="text-sm text-gray-700 bg-gray-50 p-2 rounded">
+                    {touchpoint.actionTaken}
+                  </div>
+                </div>
+                
+                {/* 时间戳 */}
+                <div className="flex items-center gap-1 text-xs text-gray-500">
+                  <Clock className="h-3 w-3" />
+                  {touchpoint.timestamp.toLocaleString('zh-CN')}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
   };
 
   return (
-    <div className="p-6 space-y-6 bg-background min-h-full">
-      {/* 统计卡片 */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                <Target className="h-5 w-5 text-blue-600" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">总转化次数</p>
-                <p className="text-2xl font-bold text-foreground">{stats.totalConversions}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+    <div className="p-6 space-y-6">
+      {/* 页面标题 */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">效果追踪</h1>
+          <p className="text-gray-600 mt-1">精确量化并对比AI策略与自定义规则的营销成果</p>
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => window.location.reload()}
+          className="flex items-center gap-2"
+        >
+          <RefreshCw className="h-4 w-4" />
+          刷新
+        </Button>
+      </div>
 
+      {/* 核心KPI展示 */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        {/* 总转化价值 */}
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
@@ -216,225 +331,276 @@ export default function EffectTracking() {
                 <DollarSign className="h-5 w-5 text-green-600" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">总转化价值</p>
-                <p className="text-2xl font-bold text-foreground">{formatCurrency(stats.totalValue)}</p>
+                <p className="text-sm text-gray-600">总转化价值</p>
+                <p className="text-2xl font-bold text-gray-900">{formatCurrency(stats.totalValue)}</p>
+                <p className="text-xs text-gray-500">{stats.totalConversions} 次转化</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
+        {/* 默认AI贡献价值 */}
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                <TrendingUp className="h-5 w-5 text-purple-600" />
+              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                <Bot className="h-5 w-5 text-blue-600" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">平均转化价值</p>
-                <p className="text-2xl font-bold text-foreground">{formatCurrency(stats.avgValue)}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
-                <BarChart3 className="h-5 w-5 text-orange-600" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">主要来源</p>
-                <p className="text-lg font-bold text-foreground">
-                  {Object.entries(stats.sourceDistribution).sort(([,a], [,b]) => b - a)[0]?.[0] || '-'}
+                <p className="text-sm text-gray-600">默认AI贡献价值</p>
+                <p className="text-2xl font-bold text-blue-700">{formatCurrency(stats.aiContribution)}</p>
+                <p className="text-xs text-gray-500">
+                  {stats.totalValue > 0 ? ((stats.aiContribution / stats.totalValue) * 100).toFixed(1) : 0}% 占比
                 </p>
               </div>
             </div>
           </CardContent>
         </Card>
+
+        {/* 自定义规则贡献价值 */}
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                <Settings className="h-5 w-5 text-purple-600" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">自定义规则贡献价值</p>
+                <p className="text-2xl font-bold text-purple-700">{formatCurrency(stats.customRuleContribution)}</p>
+                <p className="text-xs text-gray-500">
+                  {stats.totalValue > 0 ? ((stats.customRuleContribution / stats.totalValue) * 100).toFixed(1) : 0}% 占比
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* 平均转化价值 */}
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                <TrendingUp className="h-5 w-5 text-orange-600" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">平均转化价值</p>
+                <p className="text-2xl font-bold text-orange-700">{formatCurrency(stats.avgValue)}</p>
+                <p className="text-xs text-gray-500">每次转化</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
-      {/* 筛选器 */}
+      {/* 筛选控制区 */}
       <Card>
-        <CardContent className="p-4">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-              <Input
-                placeholder="搜索用户名..."
-                value={filters.search}
-                onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
-                className="pl-10"
-              />
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Filter className="h-5 w-5 text-blue-600" />
+            多维度筛选
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+            {/* 搜索框 */}
+            <div className="space-y-2">
+              <Label htmlFor="search" className="text-sm font-medium">
+                搜索用户ID或规则名称
+              </Label>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  id="search"
+                  placeholder="输入关键词..."
+                  value={searchText}
+                  onChange={(e) => setSearchText(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
             </div>
-            
-            <Select value={filters.conversionType} onValueChange={(value) => setFilters(prev => ({ ...prev, conversionType: value }))}>
-              <SelectTrigger className="w-full md:w-48">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">所有转化类型</SelectItem>
-                <SelectItem value="purchase">商品购买</SelectItem>
-                <SelectItem value="subscription">会员订阅</SelectItem>
-                <SelectItem value="signup">用户注册</SelectItem>
-                <SelectItem value="download">资源下载</SelectItem>
-              </SelectContent>
-            </Select>
 
-            <Select value={filters.attributionModel} onValueChange={(value) => setFilters(prev => ({ ...prev, attributionModel: value }))}>
-              <SelectTrigger className="w-full md:w-48">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">所有归因模型</SelectItem>
-                <SelectItem value="first-touch">首次触达</SelectItem>
-                <SelectItem value="last-touch">最后触达</SelectItem>
-                <SelectItem value="linear">线性归因</SelectItem>
-                <SelectItem value="time-decay">时间衰减</SelectItem>
-              </SelectContent>
-            </Select>
+            {/* 营销场景筛选 */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">营销场景</Label>
+              <Select value={selectedScenario} onValueChange={setSelectedScenario}>
+                <SelectTrigger>
+                  <SelectValue placeholder="选择场景" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">全部场景</SelectItem>
+                  {MARKETING_SCENARIOS.map(scenario => (
+                    <SelectItem key={scenario.id} value={scenario.id}>
+                      {scenario.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* 决策来源筛选 */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">决策来源</Label>
+              <Select value={selectedDecisionSource} onValueChange={setSelectedDecisionSource}>
+                <SelectTrigger>
+                  <SelectValue placeholder="选择来源" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">全部来源</SelectItem>
+                  <SelectItem value="DEFAULT_AI">默认AI策略</SelectItem>
+                  <SelectItem value="CUSTOM_RULE">自定义规则</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* 转化类型筛选 */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">转化类型</Label>
+              <Select value={selectedConversionType} onValueChange={setSelectedConversionType}>
+                <SelectTrigger>
+                  <SelectValue placeholder="选择类型" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">全部类型</SelectItem>
+                  {CONVERSION_TYPES.map(type => (
+                    <SelectItem key={type.id} value={type.id}>
+                      {type.icon} {type.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* 清空筛选 */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">操作</Label>
+              <Button
+                variant="outline"
+                onClick={clearFilters}
+                className="w-full text-gray-600"
+              >
+                清空筛选
+              </Button>
+            </div>
+          </div>
+
+          {/* 时间范围选择器 */}
+          <div className="mt-4 flex items-center gap-4">
+            <Label className="text-sm font-medium">时间范围:</Label>
+            <AdvancedDateRangePicker
+              value={dateRange}
+              onChange={setDateRange}
+            />
           </div>
         </CardContent>
       </Card>
 
-      {/* 主要内容 */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* 转化列表 */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Users className="h-5 w-5" />
-              转化记录
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-0">
-            <div className="space-y-0">
-              {filteredConversions.map((conversion) => (
-                <div
-                  key={conversion.id}
-                  className={`p-4 border-b border-border cursor-pointer hover:bg-muted/50 transition-colors ${
-                    selectedConversion?.id === conversion.id ? 'bg-muted' : ''
-                  }`}
-                  onClick={() => setSelectedConversion(conversion)}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <p className="font-medium text-foreground">{conversion.userName}</p>
-                        <Badge variant="secondary" className="text-xs">
-                          {conversionTypeMap[conversion.conversionType as keyof typeof conversionTypeMap]}
-                        </Badge>
-                      </div>
-                      <div className="flex items-center gap-4 mt-1 text-sm text-muted-foreground">
-                        <span>{formatDate(conversion.conversionTime)}</span>
-                        <span>{formatCurrency(conversion.conversionValue)}</span>
-                        <span>{conversion.touchpoints.length} 个触点</span>
-                      </div>
-                    </div>
-                    <ArrowRight className="h-4 w-4 text-muted-foreground" />
-                  </div>
-                </div>
-              ))}
+      {/* 转化记录列表 */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <BarChart3 className="h-5 w-5 text-green-600" />
+            转化记录列表
+            <Badge variant="secondary" className="ml-2">
+              {filteredConversions.length} 条记录
+            </Badge>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {filteredConversions.length === 0 ? (
+            <div className="text-center py-12">
+              <Target className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+              <p className="text-gray-500">暂无匹配的转化记录</p>
+              <p className="text-sm text-gray-400 mt-2">尝试调整筛选条件或等待新的转化数据</p>
             </div>
-          </CardContent>
-        </Card>
+          ) : (
+            <div className="space-y-4">
+              {filteredConversions.map(renderConversionEvent)}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
-        {/* 归因分析详情 */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Target className="h-5 w-5" />
+      {/* 归因分析详情对话框 */}
+      <Dialog open={attributionDialog.isOpen} onOpenChange={(open) => {
+        setAttributionDialog({ isOpen: open, conversion: null });
+      }}>
+        <DialogContent className="sm:max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Eye className="h-5 w-5 text-blue-600" />
               归因分析详情
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {selectedConversion ? (
-              <div className="space-y-4">
-                {/* 转化信息 */}
-                <div className="bg-muted/30 rounded-lg p-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-sm text-muted-foreground">用户</p>
-                      <p className="font-medium">{selectedConversion.userName}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">转化价值</p>
-                      <p className="font-medium">{formatCurrency(selectedConversion.conversionValue)}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">归因模型</p>
-                      <p className="font-medium">{attributionModelMap[selectedConversion.attributionModel as keyof typeof attributionModelMap]}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">主要来源</p>
-                      <p className="font-medium">{selectedConversion.campaignSource}</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* 触点时间线 */}
+            </DialogTitle>
+            <DialogDescription>
+              查看完整的转化路径和归因权重分析
+            </DialogDescription>
+          </DialogHeader>
+          
+          {attributionDialog.conversion && (
+            <div className="space-y-6">
+              {/* 转化信息概览 */}
+              <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
                 <div>
-                  <h4 className="font-medium mb-3">用户转化路径</h4>
-                  <div className="space-y-3">
-                    {selectedConversion.touchpoints.map((touchpoint, index) => (
-                      <div key={touchpoint.id} className="flex items-start gap-3">
-                        <div className="flex flex-col items-center">
-                          <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xs font-bold">
-                            {index + 1}
-                          </div>
-                          {index < selectedConversion.touchpoints.length - 1 && (
-                            <div className="w-px h-8 bg-border mt-1"></div>
-                          )}
-                        </div>
-                        <div className="flex-1 pb-4">
-                          <div className="flex items-center gap-2 mb-1">
-                            <Badge className={getTypeColor(touchpoint.type)}>
-                              {touchpoint.mode}
-                            </Badge>
-                            <span className="text-sm text-muted-foreground">
-                              影响权重: {touchpoint.influence}%
-                            </span>
-                          </div>
-                          {touchpoint.strategyName && (
-                            <p className="text-sm font-medium text-foreground mb-1">
-                              {touchpoint.strategyName}
-                            </p>
-                          )}
-                          <p className="text-sm text-muted-foreground mb-1">
-                            触发: {touchpoint.triggerRule}
-                          </p>
-                          <p className="text-sm text-muted-foreground mb-1">
-                            动作: {touchpoint.actionTaken}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {formatDate(touchpoint.timestamp)}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
+                  <Label className="text-sm font-medium text-gray-600">目标用户</Label>
+                  <p className="text-sm font-semibold">{attributionDialog.conversion.userId}</p>
+                </div>
+                <div>
+                  <Label className="text-sm font-medium text-gray-600">转化时间</Label>
+                  <p className="text-sm">{attributionDialog.conversion.conversionTime.toLocaleString('zh-CN')}</p>
+                </div>
+                <div>
+                  <Label className="text-sm font-medium text-gray-600">转化类型</Label>
+                  <div className="flex items-center gap-1">
+                    <span>{getConversionTypeIcon(attributionDialog.conversion.conversionType)}</span>
+                    <span className="text-sm">{getConversionTypeName(attributionDialog.conversion.conversionType)}</span>
                   </div>
                 </div>
-
-                {/* 转化结果 */}
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <ShoppingCart className="h-4 w-4 text-green-600" />
-                    <span className="font-medium text-green-800">转化完成</span>
-                  </div>
-                  <p className="text-sm text-green-700">
-                    {formatDate(selectedConversion.conversionTime)} - {formatCurrency(selectedConversion.conversionValue)}
+                <div>
+                  <Label className="text-sm font-medium text-gray-600">转化价值</Label>
+                  <p className="text-lg font-bold text-green-600">
+                    {formatCurrency(attributionDialog.conversion.conversionValue)}
                   </p>
                 </div>
               </div>
-            ) : (
-              <div className="text-center py-12">
-                <Target className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground">请选择左侧的转化记录查看详细的归因分析</p>
+
+              {/* 主要归因来源 */}
+              <div>
+                <h4 className="font-medium text-gray-900 mb-3">主要归因来源</h4>
+                <div className="p-4 border border-orange-200 bg-orange-50 rounded-lg">
+                  <p className="text-sm text-orange-900 font-medium">
+                    {attributionDialog.conversion.primaryAttribution}
+                  </p>
+                </div>
               </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+
+              {/* 用户转化路径时间轴 */}
+              <div>
+                <h4 className="font-medium text-gray-900 mb-4">用户转化路径</h4>
+                {renderTouchpointTimeline(attributionDialog.conversion.touchpoints)}
+              </div>
+
+              {/* 转化完成标记 */}
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Zap className="h-5 w-5 text-green-600" />
+                  <span className="font-medium text-green-800">转化完成</span>
+                </div>
+                <div className="text-sm text-green-700">
+                  <p>
+                    {attributionDialog.conversion.conversionTime.toLocaleString('zh-CN')} - {' '}
+                    <span className="font-semibold">
+                      {formatCurrency(attributionDialog.conversion.conversionValue)}
+                    </span>
+                  </p>
+                  <p className="mt-1">
+                    转化类型: {getConversionTypeIcon(attributionDialog.conversion.conversionType)} {' '}
+                    {getConversionTypeName(attributionDialog.conversion.conversionType)}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
