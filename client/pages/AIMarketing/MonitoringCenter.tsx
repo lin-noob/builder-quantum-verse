@@ -62,7 +62,7 @@ export default function MonitoringCenter() {
   const [selectedScenario, setSelectedScenario] = useState<string>('all');
   const [selectedDecisionSource, setSelectedDecisionSource] = useState<string>('all');
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
-  const [dateRange, setDateRange] = useState<{from?: Date; to?: Date}>({});
+  const [dateRange, setDateRange] = useState<{start: Date | null; end: Date | null}>({start: null, end: null});
   
   // 对话框状态
   const [undoDialog, setUndoDialog] = useState<{
@@ -488,7 +488,7 @@ export default function MonitoringCenter() {
           
           {snapshotDialog.entry && (
             <div className="space-y-6">
-              {/* 基本信息 */}
+              {/* 基��信息 */}
               <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
                 <div>
                   <Label className="text-sm font-medium text-gray-600">目标用户</Label>
