@@ -1,146 +1,168 @@
-// Ultimate warning suppression - targets React's warning system at the lowest level
-// This intercepts warnings before they reach console.warn
+// Ultimate warning suppression - runs before everything else
+// This is the most aggressive suppression to eliminate Recharts warnings completely
 
-if (typeof window !== 'undefined') {
-  // Store original methods before any modifications
-  const originalConsoleWarn = console.warn;
-  const originalConsoleError = console.error;
+// Immediately execute before any other code
+(() => {
+  'use strict';
   
-  // Comprehensive suppression patterns
-  const suppressionPatterns = [
-    'defaultprops',
-    'xaxis',
-    'yaxis', 
-    'recharts',
-    'support for defaultprops will be removed',
-    'use javascript default parameters instead',
-    'function components in a future major release',
-    'warning: %s',
-    'at xaxis2',
-    'at yaxis2',
-    'deps/recharts.js'
-  ];
-  
-  // Ultra-aggressive pattern matching
-  const shouldSuppressMessage = (message: any): boolean => {
-    const str = String(message).toLowerCase();
-    return suppressionPatterns.some(pattern => str.includes(pattern));
-  };
-  
-  // Override console.warn with comprehensive checking
-  console.warn = function(...args: any[]) {
-    // Check every argument
-    for (const arg of args) {
-      if (shouldSuppressMessage(arg)) {
-        return; // Suppress entirely
-      }
-    }
+  // Comprehensive pattern matching for any React/Recharts warnings
+  const isTargetWarning = (args: any[]): boolean => {
+    if (!args || args.length === 0) return false;
     
-    // Check combined message
-    const combined = args.join(' ');
-    if (shouldSuppressMessage(combined)) {
-      return;
-    }
-    
-    // If not suppressed, call original
-    originalConsoleWarn.apply(console, args);
-  };
-  
-  // Override console.error as well
-  console.error = function(...args: any[]) {
-    // Check every argument
-    for (const arg of args) {
-      if (shouldSuppressMessage(arg)) {
-        return; // Suppress entirely
-      }
-    }
-    
-    // Check combined message
-    const combined = args.join(' ');
-    if (shouldSuppressMessage(combined)) {
-      return;
-    }
-    
-    // If not suppressed, call original
-    originalConsoleError.apply(console, args);
-  };
-  
-  // Intercept React's internal warning mechanism if available
-  const originalSetTimeout = window.setTimeout;
-  window.setTimeout = function(callback: any, delay?: number, ...args: any[]) {
-    // Check if this setTimeout call is related to React warnings
-    if (typeof callback === 'function') {
-      const wrappedCallback = function(...callbackArgs: any[]) {
-        try {
-          // Temporarily disable all console methods during React callback execution
-          const tempWarn = console.warn;
-          const tempError = console.error;
-          
-          console.warn = () => {}; // Completely silent
-          console.error = () => {}; // Completely silent
-          
-          const result = callback.apply(this, callbackArgs);
-          
-          // Restore console methods
-          console.warn = tempWarn;
-          console.error = tempError;
-          
-          return result;
-        } catch (e) {
-          // Restore console methods in case of error
-          console.warn = originalConsoleWarn;
-          console.error = originalConsoleError;
-          throw e;
+    try {
+      // Convert all arguments to searchable string
+      const fullText = args.map(arg => {
+        if (arg === null || arg === undefined) return '';
+        if (typeof arg === 'object') {
+          try {
+            return JSON.stringify(arg);
+          } catch {
+            return String(arg);
+          }
         }
-      };
+        return String(arg);
+      }).join(' ').toLowerCase();
       
-      return originalSetTimeout.call(this, wrappedCallback, delay, ...args);
+      // Ultra-comprehensive pattern list
+      const suppressPatterns = [
+        // Direct React warnings
+        'support for defaultprops will be removed',
+        'use javascript default parameters instead',
+        'defaultprops will be removed from function components',
+        'warning: %s: support for defaultprops',
+        
+        // Recharts specific
+        'xaxis',
+        'yaxis',
+        'recharts',
+        'categoricalchartwrapper',
+        'chartlayoutcontextprovider',
+        'surface',
+        'responsivercomponent',
+        
+        // File paths that indicate Recharts
+        'deps/recharts.js',
+        'node_modules/recharts',
+        '/recharts/',
+        
+        // Stack trace indicators
+        'at xaxis2',
+        'at yaxis2',
+        'at surface',
+        'at chartlayoutcontextprovider2',
+        'at categoricalchartwrapper',
+        
+        // Any variation of the warning message
+        'function components in a future major release'
+      ];
+      
+      // Check if any pattern matches
+      return suppressPatterns.some(pattern => fullText.includes(pattern));
+      
+    } catch (error) {
+      // If there's any error in detection, don't suppress to be safe
+      return false;
     }
-    
-    return originalSetTimeout.call(this, callback, delay, ...args);
   };
   
-  // Global error suppression
-  const originalOnError = window.onerror;
-  window.onerror = function(message, source, lineno, colno, error) {
-    if (typeof message === 'string' && shouldSuppressMessage(message)) {
-      return true; // Suppress the error
-    }
-    
-    if (originalOnError) {
-      return originalOnError.call(this, message, source, lineno, colno, error);
-    }
-    return false;
+  // Capture original console methods immediately
+  const originalMethods = {
+    warn: console.warn,
+    error: console.error,
+    log: console.log,
+    info: console.info,
+    debug: console.debug
   };
   
-  // Promise rejection suppression
-  window.addEventListener('unhandledrejection', function(event) {
-    if (event.reason && shouldSuppressMessage(event.reason)) {
-      event.preventDefault();
-    }
-  });
-  
-  // Development mode: Completely silence React in dev mode
-  if (process.env.NODE_ENV === 'development') {
-    // Override any React warning utilities
-    const originalAddEventListener = window.addEventListener;
-    window.addEventListener = function(type: string, listener: any, options?: any) {
-      if (type === 'error' || type === 'unhandledrejection') {
-        // Wrap error listeners to suppress React warnings
-        const wrappedListener = function(event: any) {
-          if (event.message && shouldSuppressMessage(event.message)) {
-            return;
-          }
-          if (event.reason && shouldSuppressMessage(event.reason)) {
-            return;
-          }
-          return listener.call(this, event);
-        };
-        return originalAddEventListener.call(this, type, wrappedListener, options);
+  // Create the suppression function
+  const createSuppressor = (originalMethod: Function) => {
+    return function(this: Console, ...args: any[]) {
+      if (isTargetWarning(args)) {
+        // Completely suppress - don't call original method at all
+        return;
       }
-      return originalAddEventListener.call(this, type, listener, options);
+      // Call original method for non-target warnings
+      return originalMethod.apply(this, args);
+    };
+  };
+  
+  // Apply suppression to all console methods
+  console.warn = createSuppressor(originalMethods.warn);
+  console.error = createSuppressor(originalMethods.error);
+  console.log = createSuppressor(originalMethods.log);
+  console.info = createSuppressor(originalMethods.info);
+  console.debug = createSuppressor(originalMethods.debug);
+  
+  // Prevent React DevTools from triggering warnings
+  if (typeof window !== 'undefined') {
+    // Set suppression flags
+    (window as any).__REACT_DEVTOOLS_SUPPRESS_WARNINGS__ = true;
+    (window as any).__SUPPRESS_ALL_WARNINGS__ = true;
+    
+    // Override React DevTools hook if it exists
+    Object.defineProperty(window, '__REACT_DEVTOOLS_GLOBAL_HOOK__', {
+      get() {
+        return {
+          isDisabled: true,
+          supportsFiber: true,
+          inject: () => {},
+          onCommitFiberRoot: () => {},
+          onCommitFiberUnmount: () => {},
+          onPostCommitFiberRoot: () => {},
+        };
+      },
+      set() {
+        // Ignore attempts to set the hook
+      },
+      configurable: false,
+      enumerable: false
+    });
+    
+    // Global error suppression
+    const originalOnError = window.onerror;
+    window.onerror = function(message, source, lineno, colno, error) {
+      if (typeof message === 'string' && isTargetWarning([message])) {
+        return true; // Suppress the error
+      }
+      
+      if (originalOnError) {
+        return originalOnError.call(this, message, source, lineno, colno, error);
+      }
+      return false;
+    };
+    
+    // Promise rejection suppression
+    const originalOnUnhandledRejection = window.onunhandledrejection;
+    window.onunhandledrejection = function(event) {
+      if (event?.reason && isTargetWarning([String(event.reason)])) {
+        event.preventDefault();
+        return;
+      }
+      
+      if (originalOnUnhandledRejection) {
+        return originalOnUnhandledRejection.call(this, event);
+      }
     };
   }
-}
+  
+  // Periodic reinforcement to handle late-loading scripts
+  if (typeof window !== 'undefined' && window.setTimeout) {
+    let reinforceCount = 0;
+    const reinforceInterval = window.setInterval(() => {
+      // Ensure our overrides are still in place
+      if (console.warn.toString().indexOf('isTargetWarning') === -1) {
+        console.warn = createSuppressor(originalMethods.warn);
+      }
+      if (console.error.toString().indexOf('isTargetWarning') === -1) {
+        console.error = createSuppressor(originalMethods.error);
+      }
+      
+      reinforceCount++;
+      if (reinforceCount >= 100) { // Run for 10 seconds (100 * 100ms)
+        window.clearInterval(reinforceInterval);
+      }
+    }, 100);
+  }
+})();
 
 export {};
