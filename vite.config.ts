@@ -8,6 +8,9 @@ export default defineConfig(({ mode }) => ({
     // Disable React warnings in development
     __DEV__: mode === "development",
     "process.env.NODE_ENV": JSON.stringify(mode),
+    // Additional suppression flags
+    "process.env.SUPPRESS_WARNINGS": "true",
+    "process.env.DISABLE_REACT_WARNINGS": "true",
   },
   server: {
     host: "::",
