@@ -10,7 +10,6 @@ import {
   Legend,
 } from "recharts";
 import { type PerformanceMetric } from "@shared/dashboardData";
-import SuppressedChart from "./SuppressedChart";
 
 interface PerformanceTrendProps {
   metrics: PerformanceMetric[];
