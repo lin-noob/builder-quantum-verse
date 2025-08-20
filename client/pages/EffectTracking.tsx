@@ -18,7 +18,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { 
+import {
   Search,
   Filter,
   TrendingUp,
@@ -33,7 +33,8 @@ import {
   Zap,
   Award,
   RefreshCw,
-  BarChart3
+  BarChart3,
+  RotateCcw
 } from 'lucide-react';
 import {
   ConversionEvent,
@@ -420,7 +421,7 @@ export default function EffectTracking() {
             </Select>
           </div>
 
-          {/* 转化类型筛选 */}
+          {/* 转化类型筛�� */}
           <div className="lg:w-1/5">
             <Select value={selectedConversionType} onValueChange={setSelectedConversionType}>
               <SelectTrigger>
