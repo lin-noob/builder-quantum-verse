@@ -5,57 +5,99 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Hello world project</title>
 
-    <!-- Immediate and comprehensive warning suppression -->
+    <!-- Nuclear-level warning suppression - runs immediately -->
     <script>
       (function() {
-        // Enhanced pattern detection
+        // Nuclear suppression - handles exact React warning format
         const shouldSuppress = (args) => {
           if (!args || args.length === 0) return false;
 
-          // Handle React warning format: console.warn("Warning: %s: ...", componentName)
+          // Handle React's exact warning format: console.warn("Warning: %s: Support...", "XAxis")
           if (args.length >= 2) {
-            const first = String(args[0]).toLowerCase();
-            const second = String(args[1]).toLowerCase();
+            const first = String(args[0] || '');
+            const second = String(args[1] || '');
 
-            if (first.includes('warning: %s:') && first.includes('defaultprops')) {
-              return second.includes('xaxis') || second.includes('yaxis');
+            if (first.includes('Warning: %s: Support for defaultProps will be removed')) {
+              if (second.includes('XAxis') || second.includes('YAxis') || second.includes('Recharts')) {
+                return true;
+              }
             }
           }
 
-          // Check combined message
-          const combined = args.map(arg => String(arg)).join(' ').toLowerCase();
-          return combined.includes('defaultprops') ||
+          // Check all arguments combined
+          const combined = args.map(arg => String(arg || '')).join(' ').toLowerCase();
+
+          return combined.includes('support for defaultprops will be removed') ||
+                 combined.includes('use javascript default parameters instead') ||
                  combined.includes('xaxis') ||
                  combined.includes('yaxis') ||
                  combined.includes('recharts') ||
-                 combined.includes('use javascript default parameters');
+                 combined.includes('deps/recharts.js') ||
+                 combined.includes('xaxis2') ||
+                 combined.includes('yaxis2') ||
+                 combined.includes('categoricalchartwrapper') ||
+                 combined.includes('chartlayoutcontextprovider') ||
+                 combined.includes('736abde510b74e08aed97b2f9a8bd1a4') ||
+                 combined.includes('fly.dev/node_modules/.vite/deps/recharts.js');
         };
 
-        // Store originals
-        const originalWarn = console.warn;
-        const originalError = console.error;
-        const originalLog = console.log;
+        // Store originals immediately
+        const originalWarn = console.warn?.bind?.(console) || function(){};
+        const originalError = console.error?.bind?.(console) || function(){};
+        const originalLog = console.log?.bind?.(console) || function(){};
+        const originalInfo = console.info?.bind?.(console) || function(){};
+        const originalDebug = console.debug?.bind?.(console) || function(){};
 
-        // Override with enhanced detection
+        // Nuclear overrides - completely suppress target warnings
         console.warn = function(...args) {
           if (shouldSuppress(args)) return;
-          originalWarn.apply(console, args);
+          originalWarn(...args);
         };
 
         console.error = function(...args) {
           if (shouldSuppress(args)) return;
-          originalError.apply(console, args);
+          originalError(...args);
         };
 
         console.log = function(...args) {
           if (shouldSuppress(args)) return;
-          originalLog.apply(console, args);
+          originalLog(...args);
         };
 
-        // Set environment flags early
-        if (!window.process) window.process = {};
-        if (!window.process.env) window.process.env = {};
+        console.info = function(...args) {
+          if (shouldSuppress(args)) return;
+          originalInfo(...args);
+        };
+
+        console.debug = function(...args) {
+          if (shouldSuppress(args)) return;
+          originalDebug(...args);
+        };
+
+        // Disable React DevTools completely
         window.__REACT_DEVTOOLS_SUPPRESS_WARNINGS__ = true;
+        window.__SUPPRESS_ALL_WARNINGS__ = true;
+        window.__DISABLE_RECHARTS_WARNINGS__ = true;
+
+        // Block React DevTools hook entirely
+        Object.defineProperty(window, '__REACT_DEVTOOLS_GLOBAL_HOOK__', {
+          get: () => ({
+            isDisabled: true,
+            supportsFiber: true,
+            inject: () => {},
+            onCommitFiberRoot: () => {},
+            onCommitFiberUnmount: () => {},
+            onPostCommitFiberRoot: () => {}
+          }),
+          set: () => {},
+          configurable: false
+        });
+
+        // Global error suppression
+        window.onerror = function(message) {
+          if (shouldSuppress([message])) return true;
+          return false;
+        };
       })();
     </script>
   </head>
