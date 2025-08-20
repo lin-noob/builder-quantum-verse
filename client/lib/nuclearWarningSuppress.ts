@@ -123,14 +123,57 @@
     (window as any).__SUPPRESS_ALL_WARNINGS__ = true;
     (window as any).__DISABLE_RECHARTS_WARNINGS__ = true;
     
-    // Completely disable React DevTools hook to prevent warnings
-    let devToolsHookDisabled = false;
-    
-    Object.defineProperty(window, '__REACT_DEVTOOLS_GLOBAL_HOOK__', {
-      get() {
-        if (!devToolsHookDisabled) {
-          devToolsHookDisabled = true;
-          return {
+    // Safely handle React DevTools hook to prevent warnings
+    try {
+      // Check if the property already exists and is configurable
+      const descriptor = Object.getOwnPropertyDescriptor(window, '__REACT_DEVTOOLS_GLOBAL_HOOK__');
+
+      if (!descriptor || descriptor.configurable) {
+        // Property doesn't exist or is configurable, safe to define
+        Object.defineProperty(window, '__REACT_DEVTOOLS_GLOBAL_HOOK__', {
+          get() {
+            return {
+              isDisabled: true,
+              supportsFiber: true,
+              inject() { /* noop */ },
+              onCommitFiberRoot() { /* noop */ },
+              onCommitFiberUnmount() { /* noop */ },
+              onPostCommitFiberRoot() { /* noop */ },
+              checkDCE() { /* noop */ },
+              onScheduleFiberRoot() { /* noop */ },
+              setStrictMode() { /* noop */ }
+            };
+          },
+          set() {
+            // Ignore all attempts to set the DevTools hook
+          },
+          configurable: true,
+          enumerable: false
+        });
+      } else if (descriptor && !descriptor.configurable) {
+        // Property exists and is not configurable, try to modify existing hook
+        const existingHook = window.__REACT_DEVTOOLS_GLOBAL_HOOK__;
+        if (existingHook && typeof existingHook === 'object') {
+          // Safely override methods if the hook exists
+          try {
+            existingHook.onCommitFiberRoot = () => {};
+            existingHook.onCommitFiberUnmount = () => {};
+            existingHook.onPostCommitFiberRoot = () => {};
+            existingHook.inject = () => {};
+            existingHook.checkDCE = () => {};
+            existingHook.onScheduleFiberRoot = () => {};
+            existingHook.setStrictMode = () => {};
+            existingHook.isDisabled = true;
+          } catch (e) {
+            // If we can't modify the existing hook, that's ok
+          }
+        }
+      }
+    } catch (e) {
+      // If all else fails, try to set the hook directly if possible
+      try {
+        if (!(window as any).__REACT_DEVTOOLS_GLOBAL_HOOK__) {
+          (window as any).__REACT_DEVTOOLS_GLOBAL_HOOK__ = {
             isDisabled: true,
             supportsFiber: true,
             inject() { /* noop */ },
@@ -142,15 +185,10 @@
             setStrictMode() { /* noop */ }
           };
         }
-        return undefined;
-      },
-      set() {
-        // Ignore all attempts to set the DevTools hook
-        devToolsHookDisabled = true;
-      },
-      configurable: false,
-      enumerable: false
-    });
+      } catch (e2) {
+        // If we can't set the hook at all, that's fine - other suppression layers will handle it
+      }
+    }
     
     // Override React's internal warning mechanism if it exists
     try {
