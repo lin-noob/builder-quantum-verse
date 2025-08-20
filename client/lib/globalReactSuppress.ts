@@ -75,20 +75,7 @@ if (typeof window !== 'undefined') {
     // Silently ignore if we can't modify the hook
   }
   
-  // Suppress React warnings at the source
-  const originalObjectDefineProperty = Object.defineProperty;
-  try {
-    Object.defineProperty = function(obj: any, prop: string, descriptor: PropertyDescriptor) {
-      // Intercept React's warning system setup
-      if (prop === 'warn' && obj === console) {
-        descriptor.value = console.warn; // Use our overridden version
-      }
-      return originalObjectDefineProperty.call(this, obj, prop, descriptor);
-    };
-  } catch (e) {
-    // Restore original if override fails
-    Object.defineProperty = originalObjectDefineProperty;
-  }
+  // Note: Removed risky Object.defineProperty override to prevent conflicts
 }
 
 export {};
