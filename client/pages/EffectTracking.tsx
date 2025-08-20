@@ -304,7 +304,7 @@ export default function EffectTracking() {
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-6 bg-gray-50 min-h-full">
       {/* 核心KPI展示 */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {/* 总转化价值 */}
@@ -421,7 +421,7 @@ export default function EffectTracking() {
             </Select>
           </div>
 
-          {/* 转化类型筛�� */}
+          {/* 转化类型筛选 */}
           <div className="lg:w-1/5">
             <Select value={selectedConversionType} onValueChange={setSelectedConversionType}>
               <SelectTrigger>
