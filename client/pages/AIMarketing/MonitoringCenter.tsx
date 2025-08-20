@@ -381,7 +381,6 @@ export default function MonitoringCenter() {
               <AdvancedDateRangePicker
                 value={dateRange}
                 onChange={setDateRange}
-                placeholder="选择时间范围"
               />
             </div>
             
@@ -398,7 +397,7 @@ export default function MonitoringCenter() {
         </CardContent>
       </Card>
 
-      {/* 实时日志流 */}
+      {/* ��时日志流 */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -437,7 +436,7 @@ export default function MonitoringCenter() {
               确认撤销操作
             </DialogTitle>
             <DialogDescription className="text-left">
-              您确定要撤销针对用户{' '}
+              您确定要���销针对用户{' '}
               <span className="font-semibold text-gray-900">{undoDialog.entry?.userId}</span>{' '}
               的操作吗？
               <br />
