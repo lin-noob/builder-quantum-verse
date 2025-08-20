@@ -42,7 +42,7 @@ export default function TabManager() {
   const [canScrollRight, setCanScrollRight] = useState(false);
   const tabsContainerRef = useRef<HTMLDivElement>(null);
 
-  // 页面路径到标题的映射
+  // 页面路��到标题的映射
   const pathToTitle = {
     "/dashboard": "仪表盘",
     "/": "仪表盘",
@@ -134,7 +134,12 @@ export default function TabManager() {
             "add_to_cart": "加入购物车",
             "view_product": "查看商品",
             "user_signup": "用户注册",
-            "user_login": "用户登录"
+            "user_login": "用户登录",
+            "start_checkout": "开始结账",
+            "purchase": "完成购买",
+            "search": "执行搜索",
+            "exit_intent": "离开意图",
+            "submit_form": "提交表单"
           };
           title = scenarioNames[scenarioId as keyof typeof scenarioNames] || "AI营销场景";
         } else if (currentPath.includes("/response-actions")) {
