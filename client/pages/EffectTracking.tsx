@@ -159,7 +159,6 @@ export default function EffectTracking() {
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2">
-              <span className="text-lg">{conversionTypeIcon}</span>
               <Badge variant="outline" className="text-xs bg-gray-50">
                 {conversionTypeName}
               </Badge>
@@ -196,11 +195,10 @@ export default function EffectTracking() {
               <span className="text-sm text-gray-600">主要归因来源:</span>
             </div>
             <div className="mt-1 flex items-center gap-2">
-              <Badge 
-                variant="outline" 
+              <Badge
+                variant="outline"
                 className={`text-xs border ${primaryDisplay.bgColor} ${primaryDisplay.color}`}
               >
-                <span className="mr-1">{primaryDisplay.icon}</span>
                 {primaryDisplay.text}
               </Badge>
               <span className="text-sm font-medium text-gray-900">
@@ -226,7 +224,7 @@ export default function EffectTracking() {
             className="flex items-center gap-1 text-xs"
           >
             <Eye className="h-3 w-3" />
-            查看归因分析
+            查看归因分���
           </Button>
         </div>
       </div>
@@ -261,11 +259,10 @@ export default function EffectTracking() {
               <div className="flex-1 pb-2">
                 {/* 头部信息 */}
                 <div className="flex items-center gap-2 mb-2">
-                  <Badge 
-                    variant="outline" 
+                  <Badge
+                    variant="outline"
                     className={`text-xs border ${sourceDisplay.bgColor} ${sourceDisplay.color}`}
                   >
-                    <span className="mr-1">{sourceDisplay.icon}</span>
                     {sourceDisplay.text}
                   </Badge>
                   <Badge variant="secondary" className="text-xs">
@@ -420,7 +417,7 @@ export default function EffectTracking() {
                 <SelectItem value="all">全部类型</SelectItem>
                 {CONVERSION_TYPES.map(type => (
                   <SelectItem key={type.id} value={type.id}>
-                    {type.icon} {type.name}
+                    {type.name}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -519,7 +516,6 @@ export default function EffectTracking() {
                 <div>
                   <Label className="text-sm font-medium text-gray-600">转化类型</Label>
                   <div className="flex items-center gap-1">
-                    <span>{getConversionTypeIcon(attributionDialog.conversion.conversionType)}</span>
                     <span className="text-sm">{getConversionTypeName(attributionDialog.conversion.conversionType)}</span>
                   </div>
                 </div>
@@ -561,8 +557,7 @@ export default function EffectTracking() {
                     </span>
                   </p>
                   <p className="mt-1">
-                    转化类型: {getConversionTypeIcon(attributionDialog.conversion.conversionType)} {' '}
-                    {getConversionTypeName(attributionDialog.conversion.conversionType)}
+                    转化类型: {getConversionTypeName(attributionDialog.conversion.conversionType)}
                   </p>
                 </div>
               </div>
