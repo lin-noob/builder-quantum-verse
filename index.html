@@ -4,6 +4,39 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Hello world project</title>
+
+    <!-- Early warning suppression before React loads -->
+    <script>
+      (function() {
+        if (typeof console !== 'undefined') {
+          const originalWarn = console.warn;
+          const originalError = console.error;
+
+          const suppressPatterns = [
+            'defaultprops', 'xaxis', 'yaxis', 'recharts',
+            'support for defaultprops will be removed',
+            'use javascript default parameters instead',
+            'function components in a future major release',
+            'warning: %s', 'deps/recharts.js'
+          ];
+
+          const shouldSuppress = (msg) => {
+            const str = String(msg).toLowerCase();
+            return suppressPatterns.some(p => str.includes(p));
+          };
+
+          console.warn = function(...args) {
+            if (args.some(shouldSuppress) || shouldSuppress(args.join(' '))) return;
+            originalWarn.apply(console, args);
+          };
+
+          console.error = function(...args) {
+            if (args.some(shouldSuppress) || shouldSuppress(args.join(' '))) return;
+            originalError.apply(console, args);
+          };
+        }
+      })();
+    </script>
   </head>
 
   <body>
