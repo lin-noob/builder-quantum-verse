@@ -153,7 +153,7 @@ const ScenarioConfig = () => {
       });
 
       toast({
-        title: newState ? "规则已启用" : "规则已停用",
+        title: newState ? "规则已启用" : "规则���停用",
         description: `自定义规则「${rule.ruleName}」已${newState ? "启用" : "停用"}`,
       });
     } catch (error) {
@@ -276,15 +276,25 @@ const ScenarioConfig = () => {
                   <Bot className="h-5 w-5 text-primary" />
                   AI策略配置
                 </CardTitle>
-                <Switch
-                  checked={scenario.isAIEnabled}
-                  onCheckedChange={handleAIToggle}
-                />
+                <div className="flex items-center gap-3">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setAiStrategyModalOpen(true)}
+                  >
+                    <Edit className="h-4 w-4 mr-1" />
+                    编辑配置
+                  </Button>
+                  <Switch
+                    checked={scenario.isAIEnabled}
+                    onCheckedChange={handleAIToggle}
+                  />
+                </div>
               </div>
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
-                {/* ���策维度详情 - 只读展示 */}
+                {/* 决策维度详情 - 只读展示 */}
                 <div>
                   <Tabs defaultValue="0" className="w-full">
                     <TabsList className="grid w-full grid-cols-3">
@@ -476,7 +486,7 @@ const ScenarioConfig = () => {
                 <div className="flex items-start gap-3">
                   <TrendingUp className="h-4 w-4 text-purple-500 mt-0.5" />
                   <div>
-                    <div className="font-medium text-foreground">���果追踪</div>
+                    <div className="font-medium text-foreground">效果追踪</div>
                     <div>记录所有动作效果，供您分析优化。</div>
                   </div>
                 </div>
