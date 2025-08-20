@@ -5,36 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Hello world project</title>
 
-    <!-- Early warning suppression before React loads -->
+    <!-- Immediate warning suppression -->
     <script>
       (function() {
-        if (typeof console !== 'undefined') {
-          const originalWarn = console.warn;
-          const originalError = console.error;
+        const originalWarn = console.warn;
+        const originalError = console.error;
 
-          const suppressPatterns = [
-            'defaultprops', 'xaxis', 'yaxis', 'recharts',
-            'support for defaultprops will be removed',
-            'use javascript default parameters instead',
-            'function components in a future major release',
-            'warning: %s', 'deps/recharts.js'
-          ];
+        console.warn = function(...args) {
+          const text = args.join(' ');
+          if (text.includes('defaultProps') ||
+              text.includes('XAxis') ||
+              text.includes('YAxis') ||
+              text.includes('recharts')) return;
+          originalWarn.apply(console, args);
+        };
 
-          const shouldSuppress = (msg) => {
-            const str = String(msg).toLowerCase();
-            return suppressPatterns.some(p => str.includes(p));
-          };
-
-          console.warn = function(...args) {
-            if (args.some(shouldSuppress) || shouldSuppress(args.join(' '))) return;
-            originalWarn.apply(console, args);
-          };
-
-          console.error = function(...args) {
-            if (args.some(shouldSuppress) || shouldSuppress(args.join(' '))) return;
-            originalError.apply(console, args);
-          };
-        }
+        console.error = function(...args) {
+          const text = args.join(' ');
+          if (text.includes('defaultProps') ||
+              text.includes('XAxis') ||
+              text.includes('YAxis') ||
+              text.includes('recharts')) return;
+          originalError.apply(console, args);
+        };
       })();
     </script>
   </head>
