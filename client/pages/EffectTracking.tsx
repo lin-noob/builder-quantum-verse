@@ -147,7 +147,6 @@ export default function EffectTracking() {
   // 渲染转化事件
   const renderConversionEvent = (conversion: ConversionEvent) => {
     const primaryDisplay = getPrimaryAttributionDisplay(conversion);
-    const conversionTypeIcon = getConversionTypeIcon(conversion.conversionType);
     const conversionTypeName = getConversionTypeName(conversion.conversionType);
 
     return (
@@ -195,8 +194,8 @@ export default function EffectTracking() {
               <span className="text-sm text-gray-600">主要归因来源:</span>
             </div>
             <div className="mt-1 flex items-center gap-2">
-              <Badge
-                variant="outline"
+              <Badge 
+                variant="outline" 
                 className={`text-xs border ${primaryDisplay.bgColor} ${primaryDisplay.color}`}
               >
                 {primaryDisplay.text}
@@ -224,7 +223,7 @@ export default function EffectTracking() {
             className="flex items-center gap-1 text-xs"
           >
             <Eye className="h-3 w-3" />
-            查看归因分���
+            查看归因分析
           </Button>
         </div>
       </div>
@@ -400,7 +399,7 @@ export default function EffectTracking() {
                 <SelectValue placeholder="决策来源" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">全部来源</SelectItem>
+                <SelectItem value="all">全���来源</SelectItem>
                 <SelectItem value="DEFAULT_AI">默认AI策略</SelectItem>
                 <SelectItem value="CUSTOM_RULE">自定义规则</SelectItem>
               </SelectContent>
