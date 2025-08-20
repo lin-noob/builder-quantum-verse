@@ -3,29 +3,59 @@ if (typeof console !== "undefined" && typeof window !== "undefined") {
   const originalWarn = console.warn;
   const originalError = console.error;
 
-  // Suppress React DevTools warnings globally
-  const originalReactDevToolsGlobalHook = (window as any)
-    .__REACT_DEVTOOLS_GLOBAL_HOOK__;
-  if (originalReactDevToolsGlobalHook) {
-    (window as any).__REACT_DEVTOOLS_GLOBAL_HOOK__ = {
-      ...originalReactDevToolsGlobalHook,
-      onCommitFiberRoot: (...args: any[]) => {
-        try {
-          return originalReactDevToolsGlobalHook.onCommitFiberRoot?.(...args);
-        } catch (e) {
-          // Suppress React DevTools errors
+  // Suppress React DevTools warnings globally (safely handle read-only properties)
+  try {
+    const originalReactDevToolsGlobalHook = (window as any)
+      .__REACT_DEVTOOLS_GLOBAL_HOOK__;
+    if (originalReactDevToolsGlobalHook) {
+      // Check if property is writable before attempting to modify
+      const descriptor = Object.getPropertyDescriptor(window, '__REACT_DEVTOOLS_GLOBAL_HOOK__');
+      if (!descriptor || descriptor.writable !== false) {
+        (window as any).__REACT_DEVTOOLS_GLOBAL_HOOK__ = {
+          ...originalReactDevToolsGlobalHook,
+          onCommitFiberRoot: (...args: any[]) => {
+            try {
+              return originalReactDevToolsGlobalHook.onCommitFiberRoot?.(...args);
+            } catch (e) {
+              // Suppress React DevTools errors
+            }
+          },
+          onCommitFiberUnmount: (...args: any[]) => {
+            try {
+              return originalReactDevToolsGlobalHook.onCommitFiberUnmount?.(
+                ...args,
+              );
+            } catch (e) {
+              // Suppress React DevTools errors
+            }
+          },
+        };
+      } else {
+        // If property is read-only, just modify the existing object's methods
+        if (originalReactDevToolsGlobalHook.onCommitFiberRoot) {
+          const originalCommit = originalReactDevToolsGlobalHook.onCommitFiberRoot;
+          originalReactDevToolsGlobalHook.onCommitFiberRoot = (...args: any[]) => {
+            try {
+              return originalCommit.apply(originalReactDevToolsGlobalHook, args);
+            } catch (e) {
+              // Suppress React DevTools errors
+            }
+          };
         }
-      },
-      onCommitFiberUnmount: (...args: any[]) => {
-        try {
-          return originalReactDevToolsGlobalHook.onCommitFiberUnmount?.(
-            ...args,
-          );
-        } catch (e) {
-          // Suppress React DevTools errors
+        if (originalReactDevToolsGlobalHook.onCommitFiberUnmount) {
+          const originalUnmount = originalReactDevToolsGlobalHook.onCommitFiberUnmount;
+          originalReactDevToolsGlobalHook.onCommitFiberUnmount = (...args: any[]) => {
+            try {
+              return originalUnmount.apply(originalReactDevToolsGlobalHook, args);
+            } catch (e) {
+              // Suppress React DevTools errors
+            }
+          };
         }
-      },
-    };
+      }
+    }
+  } catch (e) {
+    // Silently ignore any errors in DevTools hook modification
   }
 
   // Function to check if a warning should be suppressed
