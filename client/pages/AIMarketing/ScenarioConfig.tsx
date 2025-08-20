@@ -153,7 +153,7 @@ const ScenarioConfig = () => {
       });
 
       toast({
-        title: newState ? "规则已启用" : "规则���停用",
+        title: newState ? "规则已启用" : "规则已停用",
         description: `自定义规则「${rule.ruleName}」已${newState ? "启用" : "停用"}`,
       });
     } catch (error) {
@@ -382,25 +382,6 @@ const ScenarioConfig = () => {
 
         {/* 右侧信息 */}
         <div className="space-y-6">
-          {/* AI配置操作 */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg font-semibold">AI配置操作</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Button
-                onClick={() => setAiStrategyModalOpen(true)}
-                className="w-full"
-              >
-                <Edit className="h-4 w-4 mr-2" />
-                编辑AI策略配置
-              </Button>
-              <p className="text-xs text-muted-foreground mt-2">
-                修改营销方式、营销时机、营销内容等策略配置
-              </p>
-            </CardContent>
-          </Card>
-
           {/* 基础信息卡片 */}
           <Card>
             <CardHeader>
@@ -496,7 +477,7 @@ const ScenarioConfig = () => {
         </div>
       </div>
 
-      {/* 规则构建器模态��� */}
+      {/* 规则构建器模态���� */}
       <RuleBuilderModal
         open={ruleBuilderOpen}
         onClose={() => {
