@@ -35,14 +35,14 @@ import {
   PauseCircle
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { 
-  MarketingScenario, 
-  ActionType, 
-  TimingStrategy, 
+import {
+  MarketingScenario,
+  ActionType,
+  TimingStrategy,
   ContentStrategy,
   getMarketingScenarios,
-  updateMarketingScenario 
-} from '@/shared/aiMarketingScenarioData';
+  updateMarketingScenario
+} from '../../../shared/aiMarketingScenarioData';
 
 export default function ScenarioConfiguration() {
   const [scenarios, setScenarios] = useState<MarketingScenario[]>([]);
