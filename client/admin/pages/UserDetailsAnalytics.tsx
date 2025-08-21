@@ -29,7 +29,7 @@ import {
   Mail
 } from 'lucide-react';
 
-// 用户行为数据类型定义
+// 用户行为���据类型定义
 interface UserAnalytics {
   userId: string;
   basicInfo: {
@@ -169,14 +169,17 @@ const mockUserAnalytics: UserAnalytics = {
       { hour: 16, activity: 54 }
     ],
     commonPaths: [
-      { path: '登录 → 用户管理 → 编辑用户', frequency: 89 },
-      { path: '登录 → AI模型 → 配置模型', frequency: 67 },
-      { path: '登录 → 场景管理 → 查看数据', frequency: 78 }
+      { path: '登录 → 仪表盘 → AI营销策略', frequency: 156 },
+      { path: '登录 → 用户分析 → 查看详情', frequency: 89 },
+      { path: '登录 → 营销监控 → 实时数据', frequency: 134 },
+      { path: '登录 → 效果追踪 → 分析报告', frequency: 98 }
     ],
     sessionFlow: [
-      { from: '登录页', to: '管理后台首页', count: 287 },
-      { from: '管理后台首页', to: '用户管理', count: 156 },
-      { from: '用户管理', to: '编辑用户', count: 89 }
+      { from: '登录页', to: '仪表盘', count: 287 },
+      { from: '仪表盘', to: 'AI营销策略', count: 234 },
+      { from: 'AI营销策略', to: '策略详情', count: 156 },
+      { from: '仪表盘', to: '用户分析', count: 189 },
+      { from: '用户分析', to: '用户详情', count: 89 }
     ]
   },
 
