@@ -1,4 +1,5 @@
 import "./lib/safeWarningSuppress"; // Safe warning suppression that doesn't break React
+import "./lib/rechartsWarningSuppress"; // Specialized Recharts warnings suppression
 import "./global.css";
 
 import React from "react";
