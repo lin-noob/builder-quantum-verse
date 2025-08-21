@@ -98,19 +98,19 @@ interface UserAnalytics {
 const mockUserAnalytics: UserAnalytics = {
   userId: '1',
   basicInfo: {
-    name: '系统管理员',
-    email: 'admin@company.com',
-    phone: '+86 138-0000-0001',
-    department: '技术部',
-    roles: ['super_admin'],
+    name: '张营销',
+    email: 'zhang.marketing@client.com',
+    phone: '+86 138-1001-0001',
+    department: '市场部',
+    roles: ['普通用户'],
     status: 'active',
-    registeredAt: '2024-01-10',
+    registeredAt: '2024-03-15',
     lastLogin: '2025-01-20 09:30'
   },
   
   usageStats: {
     totalSessions: 287,
-    totalTimeSpent: 1840, // 约30.7小时
+    totalTimeSpent: 1840, // ��30.7小时
     avgSessionDuration: 6.4,
     lastActive: '2025-01-20 09:30',
     activeDays: 45,
@@ -353,7 +353,7 @@ export default function UserDetailsAnalytics() {
           <CardContent>
             <div className="text-2xl font-bold">{analytics.usageStats.activeDays}</div>
             <p className="text-xs text-muted-foreground">
-              过去60天内活跃
+              过去60天内���跃
             </p>
           </CardContent>
         </Card>
