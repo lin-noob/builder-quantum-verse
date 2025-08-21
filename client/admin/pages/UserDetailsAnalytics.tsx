@@ -214,11 +214,15 @@ export default function UserDetailsAnalytics() {
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
-      case 'user': return <Users className="h-4 w-4" />;
       case 'ai': return <Brain className="h-4 w-4" />;
-      case 'scenario': return <Target className="h-4 w-4" />;
-      case 'system': return <Settings className="h-4 w-4" />;
       case 'data': return <Database className="h-4 w-4" />;
+      case 'auto': return <Zap className="h-4 w-4" />;
+      case 'tracking': return <BarChart3 className="h-4 w-4" />;
+      case 'scenario': return <Target className="h-4 w-4" />;
+      case 'action': return <MousePointer className="h-4 w-4" />;
+      case 'monitor': return <Activity className="h-4 w-4" />;
+      case 'dashboard': return <Monitor className="h-4 w-4" />;
+      case 'user': return <Users className="h-4 w-4" />;
       default: return <Activity className="h-4 w-4" />;
     }
   };
