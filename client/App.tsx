@@ -39,13 +39,12 @@ import ResetPassword from "./pages/ResetPassword";
 import UserProfile from "./pages/UserProfile";
 import EffectTracking from "./pages/EffectTracking";
 import { usePageRequestManager } from "./hooks/useRequestManager";
-import AdminApp from "../admin/AdminApp";
 
 const queryClient = new QueryClient();
 
 // 请求管理包装组件
 const AppWithRequestManager = () => {
-  usePageRequestManager(); // 使用页面级请求管理
+  usePageRequestManager(); // 使用页面级请求��理
 
   return (
     <TooltipProvider>
