@@ -256,24 +256,9 @@ export default function UserManagement() {
     return <User className="h-4 w-4" />;
   };
 
-  const handleEditUser = (user: UserData) => {
-    setSelectedUser({...user});
-    setIsEditDialogOpen(true);
-  };
-
   const handleDeleteUser = (userId: string) => {
     if (confirm('确定要删除这个用户吗？')) {
       setUsers(prev => prev.filter(u => u.id !== userId));
-    }
-  };
-
-  const handleSaveUser = () => {
-    if (selectedUser) {
-      setUsers(prev => prev.map(u => 
-        u.id === selectedUser.id ? selectedUser : u
-      ));
-      setIsEditDialogOpen(false);
-      setSelectedUser(null);
     }
   };
 
@@ -668,7 +653,7 @@ export default function UserManagement() {
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>添加新用户</DialogTitle>
+            <DialogTitle>添���新用户</DialogTitle>
             <DialogDescription>
               创建新的用户账户并分配角色
             </DialogDescription>
