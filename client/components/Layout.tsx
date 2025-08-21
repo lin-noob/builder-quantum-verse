@@ -221,18 +221,14 @@ export default function Layout({ children }: LayoutProps) {
                 location.pathname === item.path ||
                 (item.id === "dashboard" && (location.pathname === "/" || location.pathname === "/dashboard" || location.pathname === "/dashboard2")) ||
                 (item.id === "users" && (location.pathname === "/users" || location.pathname === "/users2" || location.pathname.startsWith("/users/"))) ||
-                (item.id === "response-actions" &&
-                  location.pathname.startsWith("/response-actions")) ||
-                (item.id === "ai-marketing-strategies" &&
-                  location.pathname.startsWith("/ai-marketing-strategies")) ||
-                (item.id === "fully-auto" &&
-                  location.pathname.startsWith("/ai-marketing/fully-auto")) ||
+                (item.id === "ai-marketing-scenarios" &&
+                  location.pathname.startsWith("/ai-marketing/scenarios")) ||
                 (item.id === "monitoring-center" &&
-                  location.pathname.startsWith(
-                    "/ai-marketing/monitoring-center",
-                  )) ||
+                  location.pathname.startsWith("/ai-marketing/monitoring-center")) ||
                 (item.id === "effect-tracking" &&
-                  location.pathname.startsWith("/effect-tracking"));
+                  location.pathname.startsWith("/effect-tracking")) ||
+                (item.id === "admin" &&
+                  location.pathname.startsWith("/admin"));
 
               return (
                 <li key={item.id} className="relative group">
