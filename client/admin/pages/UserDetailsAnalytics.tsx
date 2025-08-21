@@ -109,12 +109,12 @@ const mockUserAnalytics: UserAnalytics = {
   },
   
   usageStats: {
-    totalSessions: 287,
-    totalTimeSpent: 1840, // 约30.7小时
-    avgSessionDuration: 6.4,
+    totalSessions: 156,
+    totalTimeSpent: 960, // 约16小时
+    avgSessionDuration: 6.2,
     lastActive: '2025-01-20 09:30',
-    activeDays: 45,
-    loginFrequency: 4.2
+    activeDays: 38,
+    loginFrequency: 3.8
   },
 
   featureUsage: [
