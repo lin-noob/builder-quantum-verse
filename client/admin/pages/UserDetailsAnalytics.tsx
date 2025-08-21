@@ -110,7 +110,7 @@ const mockUserAnalytics: UserAnalytics = {
   
   usageStats: {
     totalSessions: 287,
-    totalTimeSpent: 1840, // ��30.7小时
+    totalTimeSpent: 1840, // 约30.7小时
     avgSessionDuration: 6.4,
     lastActive: '2025-01-20 09:30',
     activeDays: 45,
@@ -118,12 +118,14 @@ const mockUserAnalytics: UserAnalytics = {
   },
 
   featureUsage: [
-    { feature: '用户管理', usage: 156, lastUsed: '2025-01-20', category: 'user' },
-    { feature: 'AI模型管理', usage: 89, lastUsed: '2025-01-19', category: 'ai' },
-    { feature: '场景配置', usage: 134, lastUsed: '2025-01-20', category: 'scenario' },
-    { feature: '系统监控', usage: 67, lastUsed: '2025-01-18', category: 'system' },
-    { feature: '数据分析', usage: 98, lastUsed: '2025-01-19', category: 'data' },
-    { feature: '权限管理', usage: 45, lastUsed: '2025-01-17', category: 'user' }
+    { feature: 'AI营销策略', usage: 234, lastUsed: '2025-01-20', category: 'ai' },
+    { feature: '用户分析', usage: 189, lastUsed: '2025-01-20', category: 'data' },
+    { feature: '自动化营销', usage: 156, lastUsed: '2025-01-19', category: 'auto' },
+    { feature: '效果追踪', usage: 142, lastUsed: '2025-01-19', category: 'tracking' },
+    { feature: '营销场景', usage: 134, lastUsed: '2025-01-18', category: 'scenario' },
+    { feature: '响应动作', usage: 98, lastUsed: '2025-01-17', category: 'action' },
+    { feature: '实时监控', usage: 87, lastUsed: '2025-01-16', category: 'monitor' },
+    { feature: '数据仪表盘', usage: 76, lastUsed: '2025-01-15', category: 'dashboard' }
   ],
 
   pageVisits: [
@@ -353,7 +355,7 @@ export default function UserDetailsAnalytics() {
           <CardContent>
             <div className="text-2xl font-bold">{analytics.usageStats.activeDays}</div>
             <p className="text-xs text-muted-foreground">
-              过去60天内���跃
+              过去60天内活跃
             </p>
           </CardContent>
         </Card>
@@ -575,7 +577,7 @@ export default function UserDetailsAnalytics() {
 
           <Card>
             <CardHeader>
-              <CardTitle>地理位置分布</CardTitle>
+              <CardTitle>地理位置分��</CardTitle>
               <CardDescription>用户登录的地理位置统计</CardDescription>
             </CardHeader>
             <CardContent>
