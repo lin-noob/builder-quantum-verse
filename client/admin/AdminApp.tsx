@@ -37,7 +37,7 @@ export default function AdminApp() {
         <Route path="/data-sources" element={<PlaceholderPage title="数据源管理" />} />
 
         {/* 安全与权限 */}
-        <Route path="/security" element={<PlaceholderPage title="安全与权限" />} />
+        <Route path="/security" element={<SecurityPermissions />} />
 
         {/* 系统监控 */}
         <Route path="/monitoring" element={<PlaceholderPage title="系统监控" />} />
