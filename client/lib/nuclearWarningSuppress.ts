@@ -23,16 +23,27 @@
         const firstArg = String(args[0] || '');
         const secondArg = String(args[1] || '');
         
-        // Check for the exact React warning pattern
-        if (firstArg.includes('Warning: %s: Support for defaultProps will be removed')) {
-          // Check if it's about XAxis, YAxis, or other Recharts components
-          if (secondArg.includes('XAxis') || 
-              secondArg.includes('YAxis') ||
-              secondArg.includes('Recharts') ||
-              secondArg.toLowerCase().includes('axis')) {
-            return true;
-          }
+        // Check for the exact React warning pattern with enhanced detection
+      if (firstArg.includes('Support for defaultProps will be removed') ||
+          firstArg.includes('Warning: %s: Support for defaultProps will be removed')) {
+        // Check if it's about XAxis, YAxis, or other Recharts components
+        if (secondArg.includes('XAxis') ||
+            secondArg.includes('YAxis') ||
+            secondArg.includes('XAxis2') ||
+            secondArg.includes('YAxis2') ||
+            secondArg.includes('Recharts') ||
+            secondArg.toLowerCase().includes('axis') ||
+            args.some(arg => String(arg).toLowerCase().includes('axis'))) {
+          return true;
         }
+      }
+
+      // Also check if any argument contains the warning pattern
+      const hasDefaultPropsWarning = args.some(arg => {
+        const str = String(arg || '');
+        return str.includes('Support for defaultProps will be removed') &&
+               (str.includes('XAxis') || str.includes('YAxis') || str.includes('axis'));
+      });
       }
       
       // Check combined message for comprehensive patterns
