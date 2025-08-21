@@ -141,7 +141,7 @@ const mockPromptTemplates: PromptTemplate[] = [
     id: 'prompt_2',
     name: '新用户欢迎邮件',
     scenario: 'user_signup',
-    content: '新用户{{username}}刚刚注册，来源渠道是{{source}}，注册前浏览了{{browsedCategories}}类商品。请生成一封温馨的欢迎邮件，包含：1. 个性化问候 2. 基于浏览历史的商品推荐 3. 新用户专属优惠 4. 引导下一步行动。邮件标题要吸引人，正文要亲切自然。',
+    content: '新用户{username}刚刚注册，来源渠道是{source}，注册前浏览了{browsedCategories}类商品。请生成一封温馨的欢迎邮件，包含：1. 个性化问候 2. 基于浏览历史的商品推荐 3. 新用户专属优惠 4. 引导下一步行动。邮件标题要吸引人，正文要亲切自然。',
     variables: ['username', 'source', 'browsedCategories'],
     modelId: 'model_2',
     isDefault: true,
