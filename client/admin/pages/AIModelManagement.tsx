@@ -130,7 +130,7 @@ const mockPromptTemplates: PromptTemplate[] = [
     id: 'prompt_1',
     name: '购物车挽留提示词',
     scenario: 'add_to_cart',
-    content: '用户{{username}}将商品{{productName}}(价格：{{price}})加入了购物车，但在页面停留了{{dwellTime}}秒后准备离开。请生成一个个性化的挽留弹窗文案，需要包含：1. 友好的问候 2. 商品的价值点 3. 适当的紧迫感 4. 明确的行动号召。文案要简洁有力，不超过50字。',
+    content: '用户{username}将商品{productName}(价格：{price})加入了购物车，但在页面停留了{dwellTime}秒后准备离开。请生成一个个性化的挽留弹窗文案，需要包含：1. 友好的问候 2. 商品的价值点 3. 适当的紧迫感 4. 明确的行动号召。文案要简洁有力，不超过50字。',
     variables: ['username', 'productName', 'price', 'dwellTime'],
     modelId: 'model_1',
     isDefault: true,
