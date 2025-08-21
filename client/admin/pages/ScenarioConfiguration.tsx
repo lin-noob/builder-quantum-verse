@@ -42,7 +42,7 @@ import {
   ContentStrategy,
   getMarketingScenarios,
   updateMarketingScenario
-} from '../../../shared/aiMarketingScenarioData';
+} from '../data/scenarioData';
 
 export default function ScenarioConfiguration() {
   const [scenarios, setScenarios] = useState<MarketingScenario[]>([]);
@@ -309,7 +309,7 @@ export default function ScenarioConfiguration() {
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-gray-500">
-                      {scenario.overrideRules.length} 个自定义规则
+                      {scenario.overrideRules.length} 个自定义��则
                     </span>
                     <Switch
                       checked={scenario.isAIEnabled}
