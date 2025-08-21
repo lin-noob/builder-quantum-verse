@@ -1,8 +1,12 @@
-import { useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Switch } from '@/components/ui/switch';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Select,
   SelectContent,
@@ -14,6 +18,7 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -47,297 +52,373 @@ import {
   User,
   CheckCircle,
   XCircle,
-  Clock
+  Clock,
+  Crown,
+  Key,
+  Users,
+  Settings,
+  Eye,
+  Lock,
+  Unlock
 } from 'lucide-react';
 
-interface SystemUser {
+// 用户类型定义
+export interface UserData {
   id: string;
-  username: string;
+  name: string;
   email: string;
-  phone?: string;
-  role: 'admin' | 'manager' | 'operator' | 'viewer';
+  phone: string;
+  roles: string[];
   status: 'active' | 'inactive' | 'pending';
-  lastLogin: Date;
-  createdAt: Date;
-  permissions: string[];
+  lastLogin: string;
+  createdAt: string;
+  avatar?: string;
+  department?: string;
 }
 
+// 角色类型定义（从SecurityPermissions中复用）
+export interface Role {
+  id: string;
+  name: string;
+  description: string;
+  color: string;
+  isSystem: boolean;
+  permissions: string[];
+  userCount: number;
+}
+
+// 权限类型定义
+export interface Permission {
+  id: string;
+  name: string;
+  description: string;
+  category: 'user' | 'ai' | 'scenario' | 'system' | 'data';
+  resource: string;
+  action: 'read' | 'write' | 'delete' | 'execute';
+}
+
+// 模拟角色数据
+const mockRoles: Role[] = [
+  {
+    id: 'super_admin',
+    name: '超级管理员',
+    description: '拥有系统所有权限',
+    color: 'bg-red-100 text-red-800',
+    isSystem: true,
+    permissions: [],
+    userCount: 2
+  },
+  {
+    id: 'admin',
+    name: '系统管理员',
+    description: '拥有大部分系统权限',
+    color: 'bg-blue-100 text-blue-800',
+    isSystem: true,
+    permissions: [],
+    userCount: 5
+  },
+  {
+    id: 'operator',
+    name: '运营人员',
+    description: '负责AI营销场景配置',
+    color: 'bg-green-100 text-green-800',
+    isSystem: false,
+    permissions: [],
+    userCount: 8
+  },
+  {
+    id: 'viewer',
+    name: '只读用户',
+    description: '只能查看系统信息',
+    color: 'bg-gray-100 text-gray-800',
+    isSystem: false,
+    permissions: [],
+    userCount: 12
+  }
+];
+
+// 模拟用户数据
+const mockUsers: UserData[] = [
+  {
+    id: '1',
+    name: '系统管理员',
+    email: 'admin@company.com',
+    phone: '+86 138-0000-0001',
+    roles: ['super_admin'],
+    status: 'active',
+    lastLogin: '2025/01/20 09:30',
+    createdAt: '2024/01/10',
+    department: '技术部'
+  },
+  {
+    id: '2',
+    name: '营销经理',
+    email: 'marketing.manager@company.com',
+    phone: '+86 138-0000-0002',
+    roles: ['admin'],
+    status: 'active',
+    lastLogin: '2025/01/20 08:45',
+    createdAt: '2024/01/15',
+    department: '营销部'
+  },
+  {
+    id: '3',
+    name: '营销专员',
+    email: 'marketing.operator@company.com',
+    phone: '+86 138-0000-0003',
+    roles: ['operator'],
+    status: 'active',
+    lastLogin: '2025/01/19 17:20',
+    createdAt: '2024/01/20',
+    department: '营销部'
+  },
+  {
+    id: '4',
+    name: '数据分析师',
+    email: 'data.analyst@company.com',
+    phone: '+86 138-0000-0004',
+    roles: ['viewer'],
+    status: 'active',
+    lastLogin: '2025/01/18 14:30',
+    createdAt: '2024/01/25',
+    department: '数据部'
+  },
+  {
+    id: '5',
+    name: '实习生',
+    email: 'intern@company.com',
+    phone: '+86 138-0000-0005',
+    roles: ['viewer'],
+    status: 'inactive',
+    lastLogin: '2025/01/15 16:20',
+    createdAt: '2024/02/01',
+    department: '营销部'
+  }
+];
+
 export default function UserManagement() {
-  const [searchText, setSearchText] = useState('');
-  const [selectedRole, setSelectedRole] = useState<string>('all');
-  const [selectedStatus, setSelectedStatus] = useState<string>('all');
-  const [isAddUserOpen, setIsAddUserOpen] = useState(false);
+  const [users, setUsers] = useState<UserData[]>(mockUsers);
+  const [roles] = useState<Role[]>(mockRoles);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [roleFilter, setRoleFilter] = useState<string>('all');
+  const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 
-  // 模拟用户数据
-  const users: SystemUser[] = [
-    {
-      id: '1',
-      username: '系统管理员',
-      email: 'admin@company.com',
-      phone: '+86 138-0000-0001',
-      role: 'admin',
-      status: 'active',
-      lastLogin: new Date('2025-01-20T09:30:00'),
-      createdAt: new Date('2024-01-01T00:00:00'),
-      permissions: ['all']
-    },
-    {
-      id: '2',
-      username: '营销经理',
-      email: 'marketing.manager@company.com',
-      phone: '+86 138-0000-0002',
-      role: 'manager',
-      status: 'active',
-      lastLogin: new Date('2025-01-20T08:45:00'),
-      createdAt: new Date('2024-03-15T00:00:00'),
-      permissions: ['scenarios:manage', 'users:view', 'analytics:view']
-    },
-    {
-      id: '3',
-      username: '营销专员',
-      email: 'marketing.operator@company.com',
-      phone: '+86 138-0000-0003',
-      role: 'operator',
-      status: 'active',
-      lastLogin: new Date('2025-01-19T17:20:00'),
-      createdAt: new Date('2024-06-10T00:00:00'),
-      permissions: ['scenarios:edit', 'analytics:view']
-    },
-    {
-      id: '4',
-      username: '数据分析师',
-      email: 'analyst@company.com',
-      role: 'viewer',
-      status: 'inactive',
-      lastLogin: new Date('2025-01-15T14:30:00'),
-      createdAt: new Date('2024-08-20T00:00:00'),
-      permissions: ['analytics:view', 'reports:export']
-    },
-    {
-      id: '5',
-      username: '新员工',
-      email: 'newbie@company.com',
-      role: 'operator',
-      status: 'pending',
-      lastLogin: new Date('2025-01-10T10:00:00'),
-      createdAt: new Date('2025-01-10T00:00:00'),
-      permissions: ['scenarios:view']
-    }
-  ];
-
-  // 角色配置
-  const roleConfig = {
-    admin: { label: '系统管理员', color: 'bg-red-100 text-red-700 border-red-300' },
-    manager: { label: '营销经理', color: 'bg-blue-100 text-blue-700 border-blue-300' },
-    operator: { label: '营销专员', color: 'bg-green-100 text-green-700 border-green-300' },
-    viewer: { label: '查看者', color: 'bg-gray-100 text-gray-700 border-gray-300' }
-  };
-
-  // 状态配置
-  const statusConfig = {
-    active: { label: '正常', color: 'bg-green-100 text-green-700 border-green-300', icon: CheckCircle },
-    inactive: { label: '停用', color: 'bg-red-100 text-red-700 border-red-300', icon: XCircle },
-    pending: { label: '待激活', color: 'bg-yellow-100 text-yellow-700 border-yellow-300', icon: Clock }
-  };
-
-  // 筛选逻辑
+  // 筛选用户
   const filteredUsers = useMemo(() => {
     return users.filter(user => {
-      // 搜索文本过滤
-      if (searchText) {
-        const searchLower = searchText.toLowerCase();
-        const matchesSearch = 
-          user.username.toLowerCase().includes(searchLower) ||
-          user.email.toLowerCase().includes(searchLower) ||
-          (user.phone && user.phone.includes(searchText));
-        if (!matchesSearch) return false;
-      }
+      const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           user.phone.includes(searchTerm);
       
-      // 角色过滤
-      if (selectedRole !== 'all' && user.role !== selectedRole) {
-        return false;
-      }
+      const matchesStatus = statusFilter === 'all' || user.status === statusFilter;
       
-      // 状态过滤
-      if (selectedStatus !== 'all' && user.status !== selectedStatus) {
-        return false;
-      }
+      const matchesRole = roleFilter === 'all' || user.roles.includes(roleFilter);
       
-      return true;
+      return matchesSearch && matchesStatus && matchesRole;
     });
-  }, [users, searchText, selectedRole, selectedStatus]);
+  }, [users, searchTerm, statusFilter, roleFilter]);
 
-  // 统计数据
-  const stats = useMemo(() => {
-    const total = users.length;
-    const active = users.filter(u => u.status === 'active').length;
-    const admins = users.filter(u => u.role === 'admin').length;
-    const recentLogins = users.filter(u => {
-      const threeDaysAgo = new Date();
-      threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
-      return u.lastLogin > threeDaysAgo;
-    }).length;
+  const getRoleBadge = (roleId: string) => {
+    const role = roles.find(r => r.id === roleId);
+    if (!role) return null;
     
-    return { total, active, admins, recentLogins };
-  }, [users]);
-
-  const formatDateTime = (date: Date) => {
-    return date.toLocaleString('zh-CN', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+    return (
+      <Badge key={roleId} className={role.color}>
+        {role.name}
+      </Badge>
+    );
   };
 
-  const getRelativeTime = (date: Date) => {
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-    const diffDays = Math.floor(diffHours / 24);
+  const getStatusBadge = (status: UserData['status']) => {
+    const config = {
+      active: { label: '正常', icon: CheckCircle, className: 'bg-green-100 text-green-800' },
+      inactive: { label: '禁用', icon: XCircle, className: 'bg-red-100 text-red-800' },
+      pending: { label: '待激活', icon: Clock, className: 'bg-yellow-100 text-yellow-800' }
+    };
     
-    if (diffHours < 1) return '刚刚';
-    if (diffHours < 24) return `${diffHours}小时前`;
-    if (diffDays < 7) return `${diffDays}天前`;
-    return date.toLocaleDateString('zh-CN');
+    const { label, icon: Icon, className } = config[status];
+    
+    return (
+      <Badge className={className}>
+        <Icon className="h-3 w-3 mr-1" />
+        {label}
+      </Badge>
+    );
+  };
+
+  const getRoleIcon = (roleName: string) => {
+    if (roleName.includes('超级')) return <Crown className="h-4 w-4" />;
+    if (roleName.includes('管理')) return <Shield className="h-4 w-4" />;
+    return <User className="h-4 w-4" />;
+  };
+
+  const handleEditUser = (user: UserData) => {
+    setSelectedUser(user);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleDeleteUser = (userId: string) => {
+    if (confirm('确定要删除这个用户吗？')) {
+      setUsers(prev => prev.filter(u => u.id !== userId));
+    }
+  };
+
+  const handleSaveUser = () => {
+    if (selectedUser) {
+      setUsers(prev => prev.map(u => 
+        u.id === selectedUser.id ? selectedUser : u
+      ));
+      setIsEditDialogOpen(false);
+      setSelectedUser(null);
+    }
+  };
+
+  const handleAddUser = () => {
+    setSelectedUser({
+      id: Date.now().toString(),
+      name: '',
+      email: '',
+      phone: '',
+      roles: [],
+      status: 'pending',
+      lastLogin: '从未登录',
+      createdAt: new Date().toLocaleDateString(),
+      department: ''
+    });
+    setIsAddDialogOpen(true);
+  };
+
+  const handleSaveNewUser = () => {
+    if (selectedUser && selectedUser.name && selectedUser.email) {
+      setUsers(prev => [...prev, selectedUser]);
+      setIsAddDialogOpen(false);
+      setSelectedUser(null);
+    }
+  };
+
+  // 统计数据
+  const stats = {
+    total: users.length,
+    active: users.filter(u => u.status === 'active').length,
+    inactive: users.filter(u => u.status === 'inactive').length,
+    pending: users.filter(u => u.status === 'pending').length
   };
 
   return (
     <div className="p-6 space-y-6">
-      {/* 页面标题和统计 */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">用户管理</h1>
-        <p className="text-gray-600 mt-1">管理系统用户账户、角色和权限</p>
+      {/* 页面标题 */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">用户管理</h1>
+          <p className="text-sm text-gray-600 mt-1">
+            管理系统用户账户、角色权限和状态
+          </p>
+        </div>
+        <Button onClick={handleAddUser}>
+          <Plus className="h-4 w-4 mr-2" />
+          添加用户
+        </Button>
       </div>
 
       {/* 统计卡片 */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                <User className="h-5 w-5 text-blue-600" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">总用户数</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
-              </div>
-            </div>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">总用户数</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.total}</div>
+            <p className="text-xs text-muted-foreground">
+              系统注册用户
+            </p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                <CheckCircle className="h-5 w-5 text-green-600" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">活跃用户</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.active}</p>
-              </div>
-            </div>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">活跃用户</CardTitle>
+            <CheckCircle className="h-4 w-4 text-green-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-600">{stats.active}</div>
+            <p className="text-xs text-muted-foreground">
+              正常状态用户
+            </p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
-                <Shield className="h-5 w-5 text-red-600" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">管理员</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.admins}</p>
-              </div>
-            </div>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">禁用用户</CardTitle>
+            <XCircle className="h-4 w-4 text-red-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-red-600">{stats.inactive}</div>
+            <p className="text-xs text-muted-foreground">
+              已禁用账户
+            </p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                <Clock className="h-5 w-5 text-purple-600" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">近期活跃</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.recentLogins}</p>
-              </div>
-            </div>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">待激活</CardTitle>
+            <Clock className="h-4 w-4 text-yellow-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-yellow-600">{stats.pending}</div>
+            <p className="text-xs text-muted-foreground">
+              等待激活用户
+            </p>
           </CardContent>
         </Card>
       </div>
 
-      {/* 筛选和搜索 */}
+      {/* 筛选栏 */}
       <Card>
-        <CardContent className="p-6">
-          <div className="flex flex-col md:flex-row gap-4 items-end">
-            {/* 搜索框 */}
+        <CardContent className="pt-6">
+          <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="搜索用户名、邮箱或手机号..."
-                  value={searchText}
-                  onChange={(e) => setSearchText(e.target.value)}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10"
                 />
               </div>
             </div>
+            
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-full sm:w-[140px]">
+                <SelectValue placeholder="全部状态" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">全部状态</SelectItem>
+                <SelectItem value="active">正常</SelectItem>
+                <SelectItem value="inactive">禁用</SelectItem>
+                <SelectItem value="pending">待激活</SelectItem>
+              </SelectContent>
+            </Select>
 
-            {/* 角色筛选 */}
-            <div className="md:w-48">
-              <Select value={selectedRole} onValueChange={setSelectedRole}>
-                <SelectTrigger>
-                  <SelectValue placeholder="筛选角色" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">全部角色</SelectItem>
-                  <SelectItem value="admin">系统管理员</SelectItem>
-                  <SelectItem value="manager">营销经理</SelectItem>
-                  <SelectItem value="operator">营销专员</SelectItem>
-                  <SelectItem value="viewer">查看者</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* 状态筛选 */}
-            <div className="md:w-48">
-              <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-                <SelectTrigger>
-                  <SelectValue placeholder="筛选状态" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">全部状态</SelectItem>
-                  <SelectItem value="active">正常</SelectItem>
-                  <SelectItem value="inactive">停用</SelectItem>
-                  <SelectItem value="pending">待激活</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* 添加用户按钮 */}
-            <Dialog open={isAddUserOpen} onOpenChange={setIsAddUserOpen}>
-              <DialogTrigger asChild>
-                <Button className="flex items-center gap-2">
-                  <Plus className="h-4 w-4" />
-                  添加用户
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>添加新用户</DialogTitle>
-                  <DialogDescription>
-                    创建新的系统用户账户并分配角色权限
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="space-y-4 py-4">
-                  <p className="text-sm text-gray-500">添加用户功能正在开发中...</p>
-                </div>
-              </DialogContent>
-            </Dialog>
+            <Select value={roleFilter} onValueChange={setRoleFilter}>
+              <SelectTrigger className="w-full sm:w-[140px]">
+                <SelectValue placeholder="全部角色" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">全部角色</SelectItem>
+                {roles.map(role => (
+                  <SelectItem key={role.id} value={role.id}>
+                    {role.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </CardContent>
       </Card>
@@ -345,107 +426,342 @@ export default function UserManagement() {
       {/* 用户列表 */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            <span>用户列表 ({filteredUsers.length})</span>
-            <Badge variant="secondary">
-              {filteredUsers.length} / {users.length} 用户
-            </Badge>
-          </CardTitle>
+          <CardTitle>用户列表 ({filteredUsers.length})</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>用户信息</TableHead>
-                  <TableHead>角色</TableHead>
-                  <TableHead>状态</TableHead>
-                  <TableHead>最近登录</TableHead>
-                  <TableHead>创建时间</TableHead>
-                  <TableHead className="text-right">操作</TableHead>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>用户信息</TableHead>
+                <TableHead>角色</TableHead>
+                <TableHead>状态</TableHead>
+                <TableHead>最近登录</TableHead>
+                <TableHead>创建时间</TableHead>
+                <TableHead>操作</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredUsers.map((user) => (
+                <TableRow key={user.id}>
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center">
+                        <User className="h-4 w-4 text-white" />
+                      </div>
+                      <div>
+                        <div className="font-medium">{user.name}</div>
+                        <div className="text-sm text-gray-500 flex items-center gap-1">
+                          <Mail className="h-3 w-3" />
+                          {user.email}
+                        </div>
+                        <div className="text-sm text-gray-500 flex items-center gap-1">
+                          <Phone className="h-3 w-3" />
+                          {user.phone}
+                        </div>
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex flex-wrap gap-1">
+                      {user.roles.map(roleId => getRoleBadge(roleId))}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    {getStatusBadge(user.status)}
+                  </TableCell>
+                  <TableCell className="text-sm text-gray-500">
+                    {user.lastLogin}
+                  </TableCell>
+                  <TableCell className="text-sm text-gray-500">
+                    {user.createdAt}
+                  </TableCell>
+                  <TableCell>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>操作</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => handleEditUser(user)}>
+                          <Edit className="h-4 w-4 mr-2" />
+                          编辑用户
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleDeleteUser(user.id)}>
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          删除用户
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredUsers.map((user) => {
-                  const StatusIcon = statusConfig[user.status].icon;
-                  return (
-                    <TableRow key={user.id}>
-                      <TableCell>
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center">
-                            <User className="h-4 w-4 text-indigo-600" />
-                          </div>
-                          <div>
-                            <p className="font-medium text-gray-900">{user.username}</p>
-                            <div className="flex items-center gap-2 text-sm text-gray-500">
-                              <Mail className="h-3 w-3" />
-                              {user.email}
-                            </div>
-                            {user.phone && (
-                              <div className="flex items-center gap-2 text-sm text-gray-500">
-                                <Phone className="h-3 w-3" />
-                                {user.phone}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className={roleConfig[user.role].color}>
-                          {roleConfig[user.role].label}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className={statusConfig[user.status].color}>
-                          <StatusIcon className="h-3 w-3 mr-1" />
-                          {statusConfig[user.status].label}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="text-sm">
-                          <p className="text-gray-900">{getRelativeTime(user.lastLogin)}</p>
-                          <p className="text-gray-500">{formatDateTime(user.lastLogin)}</p>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1 text-sm text-gray-500">
-                          <Calendar className="h-3 w-3" />
-                          {user.createdAt.toLocaleDateString('zh-CN')}
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>操作</DropdownMenuLabel>
-                            <DropdownMenuItem>
-                              <Edit className="mr-2 h-4 w-4" />
-                              编辑用户
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>
-                              <Shield className="mr-2 h-4 w-4" />
-                              权限管理
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem className="text-red-600">
-                              <Trash2 className="mr-2 h-4 w-4" />
-                              删除用户
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </div>
+              ))}
+            </TableBody>
+          </Table>
         </CardContent>
       </Card>
+
+      {/* 编辑用户对话框 */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>编辑用户信息</DialogTitle>
+            <DialogDescription>
+              修改用户的基本信息、角色和权限设置
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedUser && (
+            <div className="space-y-6 py-4">
+              {/* 基本信息 */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-medium">基本信息</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>用户名</Label>
+                    <Input
+                      value={selectedUser.name}
+                      onChange={(e) => setSelectedUser({
+                        ...selectedUser,
+                        name: e.target.value
+                      })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>邮箱</Label>
+                    <Input
+                      type="email"
+                      value={selectedUser.email}
+                      onChange={(e) => setSelectedUser({
+                        ...selectedUser,
+                        email: e.target.value
+                      })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>手机号</Label>
+                    <Input
+                      value={selectedUser.phone}
+                      onChange={(e) => setSelectedUser({
+                        ...selectedUser,
+                        phone: e.target.value
+                      })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>部门</Label>
+                    <Input
+                      value={selectedUser.department || ''}
+                      onChange={(e) => setSelectedUser({
+                        ...selectedUser,
+                        department: e.target.value
+                      })}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* 账户状态 */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-medium">账户状态</h3>
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      checked={selectedUser.status === 'active'}
+                      onCheckedChange={(checked) => setSelectedUser({
+                        ...selectedUser,
+                        status: checked ? 'active' : 'inactive'
+                      })}
+                    />
+                    <Label>启用用户账户</Label>
+                  </div>
+                </div>
+              </div>
+
+              {/* 角色分配 */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-medium">角色分配</h3>
+                <div className="space-y-3">
+                  {roles.map(role => (
+                    <div key={role.id} className="flex items-center space-x-2">
+                      <Checkbox
+                        checked={selectedUser.roles.includes(role.id)}
+                        onCheckedChange={(checked) => {
+                          const newRoles = checked
+                            ? [...selectedUser.roles, role.id]
+                            : selectedUser.roles.filter(r => r !== role.id);
+                          setSelectedUser({
+                            ...selectedUser,
+                            roles: newRoles
+                          });
+                        }}
+                      />
+                      <div className="flex items-center gap-2">
+                        {getRoleIcon(role.name)}
+                        <Label className="cursor-pointer">{role.name}</Label>
+                        <Badge className={role.color} variant="outline">
+                          {role.isSystem ? '系统' : '自定义'}
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-sm text-gray-500">
+                  用户将继承所选角色的所有权限
+                </p>
+              </div>
+
+              {/* 当前权限预览 */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-medium">权限预览</h3>
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <div className="text-sm text-gray-600">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Key className="h-4 w-4" />
+                      <span className="font-medium">已分配角色:</span>
+                    </div>
+                    <div className="flex flex-wrap gap-1 mb-3">
+                      {selectedUser.roles.map(roleId => {
+                        const role = roles.find(r => r.id === roleId);
+                        return role ? getRoleBadge(roleId) : null;
+                      })}
+                      {selectedUser.roles.length === 0 && (
+                        <span className="text-gray-400">未分配角色</span>
+                      )}
+                    </div>
+                    <p className="text-xs">
+                      用户权限将根据角色自动继承，如需详细权限配置请前往"安全与权限"页面
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsEditDialogOpen(false);
+                setSelectedUser(null);
+              }}
+            >
+              取消
+            </Button>
+            <Button onClick={handleSaveUser}>
+              保存修改
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* 添加用户对话框 */}
+      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>添加新用户</DialogTitle>
+            <DialogDescription>
+              创建新的用户账户并分配角色
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedUser && (
+            <div className="space-y-4 py-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>用户名 *</Label>
+                  <Input
+                    value={selectedUser.name}
+                    onChange={(e) => setSelectedUser({
+                      ...selectedUser,
+                      name: e.target.value
+                    })}
+                    placeholder="输入用户名"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>邮箱 *</Label>
+                  <Input
+                    type="email"
+                    value={selectedUser.email}
+                    onChange={(e) => setSelectedUser({
+                      ...selectedUser,
+                      email: e.target.value
+                    })}
+                    placeholder="user@company.com"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>手机号</Label>
+                  <Input
+                    value={selectedUser.phone}
+                    onChange={(e) => setSelectedUser({
+                      ...selectedUser,
+                      phone: e.target.value
+                    })}
+                    placeholder="+86 138-0000-0000"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>部门</Label>
+                  <Input
+                    value={selectedUser.department || ''}
+                    onChange={(e) => setSelectedUser({
+                      ...selectedUser,
+                      department: e.target.value
+                    })}
+                    placeholder="所属部门"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <Label>选择角色</Label>
+                {roles.map(role => (
+                  <div key={role.id} className="flex items-center space-x-2">
+                    <Checkbox
+                      checked={selectedUser.roles.includes(role.id)}
+                      onCheckedChange={(checked) => {
+                        const newRoles = checked
+                          ? [...selectedUser.roles, role.id]
+                          : selectedUser.roles.filter(r => r !== role.id);
+                        setSelectedUser({
+                          ...selectedUser,
+                          roles: newRoles
+                        });
+                      }}
+                    />
+                    <div className="flex items-center gap-2">
+                      {getRoleIcon(role.name)}
+                      <Label className="cursor-pointer">{role.name}</Label>
+                      <Badge className={role.color} variant="outline">
+                        {role.isSystem ? '系统' : '自定义'}
+                      </Badge>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsAddDialogOpen(false);
+                setSelectedUser(null);
+              }}
+            >
+              取消
+            </Button>
+            <Button onClick={handleSaveNewUser}>
+              创建用户
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
