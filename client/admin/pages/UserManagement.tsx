@@ -198,6 +198,7 @@ const mockUsers: UserData[] = [
 ];
 
 export default function UserManagement() {
+  const navigate = useNavigate();
   const [users, setUsers] = useState<UserData[]>(mockUsers);
   const [roles] = useState<Role[]>(mockRoles);
   const [searchTerm, setSearchTerm] = useState('');
@@ -373,7 +374,7 @@ export default function UserManagement() {
           <CardContent>
             <div className="text-2xl font-bold text-yellow-600">{stats.pending}</div>
             <p className="text-xs text-muted-foreground">
-              ���待激活用户
+              等待激活用户
             </p>
           </CardContent>
         </Card>
