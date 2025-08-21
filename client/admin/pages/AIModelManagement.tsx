@@ -130,7 +130,7 @@ const mockPromptTemplates: PromptTemplate[] = [
     id: 'prompt_1',
     name: '购物车挽留提示词',
     scenario: 'add_to_cart',
-    content: '用户{username}将商品{productName}(价格：{price})加入了购物车，但在页面停留了{dwellTime}秒后准备���开。请生成一个个性化的挽留弹窗文案，需要包含：1. 友好的问候 2. 商品的价值点 3. 适当的紧迫感 4. 明确的行动号召。文案要简洁有力，不超过50字。',
+    content: '用户[username]将商品[productName](价格：[price])加入了购物车，但在页面停留了[dwellTime]秒后准备离开。请生成一个个性化的挽留弹窗文案，需要包含：1. 友好的问候 2. 商品的价值点 3. 适当的紧迫感 4. 明确的行动号召。文案要简洁有力，不超过50字。',
     variables: ['username', 'productName', 'price', 'dwellTime'],
     modelId: 'model_1',
     isDefault: true,
@@ -141,7 +141,7 @@ const mockPromptTemplates: PromptTemplate[] = [
     id: 'prompt_2',
     name: '新用户欢迎邮件',
     scenario: 'user_signup',
-    content: '新用户{username}刚刚注册，来源渠道是{source}，注册前浏览了{browsedCategories}类商品。请生成一封温馨的欢迎邮件，包含：1. 个性化问候 2. 基于浏览历史的商品推荐 3. 新用户专属优惠 4. 引导下一步行动。邮件标题要吸引人，正文要亲切自然。',
+    content: '新用户[username]刚刚注册，来源渠道是[source]，注册前浏览了[browsedCategories]类商品。请生成一封温馨的欢迎邮件，包含：1. 个性化问候 2. 基于浏览历史的商品推荐 3. 新用户专属优惠 4. 引导下一步行动。邮件标题要吸引人，正文要亲切自然。',
     variables: ['username', 'source', 'browsedCategories'],
     modelId: 'model_2',
     isDefault: true,
@@ -152,7 +152,7 @@ const mockPromptTemplates: PromptTemplate[] = [
     id: 'prompt_3',
     name: '搜索无结果引导',
     scenario: 'search',
-    content: '用户搜索了"{searchTerm}"但没有找到匹配的商品。请生成一个友好的引导弹窗，包含：1. 理解用户的搜索意图 2. 推荐相似或相关的商品类别 3. 提供联系客服的选项 4. 鼓���用户继续浏览。语调要积极正面，帮助用户找到替代方案。',
+    content: '用户搜索了"[searchTerm]"但没有找到匹配的商品。请生成一个友好的引导弹窗，包含：1. 理解用户的搜索意图 2. 推荐相似或相关的商品类别 3. 提供联系客服的选项 4. 鼓励用户继续浏览。语调要积极正面，帮助用户找到替代方案。',
     variables: ['searchTerm'],
     modelId: 'model_3',
     isDefault: false,
@@ -196,7 +196,7 @@ export default function AIModelManagement() {
     // 模拟API调用测试
     await new Promise(resolve => setTimeout(resolve, 2000));
     setIsTestingModel(false);
-    alert(`模型 ${model.name} 测试成功！响应时间: 1.2s`);
+    alert('模型 ' + model.name + ' 测试成功！响应时间: 1.2s');
   };
 
   const handleSetDefaultModel = (modelId: string) => {
@@ -232,7 +232,7 @@ export default function AIModelManagement() {
             onClick={() => setIsModelDialogOpen(true)}
           >
             <Plus className="h-4 w-4 mr-2" />
-            接入新模型
+            ��入新模型
           </Button>
         </div>
       </div>
@@ -571,7 +571,7 @@ export default function AIModelManagement() {
         </DialogContent>
       </Dialog>
 
-      {/* 提示���模板配置对话框 */}
+      {/* 提示词模板配置对话框 */}
       <Dialog open={isPromptDialogOpen} onOpenChange={setIsPromptDialogOpen}>
         <DialogContent className="max-w-3xl">
           <DialogHeader>
@@ -599,7 +599,7 @@ export default function AIModelManagement() {
                     <SelectValue placeholder="选择营销场景" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="add_to_cart">加入��物车</SelectItem>
+                    <SelectItem value="add_to_cart">加入购物车</SelectItem>
                     <SelectItem value="view_product">查看商品</SelectItem>
                     <SelectItem value="user_signup">用户注册</SelectItem>
                     <SelectItem value="user_login">用户登录</SelectItem>
@@ -631,12 +631,12 @@ export default function AIModelManagement() {
               <Label htmlFor="prompt-content">提示词内容</Label>
               <Textarea 
                 id="prompt-content" 
-                placeholder="输入提示词模板，使用 {变量名} 表示动态变量..."
+                placeholder="输入提示词模板，使用 [变量名] 表示动态变量..."
                 className="min-h-[200px]"
                 defaultValue={selectedPrompt?.content}
               />
               <p className="text-xs text-gray-500">
-                提示：使用单大括号包围变量名，如 &#123;username&#125;、&#123;productName&#125; 等
+                提示：使用方括号包围变量名，如 [username]、[productName] 等
               </p>
             </div>
             <div className="space-y-2">
