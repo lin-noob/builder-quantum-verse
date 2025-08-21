@@ -152,7 +152,7 @@ const mockPromptTemplates: PromptTemplate[] = [
     id: 'prompt_3',
     name: '搜索无结果引导',
     scenario: 'search',
-    content: '用户搜索了"{searchTerm}"但没有找到匹配的商品。请生成一个友好的引导弹窗，包含：1. 理解用户的搜索意图 2. 推荐相似或相关的商品类别 3. 提供联系客服的选项 4. 鼓励用户继续浏览。语调要积极正面，帮助用户找到替代方案。',
+    content: '用户搜索了"{searchTerm}"但没有找到匹配的商品。请生成一个友好的��导弹窗，包含：1. 理解用户的搜索意图 2. 推荐相似或相关的商品类别 3. 提供联系客服的选项 4. 鼓励用户继续浏览。语调要积极正面，帮助用户找到替代方案。',
     variables: ['searchTerm'],
     modelId: 'model_3',
     isDefault: false,
@@ -217,7 +217,7 @@ export default function AIModelManagement() {
         <div>
           <h1 className="text-2xl font-bold text-gray-900">AI模型管理</h1>
           <p className="text-sm text-gray-600 mt-1">
-            管理AI模型的接入、配置和提示词模板
+            管理AI模型的接入、配��和提示词模板
           </p>
         </div>
         <div className="flex gap-3">
@@ -465,7 +465,7 @@ export default function AIModelManagement() {
               {selectedModel ? '编辑AI模型' : '接入新AI模型'}
             </DialogTitle>
             <DialogDescription>
-              配置AI模型的基本信息和连接参数
+              配置AI模型��基本信息和连接参数
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
@@ -631,7 +631,7 @@ export default function AIModelManagement() {
               <Label htmlFor="prompt-content">提示词内容</Label>
               <Textarea 
                 id="prompt-content" 
-                placeholder="输入提示词模板，使用 {{变量名}} 表示动态变量..."
+                placeholder="输入提示词模板，使用 {变量名} 表示动态变量..."
                 className="min-h-[200px]"
                 defaultValue={selectedPrompt?.content}
               />
@@ -652,7 +652,7 @@ export default function AIModelManagement() {
                 id="is-default" 
                 defaultChecked={selectedPrompt?.isDefault}
               />
-              <Label htmlFor="is-default">设为该场景的默认模板</Label>
+              <Label htmlFor="is-default">���为该场景的默认模板</Label>
             </div>
           </div>
           <DialogFooter>
