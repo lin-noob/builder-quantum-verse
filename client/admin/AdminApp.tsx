@@ -5,6 +5,7 @@ import UserManagement from './pages/UserManagement';
 import SystemConfig from './pages/SystemConfig';
 import AIModelManagement from './pages/AIModelManagement';
 import ScenarioConfiguration from './pages/ScenarioConfiguration';
+import SecurityPermissions from './pages/SecurityPermissions';
 
 // 临时占位页面组件
 const PlaceholderPage = ({ title }: { title: string }) => (
