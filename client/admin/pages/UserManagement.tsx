@@ -258,7 +258,7 @@ export default function UserManagement() {
   };
 
   const handleEditUser = (user: UserData) => {
-    setSelectedUser(user);
+    setSelectedUser({...user});
     setIsEditDialogOpen(true);
   };
 
@@ -425,7 +425,7 @@ export default function UserManagement() {
         </CardContent>
       </Card>
 
-      {/* 用户列表 */}
+      {/* 用户��表 */}
       <Card>
         <CardHeader>
           <CardTitle>用户列表 ({filteredUsers.length})</CardTitle>
@@ -529,10 +529,10 @@ export default function UserManagement() {
                     <Label>用户名</Label>
                     <Input
                       value={selectedUser.name}
-                      onChange={(e) => setSelectedUser({
-                        ...selectedUser,
+                      onChange={(e) => setSelectedUser(prev => ({
+                        ...prev,
                         name: e.target.value
-                      })}
+                      }))}
                     />
                   </div>
                   <div className="space-y-2">
@@ -540,30 +540,30 @@ export default function UserManagement() {
                     <Input
                       type="email"
                       value={selectedUser.email}
-                      onChange={(e) => setSelectedUser({
-                        ...selectedUser,
+                      onChange={(e) => setSelectedUser(prev => ({
+                        ...prev,
                         email: e.target.value
-                      })}
+                      }))}
                     />
                   </div>
                   <div className="space-y-2">
                     <Label>手机号</Label>
                     <Input
                       value={selectedUser.phone}
-                      onChange={(e) => setSelectedUser({
-                        ...selectedUser,
+                      onChange={(e) => setSelectedUser(prev => ({
+                        ...prev,
                         phone: e.target.value
-                      })}
+                      }))}
                     />
                   </div>
                   <div className="space-y-2">
                     <Label>部门</Label>
                     <Input
                       value={selectedUser.department || ''}
-                      onChange={(e) => setSelectedUser({
-                        ...selectedUser,
+                      onChange={(e) => setSelectedUser(prev => ({
+                        ...prev,
                         department: e.target.value
-                      })}
+                      }))}
                     />
                   </div>
                 </div>
@@ -576,10 +576,10 @@ export default function UserManagement() {
                   <div className="flex items-center space-x-2">
                     <Switch
                       checked={selectedUser.status === 'active'}
-                      onCheckedChange={(checked) => setSelectedUser({
-                        ...selectedUser,
+                      onCheckedChange={(checked) => setSelectedUser(prev => ({
+                        ...prev,
                         status: checked ? 'active' : 'inactive'
-                      })}
+                      }))}
                     />
                     <Label>启用用户账户</Label>
                   </div>
@@ -595,12 +595,14 @@ export default function UserManagement() {
                       <Checkbox
                         checked={selectedUser.roles.includes(role.id)}
                         onCheckedChange={(checked) => {
-                          const newRoles = checked
-                            ? [...selectedUser.roles, role.id]
-                            : selectedUser.roles.filter(r => r !== role.id);
-                          setSelectedUser({
-                            ...selectedUser,
-                            roles: newRoles
+                          setSelectedUser(prev => {
+                            const newRoles = checked
+                              ? [...prev.roles, role.id]
+                              : prev.roles.filter(r => r !== role.id);
+                            return {
+                              ...prev,
+                              roles: newRoles
+                            };
                           });
                         }}
                       />
