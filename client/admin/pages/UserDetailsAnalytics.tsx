@@ -94,7 +94,7 @@ interface UserAnalytics {
   }[];
 }
 
-// 模拟用户分析数据
+// 模���用户分析数据
 const mockUserAnalytics: UserAnalytics = {
   userId: '1',
   basicInfo: {
@@ -129,11 +129,14 @@ const mockUserAnalytics: UserAnalytics = {
   ],
 
   pageVisits: [
-    { page: '/admin/users', visits: 156, timeSpent: 234, bounceRate: 12 },
-    { page: '/admin/ai-models', visits: 89, timeSpent: 167, bounceRate: 8 },
-    { page: '/admin/scenarios', visits: 134, timeSpent: 289, bounceRate: 15 },
-    { page: '/admin/security', visits: 67, timeSpent: 145, bounceRate: 22 },
-    { page: '/admin', visits: 287, timeSpent: 89, bounceRate: 5 }
+    { page: '/dashboard', visits: 287, timeSpent: 1240, bounceRate: 5 },
+    { page: '/ai-marketing-strategies', visits: 234, timeSpent: 890, bounceRate: 12 },
+    { page: '/users', visits: 189, timeSpent: 650, bounceRate: 8 },
+    { page: '/ai-marketing/monitoring-center', visits: 156, timeSpent: 560, bounceRate: 15 },
+    { page: '/effect-tracking', visits: 142, timeSpent: 480, bounceRate: 18 },
+    { page: '/response-actions', visits: 134, timeSpent: 420, bounceRate: 14 },
+    { page: '/ai-marketing/scenarios', visits: 98, timeSpent: 340, bounceRate: 22 },
+    { page: '/ai-marketing/performance', visits: 87, timeSpent: 290, bounceRate: 20 }
   ],
 
   deviceInfo: {
@@ -577,7 +580,7 @@ export default function UserDetailsAnalytics() {
 
           <Card>
             <CardHeader>
-              <CardTitle>地理位置分��</CardTitle>
+              <CardTitle>地理位���分��</CardTitle>
               <CardDescription>用户登录的地理位置统计</CardDescription>
             </CardHeader>
             <CardContent>
