@@ -636,7 +636,7 @@ export default function AIModelManagement() {
                 defaultValue={selectedPrompt?.content}
               />
               <p className="text-xs text-gray-500">
-                提示：使用单大括号包围变量名，如 {username}、{productName} 等
+                提示：使用单大括号包围变量名，如 &#123;username&#125;、&#123;productName&#125; 等
               </p>
             </div>
             <div className="space-y-2">
