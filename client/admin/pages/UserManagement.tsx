@@ -149,47 +149,80 @@ const mockUsers: UserData[] = [
   },
   {
     id: '2',
-    name: '营销经理',
-    email: 'marketing.manager@company.com',
-    phone: '+86 138-0000-0002',
-    roles: ['admin'],
+    name: '李运营',
+    email: 'li.yunying@enterprise.com',
+    phone: '+86 138-2002-0002',
+    roles: ['operator'], // 主平台高级用户
     status: 'active',
-    lastLogin: '2025/01/20 08:45',
-    createdAt: '2024/01/15',
-    department: '营销部'
+    lastLogin: '2025/01/20 14:22',
+    createdAt: '2024/02/28',
+    department: '运营部'
   },
   {
     id: '3',
-    name: '营销专员',
-    email: 'marketing.operator@company.com',
-    phone: '+86 138-0000-0003',
-    roles: ['operator'],
+    name: '王总监',
+    email: 'wang.director@company.com',
+    phone: '+86 138-3003-0003',
+    roles: ['admin'], // 主平台企业管理员
     status: 'active',
-    lastLogin: '2025/01/19 17:20',
-    createdAt: '2024/01/20',
-    department: '营销部'
+    lastLogin: '2025/01/20 11:45',
+    createdAt: '2024/01/10',
+    department: '营销总监'
   },
   {
     id: '4',
-    name: '数据分析师',
-    email: 'data.analyst@company.com',
-    phone: '+86 138-0000-0004',
+    name: '陈分析师',
+    email: 'chen.analyst@startup.com',
+    phone: '+86 138-4004-0004',
     roles: ['viewer'],
     status: 'active',
-    lastLogin: '2025/01/18 14:30',
-    createdAt: '2024/01/25',
+    lastLogin: '2025/01/19 16:30',
+    createdAt: '2024/04/20',
     department: '数据部'
   },
   {
     id: '5',
-    name: '实习生',
-    email: 'intern@company.com',
-    phone: '+86 138-0000-0005',
-    roles: ['viewer'],
+    name: '刘专员',
+    email: 'liu.specialist@corp.com',
+    phone: '+86 138-5005-0005',
+    roles: ['operator'],
+    status: 'active',
+    lastLogin: '2025/01/19 09:15',
+    createdAt: '2024/05/08',
+    department: '品牌部'
+  },
+  {
+    id: '6',
+    name: '周策划',
+    email: 'zhou.planner@media.com',
+    phone: '+86 138-6006-0006',
+    roles: ['operator'],
     status: 'inactive',
-    lastLogin: '2025/01/15 16:20',
-    createdAt: '2024/02/01',
-    department: '营销部'
+    lastLogin: '2025/01/15 17:20',
+    createdAt: '2024/06/12',
+    department: '创意部'
+  },
+  {
+    id: '7',
+    name: '吴经理',
+    email: 'wu.manager@business.com',
+    phone: '+86 138-7007-0007',
+    roles: ['admin'],
+    status: 'active',
+    lastLogin: '2025/01/20 08:45',
+    createdAt: '2024/01/25',
+    department: '业务部'
+  },
+  {
+    id: '8',
+    name: '赵顾问',
+    email: 'zhao.consultant@advisory.com',
+    phone: '+86 138-8008-0008',
+    roles: ['viewer'],
+    status: 'active',
+    lastLogin: '2025/01/18 15:30',
+    createdAt: '2024/07/03',
+    department: '咨询部'
   }
 ];
 
