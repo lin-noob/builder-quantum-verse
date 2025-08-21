@@ -420,7 +420,7 @@ export default function UserManagement() {
               <TableRow>
                 <TableHead>用户信息</TableHead>
                 <TableHead>角色</TableHead>
-                <TableHead>状态</TableHead>
+                <TableHead>状��</TableHead>
                 <TableHead>最近登录</TableHead>
                 <TableHead>创建时间</TableHead>
                 <TableHead>操作</TableHead>
@@ -474,10 +474,6 @@ export default function UserManagement() {
                         <DropdownMenuItem onClick={() => navigate(`/admin/users/${user.id}/details`)}>
                           <Eye className="h-4 w-4 mr-2" />
                           查看详情
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleEditUser(user)}>
-                          <Edit className="h-4 w-4 mr-2" />
-                          编辑用户
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => handleDeleteUser(user.id)}>
                           <Trash2 className="h-4 w-4 mr-2" />
@@ -653,7 +649,7 @@ export default function UserManagement() {
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>添���新用户</DialogTitle>
+            <DialogTitle>添加新用户</DialogTitle>
             <DialogDescription>
               创建新的用户账户并分配角色
             </DialogDescription>
