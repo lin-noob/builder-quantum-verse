@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, DialogActions } from '@/components/ui/alert-dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel } from '@/components/ui/alert-dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Settings, Plus, Edit, Trash2, Brain, Zap, Globe, Key, TestTube, CheckCircle2, XCircle, AlertTriangle } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -262,7 +262,7 @@ export default function AIModelManagement() {
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">月度��用</CardTitle>
+                <CardTitle className="text-sm font-medium">月度调用</CardTitle>
                 <Zap className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
@@ -571,7 +571,7 @@ export default function AIModelManagement() {
         </DialogContent>
       </Dialog>
 
-      {/* 提示词模板配置对话框 */}
+      {/* 提示���模板配置对话框 */}
       <Dialog open={isPromptDialogOpen} onOpenChange={setIsPromptDialogOpen}>
         <DialogContent className="max-w-3xl">
           <DialogHeader>
@@ -599,7 +599,7 @@ export default function AIModelManagement() {
                     <SelectValue placeholder="选择营销场景" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="add_to_cart">加入购物车</SelectItem>
+                    <SelectItem value="add_to_cart">加入��物车</SelectItem>
                     <SelectItem value="view_product">查看商品</SelectItem>
                     <SelectItem value="user_signup">用户注册</SelectItem>
                     <SelectItem value="user_login">用户登录</SelectItem>
