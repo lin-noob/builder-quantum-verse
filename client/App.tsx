@@ -1,8 +1,4 @@
-// Temporarily disable warning suppression to debug React error
-// import "./lib/nuclearWarningSuppress"; // Nuclear warning suppression - ABSOLUTE FIRST
-// import "./lib/ultimateWarningSuppress"; // Ultimate warning suppression - MUST be first
-// import "./lib/reactDevOverride"; // React development override
-// import "./lib/finalWarningFix"; // Final definitive warning suppression
+import "./lib/safeWarningSuppress"; // Safe warning suppression that doesn't break React
 import "./global.css";
 
 import React from "react";
