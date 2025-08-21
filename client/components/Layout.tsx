@@ -320,6 +320,30 @@ export default function Layout({ children }: LayoutProps) {
           </div>
           */}
 
+          {/* 管理后台入口 - 仅管理员可见 */}
+          {currentUser && currentUser.isAdmin && (
+            <Link
+              to="/admin"
+              className={cn(
+                "flex items-center gap-3 p-2 rounded-lg text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-colors border border-orange-200 bg-orange-50",
+                isSidebarCollapsed ? "justify-center" : "justify-start",
+              )}
+              title={isSidebarCollapsed ? "系统管理后台" : ""}
+            >
+              <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center flex-shrink-0">
+                <Settings className="h-4 w-4 text-white" />
+              </div>
+              {!isSidebarCollapsed && (
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-orange-900 truncate">
+                    管理后台
+                  </p>
+                  <p className="text-xs text-orange-600 truncate">系统管理</p>
+                </div>
+              )}
+            </Link>
+          )}
+
           {/* 用户信息 */}
           {currentUser ? (
             <Link
@@ -356,7 +380,7 @@ export default function Layout({ children }: LayoutProps) {
                 "flex items-center gap-3 p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-colors border border-dashed border-gray-300",
                 isSidebarCollapsed ? "justify-center" : "justify-start",
               )}
-              title={isSidebarCollapsed ? "点击登录" : ""}
+              title={isSidebarCollapsed ? "点��登录" : ""}
             >
               <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center flex-shrink-0">
                 <User className="h-4 w-4 text-gray-500" />
