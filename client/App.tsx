@@ -318,8 +318,3 @@ const App = () => (
 );
 
 export default App;
-
-// Only render if this is the main entry point
-if (typeof window !== 'undefined' && document.getElementById("root")) {
-  createRoot(document.getElementById("root")!).render(<App />);
-}
