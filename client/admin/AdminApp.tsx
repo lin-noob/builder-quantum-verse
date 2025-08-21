@@ -29,6 +29,9 @@ export default function AdminApp() {
         {/* 用户管理 */}
         <Route path="/users" element={<UserManagement />} />
 
+        {/* 用户详情分析 */}
+        <Route path="/users/:userId/details" element={<UserDetailsAnalytics />} />
+
         {/* AI模型管理 */}
         <Route path="/ai-models" element={<AIModelManagement />} />
 
