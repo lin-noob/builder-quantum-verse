@@ -39,6 +39,7 @@ import ResetPassword from "./pages/ResetPassword";
 import UserProfile from "./pages/UserProfile";
 import EffectTracking from "./pages/EffectTracking";
 import { usePageRequestManager } from "./hooks/useRequestManager";
+import AdminApp from "../admin/AdminApp";
 
 const queryClient = new QueryClient();
 
