@@ -138,14 +138,14 @@ const mockRoles: Role[] = [
 const mockUsers: UserData[] = [
   {
     id: '1',
-    name: '系统管理员',
-    email: 'admin@company.com',
-    phone: '+86 138-0000-0001',
-    roles: ['super_admin'],
+    name: '张营销',
+    email: 'zhang.marketing@client.com',
+    phone: '+86 138-1001-0001',
+    roles: ['viewer'], // 主平台普通用户
     status: 'active',
     lastLogin: '2025/01/20 09:30',
-    createdAt: '2024/01/10',
-    department: '技术部'
+    createdAt: '2024/03/15',
+    department: '市场部'
   },
   {
     id: '2',
