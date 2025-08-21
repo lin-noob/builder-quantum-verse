@@ -44,7 +44,8 @@ export default function Layout({ children }: LayoutProps) {
     setCurrentUser(user);
   }, [location]); // 当路由变化时重新检查用户状态
 
-  const menuItems: MenuItem[] = [
+  // 基础菜单项
+  const baseMenuItems: MenuItem[] = [
     {
       id: "dashboard",
       label: "仪表盘",
