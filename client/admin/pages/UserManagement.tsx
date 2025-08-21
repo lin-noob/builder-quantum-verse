@@ -77,7 +77,7 @@ export interface UserData {
   department?: string;
 }
 
-// 角色类型定义（从SecurityPermissions������用）
+// 角色类型定义（从SecurityPermissions中���用）
 export interface Role {
   id: string;
   name: string;
@@ -138,7 +138,7 @@ const mockRoles: Role[] = [
   }
 ];
 
-// 模���用户���据
+// 模拟用户���据
 const mockUsers: UserData[] = [
   {
     id: '1',
@@ -205,7 +205,6 @@ export default function UserManagement() {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [roleFilter, setRoleFilter] = useState<string>('all');
   const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 
   // 筛选用户
