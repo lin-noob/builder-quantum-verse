@@ -77,7 +77,7 @@ export interface UserData {
   department?: string;
 }
 
-// 角色类型定义（从SecurityPermissions中���用）
+// 角色类型定义（从SecurityPermissions������用）
 export interface Role {
   id: string;
   name: string;
@@ -138,7 +138,7 @@ const mockRoles: Role[] = [
   }
 ];
 
-// 模拟用户���据
+// 模���用户���据
 const mockUsers: UserData[] = [
   {
     id: '1',
@@ -682,10 +682,10 @@ export default function UserManagement() {
                   <Label>用户名 *</Label>
                   <Input
                     value={selectedUser.name}
-                    onChange={(e) => setSelectedUser({
-                      ...selectedUser,
+                    onChange={(e) => setSelectedUser(prev => ({
+                      ...prev,
                       name: e.target.value
-                    })}
+                    }))}
                     placeholder="输入用户名"
                   />
                 </div>
@@ -694,10 +694,10 @@ export default function UserManagement() {
                   <Input
                     type="email"
                     value={selectedUser.email}
-                    onChange={(e) => setSelectedUser({
-                      ...selectedUser,
+                    onChange={(e) => setSelectedUser(prev => ({
+                      ...prev,
                       email: e.target.value
-                    })}
+                    }))}
                     placeholder="user@company.com"
                   />
                 </div>
@@ -705,10 +705,10 @@ export default function UserManagement() {
                   <Label>手机号</Label>
                   <Input
                     value={selectedUser.phone}
-                    onChange={(e) => setSelectedUser({
-                      ...selectedUser,
+                    onChange={(e) => setSelectedUser(prev => ({
+                      ...prev,
                       phone: e.target.value
-                    })}
+                    }))}
                     placeholder="+86 138-0000-0000"
                   />
                 </div>
@@ -716,10 +716,10 @@ export default function UserManagement() {
                   <Label>部门</Label>
                   <Input
                     value={selectedUser.department || ''}
-                    onChange={(e) => setSelectedUser({
-                      ...selectedUser,
+                    onChange={(e) => setSelectedUser(prev => ({
+                      ...prev,
                       department: e.target.value
-                    })}
+                    }))}
                     placeholder="所属部门"
                   />
                 </div>
@@ -732,12 +732,14 @@ export default function UserManagement() {
                     <Checkbox
                       checked={selectedUser.roles.includes(role.id)}
                       onCheckedChange={(checked) => {
-                        const newRoles = checked
-                          ? [...selectedUser.roles, role.id]
-                          : selectedUser.roles.filter(r => r !== role.id);
-                        setSelectedUser({
-                          ...selectedUser,
-                          roles: newRoles
+                        setSelectedUser(prev => {
+                          const newRoles = checked
+                            ? [...prev.roles, role.id]
+                            : prev.roles.filter(r => r !== role.id);
+                          return {
+                            ...prev,
+                            roles: newRoles
+                          };
                         });
                       }}
                     />
