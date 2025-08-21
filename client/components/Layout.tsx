@@ -64,24 +64,6 @@ export default function Layout({ children }: LayoutProps) {
       path: "/ai-marketing/scenarios",
       icon: <Bot className="h-5 w-5" />,
     },
-    // {
-    //   id: "fully-auto",
-    //   label: "全自动营销",
-    //   path: "/ai-marketing/fully-auto",
-    //   icon: <Bot className="h-5 w-5" />,
-    // },
-    // {
-    //   id: "response-actions",
-    //   label: "响应动作库",
-    //   path: "/response-actions",
-    //   icon: <MessageSquare className="h-5 w-5" />,
-    // },
-    // {
-    //   id: "ai-marketing-strategies",
-    //   label: "营销策略",
-    //   path: "/ai-marketing-strategies",
-    //   icon: <Zap className="h-5 w-5" />,
-    // },
     {
       id: "monitoring-center",
       label: "监控中心",
@@ -94,19 +76,22 @@ export default function Layout({ children }: LayoutProps) {
       path: "/effect-tracking",
       icon: <Target className="h-5 w-5" />,
     },
-    // 隐藏旧版本
-    // {
-    //   id: "old-dashboard",
-    //   label: "仪���盘1.0",
-    //   path: "/dashboard",
-    //   icon: <BarChart3 className="h-5 w-5" />,
-    // },
-    // {
-    //   id: "old-users",
-    //   label: "用户画像1.0",
-    //   path: "/users",
-    //   icon: <Users className="h-5 w-5" />,
-    // },
+  ];
+
+  // 管理员专用菜单项
+  const adminMenuItems: MenuItem[] = [
+    {
+      id: "admin",
+      label: "系统管理",
+      path: "/admin",
+      icon: <Settings className="h-5 w-5" />,
+    },
+  ];
+
+  // 根据用户权限组合菜单
+  const menuItems: MenuItem[] = [
+    ...baseMenuItems,
+    ...(currentUser && currentUser.isAdmin ? adminMenuItems : []),
   ];
 
   return (
