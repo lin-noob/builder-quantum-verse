@@ -76,7 +76,7 @@ export interface UserData {
   department?: string;
 }
 
-// 角色类型定义（从SecurityPermissions中复用）
+// 角色类型定义（从SecurityPermissions中���用）
 export interface Role {
   id: string;
   name: string;
@@ -137,7 +137,7 @@ const mockRoles: Role[] = [
   }
 ];
 
-// 模拟用户数据
+// 模拟用户���据
 const mockUsers: UserData[] = [
   {
     id: '1',
@@ -314,7 +314,7 @@ export default function UserManagement() {
         <div>
           <h1 className="text-2xl font-bold text-gray-900">用户管理</h1>
           <p className="text-sm text-gray-600 mt-1">
-            管理系统用户账户、角色权限和状态
+            管��系统用户账户、角色权限和状态
           </p>
         </div>
         <Button onClick={handleAddUser}>
@@ -346,7 +346,7 @@ export default function UserManagement() {
           <CardContent>
             <div className="text-2xl font-bold text-green-600">{stats.active}</div>
             <p className="text-xs text-muted-foreground">
-              正常状态用户
+              正常状态��户
             </p>
           </CardContent>
         </Card>
@@ -485,6 +485,10 @@ export default function UserManagement() {
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>操作</DropdownMenuLabel>
                         <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => window.open(`/admin/users/${user.id}/details`, '_blank')}>
+                          <Eye className="h-4 w-4 mr-2" />
+                          查看详情
+                        </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => handleEditUser(user)}>
                           <Edit className="h-4 w-4 mr-2" />
                           编辑用户
