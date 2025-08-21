@@ -44,7 +44,6 @@ import {
   Search,
   Plus,
   MoreHorizontal,
-  Edit,
   Trash2,
   Shield,
   Mail,
@@ -55,12 +54,9 @@ import {
   XCircle,
   Clock,
   Crown,
-  Key,
   Users,
   Settings,
-  Eye,
-  Lock,
-  Unlock
+  Eye
 } from 'lucide-react';
 
 // 用户类型定义
@@ -153,7 +149,7 @@ const mockUsers: UserData[] = [
   },
   {
     id: '2',
-    name: '营销经��',
+    name: '营销经理',
     email: 'marketing.manager@company.com',
     phone: '+86 138-0000-0002',
     roles: ['admin'],
@@ -257,7 +253,7 @@ export default function UserManagement() {
   };
 
   const handleDeleteUser = (userId: string) => {
-    if (confirm('确定要删除这个用户吗？')) {
+    if (confirm('确定要删除这个��户吗？')) {
       setUsers(prev => prev.filter(u => u.id !== userId));
     }
   };
