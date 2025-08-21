@@ -487,7 +487,7 @@ export default function UserManagement() {
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>操作</DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => window.open(`/admin/users/${user.id}/details`, '_blank')}>
+                        <DropdownMenuItem onClick={() => navigate(`/admin/users/${user.id}/details`)}>
                           <Eye className="h-4 w-4 mr-2" />
                           查看详情
                         </DropdownMenuItem>
