@@ -4,18 +4,6 @@ import path from "path";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
-  define: {
-    // Disable React warnings completely
-    __DEV__: false, // Force disable React dev mode
-    "process.env.NODE_ENV": JSON.stringify(mode),
-    // Additional suppression flags
-    "process.env.SUPPRESS_WARNINGS": "true",
-    "process.env.DISABLE_REACT_WARNINGS": "true",
-    // React specific flags
-    "__REACT_DEVTOOLS_GLOBAL_HOOK__": "undefined",
-    "global.__DEV__": false,
-    "globalThis.__DEV__": false,
-  },
   server: {
     host: "::",
     port: 8080,

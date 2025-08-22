@@ -100,12 +100,12 @@ export default function Layout({ children }: LayoutProps) {
     //   path: "/dashboard",
     //   icon: <BarChart3 className="h-5 w-5" />,
     // },
-    // {
-    //   id: "old-users",
-    //   label: "用户画像1.0",
-    //   path: "/users",
-    //   icon: <Users className="h-5 w-5" />,
-    // },
+    {
+      id: "old-users",
+      label: "用户画像1.0",
+      path: "/users",
+      icon: <Users className="h-5 w-5" />,
+    },
   ];
 
   return (

@@ -41,8 +41,6 @@ import {
   ContentStrategy,
   ConditionOperator,
   ConditionCategory,
-  addOverrideRule,
-  updateOverrideRule,
 } from "../../shared/aiMarketingScenarioData";
 
 interface RuleBuilderModalProps {
@@ -383,32 +381,75 @@ const RuleBuilderModal = ({
 
     setLoading(true);
     try {
-      const ruleData = {
-        ruleName,
-        priority: scenario.overrideRules.length + 1,
-        isEnabled: true,
-        triggerConditions,
-        responseAction,
+      // 构建触发条件描述
+      const triggerConditionDescriptions: string[] = [];
+      
+      // 处理事件条件
+      triggerConditions.eventConditions.forEach(condition => {
+        const fieldLabel = scenario.availableFields.event?.find(f => f.field === condition.field)?.label || condition.field;
+        const operatorLabel = operatorLabels[condition.operator];
+        triggerConditionDescriptions.push(`${fieldLabel}${operatorLabel}${condition.value}`);
+      });
+      
+      // 处理用户条件
+      triggerConditions.userConditions.forEach(condition => {
+        const fieldLabel = scenario.availableFields.user?.find(f => f.field === condition.field)?.label || condition.field;
+        const operatorLabel = operatorLabels[condition.operator];
+        triggerConditionDescriptions.push(`${fieldLabel}${operatorLabel}${condition.value}`);
+      });
+
+      // 构建用户画像条件JSON
+      const conditions = {
+        event: triggerConditions.eventConditions.map(c => ({
+          field: c.field,
+          operator: c.operator,
+          value: c.value
+        })),
+        user: triggerConditions.userConditions.map(c => ({
+          field: c.field,
+          operator: c.operator,
+          value: c.value
+        }))
       };
 
-      if (rule) {
-        // 更新现有规则
-        await updateOverrideRule(scenario.scenarioId, rule.ruleId, ruleData);
-        toast({
-          title: "规则已更新",
-          description: `自定义规则「${ruleName}」已更新`,
-        });
-      } else {
-        // 创建新规则
-        await addOverrideRule(scenario.scenarioId, ruleData);
-        toast({
-          title: "规则已创建",
-          description: `自定义规则「${ruleName}」已创建`,
-        });
+      // 构建新的API数据结构
+      const apiData = {
+        id: rule?.ruleId, // 编辑时传入规则ID
+        sceneId: scenario.scenarioId,
+        ruleName,
+        triggerCondition: triggerConditionDescriptions.length > 0 ? triggerConditionDescriptions.join(' 且 ') : '',
+        marketingMethod: responseAction.actionType,
+        marketingTiming: responseAction.timing,
+        contentMode: responseAction.contentMode,
+        popupTitle: responseAction.actionConfig.title || '',
+        popupContent: responseAction.actionConfig.body || responseAction.actionConfig.emailBody || responseAction.actionConfig.smsContent || '',
+        buttonText: responseAction.actionConfig.buttonText || '',
+        status: 1, // 1表示启用
+        instruction: responseAction.actionConfig.aiPrompt || '',
+        conditions: JSON.stringify(conditions)
+      };
+
+      // 调用新的API接口
+      const response = await fetch('/quote/api/v1/scene/rule', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(apiData),
+      });
+
+      if (!response.ok) {
+        throw new Error('保存失败');
       }
+
+      toast({
+        title: rule ? "规则已更新" : "规则已创建",
+        description: `自定义规则「${ruleName}」已${rule ? '更新' : '创建'}`,
+      });
 
       onSave();
     } catch (error) {
+      console.error('Save rule error:', error);
       toast({
         title: "保存失败",
         description: "无法保存规则，请重试",
