@@ -53,7 +53,15 @@ export const usePageRequestManager = () => {
   useEffect(() => {
     // 页面加载时的处理
     const handleBeforeUnload = () => {
-      request.abortAllRequests();
+      try {
+        request.abortAllRequests();
+      } catch (error) {
+        if (process.env.NODE_ENV === 'development') {
+          console.debug('Requests aborted during page unload (development)');
+        } else {
+          console.warn('Error aborting requests during page unload:', error);
+        }
+      }
     };
 
     // 注册页面卸��事件
@@ -61,7 +69,15 @@ export const usePageRequestManager = () => {
 
     return () => {
       // 页面卸载时清理所有请求
-      request.abortAllRequests();
+      try {
+        request.abortAllRequests();
+      } catch (error) {
+        if (process.env.NODE_ENV === 'development') {
+          console.debug('Requests aborted during page unload (development)');
+        } else {
+          console.warn('Error aborting requests during page unload:', error);
+        }
+      }
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
   }, []);
