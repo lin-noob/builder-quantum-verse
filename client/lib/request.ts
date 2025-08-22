@@ -286,7 +286,7 @@ export class Request {
           data = await response.json();
       }
     } catch (error) {
-      // 解析失败时返回null，但仍然返回响应信息
+      // 解��失败时返回null，但仍然返回响应信息
       console.error(`Failed to parse response as ${responseType}:`, error);
       data = null;
     }
@@ -417,6 +417,13 @@ export class Request {
       // 根据错误类型抛出相应的错误
       switch (errorInfo.type) {
         case "TIMEOUT":
+          // 在开发环境中，提供更好的超时处理
+          if (process.env.NODE_ENV === 'development') {
+            console.warn(`Request timeout in development: ${url}`);
+            console.warn('开发环境提示：后端服务可能未启动，建议检查服务状态');
+            // 返回一个默认响应而不是抛出错误
+            return { data: null, status: 408, statusText: 'Request Timeout' } as any;
+          }
           throw new RequestError(
             "请求超时，可能是网络连接问题或后端服务未启动",
             408,
