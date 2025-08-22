@@ -162,7 +162,9 @@ export default function Layout({ children }: LayoutProps) {
                   const isActive =
                     location.pathname === item.path ||
                     (item.id === "dashboard" && (location.pathname === "/" || location.pathname === "/dashboard" || location.pathname === "/dashboard2")) ||
-                    (item.id === "users" && (location.pathname === "/users" || location.pathname === "/users2" || location.pathname.startsWith("/users/"))) ||
+                    (item.id === "dashboard1" && location.pathname === "/dashboard1") ||
+                    (item.id === "users" && (location.pathname === "/users" || location.pathname === "/users2" || location.pathname.startsWith("/users2/"))) ||
+                    (item.id === "users1" && (location.pathname === "/users1" || location.pathname.startsWith("/users1/"))) ||
                     (item.id === "ai-marketing-scenarios" &&
                       location.pathname.startsWith("/ai-marketing/scenarios")) ||
                     (item.id === "monitoring-center" &&
