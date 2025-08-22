@@ -350,7 +350,7 @@ export class Request {
     } = config;
 
     // 在开发环境中，对于特定的API路径，直接返回mock响应避免超时
-    if (process.env.NODE_ENV === 'development' &&
+    if (false && process.env.NODE_ENV === 'development' &&
         (window.location.hostname === 'localhost' || window.location.hostname.includes('fly.dev')) &&
         url.includes('/quote/api/')) {
       console.log(`Mock response for ${method} ${url} in development environment`);
@@ -380,7 +380,7 @@ export class Request {
             status: 0,
             aiStrategyConfig: JSON.stringify({
               defaultAIConfig: {
-                description: "根据用户浏览行为和商品信息，推荐相关产品或优惠",
+                description: "根据用户浏览行为��商品信息，推荐相关产品或优惠",
                 strategySummary: "通过智能推荐提升用户购买转化。",
                 coreStrategies: ["个性化推荐", "智能营销", "精准投放"]
               }
