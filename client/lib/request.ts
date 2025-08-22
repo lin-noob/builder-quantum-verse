@@ -6,7 +6,7 @@ import { ErrorHandler } from "./errorHandler";
 export interface RequestConfig {
   /** 请求头 */
   headers?: Record<string, string>;
-  /** 超时时��(毫秒) */
+  /** ���时时��(毫秒) */
   timeout?: number;
   /** 是否携带凭证 */
   credentials?: RequestCredentials;
@@ -127,39 +127,51 @@ class RequestManager {
   }
 
   abortAllRequests() {
+    // 在开发环境中，使用更激进的静默处理
+    if (process.env.NODE_ENV === 'development') {
+      try {
+        const controllers = Array.from(this.requests.values());
+
+        // 使用 Promise-based 方法来完全静默处理错误
+        controllers.forEach((controller) => {
+          Promise.resolve().then(() => {
+            try {
+              if (controller && !controller.signal.aborted) {
+                controller.abort();
+              }
+            } catch (e) {
+              // 完全静默，不做任何处理
+            }
+          }).catch(() => {
+            // 捕获任何异步错误，完全静默
+          });
+        });
+      } catch (e) {
+        // 完全静默处理任何同步错误
+      } finally {
+        this.requests.clear();
+      }
+      return;
+    }
+
+    // 生产环境的处理
     try {
-      // 创建controllers的副本以避免在遍历时修改Map
       const controllers = Array.from(this.requests.values());
 
-      controllers.forEach((controller, index) => {
+      controllers.forEach((controller) => {
         try {
-          // 检查controller是否存在且未被中止
           if (controller && !controller.signal.aborted) {
             controller.abort();
           }
         } catch (error) {
-          // 静默处理所有abort相关错误，特别是在开发环境中
-          if (process.env.NODE_ENV === 'development') {
-            // 开发环境下完全静默，因为这些错误通常是由HMR/页面重载引起的
-            return;
-          } else {
-            // 生产环境中只记录非AbortError
-            if (error instanceof Error && !error.name.includes('Abort')) {
-              console.warn('Error aborting request:', error);
-            }
+          if (error instanceof Error && !error.name.includes('Abort')) {
+            console.warn('Error aborting request:', error);
           }
         }
       });
     } catch (error) {
-      // 捕获整个操作中的任何错误
-      if (process.env.NODE_ENV === 'development') {
-        // 开发环境下静默处理
-        return;
-      } else {
-        console.warn('Error during request cleanup:', error);
-      }
+      console.warn('Error during request cleanup:', error);
     } finally {
-      // 确保总是清理requests map
       this.requests.clear();
     }
   }
