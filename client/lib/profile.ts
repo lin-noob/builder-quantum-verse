@@ -132,6 +132,7 @@ export async function getUserEventList(
         headers: {
           "Content-Type": "application/json",
         },
+        timeout: 5000, // 减少超时时间到5秒
       },
     );
 
