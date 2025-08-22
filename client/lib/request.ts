@@ -41,7 +41,7 @@ export type RequestData =
  */
 export interface RequestOptions
   extends Omit<RequestConfig, "beforeRequest" | "afterResponse" | "onError"> {
-  /** 请求方法 */
+  /** 请求方�� */
   method?: RequestMethod;
   /** 请求数据 */
   data?: RequestData;
@@ -104,7 +104,7 @@ class RequestManager {
   private requests = new Map<string, AbortController>();
 
   createController(requestId: string): AbortController {
-    // 如果已存在相同ID的请求，先取消它
+    // 如果已存在相��ID的请求，先取消它
     if (this.requests.has(requestId)) {
       this.requests.get(requestId)?.abort();
     }
@@ -389,6 +389,12 @@ export class Request {
             "Request Timeout"
           );
         case "ABORT":
+          // 在开发环境中，AbortError通常是由热重载或页面卸载引起的，不应作为真正的错误
+          if (process.env.NODE_ENV === 'development' &&
+              (error as Error).message.includes('signal is aborted without reason')) {
+            console.debug('Request aborted due to page reload/navigation (development)');
+            return { data: null, status: 499, statusText: 'Aborted' } as any;
+          }
           throw new RequestError(
             "Request aborted",
             499,
