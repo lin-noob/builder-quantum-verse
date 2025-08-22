@@ -300,10 +300,19 @@ export class Request {
   private createTimeoutController(timeout: number, requestId: string) {
     const controller = this.requestManager.createController(requestId);
     const timeoutId = setTimeout(() => {
-      if (!controller.signal.aborted) {
-        console.warn(`Request timeout after ${timeout}ms: ${requestId}`);
-        console.warn(`如果是开发环境，请检查后端���务是否运行在配置的地址上`);
-        controller.abort(new Error("Request timeout"));
+      try {
+        if (!controller.signal.aborted) {
+          if (process.env.NODE_ENV === 'development') {
+            console.warn(`Request timeout after ${timeout}ms: ${requestId}`);
+            console.warn(`开发环境提示：请检查后端服务是否运行在配置的地址上`);
+          }
+          controller.abort(new Error("Request timeout"));
+        }
+      } catch (error) {
+        // 静默处理超时abort中的错误
+        if (process.env.NODE_ENV === 'development') {
+          console.debug('Timeout abort handled (development)');
+        }
       }
     }, timeout);
 
@@ -414,7 +423,7 @@ export class Request {
             "Request Timeout"
           );
         case "ABORT":
-          // 在开发环境中，AbortError通常是由热重载或页面卸载引起的，不应作为真正的错误
+          // 在开发环境中，AbortError通常是由热重载或页面��载引起的，不应作为真正的错误
           if (process.env.NODE_ENV === 'development') {
             console.debug('Request aborted due to page reload/navigation (development)');
             return { data: null, status: 499, statusText: 'Aborted' } as any;
@@ -459,7 +468,7 @@ export class Request {
   }
 
   /**
-   * PUT请求
+   * PUT请��
    */
   async put<T = any>(
     url: string,
