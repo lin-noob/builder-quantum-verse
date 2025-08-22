@@ -17,15 +17,142 @@ import {
   Target,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { request } from "@/lib/request";
 import {
   MarketingScenario,
   OverrideRule,
-  getMarketingScenario,
+  DefaultAIConfig,
   updateMarketingScenario,
   updateOverrideRule,
   deleteOverrideRule,
   updateRulePriorities,
+  ActionType,
+  ConditionCategory,
+  ContentStrategy,
+  TimingStrategy,
+  TriggerConditions,
 } from "../../../shared/aiMarketingScenarioData";
+
+// API响应的场景详情接口
+interface ApiScenarioDetail {
+  id: string;
+  sceneName: string;
+  status: number;
+  aiStrategyConfig: string;
+  gmtCreate: string;
+  gmtModified: string;
+  decisionBasis?: string | null;
+  marketingContent?: string | null;
+  marketingMethod?: string | null;
+  marketingTiming?: string | null;
+  nullId: boolean;
+  strategyExample?: string | null;
+  tenantId?: string | null;
+  marketingSceneRules?: MarketingSceneRule[];
+}
+
+interface MarketingSceneRule {
+  id:string;
+  sceneId: string;
+  ruleName: string;
+  triggerCondition?: string;
+  marketingMethod: string;
+  marketingTiming: string;
+  contentMode: string;
+  popupTitle: string;
+  popupContent: string;
+  buttonText?: string;
+  status: number;
+  instruction?: string;
+  conditions?: string;
+}
+
+// 解析AI策略配置
+const parseAIConfig = (configStr: string): DefaultAIConfig => {
+  try {
+    const config = JSON.parse(configStr);
+    return config.defaultAIConfig || {};
+  } catch {
+    return {};
+  }
+};
+
+// 解析用户画像条件
+const parseConditions = (conditionsStr?: string): TriggerConditions => {
+  try {
+    if (!conditionsStr) return { eventConditions: [], sessionConditions: [], userConditions: [] };
+    
+    const conditions = JSON.parse(conditionsStr);
+    return {
+      eventConditions: conditions.event?.map((c: any, index: number) => ({
+        id: `event_${index}`,
+        category: 'event' as ConditionCategory,
+        field: c.field,
+        operator: c.operator,
+        value: c.value.toString()
+      })) || [],
+      sessionConditions: [],
+      userConditions: conditions.user?.map((c: any, index: number) => ({
+        id: `user_${index}`,
+        category: 'user' as ConditionCategory,
+        field: c.field,
+        operator: c.operator,
+        value: c.value.toString()
+      })) || []
+    };
+  } catch {
+    return { eventConditions: [], sessionConditions: [], userConditions: [] };
+  }
+};
+
+// 将API规则数据转换为OverrideRule格式
+const transformMarketingRuleToOverrideRule = (rule: MarketingSceneRule, index: number): OverrideRule => {
+  return {
+    ruleId: rule.id,
+    ruleName: rule.ruleName,
+    priority: index + 1,
+    isEnabled: rule.status === 1,
+    triggerConditions: parseConditions(rule.conditions),
+    responseAction: {
+      actionType: rule.marketingMethod as ActionType,
+      timing: rule.marketingTiming as TimingStrategy,
+      contentMode: rule.contentMode as ContentStrategy,
+      actionConfig: {
+        title: rule.popupTitle,
+        body: rule.popupContent,
+        buttonText: rule.buttonText,
+        aiPrompt: rule.instruction
+      }
+    },
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  };
+};
+
+// 将API数据转换为MarketingScenario格式
+const transformApiDataToMarketingScenario = (
+  apiData: ApiScenarioDetail,
+): MarketingScenario => {
+  const aiConfig = parseAIConfig(apiData.aiStrategyConfig);
+
+  return {
+    scenarioId: apiData.id,
+    scenarioName: apiData.sceneName,
+    isAIEnabled: apiData.status === 1,
+    defaultAIConfig: aiConfig,
+    overrideRules: apiData.marketingSceneRules?.map((rule, index) => 
+      transformMarketingRuleToOverrideRule(rule, index)
+    ) || [],
+    businessValue: aiConfig.description || "",
+    createdAt: apiData.gmtCreate,
+    updatedAt: apiData.gmtModified,
+    availableFields: {
+      event: [],
+      session: [],
+      user: [],
+    },
+  };
+};
 import {
   AlertDialog,
   AlertDialogAction,
@@ -66,7 +193,25 @@ const ScenarioConfig = () => {
 
     try {
       setLoading(true);
-      const data = await getMarketingScenario(scenarioId);
+      const response = await request.get(
+        `/quote/api/v1/scene/view/${scenarioId}`,
+      );
+      const data = transformApiDataToMarketingScenario(response.data);
+
+      data.availableFields = {
+        event: [],
+        session: [{ field: "device_type", label: "设备类型", type: "string" }],
+        user: [
+          { field: "tag", label: "用户标签", type: "string" },
+          { field: "user_segment", label: "用户分层", type: "string" },
+          {
+            field: "last_purchase_days",
+            label: "距上次购买天数",
+            type: "number",
+          },
+          { field: "total_spend", label: "累计消费", type: "number" },
+        ],
+      };
       setScenario(data);
     } catch (error) {
       console.error("Failed to load scenario:", error);
@@ -112,12 +257,25 @@ const ScenarioConfig = () => {
     if (!scenario) return;
 
     try {
-      await updateMarketingScenario(scenario.scenarioId, {
-        defaultAIConfig: updatedConfig,
-        updatedAt: new Date().toISOString(),
-      });
+      // 构造与API返回结构相同的数据
+      const apiData: ApiScenarioDetail = {
+        id: scenarioId,
+        sceneName: scenario.scenarioName,
+        status: scenario.isAIEnabled ? 1 : 0,
+        aiStrategyConfig: JSON.stringify({ defaultAIConfig: updatedConfig }),
+        nullId: false,
+      };
+
+      await request.post("/quote/api/v1/scene", apiData);
+
       setScenario((prev) =>
-        prev ? { ...prev, defaultAIConfig: updatedConfig, updatedAt: new Date().toISOString() } : null
+        prev
+          ? {
+              ...prev,
+              defaultAIConfig: updatedConfig,
+              updatedAt: new Date().toISOString(),
+            }
+          : null,
       );
 
       toast({
@@ -138,9 +296,37 @@ const ScenarioConfig = () => {
     if (!scenario) return;
 
     try {
-      await updateOverrideRule(scenario.scenarioId, rule.ruleId, {
-        isEnabled: newState,
-      });
+      // 构建API请求数据
+      const apiData = {
+        id: rule.ruleId,
+        sceneId: scenario.scenarioId,
+        status: newState ? 1 : 0, // 1表示启用，0表示禁用
+        // 其他字段保持不变
+        ruleName: rule.ruleName,
+        triggerCondition: '',
+        marketingMethod: rule.responseAction.actionType,
+        marketingTiming: rule.responseAction.timing,
+        contentMode: rule.responseAction.contentMode,
+        popupTitle: rule.responseAction.actionConfig.title || '',
+        popupContent: rule.responseAction.actionConfig.body || '',
+        buttonText: rule.responseAction.actionConfig.buttonText || '',
+        instruction: rule.responseAction.actionConfig.aiPrompt || '',
+        conditions: JSON.stringify({
+          event: rule.triggerConditions.eventConditions.map(c => ({
+            field: c.field,
+            operator: c.operator,
+            value: c.value
+          })),
+          user: rule.triggerConditions.userConditions.map(c => ({
+            field: c.field,
+            operator: c.operator,
+            value: c.value
+          }))
+        })
+      };
+
+      // 调用编辑接口
+      await request.post('/quote/api/v1/scene/rule', apiData);
 
       setScenario((prev) => {
         if (!prev) return null;
@@ -157,6 +343,7 @@ const ScenarioConfig = () => {
         description: `自定义规则「${rule.ruleName}」已${newState ? "启用" : "停用"}`,
       });
     } catch (error) {
+      console.error('Toggle rule error:', error);
       toast({
         title: "操作失败",
         description: "规则状态更新失败",
@@ -167,9 +354,9 @@ const ScenarioConfig = () => {
 
   const handleDeleteRule = async () => {
     if (!scenario || !deleteDialog.rule) return;
-
     try {
-      await deleteOverrideRule(scenario.scenarioId, deleteDialog.rule.ruleId);
+      // 使用新的删除接口
+      await request.delete(`/quote/api/v1/scene/rule/${deleteDialog.rule.ruleId}`);
 
       setScenario((prev) => {
         if (!prev) return null;
@@ -188,6 +375,7 @@ const ScenarioConfig = () => {
 
       setDeleteDialog({ show: false, rule: null });
     } catch (error) {
+      console.error('Delete rule error:', error);
       toast({
         title: "删除失败",
         description: "规则删除失败",
@@ -394,7 +582,7 @@ const ScenarioConfig = () => {
                     场景ID
                   </dt>
                   <dd className="mt-1 text-sm font-mono text-xs bg-muted px-2 py-1 rounded">
-                    {scenario.scenarioId}
+                    {scenario.scenarioName}
                   </dd>
                 </div>
                 <div>

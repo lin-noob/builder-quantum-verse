@@ -64,7 +64,6 @@ export default function OrderHistory({
 
   // Convert API event to parsed order data
   const convertEventToOrder = (event: ApiEvent): ParsedOrderData => {
-    debugger;
     const properties = parseOrderProperties(event.properties);
 
     return {
