@@ -57,7 +57,7 @@ export interface RequestOptions
 export interface BusinessApiResponse<T = any> {
   /** 响应码 */
   code: string;
-  /** 响应数据 */
+  /** 响��数据 */
   data: T;
   /** 响应消息 */
   msg: string;
@@ -129,11 +129,23 @@ class RequestManager {
   abortAllRequests() {
     this.requests.forEach((controller) => {
       try {
-        controller.abort();
+        if (!controller.signal.aborted) {
+          controller.abort();
+        }
       } catch (error) {
         // 静默处理AbortError，这在页面卸载时是正常的
-        if (error instanceof Error && error.name !== 'AbortError') {
-          console.warn('Error aborting request:', error);
+        if (process.env.NODE_ENV === 'development') {
+          // 在开发环境中，AbortError通常是由页面重载或导航引起的，只记录调试信息
+          if (error instanceof Error && error.name === 'AbortError') {
+            console.debug('Request aborted during cleanup (development)');
+          } else {
+            console.warn('Error aborting request:', error);
+          }
+        } else {
+          // 在生产环境中，只在非AbortError时记录警告
+          if (error instanceof Error && error.name !== 'AbortError') {
+            console.warn('Error aborting request:', error);
+          }
         }
       }
     });
