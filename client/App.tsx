@@ -1,4 +1,3 @@
-import "./lib/directWarningBlock"; // Direct warning blocking for Recharts
 import "./global.css";
 
 import React from "react";
