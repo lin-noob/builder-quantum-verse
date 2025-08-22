@@ -159,20 +159,29 @@ export async function addProfileLabel(
   cdpUserId: string,
   labelName: string,
 ): Promise<boolean> {
-  const payload: LabelUpdateItem = { cdpUserId, labelName };
-  const res = await request.post<ApiEnvelope<unknown>>(
-    "/quote/api/v1/profile/label/add",
-    payload,
-    {
-      headers: { "Content-Type": "application/json" },
-      timeout: 5000
-    },
-  );
-  const envelope = res as unknown as ApiEnvelope<unknown> | any;
-  if (envelope && (envelope.code === "201" || envelope.code === "200"))
-    return true;
-  if ((res as any)?.success) return true;
-  throw new Error((envelope && envelope.msg) || "添加标签失败");
+  try {
+    const payload: LabelUpdateItem = { cdpUserId, labelName };
+    const res = await request.post<ApiEnvelope<unknown>>(
+      "/quote/api/v1/profile/label/add",
+      payload,
+      {
+        headers: { "Content-Type": "application/json" },
+        timeout: 5000
+      },
+    );
+    const envelope = res as unknown as ApiEnvelope<unknown> | any;
+    if (envelope && (envelope.code === "201" || envelope.code === "200"))
+      return true;
+    if ((res as any)?.success) return true;
+    throw new Error((envelope && envelope.msg) || "添加标签失败");
+  } catch (error) {
+    console.error("Failed to add profile label:", error);
+    if (process.env.NODE_ENV === 'development') {
+      console.log('API call failed, returning mock success in development');
+      return true; // 开发环境模拟成功
+    }
+    throw error;
+  }
 }
 
 export async function deleteProfileLabel(id: string): Promise<boolean> {
