@@ -6,7 +6,7 @@ import { ErrorHandler } from "./errorHandler";
 export interface RequestConfig {
   /** 请求头 */
   headers?: Record<string, string>;
-  /** 超时时间(毫秒) */
+  /** 超时时��(毫秒) */
   timeout?: number;
   /** 是否携带凭证 */
   credentials?: RequestCredentials;
@@ -374,7 +374,11 @@ export class Request {
       // 根据错误类型抛出相应的错误
       switch (errorInfo.type) {
         case "TIMEOUT":
-          throw new RequestError("Request timeout", 408, "Request Timeout");
+          throw new RequestError(
+            "请求超时，可能是网络连接问题或后端服务未启动",
+            408,
+            "Request Timeout"
+          );
         case "ABORT":
           throw new RequestError(
             "Request aborted",
