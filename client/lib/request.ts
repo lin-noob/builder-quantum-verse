@@ -154,7 +154,7 @@ class RequestManager {
       return;
     }
 
-    // 生产环境的处理
+    // 生产环境��处理
     try {
       const controllers = Array.from(this.requests.values());
 
@@ -316,7 +316,7 @@ export class Request {
         if (!controller.signal.aborted) {
           if (process.env.NODE_ENV === 'development') {
             console.warn(`Request timeout after ${timeout}ms: ${requestId}`);
-            console.warn(`开发环境提示：请检查后端服务��否运行在配置的地址上`);
+            console.warn(`开发环境提示：请检查后端服务是否运行在配置的地址上`);
           }
           controller.abort(new Error("Request timeout"));
         }
@@ -422,6 +422,12 @@ export class Request {
         ];
 
         return { data: mockScenarios, status: 200, statusText: 'OK' } as any;
+      }
+
+      // 为营销场景更新API提供mock响应
+      if (url.includes('/quote/api/v1/scene') && method === 'POST' && !url.includes('/list')) {
+        console.log('Mock scene update API called with data:', data);
+        return { data: { success: true }, status: 200, statusText: 'OK' } as any;
       }
 
       return { data: null, status: 200, statusText: 'OK' } as any;
