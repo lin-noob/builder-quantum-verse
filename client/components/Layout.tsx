@@ -161,14 +161,27 @@ export default function Layout({ children }: LayoutProps) {
                 {menuItems.map((item) => {
                   const isActive =
                     location.pathname === item.path ||
-                    (item.id === "dashboard" && (location.pathname === "/" || location.pathname === "/dashboard" || location.pathname === "/dashboard2")) ||
-                    (item.id === "dashboard1" && location.pathname === "/dashboard1") ||
-                    (item.id === "users" && (location.pathname === "/users" || location.pathname === "/users2" || location.pathname.startsWith("/users2/"))) ||
-                    (item.id === "users1" && (location.pathname === "/users1" || location.pathname.startsWith("/users1/"))) ||
+                    (item.id === "dashboard" &&
+                      (location.pathname === "/" ||
+                        location.pathname === "/dashboard" ||
+                        location.pathname === "/dashboard2")) ||
+                    (item.id === "dashboard1" &&
+                      location.pathname === "/dashboard1") ||
+                    (item.id === "users" &&
+                      (location.pathname === "/users" ||
+                        location.pathname === "/users2" ||
+                        location.pathname.startsWith("/users2/"))) ||
+                    (item.id === "users1" &&
+                      (location.pathname === "/users1" ||
+                        location.pathname.startsWith("/users1/"))) ||
                     (item.id === "ai-marketing-scenarios" &&
-                      location.pathname.startsWith("/ai-marketing/scenarios")) ||
+                      location.pathname.startsWith(
+                        "/ai-marketing/scenarios",
+                      )) ||
                     (item.id === "monitoring-center" &&
-                      location.pathname.startsWith("/ai-marketing/monitoring-center")) ||
+                      location.pathname.startsWith(
+                        "/ai-marketing/monitoring-center",
+                      )) ||
                     (item.id === "effect-tracking" &&
                       location.pathname.startsWith("/effect-tracking")) ||
                     (item.id === "admin" &&
@@ -225,18 +238,28 @@ export default function Layout({ children }: LayoutProps) {
             {menuItems.map((item) => {
               const isActive =
                 location.pathname === item.path ||
-                (item.id === "dashboard" && (location.pathname === "/" || location.pathname === "/dashboard" || location.pathname === "/dashboard2")) ||
-                (item.id === "dashboard1" && location.pathname === "/dashboard1") ||
-                (item.id === "users" && (location.pathname === "/users" || location.pathname === "/users2" || location.pathname.startsWith("/users2/"))) ||
-                (item.id === "users1" && (location.pathname === "/users1" || location.pathname.startsWith("/users1/"))) ||
+                (item.id === "dashboard" &&
+                  (location.pathname === "/" ||
+                    location.pathname === "/dashboard" ||
+                    location.pathname === "/dashboard2")) ||
+                (item.id === "dashboard1" &&
+                  location.pathname === "/dashboard1") ||
+                (item.id === "users" &&
+                  (location.pathname === "/users" ||
+                    location.pathname === "/users2" ||
+                    location.pathname.startsWith("/users2/"))) ||
+                (item.id === "users1" &&
+                  (location.pathname === "/users1" ||
+                    location.pathname.startsWith("/users1/"))) ||
                 (item.id === "ai-marketing-scenarios" &&
                   location.pathname.startsWith("/ai-marketing/scenarios")) ||
                 (item.id === "monitoring-center" &&
-                  location.pathname.startsWith("/ai-marketing/monitoring-center")) ||
+                  location.pathname.startsWith(
+                    "/ai-marketing/monitoring-center",
+                  )) ||
                 (item.id === "effect-tracking" &&
                   location.pathname.startsWith("/effect-tracking")) ||
-                (item.id === "admin" &&
-                  location.pathname.startsWith("/admin"));
+                (item.id === "admin" && location.pathname.startsWith("/admin"));
 
               return (
                 <li key={item.id} className="relative group">
