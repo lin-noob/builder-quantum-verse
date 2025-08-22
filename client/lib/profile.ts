@@ -241,6 +241,17 @@ export async function addProfileLabel(
 }
 
 export async function deleteProfileLabel(id: string): Promise<boolean> {
+  // 在开发环境中，如果是localhost或者没有真实后端，返回模拟数据
+  if (process.env.NODE_ENV === 'development' &&
+      (window.location.hostname === 'localhost' || window.location.hostname.includes('fly.dev'))) {
+    console.log('Using mock data for deleteProfileLabel in development environment');
+
+    // 模拟API延迟
+    await new Promise(resolve => setTimeout(resolve, 300));
+
+    return true; // 模拟成功删除标签
+  }
+
   try {
     const res = await request.post<ApiEnvelope<unknown>>(
       "/quote/api/v1/profile/label/delete",
