@@ -4,18 +4,9 @@ import path from "path";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
-<<<<<<< HEAD
-<<<<<<< HEAD
   define: {
     "process.env.NODE_ENV": JSON.stringify(mode),
   },
-=======
->>>>>>> refs/remotes/origin/main
-=======
-  define: {
-    "process.env.NODE_ENV": JSON.stringify(mode),
-  },
->>>>>>> refs/remotes/origin/main
   server: {
     host: "::",
     port: 8080,
@@ -28,6 +19,8 @@ export default defineConfig(({ mode }) => ({
         target: "http://192.168.1.128:8099",
         changeOrigin: true,
         secure: false,
+        timeout: 30000, // 30秒超时
+        proxyTimeout: 30000, // 代理超时
         rewrite: (path) => {
           const newPath = path.replace(/^\/api/, "");
           console.log(`Proxy rewrite: ${path} -> ${newPath}`);
