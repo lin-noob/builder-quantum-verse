@@ -5,142 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Hello world project</title>
 
-    <!-- Nuclear-level warning suppression - runs immediately -->
+    <!-- Simple warning suppression -->
     <script>
-      (function() {
-        // Nuclear suppression - handles exact React warning format
-        const shouldSuppress = (args) => {
-          if (!args || args.length === 0) return false;
-
-          // Handle React's exact warning format: console.warn("Warning: %s: Support...", "XAxis")
-          if (args.length >= 2) {
-            const first = String(args[0] || '');
-            const second = String(args[1] || '');
-
-            if (first.includes('Warning: %s: Support for defaultProps will be removed')) {
-              if (second.includes('XAxis') || second.includes('YAxis') || second.includes('Recharts')) {
-                return true;
-              }
-            }
-          }
-
-          // Check all arguments combined
-          const combined = args.map(arg => String(arg || '')).join(' ').toLowerCase();
-
-          return combined.includes('support for defaultprops will be removed') ||
-                 combined.includes('use javascript default parameters instead') ||
-                 combined.includes('xaxis') ||
-                 combined.includes('yaxis') ||
-                 combined.includes('recharts') ||
-                 combined.includes('deps/recharts.js') ||
-                 combined.includes('xaxis2') ||
-                 combined.includes('yaxis2') ||
-                 combined.includes('categoricalchartwrapper') ||
-                 combined.includes('chartlayoutcontextprovider') ||
-                 combined.includes('736abde510b74e08aed97b2f9a8bd1a4') ||
-                 combined.includes('fly.dev/node_modules/.vite/deps/recharts.js');
-        };
-
-        // Store originals immediately
-        const originalWarn = console.warn?.bind?.(console) || function(){};
-        const originalError = console.error?.bind?.(console) || function(){};
-        const originalLog = console.log?.bind?.(console) || function(){};
-        const originalInfo = console.info?.bind?.(console) || function(){};
-        const originalDebug = console.debug?.bind?.(console) || function(){};
-
-        // Nuclear overrides - completely suppress target warnings
-        console.warn = function(...args) {
-          if (shouldSuppress(args)) return;
-          originalWarn(...args);
-        };
-
-        console.error = function(...args) {
-          if (shouldSuppress(args)) return;
-          originalError(...args);
-        };
-
-        console.log = function(...args) {
-          if (shouldSuppress(args)) return;
-          originalLog(...args);
-        };
-
-        console.info = function(...args) {
-          if (shouldSuppress(args)) return;
-          originalInfo(...args);
-        };
-
-        console.debug = function(...args) {
-          if (shouldSuppress(args)) return;
-          originalDebug(...args);
-        };
-
-        // Disable React DevTools completely
-        window.__REACT_DEVTOOLS_SUPPRESS_WARNINGS__ = true;
-        window.__SUPPRESS_ALL_WARNINGS__ = true;
-        window.__DISABLE_RECHARTS_WARNINGS__ = true;
-
-        // Safely handle React DevTools hook
-        try {
-          // Check if property exists and is configurable
-          const descriptor = Object.getOwnPropertyDescriptor(window, '__REACT_DEVTOOLS_GLOBAL_HOOK__');
-
-          if (!descriptor) {
-            // Property doesn't exist, safe to define
-            Object.defineProperty(window, '__REACT_DEVTOOLS_GLOBAL_HOOK__', {
-              get: () => ({
-                isDisabled: true,
-                supportsFiber: true,
-                inject: () => {},
-                onCommitFiberRoot: () => {},
-                onCommitFiberUnmount: () => {},
-                onPostCommitFiberRoot: () => {}
-              }),
-              set: () => {},
-              configurable: true
-            });
-          } else if (window.__REACT_DEVTOOLS_GLOBAL_HOOK__) {
-            // Property exists, try to modify it safely
-            try {
-              var hook = window.__REACT_DEVTOOLS_GLOBAL_HOOK__;
-              hook.isDisabled = true;
-              hook.onCommitFiberRoot = () => {};
-              hook.onCommitFiberUnmount = () => {};
-              hook.onPostCommitFiberRoot = () => {};
-              hook.inject = () => {};
-            } catch (e) {
-              // If we can't modify, that's ok
-            }
-          }
-        } catch (e) {
-          // If everything fails, try direct assignment
-          try {
-            if (!window.__REACT_DEVTOOLS_GLOBAL_HOOK__) {
-              window.__REACT_DEVTOOLS_GLOBAL_HOOK__ = {
-                isDisabled: true,
-                supportsFiber: true,
-                inject: () => {},
-                onCommitFiberRoot: () => {},
-                onCommitFiberUnmount: () => {},
-                onPostCommitFiberRoot: () => {}
-              };
-            }
-          } catch (e2) {
-            // Final fallback - ignore errors
-          }
+      // Only suppress specific Recharts warnings, don't interfere with React
+      const originalWarn = console.warn;
+      console.warn = function(...args) {
+        if (args.length >= 2 &&
+            String(args[0]).includes('defaultProps') &&
+            (String(args[1]).includes('XAxis') || String(args[1]).includes('YAxis'))) {
+          return; // Suppress only this specific warning
         }
-
-        // Global error suppression
-        window.onerror = function(message) {
-          if (shouldSuppress([message])) return true;
-          return false;
-        };
-      })();
+        return originalWarn.apply(this, args);
+      };
     </script>
   </head>
 
   <body>
     <div id="root"></div>
 
-    <script type="module" src="/client/App.tsx"></script>
+    <script type="module" src="/client/main.tsx"></script>
   </body>
 </html>

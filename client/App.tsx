@@ -4,6 +4,8 @@
 // import "./lib/finalWarningFix"; // Final definitive warning suppression
 import "./global.css";
 
+import React from "react";
+
 import { Toaster } from "@/components/ui/toaster";
 import { createRoot } from "react-dom/client";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -39,6 +41,7 @@ import ResetPassword from "./pages/ResetPassword";
 import UserProfile from "./pages/UserProfile";
 import EffectTracking from "./pages/EffectTracking";
 import { usePageRequestManager } from "./hooks/useRequestManager";
+import AdminApp from "./admin/AdminApp";
 
 const queryClient = new QueryClient();
 
@@ -56,6 +59,9 @@ const AppWithRequestManager = () => {
           <Route path="/auth" element={<Auth />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
+
+          {/* 管理后台路由 - 独立路由，不使用Layout */}
+          <Route path="/admin/*" element={<AdminApp />} />
 
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
@@ -314,4 +320,4 @@ const App = () => (
   </ErrorBoundary>
 );
 
-createRoot(document.getElementById("root")!).render(<App />);
+export default App;

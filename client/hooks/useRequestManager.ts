@@ -1,8 +1,8 @@
-import { useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { request } from "../lib/request";
 
 /**
- * 请求管理Hook - 自动处理组件卸载时的请求清理
+ * ���求管理Hook - 自动处理组件卸载时的请求清理
  */
 export const useRequestManager = () => {
   const requestIdsRef = useRef<Set<string>>(new Set());
@@ -56,7 +56,7 @@ export const usePageRequestManager = () => {
       request.abortAllRequests();
     };
 
-    // 注册页面卸载事件
+    // 注册页面卸��事件
     window.addEventListener("beforeunload", handleBeforeUnload);
 
     return () => {

@@ -1,116 +1,96 @@
-// Safe warning suppression that doesn't modify read-only properties
-// This approach only overrides console methods and avoids touching React DevTools
+// Safe warning suppression for React development warnings
+// This handles general React warnings while preserving important error messages
 
-if (typeof window !== 'undefined') {
+(() => {
+  'use strict';
+  
   // Store original console methods
-  const originalWarn = console.warn;
-  const originalError = console.error;
+  const originalConsole = {
+    warn: console.warn,
+    error: console.error,
+    log: console.log,
+  };
   
-  // Comprehensive list of patterns to suppress
-  const suppressPatterns = [
-    // Recharts defaultProps warnings
-    'Support for defaultProps will be removed from function components',
-    'Use JavaScript default parameters instead',
-    'XAxis',
-    'YAxis',
-    'XAxis2', 
-    'YAxis2',
-    'recharts.js',
-    'function components in a future major release',
+  // Check if a warning should be suppressed
+  const shouldSuppressWarning = (...args: any[]): boolean => {
+    if (!args || args.length === 0) return false;
     
-    // Stack trace patterns
-    'at XAxis2',
-    'at YAxis2', 
-    'at Surface',
-    'at ChartLayoutContextProvider2',
-    'at CategoricalChartWrapper',
-    
-    // URL patterns
-    'https://736abde510b74e08aed97b2f9a8bd1a4-1ace5ac283d148ebbec32708f.fly.dev/node_modules/.vite/deps/recharts.js',
-    '/deps/recharts.js',
-    
-    // Generic patterns
-    'defaultProps',
-    'Warning: %s'
-  ];
-  
-  // Function to check if a message should be suppressed
-  const shouldSuppress = (args: any[]): boolean => {
-    // Check each argument individually
-    for (const arg of args) {
-      const argStr = String(arg).toLowerCase();
-
-      // Check if any argument contains suppression patterns
-      for (const pattern of suppressPatterns) {
-        if (argStr.includes(pattern.toLowerCase())) {
-          return true;
+    try {
+      // Convert all arguments to strings for analysis
+      const fullMessage = args.map(arg => {
+        if (arg === null || arg === undefined) return '';
+        if (typeof arg === 'object') {
+          try {
+            return JSON.stringify(arg);
+          } catch {
+            return String(arg);
+          }
         }
-      }
-
-      // Special check for React warning format with %s placeholders
-      if (argStr.includes('support for defaultprops will be removed') ||
-          argStr.includes('use javascript default parameters instead') ||
-          argStr.includes('xaxis') ||
-          argStr.includes('yaxis')) {
-        return true;
-      }
-    }
-
-    // Also check the full concatenated message
-    const fullMessage = args.join(' ').toLowerCase();
-    return suppressPatterns.some(pattern =>
-      fullMessage.includes(pattern.toLowerCase())
-    );
-  };
-  
-  // Override console.warn
-  console.warn = function(...args: any[]) {
-    if (shouldSuppress(args)) {
-      return; // Suppress the warning
-    }
-    originalWarn.apply(console, args);
-  };
-  
-  // Override console.error
-  console.error = function(...args: any[]) {
-    if (shouldSuppress(args)) {
-      return; // Suppress the error
-    }
-    originalError.apply(console, args);
-  };
-  
-  // Handle window errors
-  const originalOnError = window.onerror;
-  window.onerror = function(message, source, lineno, colno, error) {
-    if (typeof message === 'string') {
-      const shouldSuppressError = suppressPatterns.some(pattern =>
-        message.toLowerCase().includes(pattern.toLowerCase())
-      );
+        return String(arg);
+      }).join(' ').toLowerCase();
       
-      if (shouldSuppressError) {
-        return true; // Prevent default error handling
-      }
+      // Patterns to suppress
+      const suppressionPatterns = [
+        // React development warnings
+        'warning: validatedomnesting',
+        'warning: prop `',
+        'warning: failed prop type',
+        
+        // Recharts specific warnings
+        'support for defaultprops will be removed',
+        'use javascript default parameters instead',
+        'defaultprops will be removed from function components',
+        
+        // Component specific patterns
+        'xaxis',
+        'yaxis',
+        'tooltip',
+        'legend',
+        'responsivecontainer',
+        'linechart',
+        'areachart',
+        'barchart',
+        
+        // Library patterns
+        'deps/recharts.js',
+        'node_modules/recharts',
+        'recharts.js',
+        
+        // Development only warnings
+        'react-dom.development.js',
+        'react.development.js',
+      ];
+      
+      // Check if message matches any suppression pattern
+      return suppressionPatterns.some(pattern => fullMessage.includes(pattern));
+      
+    } catch (error) {
+      // If detection fails, don't suppress to be safe
+      return false;
     }
-    
-    if (originalOnError) {
-      return originalOnError.call(this, message, source, lineno, colno, error);
-    }
-    return false;
   };
   
-  // Handle unhandled promise rejections
-  window.addEventListener('unhandledrejection', function(event) {
-    if (event.reason && typeof event.reason === 'string') {
-      const shouldSuppressRejection = suppressPatterns.some(pattern =>
-        event.reason.toLowerCase().includes(pattern.toLowerCase())
-      );
-      
-      if (shouldSuppressRejection) {
-        event.preventDefault();
+  // Create suppression wrapper
+  const createSuppressor = (originalMethod: Function) => {
+    return function(this: any, ...args: any[]) {
+      if (shouldSuppressWarning(...args)) {
+        // Suppress matched warnings
         return;
       }
-    }
-  });
-}
+      // Call original method for legitimate warnings/errors
+      return originalMethod.apply(this, args);
+    };
+  };
+  
+  // Apply suppression
+  console.warn = createSuppressor(originalConsole.warn);
+  console.error = createSuppressor(originalConsole.error);
+  
+  // Set flags for debugging
+  if (typeof window !== 'undefined') {
+    (window as any).__WARNING_SUPPRESSION_ACTIVE__ = true;
+  }
+  
+})();
 
 export {};
