@@ -5,58 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Hello world project</title>
 
-    <!-- Enhanced Recharts warning suppression -->
-    <script>
-      (function() {
-        'use strict';
-
-        // Store original console methods
-        const originalWarn = console.warn;
-        const originalError = console.error;
-
-        // Enhanced warning detection
-        console.warn = function(...args) {
-          // Pattern 1: React's exact warning format
-          if (args.length >= 2) {
-            const firstArg = String(args[0] || '');
-            const secondArg = String(args[1] || '');
-
-            // Match: console.warn("Warning: %s: Support for defaultProps...", "XAxis", ...)
-            if (firstArg.includes('Warning: %s: Support for defaultProps will be removed') &&
-                (secondArg === 'XAxis' || secondArg === 'YAxis' ||
-                 secondArg === 'XAxis2' || secondArg === 'YAxis2')) {
-              return; // Completely suppress
-            }
-          }
-
-          // Pattern 2: Full message analysis
-          const fullMessage = args.map(arg => String(arg || '')).join(' ');
-
-          if (fullMessage.includes('Support for defaultProps will be removed') &&
-              (fullMessage.includes('XAxis') || fullMessage.includes('YAxis') ||
-               fullMessage.includes('recharts.js') ||
-               fullMessage.includes('28514:22') || fullMessage.includes('28575:22'))) {
-            return; // Suppress Recharts defaultProps warnings
-          }
-
-          // Allow all other warnings
-          return originalWarn.apply(this, args);
-        };
-
-        // Also handle console.error in case warnings are logged there
-        console.error = function(...args) {
-          const message = args.join(' ');
-          if (message.includes('defaultProps') &&
-              (message.includes('XAxis') || message.includes('YAxis'))) {
-            return;
-          }
-          return originalError.apply(this, args);
-        };
-
-        // Flag to indicate suppression is active
-        window.__RECHARTS_WARNINGS_SUPPRESSED__ = true;
-      })();
-    </script>
+    <!-- Note: Recharts library generates harmless defaultProps warnings in development mode.
+         These warnings come from the library itself and do not affect functionality. -->
   </head>
 
   <body>
