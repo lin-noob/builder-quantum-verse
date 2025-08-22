@@ -116,9 +116,18 @@ const loadScenarios = async () => {
           limit: 20
         }
       );
-      
+
+      // 确保数据存在且为数组
+      const scenariosData = Array.isArray(res.data) ? res.data : [];
+
+      if (scenariosData.length === 0) {
+        console.log('No scenarios data received, using empty array');
+        setScenarios([]);
+        return;
+      }
+
       // 排序：启用的在前，暂停的在后，同类型内按更新时间倒序
-      const sortedData = res.data.sort((a, b) => {
+      const sortedData = scenariosData.sort((a, b) => {
         // 首先按启用状态排序（启用的在前）
         if (a.status !== b.status) {
           return b.status ? 1 : -1;
@@ -126,14 +135,17 @@ const loadScenarios = async () => {
         // 同样状态内按更新时间倒序
         return new Date(b.gmtModified).getTime() - new Date(a.gmtModified).getTime();
       });
-      
+
       setScenarios(sortedData);
     } catch (error) {
+      console.error('Failed to load scenarios:', error);
       toast({
         title: "加载失败",
         description: "无法加载营销场景列表，请刷新页面重试",
         variant: "destructive",
       });
+      // 设置空数组以防止未定义错误
+      setScenarios([]);
     } finally {
       setLoading(false);
     }
