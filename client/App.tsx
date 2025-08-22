@@ -1,6 +1,4 @@
-import "./lib/ultimateWarningSuppress"; // Ultimate Recharts warnings suppression - must be first
-import "./lib/safeWarningSuppress"; // Safe warning suppression that doesn't break React
-import "./lib/rechartsWarningSuppress"; // Specialized Recharts warnings suppression
+import "./lib/directWarningBlock"; // Direct warning blocking for Recharts
 import "./global.css";
 
 import React from "react";
