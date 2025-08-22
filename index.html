@@ -7,6 +7,25 @@
 
     <!-- Note: Recharts library generates harmless defaultProps warnings in development mode.
          These warnings come from the library itself and do not affect functionality. -->
+
+    <!-- Early suppression of Recharts defaultProps warnings -->
+    <script>
+      if (window.location.hostname === 'localhost' || window.location.hostname.includes('fly.dev')) {
+        const originalWarn = console.warn;
+        console.warn = function(...args) {
+          const message = args.join(' ');
+
+          // Suppress Recharts defaultProps warnings
+          if (message.includes('defaultProps') &&
+              (message.includes('XAxis') || message.includes('YAxis') || message.includes('recharts'))) {
+            return; // Silent suppression
+          }
+
+          // Allow all other warnings
+          originalWarn.apply(console, args);
+        };
+      }
+    </script>
   </head>
 
   <body>
