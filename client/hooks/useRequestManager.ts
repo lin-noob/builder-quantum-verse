@@ -57,20 +57,48 @@ export const usePageRequestManager = () => {
           event.reason &&
           typeof event.reason === 'object' &&
           (event.reason.name === 'AbortError' ||
-           (event.reason.message && event.reason.message.includes('aborted')))) {
+           event.reason.name === 'DOMException' ||
+           (event.reason.message && (
+             event.reason.message.includes('aborted') ||
+             event.reason.message.includes('signal is aborted')
+           )))) {
         // 静默处理开发环境中的AbortError
         event.preventDefault();
-        console.debug('Unhandled AbortError suppressed (development)');
+        console.debug('Unhandled AbortError/DOMException suppressed (development)');
+      }
+    };
+
+    // 添加全局错误事件处理器
+    const handleGlobalError = (event: ErrorEvent) => {
+      if (process.env.NODE_ENV === 'development' &&
+          event.error &&
+          (event.error.name === 'AbortError' ||
+           event.error.name === 'DOMException' ||
+           (event.error.message && (
+             event.error.message.includes('aborted') ||
+             event.error.message.includes('signal is aborted')
+           )))) {
+        // 静默处理开发环境中的AbortError
+        event.preventDefault();
+        console.debug('Global AbortError/DOMException suppressed (development)');
       }
     };
 
     // 页面加载时的处理
     const handleBeforeUnload = () => {
-      try {
-        request.abortAllRequests();
-      } catch (error) {
-        // 开发环境中完全静默
-        if (process.env.NODE_ENV !== 'development') {
+      // 在开发环境中使用异步方式来避免同步错误
+      if (process.env.NODE_ENV === 'development') {
+        setTimeout(() => {
+          try {
+            request.abortAllRequests();
+          } catch (e) {
+            // 完全静默
+          }
+        }, 0);
+      } else {
+        try {
+          request.abortAllRequests();
+        } catch (error) {
           console.warn('Error aborting requests during page unload:', error);
         }
       }
@@ -78,19 +106,30 @@ export const usePageRequestManager = () => {
 
     // 注册事件监听器
     window.addEventListener("unhandledrejection", handleUnhandledRejection);
+    window.addEventListener("error", handleGlobalError);
     window.addEventListener("beforeunload", handleBeforeUnload);
 
     return () => {
       // 页面卸载时清理所有请求
-      try {
-        request.abortAllRequests();
-      } catch (error) {
-        // 开发环境中完全静默
-        if (process.env.NODE_ENV !== 'development') {
+      if (process.env.NODE_ENV === 'development') {
+        // 异步清理避免阻塞页面卸载
+        setTimeout(() => {
+          try {
+            request.abortAllRequests();
+          } catch (e) {
+            // 完全静默
+          }
+        }, 0);
+      } else {
+        try {
+          request.abortAllRequests();
+        } catch (error) {
           console.warn('Error aborting requests during cleanup:', error);
         }
       }
+
       window.removeEventListener("unhandledrejection", handleUnhandledRejection);
+      window.removeEventListener("error", handleGlobalError);
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
   }, []);
