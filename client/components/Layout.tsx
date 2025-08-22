@@ -53,10 +53,22 @@ export default function Layout({ children }: LayoutProps) {
       icon: <BarChart3 className="h-5 w-5" />,
     },
     {
+      id: "dashboard1",
+      label: "仪表盘 1.0",
+      path: "/dashboard1",
+      icon: <Home className="h-5 w-5" />,
+    },
+    {
       id: "users",
       label: "用户画像",
       path: "/users2",
       icon: <Users className="h-5 w-5" />,
+    },
+    {
+      id: "users1",
+      label: "用户画像 1.0",
+      path: "/users1",
+      icon: <User className="h-5 w-5" />,
     },
     {
       id: "ai-marketing-scenarios",
@@ -149,12 +161,27 @@ export default function Layout({ children }: LayoutProps) {
                 {menuItems.map((item) => {
                   const isActive =
                     location.pathname === item.path ||
-                    (item.id === "dashboard" && (location.pathname === "/" || location.pathname === "/dashboard" || location.pathname === "/dashboard2")) ||
-                    (item.id === "users" && (location.pathname === "/users" || location.pathname === "/users2" || location.pathname.startsWith("/users/"))) ||
+                    (item.id === "dashboard" &&
+                      (location.pathname === "/" ||
+                        location.pathname === "/dashboard" ||
+                        location.pathname === "/dashboard2")) ||
+                    (item.id === "dashboard1" &&
+                      location.pathname === "/dashboard1") ||
+                    (item.id === "users" &&
+                      (location.pathname === "/users" ||
+                        location.pathname === "/users2" ||
+                        location.pathname.startsWith("/users2/"))) ||
+                    (item.id === "users1" &&
+                      (location.pathname === "/users1" ||
+                        location.pathname.startsWith("/users1/"))) ||
                     (item.id === "ai-marketing-scenarios" &&
-                      location.pathname.startsWith("/ai-marketing/scenarios")) ||
+                      location.pathname.startsWith(
+                        "/ai-marketing/scenarios",
+                      )) ||
                     (item.id === "monitoring-center" &&
-                      location.pathname.startsWith("/ai-marketing/monitoring-center")) ||
+                      location.pathname.startsWith(
+                        "/ai-marketing/monitoring-center",
+                      )) ||
                     (item.id === "effect-tracking" &&
                       location.pathname.startsWith("/effect-tracking")) ||
                     (item.id === "admin" &&
@@ -211,16 +238,28 @@ export default function Layout({ children }: LayoutProps) {
             {menuItems.map((item) => {
               const isActive =
                 location.pathname === item.path ||
-                (item.id === "dashboard" && (location.pathname === "/" || location.pathname === "/dashboard" || location.pathname === "/dashboard2")) ||
-                (item.id === "users" && (location.pathname === "/users" || location.pathname === "/users2" || location.pathname.startsWith("/users/"))) ||
+                (item.id === "dashboard" &&
+                  (location.pathname === "/" ||
+                    location.pathname === "/dashboard" ||
+                    location.pathname === "/dashboard2")) ||
+                (item.id === "dashboard1" &&
+                  location.pathname === "/dashboard1") ||
+                (item.id === "users" &&
+                  (location.pathname === "/users" ||
+                    location.pathname === "/users2" ||
+                    location.pathname.startsWith("/users2/"))) ||
+                (item.id === "users1" &&
+                  (location.pathname === "/users1" ||
+                    location.pathname.startsWith("/users1/"))) ||
                 (item.id === "ai-marketing-scenarios" &&
                   location.pathname.startsWith("/ai-marketing/scenarios")) ||
                 (item.id === "monitoring-center" &&
-                  location.pathname.startsWith("/ai-marketing/monitoring-center")) ||
+                  location.pathname.startsWith(
+                    "/ai-marketing/monitoring-center",
+                  )) ||
                 (item.id === "effect-tracking" &&
                   location.pathname.startsWith("/effect-tracking")) ||
-                (item.id === "admin" &&
-                  location.pathname.startsWith("/admin"));
+                (item.id === "admin" && location.pathname.startsWith("/admin"));
 
               return (
                 <li key={item.id} className="relative group">
@@ -303,7 +342,7 @@ export default function Layout({ children }: LayoutProps) {
                 isSidebarCollapsed ? "justify-center" : "justify-start",
               )}
               title={
-                isSidebarCollapsed ? `${currentUser.username} - ��人信息` : ""
+                isSidebarCollapsed ? `${currentUser.username} - ����信息` : ""
               }
             >
               <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
@@ -338,7 +377,7 @@ export default function Layout({ children }: LayoutProps) {
               {!isSidebarCollapsed && (
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-gray-700 truncate">
-                    点击登录
+                    点击登���
                   </p>
                   <p className="text-xs text-gray-500 truncate">未登录状态</p>
                 </div>

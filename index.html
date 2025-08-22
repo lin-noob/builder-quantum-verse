@@ -5,19 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Hello world project</title>
 
-    <!-- Simple warning suppression -->
-    <script>
-      // Only suppress specific Recharts warnings, don't interfere with React
-      const originalWarn = console.warn;
-      console.warn = function(...args) {
-        if (args.length >= 2 &&
-            String(args[0]).includes('defaultProps') &&
-            (String(args[1]).includes('XAxis') || String(args[1]).includes('YAxis'))) {
-          return; // Suppress only this specific warning
-        }
-        return originalWarn.apply(this, args);
-      };
-    </script>
+    <!-- Note: Recharts library generates harmless defaultProps warnings in development mode.
+         These warnings come from the library itself and do not affect functionality. -->
   </head>
 
   <body>
