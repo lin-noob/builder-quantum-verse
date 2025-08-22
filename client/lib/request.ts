@@ -290,7 +290,7 @@ export class Request {
     const timeoutId = setTimeout(() => {
       if (!controller.signal.aborted) {
         console.warn(`Request timeout after ${timeout}ms: ${requestId}`);
-        console.warn(`如果是开发环境，请检查后端服务是否运行在配置的地址上`);
+        console.warn(`如果是开发环境，请检查后端���务是否运行在配置的地址上`);
         controller.abort(new Error("Request timeout"));
       }
     }, timeout);
@@ -318,6 +318,7 @@ export class Request {
 
     let timeoutId: number | undefined;
     let requestId: string;
+    let fullURL: string;
 
     try {
       // 执行请求拦截器
@@ -325,7 +326,7 @@ export class Request {
         ? await this.defaultConfig.beforeRequest(config)
         : config;
 
-      const fullURL = this.buildURL(url, params);
+      fullURL = this.buildURL(url, params);
       requestId = `${method}_${fullURL}_${Date.now()}`;
       const mergedHeaders = { ...this.defaultConfig.headers, ...headers };
       const { body, headers: finalHeaders } = this.processRequestData(
