@@ -204,6 +204,17 @@ export async function addProfileLabel(
   cdpUserId: string,
   labelName: string,
 ): Promise<boolean> {
+  // 在开发环境中，如果是localhost或者没有真实后端，返回模拟数据
+  if (process.env.NODE_ENV === 'development' &&
+      (window.location.hostname === 'localhost' || window.location.hostname.includes('fly.dev'))) {
+    console.log('Using mock data for addProfileLabel in development environment');
+
+    // 模拟API延迟
+    await new Promise(resolve => setTimeout(resolve, 300));
+
+    return true; // 模拟成功添加标签
+  }
+
   try {
     const payload: LabelUpdateItem = { cdpUserId, labelName };
     const res = await request.post<ApiEnvelope<unknown>>(
