@@ -53,10 +53,22 @@ export default function Layout({ children }: LayoutProps) {
       icon: <BarChart3 className="h-5 w-5" />,
     },
     {
+      id: "dashboard1",
+      label: "仪表盘 1.0",
+      path: "/dashboard1",
+      icon: <Home className="h-5 w-5" />,
+    },
+    {
       id: "users",
       label: "用户画像",
       path: "/users2",
       icon: <Users className="h-5 w-5" />,
+    },
+    {
+      id: "users1",
+      label: "用户画像 1.0",
+      path: "/users1",
+      icon: <User className="h-5 w-5" />,
     },
     {
       id: "ai-marketing-scenarios",
@@ -303,7 +315,7 @@ export default function Layout({ children }: LayoutProps) {
                 isSidebarCollapsed ? "justify-center" : "justify-start",
               )}
               title={
-                isSidebarCollapsed ? `${currentUser.username} - ��人信息` : ""
+                isSidebarCollapsed ? `${currentUser.username} - ����信息` : ""
               }
             >
               <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
