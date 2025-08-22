@@ -101,8 +101,20 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   ];
 
   const isActiveRoute = (path: string) => {
-    return location.pathname === path || 
-           (path !== '/admin' && location.pathname.startsWith(path));
+    // 精确匹配
+    if (location.pathname === path) return true;
+
+    // 对于管理后台路由的前缀匹配
+    if (path.startsWith('/admin') && path !== '/admin' && location.pathname.startsWith(path)) {
+      return true;
+    }
+
+    // 对于1.0版本路由的特殊处理
+    if (path === '/users1' && location.pathname.startsWith('/users1')) {
+      return true;
+    }
+
+    return false;
   };
 
   return (
