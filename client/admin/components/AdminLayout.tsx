@@ -53,6 +53,20 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       badge: '1248'
     },
     {
+      id: 'dashboard1',
+      label: '仪表盘 1.0',
+      path: '/dashboard1',
+      icon: <BarChart3 className="h-5 w-5" />,
+      badge: 'V1.0'
+    },
+    {
+      id: 'users1',
+      label: '用户画像 1.0',
+      path: '/users1',
+      icon: <User className="h-5 w-5" />,
+      badge: 'V1.0'
+    },
+    {
       id: 'ai-models',
       label: 'AI模型管理',
       path: '/admin/ai-models',
