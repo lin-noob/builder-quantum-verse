@@ -127,29 +127,41 @@ class RequestManager {
   }
 
   abortAllRequests() {
-    this.requests.forEach((controller) => {
-      try {
-        if (!controller.signal.aborted) {
-          controller.abort();
-        }
-      } catch (error) {
-        // 静默处理AbortError，这在页面卸载时是正常的
-        if (process.env.NODE_ENV === 'development') {
-          // 在开发环境中，AbortError通常是由页面重载或导航引起的，只记录调试信息
-          if (error instanceof Error && error.name === 'AbortError') {
-            console.debug('Request aborted during cleanup (development)');
+    try {
+      // 创建controllers的副本以避免在遍历时修改Map
+      const controllers = Array.from(this.requests.values());
+
+      controllers.forEach((controller, index) => {
+        try {
+          // 检查controller是否存在且未被中止
+          if (controller && !controller.signal.aborted) {
+            controller.abort();
+          }
+        } catch (error) {
+          // 静默处理所有abort相关错误，特别是在开发环境中
+          if (process.env.NODE_ENV === 'development') {
+            // 开发环境下完全静默，因为这些错误通常是由HMR/页面重载引起的
+            return;
           } else {
-            console.warn('Error aborting request:', error);
-          }
-        } else {
-          // 在生产环境中，只在非AbortError时记录警告
-          if (error instanceof Error && error.name !== 'AbortError') {
-            console.warn('Error aborting request:', error);
+            // 生产环境中只记录非AbortError
+            if (error instanceof Error && !error.name.includes('Abort')) {
+              console.warn('Error aborting request:', error);
+            }
           }
         }
+      });
+    } catch (error) {
+      // 捕获整个操作中的任何错误
+      if (process.env.NODE_ENV === 'development') {
+        // 开发环境下静默处理
+        return;
+      } else {
+        console.warn('Error during request cleanup:', error);
       }
-    });
-    this.requests.clear();
+    } finally {
+      // 确保总是清理requests map
+      this.requests.clear();
+    }
   }
 }
 
