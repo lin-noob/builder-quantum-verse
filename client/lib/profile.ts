@@ -163,7 +163,10 @@ export async function addProfileLabel(
   const res = await request.post<ApiEnvelope<unknown>>(
     "/quote/api/v1/profile/label/add",
     payload,
-    { headers: { "Content-Type": "application/json" } },
+    {
+      headers: { "Content-Type": "application/json" },
+      timeout: 5000
+    },
   );
   const envelope = res as unknown as ApiEnvelope<unknown> | any;
   if (envelope && (envelope.code === "201" || envelope.code === "200"))
@@ -176,7 +179,10 @@ export async function deleteProfileLabel(id: string): Promise<boolean> {
   const res = await request.post<ApiEnvelope<unknown>>(
     "/quote/api/v1/profile/label/delete",
     { id },
-    { headers: { "Content-Type": "application/json" } },
+    {
+      headers: { "Content-Type": "application/json" },
+      timeout: 5000
+    },
   );
   const envelope = res as unknown as ApiEnvelope<unknown> | any;
   if (envelope && (envelope.code === "201" || envelope.code === "200"))
