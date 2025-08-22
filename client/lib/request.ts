@@ -323,7 +323,7 @@ export class Request {
       data,
       params,
       headers = {},
-      timeout = this.defaultConfig.timeout || 30000, // 增加超时时间到30秒
+      timeout = this.defaultConfig.timeout || 30000, // 增��超时时间到30秒
       credentials = this.defaultConfig.credentials,
       responseType = "json",
     } = config;
@@ -415,8 +415,7 @@ export class Request {
           );
         case "ABORT":
           // 在开发环境中，AbortError通常是由热重载或页面卸载引起的，不应作为真正的错误
-          if (process.env.NODE_ENV === 'development' &&
-              (error as Error).message.includes('signal is aborted without reason')) {
+          if (process.env.NODE_ENV === 'development') {
             console.debug('Request aborted due to page reload/navigation (development)');
             return { data: null, status: 499, statusText: 'Aborted' } as any;
           }
@@ -523,7 +522,7 @@ export class Request {
   }
 
   /**
-   * 业务接口请求 - 自动处理标准业务响应格式
+   * 业务接口请求 - 自动处理标���业务响应格式
    */
   async businessRequest<T = any>(
     url: string,
