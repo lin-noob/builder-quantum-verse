@@ -21,7 +21,7 @@ export interface RequestConfig {
 }
 
 /**
- * 请求���法类型
+ * 请求方法类型
  */
 export type RequestMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
 
@@ -316,7 +316,7 @@ export class Request {
         if (!controller.signal.aborted) {
           if (process.env.NODE_ENV === 'development') {
             console.warn(`Request timeout after ${timeout}ms: ${requestId}`);
-            console.warn(`开发环境提示：请检查后端服务是否运行在配置的地址上`);
+            console.warn(`开发环境提示：请检查后端服务��否运行在配置的地址上`);
           }
           controller.abort(new Error("Request timeout"));
         }
@@ -355,6 +355,75 @@ export class Request {
         url.includes('/quote/api/')) {
       console.log(`Mock response for ${method} ${url} in development environment`);
       await new Promise(resolve => setTimeout(resolve, 200)); // 模拟网络延迟
+
+      // 为营销场景列表API提供特定的mock数据
+      if (url.includes('/quote/api/v1/scene/list')) {
+        const mockScenarios = [
+          {
+            id: "add_to_cart",
+            sceneName: "加入购物车",
+            status: 1,
+            aiStrategyConfig: JSON.stringify({
+              defaultAIConfig: {
+                description: "AI会根据用户画像、购物车商品等信息，自主生成最合适的挽留或激励文案",
+                strategySummary: "在用户犹豫或准备离开时进行精准挽留，提升订单转化率。",
+                coreStrategies: ["网页弹窗", "智能延迟", "个性化生成"]
+              }
+            }),
+            gmtCreate: "2024-01-10T10:00:00Z",
+            gmtModified: "2024-01-15T14:30:00Z",
+            nullId: false
+          },
+          {
+            id: "view_product",
+            sceneName: "商品浏览",
+            status: 0,
+            aiStrategyConfig: JSON.stringify({
+              defaultAIConfig: {
+                description: "根据用户浏览行为和商品信息，推荐相关产品或优惠",
+                strategySummary: "通过智能推荐提升用户购买转化。",
+                coreStrategies: ["个性化推荐", "智能营销", "精准投放"]
+              }
+            }),
+            gmtCreate: "2024-01-08T09:00:00Z",
+            gmtModified: "2024-01-12T16:20:00Z",
+            nullId: false
+          },
+          {
+            id: "user_signup",
+            sceneName: "用户注册",
+            status: 1,
+            aiStrategyConfig: JSON.stringify({
+              defaultAIConfig: {
+                description: "为新注册用户提供个性化欢迎内容和新手引导",
+                strategySummary: "提升新用户的首次购买转化率。",
+                coreStrategies: ["欢迎引导", "新手优惠", "个性化推荐"]
+              }
+            }),
+            gmtCreate: "2024-01-05T08:30:00Z",
+            gmtModified: "2024-01-20T11:45:00Z",
+            nullId: false
+          },
+          {
+            id: "purchase",
+            sceneName: "购买完成",
+            status: 1,
+            aiStrategyConfig: JSON.stringify({
+              defaultAIConfig: {
+                description: "购买后的交叉销售和复购引导策略",
+                strategySummary: "通过购买后营销提升客户生命周期价值。",
+                coreStrategies: ["交叉销售", "复购引导", "会员推荐"]
+              }
+            }),
+            gmtCreate: "2024-01-03T07:15:00Z",
+            gmtModified: "2024-01-18T13:30:00Z",
+            nullId: false
+          }
+        ];
+
+        return { data: mockScenarios, status: 200, statusText: 'OK' } as any;
+      }
+
       return { data: null, status: 200, statusText: 'OK' } as any;
     }
 
