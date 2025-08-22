@@ -9,6 +9,9 @@ export default defineConfig(({ mode }) => ({
     // Only suppress warnings, don't break React dev mode
     "process.env.SUPPRESS_WARNINGS": "true",
     "process.env.DISABLE_REACT_WARNINGS": "true",
+    // Recharts specific suppression
+    "process.env.SUPPRESS_RECHARTS_WARNINGS": "true",
+    "__REACT_DEVTOOLS_GLOBAL_HOOK__": "({ isDisabled: true })",
   },
   server: {
     host: "::",
