@@ -5,6 +5,30 @@ import App from "./App";
 // Import warning suppression for Recharts defaultProps warnings
 import "./lib/rechartsWarningSuppress";
 
+// Add additional layer of Recharts warning suppression
+if (process.env.NODE_ENV === 'development') {
+  const originalConsoleWarn = console.warn;
+  console.warn = (...args: any[]) => {
+    // Comprehensive check for Recharts defaultProps warnings
+    const messageStr = args.join(' ');
+
+    const isRechartsWarning =
+      (messageStr.includes('defaultProps') &&
+       (messageStr.includes('XAxis') || messageStr.includes('YAxis'))) ||
+      (messageStr.includes('Support for defaultProps will be removed') &&
+       messageStr.includes('recharts')) ||
+      messageStr.includes('node_modules/.vite/deps/recharts.js');
+
+    if (isRechartsWarning) {
+      // Complete silence for Recharts warnings
+      return;
+    }
+
+    // Allow all other warnings
+    originalConsoleWarn.apply(console, args);
+  };
+}
+
 // Add global error handling for AbortErrors
 if (process.env.NODE_ENV === 'development') {
   // Catch any remaining unhandled promise rejections
