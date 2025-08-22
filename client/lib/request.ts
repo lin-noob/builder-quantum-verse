@@ -234,7 +234,7 @@ export class Request {
   ): Promise<ApiResponse<T>> {
     let data: any;
 
-    // 总是尝试解析响��体，不管状态码是什么
+    // 总是尝试解析响应体，不管状态码是什么
     try {
       switch (responseType) {
         case "json":
@@ -269,6 +269,7 @@ export class Request {
     const timeoutId = setTimeout(() => {
       if (!controller.signal.aborted) {
         console.warn(`Request timeout after ${timeout}ms: ${requestId}`);
+        console.warn(`如果是开发环境，请检查后端服务是否运行在配置的地址上`);
         controller.abort(new Error("Request timeout"));
       }
     }, timeout);
