@@ -127,7 +127,16 @@ class RequestManager {
   }
 
   abortAllRequests() {
-    this.requests.forEach((controller) => controller.abort());
+    this.requests.forEach((controller) => {
+      try {
+        controller.abort();
+      } catch (error) {
+        // 静默处理AbortError，这在页面卸载时是正常的
+        if (error instanceof Error && error.name !== 'AbortError') {
+          console.warn('Error aborting request:', error);
+        }
+      }
+    });
     this.requests.clear();
   }
 }
