@@ -51,20 +51,33 @@ export const useRequestManager = () => {
  */
 export const usePageRequestManager = () => {
   useEffect(() => {
+    // 添加全局错误处理器来捕获未处理的AbortError
+    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+      if (process.env.NODE_ENV === 'development' &&
+          event.reason &&
+          typeof event.reason === 'object' &&
+          (event.reason.name === 'AbortError' ||
+           (event.reason.message && event.reason.message.includes('aborted')))) {
+        // 静默处理开发环境中的AbortError
+        event.preventDefault();
+        console.debug('Unhandled AbortError suppressed (development)');
+      }
+    };
+
     // 页面加载时的处理
     const handleBeforeUnload = () => {
       try {
         request.abortAllRequests();
       } catch (error) {
-        if (process.env.NODE_ENV === 'development') {
-          console.debug('Requests aborted during page unload (development)');
-        } else {
+        // 开发环境中完全静默
+        if (process.env.NODE_ENV !== 'development') {
           console.warn('Error aborting requests during page unload:', error);
         }
       }
     };
 
-    // 注册页面卸��事件
+    // 注册事件监听器
+    window.addEventListener("unhandledrejection", handleUnhandledRejection);
     window.addEventListener("beforeunload", handleBeforeUnload);
 
     return () => {
@@ -72,12 +85,12 @@ export const usePageRequestManager = () => {
       try {
         request.abortAllRequests();
       } catch (error) {
-        if (process.env.NODE_ENV === 'development') {
-          console.debug('Requests aborted during page unload (development)');
-        } else {
-          console.warn('Error aborting requests during page unload:', error);
+        // 开发环境中完全静默
+        if (process.env.NODE_ENV !== 'development') {
+          console.warn('Error aborting requests during cleanup:', error);
         }
       }
+      window.removeEventListener("unhandledrejection", handleUnhandledRejection);
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
   }, []);
