@@ -234,7 +234,7 @@ export class Request {
   ): Promise<ApiResponse<T>> {
     let data: any;
 
-    // 总是尝试解析响应体，不管状态码是什么
+    // 总是尝试解析响��体，不管状态码是什么
     try {
       switch (responseType) {
         case "json":
@@ -289,7 +289,7 @@ export class Request {
       data,
       params,
       headers = {},
-      timeout = this.defaultConfig.timeout || 15000, // 增加超时时间到15秒
+      timeout = this.defaultConfig.timeout || 30000, // 增加超时时间到30秒
       credentials = this.defaultConfig.credentials,
       responseType = "json",
     } = config;
