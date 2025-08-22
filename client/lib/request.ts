@@ -143,7 +143,7 @@ export class Request {
   constructor(baseURL: string = "", config: RequestConfig = {}) {
     this.baseURL = baseURL;
     this.defaultConfig = {
-      timeout: 10000,
+      timeout: 30000, // 增加到30秒
       credentials: "same-origin",
       headers: {
         "Content-Type": "application/json",
