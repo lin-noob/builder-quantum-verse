@@ -256,10 +256,16 @@ const MemberManagement = () => {
   };
 
   const openEditDialog = (member: Member) => {
-    console.log("Opening edit dialog for member:", member);
+    console.log("=== openEditDialog called ===");
+    console.log("Member:", member);
+    console.log("Current editDialogOpen:", editDialogOpen);
+
     setEditingMember({ ...member });
     setEditDialogOpen(true);
-    console.log("Edit dialog state set to true");
+
+    console.log("State updated, editingMember set to:", member.name);
+    console.log("editDialogOpen set to: true");
+    console.log("=== openEditDialog finished ===");
   };
 
   const openStatusConfirm = (member: Member) => {
