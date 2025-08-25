@@ -41,16 +41,12 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import {
   Building2,
-  Plus,
   Search,
-  MoreHorizontal,
-  Edit,
   Users,
   Calendar,
   Crown,
   Shield,
   Settings,
-  Eye,
   Copy,
 } from "lucide-react";
 import {
@@ -643,7 +639,7 @@ const OrganizationManagement = () => {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>编辑组织信息</DialogTitle>
-            <DialogDescription>修改��织的基本信息和状态</DialogDescription>
+            <DialogDescription>修���组织的基本信息和状态</DialogDescription>
           </DialogHeader>
           {editingOrganization && (
             <div className="space-y-4">
