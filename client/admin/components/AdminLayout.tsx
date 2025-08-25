@@ -395,14 +395,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         </div>
 
         {/* 顶部导航栏 */}
-        <header className="h-16 bg-card border-b border-border flex items-center justify-between px-6 mt-16 lg:mt-0">
-          <div className="flex items-center gap-4">
-            <h1 className="text-lg font-semibold text-gray-900">
-              {menuItems.find((item) => isActiveRoute(item.path))?.label ||
-                "系统管理"}
-            </h1>
-          </div>
-
+        <header className="h-16 bg-card border-b border-border flex items-center justify-end px-6 mt-16 lg:mt-0">
           <div className="flex items-center gap-4">
             {/* 通知铃铛 */}
             <div className="relative">
