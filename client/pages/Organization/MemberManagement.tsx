@@ -330,12 +330,6 @@ const MemberManagement = () => {
 
   return (
     <div className="p-6 space-y-6">
-      {/* 临时调试信息 */}
-      <div className="bg-gray-100 p-2 text-xs">
-        调试: editDialogOpen={editDialogOpen.toString()}, editingMember=
-        {editingMember?.name || "null"}
-      </div>
-
       {/* 搜索和过滤 */}
       <Card>
         <CardContent className="pt-6">
