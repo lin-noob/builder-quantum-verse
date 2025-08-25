@@ -67,6 +67,7 @@ import {
   InviteMemberRequest,
   UpdateMemberRequest,
   MemberListQuery,
+  generateInitialPassword,
 } from "../../../shared/organizationData";
 import { organizationApi, memberApi } from "../../../shared/organizationApi";
 
@@ -157,7 +158,7 @@ const OrganizationDetail = () => {
       console.error("Failed to load organization:", error);
       toast({
         title: "加载失败",
-        description: "无法加载组织信息，请重试",
+        description: "无法加载组织��息，请重试",
         variant: "destructive",
       });
     } finally {
@@ -251,7 +252,7 @@ const OrganizationDetail = () => {
       if (response.success) {
         toast({
           title: "邀请成功",
-          description: `新成员已创建，初始密码已生成`,
+          description: `���成员已创建，初始密码已生成`,
         });
 
         setGeneratedPassword(response.data.initialPassword);
@@ -345,7 +346,7 @@ const OrganizationDetail = () => {
       console.error("Failed to toggle member status:", error);
       toast({
         title: "状态更新失败",
-        description: "网络错误，请重试",
+        description: "网络错误，���重试",
         variant: "destructive",
       });
     }
@@ -391,7 +392,7 @@ const OrganizationDetail = () => {
   const endMemberIndex = startMemberIndex + membersPerPage;
   const currentMembers = sortedMembers.slice(startMemberIndex, endMemberIndex);
 
-  // 重置分页当筛选条件改变时
+  // 重置分���当筛选条件改变时
   useEffect(() => {
     setCurrentMemberPage(1);
   }, [memberSearchQuery, selectedMemberRole, selectedMemberStatus]);
@@ -420,6 +421,18 @@ const OrganizationDetail = () => {
     toast({
       title: "已复制",
       description: "初始密码已复制到剪贴板",
+    });
+  };
+
+  const handleResetPassword = (member: Member) => {
+    const newPassword = generateInitialPassword();
+    setGeneratedPassword(newPassword);
+    setStatusChangeMember(member);
+    setPasswordDialogOpen(true);
+
+    toast({
+      title: "密码重置成功",
+      description: `已为 ${member.name} 生成新密码`,
     });
   };
 
@@ -878,13 +891,13 @@ const OrganizationDetail = () => {
         </Card>
       </div>
 
-      {/* 邀请新成员弹��� */}
+      {/* 邀请��成员弹��� */}
       <Dialog open={inviteDialogOpen} onOpenChange={setInviteDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>邀请新成员</DialogTitle>
             <DialogDescription>
-              为组织添加新的团队成员，系统将自动��成初始密码
+              为组织添���新的团队成员，系统将自动��成初始密码
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
