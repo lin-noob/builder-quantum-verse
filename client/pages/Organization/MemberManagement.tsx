@@ -308,47 +308,72 @@ const MemberManagement = () => {
 
   return (
     <div className="p-6 space-y-6">
-      {/* 邀请按钮 */}
-      <div className="flex justify-end">
-        <Button onClick={() => setInviteDialogOpen(true)} className="flex items-center gap-2">
-          <Plus className="h-4 w-4" />
-          邀请新成员
-        </Button>
-      </div>
-
       {/* 搜索和过滤 */}
       <Card>
         <CardContent className="pt-6">
-          <div className="flex flex-col sm:flex-row gap-4 mb-6">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-              <Input
-                placeholder="按姓名或邮箱搜索成员..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
+          <div className="flex flex-col gap-4 mb-6">
+            {/* 第一行：搜索框和筛选 */}
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <Input
+                  placeholder="按姓名或邮箱搜索成员..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              <Select value={selectedRole} onValueChange={(value) => setSelectedRole(value as MemberRole | "ALL")}>
+                <SelectTrigger className="w-full sm:w-[180px]">
+                  <SelectValue placeholder="角色筛选" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL">所有角色</SelectItem>
+                  <SelectItem value={MemberRole.ADMIN}>管理员</SelectItem>
+                  <SelectItem value={MemberRole.MEMBER}>成员</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={selectedStatus} onValueChange={(value) => setSelectedStatus(value as AccountStatus | "ALL")}>
+                <SelectTrigger className="w-full sm:w-[180px]">
+                  <SelectValue placeholder="状态筛选" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL">所有状态</SelectItem>
+                  <SelectItem value={AccountStatus.ACTIVE}>活跃</SelectItem>
+                  <SelectItem value={AccountStatus.DISABLED}>已禁用</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-            <Select value={selectedRole} onValueChange={(value) => setSelectedRole(value as MemberRole | "ALL")}>
-              <SelectTrigger className="w-full sm:w-[180px]">
-                <SelectValue placeholder="角色筛选" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ALL">所有角色</SelectItem>
-                <SelectItem value={MemberRole.ADMIN}>管理员</SelectItem>
-                <SelectItem value={MemberRole.MEMBER}>成员</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={selectedStatus} onValueChange={(value) => setSelectedStatus(value as AccountStatus | "ALL")}>
-              <SelectTrigger className="w-full sm:w-[180px]">
-                <SelectValue placeholder="状态筛选" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ALL">所有状态</SelectItem>
-                <SelectItem value={AccountStatus.ACTIVE}>活跃</SelectItem>
-                <SelectItem value={AccountStatus.DISABLED}>已禁用</SelectItem>
-              </SelectContent>
-            </Select>
+
+            {/* 第二行：搜索、重置和邀请按钮 */}
+            <div className="flex justify-between items-center">
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => loadMembers()}
+                  className="flex items-center gap-2"
+                >
+                  <Search className="h-4 w-4" />
+                  搜索
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setSearchQuery("");
+                    setSelectedRole("ALL");
+                    setSelectedStatus("ALL");
+                    setCurrentPage(1);
+                  }}
+                  className="flex items-center gap-2"
+                >
+                  重置
+                </Button>
+              </div>
+              <Button onClick={() => setInviteDialogOpen(true)} className="flex items-center gap-2">
+                <Plus className="h-4 w-4" />
+                邀请新成员
+              </Button>
+            </div>
           </div>
 
           {/* 成员表格 */}
@@ -562,7 +587,7 @@ const MemberManagement = () => {
               ) : (
                 <>
                   您确定要启用「{statusChangeMember?.name}」的账户吗？
-                  启用后该成员将可以���常登录系统。
+                  启用后该成员将可以正常登录系统。
                 </>
               )}
             </AlertDialogDescription>
