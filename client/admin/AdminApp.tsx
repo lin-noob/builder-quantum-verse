@@ -29,6 +29,7 @@ export default function AdminApp() {
 
         {/* 组织管理 */}
         <Route path="/organizations" element={<OrganizationManagement />} />
+        <Route path="/organizations/:organizationId" element={<OrganizationDetail />} />
 
         {/* 用户详情分析 */}
         <Route
@@ -36,7 +37,7 @@ export default function AdminApp() {
           element={<UserDetailsAnalytics />}
         />
 
-        {/* AI模��管理 */}
+        {/* AI模型管理 */}
         <Route path="/ai-models" element={<AIModelManagement />} />
 
         {/* 场景配置管理 */}
