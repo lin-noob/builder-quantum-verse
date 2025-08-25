@@ -137,7 +137,7 @@ const MemberManagement = () => {
   const handleInviteMember = async () => {
     if (!inviteForm.email || !inviteForm.role) {
       toast({
-        title: "表单验证失败",
+        title: "表单��证失败",
         description: "请填写完整的邀请信息",
         variant: "destructive",
       });
@@ -426,7 +426,11 @@ const MemberManagement = () => {
                             编辑信息
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem onClick={() => openStatusConfirm(member)}>
+                          <DropdownMenuItem onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            openStatusConfirm(member);
+                          }}>
                             {member.accountStatus === AccountStatus.ACTIVE ? (
                               <>
                                 <UserX className="mr-2 h-4 w-4" />
