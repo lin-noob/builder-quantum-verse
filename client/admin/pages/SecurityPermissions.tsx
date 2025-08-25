@@ -281,16 +281,10 @@ export default function SecurityPermissions() {
 
   return (
     <div className="p-6 space-y-6">
-      {/* 页面标题 */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">安全与权限</h1>
-          <p className="text-sm text-gray-600 mt-1">
-            管理系统角色、权限和用户访问控制
-          </p>
-        </div>
+      {/* 创建角色按钮 */}
+      <div className="flex justify-end">
         <div className="flex gap-3">
-          <Button 
+          <Button
             onClick={handleCreateRole}
             variant="outline"
           >
