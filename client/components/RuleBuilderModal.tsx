@@ -583,7 +583,7 @@ const RuleBuilderModal = ({
         <Alert>
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            内容将完全由AI根据用户画像和场景自动生成，无需配置具体内容。
+            内容将完全由AI根据用户��像和场景自动生成，无需配置具体内容。
           </AlertDescription>
         </Alert>
       );
@@ -596,7 +596,7 @@ const RuleBuilderModal = ({
             <Label htmlFor="aiPrompt">AI指令</Label>
             <Textarea
               id="aiPrompt"
-              placeholder="请输入给AI的��务用途和指令，例如：为VIP客��生成专属优惠信息..."
+              placeholder="请输入给AI的业务用途和指令，例如：为VIP客户生成专属优惠信息..."
               value={responseAction.actionConfig.aiPrompt || ""}
               onChange={(e) => updateActionConfig({ aiPrompt: e.target.value })}
               rows={3}

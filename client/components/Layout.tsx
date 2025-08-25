@@ -365,7 +365,7 @@ export default function Layout({ children }: LayoutProps) {
 
               return (
                 <li key={item.id} className="relative group">
-                  {/* 系统管理菜单（包含二���菜单） */}
+                  {/* 系统管理菜单（包含二级菜单） */}
                   {item.id === "system-management" ? (
                     <div>
                       <button
@@ -548,7 +548,7 @@ export default function Layout({ children }: LayoutProps) {
                 isSidebarCollapsed ? "justify-center" : "justify-start",
               )}
               title={
-                isSidebarCollapsed ? `${currentUser.username} - ����信息` : ""
+                isSidebarCollapsed ? `${currentUser.username} - 个人信息` : ""
               }
             >
               <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
@@ -575,7 +575,7 @@ export default function Layout({ children }: LayoutProps) {
                 "flex items-center gap-3 p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-colors border border-dashed border-gray-300",
                 isSidebarCollapsed ? "justify-center" : "justify-start",
               )}
-              title={isSidebarCollapsed ? "点��登录" : ""}
+              title={isSidebarCollapsed ? "点击登录" : ""}
             >
               <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center flex-shrink-0">
                 <User className="h-4 w-4 text-gray-500" />
