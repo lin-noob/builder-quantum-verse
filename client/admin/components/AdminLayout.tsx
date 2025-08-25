@@ -394,21 +394,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           <TabManager />
         </div>
 
-        {/* 顶部导航栏 */}
-        <header className="h-16 bg-card border-b border-border flex items-center justify-end px-6 mt-16 lg:mt-0">
-          <div className="flex items-center gap-4">
-            {/* 通知铃铛 */}
-            <div className="relative">
-              <Button variant="ghost" size="sm" className="p-2">
-                <Bell className="h-5 w-5 text-gray-600" />
-              </Button>
-              <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full flex items-center justify-center">
-                <span className="text-[10px] text-white font-bold">3</span>
-              </div>
-            </div>
-
-          </div>
-        </header>
 
         {/* 主内容 */}
         <main className="flex-1 overflow-auto pt-16 lg:pt-0">{children}</main>
