@@ -106,7 +106,7 @@ export default function Layout({ children }: LayoutProps) {
   const adminMenuItems: MenuItem[] = [
     {
       id: "system-management",
-      label: "系统管��",
+      label: "系统管理",
       path: "/organization/members", // 默认跳转到成员管理
       icon: <Settings className="h-5 w-5" />,
       subItems: [
@@ -365,7 +365,7 @@ export default function Layout({ children }: LayoutProps) {
 
               return (
                 <li key={item.id} className="relative group">
-                  {/* 系统管理菜单（包含二级菜单） */}
+                  {/* 系统管理菜单（包含二���菜单） */}
                   {item.id === "system-management" ? (
                     <div>
                       <button
