@@ -1,5 +1,6 @@
 import { DemoResponse } from "@shared/api";
 import { useEffect, useState } from "react";
+import { request } from "@/lib/request";
 
 export default function Index() {
   const [exampleFromServer, setExampleFromServer] = useState("");
