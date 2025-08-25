@@ -1,3 +1,6 @@
+// Import early-stage suppression FIRST to catch warnings before React starts
+import "./lib/earlyRechartsSuppress";
+
 import React from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App";
