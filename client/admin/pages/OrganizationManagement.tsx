@@ -475,12 +475,6 @@ const OrganizationManagement = () => {
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-4">
                         <button
-                          onClick={() => openEditDialog(organization)}
-                          className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                        >
-                          编辑
-                        </button>
-                        <button
                           onClick={() => navigate(`/admin/organizations/${organization.organizationId}`)}
                           className="text-blue-600 hover:text-blue-800 text-sm font-medium"
                         >
