@@ -131,7 +131,7 @@ class AuthService {
   // 注册
   async register(data: RegisterData): Promise<{ success: boolean; user?: User; error?: string }> {
     try {
-      // 检查邮箱是否已存在
+      // 检查邮箱���否已存在
       if (this.users.some(u => u.email === data.email)) {
         return { success: false, error: "该用户已存在" };
       }
@@ -270,20 +270,6 @@ class AuthService {
 
   // 获取当前用户
   getCurrentUser(): User | null {
-    if (!this.currentUser) {
-      // 尝试从 localStorage 恢复
-      try {
-        const storedUser = localStorage.getItem('auth_user');
-        const storedToken = localStorage.getItem('auth_token');
-        
-        if (storedUser && storedToken) {
-          this.currentUser = JSON.parse(storedUser);
-          this.isAuthenticated = true;
-        }
-      } catch (error) {
-        // 忽略解析错误
-      }
-    }
     return this.currentUser;
   }
 
