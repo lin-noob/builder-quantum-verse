@@ -378,7 +378,7 @@ export default function SecurityPermissions() {
           <TabsTrigger value="users">用户权限</TabsTrigger>
         </TabsList>
 
-        {/* 角色管理Tab */}
+        {/* 角���管理Tab */}
         <TabsContent value="roles" className="space-y-6">
           <Card>
             <CardHeader>
@@ -568,7 +568,7 @@ export default function SecurityPermissions() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {userRoles.map((user) => (
+                  {currentUserRoles.map((user) => (
                     <TableRow key={user.userId}>
                       <TableCell>
                         <div>
