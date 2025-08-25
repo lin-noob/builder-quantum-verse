@@ -379,7 +379,7 @@ export default function Layout({ children }: LayoutProps) {
                             ? "bg-blue-50 text-blue-700 border border-blue-200"
                             : "text-gray-600 hover:text-gray-900 hover:bg-gray-50",
                         )}
-                        title={isSidebarCollapsed ? item.label : undefined}
+                        title={isSidebarCollapsed ? "系统管理" : undefined}
                       >
                         <div className="flex items-center gap-3">
                           {item.icon}
