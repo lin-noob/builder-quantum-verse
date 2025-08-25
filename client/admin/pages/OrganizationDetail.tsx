@@ -557,26 +557,14 @@ const OrganizationDetail = () => {
 
             <div>
               <Label htmlFor="accountStatus">账户状态</Label>
-              {isEditing ? (
-                <Select
-                  value={orgFormData.accountStatus}
-                  onValueChange={(value) =>
-                    setOrgFormData((prev) => ({ ...prev, accountStatus: value as AccountStatus }))
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value={AccountStatus.ACTIVE}>活跃</SelectItem>
-                    <SelectItem value={AccountStatus.SUSPENDED}>已暂停</SelectItem>
-                  </SelectContent>
-                </Select>
-              ) : (
-                <div className="mt-2">
-                  {getStatusBadge(organization.accountStatus)}
-                </div>
-              )}
+              <div className="mt-2">
+                {getStatusBadge(organization.accountStatus)}
+                {isEditing && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    状态只能在列表页面操作栏中修改
+                  </p>
+                )}
+              </div>
             </div>
 
             <div>
