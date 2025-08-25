@@ -211,6 +211,8 @@ export default function TabManager() {
             admin: "管理后台",
             ai: "AI管理",
             data: "数据管理",
+            members: "成员管理",
+            settings: "组织设置",
           };
 
           title =
