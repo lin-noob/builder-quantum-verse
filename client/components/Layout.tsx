@@ -106,7 +106,7 @@ export default function Layout({ children }: LayoutProps) {
   const adminMenuItems: MenuItem[] = [
     {
       id: "system-management",
-      label: "系统管理",
+      label: "系统管��",
       path: "/organization/members", // 默认跳转到成员管理
       icon: <Settings className="h-5 w-5" />,
       subItems: [
@@ -426,6 +426,38 @@ export default function Layout({ children }: LayoutProps) {
                               </Link>
                             );
                           })}
+                        </div>
+                      )}
+
+                      {/* 系统管理悬浮二级菜单 - 仅在折叠状态下显示 */}
+                      {isSidebarCollapsed && item.subItems && (
+                        <div className="absolute left-full top-0 ml-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                          <div className="p-2">
+                            {item.subItems.map((subItem) => {
+                              const subIsActive =
+                                location.pathname === subItem.path ||
+                                (subItem.id === "organization-members" &&
+                                  location.pathname.startsWith("/organization/members")) ||
+                                (subItem.id === "organization-settings" &&
+                                  location.pathname.startsWith("/organization/settings"));
+
+                              return (
+                                <Link
+                                  key={subItem.id}
+                                  to={subItem.path}
+                                  className={cn(
+                                    "flex items-center gap-2 px-3 py-2 text-sm rounded-md transition-colors",
+                                    subIsActive
+                                      ? "bg-blue-50 text-blue-700 border border-blue-200"
+                                      : "text-gray-600 hover:text-gray-900 hover:bg-gray-50",
+                                  )}
+                                >
+                                  {subItem.icon}
+                                  {subItem.label}
+                                </Link>
+                              );
+                            })}
+                          </div>
                         </div>
                       )}
                     </div>
