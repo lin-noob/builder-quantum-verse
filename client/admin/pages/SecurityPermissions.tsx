@@ -435,6 +435,33 @@ export default function SecurityPermissions() {
                   </div>
                 ))}
               </div>
+
+              {/* Roles Pagination */}
+              {totalRolePages > 1 && (
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 pt-4 border-t">
+                  <div className="text-sm text-gray-700 order-2 sm:order-1">
+                    正在显示 {startRoleIndex + 1} - {Math.min(endRoleIndex, roles.length)} 条，共 {roles.length} 条
+                  </div>
+                  <div className="flex items-center gap-2 order-1 sm:order-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentRolePage(prev => Math.max(1, prev - 1))}
+                      disabled={currentRolePage === 1}
+                    >
+                      上一页
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentRolePage(prev => Math.min(totalRolePages, prev + 1))}
+                      disabled={currentRolePage === totalRolePages}
+                    >
+                      下一页
+                    </Button>
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
