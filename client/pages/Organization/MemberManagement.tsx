@@ -76,10 +76,6 @@ const MemberManagement = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
 
-  // 排序状态
-  const [sortField, setSortField] = useState<'lastLoginAt' | 'createdAt' | null>('lastLoginAt');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
-
   // 弹窗状态
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -332,58 +328,20 @@ const MemberManagement = () => {
     );
   }
 
-  // 排序函数
-  const sortMembers = (members: Member[]) => {
-    if (!sortField) return members;
-
-    return [...members].sort((a, b) => {
-      let aValue: string | null = null;
-      let bValue: string | null = null;
-
-      if (sortField === 'lastLoginAt') {
-        aValue = a.lastLoginAt;
-        bValue = b.lastLoginAt;
-      } else if (sortField === 'createdAt') {
-        aValue = a.createdAt;
-        bValue = b.createdAt;
-      }
-
-      // 处理null值，null值排在最后
-      if (!aValue && !bValue) return 0;
-      if (!aValue) return 1;
-      if (!bValue) return -1;
-
-      const dateA = new Date(aValue).getTime();
-      const dateB = new Date(bValue).getTime();
-
-      if (sortOrder === 'desc') {
-        return dateB - dateA;
-      } else {
-        return dateA - dateB;
-      }
-    });
-  };
-
-  // 获取排序后的成员列表
-  const sortedMembers = sortMembers(members);
-
-  const handleSort = (field: 'lastLoginAt' | 'createdAt') => {
-    if (sortField === field) {
-      setSortOrder(sortOrder === 'desc' ? 'asc' : 'desc');
-    } else {
-      setSortField(field);
-      setSortOrder('desc');
-    }
-  };
-
   return (
     <div className="p-6 space-y-6">
+      {/* 临时调试信息 */}
+      <div className="bg-gray-100 p-2 text-xs">
+        调试: editDialogOpen={editDialogOpen.toString()}, editingMember=
+        {editingMember?.name || "null"}
+      </div>
+
       {/* 搜索和过滤 */}
       <Card>
         <CardContent className="pt-6">
           <div className="flex flex-col gap-4 mb-6">
             {/* 筛选和按钮一行 */}
-            <div className="flex flex-col sm:flex-row gap-4 items-end justify-between">
+            <div className="flex flex-col sm:flex-row gap-4 items-end">
               <div className="relative w-full sm:w-64">
                 <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                 <Input
@@ -400,7 +358,7 @@ const MemberManagement = () => {
                 }
               >
                 <SelectTrigger className="w-full sm:w-[150px]">
-                  <SelectValue placeholder="角色筛��" />
+                  <SelectValue placeholder="角色筛选" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="ALL">所有角色</SelectItem>
@@ -632,7 +590,7 @@ const MemberManagement = () => {
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>编辑成员信息</DialogTitle>
-            <DialogDescription>修改成员的基本信息和角色权���</DialogDescription>
+            <DialogDescription>修改成员的基本信息和角色权限</DialogDescription>
           </DialogHeader>
           {editingMember && (
             <div className="space-y-4">
