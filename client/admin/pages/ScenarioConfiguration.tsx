@@ -1,24 +1,54 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { 
-  Settings, 
-  Plus, 
-  Edit, 
-  Trash2, 
-  Eye, 
-  EyeOff, 
-  ChevronDown, 
+import React, { useState, useEffect } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import {
+  Settings,
+  Plus,
+  Edit,
+  Trash2,
+  Eye,
+  EyeOff,
+  ChevronDown,
   ChevronRight,
   Brain,
   Zap,
@@ -32,24 +62,31 @@ import {
   CheckCircle2,
   XCircle,
   PlayCircle,
-  PauseCircle
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
+  PauseCircle,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 import {
   MarketingScenario,
   ActionType,
   TimingStrategy,
   ContentStrategy,
   getMarketingScenarios,
-  updateMarketingScenario
-} from '../data/scenarioData';
+  updateMarketingScenario,
+} from "../data/scenarioData";
 
 export default function ScenarioConfiguration() {
   const [scenarios, setScenarios] = useState<MarketingScenario[]>([]);
-  const [selectedScenario, setSelectedScenario] = useState<MarketingScenario | null>(null);
+  const [selectedScenario, setSelectedScenario] =
+    useState<MarketingScenario | null>(null);
   const [isConfigDialogOpen, setIsConfigDialogOpen] = useState(false);
-  const [expandedScenarios, setExpandedScenarios] = useState<Set<string>>(new Set());
+  const [expandedScenarios, setExpandedScenarios] = useState<Set<string>>(
+    new Set(),
+  );
   const [loading, setLoading] = useState(true);
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [scenariosPerPage] = useState(5);
 
   useEffect(() => {
     loadScenarios();
@@ -60,28 +97,34 @@ export default function ScenarioConfiguration() {
       const data = await getMarketingScenarios();
       setScenarios(data);
     } catch (error) {
-      console.error('Failed to load scenarios:', error);
+      console.error("Failed to load scenarios:", error);
     } finally {
       setLoading(false);
     }
   };
 
+  // Pagination logic
+  const totalPages = Math.ceil(scenarios.length / scenariosPerPage);
+  const startIndex = (currentPage - 1) * scenariosPerPage;
+  const endIndex = startIndex + scenariosPerPage;
+  const currentScenarios = scenarios.slice(startIndex, endIndex);
+
   const getActionTypeIcon = (type: ActionType) => {
     switch (type) {
-      case 'POPUP':
+      case "POPUP":
         return <MessageSquare className="h-4 w-4" />;
-      case 'EMAIL':
+      case "EMAIL":
         return <Mail className="h-4 w-4" />;
-      case 'SMS':
+      case "SMS":
         return <Smartphone className="h-4 w-4" />;
     }
   };
 
   const getActionTypeBadge = (type: ActionType) => {
     const config = {
-      POPUP: { label: '网页弹窗', className: 'bg-blue-100 text-blue-800' },
-      EMAIL: { label: '发送邮件', className: 'bg-green-100 text-green-800' },
-      SMS: { label: '短信通知', className: 'bg-purple-100 text-purple-800' }
+      POPUP: { label: "网页弹窗", className: "bg-blue-100 text-blue-800" },
+      EMAIL: { label: "发送邮件", className: "bg-green-100 text-green-800" },
+      SMS: { label: "短信通知", className: "bg-purple-100 text-purple-800" },
     };
     const { label, className } = config[type];
     return <Badge className={className}>{label}</Badge>;
@@ -89,8 +132,11 @@ export default function ScenarioConfiguration() {
 
   const getTimingStrategyBadge = (strategy: TimingStrategy) => {
     const config = {
-      IMMEDIATE: { label: '立即触发', className: 'bg-red-100 text-red-800' },
-      SMART_DELAY: { label: '智能延迟', className: 'bg-yellow-100 text-yellow-800' }
+      IMMEDIATE: { label: "立即触发", className: "bg-red-100 text-red-800" },
+      SMART_DELAY: {
+        label: "智能延迟",
+        className: "bg-yellow-100 text-yellow-800",
+      },
     };
     const { label, className } = config[strategy];
     return <Badge className={className}>{label}</Badge>;
@@ -98,9 +144,12 @@ export default function ScenarioConfiguration() {
 
   const getContentStrategyBadge = (strategy: ContentStrategy) => {
     const config = {
-      FULLY_GENERATIVE: { label: '完全生成', className: 'bg-indigo-100 text-indigo-800' },
-      STATIC: { label: '静态模板', className: 'bg-gray-100 text-gray-800' },
-      AI_ASSISTED: { label: 'AI辅助', className: 'bg-teal-100 text-teal-800' }
+      FULLY_GENERATIVE: {
+        label: "完全生成",
+        className: "bg-indigo-100 text-indigo-800",
+      },
+      STATIC: { label: "静态模板", className: "bg-gray-100 text-gray-800" },
+      AI_ASSISTED: { label: "AI辅助", className: "bg-teal-100 text-teal-800" },
     };
     const { label, className } = config[strategy];
     return <Badge className={className}>{label}</Badge>;
@@ -120,34 +169,40 @@ export default function ScenarioConfiguration() {
     try {
       const updated = await updateMarketingScenario(scenario.scenarioId, {
         isAIEnabled: !scenario.isAIEnabled,
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       });
-      
+
       if (updated) {
-        setScenarios(prev => prev.map(s => 
-          s.scenarioId === scenario.scenarioId 
-            ? { ...s, isAIEnabled: !s.isAIEnabled }
-            : s
-        ));
+        setScenarios((prev) =>
+          prev.map((s) =>
+            s.scenarioId === scenario.scenarioId
+              ? { ...s, isAIEnabled: !s.isAIEnabled }
+              : s,
+          ),
+        );
       }
     } catch (error) {
-      console.error('Failed to toggle scenario:', error);
+      console.error("Failed to toggle scenario:", error);
     }
   };
 
   const getScenarioStats = () => {
     const totalScenarios = scenarios.length;
-    const enabledScenarios = scenarios.filter(s => s.isAIEnabled).length;
-    const totalRules = scenarios.reduce((sum, s) => sum + s.overrideRules.length, 0);
-    const activeRules = scenarios.reduce((sum, s) => 
-      sum + s.overrideRules.filter(r => r.isEnabled).length, 0
+    const enabledScenarios = scenarios.filter((s) => s.isAIEnabled).length;
+    const totalRules = scenarios.reduce(
+      (sum, s) => sum + s.overrideRules.length,
+      0,
+    );
+    const activeRules = scenarios.reduce(
+      (sum, s) => sum + s.overrideRules.filter((r) => r.isEnabled).length,
+      0,
     );
 
     return {
       totalScenarios,
       enabledScenarios,
       totalRules,
-      activeRules
+      activeRules,
     };
   };
 
@@ -171,24 +226,16 @@ export default function ScenarioConfiguration() {
 
   return (
     <div className="p-6 space-y-6">
-      {/* 页面标题 */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">场景配置管理</h1>
-          <p className="text-sm text-gray-600 mt-1">
-            管理AI营销场景的启用状态、默认配置和自定义规则
-          </p>
-        </div>
-        <div className="flex gap-3">
-          <Button variant="outline">
-            <Plus className="h-4 w-4 mr-2" />
-            创建自定义场景
-          </Button>
-          <Button>
-            <Settings className="h-4 w-4 mr-2" />
-            全局配置
-          </Button>
-        </div>
+      {/* 操作按钮 */}
+      <div className="flex justify-end gap-3">
+        <Button variant="outline">
+          <Plus className="h-4 w-4 mr-2" />
+          创建自定义场景
+        </Button>
+        <Button>
+          <Settings className="h-4 w-4 mr-2" />
+          全局配置
+        </Button>
       </div>
 
       {/* 统计概览 */}
@@ -213,10 +260,13 @@ export default function ScenarioConfiguration() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {((stats.enabledScenarios / stats.totalScenarios) * 100).toFixed(0)}%
+              {((stats.enabledScenarios / stats.totalScenarios) * 100).toFixed(
+                0,
+              )}
+              %
             </div>
             <p className="text-xs text-muted-foreground">
-              {stats.enabledScenarios}/{stats.totalScenarios} 场景已启用
+              {stats.enabledScenarios}/{stats.totalScenarios} 场景已启���
             </p>
           </CardContent>
         </Card>
@@ -241,11 +291,11 @@ export default function ScenarioConfiguration() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {stats.totalScenarios > 0 ? (stats.totalRules / stats.totalScenarios).toFixed(1) : 0}
+              {stats.totalScenarios > 0
+                ? (stats.totalRules / stats.totalScenarios).toFixed(1)
+                : 0}
             </div>
-            <p className="text-xs text-muted-foreground">
-              每场景平均规则数
-            </p>
+            <p className="text-xs text-muted-foreground">每场景平均规则数</p>
           </CardContent>
         </Card>
       </div>
@@ -259,7 +309,7 @@ export default function ScenarioConfiguration() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {scenarios.map((scenario) => (
+          {currentScenarios.map((scenario) => (
             <div key={scenario.scenarioId} className="border rounded-lg">
               {/* 场景主信息 */}
               <div className="p-4">
@@ -268,7 +318,9 @@ export default function ScenarioConfiguration() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => toggleScenarioExpansion(scenario.scenarioId)}
+                      onClick={() =>
+                        toggleScenarioExpansion(scenario.scenarioId)
+                      }
                       className="p-1"
                     >
                       {expandedScenarios.has(scenario.scenarioId) ? (
@@ -279,7 +331,9 @@ export default function ScenarioConfiguration() {
                     </Button>
                     <div>
                       <div className="flex items-center gap-3">
-                        <h3 className="text-lg font-semibold">{scenario.scenarioName}</h3>
+                        <h3 className="text-lg font-semibold">
+                          {scenario.scenarioName}
+                        </h3>
                         {scenario.isAIEnabled ? (
                           <Badge className="bg-green-100 text-green-800">
                             <CheckCircle2 className="h-3 w-3 mr-1" />
@@ -292,24 +346,35 @@ export default function ScenarioConfiguration() {
                           </Badge>
                         )}
                       </div>
-                      <p className="text-sm text-gray-600 mt-1">{scenario.businessValue}</p>
+                      <p className="text-sm text-gray-600 mt-1">
+                        {scenario.businessValue}
+                      </p>
                       <div className="flex items-center gap-4 mt-2">
                         <div className="flex items-center gap-1">
-                          {scenario.defaultAIConfig.allowedActionTypes.map(type => (
-                            <div key={type} className="flex items-center gap-1">
-                              {getActionTypeIcon(type)}
-                              {getActionTypeBadge(type)}
-                            </div>
-                          ))}
+                          {scenario.defaultAIConfig.allowedActionTypes.map(
+                            (type) => (
+                              <div
+                                key={type}
+                                className="flex items-center gap-1"
+                              >
+                                {getActionTypeIcon(type)}
+                                {getActionTypeBadge(type)}
+                              </div>
+                            ),
+                          )}
                         </div>
-                        {getTimingStrategyBadge(scenario.defaultAIConfig.timingStrategy)}
-                        {getContentStrategyBadge(scenario.defaultAIConfig.contentStrategy)}
+                        {getTimingStrategyBadge(
+                          scenario.defaultAIConfig.timingStrategy,
+                        )}
+                        {getContentStrategyBadge(
+                          scenario.defaultAIConfig.contentStrategy,
+                        )}
                       </div>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-gray-500">
-                      {scenario.overrideRules.length} 个自定义��则
+                      {scenario.overrideRules.length} 个自定义规则
                     </span>
                     <Switch
                       checked={scenario.isAIEnabled}
@@ -337,26 +402,40 @@ export default function ScenarioConfiguration() {
                   <div>
                     <h4 className="font-medium mb-3">默认AI策略</h4>
                     <div className="bg-white p-4 rounded-lg border space-y-3">
-                      <p className="text-sm text-gray-700">{scenario.defaultAIConfig.description}</p>
+                      <p className="text-sm text-gray-700">
+                        {scenario.defaultAIConfig.description}
+                      </p>
                       <div>
                         <h5 className="text-sm font-medium mb-2">策略维度:</h5>
                         <div className="space-y-2">
-                          {scenario.defaultAIConfig.dimensions.map((dimension, index) => (
-                            <div key={index} className="text-sm">
-                              <span className="font-medium">{dimension.dimension}:</span>
-                              <span className="ml-2 text-gray-600">{dimension.strategy}</span>
-                            </div>
-                          ))}
+                          {scenario.defaultAIConfig.dimensions.map(
+                            (dimension, index) => (
+                              <div key={index} className="text-sm">
+                                <span className="font-medium">
+                                  {dimension.dimension}:
+                                </span>
+                                <span className="ml-2 text-gray-600">
+                                  {dimension.strategy}
+                                </span>
+                              </div>
+                            ),
+                          )}
                         </div>
                       </div>
                       <div>
                         <h5 className="text-sm font-medium mb-2">核心策略:</h5>
                         <div className="flex flex-wrap gap-1">
-                          {scenario.defaultAIConfig.coreStrategies.map((strategy, index) => (
-                            <Badge key={index} variant="outline" className="text-xs">
-                              {strategy}
-                            </Badge>
-                          ))}
+                          {scenario.defaultAIConfig.coreStrategies.map(
+                            (strategy, index) => (
+                              <Badge
+                                key={index}
+                                variant="outline"
+                                className="text-xs"
+                              >
+                                {strategy}
+                              </Badge>
+                            ),
+                          )}
                         </div>
                       </div>
                     </div>
@@ -368,11 +447,16 @@ export default function ScenarioConfiguration() {
                       <h4 className="font-medium mb-3">自定义规则</h4>
                       <div className="space-y-2">
                         {scenario.overrideRules.map((rule) => (
-                          <div key={rule.ruleId} className="bg-white p-3 rounded-lg border">
+                          <div
+                            key={rule.ruleId}
+                            className="bg-white p-3 rounded-lg border"
+                          >
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-3">
                                 <div className="flex items-center gap-2">
-                                  <span className="text-sm font-medium">{rule.ruleName}</span>
+                                  <span className="text-sm font-medium">
+                                    {rule.ruleName}
+                                  </span>
                                   <Badge variant="outline" className="text-xs">
                                     优先级 {rule.priority}
                                   </Badge>
@@ -390,9 +474,15 @@ export default function ScenarioConfiguration() {
                                 </div>
                               </div>
                               <div className="flex items-center gap-2">
-                                {getActionTypeBadge(rule.responseAction.actionType)}
-                                {getTimingStrategyBadge(rule.responseAction.timing)}
-                                {getContentStrategyBadge(rule.responseAction.contentMode)}
+                                {getActionTypeBadge(
+                                  rule.responseAction.actionType,
+                                )}
+                                {getTimingStrategyBadge(
+                                  rule.responseAction.timing,
+                                )}
+                                {getContentStrategyBadge(
+                                  rule.responseAction.contentMode,
+                                )}
                                 <Button variant="ghost" size="sm">
                                   <Edit className="h-4 w-4" />
                                 </Button>
@@ -412,34 +502,52 @@ export default function ScenarioConfiguration() {
                         <div>
                           <h5 className="text-sm font-medium mb-2">事件字段</h5>
                           <div className="space-y-1">
-                            {scenario.availableFields.event.map((field, index) => (
-                              <div key={index} className="text-xs">
-                                <code className="bg-gray-100 px-1 rounded">{field.field}</code>
-                                <span className="ml-1 text-gray-600">({field.label})</span>
-                              </div>
-                            ))}
+                            {scenario.availableFields.event.map(
+                              (field, index) => (
+                                <div key={index} className="text-xs">
+                                  <code className="bg-gray-100 px-1 rounded">
+                                    {field.field}
+                                  </code>
+                                  <span className="ml-1 text-gray-600">
+                                    ({field.label})
+                                  </span>
+                                </div>
+                              ),
+                            )}
                           </div>
                         </div>
                         <div>
                           <h5 className="text-sm font-medium mb-2">会话字段</h5>
                           <div className="space-y-1">
-                            {scenario.availableFields.session.map((field, index) => (
-                              <div key={index} className="text-xs">
-                                <code className="bg-gray-100 px-1 rounded">{field.field}</code>
-                                <span className="ml-1 text-gray-600">({field.label})</span>
-                              </div>
-                            ))}
+                            {scenario.availableFields.session.map(
+                              (field, index) => (
+                                <div key={index} className="text-xs">
+                                  <code className="bg-gray-100 px-1 rounded">
+                                    {field.field}
+                                  </code>
+                                  <span className="ml-1 text-gray-600">
+                                    ({field.label})
+                                  </span>
+                                </div>
+                              ),
+                            )}
                           </div>
                         </div>
                         <div>
                           <h5 className="text-sm font-medium mb-2">用户字段</h5>
                           <div className="space-y-1">
-                            {scenario.availableFields.user.map((field, index) => (
-                              <div key={index} className="text-xs">
-                                <code className="bg-gray-100 px-1 rounded">{field.field}</code>
-                                <span className="ml-1 text-gray-600">({field.label})</span>
-                              </div>
-                            ))}
+                            {scenario.availableFields.user.map(
+                              (field, index) => (
+                                <div key={index} className="text-xs">
+                                  <code className="bg-gray-100 px-1 rounded">
+                                    {field.field}
+                                  </code>
+                                  <span className="ml-1 text-gray-600">
+                                    ({field.label})
+                                  </span>
+                                </div>
+                              ),
+                            )}
                           </div>
                         </div>
                       </div>
@@ -449,6 +557,39 @@ export default function ScenarioConfiguration() {
               )}
             </div>
           ))}
+
+          {/* Scenarios Pagination */}
+          {totalPages > 1 && (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 pt-4 border-t">
+              <div className="text-sm text-gray-700 order-2 sm:order-1">
+                正在显示 {startIndex + 1} -{" "}
+                {Math.min(endIndex, scenarios.length)} 条，共 {scenarios.length}{" "}
+                条
+              </div>
+              <div className="flex items-center gap-2 order-1 sm:order-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    setCurrentPage((prev) => Math.max(1, prev - 1))
+                  }
+                  disabled={currentPage === 1}
+                >
+                  上一页
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+                  }
+                  disabled={currentPage === totalPages}
+                >
+                  下一页
+                </Button>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -456,12 +597,12 @@ export default function ScenarioConfiguration() {
       <Dialog open={isConfigDialogOpen} onOpenChange={setIsConfigDialogOpen}>
         <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>配置营销场景: {selectedScenario?.scenarioName}</DialogTitle>
-            <DialogDescription>
-              修改AI策略配置和自定义规则
-            </DialogDescription>
+            <DialogTitle>
+              配置营销场景: {selectedScenario?.scenarioName}
+            </DialogTitle>
+            <DialogDescription>修改AI策略配置和自定义规则</DialogDescription>
           </DialogHeader>
-          
+
           {selectedScenario && (
             <div className="space-y-6 py-4">
               {/* 基本设置 */}
@@ -489,12 +630,16 @@ export default function ScenarioConfiguration() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label>允许的动作类型</Label>
-                    <Select defaultValue={selectedScenario.defaultAIConfig.allowedActionTypes[0]}>
+                    <Select
+                      defaultValue={
+                        selectedScenario.defaultAIConfig.allowedActionTypes[0]
+                      }
+                    >
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="POPUP">网页弹窗</SelectItem>
+                        <SelectItem value="POPUP">网页弹��</SelectItem>
                         <SelectItem value="EMAIL">发送邮件</SelectItem>
                         <SelectItem value="SMS">短信通知</SelectItem>
                       </SelectContent>
@@ -502,7 +647,11 @@ export default function ScenarioConfiguration() {
                   </div>
                   <div className="space-y-2">
                     <Label>触发时机</Label>
-                    <Select defaultValue={selectedScenario.defaultAIConfig.timingStrategy}>
+                    <Select
+                      defaultValue={
+                        selectedScenario.defaultAIConfig.timingStrategy
+                      }
+                    >
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -515,12 +664,18 @@ export default function ScenarioConfiguration() {
                 </div>
                 <div className="space-y-2">
                   <Label>内容策略</Label>
-                  <Select defaultValue={selectedScenario.defaultAIConfig.contentStrategy}>
+                  <Select
+                    defaultValue={
+                      selectedScenario.defaultAIConfig.contentStrategy
+                    }
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="FULLY_GENERATIVE">完全AI生成</SelectItem>
+                      <SelectItem value="FULLY_GENERATIVE">
+                        完全AI生成
+                      </SelectItem>
                       <SelectItem value="STATIC">静态模板</SelectItem>
                       <SelectItem value="AI_ASSISTED">AI辅助生成</SelectItem>
                     </SelectContent>
@@ -528,7 +683,7 @@ export default function ScenarioConfiguration() {
                 </div>
                 <div className="space-y-2">
                   <Label>策略描述</Label>
-                  <Textarea 
+                  <Textarea
                     defaultValue={selectedScenario.defaultAIConfig.description}
                     className="min-h-[100px]"
                   />
@@ -538,8 +693,8 @@ export default function ScenarioConfiguration() {
           )}
 
           <DialogFooter>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={() => {
                 setIsConfigDialogOpen(false);
                 setSelectedScenario(null);
@@ -547,11 +702,13 @@ export default function ScenarioConfiguration() {
             >
               取消
             </Button>
-            <Button onClick={() => {
-              // 这里应该处理保存逻辑
-              setIsConfigDialogOpen(false);
-              setSelectedScenario(null);
-            }}>
+            <Button
+              onClick={() => {
+                // 这里应该处理保存逻辑
+                setIsConfigDialogOpen(false);
+                setSelectedScenario(null);
+              }}
+            >
               保存配置
             </Button>
           </DialogFooter>

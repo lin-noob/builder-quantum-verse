@@ -19,6 +19,8 @@ export default defineConfig(({ mode }) => ({
         target: "http://192.168.1.128:8099",
         changeOrigin: true,
         secure: false,
+        timeout: 30000, // 30秒超时
+        proxyTimeout: 30000, // 代理超时
         rewrite: (path) => {
           const newPath = path.replace(/^\/api/, "");
           console.log(`Proxy rewrite: ${path} -> ${newPath}`);

@@ -36,6 +36,9 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import UserProfile from "./pages/UserProfile";
 import EffectTracking from "./pages/EffectTracking";
+import MemberManagement from "./pages/Organization/MemberManagement";
+import OrganizationSettings from "./pages/Organization/OrganizationSettings";
+import PersonalSettings from "./pages/Account/PersonalSettings";
 import { usePageRequestManager } from "./hooks/useRequestManager";
 import AdminApp from "./admin/AdminApp";
 
@@ -43,7 +46,7 @@ const queryClient = new QueryClient();
 
 // 请求管理包装组件
 const AppWithRequestManager = () => {
-  usePageRequestManager(); // 使用页面级请求管理
+  usePageRequestManager(); // 使��页面级请求管理
 
   return (
     <TooltipProvider>
@@ -299,6 +302,35 @@ const AppWithRequestManager = () => {
             element={
               <Layout>
                 <LiveMonitoring />
+              </Layout>
+            }
+          />
+
+          {/* 组织管理功能 */}
+          <Route
+            path="/organization/members"
+            element={
+              <Layout>
+                <MemberManagement />
+              </Layout>
+            }
+          />
+
+          <Route
+            path="/organization/settings"
+            element={
+              <Layout>
+                <OrganizationSettings />
+              </Layout>
+            }
+          />
+
+          {/* 个人账户管理 */}
+          <Route
+            path="/account/settings"
+            element={
+              <Layout>
+                <PersonalSettings />
               </Layout>
             }
           />

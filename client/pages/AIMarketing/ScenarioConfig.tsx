@@ -52,7 +52,7 @@ interface ApiScenarioDetail {
 }
 
 interface MarketingSceneRule {
-  id:string;
+  id: string;
   sceneId: string;
   ruleName: string;
   triggerCondition?: string;
@@ -80,25 +80,28 @@ const parseAIConfig = (configStr: string): DefaultAIConfig => {
 // 解析用户画像条件
 const parseConditions = (conditionsStr?: string): TriggerConditions => {
   try {
-    if (!conditionsStr) return { eventConditions: [], sessionConditions: [], userConditions: [] };
-    
+    if (!conditionsStr)
+      return { eventConditions: [], sessionConditions: [], userConditions: [] };
+
     const conditions = JSON.parse(conditionsStr);
     return {
-      eventConditions: conditions.event?.map((c: any, index: number) => ({
-        id: `event_${index}`,
-        category: 'event' as ConditionCategory,
-        field: c.field,
-        operator: c.operator,
-        value: c.value.toString()
-      })) || [],
+      eventConditions:
+        conditions.event?.map((c: any, index: number) => ({
+          id: `event_${index}`,
+          category: "event" as ConditionCategory,
+          field: c.field,
+          operator: c.operator,
+          value: c.value.toString(),
+        })) || [],
       sessionConditions: [],
-      userConditions: conditions.user?.map((c: any, index: number) => ({
-        id: `user_${index}`,
-        category: 'user' as ConditionCategory,
-        field: c.field,
-        operator: c.operator,
-        value: c.value.toString()
-      })) || []
+      userConditions:
+        conditions.user?.map((c: any, index: number) => ({
+          id: `user_${index}`,
+          category: "user" as ConditionCategory,
+          field: c.field,
+          operator: c.operator,
+          value: c.value.toString(),
+        })) || [],
     };
   } catch {
     return { eventConditions: [], sessionConditions: [], userConditions: [] };
@@ -106,7 +109,10 @@ const parseConditions = (conditionsStr?: string): TriggerConditions => {
 };
 
 // 将API规则数据转换为OverrideRule格式
-const transformMarketingRuleToOverrideRule = (rule: MarketingSceneRule, index: number): OverrideRule => {
+const transformMarketingRuleToOverrideRule = (
+  rule: MarketingSceneRule,
+  index: number,
+): OverrideRule => {
   return {
     ruleId: rule.id,
     ruleName: rule.ruleName,
@@ -121,11 +127,11 @@ const transformMarketingRuleToOverrideRule = (rule: MarketingSceneRule, index: n
         title: rule.popupTitle,
         body: rule.popupContent,
         buttonText: rule.buttonText,
-        aiPrompt: rule.instruction
-      }
+        aiPrompt: rule.instruction,
+      },
     },
     createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
+    updatedAt: new Date().toISOString(),
   };
 };
 
@@ -140,9 +146,10 @@ const transformApiDataToMarketingScenario = (
     scenarioName: apiData.sceneName,
     isAIEnabled: apiData.status === 1,
     defaultAIConfig: aiConfig,
-    overrideRules: apiData.marketingSceneRules?.map((rule, index) => 
-      transformMarketingRuleToOverrideRule(rule, index)
-    ) || [],
+    overrideRules:
+      apiData.marketingSceneRules?.map((rule, index) =>
+        transformMarketingRuleToOverrideRule(rule, index),
+      ) || [],
     businessValue: aiConfig.description || "",
     createdAt: apiData.gmtCreate,
     updatedAt: apiData.gmtModified,
@@ -215,11 +222,139 @@ const ScenarioConfig = () => {
       setScenario(data);
     } catch (error) {
       console.error("Failed to load scenario:", error);
-      toast({
-        title: "加载失败",
-        description: "无法加载场景配置",
-        variant: "destructive",
-      });
+
+      // 如果API失败，提供fallback数据供开发测试使用
+      if (process.env.NODE_ENV === "development" && scenarioId) {
+        console.log("场景详情API失败，使用fallback数据");
+
+        const fallbackScenarios: Record<string, any> = {
+          add_to_cart: {
+            id: "add_to_cart",
+            sceneName: "加入购物车",
+            status: 1,
+            aiStrategyConfig: JSON.stringify({
+              defaultAIConfig: {
+                allowedActionTypes: ["POPUP"],
+                timingStrategy: "SMART_DELAY",
+                contentStrategy: "FULLY_GENERATIVE",
+                description:
+                  "AI会根据用户画像、购物车商品等信息，自主生成最合适的挽留或激励文案",
+                strategySummary:
+                  "在用户犹豫或准备离开时进行精准挽留，提升订单转化率。",
+                coreStrategies: ["网页弹窗", "智能延迟", "个性化生成"],
+              },
+            }),
+            gmtCreate: "2024-01-10T10:00:00Z",
+            gmtModified: "2024-01-15T14:30:00Z",
+            nullId: false,
+            marketingSceneRules: [],
+          },
+          view_product: {
+            id: "view_product",
+            sceneName: "商品浏览",
+            status: 0,
+            aiStrategyConfig: JSON.stringify({
+              defaultAIConfig: {
+                description: "根据用户浏览行为和商品信息，推荐相关产品或优惠",
+                strategySummary: "通过智能推荐提升用户购买转化。",
+                coreStrategies: ["个性化推荐", "智能营销", "精准投放"],
+              },
+            }),
+            gmtCreate: "2024-01-08T09:00:00Z",
+            gmtModified: "2024-01-12T16:20:00Z",
+            nullId: false,
+            marketingSceneRules: [],
+          },
+          user_signup: {
+            id: "user_signup",
+            sceneName: "用户注册",
+            status: 1,
+            aiStrategyConfig: JSON.stringify({
+              defaultAIConfig: {
+                description: "为新注册用户提供个性化欢迎内容和新手引导",
+                strategySummary: "提升新用户的首次购买转化率。",
+                coreStrategies: ["欢迎引导", "新手优惠", "个性化推荐"],
+              },
+            }),
+            gmtCreate: "2024-01-05T08:30:00Z",
+            gmtModified: "2024-01-20T11:45:00Z",
+            nullId: false,
+            marketingSceneRules: [],
+          },
+          purchase: {
+            id: "purchase",
+            sceneName: "购买完成",
+            status: 1,
+            aiStrategyConfig: JSON.stringify({
+              defaultAIConfig: {
+                description: "购买后的交叉销售和复购引导策略",
+                strategySummary: "通过购买后营销提升客户生命周期价值。",
+                coreStrategies: ["交叉销售", "复购引导", "会员推荐"],
+              },
+            }),
+            gmtCreate: "2024-01-03T07:15:00Z",
+            gmtModified: "2024-01-18T13:30:00Z",
+            nullId: false,
+            marketingSceneRules: [],
+          },
+          exit_intent: {
+            id: "exit_intent",
+            sceneName: "退出意图",
+            status: 1,
+            aiStrategyConfig: JSON.stringify({
+              defaultAIConfig: {
+                description: "检测用户退出意图，进行最后挽留尝试",
+                strategySummary: "在用户即将离开时进行智能挽留。",
+                coreStrategies: ["退出检测", "紧急挽留", "优惠券发放"],
+              },
+            }),
+            gmtCreate: "2024-01-02T06:00:00Z",
+            gmtModified: "2024-01-19T10:15:00Z",
+            nullId: false,
+            marketingSceneRules: [],
+          },
+        };
+
+        const fallbackData = fallbackScenarios[scenarioId];
+        if (fallbackData) {
+          const data = transformApiDataToMarketingScenario(fallbackData);
+          data.availableFields = {
+            event: [],
+            session: [
+              { field: "device_type", label: "设备类型", type: "string" },
+            ],
+            user: [
+              { field: "tag", label: "用户标签", type: "string" },
+              { field: "user_segment", label: "用户分层", type: "string" },
+              {
+                field: "last_purchase_days",
+                label: "距上次购买天数",
+                type: "number",
+              },
+              { field: "total_spend", label: "累计消费", type: "number" },
+            ],
+          };
+          setScenario(data);
+
+          toast({
+            title: "使用演示数据",
+            description: "后端服务不可用，当前显示演示数据",
+            variant: "default",
+          });
+        } else {
+          toast({
+            title: "加载失败",
+            description: "无法加载场景配置",
+            variant: "destructive",
+          });
+        }
+      } else {
+        toast({
+          title: "加载失败",
+          description: "无法加载场景配置",
+          variant: "destructive",
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -303,30 +438,30 @@ const ScenarioConfig = () => {
         status: newState ? 1 : 0, // 1表示启用，0表示禁用
         // 其他字段保持不变
         ruleName: rule.ruleName,
-        triggerCondition: '',
+        triggerCondition: "",
         marketingMethod: rule.responseAction.actionType,
         marketingTiming: rule.responseAction.timing,
         contentMode: rule.responseAction.contentMode,
-        popupTitle: rule.responseAction.actionConfig.title || '',
-        popupContent: rule.responseAction.actionConfig.body || '',
-        buttonText: rule.responseAction.actionConfig.buttonText || '',
-        instruction: rule.responseAction.actionConfig.aiPrompt || '',
+        popupTitle: rule.responseAction.actionConfig.title || "",
+        popupContent: rule.responseAction.actionConfig.body || "",
+        buttonText: rule.responseAction.actionConfig.buttonText || "",
+        instruction: rule.responseAction.actionConfig.aiPrompt || "",
         conditions: JSON.stringify({
-          event: rule.triggerConditions.eventConditions.map(c => ({
+          event: rule.triggerConditions.eventConditions.map((c) => ({
             field: c.field,
             operator: c.operator,
-            value: c.value
+            value: c.value,
           })),
-          user: rule.triggerConditions.userConditions.map(c => ({
+          user: rule.triggerConditions.userConditions.map((c) => ({
             field: c.field,
             operator: c.operator,
-            value: c.value
-          }))
-        })
+            value: c.value,
+          })),
+        }),
       };
 
       // 调用编辑接口
-      await request.post('/quote/api/v1/scene/rule', apiData);
+      await request.post("/quote/api/v1/scene/rule", apiData);
 
       setScenario((prev) => {
         if (!prev) return null;
@@ -343,7 +478,7 @@ const ScenarioConfig = () => {
         description: `自定义规则「${rule.ruleName}」已${newState ? "启用" : "停用"}`,
       });
     } catch (error) {
-      console.error('Toggle rule error:', error);
+      console.error("Toggle rule error:", error);
       toast({
         title: "操作失败",
         description: "规则状态更新失败",
@@ -356,7 +491,9 @@ const ScenarioConfig = () => {
     if (!scenario || !deleteDialog.rule) return;
     try {
       // 使用新的删除接口
-      await request.delete(`/quote/api/v1/scene/rule/${deleteDialog.rule.ruleId}`);
+      await request.delete(
+        `/quote/api/v1/scene/rule/${deleteDialog.rule.ruleId}`,
+      );
 
       setScenario((prev) => {
         if (!prev) return null;
@@ -375,7 +512,7 @@ const ScenarioConfig = () => {
 
       setDeleteDialog({ show: false, rule: null });
     } catch (error) {
-      console.error('Delete rule error:', error);
+      console.error("Delete rule error:", error);
       toast({
         title: "删除失败",
         description: "规则删除失败",
@@ -403,7 +540,7 @@ const ScenarioConfig = () => {
       await updateRulePriorities(scenario.scenarioId, priorities);
 
       toast({
-        title: "���先级已更新",
+        title: "优先级已更新",
         description: "规则优先级调整成功",
       });
     } catch (error) {

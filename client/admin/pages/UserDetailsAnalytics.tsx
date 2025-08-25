@@ -1,11 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Progress } from '@/components/ui/progress';
-import { 
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Progress } from "@/components/ui/progress";
+import {
   ArrowLeft,
   User,
   Clock,
@@ -26,8 +32,8 @@ import {
   Database,
   Brain,
   Zap,
-  Mail
-} from 'lucide-react';
+  Mail,
+} from "lucide-react";
 
 // 用户行为���据类型定义
 interface UserAnalytics {
@@ -42,7 +48,7 @@ interface UserAnalytics {
     registeredAt: string;
     lastLogin: string;
   };
-  
+
   usageStats: {
     totalSessions: number;
     totalTimeSpent: number; // 分钟
@@ -67,15 +73,15 @@ interface UserAnalytics {
   }[];
 
   deviceInfo: {
-    devices: { type: string; count: number; percentage: number; }[];
-    browsers: { name: string; count: number; percentage: number; }[];
-    os: { name: string; count: number; percentage: number; }[];
+    devices: { type: string; count: number; percentage: number }[];
+    browsers: { name: string; count: number; percentage: number }[];
+    os: { name: string; count: number; percentage: number }[];
   };
 
   behaviorPatterns: {
-    peakHours: { hour: number; activity: number; }[];
-    commonPaths: { path: string; frequency: number; }[];
-    sessionFlow: { from: string; to: string; count: number; }[];
+    peakHours: { hour: number; activity: number }[];
+    commonPaths: { path: string; frequency: number }[];
+    sessionFlow: { from: string; to: string; count: number }[];
   };
 
   engagementMetrics: {
@@ -96,67 +102,127 @@ interface UserAnalytics {
 
 // 模���用户分析数据
 const mockUserAnalytics: UserAnalytics = {
-  userId: '1',
+  userId: "1",
   basicInfo: {
-    name: '张营销',
-    email: 'zhang.marketing@client.com',
-    phone: '+86 138-1001-0001',
-    department: '市场部',
-    roles: ['普通用户'],
-    status: 'active',
-    registeredAt: '2024-03-15',
-    lastLogin: '2025-01-20 09:30'
+    name: "张营销",
+    email: "zhang.marketing@client.com",
+    phone: "+86 138-1001-0001",
+    department: "市场部",
+    roles: ["普通用户"],
+    status: "active",
+    registeredAt: "2024-03-15",
+    lastLogin: "2025-01-20 09:30",
   },
-  
+
   usageStats: {
     totalSessions: 156,
     totalTimeSpent: 960, // 约16小时
     avgSessionDuration: 6.2,
-    lastActive: '2025-01-20 09:30',
+    lastActive: "2025-01-20 09:30",
     activeDays: 38,
-    loginFrequency: 3.8
+    loginFrequency: 3.8,
   },
 
   featureUsage: [
-    { feature: 'AI营销策略', usage: 234, lastUsed: '2025-01-20', category: 'ai' },
-    { feature: '用户分析', usage: 189, lastUsed: '2025-01-20', category: 'data' },
-    { feature: '自动化营销', usage: 156, lastUsed: '2025-01-19', category: 'auto' },
-    { feature: '效果追踪', usage: 142, lastUsed: '2025-01-19', category: 'tracking' },
-    { feature: '营销场景', usage: 134, lastUsed: '2025-01-18', category: 'scenario' },
-    { feature: '响应动作', usage: 98, lastUsed: '2025-01-17', category: 'action' },
-    { feature: '实时监控', usage: 87, lastUsed: '2025-01-16', category: 'monitor' },
-    { feature: '数据仪表盘', usage: 76, lastUsed: '2025-01-15', category: 'dashboard' }
+    {
+      feature: "AI营销策略",
+      usage: 234,
+      lastUsed: "2025-01-20",
+      category: "ai",
+    },
+    {
+      feature: "用户分析",
+      usage: 189,
+      lastUsed: "2025-01-20",
+      category: "data",
+    },
+    {
+      feature: "自动化营销",
+      usage: 156,
+      lastUsed: "2025-01-19",
+      category: "auto",
+    },
+    {
+      feature: "效果追踪",
+      usage: 142,
+      lastUsed: "2025-01-19",
+      category: "tracking",
+    },
+    {
+      feature: "营销场景",
+      usage: 134,
+      lastUsed: "2025-01-18",
+      category: "scenario",
+    },
+    {
+      feature: "响应动作",
+      usage: 98,
+      lastUsed: "2025-01-17",
+      category: "action",
+    },
+    {
+      feature: "实时监控",
+      usage: 87,
+      lastUsed: "2025-01-16",
+      category: "monitor",
+    },
+    {
+      feature: "数据仪表盘",
+      usage: 76,
+      lastUsed: "2025-01-15",
+      category: "dashboard",
+    },
   ],
 
   pageVisits: [
-    { page: '/dashboard', visits: 287, timeSpent: 1240, bounceRate: 5 },
-    { page: '/ai-marketing-strategies', visits: 234, timeSpent: 890, bounceRate: 12 },
-    { page: '/users', visits: 189, timeSpent: 650, bounceRate: 8 },
-    { page: '/ai-marketing/monitoring-center', visits: 156, timeSpent: 560, bounceRate: 15 },
-    { page: '/effect-tracking', visits: 142, timeSpent: 480, bounceRate: 18 },
-    { page: '/response-actions', visits: 134, timeSpent: 420, bounceRate: 14 },
-    { page: '/ai-marketing/scenarios', visits: 98, timeSpent: 340, bounceRate: 22 },
-    { page: '/ai-marketing/performance', visits: 87, timeSpent: 290, bounceRate: 20 }
+    { page: "/dashboard", visits: 287, timeSpent: 1240, bounceRate: 5 },
+    {
+      page: "/ai-marketing-strategies",
+      visits: 234,
+      timeSpent: 890,
+      bounceRate: 12,
+    },
+    { page: "/users", visits: 189, timeSpent: 650, bounceRate: 8 },
+    {
+      page: "/ai-marketing/monitoring-center",
+      visits: 156,
+      timeSpent: 560,
+      bounceRate: 15,
+    },
+    { page: "/effect-tracking", visits: 142, timeSpent: 480, bounceRate: 18 },
+    { page: "/response-actions", visits: 134, timeSpent: 420, bounceRate: 14 },
+    {
+      page: "/ai-marketing/scenarios",
+      visits: 98,
+      timeSpent: 340,
+      bounceRate: 22,
+    },
+    {
+      page: "/ai-marketing/performance",
+      visits: 87,
+      timeSpent: 290,
+      bounceRate: 20,
+    },
   ],
 
   deviceInfo: {
     devices: [
-      { type: 'Desktop', count: 198, percentage: 69 },
-      { type: 'Mobile', count: 56, percentage: 19 },
-      { type: 'Tablet', count: 33, percentage: 12 }
+      { type: "Desktop", count: 198, percentage: 69 },
+      { type: "Mobile", count: 56, percentage: 19 },
+      { type: "Tablet", count: 33, percentage: 12 },
     ],
     browsers: [
-      { name: 'Chrome', count: 178, percentage: 62 },
-      { name: 'Safari', count: 67, percentage: 23 },
-      { name: 'Firefox', count: 28, percentage: 10 },
-      { name: 'Edge', count: 14, percentage: 5 }
+      { name: "Chrome", count: 178, percentage: 62 },
+      { name: "Safari", count: 67, percentage: 23 },
+      { name: "Firefox", count: 28, percentage: 10 },
+      { name: "Edge", count: 14, percentage: 5 },
     ],
     os: [
-      { name: 'Windows', count: 156, percentage: 54 },
-      { name: 'macOS', count: 89, percentage: 31 },
-      { name: 'iOS', count: 28, percentage: 10 },
-      { name: 'Android', count: 14, percentage: 5 }
-    ]
+      { name: "Windows", count: 156, percentage: 54 },
+      { name: "macOS", count: 89, percentage: 31 },
+      { name: "iOS", count: 28, percentage: 10 },
+      { name: "Android", count: 14, percentage: 5 },
+    ],
   },
 
   behaviorPatterns: {
@@ -166,36 +232,60 @@ const mockUserAnalytics: UserAnalytics = {
       { hour: 11, activity: 65 },
       { hour: 14, activity: 82 },
       { hour: 15, activity: 69 },
-      { hour: 16, activity: 54 }
+      { hour: 16, activity: 54 },
     ],
     commonPaths: [
-      { path: '登录 → 仪表盘 → AI营销策略', frequency: 156 },
-      { path: '登录 → 用户分析 → 查看详情', frequency: 89 },
-      { path: '登录 → 营销监控 → 实时数据', frequency: 134 },
-      { path: '登录 → 效果追踪 → 分析报告', frequency: 98 }
+      { path: "登录 → 仪表盘 → AI营销策略", frequency: 156 },
+      { path: "登录 → 用户分析 ��� 查看详情", frequency: 89 },
+      { path: "登录 → 营销监控 → 实时数据", frequency: 134 },
+      { path: "登录 → 效果追踪 → 分析报告", frequency: 98 },
     ],
     sessionFlow: [
-      { from: '登录页', to: '仪表盘', count: 287 },
-      { from: '仪表盘', to: 'AI营销策略', count: 234 },
-      { from: 'AI营销策略', to: '策略详情', count: 156 },
-      { from: '仪表盘', to: '用户分析', count: 189 },
-      { from: '用户分析', to: '用户详情', count: 89 }
-    ]
+      { from: "登录页", to: "仪表盘", count: 287 },
+      { from: "仪表盘", to: "AI营销策略", count: 234 },
+      { from: "AI营销策略", to: "策略详情", count: 156 },
+      { from: "仪表盘", to: "用户分析", count: 189 },
+      { from: "用户分析", to: "用户详情", count: 89 },
+    ],
   },
 
   engagementMetrics: {
     clickRate: 76,
     pageDepth: 4.2,
     returnRate: 89,
-    featureAdoption: 67
+    featureAdoption: 67,
   },
 
   geographicData: [
-    { country: '中国', city: '北京', region: '北京市', loginCount: 198, percentage: 69 },
-    { country: '中国', city: '上海', region: '上海市', loginCount: 56, percentage: 19 },
-    { country: '中国', city: '深圳', region: '广东省', loginCount: 28, percentage: 10 },
-    { country: '中国', city: '杭州', region: '浙江省', loginCount: 5, percentage: 2 }
-  ]
+    {
+      country: "中国",
+      city: "北京",
+      region: "北京市",
+      loginCount: 198,
+      percentage: 69,
+    },
+    {
+      country: "中国",
+      city: "上海",
+      region: "上海市",
+      loginCount: 56,
+      percentage: 19,
+    },
+    {
+      country: "中国",
+      city: "深圳",
+      region: "广东省",
+      loginCount: 28,
+      percentage: 10,
+    },
+    {
+      country: "中国",
+      city: "杭州",
+      region: "浙江省",
+      loginCount: 5,
+      percentage: 2,
+    },
+  ],
 };
 
 export default function UserDetailsAnalytics() {
@@ -214,16 +304,26 @@ export default function UserDetailsAnalytics() {
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
-      case 'ai': return <Brain className="h-4 w-4" />;
-      case 'data': return <Database className="h-4 w-4" />;
-      case 'auto': return <Zap className="h-4 w-4" />;
-      case 'tracking': return <BarChart3 className="h-4 w-4" />;
-      case 'scenario': return <Target className="h-4 w-4" />;
-      case 'action': return <MousePointer className="h-4 w-4" />;
-      case 'monitor': return <Activity className="h-4 w-4" />;
-      case 'dashboard': return <Monitor className="h-4 w-4" />;
-      case 'user': return <Users className="h-4 w-4" />;
-      default: return <Activity className="h-4 w-4" />;
+      case "ai":
+        return <Brain className="h-4 w-4" />;
+      case "data":
+        return <Database className="h-4 w-4" />;
+      case "auto":
+        return <Zap className="h-4 w-4" />;
+      case "tracking":
+        return <BarChart3 className="h-4 w-4" />;
+      case "scenario":
+        return <Target className="h-4 w-4" />;
+      case "action":
+        return <MousePointer className="h-4 w-4" />;
+      case "monitor":
+        return <Activity className="h-4 w-4" />;
+      case "dashboard":
+        return <Monitor className="h-4 w-4" />;
+      case "user":
+        return <Users className="h-4 w-4" />;
+      default:
+        return <Activity className="h-4 w-4" />;
     }
   };
 
@@ -254,9 +354,7 @@ export default function UserDetailsAnalytics() {
       <div className="p-6">
         <div className="text-center py-12">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">用户不存在</h2>
-          <Button onClick={() => navigate('/admin/users')}>
-            返回用户列表
-          </Button>
+          <Button onClick={() => navigate("/admin/users")}>返回用户列表</Button>
         </div>
       </div>
     );
@@ -264,26 +362,6 @@ export default function UserDetailsAnalytics() {
 
   return (
     <div className="p-6 space-y-6">
-      {/* 页面标题 */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate('/admin/users')}
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            返回用户列表
-          </Button>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">用户详情分析</h1>
-            <p className="text-sm text-gray-600 mt-1">
-              {analytics.basicInfo.name} 的使用数据和行为分析
-            </p>
-          </div>
-        </div>
-      </div>
-
       {/* 用户基本信息卡片 */}
       <Card>
         <CardHeader>
@@ -299,11 +377,15 @@ export default function UserDetailsAnalytics() {
                 <User className="h-6 w-6 text-white" />
               </div>
               <div>
-                <div className="font-medium text-lg">{analytics.basicInfo.name}</div>
-                <div className="text-sm text-gray-500">{analytics.basicInfo.department}</div>
+                <div className="font-medium text-lg">
+                  {analytics.basicInfo.name}
+                </div>
+                <div className="text-sm text-gray-500">
+                  {analytics.basicInfo.department}
+                </div>
               </div>
             </div>
-            
+
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-sm">
                 <Mail className="h-4 w-4 text-gray-400" />
@@ -316,13 +398,13 @@ export default function UserDetailsAnalytics() {
             </div>
 
             <div className="flex flex-wrap gap-2">
-              {analytics.basicInfo.roles.map(role => (
+              {analytics.basicInfo.roles.map((role) => (
                 <Badge key={role} className="bg-blue-100 text-blue-800">
-                  {role === 'super_admin' ? '超级管理员' : role}
+                  {role === "super_admin" ? "超级管理员" : role}
                 </Badge>
               ))}
               <Badge className="bg-green-100 text-green-800">
-                {analytics.basicInfo.status === 'active' ? '正常' : '禁用'}
+                {analytics.basicInfo.status === "active" ? "正常" : "禁用"}
               </Badge>
             </div>
           </div>
@@ -337,10 +419,10 @@ export default function UserDetailsAnalytics() {
             <Activity className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{analytics.usageStats.totalSessions}</div>
-            <p className="text-xs text-muted-foreground">
-              过去60天内
-            </p>
+            <div className="text-2xl font-bold">
+              {analytics.usageStats.totalSessions}
+            </div>
+            <p className="text-xs text-muted-foreground">过去60天内</p>
           </CardContent>
         </Card>
 
@@ -350,7 +432,9 @@ export default function UserDetailsAnalytics() {
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatDuration(analytics.usageStats.totalTimeSpent)}</div>
+            <div className="text-2xl font-bold">
+              {formatDuration(analytics.usageStats.totalTimeSpent)}
+            </div>
             <p className="text-xs text-muted-foreground">
               平均会话 {analytics.usageStats.avgSessionDuration.toFixed(1)} 分钟
             </p>
@@ -363,10 +447,10 @@ export default function UserDetailsAnalytics() {
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{analytics.usageStats.activeDays}</div>
-            <p className="text-xs text-muted-foreground">
-              过去60天内活跃
-            </p>
+            <div className="text-2xl font-bold">
+              {analytics.usageStats.activeDays}
+            </div>
+            <p className="text-xs text-muted-foreground">过去60天内活跃</p>
           </CardContent>
         </Card>
 
@@ -376,10 +460,10 @@ export default function UserDetailsAnalytics() {
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{analytics.usageStats.loginFrequency}</div>
-            <p className="text-xs text-muted-foreground">
-              次/周平均
-            </p>
+            <div className="text-2xl font-bold">
+              {analytics.usageStats.loginFrequency}
+            </div>
+            <p className="text-xs text-muted-foreground">次/周平均</p>
           </CardContent>
         </Card>
       </div>
@@ -403,7 +487,10 @@ export default function UserDetailsAnalytics() {
             <CardContent>
               <div className="space-y-4">
                 {analytics.featureUsage.map((feature, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                  <div
+                    key={index}
+                    className="flex items-center justify-between p-3 border rounded-lg"
+                  >
                     <div className="flex items-center gap-3">
                       {getCategoryIcon(feature.category)}
                       <div>
@@ -442,7 +529,9 @@ export default function UserDetailsAnalytics() {
                     <div className="grid grid-cols-3 gap-4 text-sm">
                       <div>
                         <div className="text-gray-500">停留时间</div>
-                        <div className="font-medium">{formatDuration(page.timeSpent)}</div>
+                        <div className="font-medium">
+                          {formatDuration(page.timeSpent)}
+                        </div>
                       </div>
                       <div>
                         <div className="text-gray-500">跳出率</div>
@@ -474,16 +563,21 @@ export default function UserDetailsAnalytics() {
               </CardHeader>
               <CardContent className="space-y-3">
                 {analytics.deviceInfo.devices.map((device, index) => (
-                  <div key={index} className="flex items-center justify-between">
+                  <div
+                    key={index}
+                    className="flex items-center justify-between"
+                  >
                     <span className="text-sm">{device.type}</span>
                     <div className="flex items-center gap-2">
                       <div className="w-20 bg-gray-200 rounded-full h-2">
-                        <div 
-                          className="bg-blue-600 h-2 rounded-full" 
+                        <div
+                          className="bg-blue-600 h-2 rounded-full"
                           style={{ width: `${device.percentage}%` }}
                         ></div>
                       </div>
-                      <span className="text-sm font-medium">{device.percentage}%</span>
+                      <span className="text-sm font-medium">
+                        {device.percentage}%
+                      </span>
                     </div>
                   </div>
                 ))}
@@ -499,16 +593,21 @@ export default function UserDetailsAnalytics() {
               </CardHeader>
               <CardContent className="space-y-3">
                 {analytics.deviceInfo.browsers.map((browser, index) => (
-                  <div key={index} className="flex items-center justify-between">
+                  <div
+                    key={index}
+                    className="flex items-center justify-between"
+                  >
                     <span className="text-sm">{browser.name}</span>
                     <div className="flex items-center gap-2">
                       <div className="w-20 bg-gray-200 rounded-full h-2">
-                        <div 
-                          className="bg-green-600 h-2 rounded-full" 
+                        <div
+                          className="bg-green-600 h-2 rounded-full"
                           style={{ width: `${browser.percentage}%` }}
                         ></div>
                       </div>
-                      <span className="text-sm font-medium">{browser.percentage}%</span>
+                      <span className="text-sm font-medium">
+                        {browser.percentage}%
+                      </span>
                     </div>
                   </div>
                 ))}
@@ -524,16 +623,21 @@ export default function UserDetailsAnalytics() {
               </CardHeader>
               <CardContent className="space-y-3">
                 {analytics.deviceInfo.os.map((os, index) => (
-                  <div key={index} className="flex items-center justify-between">
+                  <div
+                    key={index}
+                    className="flex items-center justify-between"
+                  >
                     <span className="text-sm">{os.name}</span>
                     <div className="flex items-center gap-2">
                       <div className="w-20 bg-gray-200 rounded-full h-2">
-                        <div 
-                          className="bg-purple-600 h-2 rounded-full" 
+                        <div
+                          className="bg-purple-600 h-2 rounded-full"
                           style={{ width: `${os.percentage}%` }}
                         ></div>
                       </div>
-                      <span className="text-sm font-medium">{os.percentage}%</span>
+                      <span className="text-sm font-medium">
+                        {os.percentage}%
+                      </span>
                     </div>
                   </div>
                 ))}
@@ -555,12 +659,14 @@ export default function UserDetailsAnalytics() {
                   <div key={index} className="flex items-center gap-3">
                     <span className="text-sm w-12">{hour.hour}:00</span>
                     <div className="flex-1 bg-gray-200 rounded-full h-2">
-                      <div 
-                        className="bg-indigo-600 h-2 rounded-full" 
+                      <div
+                        className="bg-indigo-600 h-2 rounded-full"
                         style={{ width: `${(hour.activity / 100) * 100}%` }}
                       ></div>
                     </div>
-                    <span className="text-sm font-medium w-8">{hour.activity}</span>
+                    <span className="text-sm font-medium w-8">
+                      {hour.activity}
+                    </span>
                   </div>
                 ))}
               </CardContent>
@@ -593,17 +699,26 @@ export default function UserDetailsAnalytics() {
             <CardContent>
               <div className="space-y-3">
                 {analytics.geographicData.map((location, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                  <div
+                    key={index}
+                    className="flex items-center justify-between p-3 border rounded-lg"
+                  >
                     <div className="flex items-center gap-3">
                       <MapPin className="h-4 w-4 text-gray-400" />
                       <div>
                         <div className="font-medium">{location.city}</div>
-                        <div className="text-sm text-gray-500">{location.region}</div>
+                        <div className="text-sm text-gray-500">
+                          {location.region}
+                        </div>
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="font-medium">{location.loginCount} 次</div>
-                      <div className="text-sm text-gray-500">{location.percentage}%</div>
+                      <div className="font-medium">
+                        {location.loginCount} 次
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        {location.percentage}%
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -626,31 +741,43 @@ export default function UserDetailsAnalytics() {
                     <span>点击率</span>
                     <span>{analytics.engagementMetrics.clickRate}%</span>
                   </div>
-                  <Progress value={analytics.engagementMetrics.clickRate} className="h-2" />
+                  <Progress
+                    value={analytics.engagementMetrics.clickRate}
+                    className="h-2"
+                  />
                 </div>
-                
+
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span>页面深度</span>
                     <span>{analytics.engagementMetrics.pageDepth} 页/会话</span>
                   </div>
-                  <Progress value={(analytics.engagementMetrics.pageDepth / 10) * 100} className="h-2" />
+                  <Progress
+                    value={(analytics.engagementMetrics.pageDepth / 10) * 100}
+                    className="h-2"
+                  />
                 </div>
-                
+
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span>回访率</span>
                     <span>{analytics.engagementMetrics.returnRate}%</span>
                   </div>
-                  <Progress value={analytics.engagementMetrics.returnRate} className="h-2" />
+                  <Progress
+                    value={analytics.engagementMetrics.returnRate}
+                    className="h-2"
+                  />
                 </div>
-                
+
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span>功能采用率</span>
                     <span>{analytics.engagementMetrics.featureAdoption}%</span>
                   </div>
-                  <Progress value={analytics.engagementMetrics.featureAdoption} className="h-2" />
+                  <Progress
+                    value={analytics.engagementMetrics.featureAdoption}
+                    className="h-2"
+                  />
                 </div>
               </CardContent>
             </Card>
@@ -670,7 +797,7 @@ export default function UserDetailsAnalytics() {
                     该用户表现出很高的参与度，可以考虑邀请其参与新功能测试或反馈收集。
                   </p>
                 </div>
-                
+
                 <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
                   <div className="flex items-center gap-2 text-green-800 font-medium mb-1">
                     <Target className="h-4 w-4" />
@@ -680,7 +807,7 @@ export default function UserDetailsAnalytics() {
                     在用户管理和场景配置方面使用频率很高，可以作为这些功能的内部专家。
                   </p>
                 </div>
-                
+
                 <div className="p-3 bg-orange-50 border border-orange-200 rounded-lg">
                   <div className="flex items-center gap-2 text-orange-800 font-medium mb-1">
                     <Activity className="h-4 w-4" />

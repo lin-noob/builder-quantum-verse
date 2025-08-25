@@ -18,20 +18,25 @@ interface ContextMenu {
   targetTab: Tab | null;
 }
 
-const DEFAULT_TABS: Tab[] = [
-  {
-    id: "home",
-    title: "首页",
-    path: "/dashboard",
-    isHome: true,
-    isActive: true,
-  },
-];
-
 export default function TabManager() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [tabs, setTabs] = useState<Tab[]>(DEFAULT_TABS);
+
+  // 根据当前路径动态设置首页
+  const getDefaultTabs = (): Tab[] => {
+    const isAdminPlatform = location.pathname.startsWith("/admin");
+    return [
+      {
+        id: "home",
+        title: isAdminPlatform ? "系统概览" : "首页",
+        path: isAdminPlatform ? "/admin" : "/dashboard",
+        isHome: true,
+        isActive: true,
+      },
+    ];
+  };
+
+  const [tabs, setTabs] = useState<Tab[]>(getDefaultTabs());
   const [contextMenu, setContextMenu] = useState<ContextMenu>({
     isOpen: false,
     x: 0,
@@ -42,11 +47,33 @@ export default function TabManager() {
   const [canScrollRight, setCanScrollRight] = useState(false);
   const tabsContainerRef = useRef<HTMLDivElement>(null);
 
+  // 监听路径变化，更新首页标签
+  useEffect(() => {
+    const isAdminPlatform = location.pathname.startsWith("/admin");
+    const homePath = isAdminPlatform ? "/admin" : "/dashboard";
+    const homeTitle = isAdminPlatform ? "系统概览" : "首页";
+
+    setTabs((prevTabs) => {
+      const updatedTabs = prevTabs.map((tab) => {
+        if (tab.isHome) {
+          return {
+            ...tab,
+            path: homePath,
+            title: homeTitle,
+          };
+        }
+        return tab;
+      });
+      return updatedTabs;
+    });
+  }, [location.pathname]);
+
   // 页面路��到标题的映射
   const pathToTitle = {
     "/dashboard": "仪表盘",
     "/": "仪表盘",
     "/dashboard2": "仪表盘",
+    "/admin": "系统概览",
     "/users": "用户画像",
     "/users2": "用户画像",
     "/response-actions": "响应动作库",
@@ -55,7 +82,7 @@ export default function TabManager() {
     "/ai-marketing/fully-auto": "全自动营销",
     "/ai-marketing/semi-auto": "半自动模式",
     "/ai-marketing/semi-auto/create": "创建剧本",
-    "/ai-marketing/strategy-goals": "战���与目标",
+    "/ai-marketing/strategy-goals": "战略与目标",
     "/ai-marketing/live-monitoring": "实时监控",
     "/ai-marketing/performance-analytics": "效果分析",
     "/ai-marketing/scenarios": "AI营销场景",
@@ -64,7 +91,19 @@ export default function TabManager() {
     "/ai-marketing/scenarios/user_signup": "用户注册",
     "/ai-marketing/scenarios/user_login": "用户登录",
     "/effect-tracking": "效果追踪",
-    "/profile": "个人信息",
+    "/account/settings": "个人设置",
+    // 组织管理页面
+    "/organization/members": "成员管理",
+    "/organization/settings": "组织设置",
+    // 管理后台页面
+    "/admin": "系统概览",
+    "/admin/organizations": "组织管理",
+    "/admin/ai-models": "AI模型管理",
+    "/admin/scenarios": "场景配置",
+    "/admin/data-sources": "数据源管理",
+    "/admin/security": "安全与权限",
+    "/admin/monitoring": "系统监控",
+    "/admin/users": "用户管理",
   };
 
   // 检查滚动状态
@@ -109,8 +148,31 @@ export default function TabManager() {
 
       // 如果没有预定义标题，尝试从路径生成友好的标题
       if (!title) {
-        if (currentPath.includes("/users/") || currentPath.includes("/users2/")) {
+        if (
+          currentPath.includes("/users/") ||
+          currentPath.includes("/users2/")
+        ) {
           title = "用户详情";
+        } else if (
+          currentPath.includes("/admin/organizations/") &&
+          currentPath.split("/").length > 3
+        ) {
+          title = "组织详情";
+        } else if (
+          currentPath.includes("/admin/users/") &&
+          currentPath.split("/").length > 3
+        ) {
+          title = "用户详情";
+        } else if (
+          currentPath.includes("/admin/ai-models/") &&
+          currentPath.split("/").length > 3
+        ) {
+          title = "AI模型详情";
+        } else if (
+          currentPath.includes("/admin/scenarios/") &&
+          currentPath.split("/").length > 3
+        ) {
+          title = "场景详情";
         } else if (currentPath.includes("/response-actions/")) {
           if (currentPath.includes("/create")) {
             title = "创建响应动作";
@@ -128,40 +190,54 @@ export default function TabManager() {
             title = "营销策略详情";
           }
         } else if (currentPath.includes("/ai-marketing/scenarios/")) {
-          // 处理AI营销场景的动态路径
+          // 处理AI营销场景的动态路��
           const scenarioId = currentPath.split("/").pop();
           const scenarioNames = {
-            "add_to_cart": "加入购物车",
-            "view_product": "查看商品",
-            "user_signup": "用户注册",
-            "user_login": "用户登录",
-            "start_checkout": "开始结账",
-            "purchase": "完成购买",
-            "search": "执行搜索",
-            "exit_intent": "离开意图"
+            add_to_cart: "加入购物车",
+            view_product: "查看商品",
+            user_signup: "用户注册",
+            user_login: "用户登录",
+            start_checkout: "开始结账",
+            purchase: "完成购买",
+            search: "��行搜索",
+            exit_intent: "离开意图",
           };
-          title = scenarioNames[scenarioId as keyof typeof scenarioNames] || "AI营销场景";
+          title =
+            scenarioNames[scenarioId as keyof typeof scenarioNames] ||
+            "AI营销场景";
         } else if (currentPath.includes("/response-actions")) {
           title = "响应动作库";
         } else if (currentPath.includes("/ai-marketing-strategies")) {
           title = "营销策略";
         } else if (currentPath.includes("/ai-marketing")) {
-          title = "AI营销";
+          title = "AI营���";
         } else {
           // 默认使用路径最后一部分作为标题，但尝试转换为中文
           const pathParts = currentPath.split("/").filter(Boolean);
           const lastPart = pathParts[pathParts.length - 1] || "页面";
 
-          // 简单的英文到中文映射
+          // ��单的英文到中文映射
           const englishToChinese = {
-            "scenarios": "场景列表",
-            "monitoring": "监控",
-            "analytics": "分析",
-            "strategies": "策略",
-            "dashboard": "仪表盘"
+            scenarios: "场景列表",
+            monitoring: "监控",
+            analytics: "分析",
+            strategies: "策略",
+            dashboard: "仪表盘",
+            organizations: "组织管理",
+            models: "模型管理",
+            users: "用户管理",
+            security: "安全权限",
+            config: "系统配置",
+            admin: "管理后台",
+            ai: "AI管理",
+            data: "数据管理",
+            members: "成员管理",
+            settings: "组织设置",
           };
 
-          title = englishToChinese[lastPart as keyof typeof englishToChinese] || lastPart;
+          title =
+            englishToChinese[lastPart as keyof typeof englishToChinese] ||
+            lastPart;
         }
       }
 
@@ -189,7 +265,7 @@ export default function TabManager() {
     }
   }, [checkScrollStatus]);
 
-  // 监听窗口大小变化
+  // 监听窗口��小变化
   useEffect(() => {
     window.addEventListener("resize", checkScrollStatus);
     return () => window.removeEventListener("resize", checkScrollStatus);
@@ -201,7 +277,7 @@ export default function TabManager() {
     navigate(tab.path);
   };
 
-  // 关闭标签页
+  // ���闭标签页
   const closeTab = (tabId: string, e?: React.MouseEvent) => {
     e?.stopPropagation();
 
@@ -335,7 +411,7 @@ export default function TabManager() {
         </div>
       </div>
 
-      {/* 右侧滚动箭头 */}
+      {/* 右侧���动箭头 */}
       {canScrollRight && (
         <button
           onClick={() => scrollTabs("right")}
