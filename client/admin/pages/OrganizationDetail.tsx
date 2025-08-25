@@ -53,6 +53,7 @@ import {
   UserCheck,
   UserX,
   Copy,
+  RotateCcw,
 } from "lucide-react";
 import {
   Organization,
@@ -208,7 +209,7 @@ const OrganizationDetail = () => {
     } catch (error) {
       console.error("Failed to save organization:", error);
       toast({
-        title: "保存失��",
+        title: "保存失败",
         description: "网络错误，请重试",
         variant: "destructive",
       });
@@ -676,7 +677,7 @@ const OrganizationDetail = () => {
                     <div className="relative w-full sm:w-64">
                       <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                       <Input
-                        placeholder="按姓名或邮箱搜索成员..."
+                        placeholder="按姓名或��箱搜索成员..."
                         value={memberSearchQuery}
                         onChange={(e) => setMemberSearchQuery(e.target.value)}
                         className="pl-10"
@@ -697,7 +698,7 @@ const OrganizationDetail = () => {
                         <SelectValue placeholder="状态筛选" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="ALL">所有状态</SelectItem>
+                        <SelectItem value="ALL">��有状态</SelectItem>
                         <SelectItem value={AccountStatus.ACTIVE}>活跃</SelectItem>
                         <SelectItem value={AccountStatus.DISABLED}>已禁用</SelectItem>
                       </SelectContent>
@@ -981,7 +982,7 @@ const OrganizationDetail = () => {
           <DialogHeader>
             <DialogTitle>成员创建成功</DialogTitle>
             <DialogDescription>
-              新成员账户已创建，请复制初始密码并安全地分享给该成员
+              新成员账户已创建，请复制初始密码并安全地分享给���成员
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
