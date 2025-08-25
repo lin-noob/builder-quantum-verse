@@ -80,6 +80,10 @@ const OrganizationManagement = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
 
+  // 排序状态
+  const [sortField, setSortField] = useState<'createdAt' | null>('createdAt');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+
   // 弹窗状态
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -226,6 +230,37 @@ const OrganizationManagement = () => {
     }
   };
 
+  // 排序函数
+  const sortOrganizations = (organizations: Organization[]) => {
+    if (!sortField) return organizations;
+
+    return [...organizations].sort((a, b) => {
+      let aValue: string = a.createdAt;
+      let bValue: string = b.createdAt;
+
+      const dateA = new Date(aValue).getTime();
+      const dateB = new Date(bValue).getTime();
+
+      if (sortOrder === 'desc') {
+        return dateB - dateA;
+      } else {
+        return dateA - dateB;
+      }
+    });
+  };
+
+  // 获取排序后的组织列表
+  const sortedOrganizations = sortOrganizations(organizations);
+
+  const handleSort = (field: 'createdAt') => {
+    if (sortField === field) {
+      setSortOrder(sortOrder === 'desc' ? 'asc' : 'desc');
+    } else {
+      setSortField(field);
+      setSortOrder('desc');
+    }
+  };
+
   const openEditDialog = (organization: Organization) => {
     setEditingOrganization({ ...organization });
     setEditDialogOpen(true);
@@ -314,110 +349,63 @@ const OrganizationManagement = () => {
 
   return (
     <div className="p-6 space-y-6">
-      {/* 页面标题 */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">组织管理</h1>
-          <p className="text-gray-600 mt-1">管理平台上的所有客户组织和租户</p>
-        </div>
-        <Button
-          onClick={() => setCreateDialogOpen(true)}
-          className="flex items-center gap-2"
-        >
-          <Plus className="h-4 w-4" />
-          创建新组织
-        </Button>
-      </div>
-
-      {/* 统计卡片 */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">总组织数</CardTitle>
-            <Building2 className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{total}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">活跃组织</CardTitle>
-            <Shield className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {
-                organizations.filter(
-                  (org) => org.accountStatus === AccountStatus.ACTIVE,
-                ).length
-              }
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">总成员数</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {organizations.reduce(
-                (sum, org) => sum + (org.memberCount || 0),
-                0,
-              )}
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">付费组织</CardTitle>
-            <Crown className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {
-                organizations.filter(
-                  (org) =>
-                    org.subscriptionPlan !== SubscriptionPlan.INTERNAL_TRIAL,
-                ).length
-              }
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
       {/* 搜索和过滤 */}
       <Card>
-        <CardHeader>
-          <CardTitle>组织列表</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col sm:flex-row gap-4 mb-6">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-              <Input
-                placeholder="按组织名称或ID搜索..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
+        <CardContent className="pt-6">
+          <div className="flex flex-col gap-4 mb-6">
+            {/* 筛选一行 */}
+            <div className="flex flex-col sm:flex-row gap-4 items-end justify-between">
+              <div className="flex flex-col sm:flex-row gap-4 items-end flex-1">
+                <div className="relative w-full sm:w-64">
+                  <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                  <Input
+                    placeholder="按组织名称或ID搜索..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+                <Select
+                  value={selectedStatus}
+                  onValueChange={(value) =>
+                    setSelectedStatus(value as AccountStatus | "ALL")
+                  }
+                >
+                  <SelectTrigger className="w-full sm:w-[150px]">
+                    <SelectValue placeholder="状态筛选" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ALL">所有状态</SelectItem>
+                    <SelectItem value={AccountStatus.ACTIVE}>活跃</SelectItem>
+                    <SelectItem value={AccountStatus.SUSPENDED}>已暂停</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* 搜索重置按钮在右侧 */}
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={() => loadOrganizations()}>
+                  搜索
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setSearchQuery("");
+                    setSelectedStatus("ALL");
+                    setCurrentPage(1);
+                  }}
+                >
+                  重置
+                </Button>
+              </div>
             </div>
-            <Select
-              value={selectedStatus}
-              onValueChange={(value) =>
-                setSelectedStatus(value as AccountStatus | "ALL")
-              }
-            >
-              <SelectTrigger className="w-full sm:w-[180px]">
-                <SelectValue placeholder="状态筛选" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ALL">所有状态</SelectItem>
-                <SelectItem value={AccountStatus.ACTIVE}>活跃</SelectItem>
-                <SelectItem value={AccountStatus.SUSPENDED}>已暂停</SelectItem>
-              </SelectContent>
-            </Select>
+
+            {/* 创建按钮在左侧 */}
+            <div className="flex justify-start">
+              <Button onClick={() => setCreateDialogOpen(true)}>
+                创建新组织
+              </Button>
+            </div>
           </div>
 
           {/* 组织表格 */}
@@ -429,12 +417,24 @@ const OrganizationManagement = () => {
                   <TableHead>状态</TableHead>
                   <TableHead>订阅套餐</TableHead>
                   <TableHead>成员统计</TableHead>
-                  <TableHead>创建时间</TableHead>
+                  <TableHead>
+                    <button
+                      onClick={() => handleSort('createdAt')}
+                      className="flex items-center gap-1 hover:text-gray-900"
+                    >
+                      创建时间
+                      {sortField === 'createdAt' && (
+                        <span className="text-xs">
+                          {sortOrder === 'desc' ? '↓' : '↑'}
+                        </span>
+                      )}
+                    </button>
+                  </TableHead>
                   <TableHead>操作</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {organizations.map((organization) => (
+                {sortedOrganizations.map((organization) => (
                   <TableRow key={organization.organizationId}>
                     <TableCell>
                       <div>
@@ -462,26 +462,28 @@ const OrganizationManagement = () => {
                       {formatDate(organization.createdAt)}
                     </TableCell>
                     <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem
-                            onClick={() => openEditDialog(organization)}
-                          >
-                            <Edit className="mr-2 h-4 w-4" />
-                            编辑组织
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem>
-                            <Eye className="mr-2 h-4 w-4" />
-                            查看详情
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => openEditDialog(organization)}
+                        >
+                          编辑
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            // 查看详情功能待实现
+                            toast({
+                              title: "功能待实现",
+                              description: "查看详情功能将在后续版本中提供",
+                            });
+                          }}
+                        >
+                          查看
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -783,7 +785,7 @@ const OrganizationManagement = () => {
           )}
           <DialogFooter>
             <Button onClick={() => setPasswordDialogOpen(false)}>
-              我已保存凭证
+              我已保���凭证
             </Button>
           </DialogFooter>
         </DialogContent>
