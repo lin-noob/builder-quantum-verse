@@ -489,7 +489,7 @@ export default function SystemConfig() {
               <CheckCircle className="h-4 w-4 text-green-600 mt-0.5" />
               <div>
                 <p className="font-medium text-gray-900">自动生效配置</p>
-                <p>大部分配置��改会立即生效，无需重启系统</p>
+                <p>大部分配置修改会立即生效，无需重启系统</p>
               </div>
             </div>
             
