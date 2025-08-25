@@ -278,12 +278,20 @@ export class Request {
         // 检查是否返回了HTML错误页面
         if (errorText.trim().toLowerCase().startsWith("<!doctype") ||
             errorText.trim().toLowerCase().startsWith("<html")) {
-          console.error(`Server returned HTML error page instead of JSON (${statusError}):`, {
-            url: response.url,
-            status: response.status,
-            contentType,
-            preview: errorText.substring(0, 200) + "..."
-          });
+
+          if (process.env.NODE_ENV === 'development') {
+            console.group(`🚨 API Error: HTML Response Instead of JSON`);
+            console.log(`URL: ${response.url}`);
+            console.log(`Status: ${response.status} ${response.statusText}`);
+            console.log(`Content-Type: ${contentType}`);
+            console.log(`Response Preview:`, errorText.substring(0, 300));
+            console.log(`Possible causes:
+              1. API endpoint doesn't exist
+              2. Server routing issue
+              3. Backend service not running
+              4. Proxy configuration problem`);
+            console.groupEnd();
+          }
 
           throw new RequestError(
             `服务器返回了HTML错误页面而不是JSON数据 (${statusError})`,
@@ -469,7 +477,7 @@ export class Request {
           },
           {
             id: "view_product",
-            sceneName: "商品浏览",
+            sceneName: "���品浏览",
             status: 0,
             aiStrategyConfig: JSON.stringify({
               defaultAIConfig: {
@@ -533,7 +541,7 @@ export class Request {
                 timingStrategy: "SMART_DELAY",
                 contentStrategy: "FULLY_GENERATIVE",
                 description:
-                  "AI会根据用户画像、购物车商品等信息，自主生成最合适的挽留或激励文案",
+                  "AI会根据��户画像、购物车商品等信息，自主生成最合适的挽留或激励文案",
                 strategySummary:
                   "在用户犹豫或准备离开时进行精准挽留，提升订单转化率。",
                 coreStrategies: ["网页弹窗", "智能延迟", "个性化生成"],
@@ -708,7 +716,7 @@ export class Request {
         error instanceof Error &&
         (error.name === "AbortError" || error.message.includes("aborted"))
       ) {
-        // AbortError 通常是由以下情况引起的：
+        // AbortError 通常是由以下情况���起的：
         // 1. 用户导航到其他页面
         // 2. 组件卸载
         // 3. 开发环境的热重载
