@@ -76,6 +76,10 @@ const MemberManagement = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
 
+  // 排序状态
+  const [sortField, setSortField] = useState<'lastLoginAt' | 'createdAt' | null>('lastLoginAt');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+
   // 弹窗状态
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -711,7 +715,7 @@ const MemberManagement = () => {
               </div>
             </div>
             <div className="text-sm text-amber-600 bg-amber-50 p-3 rounded">
-              <strong>重要提醒：</strong>
+              <strong>重要提��：</strong>
               请务必将此密码安全地告知新成员，并建议其首次登录后立即修改密码。
             </div>
           </div>
