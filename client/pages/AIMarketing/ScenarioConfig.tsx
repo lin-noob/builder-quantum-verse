@@ -527,7 +527,7 @@ const ScenarioConfig = () => {
       await updateRulePriorities(scenario.scenarioId, priorities);
 
       toast({
-        title: "���先级已更新",
+        title: "优先级已更新",
         description: "规则优先级调整成功",
       });
     } catch (error) {

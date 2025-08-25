@@ -376,7 +376,7 @@ export default function UserManagement() {
           <CardContent>
             <div className="text-2xl font-bold text-red-600">{stats.inactive}</div>
             <p className="text-xs text-muted-foreground">
-              已禁用账户
+              已禁���账户
             </p>
           </CardContent>
         </Card>
@@ -611,7 +611,7 @@ export default function UserManagement() {
                       ...prev,
                       department: e.target.value
                     }))}
-                    placeholder="��属部门"
+                    placeholder="所属部门"
                   />
                 </div>
               </div>

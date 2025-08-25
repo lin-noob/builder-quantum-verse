@@ -236,7 +236,7 @@ export default function UserList() {
           setUsers(convertedUsers);
           setTotalCount(response.data.total || 0);
         } else {
-          console.log("��据格式异常，data不是数组:", apiUsers);
+          console.log("数据格式异常，data不是数组:", apiUsers);
           setUsers([]);
           setTotalCount(0);
         }

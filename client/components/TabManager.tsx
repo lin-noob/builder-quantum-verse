@@ -197,7 +197,7 @@ export default function TabManager() {
           const englishToChinese = {
             scenarios: "场景列表",
             monitoring: "监控",
-            analytics: "分���",
+            analytics: "分析",
             strategies: "策略",
             dashboard: "仪表盘",
             organizations: "组织管理",
