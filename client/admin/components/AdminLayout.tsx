@@ -94,14 +94,14 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-screen bg-background-secondary">
       {/* 移动��头部 */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 z-50">
+      <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-card border-b border-border flex items-center justify-between px-4 z-50">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
-            <Cog className="h-5 w-5 text-white" />
+          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+            <BarChart3 className="h-5 w-5 text-white" />
           </div>
-          <span className="text-xl font-bold text-gray-900">管理后台</span>
+          <span className="text-xl font-bold text-gray-900">AI营销管理后台</span>
         </div>
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -132,7 +132,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                       className={cn(
                         "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
                         isActiveRoute(item.path)
-                          ? "bg-indigo-50 text-indigo-700 border border-indigo-200"
+                          ? "bg-blue-50 text-blue-700 border border-blue-200"
                           : "text-gray-600 hover:text-gray-900 hover:bg-gray-50",
                       )}
                     >
@@ -155,19 +155,19 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       {/* 左侧边栏 */}
       <div
         className={cn(
-          "hidden lg:flex bg-white border-r border-gray-200 flex-col transition-all duration-300 ease-in-out",
+          "hidden lg:flex bg-card border-r border-border flex-col transition-all duration-300 ease-in-out relative",
           isSidebarCollapsed ? "w-16" : "w-64",
         )}
       >
         {/* Logo */}
         <div className="h-16 flex items-center justify-center px-3 border-b border-gray-200">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
-              <Cog className="h-5 w-5 text-white" />
+            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+              <BarChart3 className="h-5 w-5 text-white" />
             </div>
             {!isSidebarCollapsed && (
-              <span className="text-xl font-bold text-gray-900 whitespace-nowrap">
-                管理后台
+              <span className="text-xl font-bold text-gray-900 whitespace-nowrap overflow-hidden">
+                AI营销管理后台
               </span>
             )}
           </div>
@@ -186,7 +186,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                       ? "gap-0 px-3 py-2 justify-center"
                       : "gap-3 px-3 py-2",
                     isActiveRoute(item.path)
-                      ? "bg-indigo-50 text-indigo-700 border border-indigo-200"
+                      ? "bg-blue-50 text-blue-700 border border-blue-200"
                       : "text-gray-600 hover:text-gray-900 hover:bg-gray-50",
                   )}
                   title={isSidebarCollapsed ? item.label : undefined}
