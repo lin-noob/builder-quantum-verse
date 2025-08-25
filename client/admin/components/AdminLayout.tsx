@@ -226,7 +226,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               isSidebarCollapsed ? "justify-center" : "justify-start",
             )}
           >
-            <div className="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center flex-shrink-0">
+            <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
               <User className="h-4 w-4 text-white" />
             </div>
             {!isSidebarCollapsed && (
@@ -266,7 +266,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       {/* 主内容区域 */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* 顶部导航栏 */}
-        <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 mt-16 lg:mt-0">
+        <header className="h-16 bg-card border-b border-border flex items-center justify-between px-6 mt-16 lg:mt-0">
           <div className="flex items-center gap-4">
             <h1 className="text-lg font-semibold text-gray-900">
               {menuItems.find((item) => isActiveRoute(item.path))?.label ||
@@ -295,7 +295,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         </header>
 
         {/* 主内容 */}
-        <main className="flex-1 overflow-auto bg-gray-50">{children}</main>
+        <main className="flex-1 overflow-auto">{children}</main>
       </div>
     </div>
   );
