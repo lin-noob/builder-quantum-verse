@@ -449,11 +449,7 @@ const MemberManagement = () => {
 
             {/* 邀请按钮在左侧 */}
             <div className="flex justify-start">
-              <Button
-                onClick={() => setInviteDialogOpen(true)}
-                className="flex items-center gap-2"
-              >
-                <Plus className="h-4 w-4" />
+              <Button onClick={() => setInviteDialogOpen(true)}>
                 邀请新成员
               </Button>
             </div>
