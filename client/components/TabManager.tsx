@@ -92,6 +92,9 @@ export default function TabManager() {
     "/ai-marketing/scenarios/user_login": "用户登录",
     "/effect-tracking": "效果追踪",
     "/account/settings": "个人设置",
+    // 组织管理页面
+    "/organization/members": "成员管理",
+    "/organization/settings": "组织设置",
     // 管理后台页面
     "/admin": "系统概览",
     "/admin/organizations": "组织管理",
@@ -176,7 +179,7 @@ export default function TabManager() {
             user_login: "用户登录",
             start_checkout: "开始结账",
             purchase: "完成购买",
-            search: "执行搜索",
+            search: "��行搜索",
             exit_intent: "离开意图",
           };
           title =
