@@ -395,6 +395,14 @@ export default function UserManagement() {
         </Card>
       </div>
 
+      {/* 添加用户按钮 */}
+      <div className="flex justify-end">
+        <Button onClick={handleAddUser}>
+          <Plus className="h-4 w-4 mr-2" />
+          添加用户
+        </Button>
+      </div>
+
       {/* 筛选栏 */}
       <Card>
         <CardContent className="pt-6">
