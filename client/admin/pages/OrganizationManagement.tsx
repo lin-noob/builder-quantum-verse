@@ -61,6 +61,7 @@ import {
 import { organizationApi } from "../../../shared/organizationApi";
 
 const OrganizationManagement = () => {
+  const navigate = useNavigate();
   const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
