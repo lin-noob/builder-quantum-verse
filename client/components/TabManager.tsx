@@ -28,7 +28,7 @@ export default function TabManager() {
     return [
       {
         id: "home",
-        title: "首页",
+        title: isAdminPlatform ? "系统概览" : "首页",
         path: isAdminPlatform ? "/admin" : "/dashboard",
         isHome: true,
         isActive: true,
@@ -202,7 +202,7 @@ export default function TabManager() {
             dashboard: "仪表盘",
             organizations: "组织管理",
             models: "模型管理",
-            users: "用���管理",
+            users: "用户管理",
             security: "安全权限",
             config: "系统配置",
             admin: "管理后台",
