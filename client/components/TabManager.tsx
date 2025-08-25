@@ -155,6 +155,12 @@ export default function TabManager() {
           title = "用户详情";
         } else if (currentPath.includes("/admin/organizations/") && currentPath.split("/").length > 3) {
           title = "组织详情";
+        } else if (currentPath.includes("/admin/users/") && currentPath.split("/").length > 3) {
+          title = "用户详情";
+        } else if (currentPath.includes("/admin/ai-models/") && currentPath.split("/").length > 3) {
+          title = "AI模型详情";
+        } else if (currentPath.includes("/admin/scenarios/") && currentPath.split("/").length > 3) {
+          title = "场景详情";
         } else if (currentPath.includes("/response-actions/")) {
           if (currentPath.includes("/create")) {
             title = "创建响应动作";
@@ -192,7 +198,7 @@ export default function TabManager() {
         } else if (currentPath.includes("/ai-marketing-strategies")) {
           title = "营销策略";
         } else if (currentPath.includes("/ai-marketing")) {
-          title = "AI营销";
+          title = "AI营���";
         } else {
           // 默认使用路径最后一部分作为标题，但尝试转换为中文
           const pathParts = currentPath.split("/").filter(Boolean);
@@ -393,7 +399,7 @@ export default function TabManager() {
         </div>
       </div>
 
-      {/* 右侧滚动箭头 */}
+      {/* 右侧���动箭头 */}
       {canScrollRight && (
         <button
           onClick={() => scrollTabs("right")}
