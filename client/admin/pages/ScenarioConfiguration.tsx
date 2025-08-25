@@ -181,24 +181,16 @@ export default function ScenarioConfiguration() {
 
   return (
     <div className="p-6 space-y-6">
-      {/* 页面标题 */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">场景配置管理</h1>
-          <p className="text-sm text-gray-600 mt-1">
-            管理AI营销场景的启用状态、默认配置和自定义规则
-          </p>
-        </div>
-        <div className="flex gap-3">
-          <Button variant="outline">
-            <Plus className="h-4 w-4 mr-2" />
-            创建自定义场景
-          </Button>
-          <Button>
-            <Settings className="h-4 w-4 mr-2" />
-            全局配置
-          </Button>
-        </div>
+      {/* 操作按钮 */}
+      <div className="flex justify-end gap-3">
+        <Button variant="outline">
+          <Plus className="h-4 w-4 mr-2" />
+          创建自定义场景
+        </Button>
+        <Button>
+          <Settings className="h-4 w-4 mr-2" />
+          全局配置
+        </Button>
       </div>
 
       {/* 统计概览 */}
