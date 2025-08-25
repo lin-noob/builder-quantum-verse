@@ -304,6 +304,25 @@ const AppWithRequestManager = () => {
               </Layout>
             }
           />
+
+          {/* 组织管理功能 */}
+          <Route
+            path="/organization/members"
+            element={
+              <Layout>
+                <MemberManagement />
+              </Layout>
+            }
+          />
+
+          <Route
+            path="/organization/settings"
+            element={
+              <Layout>
+                <OrganizationSettings />
+              </Layout>
+            }
+          />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
