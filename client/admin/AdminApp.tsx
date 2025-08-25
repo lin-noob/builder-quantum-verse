@@ -1,6 +1,8 @@
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import AdminLayout from "./components/AdminLayout";
+import AdminRouteGuard from "./components/AdminRouteGuard";
+import AdminAuth from "./pages/AdminAuth";
 import AdminDashboard from "./pages/AdminDashboard";
 import OrganizationManagement from "./pages/OrganizationManagement";
 import OrganizationDetail from "./pages/OrganizationDetail";
@@ -9,6 +11,7 @@ import AIModelManagement from "./pages/AIModelManagement";
 import ScenarioConfiguration from "./pages/ScenarioConfiguration";
 import SecurityPermissions from "./pages/SecurityPermissions";
 import UserDetailsAnalytics from "./pages/UserDetailsAnalytics";
+import UserManagement from "./pages/UserManagement";
 
 // 临时占位页面组件
 const PlaceholderPage = ({ title }: { title: string }) => (
