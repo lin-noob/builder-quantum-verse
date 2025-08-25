@@ -172,7 +172,7 @@ const MemberManagement = () => {
       console.error("Failed to invite member:", error);
       toast({
         title: "邀请失败",
-        description: "网络错误，请重试",
+        description: "网络��误，请重试",
         variant: "destructive",
       });
     }
@@ -252,16 +252,8 @@ const MemberManagement = () => {
   };
 
   const openEditDialog = (member: Member) => {
-    console.log("=== openEditDialog called ===");
-    console.log("Member:", member);
-    console.log("Current editDialogOpen:", editDialogOpen);
-
     setEditingMember({ ...member });
     setEditDialogOpen(true);
-
-    console.log("State updated, editingMember set to:", member.name);
-    console.log("editDialogOpen set to: true");
-    console.log("=== openEditDialog finished ===");
   };
 
   const openStatusConfirm = (member: Member) => {
