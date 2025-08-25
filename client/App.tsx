@@ -41,6 +41,7 @@ import OrganizationSettings from "./pages/Organization/OrganizationSettings";
 import PersonalSettings from "./pages/Account/PersonalSettings";
 import { usePageRequestManager } from "./hooks/useRequestManager";
 import AdminApp from "./admin/AdminApp";
+import AbortErrorTestComponent from "./components/AbortErrorTestComponent";
 
 const queryClient = new QueryClient();
 
