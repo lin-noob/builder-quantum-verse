@@ -582,7 +582,26 @@ export class Request {
         this.requestManager.removeRequest(requestId);
       }
 
-      // 使用新的���误处理系统
+      // 特殊处理 AbortError - 静默处理，避免不必要的错误抛出
+      if (error instanceof Error &&
+          (error.name === 'AbortError' || error.message.includes('aborted'))) {
+
+        // AbortError 通常是由以下情况引起的：
+        // 1. 用户导航到其他页面
+        // 2. 组件卸载
+        // 3. 开发环境的热重载
+        // 4. 显式的请求取消
+        // 这些情况都不应该作为错误抛出
+
+        if (process.env.NODE_ENV === 'development') {
+          console.debug('Request aborted (likely due to navigation/unmount/hot-reload)');
+        }
+
+        // 返回一个静默的响应而不是抛出错误
+        return { data: null, status: 499, statusText: 'Aborted' } as any;
+      }
+
+      // 使用新的错误处理系统
       const errorContext = {
         url: fullURL,
         method,
