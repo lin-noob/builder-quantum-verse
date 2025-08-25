@@ -212,7 +212,7 @@ const OrganizationDetail = () => {
       if (response.success) {
         toast({
           title: "保存成功",
-          description: "组织信息已更新",
+          description: "组织信息��更新",
         });
         setIsEditing(false);
         loadOrganization(); // 重新加载数据
@@ -774,13 +774,13 @@ const OrganizationDetail = () => {
                 <TableBody>
                   {membersLoading ? (
                     <TableRow>
-                      <TableCell colSpan={6} className="text-center py-8">
+                      <TableCell colSpan={7} className="text-center py-8">
                         <div className="animate-pulse">加载中...</div>
                       </TableCell>
                     </TableRow>
                   ) : currentMembers.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={6} className="text-center py-8">
+                      <TableCell colSpan={7} className="text-center py-8">
                         <div className="text-gray-500">暂无成员数据</div>
                       </TableCell>
                     </TableRow>
@@ -798,6 +798,16 @@ const OrganizationDetail = () => {
                         <TableCell>{getRoleBadge(member.role)}</TableCell>
                         <TableCell>
                           {getStatusBadge(member.accountStatus)}
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleResetPassword(member)}
+                            className="text-xs"
+                          >
+                            重置密码
+                          </Button>
                         </TableCell>
                         <TableCell className="text-xs text-gray-600">
                           {formatDateTime(member.lastLoginAt)}
