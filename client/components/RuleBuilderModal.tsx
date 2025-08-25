@@ -355,7 +355,7 @@ const RuleBuilderModal = ({
       } else if (responseAction.actionType === "SMS") {
         if (!responseAction.actionConfig.smsContent) {
           toast({
-            title: "请填写短信内容",
+            title: "请��写短信内容",
             variant: "destructive",
           });
           setCurrentTab("action");
@@ -457,17 +457,7 @@ const RuleBuilderModal = ({
       };
 
       // 调用新的API接口
-      const response = await fetch("/quote/api/v1/scene/rule", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(apiData),
-      });
-
-      if (!response.ok) {
-        throw new Error("保存失败");
-      }
+      await request.post("/quote/api/v1/scene/rule", apiData);
 
       toast({
         title: rule ? "规则已更新" : "规则已创建",
@@ -919,7 +909,7 @@ const RuleBuilderModal = ({
                   </div>
 
                   <div>
-                    <Label>营销时机</Label>
+                    <Label>营销时���</Label>
                     <Select
                       value={responseAction.timing}
                       onValueChange={(value) =>
