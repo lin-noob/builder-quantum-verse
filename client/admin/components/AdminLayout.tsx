@@ -133,7 +133,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem disabled className="flex items-center gap-2 cursor-not-allowed opacity-50">
+                <DropdownMenuItem
+                  disabled
+                  className="flex items-center gap-2 cursor-not-allowed opacity-50"
+                >
                   <Settings className="h-4 w-4" />
                   个人设置
                 </DropdownMenuItem>
@@ -370,8 +373,14 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                   )}
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align={isSidebarCollapsed ? "start" : "end"} className="w-48">
-                <DropdownMenuItem disabled className="flex items-center gap-2 cursor-not-allowed opacity-50">
+              <DropdownMenuContent
+                align={isSidebarCollapsed ? "start" : "end"}
+                className="w-48"
+              >
+                <DropdownMenuItem
+                  disabled
+                  className="flex items-center gap-2 cursor-not-allowed opacity-50"
+                >
                   <Settings className="h-4 w-4" />
                   个人设置
                 </DropdownMenuItem>

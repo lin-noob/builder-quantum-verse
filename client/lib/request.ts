@@ -137,15 +137,19 @@ class RequestManager {
             const originalSignal = controller.signal;
             if (originalSignal && !originalSignal.aborted) {
               // 静默调用 abort，不抛出任何错误
-              Promise.resolve().then(() => {
-                try {
-                  controller.abort(new DOMException('Request cancelled', 'AbortError'));
-                } catch (e) {
-                  // 静默处理
-                }
-              }).catch(() => {
-                // 静默处理异步错误
-              });
+              Promise.resolve()
+                .then(() => {
+                  try {
+                    controller.abort(
+                      new DOMException("Request cancelled", "AbortError"),
+                    );
+                  } catch (e) {
+                    // 静默处理
+                  }
+                })
+                .catch(() => {
+                  // 静默处理异步错误
+                });
             }
           }
         } catch (error) {
@@ -297,7 +301,7 @@ export class Request {
     const timeoutId = setTimeout(() => {
       try {
         if (!controller.signal.aborted) {
-          if (process.env.NODE_ENV === 'development') {
+          if (process.env.NODE_ENV === "development") {
             console.warn(`Request timeout after ${timeout}ms: ${requestId}`);
             console.warn(`开发环境提示：请检查后端服务是否运行在��置的地址上`);
           }
@@ -305,8 +309,8 @@ export class Request {
         }
       } catch (error) {
         // 静默处理超时abort中的错误
-        if (process.env.NODE_ENV === 'development') {
-          console.debug('Timeout abort handled (development)');
+        if (process.env.NODE_ENV === "development") {
+          console.debug("Timeout abort handled (development)");
         }
       }
     }, timeout);
@@ -333,14 +337,20 @@ export class Request {
     } = config;
 
     // 在开发环境中，对于特定的API路径，直接返回mock响应避免超时
-    if (false && process.env.NODE_ENV === 'development' &&
-        (window.location.hostname === 'localhost' || window.location.hostname.includes('fly.dev')) &&
-        url.includes('/quote/api/')) {
-      console.log(`Mock response for ${method} ${url} in development environment`);
-      await new Promise(resolve => setTimeout(resolve, 200)); // 模拟网络延迟
+    if (
+      false &&
+      process.env.NODE_ENV === "development" &&
+      (window.location.hostname === "localhost" ||
+        window.location.hostname.includes("fly.dev")) &&
+      url.includes("/quote/api/")
+    ) {
+      console.log(
+        `Mock response for ${method} ${url} in development environment`,
+      );
+      await new Promise((resolve) => setTimeout(resolve, 200)); // 模拟网络延迟
 
       // 为营销场景列表API提供特定的mock数据
-      if (url.includes('/quote/api/v1/scene/list')) {
+      if (url.includes("/quote/api/v1/scene/list")) {
         const mockScenarios = [
           {
             id: "add_to_cart",
@@ -348,14 +358,16 @@ export class Request {
             status: 1,
             aiStrategyConfig: JSON.stringify({
               defaultAIConfig: {
-                description: "AI会根据用户画像、购物车商品等信息，自主生成最合适的挽留或激励文案",
-                strategySummary: "在用户犹豫或准备离开时进行精准挽留，提升订单转化率。",
-                coreStrategies: ["网页弹窗", "智能延迟", "个性化生成"]
-              }
+                description:
+                  "AI会根据用户画像、购物车商品等信息，自主生成最合适的挽留或激励文案",
+                strategySummary:
+                  "在用户犹豫或准备离开时进行精准挽留，提升订单转化率。",
+                coreStrategies: ["网页弹窗", "智能延迟", "个性化生成"],
+              },
             }),
             gmtCreate: "2024-01-10T10:00:00Z",
             gmtModified: "2024-01-15T14:30:00Z",
-            nullId: false
+            nullId: false,
           },
           {
             id: "view_product",
@@ -365,12 +377,12 @@ export class Request {
               defaultAIConfig: {
                 description: "根据用户浏览行为��商品信息，推荐相关产品或优惠",
                 strategySummary: "通过智能推荐提升用户购买转化。",
-                coreStrategies: ["个性化推荐", "智能营销", "精准投放"]
-              }
+                coreStrategies: ["个性化推荐", "智能营销", "精准投放"],
+              },
             }),
             gmtCreate: "2024-01-08T09:00:00Z",
             gmtModified: "2024-01-12T16:20:00Z",
-            nullId: false
+            nullId: false,
           },
           {
             id: "user_signup",
@@ -380,12 +392,12 @@ export class Request {
               defaultAIConfig: {
                 description: "为新注册用户提供个性化欢迎内容和新手引导",
                 strategySummary: "提升新用户的首次购买转化率。",
-                coreStrategies: ["欢迎引导", "新手优惠", "个性化推荐"]
-              }
+                coreStrategies: ["欢迎引导", "新手优惠", "个性化推荐"],
+              },
             }),
             gmtCreate: "2024-01-05T08:30:00Z",
             gmtModified: "2024-01-20T11:45:00Z",
-            nullId: false
+            nullId: false,
           },
           {
             id: "purchase",
@@ -395,25 +407,25 @@ export class Request {
               defaultAIConfig: {
                 description: "购买后的交叉销售和复��引导策略",
                 strategySummary: "通过购买后营销提升客户生命周期价值。",
-                coreStrategies: ["交叉销售", "复购引导", "会员推荐"]
-              }
+                coreStrategies: ["交叉销售", "复购引导", "会员推荐"],
+              },
             }),
             gmtCreate: "2024-01-03T07:15:00Z",
             gmtModified: "2024-01-18T13:30:00Z",
-            nullId: false
-          }
+            nullId: false,
+          },
         ];
 
-        return { data: mockScenarios, status: 200, statusText: 'OK' } as any;
+        return { data: mockScenarios, status: 200, statusText: "OK" } as any;
       }
 
       // 为营销场景详情API提供mock数据
-      if (url.includes('/quote/api/v1/scene/view/')) {
-        const scenarioId = url.split('/').pop();
+      if (url.includes("/quote/api/v1/scene/view/")) {
+        const scenarioId = url.split("/").pop();
         console.log(`Mock scenario detail API for: ${scenarioId}`);
 
         const scenarioDetails: Record<string, any> = {
-          "add_to_cart": {
+          add_to_cart: {
             id: "add_to_cart",
             sceneName: "加入购物车",
             status: 1,
@@ -422,21 +434,24 @@ export class Request {
                 allowedActionTypes: ["POPUP"],
                 timingStrategy: "SMART_DELAY",
                 contentStrategy: "FULLY_GENERATIVE",
-                description: "AI会根据用户画像、购物车商品等信息，自主生成最合适的挽留或激励文案",
-                strategySummary: "在用户犹豫或准备离开时进行精准挽留，提升订单转化率。",
+                description:
+                  "AI会根据用户画像、购物车商品等信息，自主生成最合适的挽留或激励文案",
+                strategySummary:
+                  "在用户犹豫或准备离开时进行精准挽留，提升订单转化率。",
                 coreStrategies: ["网页弹窗", "智能延迟", "个性化生成"],
                 dimensions: [
                   {
                     dimension: "营销方式",
                     strategy: '优先使用"网页弹窗"',
-                    reasoning: "AI会优先选择干预性最强、最能实时触达的网页弹窗，以抓住稍瞬即逝的挽留机会。",
+                    reasoning:
+                      "AI会优先选择干预性最强、最能实时触达的网页弹窗，以抓住稍瞬即逝的挽留机会。",
                     examples: [
                       "桌面端: 可能会选择模态框弹窗，信息更完整。",
-                      "移动端: 可能会选择更轻量的底部横幅或顶部通知，避免影响体验。"
-                    ]
-                  }
-                ]
-              }
+                      "移动端: 可能会选择更轻量的底部横幅或顶部通知，避免影响体验。",
+                    ],
+                  },
+                ],
+              },
             }),
             gmtCreate: "2024-01-10T10:00:00Z",
             gmtModified: "2024-01-15T14:30:00Z",
@@ -454,11 +469,11 @@ export class Request {
                 popupContent: "作为我们的VIP会员，为您准备了专属优惠券",
                 buttonText: "立即领取",
                 status: 1,
-                instruction: "针对VIP用户的专属优惠策略"
-              }
-            ]
+                instruction: "针对VIP用户的专属优惠策略",
+              },
+            ],
           },
-          "view_product": {
+          view_product: {
             id: "view_product",
             sceneName: "商品浏览",
             status: 0,
@@ -466,15 +481,15 @@ export class Request {
               defaultAIConfig: {
                 description: "根据用户浏览行为和商品信息，推荐相关产品或优惠",
                 strategySummary: "通过智能推荐提升用户购买转化。",
-                coreStrategies: ["个性化推荐", "智能营销", "精准投放"]
-              }
+                coreStrategies: ["个性化推荐", "智能营销", "精准投放"],
+              },
             }),
             gmtCreate: "2024-01-08T09:00:00Z",
             gmtModified: "2024-01-12T16:20:00Z",
             nullId: false,
-            marketingSceneRules: []
+            marketingSceneRules: [],
           },
-          "user_signup": {
+          user_signup: {
             id: "user_signup",
             sceneName: "用户注册",
             status: 1,
@@ -482,15 +497,15 @@ export class Request {
               defaultAIConfig: {
                 description: "为新注册用户提供个性化欢迎内容和新手引导",
                 strategySummary: "提升新用户的首次购买转化率。",
-                coreStrategies: ["欢迎引导", "新手优惠", "个性化推荐"]
-              }
+                coreStrategies: ["欢迎引导", "新手优惠", "个性化推荐"],
+              },
             }),
             gmtCreate: "2024-01-05T08:30:00Z",
             gmtModified: "2024-01-20T11:45:00Z",
             nullId: false,
-            marketingSceneRules: []
+            marketingSceneRules: [],
           },
-          "purchase": {
+          purchase: {
             id: "purchase",
             sceneName: "购买完成",
             status: 1,
@@ -498,31 +513,39 @@ export class Request {
               defaultAIConfig: {
                 description: "购买后的交叉销售和复购引导策略",
                 strategySummary: "通过购买后营销提升客户生命周期价值。",
-                coreStrategies: ["交叉销售", "复购引导", "会员推荐"]
-              }
+                coreStrategies: ["交叉销售", "复购引导", "会员推荐"],
+              },
             }),
             gmtCreate: "2024-01-03T07:15:00Z",
             gmtModified: "2024-01-18T13:30:00Z",
             nullId: false,
-            marketingSceneRules: []
-          }
+            marketingSceneRules: [],
+          },
         };
 
         const scenarioDetail = scenarioDetails[scenarioId as string];
         if (scenarioDetail) {
-          return { data: scenarioDetail, status: 200, statusText: 'OK' } as any;
+          return { data: scenarioDetail, status: 200, statusText: "OK" } as any;
         } else {
-          return { data: null, status: 404, statusText: 'Not Found' } as any;
+          return { data: null, status: 404, statusText: "Not Found" } as any;
         }
       }
 
       // 为营销场景更新API提供mock响应
-      if (url.includes('/quote/api/v1/scene') && method === 'POST' && !url.includes('/list')) {
-        console.log('Mock scene update API called with data:', data);
-        return { data: { success: true }, status: 200, statusText: 'OK' } as any;
+      if (
+        url.includes("/quote/api/v1/scene") &&
+        method === "POST" &&
+        !url.includes("/list")
+      ) {
+        console.log("Mock scene update API called with data:", data);
+        return {
+          data: { success: true },
+          status: 200,
+          statusText: "OK",
+        } as any;
       }
 
-      return { data: null, status: 200, statusText: 'OK' } as any;
+      return { data: null, status: 200, statusText: "OK" } as any;
     }
 
     let timeoutId: number | undefined;
@@ -583,9 +606,10 @@ export class Request {
       }
 
       // 特殊处理 AbortError - 静默处理，避免不必要的错误抛出
-      if (error instanceof Error &&
-          (error.name === 'AbortError' || error.message.includes('aborted'))) {
-
+      if (
+        error instanceof Error &&
+        (error.name === "AbortError" || error.message.includes("aborted"))
+      ) {
         // AbortError 通常是由以下情况引起的：
         // 1. 用户导航到其他页面
         // 2. 组件卸载
@@ -593,12 +617,14 @@ export class Request {
         // 4. 显式的请求取消
         // 这些情况都不应该作为错误抛出
 
-        if (process.env.NODE_ENV === 'development') {
-          console.debug('Request aborted (likely due to navigation/unmount/hot-reload)');
+        if (process.env.NODE_ENV === "development") {
+          console.debug(
+            "Request aborted (likely due to navigation/unmount/hot-reload)",
+          );
         }
 
         // 返回一个静默的响应而不是抛出错误
-        return { data: null, status: 499, statusText: 'Aborted' } as any;
+        return { data: null, status: 499, statusText: "Aborted" } as any;
       }
 
       // 使用新的错误处理系统
@@ -625,22 +651,28 @@ export class Request {
       switch (errorInfo.type) {
         case "TIMEOUT":
           // 在开发环境中，提供更好的超时处理
-          if (process.env.NODE_ENV === 'development') {
+          if (process.env.NODE_ENV === "development") {
             console.warn(`Request timeout in development: ${url}`);
-            console.warn('开发环境提示：后端服务可能未启动，建议检查服务状态');
+            console.warn("开发环境提示：后端服务可能未启动，建议检查服务状态");
             // 返回一个默认响应而不是抛出错误
-            return { data: null, status: 408, statusText: 'Request Timeout' } as any;
+            return {
+              data: null,
+              status: 408,
+              statusText: "Request Timeout",
+            } as any;
           }
           throw new RequestError(
             "请求超时，可能是网络连接问题或后端服务未启动",
             408,
-            "Request Timeout"
+            "Request Timeout",
           );
         case "ABORT":
           // 在开发环境中，AbortError通常是由热重载或页面��载引起的，不应作为真正的错误
-          if (process.env.NODE_ENV === 'development') {
-            console.debug('Request aborted due to page reload/navigation (development)');
-            return { data: null, status: 499, statusText: 'Aborted' } as any;
+          if (process.env.NODE_ENV === "development") {
+            console.debug(
+              "Request aborted due to page reload/navigation (development)",
+            );
+            return { data: null, status: 499, statusText: "Aborted" } as any;
           }
           throw new RequestError(
             "Request aborted",

@@ -789,15 +789,15 @@ const MemberManagement = () => {
             <DialogDescription>
               {statusChangeMember
                 ? `已为「${statusChangeMember.name}」重置密码，请复制新密码并安全地分享给该成员`
-                : "新成员账户已创建，请复制初始密码并安全地分享给该成员"
-              }
+                : "新成员账户已创建，请复制初始密码并安全地分享给该成员"}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             {statusChangeMember && (
               <div className="p-3 bg-blue-50 rounded-lg">
                 <div className="text-sm text-blue-800">
-                  <strong>成员信息：</strong> {statusChangeMember.name} ({statusChangeMember.email})
+                  <strong>成员信息：</strong> {statusChangeMember.name} (
+                  {statusChangeMember.email})
                 </div>
               </div>
             )}
@@ -816,14 +816,17 @@ const MemberManagement = () => {
             </div>
             <div className="text-sm text-amber-600 bg-amber-50 p-3 rounded">
               <strong>重要提醒：</strong>
-              请务必将此密码安全地告知{statusChangeMember ? "该成员" : "新成员"}，并建议其首次登录后立即修改密码。
+              请务必将此密码安全地告知{statusChangeMember ? "该成员" : "新成员"}
+              ，并建议其首次登录后立即修改密码。
             </div>
           </div>
           <DialogFooter>
-            <Button onClick={() => {
-              setPasswordDialogOpen(false);
-              setStatusChangeMember(null);
-            }}>
+            <Button
+              onClick={() => {
+                setPasswordDialogOpen(false);
+                setStatusChangeMember(null);
+              }}
+            >
               我已复制密码
             </Button>
           </DialogFooter>

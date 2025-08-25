@@ -41,8 +41,8 @@ class AdminAuthService {
   private initializeDefaultAdminUser() {
     try {
       // 检查是否已有超级管理员登录
-      const storedAdminUser = localStorage.getItem('admin_auth_user');
-      const storedAdminToken = localStorage.getItem('admin_auth_token');
+      const storedAdminUser = localStorage.getItem("admin_auth_user");
+      const storedAdminToken = localStorage.getItem("admin_auth_token");
 
       if (storedAdminUser && storedAdminToken) {
         // 如果已有超级管理员登录，恢复用户状态
@@ -55,13 +55,19 @@ class AdminAuthService {
           username: this.defaultSuperAdmin.username,
           email: this.defaultSuperAdmin.email,
           role: this.defaultSuperAdmin.role,
-          permissions: this.defaultSuperAdmin.permissions
+          permissions: this.defaultSuperAdmin.permissions,
         };
         this.isAdminAuthenticated = true;
 
         // 存储到 localStorage
-        localStorage.setItem('admin_auth_user', JSON.stringify(this.currentAdminUser));
-        localStorage.setItem('admin_auth_token', 'default_admin_token_' + Date.now());
+        localStorage.setItem(
+          "admin_auth_user",
+          JSON.stringify(this.currentAdminUser),
+        );
+        localStorage.setItem(
+          "admin_auth_token",
+          "default_admin_token_" + Date.now(),
+        );
       }
     } catch (error) {
       // 如果出错，设置默认超级管理员
@@ -70,12 +76,18 @@ class AdminAuthService {
         username: this.defaultSuperAdmin.username,
         email: this.defaultSuperAdmin.email,
         role: this.defaultSuperAdmin.role,
-        permissions: this.defaultSuperAdmin.permissions
+        permissions: this.defaultSuperAdmin.permissions,
       };
       this.isAdminAuthenticated = true;
 
-      localStorage.setItem('admin_auth_user', JSON.stringify(this.currentAdminUser));
-      localStorage.setItem('admin_auth_token', 'default_admin_token_' + Date.now());
+      localStorage.setItem(
+        "admin_auth_user",
+        JSON.stringify(this.currentAdminUser),
+      );
+      localStorage.setItem(
+        "admin_auth_token",
+        "default_admin_token_" + Date.now(),
+      );
     }
   }
 

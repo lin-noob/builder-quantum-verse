@@ -140,12 +140,15 @@ export const setupGlobalErrorHandler = () => {
       const error = event.reason;
 
       // 特殊处理 AbortError - 完全静默，防止控制台输出
-      if (error.name === 'AbortError' || error.message.includes('aborted')) {
+      if (error.name === "AbortError" || error.message.includes("aborted")) {
         event.preventDefault(); // 阻止默认的控制台错误输出
 
         // 在开发环境中仅输出调试信息
-        if (process.env.NODE_ENV === 'development') {
-          console.debug('Suppressed AbortError (likely due to navigation/hot-reload):', error.message);
+        if (process.env.NODE_ENV === "development") {
+          console.debug(
+            "Suppressed AbortError (likely due to navigation/hot-reload):",
+            error.message,
+          );
         }
         return;
       }
