@@ -345,6 +345,7 @@ const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
       <AppWithRequestManager />
+      {process.env.NODE_ENV === 'development' && <AbortErrorTestComponent />}
     </QueryClientProvider>
   </ErrorBoundary>
 );
