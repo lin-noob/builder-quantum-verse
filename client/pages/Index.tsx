@@ -18,12 +18,14 @@ export default function Index() {
       console.error("Error fetching demo data:", error);
 
       // In development, provide more helpful error information
-      if (process.env.NODE_ENV === 'development') {
+      if (process.env.NODE_ENV === "development") {
         console.log("💡 Tips to debug this error:");
         console.log("1. Check if the backend server is running");
         console.log("2. Verify the API endpoint exists at /api/demo");
         console.log("3. Check the proxy configuration in vite.config.ts");
-        console.log("4. Look at Network tab in dev tools to see the actual response");
+        console.log(
+          "4. Look at Network tab in dev tools to see the actual response",
+        );
       }
     }
   };

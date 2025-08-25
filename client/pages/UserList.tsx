@@ -162,9 +162,10 @@ export default function UserList() {
 
       // 使用更简单的GET请求来测试连通性，而不是OPTIONS
       // 因为有些服务器不支持OPTIONS请求或可能返回HTML错误页面
-      const response = await request.get("/quote/api/v1/profile/list",
+      const response = await request.get(
+        "/quote/api/v1/profile/list",
         { page: 1, limit: 1 }, // 最小化数据请求
-        { timeout: 5000 } // 5秒超时，用于快速检测
+        { timeout: 5000 }, // 5秒超时，用于快速检测
       );
 
       console.log("连通性测试成功:", response.status);
@@ -172,7 +173,7 @@ export default function UserList() {
     } catch (error) {
       console.error("连通性测试失败:", error);
 
-      if (process.env.NODE_ENV === 'development') {
+      if (process.env.NODE_ENV === "development") {
         console.group("🔧 连通性测试调试信息");
         console.log("1. 检查后端服务是否运行在 192.168.1.128:8099");
         console.log("2. 检查网络连接");

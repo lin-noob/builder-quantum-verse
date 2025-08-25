@@ -276,10 +276,11 @@ export class Request {
         const errorText = await response.text();
 
         // 检查是否返回了HTML错误页面
-        if (errorText.trim().toLowerCase().startsWith("<!doctype") ||
-            errorText.trim().toLowerCase().startsWith("<html")) {
-
-          if (process.env.NODE_ENV === 'development') {
+        if (
+          errorText.trim().toLowerCase().startsWith("<!doctype") ||
+          errorText.trim().toLowerCase().startsWith("<html")
+        ) {
+          if (process.env.NODE_ENV === "development") {
             console.group(`🚨 API Error: HTML Response Instead of JSON`);
             console.log(`URL: ${response.url}`);
             console.log(`Status: ${response.status} ${response.statusText}`);
@@ -297,15 +298,15 @@ export class Request {
             `服务器返回了HTML错误页面而不是JSON数据 (${statusError})`,
             response.status,
             response.statusText,
-            response
+            response,
           );
         }
 
         throw new RequestError(
-          `请求失败: ${statusError}${errorText ? ` - ${errorText}` : ''}`,
+          `请求失败: ${statusError}${errorText ? ` - ${errorText}` : ""}`,
           response.status,
           response.statusText,
-          response
+          response,
         );
       } catch (parseError) {
         if (parseError instanceof RequestError) {
@@ -316,7 +317,7 @@ export class Request {
           `请求失败: ${statusError}`,
           response.status,
           response.statusText,
-          response
+          response,
         );
       }
     }
@@ -326,18 +327,26 @@ export class Request {
       switch (responseType) {
         case "json":
           // 对于 JSON 类型，检查 content-type
-          if (!contentType.includes("application/json") && !contentType.includes("text/json")) {
+          if (
+            !contentType.includes("application/json") &&
+            !contentType.includes("text/json")
+          ) {
             // 如果不是 JSON content-type，先获取文本内容检查
             const textContent = await response.text();
 
             // 检查是否意外返回了 HTML
-            if (textContent.trim().toLowerCase().startsWith("<!doctype") ||
-                textContent.trim().toLowerCase().startsWith("<html")) {
-
-              if (process.env.NODE_ENV === 'development') {
-                console.group(`🚨 API Error: HTML Response When Expecting JSON`);
+            if (
+              textContent.trim().toLowerCase().startsWith("<!doctype") ||
+              textContent.trim().toLowerCase().startsWith("<html")
+            ) {
+              if (process.env.NODE_ENV === "development") {
+                console.group(
+                  `🚨 API Error: HTML Response When Expecting JSON`,
+                );
                 console.log(`URL: ${response.url}`);
-                console.log(`Status: ${response.status} (Success, but wrong content)`);
+                console.log(
+                  `Status: ${response.status} (Success, but wrong content)`,
+                );
                 console.log(`Content-Type: ${contentType}`);
                 console.log(`Response Preview:`, textContent.substring(0, 300));
                 console.log(`Common causes:
@@ -348,7 +357,9 @@ export class Request {
                 console.groupEnd();
               }
 
-              throw new Error(`API返回了HTML页面而不是期望的JSON数据。请检查API端点是否正确配置。`);
+              throw new Error(
+                `API返回了HTML页面而不是期望的JSON数据。请检查API端点是否正确配置。`,
+              );
             }
 
             // 尝试解析为 JSON（可能是没有正确设置 content-type 的 JSON）
@@ -358,9 +369,11 @@ export class Request {
               console.error("Failed to parse response as JSON:", {
                 url: response.url,
                 contentType,
-                content: textContent.substring(0, 500)
+                content: textContent.substring(0, 500),
               });
-              throw new Error(`无法解析响应为JSON格式，响应内容: ${textContent.substring(0, 100)}...`);
+              throw new Error(
+                `无法解析响应为JSON格式，响应内容: ${textContent.substring(0, 100)}...`,
+              );
             }
           } else {
             data = await response.json();
@@ -380,14 +393,15 @@ export class Request {
       }
     } catch (error) {
       // 提供更详细的解析错误信息
-      const errorMessage = error instanceof Error ? error.message : "Unknown parsing error";
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown parsing error";
 
       console.error(`Failed to parse response as ${responseType}:`, {
         error: errorMessage,
         url: response.url,
         status: response.status,
         contentType,
-        responseType
+        responseType,
       });
 
       // 重新抛出更有意义的错误
@@ -398,7 +412,7 @@ export class Request {
       data,
       status: response.status,
       statusText: response.statusText,
-      headers: response.headers
+      headers: response.headers,
     } as ApiResponse<T>;
   }
 
