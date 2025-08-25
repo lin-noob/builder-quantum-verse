@@ -182,7 +182,7 @@ const mockUsers: UserData[] = [
   },
   {
     id: '5',
-    name: '刘专员',
+    name: '刘��员',
     email: 'liu.specialist@corp.com',
     phone: '+86 138-5005-0005',
     roles: ['operator'],
@@ -376,7 +376,7 @@ export default function UserManagement() {
           <CardContent>
             <div className="text-2xl font-bold text-green-600">{stats.active}</div>
             <p className="text-xs text-muted-foreground">
-              正常状态��户
+              正常状态用户
             </p>
           </CardContent>
         </Card>
@@ -416,7 +416,7 @@ export default function UserManagement() {
               <div className="relative">
                 <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="搜索用户名、邮箱或手机号..."
+                  placeholder="搜索用户名、邮���或手机号..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10"
