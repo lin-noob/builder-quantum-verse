@@ -143,7 +143,7 @@ const OrganizationDetail = () => {
       console.error("Failed to load organization:", error);
       toast({
         title: "加载失败",
-        description: "无法加载组织信息��请重试",
+        description: "无法加载组织信息，请重试",
         variant: "destructive",
       });
     } finally {
