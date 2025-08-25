@@ -30,6 +30,8 @@ interface MenuItem {
   label: string;
   path: string;
   icon: ReactNode;
+  subItems?: MenuItem[];
+  isSpecial?: boolean;
 }
 
 export default function Layout({ children }: LayoutProps) {
@@ -90,8 +92,8 @@ export default function Layout({ children }: LayoutProps) {
     },
   ];
 
-  // 管理员专用菜单项
-  const adminMenuItems: MenuItem[] = [
+  // 系统管理二级菜单项
+  const systemManagementSubItems: MenuItem[] = [
     {
       id: "organization-members",
       label: "成员管理",
@@ -104,11 +106,21 @@ export default function Layout({ children }: LayoutProps) {
       path: "/organization/settings",
       icon: <Settings className="h-5 w-5" />,
     },
+  ];
+
+  // 管理员专用菜单项
+  const adminMenuItems: MenuItem[] = [
+    {
+      id: "system-management",
+      label: "系统管理",
+      path: "/organization/members", // 默认跳转到成员管理
+      icon: <Settings className="h-5 w-5" />,
+    },
     {
       id: "admin",
-      label: "系统管理",
+      label: "管理后台入口（临时）",
       path: "/admin",
-      icon: <Settings className="h-5 w-5" />,
+      icon: <Shield className="h-5 w-5" />,
     },
   ];
 
