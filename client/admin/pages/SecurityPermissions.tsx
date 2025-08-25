@@ -203,6 +203,14 @@ export default function SecurityPermissions() {
   const [isUserRoleDialogOpen, setIsUserRoleDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserRole | null>(null);
 
+  // Pagination state for roles
+  const [currentRolePage, setCurrentRolePage] = useState(1);
+  const [rolesPerPage] = useState(6);
+
+  // Pagination state for user roles
+  const [currentUserPage, setCurrentUserPage] = useState(1);
+  const [usersPerPage] = useState(8);
+
   const getCategoryIcon = (category: Permission['category']) => {
     switch (category) {
       case 'user':
