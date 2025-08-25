@@ -231,7 +231,7 @@ const MemberManagement = () => {
         loadMembers();
       } else {
         toast({
-          title: "状态更新失败",
+          title: "状态��新失败",
           description: response.message,
           variant: "destructive",
         });
@@ -310,6 +310,11 @@ const MemberManagement = () => {
 
   return (
     <div className="p-6 space-y-6">
+      {/* 临时调试信息 */}
+      <div className="bg-gray-100 p-2 text-xs">
+        调试: editDialogOpen={editDialogOpen.toString()}, editingMember={editingMember?.name || 'null'}
+      </div>
+
       {/* 搜索和过滤 */}
       <Card>
         <CardContent className="pt-6">
@@ -472,7 +477,7 @@ const MemberManagement = () => {
           <DialogHeader>
             <DialogTitle>邀请新成员</DialogTitle>
             <DialogDescription>
-              为组织添加新的团队成员，系统将自动生成初始密码
+              ���组织添加新的团队成员，系统将自动生成初始密码
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
@@ -513,7 +518,7 @@ const MemberManagement = () => {
         </DialogContent>
       </Dialog>
 
-      {/* 编��成员弹窗 */}
+      {/* 编辑成员弹窗 */}
       <Dialog open={editDialogOpen} onOpenChange={(open) => {
         console.log('Dialog onOpenChange:', open);
         setEditDialogOpen(open);
@@ -605,7 +610,7 @@ const MemberManagement = () => {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>取消</AlertDialogCancel>
+            <AlertDialogCancel>取��</AlertDialogCancel>
             <AlertDialogAction onClick={handleToggleStatus}>
               {statusChangeMember?.accountStatus === AccountStatus.ACTIVE ? "禁用" : "启用"}
             </AlertDialogAction>
