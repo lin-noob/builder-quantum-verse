@@ -23,6 +23,13 @@ import {
 import TabManager from "./TabManager";
 // import { ThemeToggle } from "./ThemeToggle"; // 已隐藏主题切换功能
 import { authService } from "@/services/authService";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface LayoutProps {
   children: ReactNode;
