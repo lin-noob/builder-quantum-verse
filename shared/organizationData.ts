@@ -66,6 +66,8 @@ export interface Member {
   email: string;
   /** 密码哈希 - 存储加密后的用户密码 */
   passwordHash?: string;
+  /** 显示用的密码 - 仅用于界面显示，实际应用中不应存储明文密码 */
+  displayPassword?: string;
   /** 姓名 - 成员的真实姓名或昵称 */
   name: string;
   /** 角色 - 定义成员的权限级别 */
@@ -88,7 +90,7 @@ export interface Member {
  * 创建组织请求接口
  */
 export interface CreateOrganizationRequest {
-  /** 组织名称 */
+  /** 组织��称 */
   name: string;
   /** 初始管理员姓名 */
   adminName: string;
@@ -373,7 +375,7 @@ export const getMemberById = (memberId: string): Member | undefined => {
 
 /**
  * 验证成员是否可以登录
- * 组织暂停时，该组织下所有成员都无法登录
+ * 组织暂停时，该组织���所有成员都无法登录
  * 成员禁用时，仅该成员无法登录
  */
 export const canMemberLogin = (member: Member): boolean => {
