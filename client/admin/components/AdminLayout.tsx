@@ -376,7 +376,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             size="sm"
             onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
             className="w-full flex items-center justify-center p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-            title={isSidebarCollapsed ? "��开侧边栏" : "折叠侧边栏"}
+            title={isSidebarCollapsed ? "展开侧边栏" : "折叠侧边栏"}
           >
             {isSidebarCollapsed ? (
               <ChevronRight className="h-5 w-5" />
@@ -399,7 +399,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           <div className="flex items-center gap-4">
             <h1 className="text-lg font-semibold text-gray-900">
               {menuItems.find((item) => isActiveRoute(item.path))?.label ||
-                "��统管理"}
+                "系统管理"}
             </h1>
           </div>
 
