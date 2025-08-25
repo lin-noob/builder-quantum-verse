@@ -125,14 +125,14 @@ export default function Layout({ children }: LayoutProps) {
         <div className="flex items-center gap-3">
           {/* User Profile Icon */}
           <Link
-            to={currentUser ? "/profile" : "/auth"}
+            to={currentUser ? "/account/settings" : "/auth"}
             className={cn(
               "w-8 h-8 rounded-full flex items-center justify-center transition-colors",
               currentUser
                 ? "bg-primary hover:bg-primary/90"
                 : "bg-gray-200 hover:bg-gray-300 border border-dashed border-gray-400",
             )}
-            title={currentUser ? "个人信息" : "点击登录"}
+            title={currentUser ? "个人设置" : "点击登录"}
           >
             <User
               className={cn(
