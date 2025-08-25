@@ -80,11 +80,14 @@ const MemberStatusToggle = ({
         checked={isActive}
         onCheckedChange={handleToggleClick}
         disabled={disabled || loading}
-        aria-label={`${isActive ? '禁用' : '启用'}成员 ${member.name}`}
+        aria-label={`${isActive ? "禁用" : "启用"}成员 ${member.name}`}
       />
 
       {showConfirmDialog && (
-        <AlertDialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
+        <AlertDialog
+          open={confirmDialogOpen}
+          onOpenChange={setConfirmDialogOpen}
+        >
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>

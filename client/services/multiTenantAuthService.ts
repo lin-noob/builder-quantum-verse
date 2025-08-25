@@ -6,8 +6,8 @@ import {
   Organization,
   AccountStatus,
   canMemberLogin,
-} from '../../shared/organizationData';
-import { authApi } from '../../shared/organizationApi';
+} from "../../shared/organizationData";
+import { authApi } from "../../shared/organizationApi";
 
 export interface AuthSession {
   member: Member;
@@ -29,9 +29,9 @@ export interface LoginResult {
 
 class MultiTenantAuthService {
   private currentSession: AuthSession | null = null;
-  private readonly sessionKey = 'auth_session';
-  private readonly memberKey = 'auth_member';
-  private readonly organizationKey = 'auth_organization';
+  private readonly sessionKey = "auth_session";
+  private readonly memberKey = "auth_member";
+  private readonly organizationKey = "auth_organization";
 
   constructor() {
     this.initializeFromStorage();
@@ -44,11 +44,11 @@ class MultiTenantAuthService {
     try {
       const storedMember = localStorage.getItem(this.memberKey);
       const storedOrganization = localStorage.getItem(this.organizationKey);
-      
+
       if (storedMember && storedOrganization) {
         const member = JSON.parse(storedMember) as Member;
         const organization = JSON.parse(storedOrganization) as Organization;
-        
+
         // 验证会话是否仍然有效
         if (this.isValidSession(member, organization)) {
           this.currentSession = {
@@ -61,7 +61,7 @@ class MultiTenantAuthService {
         }
       }
     } catch (error) {
-      console.error('Failed to initialize auth session:', error);
+      console.error("Failed to initialize auth session:", error);
       this.clearStoredSession();
     }
   }
@@ -71,8 +71,10 @@ class MultiTenantAuthService {
    */
   private isValidSession(member: Member, organization: Organization): boolean {
     // 检查成员和组织状态
-    return canMemberLogin(member) && 
-           organization.accountStatus === AccountStatus.ACTIVE;
+    return (
+      canMemberLogin(member) &&
+      organization.accountStatus === AccountStatus.ACTIVE
+    );
   }
 
   /**
@@ -81,13 +83,19 @@ class MultiTenantAuthService {
   private saveSessionToStorage(session: AuthSession): void {
     try {
       localStorage.setItem(this.memberKey, JSON.stringify(session.member));
-      localStorage.setItem(this.organizationKey, JSON.stringify(session.organization));
-      localStorage.setItem(this.sessionKey, JSON.stringify({
-        loginTime: session.loginTime,
-        expiresAt: session.expiresAt,
-      }));
+      localStorage.setItem(
+        this.organizationKey,
+        JSON.stringify(session.organization),
+      );
+      localStorage.setItem(
+        this.sessionKey,
+        JSON.stringify({
+          loginTime: session.loginTime,
+          expiresAt: session.expiresAt,
+        }),
+      );
     } catch (error) {
-      console.error('Failed to save auth session:', error);
+      console.error("Failed to save auth session:", error);
     }
   }
 
@@ -105,49 +113,53 @@ class MultiTenantAuthService {
    */
   async login(credentials: LoginCredentials): Promise<LoginResult> {
     try {
-      const response = await authApi.login(credentials.email, credentials.password);
-      
+      const response = await authApi.login(
+        credentials.email,
+        credentials.password,
+      );
+
       if (response.success) {
         const { member, organization } = response.data;
-        
+
         // 检查登录权限
         if (!canMemberLogin(member)) {
-          const reason = organization.accountStatus === AccountStatus.SUSPENDED 
-            ? '组织账户已被暂停，请联系平台管理员' 
-            : '您的账户已被禁用，请联系组织管理员';
-          
+          const reason =
+            organization.accountStatus === AccountStatus.SUSPENDED
+              ? "组织账户已被暂停，请联系平台管理员"
+              : "您的账户已被禁用，请联系组织管理员";
+
           return {
             success: false,
             message: reason,
           };
         }
-        
+
         // 创建会话
         const session: AuthSession = {
           member,
           organization,
           loginTime: new Date().toISOString(),
         };
-        
+
         this.currentSession = session;
         this.saveSessionToStorage(session);
-        
+
         return {
           success: true,
-          message: '登录成功',
+          message: "登录成功",
           session,
         };
       } else {
         return {
           success: false,
-          message: response.message || '登录失败',
+          message: response.message || "登录失败",
         };
       }
     } catch (error) {
-      console.error('Login failed:', error);
+      console.error("Login failed:", error);
       return {
         success: false,
-        message: '网络错误，请稍后重试',
+        message: "网络错误，请稍后重试",
       };
     }
   }
@@ -199,14 +211,14 @@ class MultiTenantAuthService {
    * 检查用户是否是管理员
    */
   isAdmin(): boolean {
-    return this.hasRole('ADMIN');
+    return this.hasRole("ADMIN");
   }
 
   /**
    * 检查用户是否是成员
    */
   isMember(): boolean {
-    return this.hasRole('MEMBER');
+    return this.hasRole("MEMBER");
   }
 
   /**
@@ -215,10 +227,12 @@ class MultiTenantAuthService {
   canAccessAdminFeatures(): boolean {
     const member = this.getCurrentMember();
     const organization = this.getCurrentOrganization();
-    
-    return member?.role === 'ADMIN' && 
-           member?.accountStatus === AccountStatus.ACTIVE &&
-           organization?.accountStatus === AccountStatus.ACTIVE;
+
+    return (
+      member?.role === "ADMIN" &&
+      member?.accountStatus === AccountStatus.ACTIVE &&
+      organization?.accountStatus === AccountStatus.ACTIVE
+    );
   }
 
   /**
@@ -263,7 +277,7 @@ class MultiTenantAuthService {
       // 目前暂时保持现有会话
       return true;
     } catch (error) {
-      console.error('Failed to refresh session:', error);
+      console.error("Failed to refresh session:", error);
       this.logout();
       return false;
     }
@@ -293,7 +307,7 @@ class MultiTenantAuthService {
    */
   getUserDisplayName(): string {
     const member = this.getCurrentMember();
-    return member?.name || member?.email || '未知用户';
+    return member?.name || member?.email || "未知用户";
   }
 
   /**
@@ -301,7 +315,7 @@ class MultiTenantAuthService {
    */
   getOrganizationDisplayName(): string {
     const organization = this.getCurrentOrganization();
-    return organization?.name || '未知组织';
+    return organization?.name || "未知组织";
   }
 
   /**
@@ -310,28 +324,30 @@ class MultiTenantAuthService {
   hasPermission(permission: string): boolean {
     const member = this.getCurrentMember();
     const organization = this.getCurrentOrganization();
-    
+
     if (!member || !organization) {
       return false;
     }
 
     // 基础权限检查
-    if (member.accountStatus !== AccountStatus.ACTIVE ||
-        organization.accountStatus !== AccountStatus.ACTIVE) {
+    if (
+      member.accountStatus !== AccountStatus.ACTIVE ||
+      organization.accountStatus !== AccountStatus.ACTIVE
+    ) {
       return false;
     }
 
     switch (permission) {
-      case 'read:members':
-        return member.role === 'ADMIN' || member.role === 'MEMBER';
-      case 'write:members':
-        return member.role === 'ADMIN';
-      case 'admin:organization':
-        return member.role === 'ADMIN';
-      case 'read:analytics':
-        return member.role === 'ADMIN' || member.role === 'MEMBER';
-      case 'write:settings':
-        return member.role === 'ADMIN';
+      case "read:members":
+        return member.role === "ADMIN" || member.role === "MEMBER";
+      case "write:members":
+        return member.role === "ADMIN";
+      case "admin:organization":
+        return member.role === "ADMIN";
+      case "read:analytics":
+        return member.role === "ADMIN" || member.role === "MEMBER";
+      case "write:settings":
+        return member.role === "ADMIN";
       default:
         return false;
     }

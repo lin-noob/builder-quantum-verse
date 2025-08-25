@@ -19,7 +19,11 @@ import {
   Calendar,
   Shield,
 } from "lucide-react";
-import { Member, MemberRole, AccountStatus } from "../../../shared/organizationData";
+import {
+  Member,
+  MemberRole,
+  AccountStatus,
+} from "../../../shared/organizationData";
 
 interface MemberCardProps {
   member: Member;
@@ -58,9 +62,17 @@ const MemberCard = ({
 
   const getStatusBadge = (status: AccountStatus) => {
     if (status === AccountStatus.ACTIVE) {
-      return <Badge variant="default" className="bg-green-100 text-green-800">活跃</Badge>;
+      return (
+        <Badge variant="default" className="bg-green-100 text-green-800">
+          活跃
+        </Badge>
+      );
     } else {
-      return <Badge variant="secondary" className="bg-red-100 text-red-800">已禁用</Badge>;
+      return (
+        <Badge variant="secondary" className="bg-red-100 text-red-800">
+          已禁用
+        </Badge>
+      );
     }
   };
 
@@ -71,7 +83,7 @@ const MemberCard = ({
       month: "short",
       day: "numeric",
       hour: "2-digit",
-      minute: "2-digit"
+      minute: "2-digit",
     });
   };
 
@@ -81,7 +93,11 @@ const MemberCard = ({
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
             {member.avatar ? (
-              <img src={member.avatar} alt={member.name} className="w-10 h-10 rounded-full" />
+              <img
+                src={member.avatar}
+                alt={member.name}
+                className="w-10 h-10 rounded-full"
+              />
             ) : (
               <User className="h-5 w-5 text-gray-400" />
             )}
@@ -141,7 +157,11 @@ const MemberCard = ({
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
               {member.avatar ? (
-                <img src={member.avatar} alt={member.name} className="w-12 h-12 rounded-full" />
+                <img
+                  src={member.avatar}
+                  alt={member.name}
+                  className="w-12 h-12 rounded-full"
+                />
               ) : (
                 <User className="h-6 w-6 text-gray-400" />
               )}
@@ -202,14 +222,14 @@ const MemberCard = ({
             <Mail className="h-4 w-4" />
             <span>{member.email}</span>
           </div>
-          
+
           {member.phone && (
             <div className="flex items-center gap-2 text-sm text-gray-600">
               <Phone className="h-4 w-4" />
               <span>{member.phone}</span>
             </div>
           )}
-          
+
           <div className="flex items-center gap-2 text-sm text-gray-600">
             <Calendar className="h-4 w-4" />
             <span>最后登录: {formatDate(member.lastLoginAt)}</span>

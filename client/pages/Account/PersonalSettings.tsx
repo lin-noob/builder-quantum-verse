@@ -41,7 +41,7 @@ const mockCurrentMember: Member = {
   lastLoginAt: "2024-02-01T09:30:00Z",
   updatedAt: "2024-01-20T15:30:00Z",
   avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=admin",
-  phone: "+86 138-0000-0001"
+  phone: "+86 138-0000-0001",
 };
 
 const PersonalSettings = () => {
@@ -83,21 +83,21 @@ const PersonalSettings = () => {
 
     try {
       setLoading(true);
-      
+
       const updateRequest: UpdateMemberRequest = {
         memberId: member.memberId,
         name: profileForm.name.trim(),
         phone: profileForm.phone.trim() || undefined,
       };
-      
+
       const response = await memberApi.updateMember(updateRequest);
-      
+
       if (response.success) {
         toast({
           title: "更新成功",
           description: "个人信息已更新",
         });
-        
+
         setMember(response.data);
       } else {
         toast({
@@ -120,7 +120,11 @@ const PersonalSettings = () => {
 
   const handleChangePassword = async () => {
     // 表单验证
-    if (!passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword) {
+    if (
+      !passwordForm.currentPassword ||
+      !passwordForm.newPassword ||
+      !passwordForm.confirmPassword
+    ) {
       toast({
         title: "验证失败",
         description: "请填写完整的密码信息",
@@ -158,20 +162,23 @@ const PersonalSettings = () => {
 
     try {
       setLoading(true);
-      
+
       const changeRequest: ChangePasswordRequest = {
         currentPassword: passwordForm.currentPassword,
         newPassword: passwordForm.newPassword,
       };
-      
-      const response = await memberApi.changePassword(member.memberId, changeRequest);
-      
+
+      const response = await memberApi.changePassword(
+        member.memberId,
+        changeRequest,
+      );
+
       if (response.success) {
         toast({
           title: "修改成功",
           description: "密��已更新，请妥善保管新密码",
         });
-        
+
         setPasswordForm({
           currentPassword: "",
           newPassword: "",
@@ -216,9 +223,17 @@ const PersonalSettings = () => {
 
   const getStatusBadge = (status: AccountStatus) => {
     if (status === AccountStatus.ACTIVE) {
-      return <Badge variant="default" className="bg-green-100 text-green-800">活跃</Badge>;
+      return (
+        <Badge variant="default" className="bg-green-100 text-green-800">
+          活跃
+        </Badge>
+      );
     } else {
-      return <Badge variant="secondary" className="bg-red-100 text-red-800">已禁用</Badge>;
+      return (
+        <Badge variant="secondary" className="bg-red-100 text-red-800">
+          已禁用
+        </Badge>
+      );
     }
   };
 
@@ -229,7 +244,7 @@ const PersonalSettings = () => {
       month: "long",
       day: "numeric",
       hour: "2-digit",
-      minute: "2-digit"
+      minute: "2-digit",
     });
   };
 
@@ -262,9 +277,9 @@ const PersonalSettings = () => {
               <div className="flex items-center gap-6">
                 <div className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center">
                   {member.avatar ? (
-                    <img 
-                      src={member.avatar} 
-                      alt={member.name} 
+                    <img
+                      src={member.avatar}
+                      alt={member.name}
                       className="w-20 h-20 rounded-full object-cover"
                     />
                   ) : (
@@ -289,21 +304,31 @@ const PersonalSettings = () => {
                   <Input
                     id="name"
                     value={profileForm.name}
-                    onChange={(e) => setProfileForm(prev => ({ ...prev, name: e.target.value }))}
+                    onChange={(e) =>
+                      setProfileForm((prev) => ({
+                        ...prev,
+                        name: e.target.value,
+                      }))
+                    }
                     placeholder="请输入您的姓名"
                   />
                 </div>
-                
+
                 <div>
                   <Label htmlFor="phone">电话号码</Label>
                   <Input
                     id="phone"
                     value={profileForm.phone}
-                    onChange={(e) => setProfileForm(prev => ({ ...prev, phone: e.target.value }))}
+                    onChange={(e) =>
+                      setProfileForm((prev) => ({
+                        ...prev,
+                        phone: e.target.value,
+                      }))
+                    }
                     placeholder="请输入电话号码"
                   />
                 </div>
-                
+
                 <div>
                   <Label htmlFor="email">邮箱地址</Label>
                   <Input
@@ -316,12 +341,10 @@ const PersonalSettings = () => {
                     邮箱地址不可修改，作为登录账号使用
                   </p>
                 </div>
-                
+
                 <div>
                   <Label>角色权限</Label>
-                  <div className="mt-2">
-                    {getRoleBadge(member.role)}
-                  </div>
+                  <div className="mt-2">{getRoleBadge(member.role)}</div>
                   <p className="text-xs text-gray-500 mt-1">
                     角色权限由组织管理员分配
                   </p>
@@ -329,9 +352,13 @@ const PersonalSettings = () => {
               </div>
 
               <div className="flex justify-end">
-                <Button 
-                  onClick={handleUpdateProfile} 
-                  disabled={loading || (profileForm.name === member.name && profileForm.phone === (member.phone || ""))}
+                <Button
+                  onClick={handleUpdateProfile}
+                  disabled={
+                    loading ||
+                    (profileForm.name === member.name &&
+                      profileForm.phone === (member.phone || ""))
+                  }
                   className="flex items-center gap-2"
                 >
                   <Save className="h-4 w-4" />
@@ -374,7 +401,12 @@ const PersonalSettings = () => {
                       id="current-password"
                       type={showPasswords.current ? "text" : "password"}
                       value={passwordForm.currentPassword}
-                      onChange={(e) => setPasswordForm(prev => ({ ...prev, currentPassword: e.target.value }))}
+                      onChange={(e) =>
+                        setPasswordForm((prev) => ({
+                          ...prev,
+                          currentPassword: e.target.value,
+                        }))
+                      }
                       placeholder="请输入当前密码"
                     />
                     <Button
@@ -382,9 +414,18 @@ const PersonalSettings = () => {
                       variant="ghost"
                       size="sm"
                       className="absolute right-0 top-0 h-full px-3"
-                      onClick={() => setShowPasswords(prev => ({ ...prev, current: !prev.current }))}
+                      onClick={() =>
+                        setShowPasswords((prev) => ({
+                          ...prev,
+                          current: !prev.current,
+                        }))
+                      }
                     >
-                      {showPasswords.current ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      {showPasswords.current ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
                     </Button>
                   </div>
                 </div>
@@ -396,7 +437,12 @@ const PersonalSettings = () => {
                       id="new-password"
                       type={showPasswords.new ? "text" : "password"}
                       value={passwordForm.newPassword}
-                      onChange={(e) => setPasswordForm(prev => ({ ...prev, newPassword: e.target.value }))}
+                      onChange={(e) =>
+                        setPasswordForm((prev) => ({
+                          ...prev,
+                          newPassword: e.target.value,
+                        }))
+                      }
                       placeholder="请输入新密码"
                     />
                     <Button
@@ -404,9 +450,18 @@ const PersonalSettings = () => {
                       variant="ghost"
                       size="sm"
                       className="absolute right-0 top-0 h-full px-3"
-                      onClick={() => setShowPasswords(prev => ({ ...prev, new: !prev.new }))}
+                      onClick={() =>
+                        setShowPasswords((prev) => ({
+                          ...prev,
+                          new: !prev.new,
+                        }))
+                      }
                     >
-                      {showPasswords.new ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      {showPasswords.new ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
                     </Button>
                   </div>
                 </div>
@@ -418,7 +473,12 @@ const PersonalSettings = () => {
                       id="confirm-password"
                       type={showPasswords.confirm ? "text" : "password"}
                       value={passwordForm.confirmPassword}
-                      onChange={(e) => setPasswordForm(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                      onChange={(e) =>
+                        setPasswordForm((prev) => ({
+                          ...prev,
+                          confirmPassword: e.target.value,
+                        }))
+                      }
                       placeholder="请再次输入新密码"
                     />
                     <Button
@@ -426,17 +486,26 @@ const PersonalSettings = () => {
                       variant="ghost"
                       size="sm"
                       className="absolute right-0 top-0 h-full px-3"
-                      onClick={() => setShowPasswords(prev => ({ ...prev, confirm: !prev.confirm }))}
+                      onClick={() =>
+                        setShowPasswords((prev) => ({
+                          ...prev,
+                          confirm: !prev.confirm,
+                        }))
+                      }
                     >
-                      {showPasswords.confirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      {showPasswords.confirm ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
                     </Button>
                   </div>
                 </div>
               </div>
 
               <div className="flex justify-end">
-                <Button 
-                  onClick={handleChangePassword} 
+                <Button
+                  onClick={handleChangePassword}
                   disabled={loading}
                   className="flex items-center gap-2"
                 >
@@ -460,62 +529,80 @@ const PersonalSettings = () => {
             <CardContent className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <Label className="text-sm font-medium text-gray-700">成员ID</Label>
+                  <Label className="text-sm font-medium text-gray-700">
+                    成员ID
+                  </Label>
                   <div className="mt-1 p-2 bg-gray-50 border rounded text-sm font-mono">
                     {member.memberId}
                   </div>
                 </div>
-                
+
                 <div>
-                  <Label className="text-sm font-medium text-gray-700">组织ID</Label>
+                  <Label className="text-sm font-medium text-gray-700">
+                    组织ID
+                  </Label>
                   <div className="mt-1 p-2 bg-gray-50 border rounded text-sm font-mono">
                     {member.organizationId}
                   </div>
                 </div>
-                
+
                 <div>
-                  <Label className="text-sm font-medium text-gray-700">登录邮箱</Label>
+                  <Label className="text-sm font-medium text-gray-700">
+                    登录邮箱
+                  </Label>
                   <div className="mt-1 flex items-center gap-2">
                     <Mail className="h-4 w-4 text-gray-400" />
                     <span className="text-sm">{member.email}</span>
                   </div>
                 </div>
-                
+
                 <div>
-                  <Label className="text-sm font-medium text-gray-700">联系电话</Label>
+                  <Label className="text-sm font-medium text-gray-700">
+                    联系电话
+                  </Label>
                   <div className="mt-1 flex items-center gap-2">
                     <Phone className="h-4 w-4 text-gray-400" />
                     <span className="text-sm">{member.phone || "未设置"}</span>
                   </div>
                 </div>
-                
+
                 <div>
-                  <Label className="text-sm font-medium text-gray-700">账户状态</Label>
+                  <Label className="text-sm font-medium text-gray-700">
+                    账户状态
+                  </Label>
                   <div className="mt-1">
                     {getStatusBadge(member.accountStatus)}
                   </div>
                 </div>
-                
+
                 <div>
-                  <Label className="text-sm font-medium text-gray-700">角色权限</Label>
-                  <div className="mt-1">
-                    {getRoleBadge(member.role)}
-                  </div>
+                  <Label className="text-sm font-medium text-gray-700">
+                    角色权限
+                  </Label>
+                  <div className="mt-1">{getRoleBadge(member.role)}</div>
                 </div>
-                
+
                 <div>
-                  <Label className="text-sm font-medium text-gray-700">创建时间</Label>
+                  <Label className="text-sm font-medium text-gray-700">
+                    创建时间
+                  </Label>
                   <div className="mt-1 flex items-center gap-2">
                     <Calendar className="h-4 w-4 text-gray-400" />
-                    <span className="text-sm">{formatDate(member.createdAt)}</span>
+                    <span className="text-sm">
+                      {formatDate(member.createdAt)}
+                    </span>
                   </div>
                 </div>
-                
+
                 <div>
-                  <Label className="text-sm font-medium text-gray-700">最后登录</Label>
+                  <Label className="text-sm font-medium text-gray-700">
+                    最后登录
+                  </Label>
                   <div className="mt-1 flex items-center gap-2">
                     <Calendar className="h-4 w-4 text-gray-400" />
-                    <span className="text-sm">{formatDate(member.lastLoginAt)}</span>
+                    <span className="text-sm">
+                      {formatDate(member.lastLoginAt)}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -523,7 +610,9 @@ const PersonalSettings = () => {
               <Separator />
 
               <div className="text-sm text-gray-600">
-                <p className="mb-2"><strong>账户说明：</strong></p>
+                <p className="mb-2">
+                  <strong>账户说明：</strong>
+                </p>
                 <ul className="space-y-1 list-disc list-inside text-xs">
                   <li>成员ID和组织ID是系统分配的唯一标识符，不可修改</li>
                   <li>登录邮箱作为账户的唯一标识，不可修改</li>

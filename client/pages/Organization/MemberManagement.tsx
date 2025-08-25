@@ -67,7 +67,7 @@ import {
   AccountStatus,
   InviteMemberRequest,
   UpdateMemberRequest,
-  MemberListQuery
+  MemberListQuery,
 } from "../../../shared/organizationData";
 import { memberApi } from "../../../shared/organizationApi";
 
@@ -76,29 +76,33 @@ const MemberManagement = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedRole, setSelectedRole] = useState<MemberRole | "ALL">("ALL");
-  const [selectedStatus, setSelectedStatus] = useState<AccountStatus | "ALL">("ALL");
+  const [selectedStatus, setSelectedStatus] = useState<AccountStatus | "ALL">(
+    "ALL",
+  );
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
-  
+
   // 弹窗状态
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [statusConfirmOpen, setStatusConfirmOpen] = useState(false);
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
-  
+
   // 表单状态
   const [inviteForm, setInviteForm] = useState<InviteMemberRequest>({
     email: "",
     role: MemberRole.MEMBER,
-    password: ""
+    password: "",
   });
   const [editingMember, setEditingMember] = useState<Member | null>(null);
-  const [statusChangeMember, setStatusChangeMember] = useState<Member | null>(null);
+  const [statusChangeMember, setStatusChangeMember] = useState<Member | null>(
+    null,
+  );
   const [generatedPassword, setGeneratedPassword] = useState<string>("");
-  
+
   const { toast } = useToast();
-  
+
   // 当前组织ID（实际应用中应该从认证上下文获取）
   const currentOrganizationId = "org_demo_001";
 
@@ -109,15 +113,15 @@ const MemberManagement = () => {
   const loadMembers = async () => {
     try {
       setLoading(true);
-      
+
       const query: MemberListQuery = {
         page: currentPage,
         limit: 10,
         search: searchQuery,
         role: selectedRole === "ALL" ? undefined : selectedRole,
-        status: selectedStatus === "ALL" ? undefined : selectedStatus
+        status: selectedStatus === "ALL" ? undefined : selectedStatus,
       };
-      
+
       const response = await memberApi.getMembers(currentOrganizationId, query);
       setMembers(response.data);
       setTotalPages(response.totalPages);
@@ -145,14 +149,17 @@ const MemberManagement = () => {
     }
 
     try {
-      const response = await memberApi.inviteMember(currentOrganizationId, inviteForm);
-      
+      const response = await memberApi.inviteMember(
+        currentOrganizationId,
+        inviteForm,
+      );
+
       if (response.success) {
         toast({
           title: "邀请成功",
           description: `新成员已创建，初始密码已生成`,
         });
-        
+
         setGeneratedPassword(response.data.initialPassword);
         setPasswordDialogOpen(true);
         setInviteDialogOpen(false);
@@ -185,15 +192,15 @@ const MemberManagement = () => {
         role: editingMember.role,
         phone: editingMember.phone,
       };
-      
+
       const response = await memberApi.updateMember(updateRequest);
-      
+
       if (response.success) {
         toast({
           title: "更新成功",
           description: "成员信息已更新",
         });
-        
+
         setEditDialogOpen(false);
         setEditingMember(null);
         loadMembers();
@@ -218,14 +225,16 @@ const MemberManagement = () => {
     if (!statusChangeMember) return;
 
     try {
-      const response = await memberApi.toggleMemberStatus(statusChangeMember.memberId);
-      
+      const response = await memberApi.toggleMemberStatus(
+        statusChangeMember.memberId,
+      );
+
       if (response.success) {
         toast({
           title: "状态更新成功",
           description: response.message,
         });
-        
+
         setStatusConfirmOpen(false);
         setStatusChangeMember(null);
         loadMembers();
@@ -247,10 +256,10 @@ const MemberManagement = () => {
   };
 
   const openEditDialog = (member: Member) => {
-    console.log('Opening edit dialog for member:', member);
+    console.log("Opening edit dialog for member:", member);
     setEditingMember({ ...member });
     setEditDialogOpen(true);
-    console.log('Edit dialog state set to true');
+    console.log("Edit dialog state set to true");
   };
 
   const openStatusConfirm = (member: Member) => {
@@ -268,15 +277,27 @@ const MemberManagement = () => {
 
   const getStatusBadge = (status: AccountStatus) => {
     if (status === AccountStatus.ACTIVE) {
-      return <Badge variant="default" className="bg-green-100 text-green-800">活跃</Badge>;
+      return (
+        <Badge variant="default" className="bg-green-100 text-green-800">
+          活跃
+        </Badge>
+      );
     } else {
-      return <Badge variant="secondary" className="bg-red-100 text-red-800">已禁用</Badge>;
+      return (
+        <Badge variant="secondary" className="bg-red-100 text-red-800">
+          已禁用
+        </Badge>
+      );
     }
   };
 
   const getRoleBadge = (role: MemberRole) => {
     if (role === MemberRole.ADMIN) {
-      return <Badge variant="default" className="bg-blue-100 text-blue-800">管理员</Badge>;
+      return (
+        <Badge variant="default" className="bg-blue-100 text-blue-800">
+          管理员
+        </Badge>
+      );
     } else {
       return <Badge variant="outline">成员</Badge>;
     }
@@ -289,7 +310,7 @@ const MemberManagement = () => {
       month: "short",
       day: "numeric",
       hour: "2-digit",
-      minute: "2-digit"
+      minute: "2-digit",
     });
   };
 
@@ -299,7 +320,7 @@ const MemberManagement = () => {
         <div className="animate-pulse">
           <div className="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
           <div className="space-y-3">
-            {[1, 2, 3].map(i => (
+            {[1, 2, 3].map((i) => (
               <div key={i} className="h-16 bg-gray-100 rounded"></div>
             ))}
           </div>
@@ -312,7 +333,8 @@ const MemberManagement = () => {
     <div className="p-6 space-y-6">
       {/* 临时调试信息 */}
       <div className="bg-gray-100 p-2 text-xs">
-        调试: editDialogOpen={editDialogOpen.toString()}, editingMember={editingMember?.name || 'null'}
+        调试: editDialogOpen={editDialogOpen.toString()}, editingMember=
+        {editingMember?.name || "null"}
       </div>
 
       {/* 搜索和过滤 */}
@@ -330,7 +352,12 @@ const MemberManagement = () => {
                   className="pl-10"
                 />
               </div>
-              <Select value={selectedRole} onValueChange={(value) => setSelectedRole(value as MemberRole | "ALL")}>
+              <Select
+                value={selectedRole}
+                onValueChange={(value) =>
+                  setSelectedRole(value as MemberRole | "ALL")
+                }
+              >
                 <SelectTrigger className="w-full sm:w-[150px]">
                   <SelectValue placeholder="角色筛选" />
                 </SelectTrigger>
@@ -340,7 +367,12 @@ const MemberManagement = () => {
                   <SelectItem value={MemberRole.MEMBER}>成员</SelectItem>
                 </SelectContent>
               </Select>
-              <Select value={selectedStatus} onValueChange={(value) => setSelectedStatus(value as AccountStatus | "ALL")}>
+              <Select
+                value={selectedStatus}
+                onValueChange={(value) =>
+                  setSelectedStatus(value as AccountStatus | "ALL")
+                }
+              >
                 <SelectTrigger className="w-full sm:w-[150px]">
                   <SelectValue placeholder="状态筛选" />
                 </SelectTrigger>
@@ -376,7 +408,10 @@ const MemberManagement = () => {
 
             {/* 邀请按钮在左侧 */}
             <div className="flex justify-start">
-              <Button onClick={() => setInviteDialogOpen(true)} className="flex items-center gap-2">
+              <Button
+                onClick={() => setInviteDialogOpen(true)}
+                className="flex items-center gap-2"
+              >
                 <Plus className="h-4 w-4" />
                 邀请新成员
               </Button>
@@ -401,11 +436,15 @@ const MemberManagement = () => {
                     <TableCell>
                       <div>
                         <div className="font-medium">{member.name}</div>
-                        <div className="text-sm text-gray-500">{member.email}</div>
+                        <div className="text-sm text-gray-500">
+                          {member.email}
+                        </div>
                       </div>
                     </TableCell>
                     <TableCell>{getRoleBadge(member.role)}</TableCell>
-                    <TableCell>{getStatusBadge(member.accountStatus)}</TableCell>
+                    <TableCell>
+                      {getStatusBadge(member.accountStatus)}
+                    </TableCell>
                     <TableCell className="text-sm text-gray-500">
                       {formatDate(member.lastLoginAt)}
                     </TableCell>
@@ -417,20 +456,24 @@ const MemberManagement = () => {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            openEditDialog(member);
-                          }}>
+                          <DropdownMenuItem
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              openEditDialog(member);
+                            }}
+                          >
                             <Edit className="mr-2 h-4 w-4" />
                             编辑信息
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            openStatusConfirm(member);
-                          }}>
+                          <DropdownMenuItem
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              openStatusConfirm(member);
+                            }}
+                          >
                             {member.accountStatus === AccountStatus.ACTIVE ? (
                               <>
                                 <UserX className="mr-2 h-4 w-4" />
@@ -458,7 +501,7 @@ const MemberManagement = () => {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
                 disabled={currentPage === 1}
               >
                 上一页
@@ -469,7 +512,9 @@ const MemberManagement = () => {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+                }
                 disabled={currentPage === totalPages}
               >
                 下一页
@@ -496,14 +541,21 @@ const MemberManagement = () => {
                 type="email"
                 placeholder="请输入成员邮箱"
                 value={inviteForm.email}
-                onChange={(e) => setInviteForm(prev => ({ ...prev, email: e.target.value }))}
+                onChange={(e) =>
+                  setInviteForm((prev) => ({ ...prev, email: e.target.value }))
+                }
               />
             </div>
             <div>
               <Label htmlFor="role">角色</Label>
               <Select
                 value={inviteForm.role}
-                onValueChange={(value) => setInviteForm(prev => ({ ...prev, role: value as MemberRole }))}
+                onValueChange={(value) =>
+                  setInviteForm((prev) => ({
+                    ...prev,
+                    role: value as MemberRole,
+                  }))
+                }
               >
                 <SelectTrigger>
                   <SelectValue placeholder="选择角色" />
@@ -516,30 +568,32 @@ const MemberManagement = () => {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setInviteDialogOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setInviteDialogOpen(false)}
+            >
               取消
             </Button>
-            <Button onClick={handleInviteMember}>
-              发送邀请
-            </Button>
+            <Button onClick={handleInviteMember}>发送邀请</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
       {/* 编辑成员弹窗 */}
-      <Dialog open={editDialogOpen} onOpenChange={(open) => {
-        console.log('Dialog onOpenChange:', open);
-        setEditDialogOpen(open);
-        if (!open) {
-          setEditingMember(null);
-        }
-      }}>
+      <Dialog
+        open={editDialogOpen}
+        onOpenChange={(open) => {
+          console.log("Dialog onOpenChange:", open);
+          setEditDialogOpen(open);
+          if (!open) {
+            setEditingMember(null);
+          }
+        }}
+      >
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>编辑成员信息</DialogTitle>
-            <DialogDescription>
-              修改成员的基本信息和角色权限
-            </DialogDescription>
+            <DialogDescription>修改成员的基本信息和角色权限</DialogDescription>
           </DialogHeader>
           {editingMember && (
             <div className="space-y-4">
@@ -548,7 +602,11 @@ const MemberManagement = () => {
                 <Input
                   id="edit-name"
                   value={editingMember.name}
-                  onChange={(e) => setEditingMember(prev => prev ? { ...prev, name: e.target.value } : null)}
+                  onChange={(e) =>
+                    setEditingMember((prev) =>
+                      prev ? { ...prev, name: e.target.value } : null,
+                    )
+                  }
                 />
               </div>
               <div>
@@ -556,7 +614,11 @@ const MemberManagement = () => {
                 <Input
                   id="edit-phone"
                   value={editingMember.phone || ""}
-                  onChange={(e) => setEditingMember(prev => prev ? { ...prev, phone: e.target.value } : null)}
+                  onChange={(e) =>
+                    setEditingMember((prev) =>
+                      prev ? { ...prev, phone: e.target.value } : null,
+                    )
+                  }
                   placeholder="请输入电话号码"
                 />
               </div>
@@ -564,7 +626,11 @@ const MemberManagement = () => {
                 <Label htmlFor="edit-role">角色</Label>
                 <Select
                   value={editingMember.role}
-                  onValueChange={(value) => setEditingMember(prev => prev ? { ...prev, role: value as MemberRole } : null)}
+                  onValueChange={(value) =>
+                    setEditingMember((prev) =>
+                      prev ? { ...prev, role: value as MemberRole } : null,
+                    )
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -582,16 +648,17 @@ const MemberManagement = () => {
             </div>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={() => {
-              console.log('Cancel button clicked');
-              setEditDialogOpen(false);
-              setEditingMember(null);
-            }}>
+            <Button
+              variant="outline"
+              onClick={() => {
+                console.log("Cancel button clicked");
+                setEditDialogOpen(false);
+                setEditingMember(null);
+              }}
+            >
               取消
             </Button>
-            <Button onClick={handleUpdateMember}>
-              保存更改
-            </Button>
+            <Button onClick={handleUpdateMember}>保存更改</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -601,7 +668,10 @@ const MemberManagement = () => {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {statusChangeMember?.accountStatus === AccountStatus.ACTIVE ? "禁用" : "启用"}成员账户
+              {statusChangeMember?.accountStatus === AccountStatus.ACTIVE
+                ? "禁用"
+                : "启用"}
+              成员账户
             </AlertDialogTitle>
             <AlertDialogDescription>
               {statusChangeMember?.accountStatus === AccountStatus.ACTIVE ? (
@@ -620,7 +690,9 @@ const MemberManagement = () => {
           <AlertDialogFooter>
             <AlertDialogCancel>取消</AlertDialogCancel>
             <AlertDialogAction onClick={handleToggleStatus}>
-              {statusChangeMember?.accountStatus === AccountStatus.ACTIVE ? "禁用" : "启用"}
+              {statusChangeMember?.accountStatus === AccountStatus.ACTIVE
+                ? "禁用"
+                : "启用"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -648,7 +720,8 @@ const MemberManagement = () => {
               </div>
             </div>
             <div className="text-sm text-amber-600 bg-amber-50 p-3 rounded">
-              <strong>重要提醒：</strong>请务必将此密码安全地告知新成员，并建议其首次登录后立即修改密码。
+              <strong>重要提醒：</strong>
+              请务必将此密码安全地告知新成员，并建议其首次登录后立即修改密码。
             </div>
           </div>
           <DialogFooter>

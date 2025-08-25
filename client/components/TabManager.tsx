@@ -109,7 +109,10 @@ export default function TabManager() {
 
       // 如果没有预定义标题，尝试从路径生成友好的标题
       if (!title) {
-        if (currentPath.includes("/users/") || currentPath.includes("/users2/")) {
+        if (
+          currentPath.includes("/users/") ||
+          currentPath.includes("/users2/")
+        ) {
           title = "用户详情";
         } else if (currentPath.includes("/response-actions/")) {
           if (currentPath.includes("/create")) {
@@ -131,16 +134,18 @@ export default function TabManager() {
           // 处理AI营销场景的动态路径
           const scenarioId = currentPath.split("/").pop();
           const scenarioNames = {
-            "add_to_cart": "加入购物车",
-            "view_product": "查看商品",
-            "user_signup": "用户注册",
-            "user_login": "用户登录",
-            "start_checkout": "开始结账",
-            "purchase": "完成购买",
-            "search": "执行搜索",
-            "exit_intent": "离开意图"
+            add_to_cart: "加入购物车",
+            view_product: "查看商品",
+            user_signup: "用户注册",
+            user_login: "用户登录",
+            start_checkout: "开始结账",
+            purchase: "完成购买",
+            search: "执行搜索",
+            exit_intent: "离开意图",
           };
-          title = scenarioNames[scenarioId as keyof typeof scenarioNames] || "AI营销场景";
+          title =
+            scenarioNames[scenarioId as keyof typeof scenarioNames] ||
+            "AI营销场景";
         } else if (currentPath.includes("/response-actions")) {
           title = "响应动作库";
         } else if (currentPath.includes("/ai-marketing-strategies")) {
@@ -154,14 +159,16 @@ export default function TabManager() {
 
           // 简单的英文到中文映射
           const englishToChinese = {
-            "scenarios": "场景列表",
-            "monitoring": "监控",
-            "analytics": "分析",
-            "strategies": "策略",
-            "dashboard": "仪表盘"
+            scenarios: "场景列表",
+            monitoring: "监控",
+            analytics: "分析",
+            strategies: "策略",
+            dashboard: "仪表盘",
           };
 
-          title = englishToChinese[lastPart as keyof typeof englishToChinese] || lastPart;
+          title =
+            englishToChinese[lastPart as keyof typeof englishToChinese] ||
+            lastPart;
         }
       }
 

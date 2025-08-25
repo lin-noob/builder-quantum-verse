@@ -1,13 +1,13 @@
-import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
-import AdminLayout from './components/AdminLayout';
-import AdminDashboard from './pages/AdminDashboard';
-import OrganizationManagement from './pages/OrganizationManagement';
-import SystemConfig from './pages/SystemConfig';
-import AIModelManagement from './pages/AIModelManagement';
-import ScenarioConfiguration from './pages/ScenarioConfiguration';
-import SecurityPermissions from './pages/SecurityPermissions';
-import UserDetailsAnalytics from './pages/UserDetailsAnalytics';
+import React from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
+import AdminLayout from "./components/AdminLayout";
+import AdminDashboard from "./pages/AdminDashboard";
+import OrganizationManagement from "./pages/OrganizationManagement";
+import SystemConfig from "./pages/SystemConfig";
+import AIModelManagement from "./pages/AIModelManagement";
+import ScenarioConfiguration from "./pages/ScenarioConfiguration";
+import SecurityPermissions from "./pages/SecurityPermissions";
+import UserDetailsAnalytics from "./pages/UserDetailsAnalytics";
 
 // 临时占位页面组件
 const PlaceholderPage = ({ title }: { title: string }) => (
@@ -30,7 +30,10 @@ export default function AdminApp() {
         <Route path="/organizations" element={<OrganizationManagement />} />
 
         {/* 用户详情分析 */}
-        <Route path="/users/:userId/details" element={<UserDetailsAnalytics />} />
+        <Route
+          path="/users/:userId/details"
+          element={<UserDetailsAnalytics />}
+        />
 
         {/* AI模型管理 */}
         <Route path="/ai-models" element={<AIModelManagement />} />
@@ -39,13 +42,19 @@ export default function AdminApp() {
         <Route path="/scenarios" element={<ScenarioConfiguration />} />
 
         {/* 数据源管理 */}
-        <Route path="/data-sources" element={<PlaceholderPage title="数据源管理" />} />
+        <Route
+          path="/data-sources"
+          element={<PlaceholderPage title="数据源管理" />}
+        />
 
         {/* 安全与权限 */}
         <Route path="/security" element={<SecurityPermissions />} />
 
         {/* 系统监控 */}
-        <Route path="/monitoring" element={<PlaceholderPage title="系统监控" />} />
+        <Route
+          path="/monitoring"
+          element={<PlaceholderPage title="系统监控" />}
+        />
 
         {/* 系统配置 */}
         <Route path="/config" element={<SystemConfig />} />

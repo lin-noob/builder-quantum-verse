@@ -1,18 +1,18 @@
-import React from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
-import { MemberRole, AccountStatus } from '../../../shared/organizationData';
-import { Card, CardContent } from '@/components/ui/card';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Button } from '@/components/ui/button';
-import { 
-  Shield, 
-  Lock, 
-  AlertTriangle, 
-  UserX, 
+import React from "react";
+import { Navigate, useLocation } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
+import { MemberRole, AccountStatus } from "../../../shared/organizationData";
+import { Card, CardContent } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import {
+  Shield,
+  Lock,
+  AlertTriangle,
+  UserX,
   Building2,
-  LogIn 
-} from 'lucide-react';
+  LogIn,
+} from "lucide-react";
 
 interface PermissionGuardProps {
   children: React.ReactNode;
@@ -68,8 +68,10 @@ export const PermissionGuard: React.FC<PermissionGuardProps> = ({
   }
 
   // 组织状态检查
-  if (requireActiveOrganization && 
-      currentOrganization?.accountStatus !== AccountStatus.ACTIVE) {
+  if (
+    requireActiveOrganization &&
+    currentOrganization?.accountStatus !== AccountStatus.ACTIVE
+  ) {
     if (fallback) {
       return <>{fallback}</>;
     }
@@ -113,7 +115,7 @@ interface RequireAuthProps {
 export const RequireAuth: React.FC<RequireAuthProps> = ({
   children,
   fallback,
-  redirectTo = '/auth',
+  redirectTo = "/auth",
 }) => {
   return (
     <PermissionGuard
@@ -137,10 +139,7 @@ export const RequireAdmin: React.FC<RequireAdminProps> = ({
   fallback,
 }) => {
   return (
-    <PermissionGuard
-      requireAdmin={true}
-      fallback={fallback}
-    >
+    <PermissionGuard requireAdmin={true} fallback={fallback}>
       {children}
     </PermissionGuard>
   );
@@ -178,10 +177,7 @@ export const RequireRole: React.FC<RequireRoleProps> = ({
   fallback,
 }) => {
   return (
-    <PermissionGuard
-      requiredRole={role}
-      fallback={fallback}
-    >
+    <PermissionGuard requiredRole={role} fallback={fallback}>
       {children}
     </PermissionGuard>
   );
@@ -189,7 +185,7 @@ export const RequireRole: React.FC<RequireRoleProps> = ({
 
 // 无权限访问时的回退组件
 interface UnauthorizedFallbackProps {
-  reason: 'login' | 'admin' | 'role' | 'member' | 'organization';
+  reason: "login" | "admin" | "role" | "member" | "organization";
   requiredRole?: MemberRole;
 }
 
@@ -201,71 +197,71 @@ const UnauthorizedFallback: React.FC<UnauthorizedFallbackProps> = ({
 
   const getContent = () => {
     switch (reason) {
-      case 'login':
+      case "login":
         return {
           icon: <LogIn className="h-12 w-12 text-blue-500" />,
-          title: '需要登录',
-          description: '请先登录以访问此功能',
+          title: "需要登录",
+          description: "请先登录以访问此功能",
           action: (
-            <Button onClick={() => window.location.href = '/auth'}>
+            <Button onClick={() => (window.location.href = "/auth")}>
               前往登录
             </Button>
           ),
         };
-      
-      case 'admin':
+
+      case "admin":
         return {
           icon: <Shield className="h-12 w-12 text-red-500" />,
-          title: '需要管理员权限',
-          description: '此功能仅限管理员访问',
+          title: "需要管理员权限",
+          description: "此功能仅限管理员访问",
           action: (
             <Button variant="outline" onClick={logout}>
               切换账户
             </Button>
           ),
         };
-      
-      case 'role':
+
+      case "role":
         return {
           icon: <Lock className="h-12 w-12 text-orange-500" />,
-          title: '权限不足',
-          description: `此功能需要 ${requiredRole === MemberRole.ADMIN ? '管理员' : '成员'} 权限`,
+          title: "权限不足",
+          description: `此功能需要 ${requiredRole === MemberRole.ADMIN ? "管理员" : "成员"} 权限`,
           action: (
             <Button variant="outline" onClick={logout}>
               切换账户
             </Button>
           ),
         };
-      
-      case 'member':
+
+      case "member":
         return {
           icon: <UserX className="h-12 w-12 text-red-500" />,
-          title: '账户已被禁用',
-          description: '您的账户已被管理员禁用，无法访问系统功能',
+          title: "账户已被禁用",
+          description: "您的账户已被管理员禁用，无法访问系统功能",
           action: (
             <Button variant="outline" onClick={logout}>
               重新登录
             </Button>
           ),
         };
-      
-      case 'organization':
+
+      case "organization":
         return {
           icon: <Building2 className="h-12 w-12 text-red-500" />,
-          title: '组织账户已暂停',
-          description: '您所在的组织账户已被暂停，请联系平台管理员',
+          title: "组织账户已暂停",
+          description: "您所在的组织账户已被暂停，请联系平台管理员",
           action: (
             <Button variant="outline" onClick={logout}>
               重新登录
             </Button>
           ),
         };
-      
+
       default:
         return {
           icon: <AlertTriangle className="h-12 w-12 text-yellow-500" />,
-          title: '访问受限',
-          description: '您没有权限访问此功能',
+          title: "访问受限",
+          description: "您没有权限访问此功能",
           action: null,
         };
     }
@@ -277,20 +273,12 @@ const UnauthorizedFallback: React.FC<UnauthorizedFallbackProps> = ({
     <div className="flex items-center justify-center min-h-[400px] p-6">
       <Card className="w-full max-w-md">
         <CardContent className="p-8 text-center">
-          <div className="mb-6 flex justify-center">
-            {content.icon}
-          </div>
+          <div className="mb-6 flex justify-center">{content.icon}</div>
           <h2 className="text-xl font-semibold text-gray-900 mb-2">
             {content.title}
           </h2>
-          <p className="text-gray-600 mb-6">
-            {content.description}
-          </p>
-          {content.action && (
-            <div className="space-y-2">
-              {content.action}
-            </div>
-          )}
+          <p className="text-gray-600 mb-6">{content.description}</p>
+          {content.action && <div className="space-y-2">{content.action}</div>}
         </CardContent>
       </Card>
     </div>
@@ -329,8 +317,10 @@ export const PermissionCheck: React.FC<PermissionCheckProps> = ({
   }
 
   // 组织状态检查
-  if (requireActiveOrganization && 
-      currentOrganization?.accountStatus !== AccountStatus.ACTIVE) {
+  if (
+    requireActiveOrganization &&
+    currentOrganization?.accountStatus !== AccountStatus.ACTIVE
+  ) {
     return <>{fallback}</>;
   }
 

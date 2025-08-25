@@ -5,27 +5,27 @@
  * 账户状态枚举
  */
 export enum AccountStatus {
-  ACTIVE = 'ACTIVE',
-  SUSPENDED = 'SUSPENDED',
-  DISABLED = 'DISABLED'
+  ACTIVE = "ACTIVE",
+  SUSPENDED = "SUSPENDED",
+  DISABLED = "DISABLED",
 }
 
 /**
  * 成员角色枚举
  */
 export enum MemberRole {
-  ADMIN = 'ADMIN',
-  MEMBER = 'MEMBER'
+  ADMIN = "ADMIN",
+  MEMBER = "MEMBER",
 }
 
 /**
  * 订阅计划枚举
  */
 export enum SubscriptionPlan {
-  INTERNAL_TRIAL = 'INTERNAL_TRIAL',
-  BASIC = 'BASIC',
-  PROFESSIONAL = 'PROFESSIONAL',
-  ENTERPRISE = 'ENTERPRISE'
+  INTERNAL_TRIAL = "INTERNAL_TRIAL",
+  BASIC = "BASIC",
+  PROFESSIONAL = "PROFESSIONAL",
+  ENTERPRISE = "ENTERPRISE",
 }
 
 /**
@@ -249,38 +249,38 @@ export const generateMemberId = (): string => {
  */
 export const mockOrganizations: Organization[] = [
   {
-    organizationId: 'org_demo_001',
-    name: '演示科技有限公司',
+    organizationId: "org_demo_001",
+    name: "演示科技有限公司",
     accountStatus: AccountStatus.ACTIVE,
-    createdAt: '2024-01-15T10:00:00Z',
+    createdAt: "2024-01-15T10:00:00Z",
     subscriptionPlan: SubscriptionPlan.PROFESSIONAL,
     billingInfo: null,
-    updatedAt: '2024-01-20T15:30:00Z',
+    updatedAt: "2024-01-20T15:30:00Z",
     memberCount: 12,
-    activeMemberCount: 10
+    activeMemberCount: 10,
   },
   {
-    organizationId: 'org_test_002',
-    name: '内部测试团队',
+    organizationId: "org_test_002",
+    name: "内部测试团队",
     accountStatus: AccountStatus.ACTIVE,
-    createdAt: '2024-01-10T09:00:00Z',
+    createdAt: "2024-01-10T09:00:00Z",
     subscriptionPlan: SubscriptionPlan.INTERNAL_TRIAL,
     billingInfo: null,
-    updatedAt: '2024-01-25T11:15:00Z',
+    updatedAt: "2024-01-25T11:15:00Z",
     memberCount: 5,
-    activeMemberCount: 5
+    activeMemberCount: 5,
   },
   {
-    organizationId: 'org_startup_003',
-    name: '创新创业公司',
+    organizationId: "org_startup_003",
+    name: "创新创业公司",
     accountStatus: AccountStatus.SUSPENDED,
-    createdAt: '2024-01-05T14:30:00Z',
+    createdAt: "2024-01-05T14:30:00Z",
     subscriptionPlan: SubscriptionPlan.BASIC,
     billingInfo: null,
-    updatedAt: '2024-01-30T09:45:00Z',
+    updatedAt: "2024-01-30T09:45:00Z",
     memberCount: 3,
-    activeMemberCount: 0
-  }
+    activeMemberCount: 0,
+  },
 ];
 
 /**
@@ -288,83 +288,87 @@ export const mockOrganizations: Organization[] = [
  */
 export const mockMembers: Member[] = [
   {
-    memberId: 'mem_admin_001',
-    organizationId: 'org_demo_001',
-    email: 'admin@demo.com',
-    name: '李国帅',
+    memberId: "mem_admin_001",
+    organizationId: "org_demo_001",
+    email: "admin@demo.com",
+    name: "李国帅",
     role: MemberRole.ADMIN,
     accountStatus: AccountStatus.ACTIVE,
-    createdAt: '2024-01-15T10:05:00Z',
-    lastLoginAt: '2024-02-01T09:30:00Z',
-    updatedAt: '2024-01-20T15:30:00Z',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=admin',
-    phone: '+86 138-0000-0001'
+    createdAt: "2024-01-15T10:05:00Z",
+    lastLoginAt: "2024-02-01T09:30:00Z",
+    updatedAt: "2024-01-20T15:30:00Z",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=admin",
+    phone: "+86 138-0000-0001",
   },
   {
-    memberId: 'mem_user_002',
-    organizationId: 'org_demo_001',
-    email: 'user1@demo.com',
-    name: '张三',
+    memberId: "mem_user_002",
+    organizationId: "org_demo_001",
+    email: "user1@demo.com",
+    name: "张三",
     role: MemberRole.MEMBER,
     accountStatus: AccountStatus.ACTIVE,
-    createdAt: '2024-01-16T11:00:00Z',
-    lastLoginAt: '2024-01-31T14:20:00Z',
-    updatedAt: '2024-01-25T16:45:00Z',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user1',
-    phone: '+86 138-0000-0002'
+    createdAt: "2024-01-16T11:00:00Z",
+    lastLoginAt: "2024-01-31T14:20:00Z",
+    updatedAt: "2024-01-25T16:45:00Z",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=user1",
+    phone: "+86 138-0000-0002",
   },
   {
-    memberId: 'mem_user_003',
-    organizationId: 'org_demo_001',
-    email: 'user2@demo.com',
-    name: '李四',
+    memberId: "mem_user_003",
+    organizationId: "org_demo_001",
+    email: "user2@demo.com",
+    name: "李四",
     role: MemberRole.MEMBER,
     accountStatus: AccountStatus.DISABLED,
-    createdAt: '2024-01-18T16:30:00Z',
-    lastLoginAt: '2024-01-25T10:15:00Z',
-    updatedAt: '2024-01-28T13:20:00Z',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user2'
+    createdAt: "2024-01-18T16:30:00Z",
+    lastLoginAt: "2024-01-25T10:15:00Z",
+    updatedAt: "2024-01-28T13:20:00Z",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=user2",
   },
   {
-    memberId: 'mem_test_004',
-    organizationId: 'org_test_002',
-    email: 'test@internal.com',
-    name: '测试管理员',
+    memberId: "mem_test_004",
+    organizationId: "org_test_002",
+    email: "test@internal.com",
+    name: "测试管理员",
     role: MemberRole.ADMIN,
     accountStatus: AccountStatus.ACTIVE,
-    createdAt: '2024-01-10T09:05:00Z',
-    lastLoginAt: '2024-02-01T08:45:00Z',
-    updatedAt: '2024-01-25T11:15:00Z',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=test'
-  }
+    createdAt: "2024-01-10T09:05:00Z",
+    lastLoginAt: "2024-02-01T08:45:00Z",
+    updatedAt: "2024-01-25T11:15:00Z",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=test",
+  },
 ];
 
 /**
  * 获取组织的成员列表
  */
 export const getMembersByOrganization = (organizationId: string): Member[] => {
-  return mockMembers.filter(member => member.organizationId === organizationId);
+  return mockMembers.filter(
+    (member) => member.organizationId === organizationId,
+  );
 };
 
 /**
  * 根据邮箱查找成员
  */
 export const getMemberByEmail = (email: string): Member | undefined => {
-  return mockMembers.find(member => member.email === email);
+  return mockMembers.find((member) => member.email === email);
 };
 
 /**
  * 根据ID查找组织
  */
-export const getOrganizationById = (organizationId: string): Organization | undefined => {
-  return mockOrganizations.find(org => org.organizationId === organizationId);
+export const getOrganizationById = (
+  organizationId: string,
+): Organization | undefined => {
+  return mockOrganizations.find((org) => org.organizationId === organizationId);
 };
 
 /**
  * 根据ID查找成员
  */
 export const getMemberById = (memberId: string): Member | undefined => {
-  return mockMembers.find(member => member.memberId === memberId);
+  return mockMembers.find((member) => member.memberId === memberId);
 };
 
 /**
@@ -374,32 +378,34 @@ export const getMemberById = (memberId: string): Member | undefined => {
  */
 export const canMemberLogin = (member: Member): boolean => {
   const organization = getOrganizationById(member.organizationId);
-  
+
   if (!organization) {
     return false;
   }
-  
+
   // 组织被暂停，该组织下所有成员都无法登录
   if (organization.accountStatus === AccountStatus.SUSPENDED) {
     return false;
   }
-  
+
   // 成员被禁用，无法登录
   if (member.accountStatus === AccountStatus.DISABLED) {
     return false;
   }
-  
+
   // 只有组织活跃且成员活跃才能登录
-  return organization.accountStatus === AccountStatus.ACTIVE && 
-         member.accountStatus === AccountStatus.ACTIVE;
+  return (
+    organization.accountStatus === AccountStatus.ACTIVE &&
+    member.accountStatus === AccountStatus.ACTIVE
+  );
 };
 
 /**
  * 生成初始密码
  */
 export const generateInitialPassword = (): string => {
-  const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';
-  let password = '';
+  const chars = "ABCDEFGHJKMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789";
+  let password = "";
   for (let i = 0; i < 8; i++) {
     password += chars.charAt(Math.floor(Math.random() * chars.length));
   }
@@ -419,5 +425,5 @@ export default {
   canMemberLogin,
   generateOrganizationId,
   generateMemberId,
-  generateInitialPassword
+  generateInitialPassword,
 };

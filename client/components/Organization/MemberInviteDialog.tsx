@@ -56,7 +56,7 @@ const MemberInviteDialog = ({
 
   const handleGeneratePassword = () => {
     const password = generateInitialPassword();
-    setInviteForm(prev => ({ ...prev, password }));
+    setInviteForm((prev) => ({ ...prev, password }));
   };
 
   const handleInvite = async () => {
@@ -85,7 +85,9 @@ const MemberInviteDialog = ({
           description: "新成员已创建，初始密码已生成",
         });
 
-        setGeneratedPassword(result.data?.initialPassword || finalForm.password);
+        setGeneratedPassword(
+          result.data?.initialPassword || finalForm.password,
+        );
         setInvitedEmail(finalForm.email);
         setShowPasswordResult(true);
         setInviteForm({
@@ -173,19 +175,23 @@ const MemberInviteDialog = ({
                   </div>
                 </div>
               </div>
-              <Button size="sm" variant="outline" onClick={copyCredentials} className="mt-3 w-full">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={copyCredentials}
+                className="mt-3 w-full"
+              >
                 <Copy className="h-4 w-4 mr-2" />
                 复制完整登录凭证
               </Button>
             </div>
             <div className="text-sm text-amber-600 bg-amber-50 p-3 rounded">
-              <strong>重要提醒：</strong>请务必将此密码安全地告知新成员，并建议其首次登录后立即修改密码。
+              <strong>重要提醒：</strong>
+              请务必将此密码安全地告知新成员，并建议其首次登录后立即修改密码。
             </div>
           </div>
           <DialogFooter>
-            <Button onClick={handleClose}>
-              我已复制密码
-            </Button>
+            <Button onClick={handleClose}>我已复制密码</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -213,17 +219,22 @@ const MemberInviteDialog = ({
               type="email"
               placeholder="请输入成员邮箱"
               value={inviteForm.email}
-              onChange={(e) => setInviteForm(prev => ({ ...prev, email: e.target.value }))}
+              onChange={(e) =>
+                setInviteForm((prev) => ({ ...prev, email: e.target.value }))
+              }
             />
-            <p className="text-xs text-gray-500 mt-1">
-              将作为该成员的登录账号
-            </p>
+            <p className="text-xs text-gray-500 mt-1">将作为该成员的登录账号</p>
           </div>
           <div>
             <Label htmlFor="role">角色权限 *</Label>
             <Select
               value={inviteForm.role}
-              onValueChange={(value) => setInviteForm(prev => ({ ...prev, role: value as MemberRole }))}
+              onValueChange={(value) =>
+                setInviteForm((prev) => ({
+                  ...prev,
+                  role: value as MemberRole,
+                }))
+              }
             >
               <SelectTrigger>
                 <SelectValue placeholder="选择角色" />
@@ -258,9 +269,18 @@ const MemberInviteDialog = ({
                 type="text"
                 placeholder="留空将自动生成"
                 value={inviteForm.password}
-                onChange={(e) => setInviteForm(prev => ({ ...prev, password: e.target.value }))}
+                onChange={(e) =>
+                  setInviteForm((prev) => ({
+                    ...prev,
+                    password: e.target.value,
+                  }))
+                }
               />
-              <Button type="button" variant="outline" onClick={handleGeneratePassword}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleGeneratePassword}
+              >
                 生成
               </Button>
             </div>
