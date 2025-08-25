@@ -130,7 +130,7 @@ const mockPromptTemplates: PromptTemplate[] = [
     id: 'prompt_1',
     name: '购物车挽留提示词',
     scenario: 'add_to_cart',
-    content: '用户[username]将商品[productName](价格：[price])加入了购物车，但在页面停留了[dwellTime]秒后准备离开。请生成一个个性化的挽留弹窗文案，需要包含：1. 友好的问候 2. 商品的价值点 3. 适当的紧迫感 4. 明确的行动号召。文案要简洁有力，不超过50字。',
+    content: '用户[username]将商品[productName](价格：[price])加入了购物车，但在页面停留了[dwellTime]秒后准备��开。请生成一个个性化的挽留弹窗文案，需要包含：1. 友好的问候 2. 商品的价值点 3. 适当的紧迫感 4. 明确的行动号召。文案要简洁有力，不超过50字。',
     variables: ['username', 'productName', 'price', 'dwellTime'],
     modelId: 'model_1',
     isDefault: true,
@@ -152,7 +152,7 @@ const mockPromptTemplates: PromptTemplate[] = [
     id: 'prompt_3',
     name: '搜索无结果引导',
     scenario: 'search',
-    content: '用户搜索了"[searchTerm]"但没有找到匹配的商品。请生成一个友好的引导弹窗，包含：1. 理解用户的搜索意图 2. 推荐相似或相关的商品类别 3. 提供联系客服的选项 4. 鼓励用户继续浏览。语调要积极正面，帮助用户找到替代方案。',
+    content: '用户搜索了"[searchTerm]"但没有找到匹配的商品。请生成一个友好的引导弹窗，包含：1. 理解用户的搜索意图 2. 推荐相似或相关的商品类别 3. 提供联系客服的选项 4. 鼓��用户继续浏览。语调要积极正面，帮助用户找到替代方案。',
     variables: ['searchTerm'],
     modelId: 'model_3',
     isDefault: false,
@@ -169,6 +169,14 @@ export default function AIModelManagement() {
   const [isModelDialogOpen, setIsModelDialogOpen] = useState(false);
   const [isPromptDialogOpen, setIsPromptDialogOpen] = useState(false);
   const [isTestingModel, setIsTestingModel] = useState(false);
+
+  // Pagination state for models
+  const [currentModelPage, setCurrentModelPage] = useState(1);
+  const [modelsPerPage] = useState(5);
+
+  // Pagination state for prompts
+  const [currentPromptPage, setCurrentPromptPage] = useState(1);
+  const [promptsPerPage] = useState(10);
 
   const getStatusBadge = (status: AIModelStatus) => {
     const config = {
@@ -209,6 +217,18 @@ export default function AIModelManagement() {
   const handleDeleteModel = (modelId: string) => {
     setModels(prev => prev.filter(model => model.id !== modelId));
   };
+
+  // Pagination logic for models
+  const totalModelPages = Math.ceil(models.length / modelsPerPage);
+  const startModelIndex = (currentModelPage - 1) * modelsPerPage;
+  const endModelIndex = startModelIndex + modelsPerPage;
+  const currentModels = models.slice(startModelIndex, endModelIndex);
+
+  // Pagination logic for prompts
+  const totalPromptPages = Math.ceil(prompts.length / promptsPerPage);
+  const startPromptIndex = (currentPromptPage - 1) * promptsPerPage;
+  const endPromptIndex = startPromptIndex + promptsPerPage;
+  const currentPrompts = prompts.slice(startPromptIndex, endPromptIndex);
 
   return (
     <div className="p-6 space-y-6">
@@ -316,7 +336,7 @@ export default function AIModelManagement() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {models.map((model) => (
+                {currentModels.map((model) => (
                   <div
                     key={model.id}
                     className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50"
@@ -381,6 +401,33 @@ export default function AIModelManagement() {
                   </div>
                 ))}
               </div>
+
+              {/* Models Pagination */}
+              {totalModelPages > 1 && (
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 pt-4 border-t">
+                  <div className="text-sm text-gray-700 order-2 sm:order-1">
+                    正在显示 {startModelIndex + 1} - {Math.min(endModelIndex, models.length)} 条，共 {models.length} 条
+                  </div>
+                  <div className="flex items-center gap-2 order-1 sm:order-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentModelPage(prev => Math.max(1, prev - 1))}
+                      disabled={currentModelPage === 1}
+                    >
+                      上一页
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentModelPage(prev => Math.min(totalModelPages, prev + 1))}
+                      disabled={currentModelPage === totalModelPages}
+                    >
+                      下一页
+                    </Button>
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
