@@ -264,23 +264,13 @@ export default function UserDetailsAnalytics() {
 
   return (
     <div className="p-6 space-y-6">
-      {/* 页面标题 */}
+      {/* ���面标题 */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate('/admin/users')}
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            返回用户列表
-          </Button>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">用户详情分析</h1>
-            <p className="text-sm text-gray-600 mt-1">
-              {analytics.basicInfo.name} 的使用数据和行为分析
-            </p>
-          </div>
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">用户详情分析</h1>
+          <p className="text-sm text-gray-600 mt-1">
+            {analytics.basicInfo.name} 的使用数据和行为分析
+          </p>
         </div>
       </div>
 
