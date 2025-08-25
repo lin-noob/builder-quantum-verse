@@ -49,6 +49,13 @@ export default function Layout({ children }: LayoutProps) {
     setCurrentUser(user);
   }, [location]); // 当路由变化时重新检查用户状态
 
+  // 自动展开系统管理菜单
+  useEffect(() => {
+    if (location.pathname.startsWith("/organization/")) {
+      setIsSystemManagementExpanded(true);
+    }
+  }, [location.pathname]);
+
   // 基础菜单项
   const baseMenuItems: MenuItem[] = [
     {
