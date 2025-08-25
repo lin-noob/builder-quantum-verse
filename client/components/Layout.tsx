@@ -612,7 +612,9 @@ export default function Layout({ children }: LayoutProps) {
                     isSidebarCollapsed ? "justify-center" : "justify-start",
                   )}
                   title={
-                    isSidebarCollapsed ? `${currentUser.username} - 个人信息` : ""
+                    isSidebarCollapsed
+                      ? `${currentUser.username} - 个人信息`
+                      : ""
                   }
                 >
                   <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
@@ -633,7 +635,10 @@ export default function Layout({ children }: LayoutProps) {
                   )}
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align={isSidebarCollapsed ? "start" : "end"} className="w-48">
+              <DropdownMenuContent
+                align={isSidebarCollapsed ? "start" : "end"}
+                className="w-48"
+              >
                 <DropdownMenuItem asChild>
                   <Link
                     to="/account/settings"
