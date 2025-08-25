@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import AdminLayout from "./components/AdminLayout";
 import AdminDashboard from "./pages/AdminDashboard";
 import OrganizationManagement from "./pages/OrganizationManagement";
+import OrganizationDetail from "./pages/OrganizationDetail";
 import SystemConfig from "./pages/SystemConfig";
 import AIModelManagement from "./pages/AIModelManagement";
 import ScenarioConfiguration from "./pages/ScenarioConfiguration";
@@ -35,7 +36,7 @@ export default function AdminApp() {
           element={<UserDetailsAnalytics />}
         />
 
-        {/* AI模型管理 */}
+        {/* AI模��管理 */}
         <Route path="/ai-models" element={<AIModelManagement />} />
 
         {/* 场景配置管理 */}
