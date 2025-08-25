@@ -531,7 +531,7 @@ const OrganizationManagement = () => {
           <DialogHeader>
             <DialogTitle>创建新组织</DialogTitle>
             <DialogDescription>
-              为新客户创建独立的组织工作空间，并同时创建首位管理员账户
+              为新客户创建独立的组织工作空间，��同时创建首位管理员账户
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
@@ -626,11 +626,13 @@ const OrganizationManagement = () => {
                   <SelectItem value={SubscriptionPlan.INTERNAL_TRIAL}>
                     内部试用
                   </SelectItem>
-                  <SelectItem value={SubscriptionPlan.BASIC}>基础版</SelectItem>
-                  <SelectItem value={SubscriptionPlan.PROFESSIONAL}>
+                  <SelectItem value={SubscriptionPlan.BASIC} disabled>
+                    基础版
+                  </SelectItem>
+                  <SelectItem value={SubscriptionPlan.PROFESSIONAL} disabled>
                     专业版
                   </SelectItem>
-                  <SelectItem value={SubscriptionPlan.ENTERPRISE}>
+                  <SelectItem value={SubscriptionPlan.ENTERPRISE} disabled>
                     企业版
                   </SelectItem>
                 </SelectContent>
@@ -715,7 +717,7 @@ const OrganizationManagement = () => {
                     <SelectItem value={SubscriptionPlan.INTERNAL_TRIAL}>
                       内部试用
                     </SelectItem>
-                    <SelectItem value={SubscriptionPlan.BASIC}>
+                    <SelectItem value={SubscriptionPlan.BASIC} disabled>
                       基础版
                     </SelectItem>
                     <SelectItem value={SubscriptionPlan.PROFESSIONAL}>
@@ -803,7 +805,7 @@ const OrganizationManagement = () => {
               </div>
               <div className="text-sm text-amber-600 bg-amber-50 p-3 rounded">
                 <strong>重要提醒：</strong>
-                请务必将登录凭证安全地告知新组织的管理员，并建议其首次登录后立即修改密码。
+                请务必将���录凭证安全地告知新组织的管理员，并建议其首次登录后立即修改密码。
               </div>
             </div>
           )}
