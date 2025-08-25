@@ -138,7 +138,7 @@ const MemberManagement = () => {
   const handleInviteMember = async () => {
     if (!inviteForm.email || !inviteForm.role) {
       toast({
-        title: "表单��证失败",
+        title: "表单����证失败",
         description: "请填写完整的邀请信息",
         variant: "destructive",
       });
@@ -382,54 +382,53 @@ const MemberManagement = () => {
       <Card>
         <CardContent className="pt-6">
           <div className="flex flex-col gap-4 mb-6">
-            {/* 筛选和按钮一行 */}
-            <div className="flex flex-col sm:flex-row gap-4 items-end">
-              <div className="relative w-full sm:w-64">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                <Input
-                  placeholder="按姓名或邮箱搜索成员..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-              <Select
-                value={selectedRole}
-                onValueChange={(value) =>
-                  setSelectedRole(value as MemberRole | "ALL")
-                }
-              >
-                <SelectTrigger className="w-full sm:w-[150px]">
-                  <SelectValue placeholder="角色筛选" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="ALL">所有角色</SelectItem>
-                  <SelectItem value={MemberRole.ADMIN}>管理员</SelectItem>
-                  <SelectItem value={MemberRole.MEMBER}>成员</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select
-                value={selectedStatus}
-                onValueChange={(value) =>
-                  setSelectedStatus(value as AccountStatus | "ALL")
-                }
-              >
-                <SelectTrigger className="w-full sm:w-[150px]">
-                  <SelectValue placeholder="状态筛选" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="ALL">所有状态</SelectItem>
-                  <SelectItem value={AccountStatus.ACTIVE}>活跃</SelectItem>
-                  <SelectItem value={AccountStatus.DISABLED}>已禁用</SelectItem>
-                </SelectContent>
-              </Select>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  onClick={() => loadMembers()}
-                  className="flex items-center gap-2"
+            {/* 筛选一行 */}
+            <div className="flex flex-col sm:flex-row gap-4 items-end justify-between">
+              <div className="flex flex-col sm:flex-row gap-4 items-end flex-1">
+                <div className="relative w-full sm:w-64">
+                  <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                  <Input
+                    placeholder="按姓名或邮箱搜索成员..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+                <Select
+                  value={selectedRole}
+                  onValueChange={(value) =>
+                    setSelectedRole(value as MemberRole | "ALL")
+                  }
                 >
-                  <Search className="h-4 w-4" />
+                  <SelectTrigger className="w-full sm:w-[150px]">
+                    <SelectValue placeholder="角色筛选" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ALL">所有角色</SelectItem>
+                    <SelectItem value={MemberRole.ADMIN}>管理员</SelectItem>
+                    <SelectItem value={MemberRole.MEMBER}>成员</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select
+                  value={selectedStatus}
+                  onValueChange={(value) =>
+                    setSelectedStatus(value as AccountStatus | "ALL")
+                  }
+                >
+                  <SelectTrigger className="w-full sm:w-[150px]">
+                    <SelectValue placeholder="状态筛选" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ALL">所有状态</SelectItem>
+                    <SelectItem value={AccountStatus.ACTIVE}>活跃</SelectItem>
+                    <SelectItem value={AccountStatus.DISABLED}>已禁用</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* 搜索重置按钮在右侧 */}
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={() => loadMembers()}>
                   搜索
                 </Button>
                 <Button
@@ -440,7 +439,6 @@ const MemberManagement = () => {
                     setSelectedStatus("ALL");
                     setCurrentPage(1);
                   }}
-                  className="flex items-center gap-2"
                 >
                   重置
                 </Button>
@@ -450,7 +448,7 @@ const MemberManagement = () => {
             {/* 邀请按钮在左侧 */}
             <div className="flex justify-start">
               <Button onClick={() => setInviteDialogOpen(true)}>
-                邀请新成员
+                邀请新成���
               </Button>
             </div>
           </div>
