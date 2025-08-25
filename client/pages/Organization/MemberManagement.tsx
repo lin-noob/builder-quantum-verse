@@ -312,9 +312,9 @@ const MemberManagement = () => {
       <Card>
         <CardContent className="pt-6">
           <div className="flex flex-col gap-4 mb-6">
-            {/* 第一行：搜索框和筛选 */}
-            <div className="flex flex-col sm:flex-row gap-4">
-              <div className="relative flex-1">
+            {/* 筛选和按钮一行 */}
+            <div className="flex flex-col sm:flex-row gap-4 items-end">
+              <div className="relative w-full sm:w-64">
                 <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                 <Input
                   placeholder="按姓名或邮箱搜索成员..."
@@ -324,7 +324,7 @@ const MemberManagement = () => {
                 />
               </div>
               <Select value={selectedRole} onValueChange={(value) => setSelectedRole(value as MemberRole | "ALL")}>
-                <SelectTrigger className="w-full sm:w-[180px]">
+                <SelectTrigger className="w-full sm:w-[150px]">
                   <SelectValue placeholder="角色筛选" />
                 </SelectTrigger>
                 <SelectContent>
@@ -334,7 +334,7 @@ const MemberManagement = () => {
                 </SelectContent>
               </Select>
               <Select value={selectedStatus} onValueChange={(value) => setSelectedStatus(value as AccountStatus | "ALL")}>
-                <SelectTrigger className="w-full sm:w-[180px]">
+                <SelectTrigger className="w-full sm:w-[150px]">
                   <SelectValue placeholder="状态筛选" />
                 </SelectTrigger>
                 <SelectContent>
@@ -343,10 +343,6 @@ const MemberManagement = () => {
                   <SelectItem value={AccountStatus.DISABLED}>已禁用</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
-
-            {/* 第二行：搜索、重置和邀请按钮 */}
-            <div className="flex justify-between items-center">
               <div className="flex gap-2">
                 <Button
                   variant="outline"
@@ -369,6 +365,10 @@ const MemberManagement = () => {
                   重置
                 </Button>
               </div>
+            </div>
+
+            {/* 邀请按钮在左侧 */}
+            <div className="flex justify-start">
               <Button onClick={() => setInviteDialogOpen(true)} className="flex items-center gap-2">
                 <Plus className="h-4 w-4" />
                 邀请新成员
