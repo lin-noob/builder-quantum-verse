@@ -4,6 +4,7 @@ import "./lib/earlyRechartsSuppress";
 import React from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App";
+import { setupGlobalErrorHandler } from "./lib/errorHandler";
 
 // Import comprehensive warning suppression for Recharts defaultProps warnings
 import "./lib/rechartsWarningSuppress";
