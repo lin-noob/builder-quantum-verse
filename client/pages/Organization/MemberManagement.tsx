@@ -251,7 +251,7 @@ const MemberManagement = () => {
       console.error("Failed to toggle member status:", error);
       toast({
         title: "状态更新失败",
-        description: "网络错误，请重试",
+        description: "��络错误，请重试",
         variant: "destructive",
       });
     }
@@ -779,18 +779,32 @@ const MemberManagement = () => {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* 初始密码显示弹窗 */}
+      {/* 密码显示弹窗 */}
       <Dialog open={passwordDialogOpen} onOpenChange={setPasswordDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>成员创建成功</DialogTitle>
+            <DialogTitle>
+              {statusChangeMember ? "密码重置成功" : "成员创建成功"}
+            </DialogTitle>
             <DialogDescription>
-              新成员账户已创建，请复制初始密码并安全地分享给该成员
+              {statusChangeMember
+                ? `已为「${statusChangeMember.name}」重置密码，请复制新密码并安全地分享给该成员`
+                : "新成员账户已创建，请复制初始密码并安全地分享给该成员"
+              }
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
+            {statusChangeMember && (
+              <div className="p-3 bg-blue-50 rounded-lg">
+                <div className="text-sm text-blue-800">
+                  <strong>成员信息：</strong> {statusChangeMember.name} ({statusChangeMember.email})
+                </div>
+              </div>
+            )}
             <div className="p-4 bg-gray-50 rounded-lg">
-              <div className="text-sm text-gray-600 mb-2">初始密码</div>
+              <div className="text-sm text-gray-600 mb-2">
+                {statusChangeMember ? "新密码" : "初始密码"}
+              </div>
               <div className="flex items-center gap-2">
                 <code className="flex-1 p-2 bg-white border rounded text-lg font-mono">
                   {generatedPassword}
@@ -802,11 +816,14 @@ const MemberManagement = () => {
             </div>
             <div className="text-sm text-amber-600 bg-amber-50 p-3 rounded">
               <strong>重要提醒：</strong>
-              请务必将此密码安全地告知新成员，并建议其首次登录后立即修改密码。
+              请务必将此密码安全地告知{statusChangeMember ? "该成员" : "新成员"}，并建议其首次登录后立即修改密码。
             </div>
           </div>
           <DialogFooter>
-            <Button onClick={() => setPasswordDialogOpen(false)}>
+            <Button onClick={() => {
+              setPasswordDialogOpen(false);
+              setStatusChangeMember(null);
+            }}>
               我已复制密码
             </Button>
           </DialogFooter>
