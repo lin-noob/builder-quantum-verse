@@ -52,6 +52,9 @@ import {
   Eye,
   Copy,
   RotateCcw,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
 } from "lucide-react";
 import {
   Member,
@@ -95,7 +98,7 @@ const MemberManagement = () => {
   
   const { toast } = useToast();
   
-  // 当前组织ID（实际应用中应该从认证上下文获取）
+  // 当前组织ID（实际��用中应该从认证上下文获取）
   const currentOrganizationId = "org_demo_001";
 
   useEffect(() => {
@@ -320,15 +323,26 @@ const MemberManagement = () => {
     }
   };
 
-  const formatDate = (dateString: string | null | undefined) => {
+  const formatDateTime = (dateString: string | null | undefined) => {
     if (!dateString) return "从未登录";
-    return new Date(dateString).toLocaleDateString("zh-CN", {
+    return new Date(dateString).toLocaleString("zh-CN", {
       year: "numeric",
-      month: "short",
-      day: "numeric",
+      month: "2-digit",
+      day: "2-digit",
       hour: "2-digit",
-      minute: "2-digit"
+      minute: "2-digit",
     });
+  };
+
+  const getSortIcon = (field: string) => {
+    if (sortField !== field) {
+      return <ArrowUpDown className="h-4 w-4" />;
+    }
+    return sortOrder === "asc" ? (
+      <ArrowUp className="h-4 w-4" />
+    ) : (
+      <ArrowDown className="h-4 w-4" />
+    );
   };
 
   if (loading) {
@@ -445,11 +459,7 @@ const MemberManagement = () => {
                   >
                     <div className="flex items-center gap-2">
                       最后登录时间
-                      {sortField === 'lastLoginAt' && (
-                        <span className="text-xs">
-                          {sortOrder === 'desc' ? '↓' : '↑'}
-                        </span>
-                      )}
+                      {getSortIcon('lastLoginAt')}
                     </div>
                   </th>
                   <th
@@ -458,11 +468,7 @@ const MemberManagement = () => {
                   >
                     <div className="flex items-center gap-2">
                       创建时间
-                      {sortField === 'createdAt' && (
-                        <span className="text-xs">
-                          {sortOrder === 'desc' ? '↓' : '↑'}
-                        </span>
-                      )}
+                      {getSortIcon('createdAt')}
                     </div>
                   </th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
@@ -490,10 +496,10 @@ const MemberManagement = () => {
                       {getStatusBadge(member.accountStatus)}
                     </td>
                     <td className="px-6 py-4 text-xs text-gray-600">
-                      {formatDate(member.lastLoginAt)}
+                      {formatDateTime(member.lastLoginAt)}
                     </td>
                     <td className="px-6 py-4 text-xs text-gray-600">
-                      {formatDate(member.createdAt)}
+                      {formatDateTime(member.createdAt)}
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-4">
@@ -649,7 +655,7 @@ const MemberManagement = () => {
                 <Label htmlFor="edit-created">创建时间</Label>
                 <Input
                   id="edit-created"
-                  value={formatDate(editingMember.createdAt)}
+                  value={formatDateTime(editingMember.createdAt)}
                   readOnly
                   className="bg-gray-50 text-gray-600"
                 />

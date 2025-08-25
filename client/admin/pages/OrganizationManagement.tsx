@@ -49,6 +49,9 @@ import {
   Settings,
   Copy,
   RotateCcw,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
 } from "lucide-react";
 import {
   Organization,
@@ -311,14 +314,25 @@ const OrganizationManagement = () => {
     return badges[plan] || <Badge variant="secondary">未知套餐</Badge>;
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("zh-CN", {
+  const formatDateTime = (dateString: string) => {
+    return new Date(dateString).toLocaleString("zh-CN", {
       year: "numeric",
-      month: "short",
-      day: "numeric",
+      month: "2-digit",
+      day: "2-digit",
       hour: "2-digit",
       minute: "2-digit",
     });
+  };
+
+  const getSortIcon = (field: string) => {
+    if (sortField !== field) {
+      return <ArrowUpDown className="h-4 w-4" />;
+    }
+    return sortOrder === "asc" ? (
+      <ArrowUp className="h-4 w-4" />
+    ) : (
+      <ArrowDown className="h-4 w-4" />
+    );
   };
 
   if (loading) {
@@ -422,11 +436,7 @@ const OrganizationManagement = () => {
                   >
                     <div className="flex items-center gap-2">
                       创建时间
-                      {sortField === 'createdAt' && (
-                        <span className="text-xs">
-                          {sortOrder === 'desc' ? '↓' : '↑'}
-                        </span>
-                      )}
+                      {getSortIcon('createdAt')}
                     </div>
                   </th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
@@ -460,7 +470,7 @@ const OrganizationManagement = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4 text-xs text-gray-600">
-                      {formatDate(organization.createdAt)}
+                      {formatDateTime(organization.createdAt)}
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-4">
@@ -539,7 +549,7 @@ const OrganizationManagement = () => {
 
             <div className="border-t pt-4">
               <Label className="text-sm font-medium text-gray-700">
-                管理员账户信息
+                管理员���户信息
               </Label>
               <div className="space-y-3 mt-2">
                 <div>
@@ -730,7 +740,7 @@ const OrganizationManagement = () => {
                 <Label htmlFor="edit-created">创建时间</Label>
                 <Input
                   id="edit-created"
-                  value={formatDate(editingOrganization.createdAt)}
+                  value={formatDateTime(editingOrganization.createdAt)}
                   readOnly
                   className="bg-gray-50 text-gray-600"
                 />

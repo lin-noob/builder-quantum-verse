@@ -54,6 +54,9 @@ import {
   UserX,
   Copy,
   RotateCcw,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
 } from "lucide-react";
 import {
   Organization,
@@ -433,15 +436,26 @@ const OrganizationDetail = () => {
     return badges[plan] || <Badge variant="secondary">未知套餐</Badge>;
   };
 
-  const formatDate = (dateString: string | null | undefined) => {
+  const formatDateTime = (dateString: string | null | undefined) => {
     if (!dateString) return "从未登录";
-    return new Date(dateString).toLocaleDateString("zh-CN", {
+    return new Date(dateString).toLocaleString("zh-CN", {
       year: "numeric",
-      month: "short",
-      day: "numeric",
+      month: "2-digit",
+      day: "2-digit",
       hour: "2-digit",
-      minute: "2-digit"
+      minute: "2-digit",
     });
+  };
+
+  const getSortIcon = (field: string) => {
+    if (memberSortField !== field) {
+      return <ArrowUpDown className="h-4 w-4" />;
+    }
+    return memberSortOrder === "asc" ? (
+      <ArrowUp className="h-4 w-4" />
+    ) : (
+      <ArrowDown className="h-4 w-4" />
+    );
   };
 
   if (loading) {
@@ -615,11 +629,11 @@ const OrganizationDetail = () => {
                 <div>
                   <Label htmlFor="createdAt">创建时间</Label>
                   <Input
-                    id="createdAt"
-                    value={formatDate(organization.createdAt)}
-                    readOnly
-                    className="bg-gray-50 text-gray-600"
-                  />
+                  id="createdAt"
+                  value={formatDateTime(organization.createdAt)}
+                  readOnly
+                  className="bg-gray-50 text-gray-600"
+                />
                 </div>
               </CardContent>
             </Card>
@@ -742,27 +756,19 @@ const OrganizationDetail = () => {
                       <TableHead>
                         <button
                           onClick={() => handleMemberSort('lastLoginAt')}
-                          className="flex items-center gap-1 hover:text-gray-900"
+                          className="flex items-center gap-2 hover:text-gray-900"
                         >
                           最后登录时间
-                          {memberSortField === 'lastLoginAt' && (
-                            <span className="text-xs">
-                              {memberSortOrder === 'desc' ? '↓' : '↑'}
-                            </span>
-                          )}
+                          {getSortIcon('lastLoginAt')}
                         </button>
                       </TableHead>
                       <TableHead>
                         <button
                           onClick={() => handleMemberSort('createdAt')}
-                          className="flex items-center gap-1 hover:text-gray-900"
+                          className="flex items-center gap-2 hover:text-gray-900"
                         >
                           创建时间
-                          {memberSortField === 'createdAt' && (
-                            <span className="text-xs">
-                              {memberSortOrder === 'desc' ? '↓' : '↑'}
-                            </span>
-                          )}
+                          {getSortIcon('createdAt')}
                         </button>
                       </TableHead>
                       <TableHead>操作</TableHead>
@@ -792,11 +798,11 @@ const OrganizationDetail = () => {
                           </TableCell>
                           <TableCell>{getRoleBadge(member.role)}</TableCell>
                           <TableCell>{getStatusBadge(member.accountStatus)}</TableCell>
-                          <TableCell className="text-sm text-gray-500">
-                            {formatDate(member.lastLoginAt)}
+                          <TableCell className="text-xs text-gray-600">
+                            {formatDateTime(member.lastLoginAt)}
                           </TableCell>
-                          <TableCell className="text-sm text-gray-500">
-                            {formatDate(member.createdAt)}
+                          <TableCell className="text-xs text-gray-600">
+                            {formatDateTime(member.createdAt)}
                           </TableCell>
                           <TableCell>
                             <div className="flex items-center gap-4">
@@ -928,7 +934,7 @@ const OrganizationDetail = () => {
                 <Label htmlFor="edit-created">创建时间</Label>
                 <Input
                   id="edit-created"
-                  value={formatDate(editingMember.createdAt)}
+                  value={formatDateTime(editingMember.createdAt)}
                   readOnly
                   className="bg-gray-50 text-gray-600"
                 />
