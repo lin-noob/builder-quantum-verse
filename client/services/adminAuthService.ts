@@ -33,6 +33,52 @@ class AdminAuthService {
     permissions: ["*"], // 超级管理员拥有所有权限
   };
 
+  constructor() {
+    // 在初始化时自动设置默认超级管理员登录状态
+    this.initializeDefaultAdminUser();
+  }
+
+  private initializeDefaultAdminUser() {
+    try {
+      // 检查是否已有超级管理员登录
+      const storedAdminUser = localStorage.getItem('admin_auth_user');
+      const storedAdminToken = localStorage.getItem('admin_auth_token');
+
+      if (storedAdminUser && storedAdminToken) {
+        // 如果已有超级管理员登录，恢复用户状态
+        this.currentAdminUser = JSON.parse(storedAdminUser);
+        this.isAdminAuthenticated = true;
+      } else {
+        // 如果没有超级管理员登录，自动登录默认超级管理员
+        this.currentAdminUser = {
+          id: this.defaultSuperAdmin.id,
+          username: this.defaultSuperAdmin.username,
+          email: this.defaultSuperAdmin.email,
+          role: this.defaultSuperAdmin.role,
+          permissions: this.defaultSuperAdmin.permissions
+        };
+        this.isAdminAuthenticated = true;
+
+        // 存储到 localStorage
+        localStorage.setItem('admin_auth_user', JSON.stringify(this.currentAdminUser));
+        localStorage.setItem('admin_auth_token', 'default_admin_token_' + Date.now());
+      }
+    } catch (error) {
+      // 如果出错，设置默认超级管理员
+      this.currentAdminUser = {
+        id: this.defaultSuperAdmin.id,
+        username: this.defaultSuperAdmin.username,
+        email: this.defaultSuperAdmin.email,
+        role: this.defaultSuperAdmin.role,
+        permissions: this.defaultSuperAdmin.permissions
+      };
+      this.isAdminAuthenticated = true;
+
+      localStorage.setItem('admin_auth_user', JSON.stringify(this.currentAdminUser));
+      localStorage.setItem('admin_auth_token', 'default_admin_token_' + Date.now());
+    }
+  }
+
   // 超级管理员数据库（只存储超级管理员账号）
   private adminUsers: Array<{
     id: string;
