@@ -304,39 +304,56 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           </ul>
         </nav>
 
-        {/* 用户信息 */}
+        {/* 管理员信息 */}
         <div className="border-t border-gray-200 p-3 space-y-2">
-          {currentUser ? (
-            <Link
-              to="/account/settings"
-              className={cn(
-                "flex items-center gap-3 p-2 rounded-lg text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-colors",
-                isSidebarCollapsed ? "justify-center" : "justify-start",
-              )}
-              title={
-                isSidebarCollapsed ? `${currentUser.username} - 用户信息` : ""
-              }
-            >
-              <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
-                <User className="h-4 w-4 text-primary-foreground" />
-              </div>
-              {!isSidebarCollapsed && (
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 truncate">
-                    {currentUser.username}
-                  </p>
-                  <p className="text-xs text-gray-500 truncate">
-                    {currentUser.isAdmin ? "管理员" : "用户"}
-                  </p>
+          {currentAdminUser ? (
+            <>
+              <div
+                className={cn(
+                  "flex items-center gap-3 p-2 rounded-lg text-gray-700",
+                  isSidebarCollapsed ? "justify-center" : "justify-start",
+                )}
+                title={
+                  isSidebarCollapsed ? `${currentAdminUser.username} - 超级管理员` : ""
+                }
+              >
+                <div className="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center flex-shrink-0">
+                  <User className="h-4 w-4 text-white" />
                 </div>
-              )}
-              {!isSidebarCollapsed && (
-                <Settings className="h-4 w-4 text-gray-400" />
-              )}
-            </Link>
+                {!isSidebarCollapsed && (
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900 truncate">
+                      {currentAdminUser.username}
+                    </p>
+                    <p className="text-xs text-red-600 truncate font-medium">
+                      超级管理员
+                    </p>
+                  </div>
+                )}
+              </div>
+              {/* 退出登录按钮 */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  adminAuthService.adminLogout();
+                  window.location.href = "/admin/auth";
+                }}
+                className={cn(
+                  "w-full flex items-center gap-2 p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 transition-colors",
+                  isSidebarCollapsed ? "justify-center" : "justify-start",
+                )}
+                title={isSidebarCollapsed ? "退出登录" : ""}
+              >
+                <LogOut className="h-4 w-4" />
+                {!isSidebarCollapsed && (
+                  <span className="text-sm">退出登录</span>
+                )}
+              </Button>
+            </>
           ) : (
             <Link
-              to="/auth"
+              to="/admin/auth"
               className={cn(
                 "flex items-center gap-3 p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-colors border border-dashed border-gray-300",
                 isSidebarCollapsed ? "justify-center" : "justify-start",
@@ -385,7 +402,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           <div className="flex items-center gap-4">
             <h1 className="text-lg font-semibold text-gray-900">
               {menuItems.find((item) => isActiveRoute(item.path))?.label ||
-                "系统管理"}
+                "��统管理"}
             </h1>
           </div>
 
