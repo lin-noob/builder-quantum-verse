@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { authService } from "@/services/authService";
+import { adminAuthService } from "@/services/adminAuthService";
 import TabManager from "@/components/TabManager";
 
 interface AdminLayoutProps {
