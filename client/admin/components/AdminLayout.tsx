@@ -181,6 +181,23 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                     </Link>
                   </li>
                 ))}
+
+                {/* 分隔线 */}
+                <li className="my-4">
+                  <div className="border-t border-gray-300"></div>
+                </li>
+
+                {/* 主平台入口（临时） */}
+                <li>
+                  <Link
+                    to={mainPlatformMenuItem.path}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors border-2 border-dashed border-orange-300 bg-orange-50 hover:bg-orange-100 text-orange-700 hover:text-orange-800"
+                  >
+                    {mainPlatformMenuItem.icon}
+                    <span className="font-semibold">{mainPlatformMenuItem.label}</span>
+                  </Link>
+                </li>
               </ul>
             </nav>
           </div>
