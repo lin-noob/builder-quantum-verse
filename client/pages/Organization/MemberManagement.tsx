@@ -63,6 +63,7 @@ import {
   InviteMemberRequest,
   UpdateMemberRequest,
   MemberListQuery,
+  generateInitialPassword,
 } from "../../../shared/organizationData";
 import { memberApi } from "../../../shared/organizationApi";
 
