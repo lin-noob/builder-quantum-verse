@@ -140,7 +140,7 @@ export default function TabManager() {
             title = "营销策略详情";
           }
         } else if (currentPath.includes("/ai-marketing/scenarios/")) {
-          // 处理AI营销场景的动态路径
+          // 处理AI营销场景的动态路��
           const scenarioId = currentPath.split("/").pop();
           const scenarioNames = {
             add_to_cart: "加入购物车",
@@ -170,9 +170,17 @@ export default function TabManager() {
           const englishToChinese = {
             scenarios: "场景列表",
             monitoring: "监控",
-            analytics: "分析",
+            analytics: "分���",
             strategies: "策略",
             dashboard: "仪表盘",
+            organizations: "组织管理",
+            models: "模型管理",
+            users: "用户管理",
+            security: "安全权限",
+            config: "系统配置",
+            admin: "管理后台",
+            ai: "AI管理",
+            data: "数据管理",
           };
 
           title =
