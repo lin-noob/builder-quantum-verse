@@ -130,7 +130,7 @@ const mockPromptTemplates: PromptTemplate[] = [
     id: 'prompt_1',
     name: '购物车挽留提示词',
     scenario: 'add_to_cart',
-    content: '用户[username]将商品[productName](价格：[price])加入了购物车，但在页面停留了[dwellTime]秒后准备离开。请生成一个个性化的挽留弹窗文案，需要包含：1. 友好的问候 2. 商品的价值点 3. 适当的紧迫感 4. 明确的行动号召。文案要简洁有力，不超过50字。',
+    content: '用户[username]将商品[productName](价格：[price])加入了购物车，但在页面停留了[dwellTime]秒后准备离开。请��成一个个性化的挽留弹窗文案，需要包含：1. 友好的问候 2. 商品的价值点 3. 适当的紧迫感 4. 明确的行动号召。文案要简洁有力，不超过50字。',
     variables: ['username', 'productName', 'price', 'dwellTime'],
     modelId: 'model_1',
     isDefault: true,
@@ -152,7 +152,7 @@ const mockPromptTemplates: PromptTemplate[] = [
     id: 'prompt_3',
     name: '搜索无结果引导',
     scenario: 'search',
-    content: '用户搜索了"[searchTerm]"但没有找到匹配的商品。请生成一个友好的引导弹窗，包含：1. 理解用户的搜索意图 2. 推荐相似或相关的商品类别 3. 提供联系客服的选项 4. 鼓励用户继续浏览。语调要积极正面，帮助用户找到替代方案。',
+    content: '用户搜索了"[searchTerm]"但没有找到匹配的商品。请生成一个友好的引导弹窗，包含：1. 理解用户的搜索意图 2. 推荐相似或相关的商品类别 3. 提供联系客服的选项 4. 鼓励用户继��浏览。语调要积极正面，帮助用户找到替代方案。',
     variables: ['searchTerm'],
     modelId: 'model_3',
     isDefault: false,
@@ -252,7 +252,7 @@ export default function AIModelManagement() {
             onClick={() => setIsModelDialogOpen(true)}
           >
             <Plus className="h-4 w-4 mr-2" />
-            ��入新模型
+            添加新模型
           </Button>
         </div>
       </div>
@@ -619,7 +619,7 @@ export default function AIModelManagement() {
               <Label htmlFor="description">描述</Label>
               <Textarea 
                 id="description" 
-                placeholder="描述模型的特点和适用场景..."
+                placeholder="描述模型的特��和适用场景..."
                 defaultValue={selectedModel?.description}
               />
             </div>
@@ -710,7 +710,7 @@ export default function AIModelManagement() {
                 defaultValue={selectedPrompt?.content}
               />
               <p className="text-xs text-gray-500">
-                提示：使用方括号包围变量名，如 [username]、[productName] 等
+                提示：使用方括号包围变量名，如 [username]���[productName] 等
               </p>
             </div>
             <div className="space-y-2">
