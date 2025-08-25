@@ -489,22 +489,6 @@ const OrganizationDetail = () => {
 
   return (
     <div className="p-6 space-y-6">
-      {/* 页面头部 */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => navigate("/admin/organizations")}
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            返回列表
-          </Button>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">{organization.name}</h1>
-          </div>
-        </div>
-      </div>
 
       {/* 组织概览 */}
       <div className="space-y-6">

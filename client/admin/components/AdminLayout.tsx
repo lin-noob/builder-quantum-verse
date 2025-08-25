@@ -1,4 +1,4 @@
-import React, { ReactNode, useState } from "react";
+import React, { ReactNode, useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import {
@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { authService } from "@/services/authService";
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -37,6 +38,13 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const location = useLocation();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [currentUser, setCurrentUser] = useState(authService.getCurrentUser());
+
+  // 监听用户状态变化
+  useEffect(() => {
+    const user = authService.getCurrentUser();
+    setCurrentUser(user);
+  }, [location]);
 
   const menuItems: AdminMenuItem[] = [
     {
@@ -98,6 +106,24 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       {/* 移动��头部 */}
       <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-card border-b border-border flex items-center justify-between px-4 z-50">
         <div className="flex items-center gap-3">
+          {/* User Profile Icon */}
+          <Link
+            to={currentUser ? "/account/settings" : "/auth"}
+            className={cn(
+              "w-8 h-8 rounded-full flex items-center justify-center transition-colors",
+              currentUser
+                ? "bg-primary hover:bg-primary/90"
+                : "bg-gray-200 hover:bg-gray-300 border border-dashed border-gray-400",
+            )}
+            title={currentUser ? "个人设置" : "点击登录"}
+          >
+            <User
+              className={cn(
+                "h-4 w-4",
+                currentUser ? "text-primary-foreground" : "text-gray-500",
+              )}
+            />
+          </Link>
           <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
             <BarChart3 className="h-5 w-5 text-white" />
           </div>
@@ -218,31 +244,55 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           </ul>
         </nav>
 
-        {/* 管理员信息 */}
-        <div className="border-t border-gray-200 p-3">
-          <div
-            className={cn(
-              "flex items-center gap-3 p-2 rounded-lg text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-colors cursor-pointer",
-              isSidebarCollapsed ? "justify-center" : "justify-start",
-            )}
-          >
-            <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
-              <User className="h-4 w-4 text-white" />
-            </div>
-            {!isSidebarCollapsed && (
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 truncate">
-                  系统管理员
-                </p>
-                <p className="text-xs text-gray-500 truncate">
-                  admin@company.com
-                </p>
+        {/* 用户信息 */}
+        <div className="border-t border-gray-200 p-3 space-y-2">
+          {currentUser ? (
+            <Link
+              to="/account/settings"
+              className={cn(
+                "flex items-center gap-3 p-2 rounded-lg text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-colors",
+                isSidebarCollapsed ? "justify-center" : "justify-start",
+              )}
+              title={
+                isSidebarCollapsed ? `${currentUser.username} - 用户信息` : ""
+              }
+            >
+              <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
+                <User className="h-4 w-4 text-primary-foreground" />
               </div>
-            )}
-            {!isSidebarCollapsed && (
-              <LogOut className="h-4 w-4 text-gray-400" />
-            )}
-          </div>
+              {!isSidebarCollapsed && (
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-gray-900 truncate">
+                    {currentUser.username}
+                  </p>
+                  <p className="text-xs text-gray-500 truncate">
+                    {currentUser.isAdmin ? "管理员" : "用户"}
+                  </p>
+                </div>
+              )}
+              {!isSidebarCollapsed && (
+                <Settings className="h-4 w-4 text-gray-400" />
+              )}
+            </Link>
+          ) : (
+            <Link
+              to="/auth"
+              className={cn(
+                "flex items-center gap-3 p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-colors border border-dashed border-gray-300",
+                isSidebarCollapsed ? "justify-center" : "justify-start",
+              )}
+              title={isSidebarCollapsed ? "点击登录" : ""}
+            >
+              <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center flex-shrink-0">
+                <User className="h-4 w-4 text-gray-500" />
+              </div>
+              {!isSidebarCollapsed && (
+                <div className="flex-1">
+                  <p className="text-sm text-gray-600">点击登录</p>
+                </div>
+              )}
+            </Link>
+          )}
         </div>
 
         {/* 折叠按钮 */}
@@ -285,7 +335,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               </div>
             </div>
 
-            {/* 返回主平台 */}
+            {/* ���回主平台 */}
             <Link to="/dashboard">
               <Button variant="outline" size="sm">
                 返回主平台
