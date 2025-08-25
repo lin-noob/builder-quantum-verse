@@ -301,7 +301,7 @@ export default function UserManagement() {
   };
 
   const handleDeleteUser = (userId: string) => {
-    if (confirm('确定要删除这个��户吗？')) {
+    if (confirm('���定要删除这个用户吗？')) {
       setUsers(prev => prev.filter(u => u.id !== userId));
     }
   };
