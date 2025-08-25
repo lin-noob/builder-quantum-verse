@@ -59,14 +59,12 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       label: "组织管理",
       path: "/admin/organizations",
       icon: <Users className="h-5 w-5" />,
-      badge: "12",
     },
     {
       id: "ai-models",
       label: "AI模型管理",
       path: "/admin/ai-models",
       icon: <Bot className="h-5 w-5" />,
-      badge: "8",
     },
     {
       id: "scenarios",
@@ -91,7 +89,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       label: "系统监控",
       path: "/admin/monitoring",
       icon: <BarChart3 className="h-5 w-5" />,
-      badge: "NEW",
     },
   ];
 
@@ -379,7 +376,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             size="sm"
             onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
             className="w-full flex items-center justify-center p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-            title={isSidebarCollapsed ? "展开侧边栏" : "折叠侧边栏"}
+            title={isSidebarCollapsed ? "��开侧边栏" : "折叠侧边栏"}
           >
             {isSidebarCollapsed ? (
               <ChevronRight className="h-5 w-5" />
