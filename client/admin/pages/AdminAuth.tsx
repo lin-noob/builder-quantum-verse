@@ -63,7 +63,7 @@ export default function AdminAuth() {
     if (!isLogin) {
       // 注册表单验证
       if (!formData.username.trim()) {
-        newErrors.username = "请���入用户名";
+        newErrors.username = "请输入用户名";
       } else if (formData.username.length < 3) {
         newErrors.username = "用户名至少需要3个字符";
       }
@@ -86,7 +86,7 @@ export default function AdminAuth() {
     if (!formData.password.trim()) {
       newErrors.password = "请输入密码";
     } else if (formData.password.length < 6) {
-      newErrors.password = "密码至少需要6个字符";
+      newErrors.password = "密��至少需要6个字符";
     }
 
     setErrors(newErrors);
