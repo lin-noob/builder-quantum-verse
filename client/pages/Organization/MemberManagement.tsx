@@ -319,6 +319,18 @@ const MemberManagement = () => {
     });
   };
 
+  const handleResetPassword = (member: Member) => {
+    const newPassword = generateInitialPassword();
+    setGeneratedPassword(newPassword);
+    setStatusChangeMember(member);
+    setPasswordDialogOpen(true);
+
+    toast({
+      title: "密码重置成功",
+      description: `已为 ${member.name} 生成新密码`,
+    });
+  };
+
   const getStatusBadge = (status: AccountStatus) => {
     if (status === AccountStatus.ACTIVE) {
       return (
@@ -432,7 +444,7 @@ const MemberManagement = () => {
                   <SelectValue placeholder="状态筛选" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ALL">所有状态</SelectItem>
+                  <SelectItem value="ALL">所有��态</SelectItem>
                   <SelectItem value={AccountStatus.ACTIVE}>活跃</SelectItem>
                   <SelectItem value={AccountStatus.DISABLED}>已禁用</SelectItem>
                 </SelectContent>
