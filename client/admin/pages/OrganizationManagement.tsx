@@ -137,7 +137,7 @@ const OrganizationManagement = () => {
     ) {
       toast({
         title: "表单验证失败",
-        description: "请填写���整的组织信息",
+        description: "请填写完整的组织信息",
         variant: "destructive",
       });
       return;
@@ -273,7 +273,7 @@ const OrganizationManagement = () => {
       navigator.clipboard.writeText(text);
       toast({
         title: "已复制",
-        description: "管理员登录凭证已复制��剪贴板",
+        description: "管理员登录凭证已复制到剪贴板",
       });
     }
   };
@@ -525,7 +525,7 @@ const OrganizationManagement = () => {
           <DialogHeader>
             <DialogTitle>创建新组织</DialogTitle>
             <DialogDescription>
-              为新客户创建独立的组织工作空间，并同时创建首位管理员账户
+              为新客户创建独立的组织工作空间，���同时创建首位管理员账户
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
@@ -767,7 +767,7 @@ const OrganizationManagement = () => {
           <DialogHeader>
             <DialogTitle>组织创建成功</DialogTitle>
             <DialogDescription>
-              新��织和管理员账户已创建，请复制管理员登录凭证并安全地分享
+              新组织和管理员账户已创建，请复制管理员登录凭证并安全地分享
             </DialogDescription>
           </DialogHeader>
           {generatedCredentials && (
@@ -799,7 +799,7 @@ const OrganizationManagement = () => {
               </div>
               <div className="text-sm text-amber-600 bg-amber-50 p-3 rounded">
                 <strong>重要提醒：</strong>
-                请务必将���录凭证安全地告知新组织的管理员，并建议其首次登录后立即修改密码。
+                请务必将登录凭证安全地告知新组织的管理员，并建议其首次登录后立即修改密码。
               </div>
             </div>
           )}
