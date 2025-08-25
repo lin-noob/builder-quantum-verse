@@ -82,7 +82,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       label: '系统监控',
       path: '/admin/monitoring',
       icon: <BarChart3 className="h-5 w-5" />,
-      badge: 'NEW'
+      badge: '新'
     }
   ];
 
