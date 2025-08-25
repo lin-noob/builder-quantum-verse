@@ -159,17 +159,28 @@ export default function UserList() {
   const testConnectivity = async () => {
     try {
       console.log("测试代理连通性...");
-      const response = await fetch("/api/quote/api/v1/profile/list", {
-        method: "OPTIONS",
-        headers: {
-          "Access-Control-Request-Method": "POST",
-          "Access-Control-Request-Headers": "Content-Type",
-        },
-      });
-      console.log("连通性测试响应:", response.status, response.statusText);
-      return response.ok;
+
+      // 使用更简单的GET请求来测试连通性，而不是OPTIONS
+      // 因为有些服务器不支持OPTIONS请求或可能返回HTML错误页面
+      const response = await request.get("/quote/api/v1/profile/list",
+        { page: 1, limit: 1 }, // 最小化数据请求
+        { timeout: 5000 } // 5秒超时，用于快速检测
+      );
+
+      console.log("连通性测试成功:", response.status);
+      return true;
     } catch (error) {
       console.error("连通性测试失败:", error);
+
+      if (process.env.NODE_ENV === 'development') {
+        console.group("🔧 连通性测试调试信息");
+        console.log("1. 检查后端服务是否运行在 192.168.1.128:8099");
+        console.log("2. 检查网络连接");
+        console.log("3. 查看浏览器 Network 标签中的具体响应内容");
+        console.log("4. 如果看到HTML响应，说明请求被路由到了错误的地址");
+        console.groupEnd();
+      }
+
       return false;
     }
   };
@@ -246,7 +257,7 @@ export default function UserList() {
         setTotalCount(0);
       }
     } catch (error) {
-      // 在开发环境中，如果是API不可用错误，静默处理
+      // 在开发环境中，如果是API不���用错误，静默处理
       if (process.env.NODE_ENV === "development") {
         console.warn("开发模式：用户数据API不可用，使用模拟数据");
         setUsers([]);
@@ -410,7 +421,7 @@ export default function UserList() {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <Input
-                placeholder="搜索 CDP ID、姓名、公司名称或联系方式..."
+                placeholder="搜索 CDP ID、姓名、公司名���或联系方式..."
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value);
