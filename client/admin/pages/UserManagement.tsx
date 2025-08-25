@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -117,7 +117,7 @@ const mockRoles: Role[] = [
   {
     id: 'operator',
     name: '运营人员',
-    description: '负责AI营销场景配置',
+    description: '负责AI营销���景配置',
     color: 'bg-green-100 text-green-800',
     isSystem: false,
     permissions: [],
@@ -236,20 +236,35 @@ export default function UserManagement() {
   const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [usersPerPage] = useState(10);
+
   // 筛选用户
   const filteredUsers = useMemo(() => {
     return users.filter(user => {
       const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            user.phone.includes(searchTerm);
-      
+
       const matchesStatus = statusFilter === 'all' || user.status === statusFilter;
-      
+
       const matchesRole = roleFilter === 'all' || user.roles.includes(roleFilter);
-      
+
       return matchesSearch && matchesStatus && matchesRole;
     });
   }, [users, searchTerm, statusFilter, roleFilter]);
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
+  const startIndex = (currentPage - 1) * usersPerPage;
+  const endIndex = startIndex + usersPerPage;
+  const currentUsers = filteredUsers.slice(startIndex, endIndex);
+
+  // Reset to first page when filters change
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, statusFilter, roleFilter]);
 
   const getRoleBadge = (roleId: string) => {
     const role = roles.find(r => r.id === roleId);
@@ -329,7 +344,7 @@ export default function UserManagement() {
         <div>
           <h1 className="text-2xl font-bold text-gray-900">用户管理</h1>
           <p className="text-sm text-gray-600 mt-1">
-            管��系统用户账户、角色权限和状态
+            管���系统用户账户、角色权限和状态
           </p>
         </div>
         <Button onClick={handleAddUser}>
@@ -361,7 +376,7 @@ export default function UserManagement() {
           <CardContent>
             <div className="text-2xl font-bold text-green-600">{stats.active}</div>
             <p className="text-xs text-muted-foreground">
-              正常状态��户
+              正常状����户
             </p>
           </CardContent>
         </Card>
@@ -456,7 +471,7 @@ export default function UserManagement() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredUsers.map((user) => (
+              {currentUsers.map((user) => (
                 <TableRow key={user.id}>
                   <TableCell>
                     <div className="flex items-center gap-3">
