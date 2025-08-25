@@ -465,13 +465,7 @@ const OrganizationManagement = () => {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => {
-                            // 查看详情功能待实现
-                            toast({
-                              title: "功能待实现",
-                              description: "查看详情功能将在后续版本中提供",
-                            });
-                          }}
+                          onClick={() => navigate(`/admin/organizations/${organization.organizationId}`)}
                         >
                           查看
                         </Button>
