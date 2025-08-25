@@ -154,7 +154,7 @@ const MemberManagement = () => {
       if (response.success) {
         toast({
           title: "邀请成功",
-          description: `新成员已创建，初始密码已生成`,
+          description: `新成员已创建，初始密码已生��`,
         });
 
         setGeneratedPassword(response.data.initialPassword);
@@ -315,6 +315,50 @@ const MemberManagement = () => {
       hour: "2-digit",
       minute: "2-digit",
     });
+  };
+
+  // 排序函数
+  const sortMembers = (members: Member[]) => {
+    if (!sortField) return members;
+
+    return [...members].sort((a, b) => {
+      let aValue: string | null = null;
+      let bValue: string | null = null;
+
+      if (sortField === 'lastLoginAt') {
+        aValue = a.lastLoginAt;
+        bValue = b.lastLoginAt;
+      } else if (sortField === 'createdAt') {
+        aValue = a.createdAt;
+        bValue = b.createdAt;
+      }
+
+      // 处理null值，null值排在最后
+      if (!aValue && !bValue) return 0;
+      if (!aValue) return 1;
+      if (!bValue) return -1;
+
+      const dateA = new Date(aValue).getTime();
+      const dateB = new Date(bValue).getTime();
+
+      if (sortOrder === 'desc') {
+        return dateB - dateA;
+      } else {
+        return dateA - dateB;
+      }
+    });
+  };
+
+  // 获取排序后的成员列表
+  const sortedMembers = sortMembers(members);
+
+  const handleSort = (field: 'lastLoginAt' | 'createdAt') => {
+    if (sortField === field) {
+      setSortOrder(sortOrder === 'desc' ? 'asc' : 'desc');
+    } else {
+      setSortField(field);
+      setSortOrder('desc');
+    }
   };
 
   if (loading) {
@@ -715,7 +759,7 @@ const MemberManagement = () => {
               </div>
             </div>
             <div className="text-sm text-amber-600 bg-amber-50 p-3 rounded">
-              <strong>重要提��：</strong>
+              <strong>重要提醒：</strong>
               请务必将此密码安全地告知新成员，并建议其首次登录后立即修改密码。
             </div>
           </div>
