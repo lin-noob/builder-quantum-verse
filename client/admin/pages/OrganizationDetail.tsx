@@ -224,7 +224,7 @@ const OrganizationDetail = () => {
     if (!inviteForm.email || !inviteForm.role || !organizationId) {
       toast({
         title: "表单验证失败",
-        description: "请填写完整的邀请���息",
+        description: "请填写完整的邀请信息",
         variant: "destructive",
       });
       return;
@@ -646,11 +646,8 @@ const OrganizationDetail = () => {
                   </Select>
                 </div>
                 
-                {/* 搜索重置按钮在右侧 */}
+                {/* 重置按钮在右侧 */}
                 <div className="flex gap-2">
-                  <Button variant="outline" onClick={() => loadMembers()}>
-                    搜���
-                  </Button>
                   <Button
                     variant="outline"
                     onClick={() => {
@@ -685,7 +682,7 @@ const OrganizationDetail = () => {
                         onClick={() => handleMemberSort('lastLoginAt')}
                         className="flex items-center gap-2 hover:text-gray-900"
                       >
-                        最后登录时���
+                        最后登录时间
                         {getSortIcon('lastLoginAt')}
                       </button>
                     </TableHead>
