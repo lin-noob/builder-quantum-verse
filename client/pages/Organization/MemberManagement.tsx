@@ -154,7 +154,7 @@ const MemberManagement = () => {
       if (response.success) {
         toast({
           title: "邀请成功",
-          description: `新成员���创建，初始密码已生成`,
+          description: `新成员已创建，初始密码已生成`,
         });
 
         setGeneratedPassword(response.data.initialPassword);
@@ -467,7 +467,32 @@ const MemberManagement = () => {
                   <TableHead>成员</TableHead>
                   <TableHead>角色</TableHead>
                   <TableHead>状态</TableHead>
-                  <TableHead>最后登录时间</TableHead>
+                  <TableHead>
+                    <button
+                      onClick={() => handleSort('lastLoginAt')}
+                      className="flex items-center gap-1 hover:text-gray-900"
+                    >
+                      最后登录时间
+                      {sortField === 'lastLoginAt' && (
+                        <span className="text-xs">
+                          {sortOrder === 'desc' ? '↓' : '↑'}
+                        </span>
+                      )}
+                    </button>
+                  </TableHead>
+                  <TableHead>
+                    <button
+                      onClick={() => handleSort('createdAt')}
+                      className="flex items-center gap-1 hover:text-gray-900"
+                    >
+                      创建时间
+                      {sortField === 'createdAt' && (
+                        <span className="text-xs">
+                          {sortOrder === 'desc' ? '↓' : '↑'}
+                        </span>
+                      )}
+                    </button>
+                  </TableHead>
                   <TableHead>操作</TableHead>
                 </TableRow>
               </TableHeader>
