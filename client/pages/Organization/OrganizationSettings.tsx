@@ -207,12 +207,6 @@ const OrganizationSettings = () => {
 
   return (
     <div className="p-6 space-y-6">
-      {/* 页面标题 */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">组织设置</h1>
-        <p className="text-gray-600 mt-1">管理组织的基本信息和配置</p>
-      </div>
-
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* 基本信息 */}
         <Card>
