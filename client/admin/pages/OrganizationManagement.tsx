@@ -77,7 +77,7 @@ const OrganizationManagement = () => {
   const [sortField, setSortField] = useState<'createdAt' | null>('createdAt');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
-  // 弹窗状态
+  // 弹窗状��
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
@@ -720,10 +720,10 @@ const OrganizationManagement = () => {
                     <SelectItem value={SubscriptionPlan.BASIC} disabled>
                       基础版
                     </SelectItem>
-                    <SelectItem value={SubscriptionPlan.PROFESSIONAL}>
+                    <SelectItem value={SubscriptionPlan.PROFESSIONAL} disabled>
                       专业版
                     </SelectItem>
-                    <SelectItem value={SubscriptionPlan.ENTERPRISE}>
+                    <SelectItem value={SubscriptionPlan.ENTERPRISE} disabled>
                       企业版
                     </SelectItem>
                   </SelectContent>

@@ -172,7 +172,7 @@ const OrganizationDetail = () => {
       console.error("Failed to load members:", error);
       toast({
         title: "加载失败",
-        description: "无法加载成员列表，请重试",
+        description: "无法加载成���列表，请重试",
         variant: "destructive",
       });
     } finally {
@@ -614,9 +614,9 @@ const OrganizationDetail = () => {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value={SubscriptionPlan.INTERNAL_TRIAL}>内部试用</SelectItem>
-                        <SelectItem value={SubscriptionPlan.BASIC}>基础版</SelectItem>
-                        <SelectItem value={SubscriptionPlan.PROFESSIONAL}>专业版</SelectItem>
-                        <SelectItem value={SubscriptionPlan.ENTERPRISE}>企业版</SelectItem>
+                        <SelectItem value={SubscriptionPlan.BASIC} disabled>基础版</SelectItem>
+                        <SelectItem value={SubscriptionPlan.PROFESSIONAL} disabled>专业版</SelectItem>
+                        <SelectItem value={SubscriptionPlan.ENTERPRISE} disabled>企业版</SelectItem>
                       </SelectContent>
                     </Select>
                   ) : (
