@@ -55,7 +55,7 @@ export default function TabManager() {
     "/ai-marketing/fully-auto": "全自动营销",
     "/ai-marketing/semi-auto": "半自动模式",
     "/ai-marketing/semi-auto/create": "创建剧本",
-    "/ai-marketing/strategy-goals": "战���与目标",
+    "/ai-marketing/strategy-goals": "战略与目标",
     "/ai-marketing/live-monitoring": "实时监控",
     "/ai-marketing/performance-analytics": "效果分析",
     "/ai-marketing/scenarios": "AI营销场景",
@@ -64,7 +64,7 @@ export default function TabManager() {
     "/ai-marketing/scenarios/user_signup": "用户注册",
     "/ai-marketing/scenarios/user_login": "用户登录",
     "/effect-tracking": "效果追踪",
-    "/profile": "个人信息",
+    "/account/settings": "个人设置",
   };
 
   // 检查滚动状态
@@ -201,7 +201,7 @@ export default function TabManager() {
     navigate(tab.path);
   };
 
-  // 关闭标签页
+  // ���闭标签页
   const closeTab = (tabId: string, e?: React.MouseEvent) => {
     e?.stopPropagation();
 
