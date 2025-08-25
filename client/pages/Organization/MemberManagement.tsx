@@ -497,7 +497,7 @@ const MemberManagement = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {members.map((member) => (
+                {sortedMembers.map((member) => (
                   <TableRow key={member.memberId}>
                     <TableCell>
                       <div>
@@ -513,6 +513,9 @@ const MemberManagement = () => {
                     </TableCell>
                     <TableCell className="text-sm text-gray-500">
                       {formatDate(member.lastLoginAt)}
+                    </TableCell>
+                    <TableCell className="text-sm text-gray-500">
+                      {formatDate(member.createdAt)}
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-2">
