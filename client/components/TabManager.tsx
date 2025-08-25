@@ -51,6 +51,7 @@ export default function TabManager() {
   useEffect(() => {
     const isAdminPlatform = location.pathname.startsWith('/admin');
     const homePath = isAdminPlatform ? "/admin" : "/dashboard";
+    const homeTitle = isAdminPlatform ? "系统概览" : "首页";
 
     setTabs(prevTabs => {
       const updatedTabs = prevTabs.map(tab => {
@@ -58,6 +59,7 @@ export default function TabManager() {
           return {
             ...tab,
             path: homePath,
+            title: homeTitle,
           };
         }
         return tab;
@@ -200,7 +202,7 @@ export default function TabManager() {
             dashboard: "仪表盘",
             organizations: "组织管理",
             models: "模型管理",
-            users: "用户管理",
+            users: "用���管理",
             security: "安全权限",
             config: "系统配置",
             admin: "管理后台",
