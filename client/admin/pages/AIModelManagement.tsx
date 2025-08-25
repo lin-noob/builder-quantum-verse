@@ -232,29 +232,21 @@ export default function AIModelManagement() {
 
   return (
     <div className="p-6 space-y-6">
-      {/* 页面标题 */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">AI模型管理</h1>
-          <p className="text-sm text-gray-600 mt-1">
-            管理AI模型的接入、配置和提示词模板
-          </p>
-        </div>
-        <div className="flex gap-3">
-          <Button 
-            onClick={() => setIsPromptDialogOpen(true)}
-            variant="outline"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            添加提示词
-          </Button>
-          <Button 
-            onClick={() => setIsModelDialogOpen(true)}
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            添加新模型
-          </Button>
-        </div>
+      {/* 操作按钮 */}
+      <div className="flex justify-end gap-3">
+        <Button
+          onClick={() => setIsPromptDialogOpen(true)}
+          variant="outline"
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          添加提示词
+        </Button>
+        <Button
+          onClick={() => setIsModelDialogOpen(true)}
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          添加新模型
+        </Button>
       </div>
 
       <Tabs defaultValue="models" className="space-y-6">
@@ -290,7 +282,7 @@ export default function AIModelManagement() {
                   {models.reduce((sum, m) => sum + m.usageStats.totalRequests, 0).toLocaleString()}
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  总成功率 {(models.reduce((sum, m) => sum + m.usageStats.successRate, 0) / models.length).toFixed(1)}%
+                  总成功�� {(models.reduce((sum, m) => sum + m.usageStats.successRate, 0) / models.length).toFixed(1)}%
                 </p>
               </CardContent>
             </Card>
@@ -560,7 +552,7 @@ export default function AIModelManagement() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="GPT">GPT系列</SelectItem>
-                    <SelectItem value="Claude">Claude系列</SelectItem>
+                    <SelectItem value="Claude">Claude��列</SelectItem>
                     <SelectItem value="Gemini">Gemini系列</SelectItem>
                     <SelectItem value="Custom">自定义模型</SelectItem>
                   </SelectContent>
