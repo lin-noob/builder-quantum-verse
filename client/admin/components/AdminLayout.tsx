@@ -115,24 +115,23 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       {/* 移动��头部 */}
       <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-card border-b border-border flex items-center justify-between px-4 z-50">
         <div className="flex items-center gap-3">
-          {/* User Profile Icon */}
-          <Link
-            to={currentUser ? "/account/settings" : "/auth"}
+          {/* Admin User Profile Icon */}
+          <div
             className={cn(
               "w-8 h-8 rounded-full flex items-center justify-center transition-colors",
-              currentUser
-                ? "bg-primary hover:bg-primary/90"
-                : "bg-gray-200 hover:bg-gray-300 border border-dashed border-gray-400",
+              currentAdminUser
+                ? "bg-red-600 hover:bg-red-700"
+                : "bg-gray-200 border border-dashed border-gray-400",
             )}
-            title={currentUser ? "个人设置" : "点击登录"}
+            title={currentAdminUser ? `${currentAdminUser.username} - 超级管理员` : "未登录"}
           >
             <User
               className={cn(
                 "h-4 w-4",
-                currentUser ? "text-primary-foreground" : "text-gray-500",
+                currentAdminUser ? "text-white" : "text-gray-500",
               )}
             />
-          </Link>
+          </div>
           <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
             <BarChart3 className="h-5 w-5 text-white" />
           </div>
