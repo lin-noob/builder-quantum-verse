@@ -228,7 +228,7 @@ const OrganizationDetail = () => {
     if (!inviteForm.email || !inviteForm.role || !organizationId) {
       toast({
         title: "表单验证失败",
-        description: "请填写完整的邀��信息",
+        description: "请填写完整的邀请信息",
         variant: "destructive",
       });
       return;
@@ -765,6 +765,33 @@ const OrganizationDetail = () => {
                 </TableBody>
               </Table>
             </div>
+
+            {/* Members Pagination */}
+            {totalMemberPages > 1 && (
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 pt-4 border-t">
+                <div className="text-sm text-gray-700 order-2 sm:order-1">
+                  正在显示 {startMemberIndex + 1} - {Math.min(endMemberIndex, sortedMembers.length)} 条，共 {sortedMembers.length} 条成员
+                </div>
+                <div className="flex items-center gap-2 order-1 sm:order-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentMemberPage(prev => Math.max(1, prev - 1))}
+                    disabled={currentMemberPage === 1}
+                  >
+                    上一页
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentMemberPage(prev => Math.min(totalMemberPages, prev + 1))}
+                    disabled={currentMemberPage === totalMemberPages}
+                  >
+                    下一页
+                  </Button>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -890,7 +917,7 @@ const OrganizationDetail = () => {
         </DialogContent>
       </Dialog>
 
-      {/* 状态确认弹窗 */}
+      {/* ��态确认弹窗 */}
       <AlertDialog open={statusConfirmOpen} onOpenChange={setStatusConfirmOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -920,7 +947,7 @@ const OrganizationDetail = () => {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* 初始密码显示弹窗 */}
+      {/* ��始密码显示弹窗 */}
       <Dialog open={passwordDialogOpen} onOpenChange={setPasswordDialogOpen}>
         <DialogContent>
           <DialogHeader>
