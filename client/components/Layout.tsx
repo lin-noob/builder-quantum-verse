@@ -285,30 +285,105 @@ export default function Layout({ children }: LayoutProps) {
                   )) ||
                 (item.id === "effect-tracking" &&
                   location.pathname.startsWith("/effect-tracking")) ||
-                (item.id === "admin" && location.pathname.startsWith("/admin"));
+                (item.id === "admin" && location.pathname.startsWith("/admin")) ||
+                (item.id === "system-management" &&
+                  (location.pathname.startsWith("/organization/members") ||
+                   location.pathname.startsWith("/organization/settings")))
 
               return (
                 <li key={item.id} className="relative group">
-                  <Link
-                    to={item.path}
-                    className={cn(
-                      "flex items-center rounded-lg text-sm font-medium transition-colors relative",
-                      isSidebarCollapsed
-                        ? "gap-0 px-3 py-2 justify-center"
-                        : "gap-3 px-3 py-2",
-                      isActive
-                        ? "bg-blue-50 text-blue-700 border border-blue-200"
-                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50",
-                    )}
-                    title={isSidebarCollapsed ? item.label : undefined}
-                  >
-                    {item.icon}
-                    {!isSidebarCollapsed && (
-                      <span className="whitespace-nowrap overflow-hidden">
-                        {item.label}
-                      </span>
-                    )}
-                  </Link>
+                  {/* 系统管理菜单（包含二级菜单） */}
+                  {item.id === "system-management" ? (
+                    <div>
+                      <button
+                        onClick={() => setIsSystemManagementExpanded(!isSystemManagementExpanded)}
+                        className={cn(
+                          "w-full flex items-center rounded-lg text-sm font-medium transition-colors relative",
+                          isSidebarCollapsed
+                            ? "gap-0 px-3 py-2 justify-center"
+                            : "gap-3 px-3 py-2 justify-between",
+                          isActive
+                            ? "bg-blue-50 text-blue-700 border border-blue-200"
+                            : "text-gray-600 hover:text-gray-900 hover:bg-gray-50",
+                        )}
+                        title={isSidebarCollapsed ? item.label : undefined}
+                      >
+                        <div className="flex items-center gap-3">
+                          {item.icon}
+                          {!isSidebarCollapsed && (
+                            <span className="whitespace-nowrap overflow-hidden">
+                              {item.label}
+                            </span>
+                          )}
+                        </div>
+                        {!isSidebarCollapsed && (
+                          <ChevronDown className={cn(
+                            "h-4 w-4 transition-transform",
+                            isSystemManagementExpanded ? "rotate-180" : ""
+                          )} />
+                        )}
+                      </button>
+
+                      {/* 二级菜单 */}
+                      {!isSidebarCollapsed && isSystemManagementExpanded && item.subItems && (
+                        <div className="mt-1 ml-6 space-y-1">
+                          {item.subItems.map((subItem) => {
+                            const subIsActive =
+                              location.pathname === subItem.path ||
+                              (subItem.id === "organization-members" &&
+                                location.pathname.startsWith("/organization/members")) ||
+                              (subItem.id === "organization-settings" &&
+                                location.pathname.startsWith("/organization/settings"));
+
+                            return (
+                              <Link
+                                key={subItem.id}
+                                to={subItem.path}
+                                className={cn(
+                                  "flex items-center gap-2 px-3 py-2 text-sm rounded-md transition-colors",
+                                  subIsActive
+                                    ? "bg-blue-50 text-blue-700 border border-blue-200"
+                                    : "text-gray-500 hover:text-gray-900 hover:bg-gray-50",
+                                )}
+                              >
+                                <div className="w-4 h-4 flex items-center justify-center">
+                                  <div className="w-1.5 h-1.5 bg-current rounded-full" />
+                                </div>
+                                {subItem.label}
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    /* 普通菜单项 */
+                    <Link
+                      to={item.path}
+                      className={cn(
+                        "flex items-center rounded-lg text-sm font-medium transition-colors relative",
+                        isSidebarCollapsed
+                          ? "gap-0 px-3 py-2 justify-center"
+                          : "gap-3 px-3 py-2",
+                        /* 特殊样式处理 */
+                        item.isSpecial
+                          ? isActive
+                            ? "bg-red-50 text-red-700 border border-red-200"
+                            : "text-red-600 hover:text-red-800 hover:bg-red-50 border border-red-200"
+                          : isActive
+                            ? "bg-blue-50 text-blue-700 border border-blue-200"
+                            : "text-gray-600 hover:text-gray-900 hover:bg-gray-50",
+                      )}
+                      title={isSidebarCollapsed ? item.label : undefined}
+                    >
+                      {item.icon}
+                      {!isSidebarCollapsed && (
+                        <span className="whitespace-nowrap overflow-hidden">
+                          {item.label}
+                        </span>
+                      )}
+                    </Link>
+                  )}
 
                   {/* AI Marketing Submenu */}
                   {item.id === "ai-marketing" && (
