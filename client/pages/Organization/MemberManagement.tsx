@@ -42,7 +42,6 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import {
   Users,
-  Plus,
   Search,
   Edit,
   UserCheck,
@@ -138,7 +137,7 @@ const MemberManagement = () => {
   const handleInviteMember = async () => {
     if (!inviteForm.email || !inviteForm.role) {
       toast({
-        title: "表单����证失败",
+        title: "表单��证失败",
         description: "请填写完整的邀请信息",
         variant: "destructive",
       });
@@ -448,7 +447,7 @@ const MemberManagement = () => {
             {/* 邀请按钮在左侧 */}
             <div className="flex justify-start">
               <Button onClick={() => setInviteDialogOpen(true)}>
-                邀请新成���
+                邀请新成员
               </Button>
             </div>
           </div>
