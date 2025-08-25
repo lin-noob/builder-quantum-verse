@@ -5,7 +5,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select,
   SelectContent,
@@ -144,7 +143,7 @@ const OrganizationDetail = () => {
       console.error("Failed to load organization:", error);
       toast({
         title: "加载失败",
-        description: "无法加载组织信息，请重试",
+        description: "无法加载组织信息��请重试",
         variant: "destructive",
       });
     } finally {
@@ -172,7 +171,7 @@ const OrganizationDetail = () => {
       console.error("Failed to load members:", error);
       toast({
         title: "加载失败",
-        description: "无法加载成���列表，请重试",
+        description: "无法加载成员列表，请重试",
         variant: "destructive",
       });
     } finally {
@@ -505,332 +504,291 @@ const OrganizationDetail = () => {
             <h1 className="text-2xl font-bold text-gray-900">{organization.name}</h1>
           </div>
         </div>
-        <div className="flex gap-2">
-          {isEditing ? (
-            <>
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setIsEditing(false);
-                  setOrgFormData({
-                    name: organization.name,
-                    accountStatus: organization.accountStatus,
-                    subscriptionPlan: organization.subscriptionPlan,
-                  });
-                }}
-              >
-                取消
-              </Button>
-              <Button onClick={handleSaveOrganization} disabled={saving}>
-                <Save className="h-4 w-4 mr-2" />
-                {saving ? "保存中..." : "保存"}
-              </Button>
-            </>
-          ) : (
-            <Button onClick={() => setIsEditing(true)}>
-              <Edit className="h-4 w-4 mr-2" />
-              编辑组织
-            </Button>
-          )}
-        </div>
       </div>
 
-      <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList>
-          <TabsTrigger value="overview">组织概览</TabsTrigger>
-          <TabsTrigger value="members">成员管理</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="overview" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* 基本信息 */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Building2 className="h-5 w-5" />
-                  基本信息
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label htmlFor="orgId">组织ID</Label>
-                  <Input
-                    id="orgId"
-                    value={organization.organizationId}
-                    readOnly
-                    className="bg-gray-50 text-gray-600"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="orgName">组织名称</Label>
-                  <Input
-                    id="orgName"
-                    value={orgFormData.name}
-                    onChange={(e) =>
-                      setOrgFormData((prev) => ({ ...prev, name: e.target.value }))
-                    }
-                    readOnly={!isEditing}
-                    className={!isEditing ? "bg-gray-50 text-gray-600" : ""}
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="accountStatus">账户状态</Label>
-                  {isEditing ? (
-                    <Select
-                      value={orgFormData.accountStatus}
-                      onValueChange={(value) =>
-                        setOrgFormData((prev) => ({ ...prev, accountStatus: value as AccountStatus }))
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value={AccountStatus.ACTIVE}>活跃</SelectItem>
-                        <SelectItem value={AccountStatus.SUSPENDED}>已暂停</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  ) : (
-                    <div className="mt-2">
-                      {getStatusBadge(organization.accountStatus)}
-                    </div>
-                  )}
-                </div>
-
-                <div>
-                  <Label htmlFor="subscriptionPlan">订阅套餐</Label>
-                  {isEditing ? (
-                    <Select
-                      value={orgFormData.subscriptionPlan}
-                      onValueChange={(value) =>
-                        setOrgFormData((prev) => ({ ...prev, subscriptionPlan: value as SubscriptionPlan }))
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value={SubscriptionPlan.INTERNAL_TRIAL}>内部试用</SelectItem>
-                        <SelectItem value={SubscriptionPlan.BASIC} disabled>基础版</SelectItem>
-                        <SelectItem value={SubscriptionPlan.PROFESSIONAL} disabled>专业版</SelectItem>
-                        <SelectItem value={SubscriptionPlan.ENTERPRISE} disabled>企业版</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  ) : (
-                    <div className="mt-2">
-                      {getSubscriptionBadge(organization.subscriptionPlan)}
-                    </div>
-                  )}
-                </div>
-
-                <div>
-                  <Label htmlFor="createdAt">创建时间</Label>
-                  <Input
-                  id="createdAt"
-                  value={formatDateTime(organization.createdAt)}
-                  readOnly
-                  className="bg-gray-50 text-gray-600"
-                />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* 统计信息 */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Users className="h-5 w-5" />
-                  统计信息
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-center p-4 bg-blue-50 rounded-lg">
-                    <div className="text-2xl font-bold text-blue-600">
-                      {organization.memberCount || 0}
-                    </div>
-                    <div className="text-sm text-blue-600">总成员数</div>
-                  </div>
-                  <div className="text-center p-4 bg-green-50 rounded-lg">
-                    <div className="text-2xl font-bold text-green-600">
-                      {organization.activeMemberCount || 0}
-                    </div>
-                    <div className="text-sm text-green-600">活跃成员</div>
-                  </div>
-                </div>
-                
-                <div className="text-center p-4 bg-gray-50 rounded-lg">
-                  <div className="text-lg font-semibold text-gray-700">
-                    {((organization.activeMemberCount || 0) / Math.max(organization.memberCount || 1, 1) * 100).toFixed(1)}%
-                  </div>
-                  <div className="text-sm text-gray-600">活���率</div>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="text-sm text-gray-600">管理员数量</div>
-                  <div className="text-lg font-semibold">
-                    {members.filter(m => m.role === MemberRole.ADMIN).length}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="members" className="space-y-6">
-          {/* 成员管理 */}
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex flex-col gap-4 mb-6">
-                {/* 筛选一行 */}
-                <div className="flex flex-col sm:flex-row gap-4 items-end justify-between">
-                  <div className="flex flex-col sm:flex-row gap-4 items-end flex-1">
-                    <div className="relative w-full sm:w-64">
-                      <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                      <Input
-                        placeholder="按姓名或��箱搜索成员..."
-                        value={memberSearchQuery}
-                        onChange={(e) => setMemberSearchQuery(e.target.value)}
-                        className="pl-10"
-                      />
-                    </div>
-                    <Select value={selectedMemberRole} onValueChange={(value) => setSelectedMemberRole(value as MemberRole | "ALL")}>
-                      <SelectTrigger className="w-full sm:w-[150px]">
-                        <SelectValue placeholder="角色筛选" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="ALL">所有角色</SelectItem>
-                        <SelectItem value={MemberRole.ADMIN}>管理员</SelectItem>
-                        <SelectItem value={MemberRole.MEMBER}>成员</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <Select value={selectedMemberStatus} onValueChange={(value) => setSelectedMemberStatus(value as AccountStatus | "ALL")}>
-                      <SelectTrigger className="w-full sm:w-[150px]">
-                        <SelectValue placeholder="状态筛选" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="ALL">��有状态</SelectItem>
-                        <SelectItem value={AccountStatus.ACTIVE}>活跃</SelectItem>
-                        <SelectItem value={AccountStatus.DISABLED}>已禁用</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  {/* 搜索重置按钮在右侧 */}
-                  <div className="flex gap-2">
-                    <Button variant="outline" onClick={() => loadMembers()}>
-                      搜索
-                    </Button>
+      {/* 组织概览 */}
+      <div className="space-y-6">
+        {/* 基本信息 */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2">
+                <Building2 className="h-5 w-5" />
+                基本信息
+              </CardTitle>
+              <div className="flex gap-2">
+                {isEditing ? (
+                  <>
                     <Button
                       variant="outline"
+                      size="sm"
                       onClick={() => {
-                        setMemberSearchQuery("");
-                        setSelectedMemberRole("ALL");
-                        setSelectedMemberStatus("ALL");
+                        setIsEditing(false);
+                        setOrgFormData({
+                          name: organization.name,
+                          accountStatus: organization.accountStatus,
+                          subscriptionPlan: organization.subscriptionPlan,
+                        });
                       }}
                     >
-                      重置
+                      取消
                     </Button>
+                    <Button size="sm" onClick={handleSaveOrganization} disabled={saving}>
+                      <Save className="h-4 w-4 mr-2" />
+                      {saving ? "保存中..." : "保存"}
+                    </Button>
+                  </>
+                ) : (
+                  <Button size="sm" onClick={() => setIsEditing(true)}>
+                    <Edit className="h-4 w-4 mr-2" />
+                    编辑组织
+                  </Button>
+                )}
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <Label htmlFor="orgId">组织ID</Label>
+              <Input
+                id="orgId"
+                value={organization.organizationId}
+                readOnly
+                className="bg-gray-50 text-gray-600"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="orgName">组织名称</Label>
+              <Input
+                id="orgName"
+                value={orgFormData.name}
+                onChange={(e) =>
+                  setOrgFormData((prev) => ({ ...prev, name: e.target.value }))
+                }
+                readOnly={!isEditing}
+                className={!isEditing ? "bg-gray-50 text-gray-600" : ""}
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="accountStatus">账户状态</Label>
+              {isEditing ? (
+                <Select
+                  value={orgFormData.accountStatus}
+                  onValueChange={(value) =>
+                    setOrgFormData((prev) => ({ ...prev, accountStatus: value as AccountStatus }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={AccountStatus.ACTIVE}>活跃</SelectItem>
+                    <SelectItem value={AccountStatus.SUSPENDED}>已暂停</SelectItem>
+                  </SelectContent>
+                </Select>
+              ) : (
+                <div className="mt-2">
+                  {getStatusBadge(organization.accountStatus)}
+                </div>
+              )}
+            </div>
+
+            <div>
+              <Label htmlFor="subscriptionPlan">订阅套餐</Label>
+              {isEditing ? (
+                <Select
+                  value={orgFormData.subscriptionPlan}
+                  onValueChange={(value) =>
+                    setOrgFormData((prev) => ({ ...prev, subscriptionPlan: value as SubscriptionPlan }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={SubscriptionPlan.INTERNAL_TRIAL}>内部试用</SelectItem>
+                    <SelectItem value={SubscriptionPlan.BASIC} disabled>基础版</SelectItem>
+                    <SelectItem value={SubscriptionPlan.PROFESSIONAL} disabled>专业��</SelectItem>
+                    <SelectItem value={SubscriptionPlan.ENTERPRISE} disabled>企业版</SelectItem>
+                  </SelectContent>
+                </Select>
+              ) : (
+                <div className="mt-2">
+                  {getSubscriptionBadge(organization.subscriptionPlan)}
+                </div>
+              )}
+            </div>
+
+            <div>
+              <Label htmlFor="createdAt">创建时间</Label>
+              <Input
+                id="createdAt"
+                value={formatDateTime(organization.createdAt)}
+                readOnly
+                className="bg-gray-50 text-gray-600"
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* 成员管理 */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Users className="h-5 w-5" />
+              成员管理
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-6">
+            <div className="flex flex-col gap-4 mb-6">
+              {/* 筛选一行 */}
+              <div className="flex flex-col sm:flex-row gap-4 items-end justify-between">
+                <div className="flex flex-col sm:flex-row gap-4 items-end flex-1">
+                  <div className="relative w-full sm:w-64">
+                    <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <Input
+                      placeholder="按姓名或邮箱搜索成员..."
+                      value={memberSearchQuery}
+                      onChange={(e) => setMemberSearchQuery(e.target.value)}
+                      className="pl-10"
+                    />
                   </div>
+                  <Select value={selectedMemberRole} onValueChange={(value) => setSelectedMemberRole(value as MemberRole | "ALL")}>
+                    <SelectTrigger className="w-full sm:w-[150px]">
+                      <SelectValue placeholder="角色筛选" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="ALL">所有角色</SelectItem>
+                      <SelectItem value={MemberRole.ADMIN}>管理员</SelectItem>
+                      <SelectItem value={MemberRole.MEMBER}>成员</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Select value={selectedMemberStatus} onValueChange={(value) => setSelectedMemberStatus(value as AccountStatus | "ALL")}>
+                    <SelectTrigger className="w-full sm:w-[150px]">
+                      <SelectValue placeholder="状态筛选" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="ALL">所有状态</SelectItem>
+                      <SelectItem value={AccountStatus.ACTIVE}>活跃</SelectItem>
+                      <SelectItem value={AccountStatus.DISABLED}>已禁用</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 
-                {/* 邀请按钮在左侧 */}
-                <div className="flex justify-start">
-                  <Button onClick={() => setInviteDialogOpen(true)}>
-                    邀请新成员
+                {/* 搜索重置按钮在右侧 */}
+                <div className="flex gap-2">
+                  <Button variant="outline" onClick={() => loadMembers()}>
+                    搜索
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setMemberSearchQuery("");
+                      setSelectedMemberRole("ALL");
+                      setSelectedMemberStatus("ALL");
+                    }}
+                  >
+                    重置
                   </Button>
                 </div>
               </div>
-
-              {/* 成员表格 */}
-              <div className="rounded-md border">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>成员</TableHead>
-                      <TableHead>角色</TableHead>
-                      <TableHead>状态</TableHead>
-                      <TableHead>
-                        <button
-                          onClick={() => handleMemberSort('lastLoginAt')}
-                          className="flex items-center gap-2 hover:text-gray-900"
-                        >
-                          最后登录时间
-                          {getSortIcon('lastLoginAt')}
-                        </button>
-                      </TableHead>
-                      <TableHead>
-                        <button
-                          onClick={() => handleMemberSort('createdAt')}
-                          className="flex items-center gap-2 hover:text-gray-900"
-                        >
-                          创建时间
-                          {getSortIcon('createdAt')}
-                        </button>
-                      </TableHead>
-                      <TableHead>操作</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {membersLoading ? (
-                      <TableRow>
-                        <TableCell colSpan={6} className="text-center py-8">
-                          <div className="animate-pulse">加载中...</div>
-                        </TableCell>
-                      </TableRow>
-                    ) : sortedMembers.length === 0 ? (
-                      <TableRow>
-                        <TableCell colSpan={6} className="text-center py-8">
-                          <div className="text-gray-500">暂无成员数据</div>
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      sortedMembers.map((member) => (
-                        <TableRow key={member.memberId}>
-                          <TableCell>
-                            <div>
-                              <div className="font-medium">{member.name}</div>
-                              <div className="text-sm text-gray-500">{member.email}</div>
-                            </div>
-                          </TableCell>
-                          <TableCell>{getRoleBadge(member.role)}</TableCell>
-                          <TableCell>{getStatusBadge(member.accountStatus)}</TableCell>
-                          <TableCell className="text-xs text-gray-600">
-                            {formatDateTime(member.lastLoginAt)}
-                          </TableCell>
-                          <TableCell className="text-xs text-gray-600">
-                            {formatDateTime(member.createdAt)}
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-4">
-                              <button
-                                onClick={() => openEditMemberDialog(member)}
-                                className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                              >
-                                编辑
-                              </button>
-                              <button
-                                onClick={() => openStatusConfirm(member)}
-                                className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                              >
-                                {member.accountStatus === AccountStatus.ACTIVE ? '禁用' : '启用'}
-                              </button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
+              
+              {/* 邀请按钮在左侧 */}
+              <div className="flex justify-start">
+                <Button onClick={() => setInviteDialogOpen(true)}>
+                  邀请新成员
+                </Button>
               </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+            </div>
 
-      {/* 邀请新成员弹窗 */}
+            {/* 成员表格 */}
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>成员</TableHead>
+                    <TableHead>角色</TableHead>
+                    <TableHead>状态</TableHead>
+                    <TableHead>
+                      <button
+                        onClick={() => handleMemberSort('lastLoginAt')}
+                        className="flex items-center gap-2 hover:text-gray-900"
+                      >
+                        最后登录时间
+                        {getSortIcon('lastLoginAt')}
+                      </button>
+                    </TableHead>
+                    <TableHead>
+                      <button
+                        onClick={() => handleMemberSort('createdAt')}
+                        className="flex items-center gap-2 hover:text-gray-900"
+                      >
+                        创建时间
+                        {getSortIcon('createdAt')}
+                      </button>
+                    </TableHead>
+                    <TableHead>操作</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {membersLoading ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center py-8">
+                        <div className="animate-pulse">加载中...</div>
+                      </TableCell>
+                    </TableRow>
+                  ) : sortedMembers.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center py-8">
+                        <div className="text-gray-500">暂无成员数据</div>
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    sortedMembers.map((member) => (
+                      <TableRow key={member.memberId}>
+                        <TableCell>
+                          <div>
+                            <div className="font-medium">{member.name}</div>
+                            <div className="text-sm text-gray-500">{member.email}</div>
+                          </div>
+                        </TableCell>
+                        <TableCell>{getRoleBadge(member.role)}</TableCell>
+                        <TableCell>{getStatusBadge(member.accountStatus)}</TableCell>
+                        <TableCell className="text-xs text-gray-600">
+                          {formatDateTime(member.lastLoginAt)}
+                        </TableCell>
+                        <TableCell className="text-xs text-gray-600">
+                          {formatDateTime(member.createdAt)}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-4">
+                            <button
+                              onClick={() => openEditMemberDialog(member)}
+                              className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                            >
+                              编辑
+                            </button>
+                            <button
+                              onClick={() => openStatusConfirm(member)}
+                              className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                            >
+                              {member.accountStatus === AccountStatus.ACTIVE ? '禁用' : '启用'}
+                            </button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* 邀请新成员弹��� */}
       <Dialog open={inviteDialogOpen} onOpenChange={setInviteDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -987,7 +945,7 @@ const OrganizationDetail = () => {
           <DialogHeader>
             <DialogTitle>成员创建成功</DialogTitle>
             <DialogDescription>
-              新成员账户已创建，请复制初始密码并安全地分享给���成员
+              新成员账户已创建，请复制初始密码并安全地分享给该成员
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
