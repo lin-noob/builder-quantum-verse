@@ -140,7 +140,7 @@ const OrganizationDetail = () => {
       console.error("Failed to load organization:", error);
       toast({
         title: "加载失败",
-        description: "无法加载组织信��，请重试",
+        description: "无法加载组织信息，请重试",
         variant: "destructive",
       });
     } finally {
@@ -208,7 +208,7 @@ const OrganizationDetail = () => {
     } catch (error) {
       console.error("Failed to save organization:", error);
       toast({
-        title: "保存失败",
+        title: "保存失��",
         description: "网络错误，请重试",
         variant: "destructive",
       });
@@ -798,21 +798,19 @@ const OrganizationDetail = () => {
                             {formatDate(member.createdAt)}
                           </TableCell>
                           <TableCell>
-                            <div className="flex gap-2">
-                              <Button 
-                                variant="outline" 
-                                size="sm"
+                            <div className="flex items-center gap-4">
+                              <button
                                 onClick={() => openEditMemberDialog(member)}
+                                className="text-blue-600 hover:text-blue-800 text-sm font-medium"
                               >
                                 编辑
-                              </Button>
-                              <Button 
-                                variant="outline" 
-                                size="sm"
+                              </button>
+                              <button
                                 onClick={() => openStatusConfirm(member)}
+                                className="text-blue-600 hover:text-blue-800 text-sm font-medium"
                               >
                                 {member.accountStatus === AccountStatus.ACTIVE ? '禁用' : '启用'}
-                              </Button>
+                              </button>
                             </div>
                           </TableCell>
                         </TableRow>
