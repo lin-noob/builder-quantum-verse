@@ -46,11 +46,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       icon: <LayoutDashboard className="h-5 w-5" />,
     },
     {
-      id: "users",
-      label: "用户管理",
-      path: "/admin/users",
+      id: "organizations",
+      label: "组织管理",
+      path: "/admin/organizations",
       icon: <Users className="h-5 w-5" />,
-      badge: "1248",
+      badge: "12",
     },
     {
       id: "ai-models",
