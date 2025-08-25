@@ -16,11 +16,19 @@ import {
   ChevronRight,
   User,
   Cog,
+  ChevronDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { adminAuthService } from "@/services/adminAuthService";
 import TabManager from "@/components/TabManager";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -113,27 +121,38 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       {/* 移动��头部 */}
       <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-card border-b border-border flex items-center justify-between px-4 z-50">
         <div className="flex items-center gap-3">
-          {/* Admin User Profile Icon */}
-          <div
-            className={cn(
-              "w-8 h-8 rounded-full flex items-center justify-center transition-colors",
-              currentAdminUser
-                ? "bg-red-600 hover:bg-red-700"
-                : "bg-gray-200 border border-dashed border-gray-400",
-            )}
-            title={
-              currentAdminUser
-                ? `${currentAdminUser.username} - 超级管理员`
-                : "未登录"
-            }
-          >
-            <User
-              className={cn(
-                "h-4 w-4",
-                currentAdminUser ? "text-white" : "text-gray-500",
-              )}
-            />
-          </div>
+          {/* Admin User Profile Dropdown */}
+          {currentAdminUser ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className="w-8 h-8 rounded-full flex items-center justify-center transition-colors bg-red-600 hover:bg-red-700"
+                  title="管理员信息"
+                >
+                  <User className="h-4 w-4 text-white" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem
+                  className="flex items-center gap-2 text-red-600 focus:text-red-600 cursor-pointer"
+                  onClick={() => {
+                    adminAuthService.adminLogout();
+                    window.location.href = "/admin/auth";
+                  }}
+                >
+                  <LogOut className="h-4 w-4" />
+                  退出登录
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <div
+              className="w-8 h-8 rounded-full flex items-center justify-center transition-colors bg-gray-200 border border-dashed border-gray-400"
+              title="未登录"
+            >
+              <User className="h-4 w-4 text-gray-500" />
+            </div>
+          )}
           <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
             <BarChart3 className="h-5 w-5 text-white" />
           </div>
@@ -315,52 +334,50 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         {/* 管理员信息 */}
         <div className="border-t border-gray-200 p-3 space-y-2">
           {currentAdminUser ? (
-            <>
-              <div
-                className={cn(
-                  "flex items-center gap-3 p-2 rounded-lg text-gray-700",
-                  isSidebarCollapsed ? "justify-center" : "justify-start",
-                )}
-                title={
-                  isSidebarCollapsed
-                    ? `${currentAdminUser.username} - 超级管理员`
-                    : ""
-                }
-              >
-                <div className="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center flex-shrink-0">
-                  <User className="h-4 w-4 text-white" />
-                </div>
-                {!isSidebarCollapsed && (
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 truncate">
-                      {currentAdminUser.username}
-                    </p>
-                    <p className="text-xs text-red-600 truncate font-medium">
-                      超级管理员
-                    </p>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className={cn(
+                    "flex items-center gap-3 p-2 rounded-lg text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-colors w-full",
+                    isSidebarCollapsed ? "justify-center" : "justify-start",
+                  )}
+                  title={
+                    isSidebarCollapsed
+                      ? `${currentAdminUser.username} - 超级管理员`
+                      : ""
+                  }
+                >
+                  <div className="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center flex-shrink-0">
+                    <User className="h-4 w-4 text-white" />
                   </div>
-                )}
-              </div>
-              {/* 退出登录按钮 */}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  adminAuthService.adminLogout();
-                  window.location.href = "/admin/auth";
-                }}
-                className={cn(
-                  "w-full flex items-center gap-2 p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 transition-colors",
-                  isSidebarCollapsed ? "justify-center" : "justify-start",
-                )}
-                title={isSidebarCollapsed ? "退出登录" : ""}
-              >
-                <LogOut className="h-4 w-4" />
-                {!isSidebarCollapsed && (
-                  <span className="text-sm">退出登录</span>
-                )}
-              </Button>
-            </>
+                  {!isSidebarCollapsed && (
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900 truncate">
+                        {currentAdminUser.username}
+                      </p>
+                      <p className="text-xs text-red-600 truncate font-medium">
+                        超级管理员
+                      </p>
+                    </div>
+                  )}
+                  {!isSidebarCollapsed && (
+                    <ChevronDown className="h-4 w-4 text-gray-400" />
+                  )}
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align={isSidebarCollapsed ? "start" : "end"} className="w-48">
+                <DropdownMenuItem
+                  className="flex items-center gap-2 text-red-600 focus:text-red-600 cursor-pointer"
+                  onClick={() => {
+                    adminAuthService.adminLogout();
+                    window.location.href = "/admin/auth";
+                  }}
+                >
+                  <LogOut className="h-4 w-4" />
+                  退出登录
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           ) : (
             <Link
               to="/admin/auth"
