@@ -47,6 +47,25 @@ export default function TabManager() {
   const [canScrollRight, setCanScrollRight] = useState(false);
   const tabsContainerRef = useRef<HTMLDivElement>(null);
 
+  // 监听路径变化，更新首页标签
+  useEffect(() => {
+    const isAdminPlatform = location.pathname.startsWith('/admin');
+    const homePath = isAdminPlatform ? "/admin" : "/dashboard";
+
+    setTabs(prevTabs => {
+      const updatedTabs = prevTabs.map(tab => {
+        if (tab.isHome) {
+          return {
+            ...tab,
+            path: homePath,
+          };
+        }
+        return tab;
+      });
+      return updatedTabs;
+    });
+  }, [location.pathname]);
+
   // 页面路��到标题的映射
   const pathToTitle = {
     "/dashboard": "仪表盘",
