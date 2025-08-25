@@ -211,7 +211,7 @@ const MemberManagement = () => {
     } catch (error) {
       console.error("Failed to update member:", error);
       toast({
-        title: "更新失败",
+        title: "���新失败",
         description: "网络错误，请重试",
         variant: "destructive",
       });
@@ -695,9 +695,23 @@ const MemberManagement = () => {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="text-sm text-gray-500">
-                <div>邮箱：{editingMember.email}</div>
-                <div>创建时间：{formatDate(editingMember.createdAt)}</div>
+              <div>
+                <Label htmlFor="edit-email">邮箱</Label>
+                <Input
+                  id="edit-email"
+                  value={editingMember.email}
+                  readOnly
+                  className="bg-gray-50 text-gray-600"
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-created">创建时间</Label>
+                <Input
+                  id="edit-created"
+                  value={formatDate(editingMember.createdAt)}
+                  readOnly
+                  className="bg-gray-50 text-gray-600"
+                />
               </div>
             </div>
           )}
