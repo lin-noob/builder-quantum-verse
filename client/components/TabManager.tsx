@@ -18,20 +18,25 @@ interface ContextMenu {
   targetTab: Tab | null;
 }
 
-const DEFAULT_TABS: Tab[] = [
-  {
-    id: "home",
-    title: "首页",
-    path: "/dashboard",
-    isHome: true,
-    isActive: true,
-  },
-];
-
 export default function TabManager() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [tabs, setTabs] = useState<Tab[]>(DEFAULT_TABS);
+
+  // 根据当前路径动态设置首页
+  const getDefaultTabs = (): Tab[] => {
+    const isAdminPlatform = location.pathname.startsWith('/admin');
+    return [
+      {
+        id: "home",
+        title: "首页",
+        path: isAdminPlatform ? "/admin" : "/dashboard",
+        isHome: true,
+        isActive: true,
+      },
+    ];
+  };
+
+  const [tabs, setTabs] = useState<Tab[]>(getDefaultTabs());
   const [contextMenu, setContextMenu] = useState<ContextMenu>({
     isOpen: false,
     x: 0,
