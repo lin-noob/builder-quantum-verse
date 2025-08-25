@@ -2,7 +2,7 @@ import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import AdminLayout from './components/AdminLayout';
 import AdminDashboard from './pages/AdminDashboard';
-import UserManagement from './pages/UserManagement';
+import OrganizationManagement from './pages/OrganizationManagement';
 import SystemConfig from './pages/SystemConfig';
 import AIModelManagement from './pages/AIModelManagement';
 import ScenarioConfiguration from './pages/ScenarioConfiguration';
