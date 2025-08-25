@@ -247,8 +247,10 @@ const MemberManagement = () => {
   };
 
   const openEditDialog = (member: Member) => {
+    console.log('Opening edit dialog for member:', member);
     setEditingMember({ ...member });
     setEditDialogOpen(true);
+    console.log('Edit dialog state set to true');
   };
 
   const openStatusConfirm = (member: Member) => {
@@ -511,9 +513,15 @@ const MemberManagement = () => {
         </DialogContent>
       </Dialog>
 
-      {/* 编辑成员弹窗 */}
-      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-        <DialogContent>
+      {/* 编��成员弹窗 */}
+      <Dialog open={editDialogOpen} onOpenChange={(open) => {
+        console.log('Dialog onOpenChange:', open);
+        setEditDialogOpen(open);
+        if (!open) {
+          setEditingMember(null);
+        }
+      }}>
+        <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>编辑成员信息</DialogTitle>
             <DialogDescription>
@@ -561,7 +569,11 @@ const MemberManagement = () => {
             </div>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
+            <Button variant="outline" onClick={() => {
+              console.log('Cancel button clicked');
+              setEditDialogOpen(false);
+              setEditingMember(null);
+            }}>
               取消
             </Button>
             <Button onClick={handleUpdateMember}>
