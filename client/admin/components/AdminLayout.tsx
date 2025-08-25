@@ -401,12 +401,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               </div>
             </div>
 
-            {/* ���回主平台 */}
-            <Link to="/dashboard">
-              <Button variant="outline" size="sm">
-                返回主平台
-              </Button>
-            </Link>
           </div>
         </header>
 
