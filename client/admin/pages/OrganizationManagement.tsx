@@ -334,7 +334,7 @@ const OrganizationManagement = () => {
     } else if (status === AccountStatus.SUSPENDED) {
       return <Badge variant="destructive">已暂停</Badge>;
     } else {
-      return <Badge variant="secondary">未���状态</Badge>;
+      return <Badge variant="secondary">未知状态</Badge>;
     }
   };
 
@@ -526,6 +526,21 @@ const OrganizationManagement = () => {
                         >
                           查看详情
                         </button>
+                        {organization.accountStatus === AccountStatus.ACTIVE ? (
+                          <button
+                            onClick={() => handleToggleOrganizationStatus(organization)}
+                            className="text-orange-600 hover:text-orange-800 text-sm font-medium"
+                          >
+                            暂停
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => handleToggleOrganizationStatus(organization)}
+                            className="text-green-600 hover:text-green-800 text-sm font-medium"
+                          >
+                            启用
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -788,7 +803,7 @@ const OrganizationManagement = () => {
                 />
               </div>
               <div>
-                <Label htmlFor="edit-members">成员统计</Label>
+                <Label htmlFor="edit-members">��员统计</Label>
                 <Input
                   id="edit-members"
                   value={`总计: ${editingOrganization.memberCount || 0} (活跃: ${editingOrganization.activeMemberCount || 0})`}
