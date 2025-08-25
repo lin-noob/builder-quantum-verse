@@ -16,6 +16,8 @@ import {
   Zap,
   User,
   Settings,
+  Shield,
+  ChevronDown,
 } from "lucide-react";
 import TabManager from "./TabManager";
 // import { ThemeToggle } from "./ThemeToggle"; // 已隐藏主题切换功能
