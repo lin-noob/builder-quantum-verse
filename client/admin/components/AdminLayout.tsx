@@ -39,12 +39,12 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const location = useLocation();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [currentUser, setCurrentUser] = useState(authService.getCurrentUser());
+  const [currentAdminUser, setCurrentAdminUser] = useState(adminAuthService.getCurrentAdminUser());
 
-  // 监听用户状态变化
+  // 监听管理员用户状态变化
   useEffect(() => {
-    const user = authService.getCurrentUser();
-    setCurrentUser(user);
+    const adminUser = adminAuthService.getCurrentAdminUser();
+    setCurrentAdminUser(adminUser);
   }, [location]);
 
   const menuItems: AdminMenuItem[] = [
