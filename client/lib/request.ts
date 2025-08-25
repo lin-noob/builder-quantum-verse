@@ -47,7 +47,7 @@ export interface RequestOptions
   data?: RequestData;
   /** 查询参数 */
   params?: Record<string, string | number | boolean>;
-  /** 响应类型 */
+  /** ��应类型 */
   responseType?: "json" | "text" | "blob" | "arrayBuffer";
 }
 
@@ -127,50 +127,33 @@ class RequestManager {
   }
 
   abortAllRequests() {
-    // 在开发环境中，使用更激进的静默处理
-    if (process.env.NODE_ENV === 'development') {
-      try {
-        const controllers = Array.from(this.requests.values());
-
-        // 使用 Promise-based 方法来完全静默处理错误
-        controllers.forEach((controller) => {
-          Promise.resolve().then(() => {
-            try {
-              if (controller && !controller.signal.aborted) {
-                controller.abort();
-              }
-            } catch (e) {
-              // 完全静默，不做任何处理
-            }
-          }).catch(() => {
-            // 捕获任何异步错误，完全静默
-          });
-        });
-      } catch (e) {
-        // 完全静默处理任何同步错误
-      } finally {
-        this.requests.clear();
-      }
-      return;
-    }
-
-    // 生产环境的处理
     try {
       const controllers = Array.from(this.requests.values());
 
       controllers.forEach((controller) => {
         try {
           if (controller && !controller.signal.aborted) {
-            controller.abort();
+            // 在调用 abort 之前，添加一个事件监听器来静默处理 AbortError
+            const originalSignal = controller.signal;
+            if (originalSignal && !originalSignal.aborted) {
+              // 静默调用 abort，不抛出任何错误
+              Promise.resolve().then(() => {
+                try {
+                  controller.abort(new DOMException('Request cancelled', 'AbortError'));
+                } catch (e) {
+                  // 静默处理
+                }
+              }).catch(() => {
+                // 静默处理异步错误
+              });
+            }
           }
         } catch (error) {
-          if (error instanceof Error && !error.name.includes('Abort')) {
-            console.warn('Error aborting request:', error);
-          }
+          // 静默处理所有错误
         }
       });
     } catch (error) {
-      console.warn('Error during request cleanup:', error);
+      // 静默处理顶级错误
     } finally {
       this.requests.clear();
     }
@@ -316,7 +299,7 @@ export class Request {
         if (!controller.signal.aborted) {
           if (process.env.NODE_ENV === 'development') {
             console.warn(`Request timeout after ${timeout}ms: ${requestId}`);
-            console.warn(`开发环境提示：请检查后端服务是否运行在配置的地址上`);
+            console.warn(`开发环境提示：请检查后端服务是否运行在��置的地址上`);
           }
           controller.abort(new Error("Request timeout"));
         }
