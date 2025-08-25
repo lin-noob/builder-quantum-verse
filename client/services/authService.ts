@@ -33,6 +33,50 @@ class AuthService {
     isAdmin: true
   };
 
+  constructor() {
+    // 在初始化时自动设置默认登录状态
+    this.initializeDefaultUser();
+  }
+
+  private initializeDefaultUser() {
+    try {
+      // 检查是否已有用户登录
+      const storedUser = localStorage.getItem('auth_user');
+      const storedToken = localStorage.getItem('auth_token');
+
+      if (storedUser && storedToken) {
+        // 如果已有用户登录，恢复用户状态
+        this.currentUser = JSON.parse(storedUser);
+        this.isAuthenticated = true;
+      } else {
+        // 如果没有用户登录，自动登录默认管理员
+        this.currentUser = {
+          id: this.defaultAdmin.id,
+          username: this.defaultAdmin.username,
+          email: this.defaultAdmin.email,
+          isAdmin: this.defaultAdmin.isAdmin
+        };
+        this.isAuthenticated = true;
+
+        // 存储到 localStorage
+        localStorage.setItem('auth_user', JSON.stringify(this.currentUser));
+        localStorage.setItem('auth_token', 'default_token_' + Date.now());
+      }
+    } catch (error) {
+      // 如果出错，设置默认用户
+      this.currentUser = {
+        id: this.defaultAdmin.id,
+        username: this.defaultAdmin.username,
+        email: this.defaultAdmin.email,
+        isAdmin: this.defaultAdmin.isAdmin
+      };
+      this.isAuthenticated = true;
+
+      localStorage.setItem('auth_user', JSON.stringify(this.currentUser));
+      localStorage.setItem('auth_token', 'default_token_' + Date.now());
+    }
+  }
+
   // 模拟用户数据库
   private users: Array<{
     id: string;
