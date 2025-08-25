@@ -93,6 +93,18 @@ export default function Layout({ children }: LayoutProps) {
   // 管理员专用菜单项
   const adminMenuItems: MenuItem[] = [
     {
+      id: "organization-members",
+      label: "成员管理",
+      path: "/organization/members",
+      icon: <Users className="h-5 w-5" />,
+    },
+    {
+      id: "organization-settings",
+      label: "组织设置",
+      path: "/organization/settings",
+      icon: <Settings className="h-5 w-5" />,
+    },
+    {
       id: "admin",
       label: "系统管理",
       path: "/admin",
