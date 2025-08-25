@@ -44,7 +44,6 @@ import {
   Users,
   Plus,
   Search,
-  MoreHorizontal,
   Edit,
   UserCheck,
   UserX,
