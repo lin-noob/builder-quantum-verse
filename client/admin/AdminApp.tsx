@@ -26,8 +26,8 @@ export default function AdminApp() {
         {/* 系统概览 */}
         <Route path="/" element={<AdminDashboard />} />
 
-        {/* 用户管理 */}
-        <Route path="/users" element={<UserManagement />} />
+        {/* 组织管理 */}
+        <Route path="/organizations" element={<OrganizationManagement />} />
 
         {/* 用户详情分析 */}
         <Route path="/users/:userId/details" element={<UserDetailsAnalytics />} />
