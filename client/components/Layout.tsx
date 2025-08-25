@@ -41,6 +41,7 @@ export default function Layout({ children }: LayoutProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [currentUser, setCurrentUser] = useState(authService.getCurrentUser());
+  const [isSystemManagementExpanded, setIsSystemManagementExpanded] = useState(false);
 
   // 监听用户状态变化
   useEffect(() => {
