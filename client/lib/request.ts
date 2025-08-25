@@ -333,13 +333,22 @@ export class Request {
             // 检查是否意外返回了 HTML
             if (textContent.trim().toLowerCase().startsWith("<!doctype") ||
                 textContent.trim().toLowerCase().startsWith("<html")) {
-              console.error("Expected JSON but received HTML:", {
-                url: response.url,
-                contentType,
-                preview: textContent.substring(0, 200) + "..."
-              });
 
-              throw new Error(`服务器返回了HTML页面而不是期望的JSON数据。可能的原因：\n1. API端点不存在\n2. 服务器配置错误\n3. 路由问题`);
+              if (process.env.NODE_ENV === 'development') {
+                console.group(`🚨 API Error: HTML Response When Expecting JSON`);
+                console.log(`URL: ${response.url}`);
+                console.log(`Status: ${response.status} (Success, but wrong content)`);
+                console.log(`Content-Type: ${contentType}`);
+                console.log(`Response Preview:`, textContent.substring(0, 300));
+                console.log(`Common causes:
+                  1. API endpoint path doesn't exist
+                  2. Frontend is calling wrong URL
+                  3. Server routing returns default HTML page for unknown routes
+                  4. API server not running, served static files instead`);
+                console.groupEnd();
+              }
+
+              throw new Error(`API返回了HTML页面而不是期望的JSON数据。请检查API端点是否正确配置。`);
             }
 
             // 尝试解析为 JSON（可能是没有正确设置 content-type 的 JSON）
@@ -437,7 +446,7 @@ export class Request {
       data,
       params,
       headers = {},
-      timeout = this.defaultConfig.timeout || 30000, // 增��超时时间到30秒
+      timeout = this.defaultConfig.timeout || 30000, // 增��超时��间到30秒
       credentials = this.defaultConfig.credentials,
       responseType = "json",
     } = config;
@@ -468,7 +477,7 @@ export class Request {
                   "AI会根据用户画像、购物车商品等信息，自主生成最合适的挽留或激励文案",
                 strategySummary:
                   "在用户犹豫或准备离开时进行精准挽留，提升订单转化率。",
-                coreStrategies: ["网页弹窗", "智能延迟", "个性化生成"],
+                coreStrategies: ["网页弹窗", "智能延���", "个性化生成"],
               },
             }),
             gmtCreate: "2024-01-10T10:00:00Z",
@@ -477,7 +486,7 @@ export class Request {
           },
           {
             id: "view_product",
-            sceneName: "���品浏览",
+            sceneName: "商品浏览",
             status: 0,
             aiStrategyConfig: JSON.stringify({
               defaultAIConfig: {
@@ -541,7 +550,7 @@ export class Request {
                 timingStrategy: "SMART_DELAY",
                 contentStrategy: "FULLY_GENERATIVE",
                 description:
-                  "AI会根据��户画像、购物车商品等信息，自主生成最合适的挽留或激励文案",
+                  "AI会根据用户画像、购物车商品等信息，自主生成最合适的挽留或激励文案",
                 strategySummary:
                   "在用户犹豫或准备离开时进行精准挽留，提升订单转化率。",
                 coreStrategies: ["网页弹窗", "智能延迟", "个性化生成"],
@@ -716,7 +725,7 @@ export class Request {
         error instanceof Error &&
         (error.name === "AbortError" || error.message.includes("aborted"))
       ) {
-        // AbortError 通常是由以下情况���起的：
+        // AbortError 通常是由以下情况引起的：
         // 1. 用户导航到其他页面
         // 2. 组件卸载
         // 3. 开发环境的热重载
