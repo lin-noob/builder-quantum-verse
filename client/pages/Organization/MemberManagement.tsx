@@ -444,7 +444,7 @@ const MemberManagement = () => {
                   <SelectValue placeholder="状态筛选" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ALL">所有��态</SelectItem>
+                  <SelectItem value="ALL">所有状态</SelectItem>
                   <SelectItem value={AccountStatus.ACTIVE}>活跃</SelectItem>
                   <SelectItem value={AccountStatus.DISABLED}>已禁用</SelectItem>
                 </SelectContent>
@@ -553,6 +553,12 @@ const MemberManagement = () => {
                             ? "禁用"
                             : "启用"}
                         </button>
+                        <button
+                          onClick={() => handleResetPassword(member)}
+                          className="text-orange-600 hover:text-orange-800 text-sm font-medium"
+                        >
+                          重置密码
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -601,7 +607,7 @@ const MemberManagement = () => {
           <DialogHeader>
             <DialogTitle>邀请新成员</DialogTitle>
             <DialogDescription>
-              为组织添加新的团队成员，系统将自动生成初始密码
+              为组织添加新的团队成员，系统将自动生成���始密码
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
