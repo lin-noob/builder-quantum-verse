@@ -52,6 +52,7 @@ import {
   Calendar,
   Eye,
   Copy,
+  RotateCcw,
 } from "lucide-react";
 import {
   Member,
@@ -236,7 +237,7 @@ const MemberManagement = () => {
         loadMembers();
       } else {
         toast({
-          title: "状态更新失败",
+          title: "状态更��失败",
           description: response.message,
           variant: "destructive",
         });
@@ -407,7 +408,7 @@ const MemberManagement = () => {
                   }
                 >
                   <SelectTrigger className="w-full sm:w-[150px]">
-                    <SelectValue placeholder="状态筛选" />
+                    <SelectValue placeholder="���态筛选" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="ALL">所有状态</SelectItem>
