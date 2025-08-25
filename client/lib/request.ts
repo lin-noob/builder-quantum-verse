@@ -305,7 +305,13 @@ export class Request {
             console.warn(`Request timeout after ${timeout}ms: ${requestId}`);
             console.warn(`开发环境提示：请检查后端服务是否运行在��置的地址上`);
           }
-          controller.abort(new Error("Request timeout"));
+          // 使用 DOMException 而不是 Error，���样更符合浏览器标准
+          try {
+            controller.abort(new DOMException("Request timeout", "AbortError"));
+          } catch (err) {
+            // 某些环境可能不支持传递 reason，回退到普通的 abort()
+            controller.abort();
+          }
         }
       } catch (error) {
         // 静默处理超时abort中的错误
@@ -497,7 +503,7 @@ export class Request {
               defaultAIConfig: {
                 description: "为新注册用户提供个性化欢迎内容和新手引导",
                 strategySummary: "提升新用户的首次购买转化率。",
-                coreStrategies: ["欢迎引导", "新手优惠", "个性化推荐"],
+                coreStrategies: ["欢迎引��", "新手优惠", "个性化推荐"],
               },
             }),
             gmtCreate: "2024-01-05T08:30:00Z",
