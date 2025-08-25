@@ -720,7 +720,7 @@ const OrganizationDetail = () => {
                         <div className="animate-pulse">加载中...</div>
                       </TableCell>
                     </TableRow>
-                  ) : sortedMembers.length === 0 ? (
+                  ) : currentMembers.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={6} className="text-center py-8">
                         <div className="text-gray-500">暂无成员数据</div>
