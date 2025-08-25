@@ -99,7 +99,7 @@ const MemberManagement = () => {
   
   const { toast } = useToast();
   
-  // 当前组织ID（实际应用中��该从认证上下文获取）
+  // 当前组织ID（实际应用中应该从认证上下文获取）
   const currentOrganizationId = "org_demo_001";
 
   useEffect(() => {
@@ -318,15 +318,12 @@ const MemberManagement = () => {
 
       {/* 搜索和过滤 */}
       <Card>
-        <CardHeader>
-          <CardTitle>成员列表</CardTitle>
-        </CardHeader>
-        <CardContent>
+        <CardContent className="pt-6">
           <div className="flex flex-col sm:flex-row gap-4 mb-6">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
               <Input
-                placeholder="���姓名或邮箱搜索成员..."
+                placeholder="按姓名或邮箱搜索成员..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10"
@@ -370,18 +367,9 @@ const MemberManagement = () => {
                 {members.map((member) => (
                   <TableRow key={member.memberId}>
                     <TableCell>
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
-                          {member.avatar ? (
-                            <img src={member.avatar} alt={member.name} className="w-8 h-8 rounded-full" />
-                          ) : (
-                            <User className="h-4 w-4 text-gray-400" />
-                          )}
-                        </div>
-                        <div>
-                          <div className="font-medium">{member.name}</div>
-                          <div className="text-sm text-gray-500">{member.email}</div>
-                        </div>
+                      <div>
+                        <div className="font-medium">{member.name}</div>
+                        <div className="text-sm text-gray-500">{member.email}</div>
                       </div>
                     </TableCell>
                     <TableCell>{getRoleBadge(member.role)}</TableCell>
@@ -574,7 +562,7 @@ const MemberManagement = () => {
               ) : (
                 <>
                   您确定要启用「{statusChangeMember?.name}」的账户吗？
-                  启用后该成员将可以正常登录系统。
+                  启用后该成员将可以���常登录系统。
                 </>
               )}
             </AlertDialogDescription>
