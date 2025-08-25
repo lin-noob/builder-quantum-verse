@@ -188,7 +188,7 @@ const OrganizationDetail = () => {
       const updateRequest: UpdateOrganizationRequest = {
         organizationId: organizationId,
         name: orgFormData.name,
-        accountStatus: orgFormData.accountStatus,
+        accountStatus: organization.accountStatus, // 使用原始状态，不从表单获取
         subscriptionPlan: orgFormData.subscriptionPlan,
       };
 
