@@ -46,7 +46,7 @@ import APIDebugHelper from "./components/APIDebugHelper";
 
 const queryClient = new QueryClient();
 
-// 请求管理��装组件
+// 请求管理包装组件
 const AppWithRequestManager = () => {
   usePageRequestManager(); // 使��页面级请求管理
 
@@ -346,12 +346,7 @@ const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
       <AppWithRequestManager />
-      {process.env.NODE_ENV === 'development' && (
-        <>
-          <AbortErrorTestComponent />
-          <APIDebugHelper />
-        </>
-      )}
+      {process.env.NODE_ENV === 'development' && <APIDebugHelper />}
     </QueryClientProvider>
   </ErrorBoundary>
 );
