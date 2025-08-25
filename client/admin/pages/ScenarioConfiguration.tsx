@@ -51,6 +51,10 @@ export default function ScenarioConfiguration() {
   const [expandedScenarios, setExpandedScenarios] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [scenariosPerPage] = useState(5);
+
   useEffect(() => {
     loadScenarios();
   }, []);
@@ -65,6 +69,12 @@ export default function ScenarioConfiguration() {
       setLoading(false);
     }
   };
+
+  // Pagination logic
+  const totalPages = Math.ceil(scenarios.length / scenariosPerPage);
+  const startIndex = (currentPage - 1) * scenariosPerPage;
+  const endIndex = startIndex + scenariosPerPage;
+  const currentScenarios = scenarios.slice(startIndex, endIndex);
 
   const getActionTypeIcon = (type: ActionType) => {
     switch (type) {
@@ -259,7 +269,7 @@ export default function ScenarioConfiguration() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {scenarios.map((scenario) => (
+          {currentScenarios.map((scenario) => (
             <div key={scenario.scenarioId} className="border rounded-lg">
               {/* 场景主信息 */}
               <div className="p-4">
