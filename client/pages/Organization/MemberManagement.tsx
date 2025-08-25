@@ -76,6 +76,10 @@ const MemberManagement = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
 
+  // 排序状态
+  const [sortField, setSortField] = useState<'lastLoginAt' | 'createdAt' | null>('lastLoginAt');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+
   // 弹窗状态
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -358,7 +362,7 @@ const MemberManagement = () => {
                 }
               >
                 <SelectTrigger className="w-full sm:w-[150px]">
-                  <SelectValue placeholder="角色筛选" />
+                  <SelectValue placeholder="角色筛��" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="ALL">所有角色</SelectItem>
