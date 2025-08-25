@@ -594,7 +594,7 @@ const OrganizationDetail = () => {
                   <SelectContent>
                     <SelectItem value={SubscriptionPlan.INTERNAL_TRIAL}>内部试用</SelectItem>
                     <SelectItem value={SubscriptionPlan.BASIC} disabled>基础版</SelectItem>
-                    <SelectItem value={SubscriptionPlan.PROFESSIONAL} disabled>专业��</SelectItem>
+                    <SelectItem value={SubscriptionPlan.PROFESSIONAL} disabled>专业版</SelectItem>
                     <SelectItem value={SubscriptionPlan.ENTERPRISE} disabled>企业版</SelectItem>
                   </SelectContent>
                 </Select>
