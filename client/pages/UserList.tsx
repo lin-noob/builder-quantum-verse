@@ -611,7 +611,7 @@ export default function UserList() {
                       </td>
                       <td className="px-6 py-4">
                         <Link
-                          to={`/users/${user.id}`}
+                          to={`/users1/${user.id}`}
                           className="text-blue-600 hover:text-blue-800 text-sm font-medium"
                         >
                           查看详情
