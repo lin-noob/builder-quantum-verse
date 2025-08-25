@@ -153,24 +153,49 @@ export default function Layout({ children }: LayoutProps) {
       {/* Mobile Header */}
       <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-card border-b border-border flex items-center justify-between px-4 z-50">
         <div className="flex items-center gap-3">
-          {/* User Profile Icon */}
-          <Link
-            to={currentUser ? "/account/settings" : "/auth"}
-            className={cn(
-              "w-8 h-8 rounded-full flex items-center justify-center transition-colors",
-              currentUser
-                ? "bg-primary hover:bg-primary/90"
-                : "bg-gray-200 hover:bg-gray-300 border border-dashed border-gray-400",
-            )}
-            title={currentUser ? "个人设置" : "点击登录"}
-          >
-            <User
-              className={cn(
-                "h-4 w-4",
-                currentUser ? "text-primary-foreground" : "text-gray-500",
-              )}
-            />
-          </Link>
+          {/* User Profile Dropdown */}
+          {currentUser ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className="w-8 h-8 rounded-full flex items-center justify-center transition-colors bg-primary hover:bg-primary/90"
+                  title="个人信息"
+                >
+                  <User className="h-4 w-4 text-primary-foreground" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem asChild>
+                  <Link
+                    to="/account/settings"
+                    className="flex items-center gap-2 cursor-pointer"
+                  >
+                    <Settings className="h-4 w-4" />
+                    个人设置
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="flex items-center gap-2 text-red-600 focus:text-red-600 cursor-pointer"
+                  onClick={() => {
+                    authService.logout();
+                    window.location.href = "/auth";
+                  }}
+                >
+                  <LogOut className="h-4 w-4" />
+                  退出登录
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Link
+              to="/auth"
+              className="w-8 h-8 rounded-full flex items-center justify-center transition-colors bg-gray-200 hover:bg-gray-300 border border-dashed border-gray-400"
+              title="点击登录"
+            >
+              <User className="h-4 w-4 text-gray-500" />
+            </Link>
+          )}
           <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
             <BarChart3 className="h-5 w-5 text-white" />
           </div>
