@@ -54,6 +54,9 @@ if (process.env.NODE_ENV === "development") {
   };
 }
 
+// Initialize global error handler
+setupGlobalErrorHandler();
+
 // Add global error handling for AbortErrors
 if (process.env.NODE_ENV === "development") {
   // Catch any remaining unhandled promise rejections
