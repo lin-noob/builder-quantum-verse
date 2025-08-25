@@ -42,7 +42,7 @@ export type Permission = {
   action: 'read' | 'write' | 'delete' | 'execute';
 };
 
-// 角���类型定义
+// 角色类型定义
 export type Role = {
   id: string;
   name: string;
@@ -78,7 +78,7 @@ const mockPermissions: Permission[] = [
   { id: 'ai_model_execute', name: '测试AI模型', description: '执行AI模型测试和调试', category: 'ai', resource: 'ai_models', action: 'execute' },
   
   // 场景配置权限
-  { id: 'scenario_read', name: '查看营销场景', description: '查看营销场景配置', category: 'scenario', resource: 'scenarios', action: 'read' },
+  { id: 'scenario_read', name: '查看营销场景', description: '查看营销场��配置', category: 'scenario', resource: 'scenarios', action: 'read' },
   { id: 'scenario_write', name: '配置营销场景', description: '编辑营销场景和规则', category: 'scenario', resource: 'scenarios', action: 'write' },
   { id: 'scenario_execute', name: '执行营销场景', description: '启用/禁用营销场景', category: 'scenario', resource: 'scenarios', action: 'execute' },
   
@@ -89,7 +89,7 @@ const mockPermissions: Permission[] = [
   
   // 数据管理权限
   { id: 'data_read', name: '查看数据', description: '查看业务数据和报表', category: 'data', resource: 'data', action: 'read' },
-  { id: 'data_write', name: '管理数据', description: '导��导出数据', category: 'data', resource: 'data', action: 'write' },
+  { id: 'data_write', name: '管理数据', description: '导入导出数据', category: 'data', resource: 'data', action: 'write' },
   { id: 'data_delete', name: '删除数据', description: '删除业务数据', category: 'data', resource: 'data', action: 'delete' },
 ];
 
@@ -109,7 +109,7 @@ const mockRoles: Role[] = [
   {
     id: 'admin',
     name: '系统管理员',
-    description: '拥有大部分系统权限���负责日常运营管理',
+    description: '拥有大部分系统权限，负责日常运营管理',
     color: 'bg-blue-100 text-blue-800',
     isSystem: true,
     permissions: [
@@ -680,7 +680,7 @@ export default function SecurityPermissions() {
               取消
             </Button>
             <Button onClick={() => {
-              // 这里应该处理保存逻辑
+              // 这里应���处理保存逻辑
               setIsRoleDialogOpen(false);
               setSelectedRole(null);
             }}>
