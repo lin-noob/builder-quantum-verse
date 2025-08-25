@@ -90,6 +90,10 @@ const OrganizationDetail = () => {
   const [memberSortField, setMemberSortField] = useState<'lastLoginAt' | 'createdAt' | null>('lastLoginAt');
   const [memberSortOrder, setMemberSortOrder] = useState<'asc' | 'desc'>('desc');
 
+  // 成员列表分页状态
+  const [currentMemberPage, setCurrentMemberPage] = useState(1);
+  const [membersPerPage] = useState(10);
+
   // 弹窗状态
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
   const [editMemberDialogOpen, setEditMemberDialogOpen] = useState(false);
@@ -588,7 +592,7 @@ const OrganizationDetail = () => {
                     <SelectContent>
                       <SelectItem value={SubscriptionPlan.INTERNAL_TRIAL}>内部试用</SelectItem>
                       <SelectItem value={SubscriptionPlan.BASIC} disabled>基础版</SelectItem>
-                      <SelectItem value={SubscriptionPlan.PROFESSIONAL} disabled>专业版</SelectItem>
+                      <SelectItem value={SubscriptionPlan.PROFESSIONAL} disabled>专业��</SelectItem>
                       <SelectItem value={SubscriptionPlan.ENTERPRISE} disabled>企业版</SelectItem>
                     </SelectContent>
                   </Select>
