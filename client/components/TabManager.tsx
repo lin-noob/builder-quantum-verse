@@ -71,6 +71,7 @@ export default function TabManager() {
     "/dashboard": "仪表盘",
     "/": "仪表盘",
     "/dashboard2": "仪表盘",
+    "/admin": "系统概览",
     "/users": "用户画像",
     "/users2": "用户画像",
     "/response-actions": "响应动作库",
@@ -190,7 +191,7 @@ export default function TabManager() {
           const pathParts = currentPath.split("/").filter(Boolean);
           const lastPart = pathParts[pathParts.length - 1] || "页面";
 
-          // 简单的英文到中文映射
+          // ��单的英文到中文映射
           const englishToChinese = {
             scenarios: "场景列表",
             monitoring: "监控",
