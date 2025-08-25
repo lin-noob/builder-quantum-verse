@@ -383,7 +383,7 @@ const MemberManagement = () => {
         <CardContent className="pt-6">
           <div className="flex flex-col gap-4 mb-6">
             {/* 筛选和按钮一行 */}
-            <div className="flex flex-col sm:flex-row gap-4 items-end">
+            <div className="flex flex-col sm:flex-row gap-4 items-end justify-between">
               <div className="relative w-full sm:w-64">
                 <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                 <Input
@@ -632,7 +632,7 @@ const MemberManagement = () => {
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>编辑成员信息</DialogTitle>
-            <DialogDescription>修改成员的基本信息和角色权限</DialogDescription>
+            <DialogDescription>修改成员的基本信息和角色权���</DialogDescription>
           </DialogHeader>
           {editingMember && (
             <div className="space-y-4">
