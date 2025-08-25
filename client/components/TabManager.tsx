@@ -153,6 +153,8 @@ export default function TabManager() {
           currentPath.includes("/users2/")
         ) {
           title = "用户详情";
+        } else if (currentPath.includes("/admin/organizations/") && currentPath.split("/").length > 3) {
+          title = "组织详情";
         } else if (currentPath.includes("/response-actions/")) {
           if (currentPath.includes("/create")) {
             title = "创建响应动作";
@@ -245,7 +247,7 @@ export default function TabManager() {
     }
   }, [checkScrollStatus]);
 
-  // 监听窗口大小变化
+  // 监听窗口��小变化
   useEffect(() => {
     window.addEventListener("resize", checkScrollStatus);
     return () => window.removeEventListener("resize", checkScrollStatus);
