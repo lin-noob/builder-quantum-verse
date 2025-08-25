@@ -525,7 +525,7 @@ const OrganizationManagement = () => {
           <DialogHeader>
             <DialogTitle>创建新组织</DialogTitle>
             <DialogDescription>
-              为新客户创建独立的组织工作空间，��同时创建首位管理员账户
+              为新客户创建独立的组织工作空间，并同时创建首位管理员账户
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
