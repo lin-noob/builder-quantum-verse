@@ -27,13 +27,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+// Dropdown menu imports removed - using direct buttons instead
 import {
   AlertDialog,
   AlertDialogAction,
@@ -649,7 +643,7 @@ const OrganizationManagement = () => {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>编辑组织信息</DialogTitle>
-            <DialogDescription>修改组织的基本信息和状态</DialogDescription>
+            <DialogDescription>修改��织的基本信息和状态</DialogDescription>
           </DialogHeader>
           {editingOrganization && (
             <div className="space-y-4">
@@ -785,7 +779,7 @@ const OrganizationManagement = () => {
           )}
           <DialogFooter>
             <Button onClick={() => setPasswordDialogOpen(false)}>
-              我已保���凭证
+              我已保存凭证
             </Button>
           </DialogFooter>
         </DialogContent>
