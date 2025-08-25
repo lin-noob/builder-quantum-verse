@@ -228,7 +228,7 @@ const OrganizationDetail = () => {
     if (!inviteForm.email || !inviteForm.role || !organizationId) {
       toast({
         title: "表单验证失败",
-        description: "请填写完整的邀请信息",
+        description: "请填写完整的邀��信息",
         variant: "destructive",
       });
       return;
@@ -727,7 +727,7 @@ const OrganizationDetail = () => {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    sortedMembers.map((member) => (
+                    currentMembers.map((member) => (
                       <TableRow key={member.memberId}>
                         <TableCell>
                           <div>
