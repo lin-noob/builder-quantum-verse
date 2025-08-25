@@ -301,7 +301,7 @@ export default function UserManagement() {
   };
 
   const handleDeleteUser = (userId: string) => {
-    if (confirm('���定要删除这个用户吗？')) {
+    if (confirm('确定要删除这个用户吗？')) {
       setUsers(prev => prev.filter(u => u.id !== userId));
     }
   };
@@ -344,7 +344,7 @@ export default function UserManagement() {
         <div>
           <h1 className="text-2xl font-bold text-gray-900">用户管理</h1>
           <p className="text-sm text-gray-600 mt-1">
-            管��系统用户账户、角色权限和状态
+            管理系统用户账户、角色权限和状态
           </p>
         </div>
         <Button onClick={handleAddUser}>
