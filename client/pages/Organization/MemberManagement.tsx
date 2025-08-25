@@ -231,7 +231,7 @@ const MemberManagement = () => {
         loadMembers();
       } else {
         toast({
-          title: "状态��新失败",
+          title: "状态更新失败",
           description: response.message,
           variant: "destructive",
         });
@@ -417,7 +417,11 @@ const MemberManagement = () => {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => openEditDialog(member)}>
+                          <DropdownMenuItem onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            openEditDialog(member);
+                          }}>
                             <Edit className="mr-2 h-4 w-4" />
                             编辑信息
                           </DropdownMenuItem>
@@ -477,7 +481,7 @@ const MemberManagement = () => {
           <DialogHeader>
             <DialogTitle>邀请新成员</DialogTitle>
             <DialogDescription>
-              ���组织添加新的团队成员，系统将自动生成初始密码
+              为组织添加新的团队成员，系统将自动生成初始密码
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
@@ -610,7 +614,7 @@ const MemberManagement = () => {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>取��</AlertDialogCancel>
+            <AlertDialogCancel>取消</AlertDialogCancel>
             <AlertDialogAction onClick={handleToggleStatus}>
               {statusChangeMember?.accountStatus === AccountStatus.ACTIVE ? "禁用" : "启用"}
             </AlertDialogAction>
