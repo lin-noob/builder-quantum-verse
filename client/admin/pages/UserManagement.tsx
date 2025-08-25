@@ -182,7 +182,7 @@ const mockUsers: UserData[] = [
   },
   {
     id: '5',
-    name: '刘��员',
+    name: '刘专员',
     email: 'liu.specialist@corp.com',
     phone: '+86 138-5005-0005',
     roles: ['operator'],
@@ -222,7 +222,7 @@ const mockUsers: UserData[] = [
     status: 'active',
     lastLogin: '2025/01/18 15:30',
     createdAt: '2024/07/03',
-    department: '咨询部'
+    department: '咨询���'
   }
 ];
 
@@ -339,19 +339,6 @@ export default function UserManagement() {
 
   return (
     <div className="p-6 space-y-6">
-      {/* 页面标题 */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">用户管理</h1>
-          <p className="text-sm text-gray-600 mt-1">
-            管理系统用户账户、角色权限和状态
-          </p>
-        </div>
-        <Button onClick={handleAddUser}>
-          <Plus className="h-4 w-4 mr-2" />
-          添加用户
-        </Button>
-      </div>
 
       {/* 统计卡片 */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -416,7 +403,7 @@ export default function UserManagement() {
               <div className="relative">
                 <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="搜索用户名、邮���或手机号..."
+                  placeholder="搜索用户名、邮箱或手机号..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10"
@@ -616,7 +603,7 @@ export default function UserManagement() {
                       ...prev,
                       department: e.target.value
                     }))}
-                    placeholder="所属部门"
+                    placeholder="��属部门"
                   />
                 </div>
               </div>
