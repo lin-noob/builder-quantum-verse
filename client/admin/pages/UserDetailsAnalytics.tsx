@@ -170,7 +170,7 @@ const mockUserAnalytics: UserAnalytics = {
     ],
     commonPaths: [
       { path: '登录 → 仪表盘 → AI营销策略', frequency: 156 },
-      { path: '登录 → 用户分析 → 查看详情', frequency: 89 },
+      { path: '登录 → 用户分析 ��� 查看详情', frequency: 89 },
       { path: '登录 → 营销监控 → 实时数据', frequency: 134 },
       { path: '登录 → 效果追踪 → 分析报告', frequency: 98 }
     ],
@@ -264,15 +264,6 @@ export default function UserDetailsAnalytics() {
 
   return (
     <div className="p-6 space-y-6">
-      {/* ���面标题 */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">用户详情分析</h1>
-          <p className="text-sm text-gray-600 mt-1">
-            {analytics.basicInfo.name} 的使用数据和行为分析
-          </p>
-        </div>
-      </div>
 
       {/* 用户基本信息卡片 */}
       <Card>
