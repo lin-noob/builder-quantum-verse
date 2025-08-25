@@ -195,22 +195,6 @@ export default function AdminAuth() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        {/* 系统标识 */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-red-600 rounded-xl mb-4">
-            <Shield className="h-8 w-8 text-white" />
-          </div>
-          <h1 className="text-2xl font-bold text-gray-900">AI营销系统</h1>
-          <p className="text-gray-600 mt-2">超级管理员后台</p>
-        </div>
-
-        {/* 安全提醒 */}
-        <Alert className="mb-6 border-red-200 bg-red-50">
-          <AlertTriangle className="h-4 w-4 text-red-600" />
-          <AlertDescription className="text-red-800">
-            <strong>安全提醒：</strong>此为超级管理员系统，仅限授权人员访问。所有操作将被记录和监控。
-          </AlertDescription>
-        </Alert>
 
         <Card className="border-0 shadow-xl">
           <CardHeader className="space-y-1 pb-4">
