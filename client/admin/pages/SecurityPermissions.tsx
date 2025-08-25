@@ -78,7 +78,7 @@ const mockPermissions: Permission[] = [
   { id: 'ai_model_execute', name: '测试AI模型', description: '执行AI模型测试和调试', category: 'ai', resource: 'ai_models', action: 'execute' },
   
   // 场景配置权限
-  { id: 'scenario_read', name: '查看营销场景', description: '查看营销场��配置', category: 'scenario', resource: 'scenarios', action: 'read' },
+  { id: 'scenario_read', name: '查看���销场景', description: '查看营销场��配置', category: 'scenario', resource: 'scenarios', action: 'read' },
   { id: 'scenario_write', name: '配置营销场景', description: '编辑营销场景和规则', category: 'scenario', resource: 'scenarios', action: 'write' },
   { id: 'scenario_execute', name: '执行营销场景', description: '启用/禁用营销场景', category: 'scenario', resource: 'scenarios', action: 'execute' },
   
@@ -378,7 +378,7 @@ export default function SecurityPermissions() {
           <TabsTrigger value="users">用户权限</TabsTrigger>
         </TabsList>
 
-        {/* 角���管理Tab */}
+        {/* 角色管理Tab */}
         <TabsContent value="roles" className="space-y-6">
           <Card>
             <CardHeader>
@@ -617,6 +617,33 @@ export default function SecurityPermissions() {
                   ))}
                 </TableBody>
               </Table>
+
+              {/* User Roles Pagination */}
+              {totalUserPages > 1 && (
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 pt-4 border-t">
+                  <div className="text-sm text-gray-700 order-2 sm:order-1">
+                    正在显示 {startUserIndex + 1} - {Math.min(endUserIndex, userRoles.length)} 条，共 {userRoles.length} 条
+                  </div>
+                  <div className="flex items-center gap-2 order-1 sm:order-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentUserPage(prev => Math.max(1, prev - 1))}
+                      disabled={currentUserPage === 1}
+                    >
+                      上一页
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentUserPage(prev => Math.min(totalUserPages, prev + 1))}
+                      disabled={currentUserPage === totalUserPages}
+                    >
+                      下一页
+                    </Button>
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
