@@ -332,14 +332,52 @@ const MemberManagement = () => {
     );
   }
 
+  // 排序函数
+  const sortMembers = (members: Member[]) => {
+    if (!sortField) return members;
+
+    return [...members].sort((a, b) => {
+      let aValue: string | null = null;
+      let bValue: string | null = null;
+
+      if (sortField === 'lastLoginAt') {
+        aValue = a.lastLoginAt;
+        bValue = b.lastLoginAt;
+      } else if (sortField === 'createdAt') {
+        aValue = a.createdAt;
+        bValue = b.createdAt;
+      }
+
+      // 处理null值，null值排在最后
+      if (!aValue && !bValue) return 0;
+      if (!aValue) return 1;
+      if (!bValue) return -1;
+
+      const dateA = new Date(aValue).getTime();
+      const dateB = new Date(bValue).getTime();
+
+      if (sortOrder === 'desc') {
+        return dateB - dateA;
+      } else {
+        return dateA - dateB;
+      }
+    });
+  };
+
+  // 获取排序后的成员列表
+  const sortedMembers = sortMembers(members);
+
+  const handleSort = (field: 'lastLoginAt' | 'createdAt') => {
+    if (sortField === field) {
+      setSortOrder(sortOrder === 'desc' ? 'asc' : 'desc');
+    } else {
+      setSortField(field);
+      setSortOrder('desc');
+    }
+  };
+
   return (
     <div className="p-6 space-y-6">
-      {/* 临时调试信息 */}
-      <div className="bg-gray-100 p-2 text-xs">
-        调试: editDialogOpen={editDialogOpen.toString()}, editingMember=
-        {editingMember?.name || "null"}
-      </div>
-
       {/* 搜索和过滤 */}
       <Card>
         <CardContent className="pt-6">
