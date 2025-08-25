@@ -278,6 +278,52 @@ const OrganizationManagement = () => {
     }
   };
 
+  // 切换组织状态
+  const handleToggleOrganizationStatus = async (organization: Organization) => {
+    try {
+      let newStatus: AccountStatus;
+      let actionText: string;
+
+      if (organization.accountStatus === AccountStatus.ACTIVE) {
+        newStatus = AccountStatus.SUSPENDED;
+        actionText = "暂停";
+      } else {
+        newStatus = AccountStatus.ACTIVE;
+        actionText = "启用";
+      }
+
+      const updateRequest: UpdateOrganizationRequest = {
+        organizationId: organization.organizationId,
+        name: organization.name,
+        accountStatus: newStatus,
+        subscriptionPlan: organization.subscriptionPlan,
+      };
+
+      const response = await organizationApi.updateOrganization(updateRequest);
+
+      if (response.success) {
+        toast({
+          title: `${actionText}成功`,
+          description: `组织状态已${actionText}`,
+        });
+        loadOrganizations();
+      } else {
+        toast({
+          title: `${actionText}失败`,
+          description: response.message,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Failed to toggle organization status:", error);
+      toast({
+        title: "操作失败",
+        description: "网络错误，请重试",
+        variant: "destructive",
+      });
+    }
+  };
+
   const getStatusBadge = (status: AccountStatus) => {
     if (status === AccountStatus.ACTIVE) {
       return (
@@ -288,7 +334,7 @@ const OrganizationManagement = () => {
     } else if (status === AccountStatus.SUSPENDED) {
       return <Badge variant="destructive">已暂停</Badge>;
     } else {
-      return <Badge variant="secondary">未知状态</Badge>;
+      return <Badge variant="secondary">未���状态</Badge>;
     }
   };
 
