@@ -42,7 +42,7 @@ export type Permission = {
   action: 'read' | 'write' | 'delete' | 'execute';
 };
 
-// 角色类型定义
+// 角���类型定义
 export type Role = {
   id: string;
   name: string;
@@ -69,7 +69,7 @@ export type UserRole = {
 const mockPermissions: Permission[] = [
   // 用户管理权限
   { id: 'user_read', name: '查看用户', description: '查看用户列表和详细信息', category: 'user', resource: 'users', action: 'read' },
-  { id: 'user_write', name: '编辑用户', description: '创建���编辑用户信息', category: 'user', resource: 'users', action: 'write' },
+  { id: 'user_write', name: '编辑用户', description: '创建和编辑用户信息', category: 'user', resource: 'users', action: 'write' },
   { id: 'user_delete', name: '删除用户', description: '删除用户账户', category: 'user', resource: 'users', action: 'delete' },
   
   // AI模型管理权限
@@ -89,7 +89,7 @@ const mockPermissions: Permission[] = [
   
   // 数据管理权限
   { id: 'data_read', name: '查看数据', description: '查看业务数据和报表', category: 'data', resource: 'data', action: 'read' },
-  { id: 'data_write', name: '管理数据', description: '导入导出数据', category: 'data', resource: 'data', action: 'write' },
+  { id: 'data_write', name: '管理数据', description: '导��导出数据', category: 'data', resource: 'data', action: 'write' },
   { id: 'data_delete', name: '删除数据', description: '删除业务数据', category: 'data', resource: 'data', action: 'delete' },
 ];
 
