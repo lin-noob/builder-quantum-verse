@@ -208,7 +208,7 @@ export class Request {
       return queryString ? `${fullURL}?${queryString}` : fullURL;
     }
 
-    // 对于绝对URL，使用URL对象处理
+    // 对于绝对URL��使用URL对象处理
     const urlObj = new URL(fullURL);
     Object.entries(params).forEach(([key, value]) => {
       urlObj.searchParams.set(key, String(value));
@@ -265,12 +265,89 @@ export class Request {
     responseType: string = "json",
   ): Promise<ApiResponse<T>> {
     let data: any;
+    const contentType = response.headers.get("content-type") || "";
 
-    // 总是尝试解析响应体，不管状态码是什么
+    // 检查响应状态
+    if (!response.ok) {
+      const statusError = `HTTP ${response.status} ${response.statusText}`;
+
+      // 对于错误响应，先尝试获取响应内容来提供更好的错误信息
+      try {
+        const errorText = await response.text();
+
+        // 检查是否返回了HTML错误页面
+        if (errorText.trim().toLowerCase().startsWith("<!doctype") ||
+            errorText.trim().toLowerCase().startsWith("<html")) {
+          console.error(`Server returned HTML error page instead of JSON (${statusError}):`, {
+            url: response.url,
+            status: response.status,
+            contentType,
+            preview: errorText.substring(0, 200) + "..."
+          });
+
+          throw new RequestError(
+            `服务器返回了HTML错误页面而不是JSON数据 (${statusError})`,
+            response.status,
+            response.statusText,
+            response
+          );
+        }
+
+        throw new RequestError(
+          `请求失败: ${statusError}${errorText ? ` - ${errorText}` : ''}`,
+          response.status,
+          response.statusText,
+          response
+        );
+      } catch (parseError) {
+        if (parseError instanceof RequestError) {
+          throw parseError;
+        }
+
+        throw new RequestError(
+          `请求失败: ${statusError}`,
+          response.status,
+          response.statusText,
+          response
+        );
+      }
+    }
+
+    // 根据期望的响应类型处理数据
     try {
       switch (responseType) {
         case "json":
-          data = await response.json();
+          // 对于 JSON 类型，检查 content-type
+          if (!contentType.includes("application/json") && !contentType.includes("text/json")) {
+            // 如果不是 JSON content-type，先获取文本内容检查
+            const textContent = await response.text();
+
+            // 检查是否意外返回了 HTML
+            if (textContent.trim().toLowerCase().startsWith("<!doctype") ||
+                textContent.trim().toLowerCase().startsWith("<html")) {
+              console.error("Expected JSON but received HTML:", {
+                url: response.url,
+                contentType,
+                preview: textContent.substring(0, 200) + "..."
+              });
+
+              throw new Error(`服务器返回了HTML页面而不是期望的JSON数据。可能的原因：\n1. API端点不存在\n2. 服务器配置错误\n3. 路由问题`);
+            }
+
+            // 尝试解析为 JSON（可能是没有正确设置 content-type 的 JSON）
+            try {
+              data = JSON.parse(textContent);
+            } catch (jsonError) {
+              console.error("Failed to parse response as JSON:", {
+                url: response.url,
+                contentType,
+                content: textContent.substring(0, 500)
+              });
+              throw new Error(`无法解析响应为JSON格式，响应内容: ${textContent.substring(0, 100)}...`);
+            }
+          } else {
+            data = await response.json();
+          }
           break;
         case "text":
           data = await response.text();
@@ -285,12 +362,27 @@ export class Request {
           data = await response.json();
       }
     } catch (error) {
-      // 解��失败时返回null，但仍然返回响应信息
-      console.error(`Failed to parse response as ${responseType}:`, error);
-      data = null;
+      // 提供更详细的解析错误信息
+      const errorMessage = error instanceof Error ? error.message : "Unknown parsing error";
+
+      console.error(`Failed to parse response as ${responseType}:`, {
+        error: errorMessage,
+        url: response.url,
+        status: response.status,
+        contentType,
+        responseType
+      });
+
+      // 重新抛出更有意义的错误
+      throw new Error(`响应解析失败 (${responseType}): ${errorMessage}`);
     }
 
-    return data;
+    return {
+      data,
+      status: response.status,
+      statusText: response.statusText,
+      headers: response.headers
+    } as ApiResponse<T>;
   }
 
   /**
@@ -485,7 +577,7 @@ export class Request {
             status: 0,
             aiStrategyConfig: JSON.stringify({
               defaultAIConfig: {
-                description: "根据用户浏览行为和商品信息，推荐相关产品或优惠",
+                description: "根据用户浏���行为和商品信息，推荐相关产品或优惠",
                 strategySummary: "通过智能推荐提升用户购买转化。",
                 coreStrategies: ["个性化推荐", "智能营销", "精准投放"],
               },
