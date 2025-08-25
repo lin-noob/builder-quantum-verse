@@ -9,7 +9,6 @@ import {
   Shield,
   BarChart3,
   Bot,
-  Bell,
   LogOut,
   Menu,
   X,
