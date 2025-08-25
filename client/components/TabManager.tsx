@@ -65,6 +65,15 @@ export default function TabManager() {
     "/ai-marketing/scenarios/user_login": "用户登录",
     "/effect-tracking": "效果追踪",
     "/account/settings": "个人设置",
+    // 管理后台页面
+    "/admin": "系统概览",
+    "/admin/organizations": "组织管理",
+    "/admin/ai-models": "AI模型管理",
+    "/admin/scenarios": "场景配置",
+    "/admin/data-sources": "数据源管理",
+    "/admin/security": "安全与权限",
+    "/admin/monitoring": "系统监控",
+    "/admin/users": "用户管理",
   };
 
   // 检查滚动状态
