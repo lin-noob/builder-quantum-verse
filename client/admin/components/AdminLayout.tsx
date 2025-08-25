@@ -21,6 +21,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { authService } from "@/services/authService";
+import TabManager from "@/components/TabManager";
 
 interface AdminLayoutProps {
   children: ReactNode;
