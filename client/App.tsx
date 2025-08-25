@@ -46,7 +46,7 @@ const queryClient = new QueryClient();
 
 // 请求管理包装组件
 const AppWithRequestManager = () => {
-  usePageRequestManager(); // 使用页面级请求管理
+  usePageRequestManager(); // 使��页面级请求管理
 
   return (
     <TooltipProvider>
@@ -321,6 +321,16 @@ const AppWithRequestManager = () => {
             element={
               <Layout>
                 <OrganizationSettings />
+              </Layout>
+            }
+          />
+
+          {/* 个人账户管理 */}
+          <Route
+            path="/account/settings"
+            element={
+              <Layout>
+                <PersonalSettings />
               </Layout>
             }
           />
