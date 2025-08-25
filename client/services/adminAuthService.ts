@@ -224,20 +224,6 @@ class AdminAuthService {
 
   // 获取当前超级管理员用户
   getCurrentAdminUser(): AdminUser | null {
-    if (!this.currentAdminUser) {
-      // 尝试从 localStorage 恢复
-      try {
-        const storedUser = localStorage.getItem("admin_auth_user");
-        const storedToken = localStorage.getItem("admin_auth_token");
-
-        if (storedUser && storedToken) {
-          this.currentAdminUser = JSON.parse(storedUser);
-          this.isAdminAuthenticated = true;
-        }
-      } catch (error) {
-        // 忽略解析错误
-      }
-    }
     return this.currentAdminUser;
   }
 
