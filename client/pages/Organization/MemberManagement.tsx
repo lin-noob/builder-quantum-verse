@@ -154,7 +154,7 @@ const MemberManagement = () => {
       if (response.success) {
         toast({
           title: "邀请成功",
-          description: `新成员已创建，初始密码已生��`,
+          description: `新成员���创建，初始密码已生成`,
         });
 
         setGeneratedPassword(response.data.initialPassword);
@@ -495,36 +495,23 @@ const MemberManagement = () => {
                           variant="outline"
                           size="sm"
                           onClick={(e) => {
-                            console.log('=== Edit button clicked directly ===');
                             e.preventDefault();
                             e.stopPropagation();
                             openEditDialog(member);
                           }}
                         >
-                          <Edit className="h-3 w-3 mr-1" />
                           编辑
                         </Button>
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={(e) => {
-                            console.log('=== Status button clicked directly ===');
                             e.preventDefault();
                             e.stopPropagation();
                             openStatusConfirm(member);
                           }}
                         >
-                          {member.accountStatus === AccountStatus.ACTIVE ? (
-                            <>
-                              <UserX className="h-3 w-3 mr-1" />
-                              禁用
-                            </>
-                          ) : (
-                            <>
-                              <UserCheck className="h-3 w-3 mr-1" />
-                              启用
-                            </>
-                          )}
+                          {member.accountStatus === AccountStatus.ACTIVE ? '禁用' : '启用'}
                         </Button>
                       </div>
                     </TableCell>
