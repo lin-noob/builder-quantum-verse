@@ -749,6 +749,7 @@ const OrganizationDetail = () => {
                     <TableHead>成员</TableHead>
                     <TableHead>角色</TableHead>
                     <TableHead>状态</TableHead>
+                    <TableHead>密码</TableHead>
                     <TableHead>
                       <button
                         onClick={() => handleMemberSort("lastLoginAt")}
@@ -873,7 +874,7 @@ const OrganizationDetail = () => {
           <DialogHeader>
             <DialogTitle>邀请新成员</DialogTitle>
             <DialogDescription>
-              为组织添加新的团队成员，系统将自动生成初始密码
+              为组织添加新的团队成员，系统将自动��成初始密码
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
