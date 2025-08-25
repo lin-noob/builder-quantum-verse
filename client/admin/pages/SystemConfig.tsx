@@ -387,49 +387,41 @@ export default function SystemConfig() {
 
   return (
     <div className="p-6 space-y-6">
-      {/* 页面标题 */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">系统配置</h1>
-          <p className="text-gray-600 mt-1">管理AI营销平台的核心配置参数</p>
-        </div>
-        
-        {/* 操作按钮 */}
-        <div className="flex items-center gap-2">
-          <Dialog open={isResetDialogOpen} onOpenChange={setIsResetDialogOpen}>
-            <DialogTrigger asChild>
-              <Button variant="outline" className="flex items-center gap-2">
-                <RotateCcw className="h-4 w-4" />
-                重置配置
+      {/* 操作按钮 */}
+      <div className="flex justify-end items-center gap-2">
+        <Dialog open={isResetDialogOpen} onOpenChange={setIsResetDialogOpen}>
+          <DialogTrigger asChild>
+            <Button variant="outline" className="flex items-center gap-2">
+              <RotateCcw className="h-4 w-4" />
+              重置配置
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>确认重置配置</DialogTitle>
+              <DialogDescription>
+                此操作将重置所有配置项到默认值，且无法撤销。确定要继续吗？
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsResetDialogOpen(false)}>
+                取消
               </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>确认重置配置</DialogTitle>
-                <DialogDescription>
-                  此操作将重置所有配置项到默认值，且无法撤销。确定要继续吗？
-                </DialogDescription>
-              </DialogHeader>
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setIsResetDialogOpen(false)}>
-                  取消
-                </Button>
-                <Button variant="destructive" onClick={resetConfigs}>
-                  确认重置
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-          
-          <Button 
-            onClick={saveConfigs}
-            disabled={!hasChanges}
-            className="flex items-center gap-2"
-          >
-            <Save className="h-4 w-4" />
-            保存配置
-          </Button>
-        </div>
+              <Button variant="destructive" onClick={resetConfigs}>
+                确认重置
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        <Button
+          onClick={saveConfigs}
+          disabled={!hasChanges}
+          className="flex items-center gap-2"
+        >
+          <Save className="h-4 w-4" />
+          保存配置
+        </Button>
       </div>
 
       {/* 配置状态提示 */}
@@ -505,7 +497,7 @@ export default function SystemConfig() {
               <AlertTriangle className="h-4 w-4 text-yellow-600 mt-0.5" />
               <div>
                 <p className="font-medium text-gray-900">重要提醒</p>
-                <p>修改配置前建议备份当前设置，错误的配置可能影响系统正常运行</p>
+                <p>修改配置前建议备份当前设置，错误的配置���能影响系统正常运行</p>
               </div>
             </div>
           </div>
