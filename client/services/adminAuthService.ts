@@ -3,7 +3,7 @@ interface AdminUser {
   id: string;
   username: string;
   email: string;
-  role: 'super_admin';
+  role: "super_admin";
   permissions: string[];
 }
 
@@ -29,8 +29,8 @@ class AdminAuthService {
     username: "superadmin",
     email: "admin@system.com",
     password: "admin123456",
-    role: 'super_admin' as const,
-    permissions: ['*'] // 超级管理员拥有所有权限
+    role: "super_admin" as const,
+    permissions: ["*"], // 超级管理员拥有所有权限
   };
 
   // 超级管理员数据库（只存储超级管理员账号）
@@ -39,19 +39,22 @@ class AdminAuthService {
     username: string;
     email: string;
     password: string;
-    role: 'super_admin';
+    role: "super_admin";
     permissions: string[];
   }> = [this.defaultSuperAdmin];
 
   // 邀请码管理（用于注册新的超级管理员）
-  private inviteCodes: Set<string> = new Set(['SUPER_ADMIN_INVITE_2024']);
+  private inviteCodes: Set<string> = new Set(["SUPER_ADMIN_INVITE_2024"]);
 
   // 超级管理员登录
-  async adminLogin(credentials: AdminLoginCredentials): Promise<{ success: boolean; user?: AdminUser; error?: string }> {
+  async adminLogin(
+    credentials: AdminLoginCredentials,
+  ): Promise<{ success: boolean; user?: AdminUser; error?: string }> {
     try {
       // 查找超级管理员用户
-      const adminUser = this.adminUsers.find(u => 
-        u.email === credentials.email || u.username === credentials.email
+      const adminUser = this.adminUsers.find(
+        (u) =>
+          u.email === credentials.email || u.username === credentials.email,
       );
 
       if (!adminUser) {
@@ -68,13 +71,16 @@ class AdminAuthService {
         username: adminUser.username,
         email: adminUser.email,
         role: adminUser.role,
-        permissions: adminUser.permissions
+        permissions: adminUser.permissions,
       };
       this.isAdminAuthenticated = true;
 
       // 存储到 localStorage（使用不同的 key 以避免与主平台冲突）
-      localStorage.setItem('admin_auth_user', JSON.stringify(this.currentAdminUser));
-      localStorage.setItem('admin_auth_token', 'admin_token_' + Date.now());
+      localStorage.setItem(
+        "admin_auth_user",
+        JSON.stringify(this.currentAdminUser),
+      );
+      localStorage.setItem("admin_auth_token", "admin_token_" + Date.now());
 
       return { success: true, user: this.currentAdminUser };
     } catch (error) {
@@ -83,7 +89,9 @@ class AdminAuthService {
   }
 
   // 超级管理员注册（需要邀请码）
-  async adminRegister(data: AdminRegisterData): Promise<{ success: boolean; user?: AdminUser; error?: string }> {
+  async adminRegister(
+    data: AdminRegisterData,
+  ): Promise<{ success: boolean; user?: AdminUser; error?: string }> {
     try {
       // 验证邀请码
       if (!this.inviteCodes.has(data.inviteCode)) {
@@ -91,18 +99,18 @@ class AdminAuthService {
       }
 
       // 检查邮箱是否已存在
-      if (this.adminUsers.some(u => u.email === data.email)) {
+      if (this.adminUsers.some((u) => u.email === data.email)) {
         return { success: false, error: "该邮箱已被注册" };
       }
 
       // 创建新的超级管理员
       const newAdminUser = {
-        id: 'super_admin_' + Date.now(),
+        id: "super_admin_" + Date.now(),
         username: data.username,
         email: data.email,
         password: data.password,
-        role: 'super_admin' as const,
-        permissions: ['*']
+        role: "super_admin" as const,
+        permissions: ["*"],
       };
 
       this.adminUsers.push(newAdminUser);
@@ -113,7 +121,7 @@ class AdminAuthService {
         username: newAdminUser.username,
         email: newAdminUser.email,
         role: newAdminUser.role,
-        permissions: newAdminUser.permissions
+        permissions: newAdminUser.permissions,
       };
       this.isAdminAuthenticated = true;
 
@@ -121,8 +129,11 @@ class AdminAuthService {
       this.inviteCodes.delete(data.inviteCode);
 
       // 存储到 localStorage
-      localStorage.setItem('admin_auth_user', JSON.stringify(this.currentAdminUser));
-      localStorage.setItem('admin_auth_token', 'admin_token_' + Date.now());
+      localStorage.setItem(
+        "admin_auth_user",
+        JSON.stringify(this.currentAdminUser),
+      );
+      localStorage.setItem("admin_auth_token", "admin_token_" + Date.now());
 
       return { success: true, user: this.currentAdminUser };
     } catch (error) {
@@ -131,14 +142,19 @@ class AdminAuthService {
   }
 
   // 修改超级管理员密码
-  async changeAdminPassword(currentPassword: string, newPassword: string): Promise<{ success: boolean; error?: string }> {
+  async changeAdminPassword(
+    currentPassword: string,
+    newPassword: string,
+  ): Promise<{ success: boolean; error?: string }> {
     try {
       if (!this.currentAdminUser) {
         return { success: false, error: "请先登录" };
       }
 
       // 验证当前密码
-      const adminUser = this.adminUsers.find(u => u.id === this.currentAdminUser!.id);
+      const adminUser = this.adminUsers.find(
+        (u) => u.id === this.currentAdminUser!.id,
+      );
       if (!adminUser || adminUser.password !== currentPassword) {
         return { success: false, error: "当前密码错误" };
       }
@@ -156,8 +172,8 @@ class AdminAuthService {
   adminLogout(): void {
     this.currentAdminUser = null;
     this.isAdminAuthenticated = false;
-    localStorage.removeItem('admin_auth_user');
-    localStorage.removeItem('admin_auth_token');
+    localStorage.removeItem("admin_auth_user");
+    localStorage.removeItem("admin_auth_token");
   }
 
   // 获取当前超级管理员用户
@@ -165,9 +181,9 @@ class AdminAuthService {
     if (!this.currentAdminUser) {
       // 尝试从 localStorage 恢复
       try {
-        const storedUser = localStorage.getItem('admin_auth_user');
-        const storedToken = localStorage.getItem('admin_auth_token');
-        
+        const storedUser = localStorage.getItem("admin_auth_user");
+        const storedToken = localStorage.getItem("admin_auth_token");
+
         if (storedUser && storedToken) {
           this.currentAdminUser = JSON.parse(storedUser);
           this.isAdminAuthenticated = true;
@@ -181,16 +197,20 @@ class AdminAuthService {
 
   // 检查是否已登录管理后台
   isAdminLoggedIn(): boolean {
-    return this.isAdminAuthenticated || !!localStorage.getItem('admin_auth_token');
+    return (
+      this.isAdminAuthenticated || !!localStorage.getItem("admin_auth_token")
+    );
   }
 
   // 检查是否有指定权限
   hasPermission(permission: string): boolean {
     if (!this.currentAdminUser) return false;
-    
+
     // 超级管理员拥有所有权限
-    return this.currentAdminUser.permissions.includes('*') || 
-           this.currentAdminUser.permissions.includes(permission);
+    return (
+      this.currentAdminUser.permissions.includes("*") ||
+      this.currentAdminUser.permissions.includes(permission)
+    );
   }
 
   // 验证邀请码是否有效
@@ -204,7 +224,7 @@ class AdminAuthService {
       throw new Error("未授权操作");
     }
 
-    const newCode = 'ADMIN_INVITE_' + Date.now().toString(36).toUpperCase();
+    const newCode = "ADMIN_INVITE_" + Date.now().toString(36).toUpperCase();
     this.inviteCodes.add(newCode);
     return newCode;
   }

@@ -12,7 +12,7 @@ interface DetailPageProps {
   title: string;
   subtitle?: string;
   backUrl: string;
-  
+
   // Identity section
   entityId: string;
   entityIdLabel: string;
@@ -24,41 +24,41 @@ interface DetailPageProps {
       value: string;
     }>;
   };
-  
+
   // Key metrics
   metrics?: Array<{
     label: string;
     value: string | number;
   }>;
-  
+
   // Tab content
   tabs: Array<{
     id: string;
     label: string;
     content: React.ReactNode;
   }>;
-  
+
   // Actions
   actions?: Array<{
     label: string;
     onClick: () => void;
     variant?: "default" | "outline" | "destructive";
   }>;
-  
+
   // Tag management (optional)
   tags?: {
     items: string[];
     onAdd?: (tag: string) => void;
     onRemove?: (tag: string) => void;
   };
-  
+
   loading?: boolean;
 }
 
 /**
  * 标准详情页组件
  * 基于 UserDetail2 的设计模式，可用于所有详情页面
- * 
+ *
  * 使用示例：
  * <StandardDetailPage
  *   title="组织详情"
@@ -99,16 +99,16 @@ export default function StandardDetailPage({
   tabs,
   actions,
   tags,
-  loading = false
+  loading = false,
 }: DetailPageProps) {
   const navigate = useNavigate();
   const [newTag, setNewTag] = React.useState("");
 
   const handleCopyId = () => {
     navigator.clipboard.writeText(entityId);
-    toast({ 
-      title: "已复制", 
-      description: `${entityIdLabel}已复制到剪贴板` 
+    toast({
+      title: "已复制",
+      description: `${entityIdLabel}已复制到剪贴板`,
     });
   };
 
@@ -146,11 +146,7 @@ export default function StandardDetailPage({
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => navigate(backUrl)}
-          >
+          <Button variant="outline" size="sm" onClick={() => navigate(backUrl)}>
             <ArrowLeft className="h-4 w-4 mr-2" />
             返回列表
           </Button>
@@ -186,7 +182,9 @@ export default function StandardDetailPage({
                 </h2>
 
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground">{entityIdLabel}:</span>
+                  <span className="text-sm text-muted-foreground">
+                    {entityIdLabel}:
+                  </span>
                   <code className="text-sm font-mono bg-muted px-2 py-1 rounded">
                     {entityId}
                   </code>
@@ -252,7 +250,9 @@ export default function StandardDetailPage({
               <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-4">
                 {primaryInfo.metadata?.map((item, index) => (
                   <dl key={index} className="space-y-2">
-                    <dt className="text-xs text-muted-foreground">{item.label}</dt>
+                    <dt className="text-xs text-muted-foreground">
+                      {item.label}
+                    </dt>
                     <dd className="text-sm text-foreground">{item.value}</dd>
                   </dl>
                 ))}
@@ -268,14 +268,20 @@ export default function StandardDetailPage({
               <CardTitle className="text-lg">关键指标</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className={`grid gap-4 ${
-                metrics.length <= 3 ? 'grid-cols-1 md:grid-cols-3' :
-                metrics.length <= 6 ? 'grid-cols-2 md:grid-cols-3 lg:grid-cols-6' :
-                'grid-cols-2 md:grid-cols-3 lg:grid-cols-9'
-              }`}>
+              <div
+                className={`grid gap-4 ${
+                  metrics.length <= 3
+                    ? "grid-cols-1 md:grid-cols-3"
+                    : metrics.length <= 6
+                      ? "grid-cols-2 md:grid-cols-3 lg:grid-cols-6"
+                      : "grid-cols-2 md:grid-cols-3 lg:grid-cols-9"
+                }`}
+              >
                 {metrics.map((metric, index) => (
                   <dl key={index} className="text-center">
-                    <dt className="text-xs text-muted-foreground">{metric.label}</dt>
+                    <dt className="text-xs text-muted-foreground">
+                      {metric.label}
+                    </dt>
                     <dd className="text-sm font-semibold text-foreground">
                       {metric.value}
                     </dd>
@@ -290,11 +296,15 @@ export default function StandardDetailPage({
         <Card className="bg-background rounded-lg border">
           <CardContent className="p-6">
             <Tabs defaultValue={tabs[0]?.id} className="w-full">
-              <TabsList className={`grid w-full ${
-                tabs.length <= 3 ? 'grid-cols-3' :
-                tabs.length <= 4 ? 'grid-cols-4' :
-                'grid-cols-5'
-              }`}>
+              <TabsList
+                className={`grid w-full ${
+                  tabs.length <= 3
+                    ? "grid-cols-3"
+                    : tabs.length <= 4
+                      ? "grid-cols-4"
+                      : "grid-cols-5"
+                }`}
+              >
                 {tabs.map((tab) => (
                   <TabsTrigger key={tab.id} value={tab.id}>
                     {tab.label}

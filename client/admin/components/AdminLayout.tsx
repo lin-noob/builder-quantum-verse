@@ -38,7 +38,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const location = useLocation();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [currentAdminUser, setCurrentAdminUser] = useState(adminAuthService.getCurrentAdminUser());
+  const [currentAdminUser, setCurrentAdminUser] = useState(
+    adminAuthService.getCurrentAdminUser(),
+  );
 
   // 监听管理员用户状态变化
   useEffect(() => {
@@ -119,7 +121,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 ? "bg-red-600 hover:bg-red-700"
                 : "bg-gray-200 border border-dashed border-gray-400",
             )}
-            title={currentAdminUser ? `${currentAdminUser.username} - 超级管理员` : "未登录"}
+            title={
+              currentAdminUser
+                ? `${currentAdminUser.username} - 超级管理员`
+                : "未登录"
+            }
           >
             <User
               className={cn(
@@ -131,7 +137,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
             <BarChart3 className="h-5 w-5 text-white" />
           </div>
-          <span className="text-xl font-bold text-gray-900">AI营销管理后台</span>
+          <span className="text-xl font-bold text-gray-900">
+            AI营销管理后台
+          </span>
         </div>
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -190,7 +198,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                     className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors border-2 border-dashed border-orange-300 bg-orange-50 hover:bg-orange-100 text-orange-700 hover:text-orange-800"
                   >
                     {mainPlatformMenuItem.icon}
-                    <span className="font-semibold">{mainPlatformMenuItem.label}</span>
+                    <span className="font-semibold">
+                      {mainPlatformMenuItem.label}
+                    </span>
                   </Link>
                 </li>
               </ul>
@@ -280,7 +290,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                     ? "gap-0 px-3 py-2 justify-center"
                     : "gap-3 px-3 py-2",
                 )}
-                title={isSidebarCollapsed ? mainPlatformMenuItem.label : undefined}
+                title={
+                  isSidebarCollapsed ? mainPlatformMenuItem.label : undefined
+                }
               >
                 {mainPlatformMenuItem.icon}
                 {!isSidebarCollapsed && (
@@ -310,7 +322,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                   isSidebarCollapsed ? "justify-center" : "justify-start",
                 )}
                 title={
-                  isSidebarCollapsed ? `${currentAdminUser.username} - 超级管理员` : ""
+                  isSidebarCollapsed
+                    ? `${currentAdminUser.username} - 超级管理员`
+                    : ""
                 }
               >
                 <div className="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center flex-shrink-0">
@@ -392,7 +406,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         <div className="hidden lg:block">
           <TabManager />
         </div>
-
 
         {/* 主内容 */}
         <main className="flex-1 overflow-auto">{children}</main>

@@ -32,13 +32,13 @@ export default function AdminAuth() {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("login");
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const [formData, setFormData] = useState<AdminFormData>({
     username: "",
     email: "",
     password: "",
     confirmPassword: "",
-    inviteCode: ""
+    inviteCode: "",
   });
 
   const [errors, setErrors] = useState<AdminFormErrors>({});
@@ -95,10 +95,10 @@ export default function AdminAuth() {
 
   // 处理输入变化
   const handleInputChange = (field: keyof AdminFormData, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
     // 清除对应字段的错误
     if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: undefined }));
+      setErrors((prev) => ({ ...prev, [field]: undefined }));
     }
   };
 
@@ -110,7 +110,7 @@ export default function AdminAuth() {
     try {
       const result = await adminAuthService.adminLogin({
         email: formData.email,
-        password: formData.password
+        password: formData.password,
       });
 
       if (result.success) {
@@ -147,7 +147,7 @@ export default function AdminAuth() {
         username: formData.username,
         email: formData.email,
         password: formData.password,
-        inviteCode: formData.inviteCode
+        inviteCode: formData.inviteCode,
       });
 
       if (result.success) {
@@ -181,7 +181,7 @@ export default function AdminAuth() {
       email: "",
       password: "",
       confirmPassword: "",
-      inviteCode: ""
+      inviteCode: "",
     });
     setErrors({});
   };
@@ -195,7 +195,6 @@ export default function AdminAuth() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-
         <Card className="border-0 shadow-xl">
           <CardHeader className="space-y-1 pb-4">
             <CardTitle className="text-xl text-center">
@@ -204,10 +203,18 @@ export default function AdminAuth() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
+            <Tabs
+              value={activeTab}
+              onValueChange={handleTabChange}
+              className="w-full"
+            >
               <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="login" className="text-sm">登录</TabsTrigger>
-                <TabsTrigger value="register" className="text-sm">注册</TabsTrigger>
+                <TabsTrigger value="login" className="text-sm">
+                  登录
+                </TabsTrigger>
+                <TabsTrigger value="register" className="text-sm">
+                  注册
+                </TabsTrigger>
               </TabsList>
 
               <TabsContent value="login" className="space-y-4 mt-6">
@@ -221,7 +228,9 @@ export default function AdminAuth() {
                         type="email"
                         placeholder="请输入管理员邮箱"
                         value={formData.email}
-                        onChange={(e) => handleInputChange("email", e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("email", e.target.value)
+                        }
                         className={`pl-10 ${errors.email ? "border-red-500" : ""}`}
                         onKeyPress={(e) => e.key === "Enter" && handleLogin()}
                       />
@@ -240,7 +249,9 @@ export default function AdminAuth() {
                         type="password"
                         placeholder="请输入密码"
                         value={formData.password}
-                        onChange={(e) => handleInputChange("password", e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("password", e.target.value)
+                        }
                         className={`pl-10 ${errors.password ? "border-red-500" : ""}`}
                         onKeyPress={(e) => e.key === "Enter" && handleLogin()}
                       />
@@ -250,8 +261,8 @@ export default function AdminAuth() {
                     )}
                   </div>
 
-                  <Button 
-                    onClick={handleLogin} 
+                  <Button
+                    onClick={handleLogin}
                     className="w-full bg-red-600 hover:bg-red-700"
                     disabled={isLoading}
                   >
@@ -277,7 +288,9 @@ export default function AdminAuth() {
                         type="text"
                         placeholder="请输入用户名"
                         value={formData.username}
-                        onChange={(e) => handleInputChange("username", e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("username", e.target.value)
+                        }
                         className={`pl-10 ${errors.username ? "border-red-500" : ""}`}
                       />
                     </div>
@@ -295,7 +308,9 @@ export default function AdminAuth() {
                         type="email"
                         placeholder="请输入邮箱地址"
                         value={formData.email}
-                        onChange={(e) => handleInputChange("email", e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("email", e.target.value)
+                        }
                         className={`pl-10 ${errors.email ? "border-red-500" : ""}`}
                       />
                     </div>
@@ -313,7 +328,9 @@ export default function AdminAuth() {
                         type="password"
                         placeholder="请输入密码（至少6位）"
                         value={formData.password}
-                        onChange={(e) => handleInputChange("password", e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("password", e.target.value)
+                        }
                         className={`pl-10 ${errors.password ? "border-red-500" : ""}`}
                       />
                     </div>
@@ -331,12 +348,16 @@ export default function AdminAuth() {
                         type="password"
                         placeholder="请再次输入密码"
                         value={formData.confirmPassword}
-                        onChange={(e) => handleInputChange("confirmPassword", e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("confirmPassword", e.target.value)
+                        }
                         className={`pl-10 ${errors.confirmPassword ? "border-red-500" : ""}`}
                       />
                     </div>
                     {errors.confirmPassword && (
-                      <p className="text-sm text-red-500">{errors.confirmPassword}</p>
+                      <p className="text-sm text-red-500">
+                        {errors.confirmPassword}
+                      </p>
                     )}
                   </div>
 
@@ -349,17 +370,21 @@ export default function AdminAuth() {
                         type="text"
                         placeholder="请输入超级管理员邀请码"
                         value={formData.inviteCode}
-                        onChange={(e) => handleInputChange("inviteCode", e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("inviteCode", e.target.value)
+                        }
                         className={`pl-10 ${errors.inviteCode ? "border-red-500" : ""}`}
                       />
                     </div>
                     {errors.inviteCode && (
-                      <p className="text-sm text-red-500">{errors.inviteCode}</p>
+                      <p className="text-sm text-red-500">
+                        {errors.inviteCode}
+                      </p>
                     )}
                   </div>
 
-                  <Button 
-                    onClick={handleRegister} 
+                  <Button
+                    onClick={handleRegister}
                     className="w-full bg-red-600 hover:bg-red-700"
                     disabled={isLoading}
                   >
@@ -378,8 +403,8 @@ export default function AdminAuth() {
             <Separator className="my-6" />
 
             <div className="text-center">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="text-blue-600 hover:text-blue-700"
                 onClick={() => navigate("/")}
               >

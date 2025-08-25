@@ -40,8 +40,14 @@ export default function AdminApp() {
                 <Route path="/" element={<AdminDashboard />} />
 
                 {/* 组织管理 */}
-                <Route path="/organizations" element={<OrganizationManagement />} />
-                <Route path="/organizations/:organizationId" element={<OrganizationDetail />} />
+                <Route
+                  path="/organizations"
+                  element={<OrganizationManagement />}
+                />
+                <Route
+                  path="/organizations/:organizationId"
+                  element={<OrganizationDetail />}
+                />
 
                 {/* 用户管理 */}
                 <Route path="/users" element={<UserManagement />} />

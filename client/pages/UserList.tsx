@@ -247,7 +247,7 @@ export default function UserList() {
       }
     } catch (error) {
       // 在开发环境中，如果是API不可用错误，静默处理
-      if (process.env.NODE_ENV === 'development') {
+      if (process.env.NODE_ENV === "development") {
         console.warn("开发模式：用户数据API不可用，使用模拟数据");
         setUsers([]);
         setTotalCount(0);

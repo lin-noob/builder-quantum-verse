@@ -24,7 +24,7 @@ export default function TabManager() {
 
   // 根据当前路径动态设置首页
   const getDefaultTabs = (): Tab[] => {
-    const isAdminPlatform = location.pathname.startsWith('/admin');
+    const isAdminPlatform = location.pathname.startsWith("/admin");
     return [
       {
         id: "home",
@@ -49,12 +49,12 @@ export default function TabManager() {
 
   // 监听路径变化，更新首页标签
   useEffect(() => {
-    const isAdminPlatform = location.pathname.startsWith('/admin');
+    const isAdminPlatform = location.pathname.startsWith("/admin");
     const homePath = isAdminPlatform ? "/admin" : "/dashboard";
     const homeTitle = isAdminPlatform ? "系统概览" : "首页";
 
-    setTabs(prevTabs => {
-      const updatedTabs = prevTabs.map(tab => {
+    setTabs((prevTabs) => {
+      const updatedTabs = prevTabs.map((tab) => {
         if (tab.isHome) {
           return {
             ...tab,
@@ -153,13 +153,25 @@ export default function TabManager() {
           currentPath.includes("/users2/")
         ) {
           title = "用户详情";
-        } else if (currentPath.includes("/admin/organizations/") && currentPath.split("/").length > 3) {
+        } else if (
+          currentPath.includes("/admin/organizations/") &&
+          currentPath.split("/").length > 3
+        ) {
           title = "组织详情";
-        } else if (currentPath.includes("/admin/users/") && currentPath.split("/").length > 3) {
+        } else if (
+          currentPath.includes("/admin/users/") &&
+          currentPath.split("/").length > 3
+        ) {
           title = "用户详情";
-        } else if (currentPath.includes("/admin/ai-models/") && currentPath.split("/").length > 3) {
+        } else if (
+          currentPath.includes("/admin/ai-models/") &&
+          currentPath.split("/").length > 3
+        ) {
           title = "AI模型详情";
-        } else if (currentPath.includes("/admin/scenarios/") && currentPath.split("/").length > 3) {
+        } else if (
+          currentPath.includes("/admin/scenarios/") &&
+          currentPath.split("/").length > 3
+        ) {
           title = "场景详情";
         } else if (currentPath.includes("/response-actions/")) {
           if (currentPath.includes("/create")) {

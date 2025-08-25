@@ -41,7 +41,8 @@ export default function Layout({ children }: LayoutProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [currentUser, setCurrentUser] = useState(authService.getCurrentUser());
-  const [isSystemManagementExpanded, setIsSystemManagementExpanded] = useState(false);
+  const [isSystemManagementExpanded, setIsSystemManagementExpanded] =
+    useState(false);
 
   // 监听用户状态变化
   useEffect(() => {
@@ -221,7 +222,9 @@ export default function Layout({ children }: LayoutProps) {
                       location.pathname.startsWith("/admin")) ||
                     (item.id === "system-management" &&
                       (location.pathname.startsWith("/organization/members") ||
-                       location.pathname.startsWith("/organization/settings")));
+                        location.pathname.startsWith(
+                          "/organization/settings",
+                        )));
 
                   return (
                     <li key={item.id}>
@@ -229,7 +232,11 @@ export default function Layout({ children }: LayoutProps) {
                       {item.id === "system-management" ? (
                         <div>
                           <button
-                            onClick={() => setIsSystemManagementExpanded(!isSystemManagementExpanded)}
+                            onClick={() =>
+                              setIsSystemManagementExpanded(
+                                !isSystemManagementExpanded,
+                              )
+                            }
                             className={cn(
                               "w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
                               isActive
@@ -241,10 +248,12 @@ export default function Layout({ children }: LayoutProps) {
                               {item.icon}
                               {item.label}
                             </div>
-                            <ChevronDown className={cn(
-                              "h-4 w-4 transition-transform",
-                              isSystemManagementExpanded ? "rotate-180" : ""
-                            )} />
+                            <ChevronDown
+                              className={cn(
+                                "h-4 w-4 transition-transform",
+                                isSystemManagementExpanded ? "rotate-180" : "",
+                              )}
+                            />
                           </button>
 
                           {/* 二级菜单 */}
@@ -254,9 +263,13 @@ export default function Layout({ children }: LayoutProps) {
                                 const subIsActive =
                                   location.pathname === subItem.path ||
                                   (subItem.id === "organization-members" &&
-                                    location.pathname.startsWith("/organization/members")) ||
+                                    location.pathname.startsWith(
+                                      "/organization/members",
+                                    )) ||
                                   (subItem.id === "organization-settings" &&
-                                    location.pathname.startsWith("/organization/settings"));
+                                    location.pathname.startsWith(
+                                      "/organization/settings",
+                                    ));
 
                                 return (
                                   <Link
@@ -358,10 +371,11 @@ export default function Layout({ children }: LayoutProps) {
                   )) ||
                 (item.id === "effect-tracking" &&
                   location.pathname.startsWith("/effect-tracking")) ||
-                (item.id === "admin" && location.pathname.startsWith("/admin")) ||
+                (item.id === "admin" &&
+                  location.pathname.startsWith("/admin")) ||
                 (item.id === "system-management" &&
                   (location.pathname.startsWith("/organization/members") ||
-                   location.pathname.startsWith("/organization/settings")))
+                    location.pathname.startsWith("/organization/settings")));
 
               return (
                 <li key={item.id} className="relative group">
@@ -369,7 +383,11 @@ export default function Layout({ children }: LayoutProps) {
                   {item.id === "system-management" ? (
                     <div>
                       <button
-                        onClick={() => setIsSystemManagementExpanded(!isSystemManagementExpanded)}
+                        onClick={() =>
+                          setIsSystemManagementExpanded(
+                            !isSystemManagementExpanded,
+                          )
+                        }
                         className={cn(
                           "w-full flex items-center rounded-lg text-sm font-medium transition-colors relative",
                           isSidebarCollapsed
@@ -390,44 +408,52 @@ export default function Layout({ children }: LayoutProps) {
                           )}
                         </div>
                         {!isSidebarCollapsed && (
-                          <ChevronDown className={cn(
-                            "h-4 w-4 transition-transform",
-                            isSystemManagementExpanded ? "rotate-180" : ""
-                          )} />
+                          <ChevronDown
+                            className={cn(
+                              "h-4 w-4 transition-transform",
+                              isSystemManagementExpanded ? "rotate-180" : "",
+                            )}
+                          />
                         )}
                       </button>
 
                       {/* 二级菜单 */}
-                      {!isSidebarCollapsed && isSystemManagementExpanded && item.subItems && (
-                        <div className="mt-1 ml-6 space-y-1">
-                          {item.subItems.map((subItem) => {
-                            const subIsActive =
-                              location.pathname === subItem.path ||
-                              (subItem.id === "organization-members" &&
-                                location.pathname.startsWith("/organization/members")) ||
-                              (subItem.id === "organization-settings" &&
-                                location.pathname.startsWith("/organization/settings"));
+                      {!isSidebarCollapsed &&
+                        isSystemManagementExpanded &&
+                        item.subItems && (
+                          <div className="mt-1 ml-6 space-y-1">
+                            {item.subItems.map((subItem) => {
+                              const subIsActive =
+                                location.pathname === subItem.path ||
+                                (subItem.id === "organization-members" &&
+                                  location.pathname.startsWith(
+                                    "/organization/members",
+                                  )) ||
+                                (subItem.id === "organization-settings" &&
+                                  location.pathname.startsWith(
+                                    "/organization/settings",
+                                  ));
 
-                            return (
-                              <Link
-                                key={subItem.id}
-                                to={subItem.path}
-                                className={cn(
-                                  "flex items-center gap-2 px-3 py-2 text-sm rounded-md transition-colors",
-                                  subIsActive
-                                    ? "bg-blue-50 text-blue-700 border border-blue-200"
-                                    : "text-gray-500 hover:text-gray-900 hover:bg-gray-50",
-                                )}
-                              >
-                                <div className="w-4 h-4 flex items-center justify-center">
-                                  <div className="w-1.5 h-1.5 bg-current rounded-full" />
-                                </div>
-                                {subItem.label}
-                              </Link>
-                            );
-                          })}
-                        </div>
-                      )}
+                              return (
+                                <Link
+                                  key={subItem.id}
+                                  to={subItem.path}
+                                  className={cn(
+                                    "flex items-center gap-2 px-3 py-2 text-sm rounded-md transition-colors",
+                                    subIsActive
+                                      ? "bg-blue-50 text-blue-700 border border-blue-200"
+                                      : "text-gray-500 hover:text-gray-900 hover:bg-gray-50",
+                                  )}
+                                >
+                                  <div className="w-4 h-4 flex items-center justify-center">
+                                    <div className="w-1.5 h-1.5 bg-current rounded-full" />
+                                  </div>
+                                  {subItem.label}
+                                </Link>
+                              );
+                            })}
+                          </div>
+                        )}
 
                       {/* 系统管理悬浮二级菜单 - 仅在折叠状态下显示 */}
                       {isSidebarCollapsed && item.subItems && (
@@ -437,9 +463,13 @@ export default function Layout({ children }: LayoutProps) {
                               const subIsActive =
                                 location.pathname === subItem.path ||
                                 (subItem.id === "organization-members" &&
-                                  location.pathname.startsWith("/organization/members")) ||
+                                  location.pathname.startsWith(
+                                    "/organization/members",
+                                  )) ||
                                 (subItem.id === "organization-settings" &&
-                                  location.pathname.startsWith("/organization/settings"));
+                                  location.pathname.startsWith(
+                                    "/organization/settings",
+                                  ));
 
                               return (
                                 <Link

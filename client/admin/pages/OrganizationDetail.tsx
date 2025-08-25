@@ -66,7 +66,7 @@ import {
   UpdateOrganizationRequest,
   InviteMemberRequest,
   UpdateMemberRequest,
-  MemberListQuery
+  MemberListQuery,
 } from "../../../shared/organizationData";
 import { organizationApi, memberApi } from "../../../shared/organizationApi";
 
@@ -85,10 +85,18 @@ const OrganizationDetail = () => {
   const [members, setMembers] = useState<Member[]>([]);
   const [membersLoading, setMembersLoading] = useState(false);
   const [memberSearchQuery, setMemberSearchQuery] = useState("");
-  const [selectedMemberRole, setSelectedMemberRole] = useState<MemberRole | "ALL">("ALL");
-  const [selectedMemberStatus, setSelectedMemberStatus] = useState<AccountStatus | "ALL">("ALL");
-  const [memberSortField, setMemberSortField] = useState<'lastLoginAt' | 'createdAt' | null>('lastLoginAt');
-  const [memberSortOrder, setMemberSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [selectedMemberRole, setSelectedMemberRole] = useState<
+    MemberRole | "ALL"
+  >("ALL");
+  const [selectedMemberStatus, setSelectedMemberStatus] = useState<
+    AccountStatus | "ALL"
+  >("ALL");
+  const [memberSortField, setMemberSortField] = useState<
+    "lastLoginAt" | "createdAt" | null
+  >("lastLoginAt");
+  const [memberSortOrder, setMemberSortOrder] = useState<"asc" | "desc">(
+    "desc",
+  );
 
   // 成员列表分页状态
   const [currentMemberPage, setCurrentMemberPage] = useState(1);
@@ -109,10 +117,12 @@ const OrganizationDetail = () => {
   const [inviteForm, setInviteForm] = useState<InviteMemberRequest>({
     email: "",
     role: MemberRole.MEMBER,
-    password: ""
+    password: "",
   });
   const [editingMember, setEditingMember] = useState<Member | null>(null);
-  const [statusChangeMember, setStatusChangeMember] = useState<Member | null>(null);
+  const [statusChangeMember, setStatusChangeMember] = useState<Member | null>(
+    null,
+  );
   const [generatedPassword, setGeneratedPassword] = useState<string>("");
 
   useEffect(() => {
@@ -160,15 +170,16 @@ const OrganizationDetail = () => {
 
     try {
       setMembersLoading(true);
-      
+
       const query: MemberListQuery = {
         page: 1,
         limit: 100, // 加载所有成员
         search: memberSearchQuery,
         role: selectedMemberRole === "ALL" ? undefined : selectedMemberRole,
-        status: selectedMemberStatus === "ALL" ? undefined : selectedMemberStatus
+        status:
+          selectedMemberStatus === "ALL" ? undefined : selectedMemberStatus,
       };
-      
+
       const response = await memberApi.getMembers(organizationId, query);
       setMembers(response.data);
     } catch (error) {
@@ -188,7 +199,7 @@ const OrganizationDetail = () => {
 
     try {
       setSaving(true);
-      
+
       const updateRequest: UpdateOrganizationRequest = {
         organizationId: organizationId,
         name: orgFormData.name,
@@ -236,13 +247,13 @@ const OrganizationDetail = () => {
 
     try {
       const response = await memberApi.inviteMember(organizationId, inviteForm);
-      
+
       if (response.success) {
         toast({
           title: "邀请成功",
           description: `新成员已创建，初始密码已生成`,
         });
-        
+
         setGeneratedPassword(response.data.initialPassword);
         setPasswordDialogOpen(true);
         setInviteDialogOpen(false);
@@ -276,15 +287,15 @@ const OrganizationDetail = () => {
         role: editingMember.role,
         phone: editingMember.phone,
       };
-      
+
       const response = await memberApi.updateMember(updateRequest);
-      
+
       if (response.success) {
         toast({
           title: "更新成功",
           description: "成员信息已更新",
         });
-        
+
         setEditMemberDialogOpen(false);
         setEditingMember(null);
         loadMembers();
@@ -309,14 +320,16 @@ const OrganizationDetail = () => {
     if (!statusChangeMember) return;
 
     try {
-      const response = await memberApi.toggleMemberStatus(statusChangeMember.memberId);
-      
+      const response = await memberApi.toggleMemberStatus(
+        statusChangeMember.memberId,
+      );
+
       if (response.success) {
         toast({
           title: "状态更新成功",
           description: response.message,
         });
-        
+
         setStatusConfirmOpen(false);
         setStatusChangeMember(null);
         loadMembers();
@@ -346,10 +359,10 @@ const OrganizationDetail = () => {
       let aValue: string | null = null;
       let bValue: string | null = null;
 
-      if (memberSortField === 'lastLoginAt') {
+      if (memberSortField === "lastLoginAt") {
         aValue = a.lastLoginAt;
         bValue = b.lastLoginAt;
-      } else if (memberSortField === 'createdAt') {
+      } else if (memberSortField === "createdAt") {
         aValue = a.createdAt;
         bValue = b.createdAt;
       }
@@ -362,7 +375,7 @@ const OrganizationDetail = () => {
       const dateA = new Date(aValue).getTime();
       const dateB = new Date(bValue).getTime();
 
-      if (memberSortOrder === 'desc') {
+      if (memberSortOrder === "desc") {
         return dateB - dateA;
       } else {
         return dateA - dateB;
@@ -382,13 +395,13 @@ const OrganizationDetail = () => {
   useEffect(() => {
     setCurrentMemberPage(1);
   }, [memberSearchQuery, selectedMemberRole, selectedMemberStatus]);
-  
-  const handleMemberSort = (field: 'lastLoginAt' | 'createdAt') => {
+
+  const handleMemberSort = (field: "lastLoginAt" | "createdAt") => {
     if (memberSortField === field) {
-      setMemberSortOrder(memberSortOrder === 'desc' ? 'asc' : 'desc');
+      setMemberSortOrder(memberSortOrder === "desc" ? "asc" : "desc");
     } else {
       setMemberSortField(field);
-      setMemberSortOrder('desc');
+      setMemberSortOrder("desc");
     }
   };
 
@@ -412,17 +425,29 @@ const OrganizationDetail = () => {
 
   const getStatusBadge = (status: AccountStatus) => {
     if (status === AccountStatus.ACTIVE) {
-      return <Badge variant="default" className="bg-green-100 text-green-800">活跃</Badge>;
+      return (
+        <Badge variant="default" className="bg-green-100 text-green-800">
+          活跃
+        </Badge>
+      );
     } else if (status === AccountStatus.SUSPENDED) {
       return <Badge variant="destructive">已暂停</Badge>;
     } else {
-      return <Badge variant="secondary" className="bg-red-100 text-red-800">已禁用</Badge>;
+      return (
+        <Badge variant="secondary" className="bg-red-100 text-red-800">
+          已禁用
+        </Badge>
+      );
     }
   };
 
   const getRoleBadge = (role: MemberRole) => {
     if (role === MemberRole.ADMIN) {
-      return <Badge variant="default" className="bg-blue-100 text-blue-800">管理员</Badge>;
+      return (
+        <Badge variant="default" className="bg-blue-100 text-blue-800">
+          管理员
+        </Badge>
+      );
     } else {
       return <Badge variant="outline">成员</Badge>;
     }
@@ -504,7 +529,6 @@ const OrganizationDetail = () => {
 
   return (
     <div className="p-6 space-y-6">
-
       {/* 组织概览 */}
       <div className="space-y-6">
         {/* 基本信息 */}
@@ -532,7 +556,11 @@ const OrganizationDetail = () => {
                     >
                       取消
                     </Button>
-                    <Button size="sm" onClick={handleSaveOrganization} disabled={saving}>
+                    <Button
+                      size="sm"
+                      onClick={handleSaveOrganization}
+                      disabled={saving}
+                    >
                       <Save className="h-4 w-4 mr-2" />
                       {saving ? "保存中..." : "保存"}
                     </Button>
@@ -574,7 +602,10 @@ const OrganizationDetail = () => {
                   id="orgName"
                   value={orgFormData.name}
                   onChange={(e) =>
-                    setOrgFormData((prev) => ({ ...prev, name: e.target.value }))
+                    setOrgFormData((prev) => ({
+                      ...prev,
+                      name: e.target.value,
+                    }))
                   }
                   readOnly={!isEditing}
                   className={`mt-1 ${!isEditing ? "bg-gray-50 text-gray-600" : ""}`}
@@ -594,17 +625,31 @@ const OrganizationDetail = () => {
                   <Select
                     value={orgFormData.subscriptionPlan}
                     onValueChange={(value) =>
-                      setOrgFormData((prev) => ({ ...prev, subscriptionPlan: value as SubscriptionPlan }))
+                      setOrgFormData((prev) => ({
+                        ...prev,
+                        subscriptionPlan: value as SubscriptionPlan,
+                      }))
                     }
                   >
                     <SelectTrigger className="mt-1">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value={SubscriptionPlan.INTERNAL_TRIAL}>内部试用</SelectItem>
-                      <SelectItem value={SubscriptionPlan.BASIC} disabled>基础版</SelectItem>
-                      <SelectItem value={SubscriptionPlan.PROFESSIONAL} disabled>专业版</SelectItem>
-                      <SelectItem value={SubscriptionPlan.ENTERPRISE} disabled>企业版</SelectItem>
+                      <SelectItem value={SubscriptionPlan.INTERNAL_TRIAL}>
+                        内部试用
+                      </SelectItem>
+                      <SelectItem value={SubscriptionPlan.BASIC} disabled>
+                        基础版
+                      </SelectItem>
+                      <SelectItem
+                        value={SubscriptionPlan.PROFESSIONAL}
+                        disabled
+                      >
+                        专业版
+                      </SelectItem>
+                      <SelectItem value={SubscriptionPlan.ENTERPRISE} disabled>
+                        企业版
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 ) : (
@@ -639,7 +684,12 @@ const OrganizationDetail = () => {
                       className="pl-10"
                     />
                   </div>
-                  <Select value={selectedMemberRole} onValueChange={(value) => setSelectedMemberRole(value as MemberRole | "ALL")}>
+                  <Select
+                    value={selectedMemberRole}
+                    onValueChange={(value) =>
+                      setSelectedMemberRole(value as MemberRole | "ALL")
+                    }
+                  >
                     <SelectTrigger className="w-full sm:w-[150px]">
                       <SelectValue placeholder="角色筛选" />
                     </SelectTrigger>
@@ -649,18 +699,25 @@ const OrganizationDetail = () => {
                       <SelectItem value={MemberRole.MEMBER}>成员</SelectItem>
                     </SelectContent>
                   </Select>
-                  <Select value={selectedMemberStatus} onValueChange={(value) => setSelectedMemberStatus(value as AccountStatus | "ALL")}>
+                  <Select
+                    value={selectedMemberStatus}
+                    onValueChange={(value) =>
+                      setSelectedMemberStatus(value as AccountStatus | "ALL")
+                    }
+                  >
                     <SelectTrigger className="w-full sm:w-[150px]">
                       <SelectValue placeholder="状态筛选" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="ALL">所有状态</SelectItem>
                       <SelectItem value={AccountStatus.ACTIVE}>活跃</SelectItem>
-                      <SelectItem value={AccountStatus.DISABLED}>已禁用</SelectItem>
+                      <SelectItem value={AccountStatus.DISABLED}>
+                        已禁用
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
-                
+
                 {/* 重置按钮在右侧 */}
                 <div className="flex gap-2">
                   <Button
@@ -675,7 +732,7 @@ const OrganizationDetail = () => {
                   </Button>
                 </div>
               </div>
-              
+
               {/* 邀请按钮在左侧 */}
               <div className="flex justify-start">
                 <Button onClick={() => setInviteDialogOpen(true)}>
@@ -694,20 +751,20 @@ const OrganizationDetail = () => {
                     <TableHead>状态</TableHead>
                     <TableHead>
                       <button
-                        onClick={() => handleMemberSort('lastLoginAt')}
+                        onClick={() => handleMemberSort("lastLoginAt")}
                         className="flex items-center gap-2 hover:text-gray-900"
                       >
                         最后登录时间
-                        {getSortIcon('lastLoginAt')}
+                        {getSortIcon("lastLoginAt")}
                       </button>
                     </TableHead>
                     <TableHead>
                       <button
-                        onClick={() => handleMemberSort('createdAt')}
+                        onClick={() => handleMemberSort("createdAt")}
                         className="flex items-center gap-2 hover:text-gray-900"
                       >
                         创建时间
-                        {getSortIcon('createdAt')}
+                        {getSortIcon("createdAt")}
                       </button>
                     </TableHead>
                     <TableHead>操作</TableHead>
@@ -732,11 +789,15 @@ const OrganizationDetail = () => {
                         <TableCell>
                           <div>
                             <div className="font-medium">{member.name}</div>
-                            <div className="text-sm text-gray-500">{member.email}</div>
+                            <div className="text-sm text-gray-500">
+                              {member.email}
+                            </div>
                           </div>
                         </TableCell>
                         <TableCell>{getRoleBadge(member.role)}</TableCell>
-                        <TableCell>{getStatusBadge(member.accountStatus)}</TableCell>
+                        <TableCell>
+                          {getStatusBadge(member.accountStatus)}
+                        </TableCell>
                         <TableCell className="text-xs text-gray-600">
                           {formatDateTime(member.lastLoginAt)}
                         </TableCell>
@@ -755,7 +816,9 @@ const OrganizationDetail = () => {
                               onClick={() => openStatusConfirm(member)}
                               className="text-blue-600 hover:text-blue-800 text-sm font-medium"
                             >
-                              {member.accountStatus === AccountStatus.ACTIVE ? '禁用' : '启用'}
+                              {member.accountStatus === AccountStatus.ACTIVE
+                                ? "禁用"
+                                : "启用"}
                             </button>
                           </div>
                         </TableCell>
@@ -770,13 +833,17 @@ const OrganizationDetail = () => {
             {totalMemberPages > 1 && (
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 pt-4 border-t">
                 <div className="text-sm text-gray-700 order-2 sm:order-1">
-                  正在显示 {startMemberIndex + 1} - {Math.min(endMemberIndex, sortedMembers.length)} 条，共 {sortedMembers.length} 条成员
+                  正在显示 {startMemberIndex + 1} -{" "}
+                  {Math.min(endMemberIndex, sortedMembers.length)} 条，共{" "}
+                  {sortedMembers.length} 条成员
                 </div>
                 <div className="flex items-center gap-2 order-1 sm:order-2">
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setCurrentMemberPage(prev => Math.max(1, prev - 1))}
+                    onClick={() =>
+                      setCurrentMemberPage((prev) => Math.max(1, prev - 1))
+                    }
                     disabled={currentMemberPage === 1}
                   >
                     上一页
@@ -784,7 +851,11 @@ const OrganizationDetail = () => {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setCurrentMemberPage(prev => Math.min(totalMemberPages, prev + 1))}
+                    onClick={() =>
+                      setCurrentMemberPage((prev) =>
+                        Math.min(totalMemberPages, prev + 1),
+                      )
+                    }
                     disabled={currentMemberPage === totalMemberPages}
                   >
                     下一页
@@ -813,14 +884,21 @@ const OrganizationDetail = () => {
                 type="email"
                 placeholder="请输入成员邮箱"
                 value={inviteForm.email}
-                onChange={(e) => setInviteForm(prev => ({ ...prev, email: e.target.value }))}
+                onChange={(e) =>
+                  setInviteForm((prev) => ({ ...prev, email: e.target.value }))
+                }
               />
             </div>
             <div>
               <Label htmlFor="role">角色</Label>
               <Select
                 value={inviteForm.role}
-                onValueChange={(value) => setInviteForm(prev => ({ ...prev, role: value as MemberRole }))}
+                onValueChange={(value) =>
+                  setInviteForm((prev) => ({
+                    ...prev,
+                    role: value as MemberRole,
+                  }))
+                }
               >
                 <SelectTrigger>
                   <SelectValue placeholder="选择角色" />
@@ -833,24 +911,26 @@ const OrganizationDetail = () => {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setInviteDialogOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setInviteDialogOpen(false)}
+            >
               取消
             </Button>
-            <Button onClick={handleInviteMember}>
-              发送邀请
-            </Button>
+            <Button onClick={handleInviteMember}>发送邀请</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
       {/* 编辑成员弹窗 */}
-      <Dialog open={editMemberDialogOpen} onOpenChange={setEditMemberDialogOpen}>
+      <Dialog
+        open={editMemberDialogOpen}
+        onOpenChange={setEditMemberDialogOpen}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>编辑成员信息</DialogTitle>
-            <DialogDescription>
-              修改成员的基本信息和角色权限
-            </DialogDescription>
+            <DialogDescription>修改成员的基本信息和角色权限</DialogDescription>
           </DialogHeader>
           {editingMember && (
             <div className="space-y-4">
@@ -859,7 +939,11 @@ const OrganizationDetail = () => {
                 <Input
                   id="edit-name"
                   value={editingMember.name}
-                  onChange={(e) => setEditingMember(prev => prev ? { ...prev, name: e.target.value } : null)}
+                  onChange={(e) =>
+                    setEditingMember((prev) =>
+                      prev ? { ...prev, name: e.target.value } : null,
+                    )
+                  }
                 />
               </div>
               <div>
@@ -867,7 +951,11 @@ const OrganizationDetail = () => {
                 <Input
                   id="edit-phone"
                   value={editingMember.phone || ""}
-                  onChange={(e) => setEditingMember(prev => prev ? { ...prev, phone: e.target.value } : null)}
+                  onChange={(e) =>
+                    setEditingMember((prev) =>
+                      prev ? { ...prev, phone: e.target.value } : null,
+                    )
+                  }
                   placeholder="请输入电话号码"
                 />
               </div>
@@ -875,7 +963,11 @@ const OrganizationDetail = () => {
                 <Label htmlFor="edit-role">角色</Label>
                 <Select
                   value={editingMember.role}
-                  onValueChange={(value) => setEditingMember(prev => prev ? { ...prev, role: value as MemberRole } : null)}
+                  onValueChange={(value) =>
+                    setEditingMember((prev) =>
+                      prev ? { ...prev, role: value as MemberRole } : null,
+                    )
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -907,12 +999,13 @@ const OrganizationDetail = () => {
             </div>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={() => setEditMemberDialogOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setEditMemberDialogOpen(false)}
+            >
               取消
             </Button>
-            <Button onClick={handleUpdateMember}>
-              保存更改
-            </Button>
+            <Button onClick={handleUpdateMember}>保存更改</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -922,7 +1015,10 @@ const OrganizationDetail = () => {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {statusChangeMember?.accountStatus === AccountStatus.ACTIVE ? "禁用" : "启用"}成员账户
+              {statusChangeMember?.accountStatus === AccountStatus.ACTIVE
+                ? "禁用"
+                : "启用"}
+              成员账户
             </AlertDialogTitle>
             <AlertDialogDescription>
               {statusChangeMember?.accountStatus === AccountStatus.ACTIVE ? (
@@ -941,7 +1037,9 @@ const OrganizationDetail = () => {
           <AlertDialogFooter>
             <AlertDialogCancel>取消</AlertDialogCancel>
             <AlertDialogAction onClick={handleToggleMemberStatus}>
-              {statusChangeMember?.accountStatus === AccountStatus.ACTIVE ? "禁用" : "启用"}
+              {statusChangeMember?.accountStatus === AccountStatus.ACTIVE
+                ? "禁用"
+                : "启用"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -969,7 +1067,8 @@ const OrganizationDetail = () => {
               </div>
             </div>
             <div className="text-sm text-amber-600 bg-amber-50 p-3 rounded">
-              <strong>重要提醒：</strong>请务必将此密码安全地告知新成员，并建议其首次登录后立即修改密码。
+              <strong>重要提醒：</strong>
+              请务必将此密码安全地告知新成员，并建议其首次登录后立即修改密码。
             </div>
           </div>
           <DialogFooter>

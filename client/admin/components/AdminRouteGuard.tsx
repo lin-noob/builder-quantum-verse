@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
-import { Navigate } from 'react-router-dom';
-import { adminAuthService } from '@/services/adminAuthService';
+import { useEffect, useState } from "react";
+import { Navigate } from "react-router-dom";
+import { adminAuthService } from "@/services/adminAuthService";
 
 interface AdminRouteGuardProps {
   children: React.ReactNode;
@@ -15,7 +15,7 @@ export default function AdminRouteGuard({ children }: AdminRouteGuardProps) {
     const checkAdminAuth = () => {
       const adminUser = adminAuthService.getCurrentAdminUser();
       const isLoggedIn = adminAuthService.isAdminLoggedIn();
-      
+
       setIsAuthenticated(isLoggedIn && adminUser !== null);
       setIsLoading(false);
     };

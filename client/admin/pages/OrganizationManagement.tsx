@@ -68,14 +68,16 @@ const OrganizationManagement = () => {
   const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedStatus, setSelectedStatus] = useState<AccountStatus | "ALL">("ALL");
+  const [selectedStatus, setSelectedStatus] = useState<AccountStatus | "ALL">(
+    "ALL",
+  );
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
-  
+
   // 排序状态
-  const [sortField, setSortField] = useState<'createdAt' | null>('createdAt');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [sortField, setSortField] = useState<"createdAt" | null>("createdAt");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
   // 弹窗状��
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
@@ -90,7 +92,8 @@ const OrganizationManagement = () => {
     adminPassword: "",
     subscriptionPlan: SubscriptionPlan.INTERNAL_TRIAL,
   });
-  const [editingOrganization, setEditingOrganization] = useState<Organization | null>(null);
+  const [editingOrganization, setEditingOrganization] =
+    useState<Organization | null>(null);
   const [generatedCredentials, setGeneratedCredentials] = useState<{
     email: string;
     password: string;
@@ -225,31 +228,31 @@ const OrganizationManagement = () => {
   // 排序函数
   const sortOrganizations = (organizations: Organization[]) => {
     if (!sortField) return organizations;
-    
+
     return [...organizations].sort((a, b) => {
       let aValue: string = a.createdAt;
       let bValue: string = b.createdAt;
-      
+
       const dateA = new Date(aValue).getTime();
       const dateB = new Date(bValue).getTime();
-      
-      if (sortOrder === 'desc') {
+
+      if (sortOrder === "desc") {
         return dateB - dateA;
       } else {
         return dateA - dateB;
       }
     });
   };
-  
+
   // 获取排序后的组织列表
   const sortedOrganizations = sortOrganizations(organizations);
-  
-  const handleSort = (field: 'createdAt') => {
+
+  const handleSort = (field: "createdAt") => {
     if (sortField === field) {
-      setSortOrder(sortOrder === 'desc' ? 'asc' : 'desc');
+      setSortOrder(sortOrder === "desc" ? "asc" : "desc");
     } else {
       setSortField(field);
-      setSortOrder('desc');
+      setSortOrder("desc");
     }
   };
 
@@ -427,7 +430,9 @@ const OrganizationManagement = () => {
                 <SelectContent>
                   <SelectItem value="ALL">所有状态</SelectItem>
                   <SelectItem value={AccountStatus.ACTIVE}>活跃</SelectItem>
-                  <SelectItem value={AccountStatus.SUSPENDED}>已暂停</SelectItem>
+                  <SelectItem value={AccountStatus.SUSPENDED}>
+                    已暂停
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -453,9 +458,7 @@ const OrganizationManagement = () => {
 
         {/* 操作按钮区域 */}
         <div className="flex items-center gap-4 mb-6">
-          <Button onClick={() => setCreateDialogOpen(true)}>
-            创建新组织
-          </Button>
+          <Button onClick={() => setCreateDialogOpen(true)}>创建新组织</Button>
         </div>
 
         {/* 组织列表卡片 */}
@@ -478,11 +481,11 @@ const OrganizationManagement = () => {
                   </th>
                   <th
                     className="px-6 py-4 text-left text-sm font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100"
-                    onClick={() => handleSort('createdAt')}
+                    onClick={() => handleSort("createdAt")}
                   >
                     <div className="flex items-center gap-2">
                       创建时间
-                      {getSortIcon('createdAt')}
+                      {getSortIcon("createdAt")}
                     </div>
                   </th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
@@ -492,7 +495,10 @@ const OrganizationManagement = () => {
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {sortedOrganizations.map((organization) => (
-                  <tr key={organization.organizationId} className="hover:bg-gray-50">
+                  <tr
+                    key={organization.organizationId}
+                    className="hover:bg-gray-50"
+                  >
                     <td className="px-6 py-4">
                       <div className="space-y-1">
                         <div className="text-sm font-medium text-gray-900">
@@ -521,21 +527,29 @@ const OrganizationManagement = () => {
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-4">
                         <button
-                          onClick={() => navigate(`/admin/organizations/${organization.organizationId}`)}
+                          onClick={() =>
+                            navigate(
+                              `/admin/organizations/${organization.organizationId}`,
+                            )
+                          }
                           className="text-blue-600 hover:text-blue-800 text-sm font-medium"
                         >
                           查看详情
                         </button>
                         {organization.accountStatus === AccountStatus.ACTIVE ? (
                           <button
-                            onClick={() => handleToggleOrganizationStatus(organization)}
+                            onClick={() =>
+                              handleToggleOrganizationStatus(organization)
+                            }
                             className="text-orange-600 hover:text-orange-800 text-sm font-medium"
                           >
                             暂停
                           </button>
                         ) : (
                           <button
-                            onClick={() => handleToggleOrganizationStatus(organization)}
+                            onClick={() =>
+                              handleToggleOrganizationStatus(organization)
+                            }
                             className="text-green-600 hover:text-green-800 text-sm font-medium"
                           >
                             启用
@@ -553,13 +567,16 @@ const OrganizationManagement = () => {
           {totalPages > 1 && (
             <div className="px-6 py-4 border-t bg-gray-50 flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="text-sm text-gray-700 order-2 sm:order-1">
-                正在显示 {(currentPage - 1) * 10 + 1} - {Math.min(currentPage * 10, total)} 条，共 {total} 条
+                正在显示 {(currentPage - 1) * 10 + 1} -{" "}
+                {Math.min(currentPage * 10, total)} 条，共 {total} 条
               </div>
               <div className="flex items-center gap-2 order-1 sm:order-2">
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                  onClick={() =>
+                    setCurrentPage((prev) => Math.max(1, prev - 1))
+                  }
                   disabled={currentPage === 1}
                 >
                   上一页
