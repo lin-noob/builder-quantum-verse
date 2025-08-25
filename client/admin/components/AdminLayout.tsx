@@ -95,6 +95,14 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     },
   ];
 
+  // 主平台入口菜单项（临时）
+  const mainPlatformMenuItem = {
+    id: "main-platform",
+    label: "主平台入口（临时）",
+    path: "/dashboard",
+    icon: <ChevronRight className="h-5 w-5" />,
+  };
+
   const isActiveRoute = (path: string) => {
     return (
       location.pathname === path ||
@@ -104,7 +112,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   return (
     <div className="flex h-screen bg-background-secondary">
-      {/* 移动��头部 */}
+      {/* ��动��头部 */}
       <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-card border-b border-border flex items-center justify-between px-4 z-50">
         <div className="flex items-center gap-3">
           {/* User Profile Icon */}
