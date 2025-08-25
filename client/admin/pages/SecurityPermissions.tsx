@@ -211,6 +211,18 @@ export default function SecurityPermissions() {
   const [currentUserPage, setCurrentUserPage] = useState(1);
   const [usersPerPage] = useState(8);
 
+  // Pagination logic for roles
+  const totalRolePages = Math.ceil(roles.length / rolesPerPage);
+  const startRoleIndex = (currentRolePage - 1) * rolesPerPage;
+  const endRoleIndex = startRoleIndex + rolesPerPage;
+  const currentRoles = roles.slice(startRoleIndex, endRoleIndex);
+
+  // Pagination logic for user roles
+  const totalUserPages = Math.ceil(userRoles.length / usersPerPage);
+  const startUserIndex = (currentUserPage - 1) * usersPerPage;
+  const endUserIndex = startUserIndex + usersPerPage;
+  const currentUserRoles = userRoles.slice(startUserIndex, endUserIndex);
+
   const getCategoryIcon = (category: Permission['category']) => {
     switch (category) {
       case 'user':
