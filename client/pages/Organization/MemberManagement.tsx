@@ -449,45 +449,43 @@ const MemberManagement = () => {
                       {formatDate(member.lastLoginAt)}
                     </TableCell>
                     <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              openEditDialog(member);
-                            }}
-                          >
-                            <Edit className="mr-2 h-4 w-4" />
-                            编辑信息
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              openStatusConfirm(member);
-                            }}
-                          >
-                            {member.accountStatus === AccountStatus.ACTIVE ? (
-                              <>
-                                <UserX className="mr-2 h-4 w-4" />
-                                禁用账户
-                              </>
-                            ) : (
-                              <>
-                                <UserCheck className="mr-2 h-4 w-4" />
-                                启用账户
-                              </>
-                            )}
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={(e) => {
+                            console.log('=== Edit button clicked directly ===');
+                            e.preventDefault();
+                            e.stopPropagation();
+                            openEditDialog(member);
+                          }}
+                        >
+                          <Edit className="h-3 w-3 mr-1" />
+                          编辑
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={(e) => {
+                            console.log('=== Status button clicked directly ===');
+                            e.preventDefault();
+                            e.stopPropagation();
+                            openStatusConfirm(member);
+                          }}
+                        >
+                          {member.accountStatus === AccountStatus.ACTIVE ? (
+                            <>
+                              <UserX className="h-3 w-3 mr-1" />
+                              禁用
+                            </>
+                          ) : (
+                            <>
+                              <UserCheck className="h-3 w-3 mr-1" />
+                              启用
+                            </>
+                          )}
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
