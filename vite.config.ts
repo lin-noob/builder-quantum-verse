@@ -42,6 +42,7 @@ export default defineConfig(({ mode }) => ({
       },
       "/quote/api": "http://192.168.1.128:8099",
     },
+    allowedHosts: ['lt.eecart.com']
   },
   build: {
     outDir: "dist/spa",

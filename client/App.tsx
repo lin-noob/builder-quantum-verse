@@ -148,10 +148,10 @@ const AppWithRequestManager = () => {
 
           {/* Legacy routes for old versions */}
           <Route
-            path="/users1/:userId"
+            path="/users1/:cdpId"
             element={
               <Layout>
-                <UserDetail />
+                <UserDetailNew />
               </Layout>
             }
           />
