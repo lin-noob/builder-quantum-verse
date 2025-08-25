@@ -224,7 +224,7 @@ const OrganizationDetail = () => {
     if (!inviteForm.email || !inviteForm.role || !organizationId) {
       toast({
         title: "表单验证失败",
-        description: "请填写完整的邀请信息",
+        description: "请填写完整的邀请���息",
         variant: "destructive",
       });
       return;
@@ -531,71 +531,73 @@ const OrganizationDetail = () => {
               </div>
             </div>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <Label htmlFor="orgId">组织ID</Label>
-              <Input
-                id="orgId"
-                value={organization.organizationId}
-                readOnly
-                className="bg-gray-50 text-gray-600"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="orgName">组织名称</Label>
-              <Input
-                id="orgName"
-                value={orgFormData.name}
-                onChange={(e) =>
-                  setOrgFormData((prev) => ({ ...prev, name: e.target.value }))
-                }
-                readOnly={!isEditing}
-                className={!isEditing ? "bg-gray-50 text-gray-600" : ""}
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="accountStatus">账户状态</Label>
-              <div className="mt-2">
-                {getStatusBadge(organization.accountStatus)}
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="orgId">组织ID</Label>
+                <Input
+                  id="orgId"
+                  value={organization.organizationId}
+                  readOnly
+                  className="bg-gray-50 text-gray-600 mt-1"
+                />
               </div>
-            </div>
 
-            <div>
-              <Label htmlFor="subscriptionPlan">订阅套餐</Label>
-              {isEditing ? (
-                <Select
-                  value={orgFormData.subscriptionPlan}
-                  onValueChange={(value) =>
-                    setOrgFormData((prev) => ({ ...prev, subscriptionPlan: value as SubscriptionPlan }))
+              <div>
+                <Label htmlFor="createdAt">创建时间</Label>
+                <Input
+                  id="createdAt"
+                  value={formatDateTime(organization.createdAt)}
+                  readOnly
+                  className="bg-gray-50 text-gray-600 mt-1"
+                />
+              </div>
+
+              <div className="md:col-span-2">
+                <Label htmlFor="orgName">组织名称</Label>
+                <Input
+                  id="orgName"
+                  value={orgFormData.name}
+                  onChange={(e) =>
+                    setOrgFormData((prev) => ({ ...prev, name: e.target.value }))
                   }
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value={SubscriptionPlan.INTERNAL_TRIAL}>内部试用</SelectItem>
-                    <SelectItem value={SubscriptionPlan.BASIC} disabled>基础版</SelectItem>
-                    <SelectItem value={SubscriptionPlan.PROFESSIONAL} disabled>专业版</SelectItem>
-                    <SelectItem value={SubscriptionPlan.ENTERPRISE} disabled>企业版</SelectItem>
-                  </SelectContent>
-                </Select>
-              ) : (
-                <div className="mt-2">
-                  {getSubscriptionBadge(organization.subscriptionPlan)}
-                </div>
-              )}
-            </div>
+                  readOnly={!isEditing}
+                  className={`mt-1 ${!isEditing ? "bg-gray-50 text-gray-600" : ""}`}
+                />
+              </div>
 
-            <div>
-              <Label htmlFor="createdAt">创建时间</Label>
-              <Input
-                id="createdAt"
-                value={formatDateTime(organization.createdAt)}
-                readOnly
-                className="bg-gray-50 text-gray-600"
-              />
+              <div>
+                <Label htmlFor="accountStatus">账户状态</Label>
+                <div className="mt-2">
+                  {getStatusBadge(organization.accountStatus)}
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="subscriptionPlan">订阅套餐</Label>
+                {isEditing ? (
+                  <Select
+                    value={orgFormData.subscriptionPlan}
+                    onValueChange={(value) =>
+                      setOrgFormData((prev) => ({ ...prev, subscriptionPlan: value as SubscriptionPlan }))
+                    }
+                  >
+                    <SelectTrigger className="mt-1">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={SubscriptionPlan.INTERNAL_TRIAL}>内部试用</SelectItem>
+                      <SelectItem value={SubscriptionPlan.BASIC} disabled>基础版</SelectItem>
+                      <SelectItem value={SubscriptionPlan.PROFESSIONAL} disabled>专业版</SelectItem>
+                      <SelectItem value={SubscriptionPlan.ENTERPRISE} disabled>企业版</SelectItem>
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <div className="mt-2">
+                    {getSubscriptionBadge(organization.subscriptionPlan)}
+                  </div>
+                )}
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -647,7 +649,7 @@ const OrganizationDetail = () => {
                 {/* 搜索重置按钮在右侧 */}
                 <div className="flex gap-2">
                   <Button variant="outline" onClick={() => loadMembers()}>
-                    搜索
+                    搜���
                   </Button>
                   <Button
                     variant="outline"
@@ -683,7 +685,7 @@ const OrganizationDetail = () => {
                         onClick={() => handleMemberSort('lastLoginAt')}
                         className="flex items-center gap-2 hover:text-gray-900"
                       >
-                        最后登录时间
+                        最后登录时���
                         {getSortIcon('lastLoginAt')}
                       </button>
                     </TableHead>
