@@ -38,6 +38,7 @@ import UserProfile from "./pages/UserProfile";
 import EffectTracking from "./pages/EffectTracking";
 import MemberManagement from "./pages/Organization/MemberManagement";
 import OrganizationSettings from "./pages/Organization/OrganizationSettings";
+import PersonalSettings from "./pages/Account/PersonalSettings";
 import { usePageRequestManager } from "./hooks/useRequestManager";
 import AdminApp from "./admin/AdminApp";
 
