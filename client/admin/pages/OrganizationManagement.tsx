@@ -639,7 +639,7 @@ const OrganizationManagement = () => {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>编辑组织信息</DialogTitle>
-            <DialogDescription>修���组织的基本信息和状态</DialogDescription>
+            <DialogDescription>修改组织的基本信息和状态</DialogDescription>
           </DialogHeader>
           {editingOrganization && (
             <div className="space-y-4">
@@ -712,13 +712,32 @@ const OrganizationManagement = () => {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="text-sm text-gray-500 space-y-1">
-                <div>组织ID：{editingOrganization.organizationId}</div>
-                <div>创建时间：{formatDate(editingOrganization.createdAt)}</div>
-                <div>
-                  成员数量：{editingOrganization.memberCount || 0} (
-                  {editingOrganization.activeMemberCount || 0} 活跃)
-                </div>
+              <div>
+                <Label htmlFor="edit-org-id">组织ID</Label>
+                <Input
+                  id="edit-org-id"
+                  value={editingOrganization.organizationId}
+                  readOnly
+                  className="bg-gray-50 text-gray-600"
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-created">创建时间</Label>
+                <Input
+                  id="edit-created"
+                  value={formatDate(editingOrganization.createdAt)}
+                  readOnly
+                  className="bg-gray-50 text-gray-600"
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-members">成员统计</Label>
+                <Input
+                  id="edit-members"
+                  value={`总计: ${editingOrganization.memberCount || 0} (活跃: ${editingOrganization.activeMemberCount || 0})`}
+                  readOnly
+                  className="bg-gray-50 text-gray-600"
+                />
               </div>
             </div>
           )}
