@@ -341,11 +341,11 @@ const OrganizationDetail = () => {
   // 成员排序函数
   const sortMembers = (members: Member[]) => {
     if (!memberSortField) return members;
-    
+
     return [...members].sort((a, b) => {
       let aValue: string | null = null;
       let bValue: string | null = null;
-      
+
       if (memberSortField === 'lastLoginAt') {
         aValue = a.lastLoginAt;
         bValue = b.lastLoginAt;
@@ -353,15 +353,15 @@ const OrganizationDetail = () => {
         aValue = a.createdAt;
         bValue = b.createdAt;
       }
-      
+
       // 处理null值，null值排在最后
       if (!aValue && !bValue) return 0;
       if (!aValue) return 1;
       if (!bValue) return -1;
-      
+
       const dateA = new Date(aValue).getTime();
       const dateB = new Date(bValue).getTime();
-      
+
       if (memberSortOrder === 'desc') {
         return dateB - dateA;
       } else {
@@ -369,8 +369,19 @@ const OrganizationDetail = () => {
       }
     });
   };
-  
+
   const sortedMembers = sortMembers(members);
+
+  // 成员列表分页逻辑
+  const totalMemberPages = Math.ceil(sortedMembers.length / membersPerPage);
+  const startMemberIndex = (currentMemberPage - 1) * membersPerPage;
+  const endMemberIndex = startMemberIndex + membersPerPage;
+  const currentMembers = sortedMembers.slice(startMemberIndex, endMemberIndex);
+
+  // 重置分页当筛选条件改变时
+  useEffect(() => {
+    setCurrentMemberPage(1);
+  }, [memberSearchQuery, selectedMemberRole, selectedMemberStatus]);
   
   const handleMemberSort = (field: 'lastLoginAt' | 'createdAt') => {
     if (memberSortField === field) {
@@ -592,7 +603,7 @@ const OrganizationDetail = () => {
                     <SelectContent>
                       <SelectItem value={SubscriptionPlan.INTERNAL_TRIAL}>内部试用</SelectItem>
                       <SelectItem value={SubscriptionPlan.BASIC} disabled>基础版</SelectItem>
-                      <SelectItem value={SubscriptionPlan.PROFESSIONAL} disabled>专业��</SelectItem>
+                      <SelectItem value={SubscriptionPlan.PROFESSIONAL} disabled>专业版</SelectItem>
                       <SelectItem value={SubscriptionPlan.ENTERPRISE} disabled>企业版</SelectItem>
                     </SelectContent>
                   </Select>
