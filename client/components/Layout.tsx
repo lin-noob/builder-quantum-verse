@@ -348,7 +348,7 @@ export default function Layout({ children }: LayoutProps) {
           {/* 用户信息 */}
           {currentUser ? (
             <Link
-              to="/profile"
+              to="/account/settings"
               className={cn(
                 "flex items-center gap-3 p-2 rounded-lg text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-colors",
                 isSidebarCollapsed ? "justify-center" : "justify-start",
