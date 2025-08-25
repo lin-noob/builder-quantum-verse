@@ -366,6 +366,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align={isSidebarCollapsed ? "start" : "end"} className="w-48">
+                <DropdownMenuItem disabled className="flex items-center gap-2 cursor-not-allowed opacity-50">
+                  <Settings className="h-4 w-4" />
+                  个人设置
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem
                   className="flex items-center gap-2 text-red-600 focus:text-red-600 cursor-pointer"
                   onClick={() => {
