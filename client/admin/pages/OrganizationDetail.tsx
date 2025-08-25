@@ -503,7 +503,6 @@ const OrganizationDetail = () => {
           </Button>
           <div>
             <h1 className="text-2xl font-bold text-gray-900">{organization.name}</h1>
-            <p className="text-gray-600">组织详情与管理</p>
           </div>
         </div>
         <div className="flex gap-2">
@@ -666,7 +665,7 @@ const OrganizationDetail = () => {
                   <div className="text-lg font-semibold text-gray-700">
                     {((organization.activeMemberCount || 0) / Math.max(organization.memberCount || 1, 1) * 100).toFixed(1)}%
                   </div>
-                  <div className="text-sm text-gray-600">活跃率</div>
+                  <div className="text-sm text-gray-600">活���率</div>
                 </div>
 
                 <div className="space-y-2">
