@@ -1,19 +1,19 @@
 import { Link } from "react-router-dom";
-import { 
-  Bot, 
-  ArrowRight, 
-  CheckCircle, 
+import {
+  Bot,
+  ArrowRight,
+  CheckCircle,
   Sparkles,
   Brain,
   Target,
   Zap,
   Users,
   BarChart3,
-  MessageSquare,
-  Home
+  MessageSquare
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import MarketingNav from "@/components/MarketingNav";
 
 export default function AIMarketing() {
   const features = [
@@ -26,7 +26,7 @@ export default function AIMarketing() {
     {
       icon: <Target className="h-8 w-8 text-green-600" />,
       title: "精准场景触发",
-      description: "智能识别用户行为模式，在最佳时机触发营销动作，提升转化效果",
+      description: "智能识别用户行为模式，在最佳时机触发营销动作，提升转化效��",
       benefits: ["行为预测", "时机优化", "场景适配", "自动化触发"]
     },
     {
@@ -206,7 +206,7 @@ export default function AIMarketing() {
             <div>
               <h2 className="text-3xl font-bold text-gray-900 mb-6">技术优势</h2>
               <p className="text-lg text-gray-600 mb-8">
-                基于先进的机器学习算法和大数据分析技术，为您提供业界领先的AI营销解决方案
+                基于��进的机器学习算法和大数据分析技术，为您提供业界领先的AI营销解决方案
               </p>
               <ul className="space-y-4">
                 {advantages.map((advantage, index) => (
