@@ -3,6 +3,35 @@ import * as RechartsPrimitive from "recharts";
 
 import { cn } from "@/lib/utils";
 
+// Global warning suppression for Chart UI component
+if (typeof console !== 'undefined' && process.env.NODE_ENV === 'development') {
+  const originalConsoleWarn = console.warn;
+  const originalConsoleError = console.error;
+
+  const isRechartsWarning = (...args: any[]) => {
+    const message = args.join(' ').toLowerCase();
+    return message.includes('defaultprops') && (
+      message.includes('xaxis') ||
+      message.includes('yaxis') ||
+      message.includes('recharts') ||
+      message.includes('primitive') ||
+      message.includes('axis')
+    );
+  };
+
+  console.warn = (...args: any[]) => {
+    if (!isRechartsWarning(...args)) {
+      originalConsoleWarn.apply(console, args);
+    }
+  };
+
+  console.error = (...args: any[]) => {
+    if (!isRechartsWarning(...args)) {
+      originalConsoleError.apply(console, args);
+    }
+  };
+}
+
 // Format: { THEME_NAME: CSS_SELECTOR }
 const THEMES = { light: "", dark: ".dark" } as const;
 
