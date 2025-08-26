@@ -1,12 +1,11 @@
 import { Link } from "react-router-dom";
-import { 
-  Bot, 
-  Target, 
-  Users, 
-  Activity, 
+import {
+  Bot,
+  Target,
+  Users,
+  Activity,
   ArrowRight,
-  ChevronDown,
-  Home
+  ChevronDown
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,22 +15,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-interface MarketingNavProps {
-  showBackButton?: boolean;
-}
-
-export default function MarketingNav({ showBackButton = false }: MarketingNavProps) {
+export default function MarketingNav() {
   return (
     <nav className="bg-white shadow-sm border-b">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <div className="flex items-center">
+          <div className="flex items-center space-x-8">
             <Link to="/" className="flex items-center">
               <Bot className="h-8 w-8 text-blue-600" />
               <span className="ml-2 text-xl font-bold text-gray-900">AI营销平台</span>
             </Link>
-          </div>
-          <div className="flex items-center space-x-8">
+
             {/* 产品特色下拉菜单 */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -40,7 +34,7 @@ export default function MarketingNav({ showBackButton = false }: MarketingNavPro
                   <ChevronDown className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuContent align="start" className="w-48">
                 <DropdownMenuItem asChild>
                   <Link to="/features/ai-marketing" className="flex items-center gap-2 w-full">
                     <Bot className="h-4 w-4 text-blue-600" />
@@ -67,16 +61,9 @@ export default function MarketingNav({ showBackButton = false }: MarketingNavPro
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            
-            {showBackButton && (
-              <Link to="/">
-                <Button variant="ghost" className="flex items-center gap-2">
-                  <Home className="h-4 w-4" />
-                  返回首页
-                </Button>
-              </Link>
-            )}
-            
+          </div>
+
+          <div className="flex items-center">
             <Link to="/auth">
               <Button className="bg-blue-600 hover:bg-blue-700">
                 登录注册
