@@ -40,7 +40,7 @@ export default function UserProfiling() {
       icon: <Search className="h-8 w-8 text-orange-600" />,
       title: "实时画像更新",
       description: "实时捕获用户行为变化，动态更新用户画像，确保洞察的时效性和准确性",
-      benefits: ["实时数据采集", "增量计算更新", "异常行为监测", "画像准确性验证"]
+      benefits: ["实时数据采集", "增量计算更新", "异常行为监测", "���像准确性验证"]
     }
   ];
 
@@ -89,32 +89,7 @@ export default function UserProfiling() {
   return (
     <div className="min-h-screen bg-white">
       {/* 导航栏 */}
-      <nav className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <Link to="/" className="flex items-center">
-                <Bot className="h-8 w-8 text-blue-600" />
-                <span className="ml-2 text-xl font-bold text-gray-900">AI营销平台</span>
-              </Link>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Link to="/">
-                <Button variant="ghost" className="flex items-center gap-2">
-                  <Home className="h-4 w-4" />
-                  返回首页
-                </Button>
-              </Link>
-              <Link to="/auth">
-                <Button className="bg-blue-600 hover:bg-blue-700">
-                  登录注册
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <MarketingNav showBackButton={true} />
 
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-green-50 to-emerald-100 py-20">
@@ -129,7 +104,7 @@ export default function UserProfiling() {
               用户画像分析
             </h1>
             <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-              深度���户行为分析，精准洞察用户需求和偏好，
+              深度用户行为分析，精准洞察用户需求和偏好，
               构建完整的用户画像体系，为精准营销提供数据支撑
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
