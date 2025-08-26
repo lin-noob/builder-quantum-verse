@@ -70,6 +70,11 @@ const mockActivityData = [
 
 export default function UserDetail2() {
   const { userId } = useParams<{ userId: string }>();
+
+  // Apply warning suppression when component mounts
+  useEffect(() => {
+    suppressRechartsWarnings();
+  }, []);
   const navigate = useNavigate();
   const [userDetail, setUserDetail] = useState<UserDetailResponse | null>(null);
   const [loading, setLoading] = useState(true);
