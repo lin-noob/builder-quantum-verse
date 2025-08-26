@@ -1,6 +1,6 @@
 import "./global.css";
 
-import React, { Suspense } from "react";
+import React from "react";
 
 import { Toaster } from "@/components/ui/toaster";
 import { createRoot } from "react-dom/client";
@@ -42,13 +42,10 @@ import PersonalSettings from "./pages/Account/PersonalSettings";
 import { usePageRequestManager } from "./hooks/useRequestManager";
 import AdminApp from "./admin/AdminApp";
 import MarketingHome from "./pages/MarketingHome";
-import PageLoader from "./components/PageLoader";
-
-// 懒加载特色页面以提升性能
-const AIMarketingFeature = React.lazy(() => import("./pages/features/AIMarketingOptimized"));
-const UserProfilingFeature = React.lazy(() => import("./pages/features/UserProfiling"));
-const RealTimeMonitoringFeature = React.lazy(() => import("./pages/features/RealTimeMonitoring"));
-const EffectTrackingFeature = React.lazy(() => import("./pages/features/EffectTrackingOptimized"));
+import AIMarketingFeature from "./pages/features/AIMarketingOptimized";
+import UserProfilingFeature from "./pages/features/UserProfiling";
+import RealTimeMonitoringFeature from "./pages/features/RealTimeMonitoring";
+import EffectTrackingFeature from "./pages/features/EffectTrackingOptimized";
 
 const queryClient = new QueryClient();
 
@@ -73,27 +70,11 @@ const AppWithRequestManager = () => {
           {/* 营销推广主页 */}
           <Route path="/" element={<MarketingHome />} />
 
-          {/* 功能介绍页面 - 懒加载 */}
-          <Route path="/features/ai-marketing" element={
-            <Suspense fallback={<PageLoader type="ai-marketing" />}>
-              <AIMarketingFeature />
-            </Suspense>
-          } />
-          <Route path="/features/user-profiling" element={
-            <Suspense fallback={<PageLoader type="user-profiling" />}>
-              <UserProfilingFeature />
-            </Suspense>
-          } />
-          <Route path="/features/real-time-monitoring" element={
-            <Suspense fallback={<PageLoader type="real-time-monitoring" />}>
-              <RealTimeMonitoringFeature />
-            </Suspense>
-          } />
-          <Route path="/features/effect-tracking" element={
-            <Suspense fallback={<PageLoader type="effect-tracking" />}>
-              <EffectTrackingFeature />
-            </Suspense>
-          } />
+          {/* 功能介绍页面 */}
+          <Route path="/features/ai-marketing" element={<AIMarketingFeature />} />
+          <Route path="/features/user-profiling" element={<UserProfilingFeature />} />
+          <Route path="/features/real-time-monitoring" element={<RealTimeMonitoringFeature />} />
+          <Route path="/features/effect-tracking" element={<EffectTrackingFeature />} />
 
           {/* User Profile route */}
           <Route
