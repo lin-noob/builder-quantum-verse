@@ -76,7 +76,7 @@ export default function AIMarketing() {
   return (
     <div className="min-h-screen bg-white">
       {/* 导航栏 */}
-      <MarketingNav showBackButton={true} />
+      <MarketingNav />
 
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-blue-50 to-indigo-100 py-20">
