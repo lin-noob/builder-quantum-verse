@@ -4,24 +4,25 @@ import * as RechartsPrimitive from "recharts";
 import { cn } from "@/lib/utils";
 
 // Global warning suppression for Chart UI component
-if (typeof console !== 'undefined' && process.env.NODE_ENV === 'development') {
+if (typeof console !== "undefined" && process.env.NODE_ENV === "development") {
   const originalConsoleWarn = console.warn;
   const originalConsoleError = console.error;
 
   const isRechartsWarning = (...args: any[]) => {
-    const message = args.join(' ').toLowerCase();
-    return message.includes('defaultprops') && (
-      message.includes('xaxis') ||
-      message.includes('yaxis') ||
-      message.includes('recharts') ||
-      message.includes('primitive') ||
-      message.includes('axis')
+    const message = args.join(" ").toLowerCase();
+    return (
+      message.includes("defaultprops") &&
+      (message.includes("xaxis") ||
+        message.includes("yaxis") ||
+        message.includes("recharts") ||
+        message.includes("primitive") ||
+        message.includes("axis"))
     );
   };
 
   // Safe console override with error handling for read-only properties
   try {
-    Object.defineProperty(console, 'warn', {
+    Object.defineProperty(console, "warn", {
       value: (...args: any[]) => {
         if (!isRechartsWarning(...args)) {
           originalConsoleWarn.apply(console, args);
@@ -43,7 +44,7 @@ if (typeof console !== 'undefined' && process.env.NODE_ENV === 'development') {
   }
 
   try {
-    Object.defineProperty(console, 'error', {
+    Object.defineProperty(console, "error", {
       value: (...args: any[]) => {
         if (!isRechartsWarning(...args)) {
           originalConsoleError.apply(console, args);

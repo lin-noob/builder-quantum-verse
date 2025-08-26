@@ -72,10 +72,22 @@ const AppWithRequestManager = () => {
           <Route path="/" element={<MarketingHome />} />
 
           {/* 功能介绍页面 */}
-          <Route path="/features/ai-marketing" element={<AIMarketingFeature />} />
-          <Route path="/features/user-profiling" element={<UserProfilingFeature />} />
-          <Route path="/features/real-time-monitoring" element={<RealTimeMonitoringFeature />} />
-          <Route path="/features/effect-tracking" element={<EffectTrackingFeature />} />
+          <Route
+            path="/features/ai-marketing"
+            element={<AIMarketingFeature />}
+          />
+          <Route
+            path="/features/user-profiling"
+            element={<UserProfilingFeature />}
+          />
+          <Route
+            path="/features/real-time-monitoring"
+            element={<RealTimeMonitoringFeature />}
+          />
+          <Route
+            path="/features/effect-tracking"
+            element={<EffectTrackingFeature />}
+          />
 
           {/* User Profile route */}
           <Route

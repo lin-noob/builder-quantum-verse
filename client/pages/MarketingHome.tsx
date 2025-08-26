@@ -15,7 +15,7 @@ import {
   Star,
   TrendingUp,
   Brain,
-  Lightbulb
+  Lightbulb,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -50,63 +50,71 @@ export default function MarketingHome() {
       icon: <Bot className="h-8 w-8 text-blue-600" />,
       title: "AI智能营销",
       description: "基于AI的智能营销场景配置，自动生成个性化营销内容",
-      benefits: ["智能内容生成", "个性化推荐", "自动化执行"]
+      benefits: ["智能内容生成", "个性化推荐", "自动化执行"],
     },
     {
       icon: <Users className="h-8 w-8 text-green-600" />,
       title: "用户画像分析",
       description: "深度用户行为分析，精准洞察用户需求和偏好",
-      benefits: ["360°用户画像", "行为轨迹分析", "价值分群"]
+      benefits: ["360°用户画像", "行为轨迹分析", "价值分群"],
     },
     {
       icon: <Activity className="h-8 w-8 text-purple-600" />,
       title: "实时监控中心",
       description: "实时监控营销活动效果，快速调整优化策略",
-      benefits: ["实时数据监控", "异常预警", "性能优化建议"]
+      benefits: ["实时数据监控", "异常预警", "性能优化建议"],
     },
     {
       icon: <Target className="h-8 w-8 text-red-600" />,
       title: "效果追踪",
       description: "全链路效果追踪，量化营销ROI和转化效果",
-      benefits: ["转化漏斗分析", "ROI计算", "多维度报表"]
+      benefits: ["转化漏斗分析", "ROI计算", "多维度报表"],
     },
     {
       icon: <BarChart3 className="h-8 w-8 text-orange-600" />,
       title: "数据驱动决策",
       description: "基于大数据分析的营销决策支持系统",
-      benefits: ["趋势预测", "策略推荐", "A/B测试"]
+      benefits: ["趋势预测", "策略推荐", "A/B测试"],
     },
     {
       icon: <Zap className="h-8 w-8 text-yellow-600" />,
       title: "营销自动化",
       description: "全流程营销自动化，降低人工成本提升效率",
-      benefits: ["触发式营销", "自动化工作流", "批量处理"]
-    }
+      benefits: ["触发式营销", "自动化工作流", "批量处理"],
+    },
   ];
 
   const stats = [
-    { value: "300%", label: "平均转化提升", icon: <TrendingUp className="h-5 w-5" /> },
+    {
+      value: "300%",
+      label: "平均转化提升",
+      icon: <TrendingUp className="h-5 w-5" />,
+    },
     { value: "80%", label: "运营效率提升", icon: <Zap className="h-5 w-5" /> },
     { value: "60%", label: "成本降低", icon: <Target className="h-5 w-5" /> },
-    { value: "99.9%", label: "系统稳定性", icon: <Shield className="h-5 w-5" /> }
+    {
+      value: "99.9%",
+      label: "系统稳定性",
+      icon: <Shield className="h-5 w-5" />,
+    },
   ];
 
   const useCases = [
     {
       title: "电商营销",
       description: "购物车挽回、个性化推荐、会员营销",
-      scenarios: ["加入购物车挽回", "商品个性化推荐", "会员等级营销"]
+      scenarios: ["加入购物车挽回", "商品个性化推荐", "会员等级营销"],
     },
     {
       title: "内容营销",
       description: "用户兴趣分析、内容推荐、阅读行为优化",
-      scenarios: ["内容个性化推送", "阅读习惯分析", "用户兴趣建模"]
+      scenarios: ["内容个性化推送", "阅读习惯分析", "用户兴趣建模"],
     },
     {
       title: "金融营销",
       description: "风险评估、产品推荐、客户生命周期管理",
-      scenarios: ["智能产品推荐", "风险用户识别", "客户价值分析"]
-    }
+      scenarios: ["智能产品推荐", "风险用户识别", "客户价值分析"],
+    },
   ];
 
   return (
@@ -127,7 +135,10 @@ export default function MarketingHome() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="/auth">
-                <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-lg px-8 py-4">
+                <Button
+                  size="lg"
+                  className="bg-blue-600 hover:bg-blue-700 text-lg px-8 py-4"
+                >
                   <Sparkles className="mr-2 h-5 w-5" />
                   登录注册
                 </Button>
@@ -156,7 +167,9 @@ export default function MarketingHome() {
                     {stat.icon}
                   </div>
                 </div>
-                <div className="text-3xl font-bold text-gray-900 mb-2">{stat.value}</div>
+                <div className="text-3xl font-bold text-gray-900 mb-2">
+                  {stat.value}
+                </div>
                 <div className="text-gray-600">{stat.label}</div>
               </div>
             ))}
@@ -178,21 +191,32 @@ export default function MarketingHome() {
                 "/features/ai-marketing",
                 "/features/user-profiling",
                 "/features/real-time-monitoring",
-                "/features/effect-tracking"
+                "/features/effect-tracking",
               ];
 
               return (
-                <Link key={index} to={featurePaths[index]} className="block h-full">
+                <Link
+                  key={index}
+                  to={featurePaths[index]}
+                  className="block h-full"
+                >
                   <Card className="h-full hover:shadow-lg transition-shadow duration-300 cursor-pointer">
                     <CardContent className="p-6">
                       <div className="flex items-center mb-4">
                         {feature.icon}
-                        <h3 className="text-xl font-semibold text-gray-900 ml-3">{feature.title}</h3>
+                        <h3 className="text-xl font-semibold text-gray-900 ml-3">
+                          {feature.title}
+                        </h3>
                       </div>
-                      <p className="text-gray-600 mb-4">{feature.description}</p>
+                      <p className="text-gray-600 mb-4">
+                        {feature.description}
+                      </p>
                       <ul className="space-y-2">
                         {feature.benefits.map((benefit, idx) => (
-                          <li key={idx} className="flex items-center text-sm text-gray-600">
+                          <li
+                            key={idx}
+                            className="flex items-center text-sm text-gray-600"
+                          >
                             <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
                             {benefit}
                           </li>
@@ -222,11 +246,16 @@ export default function MarketingHome() {
             {useCases.map((useCase, index) => (
               <Card key={index} className="h-full">
                 <CardContent className="p-6">
-                  <h3 className="text-xl font-semibold text-gray-900 mb-3">{useCase.title}</h3>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                    {useCase.title}
+                  </h3>
                   <p className="text-gray-600 mb-4">{useCase.description}</p>
                   <div className="space-y-2">
                     {useCase.scenarios.map((scenario, idx) => (
-                      <div key={idx} className="flex items-center text-sm text-gray-600">
+                      <div
+                        key={idx}
+                        className="flex items-center text-sm text-gray-600"
+                      >
                         <Brain className="h-4 w-4 text-blue-500 mr-2" />
                         {scenario}
                       </div>
@@ -243,7 +272,9 @@ export default function MarketingHome() {
       <section className="py-20 bg-blue-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">简单三步，开启AI营销</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              简单三步，开启AI营销
+            </h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
@@ -251,20 +282,20 @@ export default function MarketingHome() {
                 step: "01",
                 title: "数据接入",
                 description: "连接您的用户数据源，AI自动分析用户行为和偏好",
-                icon: <Users className="h-8 w-8" />
+                icon: <Users className="h-8 w-8" />,
               },
               {
-                step: "02", 
+                step: "02",
                 title: "智能配置",
                 description: "配置营销场景，AI自动生成个性化营销策略",
-                icon: <Brain className="h-8 w-8" />
+                icon: <Brain className="h-8 w-8" />,
               },
               {
                 step: "03",
                 title: "效果优化",
                 description: "实时监控效果，AI持续优化营销策略",
-                icon: <TrendingUp className="h-8 w-8" />
-              }
+                icon: <TrendingUp className="h-8 w-8" />,
+              },
             ].map((item, index) => (
               <div key={index} className="text-center">
                 <div className="relative">
@@ -275,7 +306,9 @@ export default function MarketingHome() {
                     {item.step}
                   </div>
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-3">{item.title}</h3>
+                <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                  {item.title}
+                </h3>
                 <p className="text-gray-600">{item.description}</p>
               </div>
             ))}
@@ -294,12 +327,19 @@ export default function MarketingHome() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link to="/auth">
-              <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100 text-lg px-8 py-4">
+              <Button
+                size="lg"
+                className="bg-white text-blue-600 hover:bg-gray-100 text-lg px-8 py-4"
+              >
                 <Star className="mr-2 h-5 w-5" />
                 登录注册
               </Button>
             </Link>
-            <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-blue-600 text-lg px-8 py-4">
+            <Button
+              size="lg"
+              variant="outline"
+              className="border-white text-white hover:bg-white hover:text-blue-600 text-lg px-8 py-4"
+            >
               联系销售顾问
             </Button>
           </div>

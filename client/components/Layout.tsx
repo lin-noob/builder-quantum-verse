@@ -67,87 +67,96 @@ export default function Layout({ children }: LayoutProps) {
   }, [location.pathname, isSystemManagementExpanded]);
 
   // 基础菜单项 - 使用useMemo缓存，避免重复创建
-  const baseMenuItems: MenuItem[] = useMemo(() => [
-    {
-      id: "dashboard",
-      label: "仪表盘",
-      path: "/dashboard2",
-      icon: <BarChart3 className="h-5 w-5" />,
-    },
-    {
-      id: "dashboard1",
-      label: "仪表盘 1.0",
-      path: "/dashboard1",
-      icon: <Home className="h-5 w-5" />,
-    },
-    {
-      id: "users",
-      label: "用户画像",
-      path: "/users2",
-      icon: <Users className="h-5 w-5" />,
-    },
-    {
-      id: "users1",
-      label: "用户画像 1.0",
-      path: "/users1",
-      icon: <User className="h-5 w-5" />,
-    },
-    {
-      id: "ai-marketing-scenarios",
-      label: "AI营销",
-      path: "/ai-marketing/scenarios",
-      icon: <Bot className="h-5 w-5" />,
-    },
-    {
-      id: "monitoring-center",
-      label: "监控中心",
-      path: "/ai-marketing/monitoring-center",
-      icon: <Activity className="h-5 w-5" />,
-    },
-    {
-      id: "effect-tracking",
-      label: "效果追踪",
-      path: "/effect-tracking",
-      icon: <Target className="h-5 w-5" />,
-    },
-  ], []);
+  const baseMenuItems: MenuItem[] = useMemo(
+    () => [
+      {
+        id: "dashboard",
+        label: "仪表盘",
+        path: "/dashboard2",
+        icon: <BarChart3 className="h-5 w-5" />,
+      },
+      {
+        id: "dashboard1",
+        label: "仪表盘 1.0",
+        path: "/dashboard1",
+        icon: <Home className="h-5 w-5" />,
+      },
+      {
+        id: "users",
+        label: "用户画像",
+        path: "/users2",
+        icon: <Users className="h-5 w-5" />,
+      },
+      {
+        id: "users1",
+        label: "用户画像 1.0",
+        path: "/users1",
+        icon: <User className="h-5 w-5" />,
+      },
+      {
+        id: "ai-marketing-scenarios",
+        label: "AI营销",
+        path: "/ai-marketing/scenarios",
+        icon: <Bot className="h-5 w-5" />,
+      },
+      {
+        id: "monitoring-center",
+        label: "监控中心",
+        path: "/ai-marketing/monitoring-center",
+        icon: <Activity className="h-5 w-5" />,
+      },
+      {
+        id: "effect-tracking",
+        label: "效果追踪",
+        path: "/effect-tracking",
+        icon: <Target className="h-5 w-5" />,
+      },
+    ],
+    [],
+  );
 
   // 管理员专用菜单项 - 使用useMemo缓存，避免重复创建
-  const adminMenuItems: MenuItem[] = useMemo(() => [
-    {
-      id: "system-management",
-      label: "系统管理",
-      path: "/organization/members", // 默认跳转到成员管理
-      icon: <Settings className="h-5 w-5" />,
-      subItems: [
-        {
-          id: "organization-members",
-          label: "成员管理",
-          path: "/organization/members",
-          icon: <Users className="h-5 w-5" />,
-        },
-        {
-          id: "organization-settings",
-          label: "组织设置",
-          path: "/organization/settings",
-          icon: <Settings className="h-5 w-5" />,
-        },
-      ],
-    },
-    {
-      id: "admin",
-      label: "管理后台入口（临时）",
-      path: "/admin",
-      icon: <Shield className="h-5 w-5" />,
-      isSpecial: true,
-    },
-  ], []);
+  const adminMenuItems: MenuItem[] = useMemo(
+    () => [
+      {
+        id: "system-management",
+        label: "系统管理",
+        path: "/organization/members", // 默认跳转到成员管理
+        icon: <Settings className="h-5 w-5" />,
+        subItems: [
+          {
+            id: "organization-members",
+            label: "成员管理",
+            path: "/organization/members",
+            icon: <Users className="h-5 w-5" />,
+          },
+          {
+            id: "organization-settings",
+            label: "组织设置",
+            path: "/organization/settings",
+            icon: <Settings className="h-5 w-5" />,
+          },
+        ],
+      },
+      {
+        id: "admin",
+        label: "管理后台入口（临时）",
+        path: "/admin",
+        icon: <Shield className="h-5 w-5" />,
+        isSpecial: true,
+      },
+    ],
+    [],
+  );
 
   // 根据用户权限组合菜单 - 使用useMemo缓存，只在用户状态变化时重新计算
-  const menuItems: MenuItem[] = useMemo(() => [
-    ...baseMenuItems,
-    ...(currentUser && currentUser.isAdmin ? adminMenuItems : []),
-  ], [baseMenuItems, adminMenuItems, currentUser]);
+  const menuItems: MenuItem[] = useMemo(
+    () => [
+      ...baseMenuItems,
+      ...(currentUser && currentUser.isAdmin ? adminMenuItems : []),
+    ],
+    [baseMenuItems, adminMenuItems, currentUser],
+  );
 
   return (
     <div className="flex h-screen bg-background-secondary">

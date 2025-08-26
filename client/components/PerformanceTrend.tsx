@@ -24,30 +24,35 @@ const PerformanceTrend: React.FC<PerformanceTrendProps> = ({
   // 🎯 单一useMemo优化 - 避免重复计算和多次依赖更新
   const { selectedMetrics, chartData } = useMemo(() => {
     // 构建指标映射，避免重复查找 O(1)查找性能
-    const metricMap = new Map(metrics.map(m => [m.id, m]));
-    
+    const metricMap = new Map(metrics.map((m) => [m.id, m]));
+
     // 过滤可用的指标
-    const defaultMetrics = ["totalRevenue", "totalOrders", "totalUsers", "avgOrderValue"];
-    const availableMetrics = defaultMetrics.filter(id => metricMap.has(id));
-    
+    const defaultMetrics = [
+      "totalRevenue",
+      "totalOrders",
+      "totalUsers",
+      "avgOrderValue",
+    ];
+    const availableMetrics = defaultMetrics.filter((id) => metricMap.has(id));
+
     // 如果没有可用指标，返回空数据
     if (availableMetrics.length === 0) {
       return { selectedMetrics: availableMetrics, chartData: [] };
     }
-    
+
     // 获取第一个指标的数据长度作为基准
     const firstMetric = metricMap.get(availableMetrics[0]);
     if (!firstMetric?.data) {
       return { selectedMetrics: availableMetrics, chartData: [] };
     }
-    
+
     // 高效数据组装 - 单次遍历，使用Map直接查找
     const data = firstMetric.data.map((dataPoint, index) => {
-      const point: any = { 
-        label: dataPoint.label, 
-        date: dataPoint.date 
+      const point: any = {
+        label: dataPoint.label,
+        date: dataPoint.date,
       };
-      
+
       // 使用Map直接查找，避免重复find操作
       for (const metricId of availableMetrics) {
         const metric = metricMap.get(metricId);
@@ -55,10 +60,10 @@ const PerformanceTrend: React.FC<PerformanceTrendProps> = ({
           point[metricId] = metric.data[index].value;
         }
       }
-      
+
       return point;
     });
-    
+
     return { selectedMetrics: availableMetrics, chartData: data };
   }, [metrics]); // 仅依赖metrics，避免其他不必要的重计算
 
@@ -211,9 +216,11 @@ const PerformanceTrend: React.FC<PerformanceTrendProps> = ({
                     if (!metric) return null;
 
                     // 根据指标类型选择Y轴
-                    const yAxisId = (metricId === 'totalRevenue' || metricId === 'avgOrderValue')
-                      ? 'left'
-                      : 'right';
+                    const yAxisId =
+                      metricId === "totalRevenue" ||
+                      metricId === "avgOrderValue"
+                        ? "left"
+                        : "right";
 
                     return (
                       <Line

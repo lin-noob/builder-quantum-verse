@@ -845,10 +845,12 @@ export class Request {
           );
         case "NETWORK":
           // 检查是否是后端服务器连接问题
-          if (error instanceof Error &&
-              (error.message.includes("ETIMEDOUT") ||
-               error.message.includes("ECONNREFUSED") ||
-               error.message.includes("fetch"))) {
+          if (
+            error instanceof Error &&
+            (error.message.includes("ETIMEDOUT") ||
+              error.message.includes("ECONNREFUSED") ||
+              error.message.includes("fetch"))
+          ) {
             if (process.env.NODE_ENV === "development") {
               console.group(`🚨 Backend Connection Failed`);
               console.log(`URL: ${url}`);
@@ -870,14 +872,18 @@ export class Request {
                 data: {
                   error: "Backend server unavailable",
                   message: "Using mock data instead",
-                  mockMode: true
+                  mockMode: true,
                 },
                 status: 503,
-                statusText: "Service Unavailable"
+                statusText: "Service Unavailable",
               } as any;
             }
           }
-          throw new RequestError("Network connection failed", 0, "Network Error");
+          throw new RequestError(
+            "Network connection failed",
+            0,
+            "Network Error",
+          );
         default:
           throw new RequestError(
             error instanceof Error ? error.message : "Unknown error",

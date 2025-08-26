@@ -7,11 +7,11 @@ interface LazySectionProps {
   placeholder?: React.ReactNode;
 }
 
-export default function LazySection({ 
-  children, 
-  className = "", 
+export default function LazySection({
+  children,
+  className = "",
   threshold = 0.1,
-  placeholder 
+  placeholder,
 }: LazySectionProps) {
   const [isVisible, setIsVisible] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -24,7 +24,7 @@ export default function LazySection({
           observer.disconnect();
         }
       },
-      { threshold }
+      { threshold },
     );
 
     if (ref.current) {
@@ -36,7 +36,11 @@ export default function LazySection({
 
   return (
     <div ref={ref} className={className}>
-      {isVisible ? children : (placeholder || <div className="h-96 bg-gray-50 animate-pulse rounded-lg" />)}
+      {isVisible
+        ? children
+        : placeholder || (
+            <div className="h-96 bg-gray-50 animate-pulse rounded-lg" />
+          )}
     </div>
   );
 }

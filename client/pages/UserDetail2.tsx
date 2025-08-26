@@ -28,24 +28,28 @@ import { toast } from "@/hooks/use-toast";
 
 // Targeted warning suppression for Recharts components in this page
 const suppressRechartsWarnings = () => {
-  if (typeof console !== 'undefined' && process.env.NODE_ENV === 'development') {
+  if (
+    typeof console !== "undefined" &&
+    process.env.NODE_ENV === "development"
+  ) {
     const originalWarn = console.warn;
     const originalError = console.error;
 
     const shouldSuppress = (...args: any[]) => {
-      const message = args.join(' ').toLowerCase();
-      return message.includes('defaultprops') && (
-        message.includes('xaxis') ||
-        message.includes('yaxis') ||
-        message.includes('recharts') ||
-        message.includes('linechart') ||
-        message.includes('responsivecontainer')
+      const message = args.join(" ").toLowerCase();
+      return (
+        message.includes("defaultprops") &&
+        (message.includes("xaxis") ||
+          message.includes("yaxis") ||
+          message.includes("recharts") ||
+          message.includes("linechart") ||
+          message.includes("responsivecontainer"))
       );
     };
 
     // Safe console override with error handling for read-only properties
     try {
-      Object.defineProperty(console, 'warn', {
+      Object.defineProperty(console, "warn", {
         value: (...args: any[]) => {
           if (!shouldSuppress(...args)) {
             originalWarn.apply(console, args);
@@ -67,7 +71,7 @@ const suppressRechartsWarnings = () => {
     }
 
     try {
-      Object.defineProperty(console, 'error', {
+      Object.defineProperty(console, "error", {
         value: (...args: any[]) => {
           if (!shouldSuppress(...args)) {
             originalError.apply(console, args);

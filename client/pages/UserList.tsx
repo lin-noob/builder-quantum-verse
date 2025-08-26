@@ -200,7 +200,7 @@ export default function UserList() {
           pageSize: itemsPerPage,
           search: searchQuery.trim() || undefined,
           sortField: sortConfig.field || undefined,
-          sortDirection: sortConfig.direction
+          sortDirection: sortConfig.direction,
         });
 
         setUsers(mockResponse.users);

@@ -6,16 +6,16 @@ import path from "path";
 export default defineConfig(({ mode }) => ({
   define: {
     "process.env.NODE_ENV": JSON.stringify(mode),
-    "__SUPPRESS_RECHARTS_WARNINGS__": true,
-    "__REACT_DEVTOOLS_SUPPRESS_WARNINGS__": true,
+    __SUPPRESS_RECHARTS_WARNINGS__: true,
+    __REACT_DEVTOOLS_SUPPRESS_WARNINGS__: true,
   },
   esbuild: {
     // Drop console statements in production, but keep them in development with filtering
-    drop: mode === 'production' ? ['console', 'debugger'] : [],
+    drop: mode === "production" ? ["console", "debugger"] : [],
     // Suppress specific warnings during build
     logOverride: {
-      'this-is-undefined-in-esm': 'silent',
-      'ignored-bare-import': 'silent',
+      "this-is-undefined-in-esm": "silent",
+      "ignored-bare-import": "silent",
     },
   },
   server: {
@@ -48,12 +48,15 @@ export default defineConfig(({ mode }) => ({
 
             // Send a proper error response instead of hanging
             if (!res.headersSent) {
-              res.writeHead(503, { 'Content-Type': 'application/json' });
-              res.end(JSON.stringify({
-                error: 'Backend server unavailable',
-                message: 'Could not connect to API server at 192.168.1.128:8099',
-                code: 'CONNECTION_FAILED'
-              }));
+              res.writeHead(503, { "Content-Type": "application/json" });
+              res.end(
+                JSON.stringify({
+                  error: "Backend server unavailable",
+                  message:
+                    "Could not connect to API server at 192.168.1.128:8099",
+                  code: "CONNECTION_FAILED",
+                }),
+              );
             }
           });
           proxy.on("proxyReq", (proxyReq, req, _res) => {
@@ -79,18 +82,21 @@ export default defineConfig(({ mode }) => ({
 
             // Send a proper error response
             if (!res.headersSent) {
-              res.writeHead(503, { 'Content-Type': 'application/json' });
-              res.end(JSON.stringify({
-                error: 'Backend server unavailable',
-                message: 'Could not connect to API server at 192.168.1.128:8099',
-                code: 'CONNECTION_FAILED'
-              }));
+              res.writeHead(503, { "Content-Type": "application/json" });
+              res.end(
+                JSON.stringify({
+                  error: "Backend server unavailable",
+                  message:
+                    "Could not connect to API server at 192.168.1.128:8099",
+                  code: "CONNECTION_FAILED",
+                }),
+              );
             }
           });
-        }
+        },
       },
     },
-    allowedHosts: ['lt.eecart.com']
+    allowedHosts: ["lt.eecart.com"],
   },
   build: {
     outDir: "dist/spa",

@@ -64,12 +64,11 @@ export default function UserListOptimized() {
         pageSize: itemsPerPage,
         search: searchQuery.trim() || undefined,
         sortField: sortConfig.field || undefined,
-        sortDirection: sortConfig.direction
+        sortDirection: sortConfig.direction,
       });
 
       setUsers(mockResponse.users);
       setTotalCount(mockResponse.total);
-
     } catch (error) {
       console.warn("数据加载失败:", error);
       setUsers([]);
@@ -86,9 +85,10 @@ export default function UserListOptimized() {
 
   // 🎯 优化后的排序处理 - 避免重新渲染
   const handleSort = useCallback((field: string) => {
-    setSortConfig(prev => ({
+    setSortConfig((prev) => ({
       field,
-      direction: prev.field === field && prev.direction === "asc" ? "desc" : "asc",
+      direction:
+        prev.field === field && prev.direction === "asc" ? "desc" : "asc",
     }));
   }, []);
 
@@ -103,9 +103,11 @@ export default function UserListOptimized() {
     if (sortConfig.field !== field) {
       return <ArrowUpDown className="h-4 w-4" />;
     }
-    return sortConfig.direction === "asc" ? 
-      <ArrowUp className="h-4 w-4" /> : 
-      <ArrowDown className="h-4 w-4" />;
+    return sortConfig.direction === "asc" ? (
+      <ArrowUp className="h-4 w-4" />
+    ) : (
+      <ArrowDown className="h-4 w-4" />
+    );
   };
 
   // 分页控制
@@ -129,7 +131,10 @@ export default function UserListOptimized() {
               />
             </div>
           </div>
-          <Select value={selectedTimeField} onValueChange={setSelectedTimeField}>
+          <Select
+            value={selectedTimeField}
+            onValueChange={setSelectedTimeField}
+          >
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="首次访问时间" />
             </SelectTrigger>
@@ -231,14 +236,20 @@ export default function UserListOptimized() {
               <tbody className="bg-white divide-y divide-gray-200">
                 {loading ? (
                   <tr>
-                    <td colSpan={8} className="px-4 py-8 text-center text-gray-500">
+                    <td
+                      colSpan={8}
+                      className="px-4 py-8 text-center text-gray-500"
+                    >
                       <RefreshCw className="h-6 w-6 animate-spin mx-auto mb-2" />
                       加载中...
                     </td>
                   </tr>
                 ) : users.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className="px-4 py-8 text-center text-gray-500">
+                    <td
+                      colSpan={8}
+                      className="px-4 py-8 text-center text-gray-500"
+                    >
                       暂无数据
                     </td>
                   </tr>
@@ -247,28 +258,43 @@ export default function UserListOptimized() {
                     <tr key={user.id} className="hover:bg-gray-50">
                       <td className="px-4 py-4">
                         <div className="flex flex-col">
-                          <div className="font-medium text-gray-900">{user.name}</div>
-                          <div className="text-sm text-gray-500">{user.company}</div>
+                          <div className="font-medium text-gray-900">
+                            {user.name}
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            {user.company}
+                          </div>
                         </div>
                       </td>
-                      <td className="px-4 py-4 text-sm text-gray-900">{user.contact}</td>
                       <td className="px-4 py-4 text-sm text-gray-900">
-                        {user.firstVisitTime ? new Date(user.firstVisitTime).toLocaleString() : '-'}
+                        {user.contact}
                       </td>
                       <td className="px-4 py-4 text-sm text-gray-900">
-                        {user.registrationTime ? new Date(user.registrationTime).toLocaleString() : '-'}
+                        {user.firstVisitTime
+                          ? new Date(user.firstVisitTime).toLocaleString()
+                          : "-"}
                       </td>
                       <td className="px-4 py-4 text-sm text-gray-900">
-                        {user.firstPurchaseTime ? new Date(user.firstPurchaseTime).toLocaleString() : '-'}
+                        {user.registrationTime
+                          ? new Date(user.registrationTime).toLocaleString()
+                          : "-"}
                       </td>
                       <td className="px-4 py-4 text-sm text-gray-900">
-                        {user.lastActiveTime ? new Date(user.lastActiveTime).toLocaleString() : '-'}
+                        {user.firstPurchaseTime
+                          ? new Date(user.firstPurchaseTime).toLocaleString()
+                          : "-"}
                       </td>
                       <td className="px-4 py-4 text-sm text-gray-900">
-                        {user.currency}{user.totalSpent?.toLocaleString() || '0'}
+                        {user.lastActiveTime
+                          ? new Date(user.lastActiveTime).toLocaleString()
+                          : "-"}
+                      </td>
+                      <td className="px-4 py-4 text-sm text-gray-900">
+                        {user.currency}
+                        {user.totalSpent?.toLocaleString() || "0"}
                       </td>
                       <td className="px-4 py-4 text-sm text-blue-600">
-                        <Link 
+                        <Link
                           to={`/users/${user.id}`}
                           className="hover:text-blue-800 hover:underline"
                         >
@@ -292,7 +318,7 @@ export default function UserListOptimized() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
               disabled={currentPage === 1 || loading}
             >
               上一页
@@ -303,7 +329,9 @@ export default function UserListOptimized() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+              }
               disabled={currentPage === totalPages || loading}
             >
               下一页

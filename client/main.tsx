@@ -51,7 +51,7 @@ if (process.env.NODE_ENV === "development") {
 
   // Safe console override with error handling for read-only properties
   try {
-    Object.defineProperty(console, 'warn', {
+    Object.defineProperty(console, "warn", {
       value: warningInterceptor,
       writable: true,
       configurable: true,
@@ -61,7 +61,7 @@ if (process.env.NODE_ENV === "development") {
       console.warn = warningInterceptor;
     } catch (e2) {
       // Console warn can't be overridden in this environment
-      console.debug('Could not override console.warn for Recharts suppression');
+      console.debug("Could not override console.warn for Recharts suppression");
     }
   }
 }

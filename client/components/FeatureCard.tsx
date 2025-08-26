@@ -9,7 +9,12 @@ interface FeatureCardProps {
   benefits: string[];
 }
 
-export default React.memo(function FeatureCard({ icon, title, description, benefits }: FeatureCardProps) {
+export default React.memo(function FeatureCard({
+  icon,
+  title,
+  description,
+  benefits,
+}: FeatureCardProps) {
   return (
     <Card className="h-full hover:shadow-lg transition-shadow duration-300">
       <CardContent className="p-8">

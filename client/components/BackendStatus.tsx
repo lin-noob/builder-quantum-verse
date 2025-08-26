@@ -10,25 +10,29 @@ import { request } from "@/lib/request";
  * Shows the current status of backend connection and provides troubleshooting info
  */
 export default function BackendStatus() {
-  const [status, setStatus] = useState<'checking' | 'connected' | 'disconnected' | 'mock'>('checking');
-  const [error, setError] = useState<string>('');
+  const [status, setStatus] = useState<
+    "checking" | "connected" | "disconnected" | "mock"
+  >("checking");
+  const [error, setError] = useState<string>("");
   const [lastCheck, setLastCheck] = useState<Date | null>(null);
 
   const checkBackendStatus = async () => {
-    setStatus('checking');
-    setError('');
-    
+    setStatus("checking");
+    setError("");
+
     try {
       // Try a simple health check or known endpoint
-      const response = await request.get('/quote/api/v1/profile/list?page=1&limit=1');
-      
+      const response = await request.get(
+        "/quote/api/v1/profile/list?page=1&limit=1",
+      );
+
       if (response.data && response.data.mockMode) {
-        setStatus('mock');
+        setStatus("mock");
       } else {
-        setStatus('connected');
+        setStatus("connected");
       }
     } catch (err) {
-      setStatus('disconnected');
+      setStatus("disconnected");
       if (err instanceof Error) {
         setError(err.message);
       }
@@ -39,59 +43,74 @@ export default function BackendStatus() {
 
   useEffect(() => {
     checkBackendStatus();
-    
+
     // Check every 30 seconds
     const interval = setInterval(checkBackendStatus, 30000);
-    
+
     return () => clearInterval(interval);
   }, []);
 
-  if (process.env.NODE_ENV !== 'development') {
+  if (process.env.NODE_ENV !== "development") {
     return null; // Only show in development
   }
 
   const getStatusColor = () => {
     switch (status) {
-      case 'connected': return 'bg-green-100 border-green-500 text-green-800';
-      case 'mock': return 'bg-yellow-100 border-yellow-500 text-yellow-800';
-      case 'disconnected': return 'bg-red-100 border-red-500 text-red-800';
-      case 'checking': return 'bg-blue-100 border-blue-500 text-blue-800';
-      default: return 'bg-gray-100 border-gray-500 text-gray-800';
+      case "connected":
+        return "bg-green-100 border-green-500 text-green-800";
+      case "mock":
+        return "bg-yellow-100 border-yellow-500 text-yellow-800";
+      case "disconnected":
+        return "bg-red-100 border-red-500 text-red-800";
+      case "checking":
+        return "bg-blue-100 border-blue-500 text-blue-800";
+      default:
+        return "bg-gray-100 border-gray-500 text-gray-800";
     }
   };
 
   const getStatusIcon = () => {
     switch (status) {
-      case 'connected': return <CheckCircle className="h-4 w-4" />;
-      case 'mock': return <AlertCircle className="h-4 w-4" />;
-      case 'disconnected': return <WifiOff className="h-4 w-4" />;
-      case 'checking': return <RefreshCw className="h-4 w-4 animate-spin" />;
-      default: return <AlertCircle className="h-4 w-4" />;
+      case "connected":
+        return <CheckCircle className="h-4 w-4" />;
+      case "mock":
+        return <AlertCircle className="h-4 w-4" />;
+      case "disconnected":
+        return <WifiOff className="h-4 w-4" />;
+      case "checking":
+        return <RefreshCw className="h-4 w-4 animate-spin" />;
+      default:
+        return <AlertCircle className="h-4 w-4" />;
     }
   };
 
   const getStatusText = () => {
     switch (status) {
-      case 'connected': return 'Backend Connected';
-      case 'mock': return 'Using Mock Data';
-      case 'disconnected': return 'Backend Disconnected';
-      case 'checking': return 'Checking...';
-      default: return 'Unknown Status';
+      case "connected":
+        return "Backend Connected";
+      case "mock":
+        return "Using Mock Data";
+      case "disconnected":
+        return "Backend Disconnected";
+      case "checking":
+        return "Checking...";
+      default:
+        return "Unknown Status";
     }
   };
 
   const getStatusMessage = () => {
     switch (status) {
-      case 'connected':
-        return 'API server is responding normally.';
-      case 'mock':
-        return 'Backend server unavailable. Using mock data for development.';
-      case 'disconnected':
+      case "connected":
+        return "API server is responding normally.";
+      case "mock":
+        return "Backend server unavailable. Using mock data for development.";
+      case "disconnected":
         return `Cannot connect to backend server at 192.168.1.128:8099. ${error}`;
-      case 'checking':
-        return 'Checking backend connectivity...';
+      case "checking":
+        return "Checking backend connectivity...";
       default:
-        return 'Unknown status.';
+        return "Unknown status.";
     }
   };
 
@@ -109,12 +128,14 @@ export default function BackendStatus() {
             variant="ghost"
             size="sm"
             onClick={checkBackendStatus}
-            disabled={status === 'checking'}
+            disabled={status === "checking"}
           >
-            <RefreshCw className={`h-3 w-3 ${status === 'checking' ? 'animate-spin' : ''}`} />
+            <RefreshCw
+              className={`h-3 w-3 ${status === "checking" ? "animate-spin" : ""}`}
+            />
           </Button>
         </div>
-        
+
         <AlertDescription className="mt-2 text-sm">
           {getStatusMessage()}
           {lastCheck && (
@@ -124,7 +145,7 @@ export default function BackendStatus() {
           )}
         </AlertDescription>
 
-        {status === 'disconnected' && (
+        {status === "disconnected" && (
           <div className="mt-3 text-xs space-y-1">
             <div className="font-medium">Troubleshooting:</div>
             <div>• Check if API server is running</div>
