@@ -118,12 +118,69 @@
       };
     };
 
-    // Apply console overrides
-    console.warn = createInterceptor(ORIGINAL_METHODS.warn);
-    console.error = createInterceptor(ORIGINAL_METHODS.error);
-    console.log = createInterceptor(ORIGINAL_METHODS.log);
-    console.info = createInterceptor(ORIGINAL_METHODS.info);
-    console.debug = createInterceptor(ORIGINAL_METHODS.debug);
+    // Apply console overrides using Object.defineProperty to handle read-only properties
+    try {
+      Object.defineProperty(console, 'warn', {
+        value: createInterceptor(ORIGINAL_METHODS.warn),
+        writable: true,
+        configurable: true,
+      });
+    } catch (e) {
+      // If that fails, try direct assignment as fallback
+      try {
+        console.warn = createInterceptor(ORIGINAL_METHODS.warn);
+      } catch (e2) {
+        // If both fail, console overriding isn't possible in this environment
+      }
+    }
+
+    try {
+      Object.defineProperty(console, 'error', {
+        value: createInterceptor(ORIGINAL_METHODS.error),
+        writable: true,
+        configurable: true,
+      });
+    } catch (e) {
+      try {
+        console.error = createInterceptor(ORIGINAL_METHODS.error);
+      } catch (e2) {}
+    }
+
+    try {
+      Object.defineProperty(console, 'log', {
+        value: createInterceptor(ORIGINAL_METHODS.log),
+        writable: true,
+        configurable: true,
+      });
+    } catch (e) {
+      try {
+        console.log = createInterceptor(ORIGINAL_METHODS.log);
+      } catch (e2) {}
+    }
+
+    try {
+      Object.defineProperty(console, 'info', {
+        value: createInterceptor(ORIGINAL_METHODS.info),
+        writable: true,
+        configurable: true,
+      });
+    } catch (e) {
+      try {
+        console.info = createInterceptor(ORIGINAL_METHODS.info);
+      } catch (e2) {}
+    }
+
+    try {
+      Object.defineProperty(console, 'debug', {
+        value: createInterceptor(ORIGINAL_METHODS.debug),
+        writable: true,
+        configurable: true,
+      });
+    } catch (e) {
+      try {
+        console.debug = createInterceptor(ORIGINAL_METHODS.debug);
+      } catch (e2) {}
+    }
 
     // Browser-specific suppressions
     if (typeof window !== 'undefined') {
