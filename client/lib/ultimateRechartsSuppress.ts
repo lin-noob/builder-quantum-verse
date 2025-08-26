@@ -255,17 +255,36 @@
                     debug: console.debug,
                   };
 
-                  console.warn = () => {};
-                  console.error = () => {};
-                  console.log = () => {};
-                  console.info = () => {};
-                  console.debug = () => {};
+                  // Safely override console methods with error handling
+                  const setConsoleMethod = (method: string, value: Function) => {
+                    try {
+                      Object.defineProperty(console, method, {
+                        value,
+                        writable: true,
+                        configurable: true,
+                      });
+                    } catch (e) {
+                      try {
+                        (console as any)[method] = value;
+                      } catch (e2) {
+                        // Console method can't be overridden in this environment
+                      }
+                    }
+                  };
+
+                  setConsoleMethod('warn', () => {});
+                  setConsoleMethod('error', () => {});
+                  setConsoleMethod('log', () => {});
+                  setConsoleMethod('info', () => {});
+                  setConsoleMethod('debug', () => {});
 
                   try {
                     return original.apply(this, args);
                   } finally {
-                    // Restore our intercepting methods
-                    Object.assign(console, tempMethods);
+                    // Restore our intercepting methods safely
+                    Object.entries(tempMethods).forEach(([method, fn]) => {
+                      setConsoleMethod(method, fn);
+                    });
                   }
                 };
               }
