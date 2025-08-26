@@ -213,7 +213,7 @@ export default function Auth() {
     }, 1000);
   };
 
-  // 登录处理
+  // ���录处理
   const handleLogin = async () => {
     // 验证字段
     const newErrors: FormErrors = {};
@@ -257,7 +257,7 @@ export default function Auth() {
       <Button
         variant="ghost"
         size="sm"
-        onClick={() => navigate("/?preview=true")}
+        onClick={() => navigate("/")}
         className="fixed top-4 left-4 z-10 flex items-center gap-2 text-muted-foreground hover:text-foreground"
       >
         <Home className="h-4 w-4" />
