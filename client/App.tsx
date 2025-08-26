@@ -41,7 +41,6 @@ import OrganizationSettings from "./pages/Organization/OrganizationSettings";
 import PersonalSettings from "./pages/Account/PersonalSettings";
 import { usePageRequestManager } from "./hooks/useRequestManager";
 import AdminApp from "./admin/AdminApp";
-import APIDebugHelper from "./components/APIDebugHelper";
 
 const queryClient = new QueryClient();
 
