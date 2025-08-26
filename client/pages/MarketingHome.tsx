@@ -49,7 +49,7 @@ export default function MarketingHome() {
       icon: <Bot className="h-8 w-8 text-blue-600" />,
       title: "AI智能营销",
       description: "基于AI的智能营销场景配置，自动生成个性化营销内容",
-      benefits: ["智能内容生��", "个性化推荐", "自动化执行"]
+      benefits: ["智能内容生成", "个性化推荐", "自动化执行"]
     },
     {
       icon: <Users className="h-8 w-8 text-green-600" />,
@@ -193,25 +193,41 @@ export default function MarketingHome() {
             <p className="text-xl text-gray-600">全方位AI营销解决方案</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {features.map((feature, index) => (
-              <Card key={index} className="h-full hover:shadow-lg transition-shadow duration-300">
-                <CardContent className="p-6">
-                  <div className="flex items-center mb-4">
-                    {feature.icon}
-                    <h3 className="text-xl font-semibold text-gray-900 ml-3">{feature.title}</h3>
-                  </div>
-                  <p className="text-gray-600 mb-4">{feature.description}</p>
-                  <ul className="space-y-2">
-                    {feature.benefits.map((benefit, idx) => (
-                      <li key={idx} className="flex items-center text-sm text-gray-600">
-                        <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
-                        {benefit}
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
-            ))}
+            {features.map((feature, index) => {
+              // 为每个功能定义对应的路径
+              const featurePaths = [
+                "/features/ai-marketing",
+                "/features/user-profiling",
+                "/features/real-time-monitoring",
+                "/features/effect-tracking"
+              ];
+
+              return (
+                <Link key={index} to={featurePaths[index]} className="block h-full">
+                  <Card className="h-full hover:shadow-lg transition-shadow duration-300 cursor-pointer">
+                    <CardContent className="p-6">
+                      <div className="flex items-center mb-4">
+                        {feature.icon}
+                        <h3 className="text-xl font-semibold text-gray-900 ml-3">{feature.title}</h3>
+                      </div>
+                      <p className="text-gray-600 mb-4">{feature.description}</p>
+                      <ul className="space-y-2">
+                        {feature.benefits.map((benefit, idx) => (
+                          <li key={idx} className="flex items-center text-sm text-gray-600">
+                            <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
+                            {benefit}
+                          </li>
+                        ))}
+                      </ul>
+                      <div className="mt-4 flex items-center text-blue-600 text-sm font-medium">
+                        <span>了解更多</span>
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -267,7 +283,7 @@ export default function MarketingHome() {
               {
                 step: "03",
                 title: "效果优化",
-                description: "实时监控效果，AI持续优化营销策略",
+                description: "实时监控��果，AI持续优化营销策略",
                 icon: <TrendingUp className="h-8 w-8" />
               }
             ].map((item, index) => (
