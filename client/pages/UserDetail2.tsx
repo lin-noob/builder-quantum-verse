@@ -26,6 +26,37 @@ import {
 } from "@shared/userProfileData";
 import { toast } from "@/hooks/use-toast";
 
+// Targeted warning suppression for Recharts components in this page
+const suppressRechartsWarnings = () => {
+  if (typeof console !== 'undefined' && process.env.NODE_ENV === 'development') {
+    const originalWarn = console.warn;
+    const originalError = console.error;
+
+    const shouldSuppress = (...args: any[]) => {
+      const message = args.join(' ').toLowerCase();
+      return message.includes('defaultprops') && (
+        message.includes('xaxis') ||
+        message.includes('yaxis') ||
+        message.includes('recharts') ||
+        message.includes('linechart') ||
+        message.includes('responsivecontainer')
+      );
+    };
+
+    console.warn = (...args: any[]) => {
+      if (!shouldSuppress(...args)) {
+        originalWarn.apply(console, args);
+      }
+    };
+
+    console.error = (...args: any[]) => {
+      if (!shouldSuppress(...args)) {
+        originalError.apply(console, args);
+      }
+    };
+  }
+};
+
 // Mock activity data for the chart
 const mockActivityData = [
   { date: "2025-07-15", sessions: 3, pageViews: 12, duration: 25 },
