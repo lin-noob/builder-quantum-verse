@@ -1,21 +1,20 @@
 import { Link } from "react-router-dom";
-import { 
-  Users, 
-  ArrowRight, 
-  CheckCircle, 
+import {
+  Users,
+  ArrowRight,
+  CheckCircle,
   Sparkles,
   Brain,
   Target,
   BarChart3,
   Eye,
-  Home,
-  Bot,
   TrendingUp,
   Layers,
   Search
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import MarketingNav from "@/components/MarketingNav";
 
 export default function UserProfiling() {
   const features = [
@@ -130,7 +129,7 @@ export default function UserProfiling() {
               用户画像分析
             </h1>
             <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-              深度用户行为分析，精准洞察用户需求和偏好，
+              深度���户行为分析，精准洞察用户需求和偏好，
               构建完整的用户画像体系，为精准营销提供数据支撑
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
