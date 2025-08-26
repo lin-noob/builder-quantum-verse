@@ -48,7 +48,7 @@ export default function MarketingHome() {
     {
       icon: <Bot className="h-8 w-8 text-blue-600" />,
       title: "AI智能营销",
-      description: "基于AI的智能营销场景配置，自动生成个性化营销内容",
+      description: "基于AI的智能营销场景配置，自动生成个性化营销内��",
       benefits: ["智能内容生成", "个性化推荐", "自动化执行"]
     },
     {
@@ -121,29 +121,15 @@ export default function MarketingHome() {
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              {currentUser && isPreviewMode ? (
-                // 已登录用户在预览模式下的选项
-                <>
-                  <span className="text-sm text-gray-600">您好, {currentUser.username}</span>
-                  <Button onClick={() => navigate("/dashboard")} className="bg-blue-600 hover:bg-blue-700">
-                    进入仪表盘
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </>
-              ) : (
-                // 未登录用户的选项
-                <>
-                  <Link to="/auth">
-                    <Button variant="ghost">登录</Button>
-                  </Link>
-                  <Link to="/auth">
-                    <Button className="bg-blue-600 hover:bg-blue-700">
-                      免费试用
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  </Link>
-                </>
-              )}
+              <Link to="/auth">
+                <Button variant="ghost">登录</Button>
+              </Link>
+              <Link to="/auth">
+                <Button className="bg-blue-600 hover:bg-blue-700">
+                  免费试用
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
@@ -154,7 +140,7 @@ export default function MarketingHome() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
-              <span className="text-blue-600">AI驱动</span>的智能营销平台
+              <span className="text-blue-600">AI驱动</span>的智能营销��台
             </h1>
             <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
               通过人工智能技术，实现精准用户洞察、自动化营销执行和数据驱动决策，
