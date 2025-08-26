@@ -15,17 +15,10 @@ import {
   Star,
   TrendingUp,
   Brain,
-  Lightbulb,
-  ChevronDown
+  Lightbulb
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import MarketingNav from "@/components/MarketingNav";
 import { authService } from "@/services/authService";
 
@@ -355,7 +348,7 @@ export default function MarketingHome() {
             </div>
           </div>
           <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>© 2024 AI营销平台. ���留所有权利.</p>
+            <p>© 2024 AI营销平台. 保留所有权利.</p>
           </div>
         </div>
       </footer>
