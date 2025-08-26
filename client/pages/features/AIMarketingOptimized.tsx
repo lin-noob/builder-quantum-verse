@@ -32,7 +32,7 @@ const HeroSection = React.memo(() => (
         </h1>
         <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
           基于人工智能的智能营销场景配置，自动生成个性化营销内容，
-          实现精准触达和高效转化，让营销更智能、更高效
+          实���精准触达和高效转化，让营销更智能、更高效
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link to="/auth">
@@ -175,7 +175,7 @@ const CTASection = React.memo(() => {
               立即开始体验
             </Button>
           </Link>
-          <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-blue-600 text-lg px-8 py-4">
+          <Button size="lg" variant="outline" className="border-2 border-white text-white hover:bg-white hover:text-blue-600 text-lg px-8 py-4 font-semibold">
             联系专家咨询
           </Button>
         </div>
