@@ -26,17 +26,50 @@ const suppressRechartsWarnings = () => {
       );
     };
 
-    console.warn = (...args: any[]) => {
-      if (!shouldSuppress(...args)) {
-        originalWarn.apply(console, args);
+    // Safe console override with error handling for read-only properties
+    try {
+      Object.defineProperty(console, 'warn', {
+        value: (...args: any[]) => {
+          if (!shouldSuppress(...args)) {
+            originalWarn.apply(console, args);
+          }
+        },
+        writable: true,
+        configurable: true,
+      });
+    } catch (e) {
+      try {
+        console.warn = (...args: any[]) => {
+          if (!shouldSuppress(...args)) {
+            originalWarn.apply(console, args);
+          }
+        };
+      } catch (e2) {
+        // Console warn can't be overridden
       }
-    };
+    }
 
-    console.error = (...args: any[]) => {
-      if (!shouldSuppress(...args)) {
-        originalError.apply(console, args);
+    try {
+      Object.defineProperty(console, 'error', {
+        value: (...args: any[]) => {
+          if (!shouldSuppress(...args)) {
+            originalError.apply(console, args);
+          }
+        },
+        writable: true,
+        configurable: true,
+      });
+    } catch (e) {
+      try {
+        console.error = (...args: any[]) => {
+          if (!shouldSuppress(...args)) {
+            originalError.apply(console, args);
+          }
+        };
+      } catch (e2) {
+        // Console error can't be overridden
       }
-    };
+    }
   }
 };
 
@@ -184,7 +217,7 @@ export default function PerformanceTrend({
     <Card className="bg-white border border-gray-200">
       <CardHeader>
         <CardTitle className="text-lg font-semibold text-gray-900">
-          业绩走势
+          业绩走��
         </CardTitle>
       </CardHeader>
       <CardContent>
