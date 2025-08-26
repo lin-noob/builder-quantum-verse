@@ -311,9 +311,26 @@
         
         // Ensure our console overrides are still in place
         if (!console.warn.toString().includes('isRechartsWarning')) {
-          console.warn = createInterceptor(ORIGINAL_METHODS.warn);
-          console.error = createInterceptor(ORIGINAL_METHODS.error);
-          console.log = createInterceptor(ORIGINAL_METHODS.log);
+          // Safely reapply console overrides
+          const safeSetConsoleMethod = (method: string, value: Function) => {
+            try {
+              Object.defineProperty(console, method, {
+                value,
+                writable: true,
+                configurable: true,
+              });
+            } catch (e) {
+              try {
+                (console as any)[method] = value;
+              } catch (e2) {
+                // Console method can't be overridden
+              }
+            }
+          };
+
+          safeSetConsoleMethod('warn', createInterceptor(ORIGINAL_METHODS.warn));
+          safeSetConsoleMethod('error', createInterceptor(ORIGINAL_METHODS.error));
+          safeSetConsoleMethod('log', createInterceptor(ORIGINAL_METHODS.log));
         }
         
         reapplyCount++;
