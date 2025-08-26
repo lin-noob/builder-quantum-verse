@@ -48,7 +48,7 @@ export default function MarketingHome() {
     {
       icon: <Bot className="h-8 w-8 text-blue-600" />,
       title: "AI智能营销",
-      description: "基于AI的智能营销场景配置，自动生成个性化营销内��",
+      description: "基于AI的智能营销场景配置，自动生成个性化营销内容",
       benefits: ["智能内容生成", "个性化推荐", "自动化执行"]
     },
     {
@@ -140,44 +140,23 @@ export default function MarketingHome() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
-              <span className="text-blue-600">AI驱动</span>的智能营销��台
+              <span className="text-blue-600">AI驱动</span>的智能营销平台
             </h1>
             <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
               通过人工智能技术，实现精准用户洞察、自动化营销执行和数据驱动决策，
               帮助企业实现营销效果的指数级提升
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              {currentUser && isPreviewMode ? (
-                // 已登录用户在预览模式下的CTA
-                <>
-                  <Button
-                    size="lg"
-                    className="bg-blue-600 hover:bg-blue-700 text-lg px-8 py-4"
-                    onClick={() => navigate("/dashboard")}
-                  >
-                    <Sparkles className="mr-2 h-5 w-5" />
-                    进入我的仪表盘
-                  </Button>
-                  <Button size="lg" variant="outline" className="text-lg px-8 py-4">
-                    <PlayCircle className="mr-2 h-5 w-5" />
-                    查看功能演示
-                  </Button>
-                </>
-              ) : (
-                // 未登录用户的CTA
-                <>
-                  <Link to="/auth">
-                    <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-lg px-8 py-4">
-                      <Sparkles className="mr-2 h-5 w-5" />
-                      立即开始免费试用
-                    </Button>
-                  </Link>
-                  <Button size="lg" variant="outline" className="text-lg px-8 py-4">
-                    <PlayCircle className="mr-2 h-5 w-5" />
-                    观看产品演示
-                  </Button>
-                </>
-              )}
+              <Link to="/auth">
+                <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-lg px-8 py-4">
+                  <Sparkles className="mr-2 h-5 w-5" />
+                  立即开始免费试用
+                </Button>
+              </Link>
+              <Button size="lg" variant="outline" className="text-lg px-8 py-4">
+                <PlayCircle className="mr-2 h-5 w-5" />
+                观看产品演示
+              </Button>
             </div>
           </div>
         </div>
