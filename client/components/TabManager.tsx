@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { X, ChevronLeft, ChevronRight, Home } from "lucide-react";
@@ -68,7 +68,7 @@ export default function TabManager() {
     });
   }, [location.pathname]);
 
-  // 页面路��到标题的映射
+  // 页面����到标题的映射
   const pathToTitle = {
     "/dashboard": "仪表盘",
     "/": "仪表盘",
