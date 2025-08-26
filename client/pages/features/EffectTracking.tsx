@@ -28,7 +28,7 @@ export default function EffectTracking() {
       icon: <Calculator className="h-8 w-8 text-green-600" />,
       title: "ROI精准计算",
       description: "智能计算营销投入产出比，提供多维度的成本效益分析和优化建议",
-      benefits: ["投���成本核算", "收益精确计算", "ROI/ROAS分析", "成本优化建议"]
+      benefits: ["投入成本核算", "收益精确计算", "ROI/ROAS分析", "成本优化建议"]
     },
     {
       icon: <TrendingUp className="h-8 w-8 text-purple-600" />,
@@ -134,32 +134,7 @@ export default function EffectTracking() {
   return (
     <div className="min-h-screen bg-white">
       {/* 导航栏 */}
-      <nav className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <Link to="/" className="flex items-center">
-                <Bot className="h-8 w-8 text-blue-600" />
-                <span className="ml-2 text-xl font-bold text-gray-900">AI营销平台</span>
-              </Link>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Link to="/">
-                <Button variant="ghost" className="flex items-center gap-2">
-                  <Home className="h-4 w-4" />
-                  返回首页
-                </Button>
-              </Link>
-              <Link to="/auth">
-                <Button className="bg-blue-600 hover:bg-blue-700">
-                  登录注册
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <MarketingNav showBackButton={true} />
 
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-orange-50 to-red-100 py-20">
@@ -328,7 +303,7 @@ export default function EffectTracking() {
             <div>
               <h2 className="text-3xl font-bold text-gray-900 mb-6">技术优势</h2>
               <p className="text-lg text-gray-600 mb-8">
-                基于先进的数据处理技术和机器学习算法，提供精准的效果追踪���分析能力
+                基于先进的数据处理技术和机器学习算法，提供精准的效果追踪和分析能力
               </p>
               <ul className="space-y-4">
                 {advantages.map((advantage, index) => (
