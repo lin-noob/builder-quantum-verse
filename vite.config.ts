@@ -30,16 +30,31 @@ export default defineConfig(({ mode }) => ({
         target: "http://192.168.1.128:8099",
         changeOrigin: true,
         secure: false,
-        timeout: 30000, // 30秒超时
-        proxyTimeout: 30000, // 代理超时
+        timeout: 10000, // 减少到10秒，快速失败
+        proxyTimeout: 10000, // 代理超时
         rewrite: (path) => {
           const newPath = path.replace(/^\/api/, "");
           console.log(`Proxy rewrite: ${path} -> ${newPath}`);
           return newPath;
         },
         configure: (proxy, _options) => {
-          proxy.on("error", (err, _req, _res) => {
-            console.log("proxy error", err);
+          proxy.on("error", (err, req, res) => {
+            console.error(`❌ Backend server unreachable: ${err.message}`);
+            console.log(`🔧 Troubleshooting tips:
+              1. Check if backend server is running on 192.168.1.128:8099
+              2. Verify network connectivity to the backend
+              3. Check firewall settings
+              4. Consider using mock data for development`);
+
+            // Send a proper error response instead of hanging
+            if (!res.headersSent) {
+              res.writeHead(503, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({
+                error: 'Backend server unavailable',
+                message: 'Could not connect to API server at 192.168.1.128:8099',
+                code: 'CONNECTION_FAILED'
+              }));
+            }
           });
           proxy.on("proxyReq", (proxyReq, req, _res) => {
             console.log("Sending Request to the Target:", req.method, req.url);
@@ -53,7 +68,27 @@ export default defineConfig(({ mode }) => ({
           });
         },
       },
-      "/quote/api": "http://192.168.1.128:8099",
+      "/quote/api": {
+        target: "http://192.168.1.128:8099",
+        changeOrigin: true,
+        secure: false,
+        timeout: 10000,
+        configure: (proxy, _options) => {
+          proxy.on("error", (err, req, res) => {
+            console.error(`❌ Backend server unreachable: ${err.message}`);
+
+            // Send a proper error response
+            if (!res.headersSent) {
+              res.writeHead(503, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({
+                error: 'Backend server unavailable',
+                message: 'Could not connect to API server at 192.168.1.128:8099',
+                code: 'CONNECTION_FAILED'
+              }));
+            }
+          });
+        }
+      },
     },
     allowedHosts: ['lt.eecart.com']
   },
