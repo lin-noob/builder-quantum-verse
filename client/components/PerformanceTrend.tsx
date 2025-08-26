@@ -127,6 +127,7 @@ const PerformanceTrend: React.FC<PerformanceTrendProps> = ({
     return result;
   }, [metrics, selectedMetrics]);
 
+  // 🎯 优化的格式化函数
   const formatValue = (value: number, metricId: string) => {
     if (metricId === "totalRevenue") {
       return `¥${value.toLocaleString()}`;
@@ -141,6 +142,24 @@ const PerformanceTrend: React.FC<PerformanceTrendProps> = ({
       return `${value.toLocaleString()} 人`;
     }
     return value.toLocaleString();
+  };
+
+  // 🎨 优化的图表颜色配置
+  const colors = ["#3b82f6", "#ef4444", "#10b981", "#f59e0b"];
+
+  // 📊 优化的时间轴配置
+  const getXAxisDataKey = () => {
+    switch (dateRange) {
+      case "7days":
+      case "30days":
+        return "date";
+      case "3months":
+      case "6months":
+      case "1year":
+        return "label";
+      default:
+        return "label";
+    }
   };
 
   const CustomTooltip = ({ active, payload, label }: any) => {
@@ -186,14 +205,10 @@ const PerformanceTrend: React.FC<PerformanceTrendProps> = ({
       <CardContent>
         {/* Multi-Line Chart */}
         <div className="h-80 w-full">
-          {console.log("Chart rendering with data length:", chartData.length)}
           {chartData.length === 0 ? (
             <div className="flex items-center justify-center h-full">
               <div className="text-center">
                 <p className="text-muted-foreground">暂无数据</p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  可用指标: {availableMetricIds.join(", ") || "无"}
-                </p>
                 <p className="text-xs text-muted-foreground mt-1">
                   选中指标: {selectedMetrics.join(", ") || "无"}
                 </p>
