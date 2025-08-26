@@ -358,7 +358,7 @@ export class Request {
               }
 
               throw new Error(
-                `API返回了HTML页面而不���期望的JSON数据。请检查API端点是否正确配置。`,
+                `API返回了HTML页面而不是期望的JSON数据。请检查API端点是否正确配置。`,
               );
             }
 
@@ -432,7 +432,7 @@ export class Request {
           try {
             controller.abort(new DOMException("Request timeout", "AbortError"));
           } catch (err) {
-            // 某些环境可能不支持传递 reason，回退到普通的 abort()
+            // 某些环境可能不支持传递 reason���回退到普通的 abort()
             controller.abort();
           }
         }
@@ -547,7 +547,7 @@ export class Request {
         return { data: mockScenarios, status: 200, statusText: "OK" } as any;
       }
 
-      // 为���销场景详情API提供mock数据
+      // 为营销场景详情API提供mock数据
       if (url.includes("/quote/api/v1/scene/view/")) {
         const scenarioId = url.split("/").pop();
         console.log(`Mock scenario detail API for: ${scenarioId}`);
@@ -844,7 +844,40 @@ export class Request {
             "Client Closed Request",
           );
         case "NETWORK":
-          throw new RequestError("Network error", 0, "Network Error");
+          // 检查是否是后端服务器连接问题
+          if (error instanceof Error &&
+              (error.message.includes("ETIMEDOUT") ||
+               error.message.includes("ECONNREFUSED") ||
+               error.message.includes("fetch"))) {
+            if (process.env.NODE_ENV === "development") {
+              console.group(`🚨 Backend Connection Failed`);
+              console.log(`URL: ${url}`);
+              console.log(`Error: ${error.message}`);
+              console.log(`Possible causes:
+                1. Backend server not running on 192.168.1.128:8099
+                2. Network connectivity issue
+                3. Firewall blocking connection
+                4. IP address has changed`);
+              console.log(`Solutions:
+                1. Start backend server: Check if API server is running
+                2. Update backend URL in vite.config.ts
+                3. Use mock data (already enabled for development)
+                4. Check network connectivity: ping 192.168.1.128`);
+              console.groupEnd();
+
+              // In development, return a more friendly error
+              return {
+                data: {
+                  error: "Backend server unavailable",
+                  message: "Using mock data instead",
+                  mockMode: true
+                },
+                status: 503,
+                statusText: "Service Unavailable"
+              } as any;
+            }
+          }
+          throw new RequestError("Network connection failed", 0, "Network Error");
         default:
           throw new RequestError(
             error instanceof Error ? error.message : "Unknown error",
@@ -941,7 +974,7 @@ export class Request {
   }
 
   /**
-   * 业务接口请求 - 自动处理标���业务响应格式
+   * 业务接口请求 - 自动处理标����业务响应格式
    */
   async businessRequest<T = any>(
     url: string,
