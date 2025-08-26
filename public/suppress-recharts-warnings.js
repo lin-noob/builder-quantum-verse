@@ -56,24 +56,40 @@
       }
     };
 
-    // Override console methods immediately
-    console.warn = function() {
+    // Override console methods immediately with safe assignment
+    var safeSetConsoleMethod = function(method, value) {
+      try {
+        Object.defineProperty(console, method, {
+          value: value,
+          writable: true,
+          configurable: true
+        });
+      } catch (e) {
+        try {
+          console[method] = value;
+        } catch (e2) {
+          // Console method can't be overridden in this environment
+        }
+      }
+    };
+
+    safeSetConsoleMethod('warn', function() {
       if (!isRechartsDefaultPropsWarning.apply(null, arguments)) {
         originalMethods.warn.apply(console, arguments);
       }
-    };
+    });
 
-    console.error = function() {
+    safeSetConsoleMethod('error', function() {
       if (!isRechartsDefaultPropsWarning.apply(null, arguments)) {
         originalMethods.error.apply(console, arguments);
       }
-    };
+    });
 
-    console.log = function() {
+    safeSetConsoleMethod('log', function() {
       if (!isRechartsDefaultPropsWarning.apply(null, arguments)) {
         originalMethods.log.apply(console, arguments);
       }
-    };
+    });
 
     // Set up global flags for React and Recharts
     if (typeof window !== 'undefined') {
