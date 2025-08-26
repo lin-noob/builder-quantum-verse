@@ -257,7 +257,7 @@ export default function Auth() {
       <Button
         variant="ghost"
         size="sm"
-        onClick={() => navigate("/")}
+        onClick={() => navigate("/?preview=true")}
         className="fixed top-4 left-4 z-10 flex items-center gap-2 text-muted-foreground hover:text-foreground"
       >
         <Home className="h-4 w-4" />
