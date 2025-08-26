@@ -1,14 +1,12 @@
 import { Link } from "react-router-dom";
-import { 
-  Target, 
-  ArrowRight, 
-  CheckCircle, 
+import {
+  Target,
+  ArrowRight,
+  CheckCircle,
   Sparkles,
   TrendingUp,
   BarChart3,
   PieChart,
-  Home,
-  Bot,
   Calculator,
   Eye,
   Filter,
@@ -16,6 +14,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import MarketingNav from "@/components/MarketingNav";
 
 export default function EffectTracking() {
   const features = [
@@ -29,7 +28,7 @@ export default function EffectTracking() {
       icon: <Calculator className="h-8 w-8 text-green-600" />,
       title: "ROI精准计算",
       description: "智能计算营销投入产出比，提供多维度的成本效益分析和优化建议",
-      benefits: ["投入成本核算", "收益精确计算", "ROI/ROAS分析", "成本优化建议"]
+      benefits: ["投���成本核算", "收益精确计算", "ROI/ROAS分析", "成本优化建议"]
     },
     {
       icon: <TrendingUp className="h-8 w-8 text-purple-600" />,
@@ -329,7 +328,7 @@ export default function EffectTracking() {
             <div>
               <h2 className="text-3xl font-bold text-gray-900 mb-6">技术优势</h2>
               <p className="text-lg text-gray-600 mb-8">
-                基于先进的数据处理技术和机器学习算法，提供精准的效果追踪和分析能力
+                基于先进的数据处理技术和机器学习算法，提供精准的效果追踪���分析能力
               </p>
               <ul className="space-y-4">
                 {advantages.map((advantage, index) => (
@@ -353,7 +352,7 @@ export default function EffectTracking() {
                 </div>
                 <div className="text-center">
                   <div className="text-3xl font-bold text-orange-600 mb-2">实时</div>
-                  <div className="text-gray-600">效���更新</div>
+                  <div className="text-gray-600">效果更新</div>
                 </div>
                 <div className="text-center">
                   <div className="text-3xl font-bold text-orange-600 mb-2">90天</div>
