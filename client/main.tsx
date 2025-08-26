@@ -1,15 +1,10 @@
-// Import early-stage suppression FIRST to catch warnings before React starts
-import "./lib/earlyRechartsSuppress";
+// Import ULTIMATE suppression FIRST to catch all Recharts warnings
+import "./lib/ultimateRechartsSuppress";
 
 import React from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App";
 import { setupGlobalErrorHandler } from "./lib/errorHandler";
-
-// Import comprehensive warning suppression for Recharts defaultProps warnings
-import "./lib/rechartsWarningSuppress";
-import "./lib/nuclearWarningSuppress";
-import "./lib/finalWarningFix";
 
 // Add final layer of Recharts warning suppression
 if (process.env.NODE_ENV === "development") {
