@@ -15,7 +15,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import MarketingNav from "@/components/MarketingNav";
 import FeatureCard from "@/components/FeatureCard";
-import LazySection from "@/components/LazySection";
 
 // 英雄区域组件
 const HeroSection = React.memo(() => (
@@ -104,7 +103,7 @@ const UseCasesSection = React.memo(() => {
       result: "转化率提升45%"
     },
     {
-      scenario: "新用���欢迎序列", 
+      scenario: "新用����欢迎序列", 
       aiAction: "根据注册渠道定制化欢迎内容和产品推荐",
       result: "首购转化率提升60%"
     },
@@ -196,19 +195,19 @@ export default function AIMarketingOptimized() {
       {/* 核心能力 - 立即加载 */}
       <CoreFeaturesSection />
 
-      {/* 应用场景 - 延迟加载 */}
-      <LazySection className="py-20 bg-gray-50">
+      {/* 应用场景 */}
+      <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">实���应用场景</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">实际应用场景</h2>
             <p className="text-xl text-gray-600">真实案例展示AI智能营销的强大能力</p>
           </div>
           <UseCasesSection />
         </div>
-      </LazySection>
+      </section>
 
-      {/* 技术优势 - 延迟加载 */}
-      <LazySection className="py-20 bg-white">
+      {/* 技术优势 */}
+      <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
@@ -239,7 +238,7 @@ export default function AIMarketingOptimized() {
             </div>
           </div>
         </div>
-      </LazySection>
+      </section>
 
       {/* CTA区域 */}
       <CTASection />
