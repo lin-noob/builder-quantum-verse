@@ -132,7 +132,7 @@ const AdvantagesSection = React.memo(() => {
               立即开始追踪
             </Button>
           </Link>
-          <Button size="lg" variant="outline" className="border-2 border-white text-white hover:bg-white hover:text-red-600 text-lg px-8 py-4 font-semibold">
+          <Button size="lg" className="bg-white text-red-600 border-2 border-white hover:bg-red-50 hover:text-red-700 text-lg px-8 py-4 font-bold shadow-lg">
             预约产品演示
           </Button>
         </div>
