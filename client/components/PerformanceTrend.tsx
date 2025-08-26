@@ -49,6 +49,11 @@ export default function PerformanceTrend({
   metrics,
   dateRange = "30days",
 }: PerformanceTrendProps) {
+  // Apply warning suppression when component mounts
+  useEffect(() => {
+    suppressRechartsWarnings();
+  }, []);
+
   // Debug: log the received metrics
   console.log("PerformanceTrend received metrics:", metrics);
 
