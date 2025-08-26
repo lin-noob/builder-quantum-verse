@@ -1,6 +1,6 @@
 import "./global.css";
 
-import React from "react";
+import React, { Suspense } from "react";
 
 import { Toaster } from "@/components/ui/toaster";
 import { createRoot } from "react-dom/client";
@@ -42,10 +42,12 @@ import PersonalSettings from "./pages/Account/PersonalSettings";
 import { usePageRequestManager } from "./hooks/useRequestManager";
 import AdminApp from "./admin/AdminApp";
 import MarketingHome from "./pages/MarketingHome";
-import AIMarketingFeature from "./pages/features/AIMarketing";
-import UserProfilingFeature from "./pages/features/UserProfiling";
-import RealTimeMonitoringFeature from "./pages/features/RealTimeMonitoring";
-import EffectTrackingFeature from "./pages/features/EffectTracking";
+
+// 懒加载特色页面以提升性能
+const AIMarketingFeature = React.lazy(() => import("./pages/features/AIMarketing"));
+const UserProfilingFeature = React.lazy(() => import("./pages/features/UserProfiling"));
+const RealTimeMonitoringFeature = React.lazy(() => import("./pages/features/RealTimeMonitoring"));
+const EffectTrackingFeature = React.lazy(() => import("./pages/features/EffectTracking"));
 
 const queryClient = new QueryClient();
 
@@ -70,11 +72,27 @@ const AppWithRequestManager = () => {
           {/* 营销推广主页 */}
           <Route path="/" element={<MarketingHome />} />
 
-          {/* 功能介绍页面 */}
-          <Route path="/features/ai-marketing" element={<AIMarketingFeature />} />
-          <Route path="/features/user-profiling" element={<UserProfilingFeature />} />
-          <Route path="/features/real-time-monitoring" element={<RealTimeMonitoringFeature />} />
-          <Route path="/features/effect-tracking" element={<EffectTrackingFeature />} />
+          {/* 功能介绍页面 - 懒加载 */}
+          <Route path="/features/ai-marketing" element={
+            <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div></div>}>
+              <AIMarketingFeature />
+            </Suspense>
+          } />
+          <Route path="/features/user-profiling" element={
+            <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div></div>}>
+              <UserProfilingFeature />
+            </Suspense>
+          } />
+          <Route path="/features/real-time-monitoring" element={
+            <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div></div>}>
+              <RealTimeMonitoringFeature />
+            </Suspense>
+          } />
+          <Route path="/features/effect-tracking" element={
+            <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600"></div></div>}>
+              <EffectTrackingFeature />
+            </Suspense>
+          } />
 
           {/* User Profile route */}
           <Route
