@@ -42,6 +42,7 @@ import PersonalSettings from "./pages/Account/PersonalSettings";
 import { usePageRequestManager } from "./hooks/useRequestManager";
 import AdminApp from "./admin/AdminApp";
 import APIDebugHelper from "./components/APIDebugHelper";
+import BackendStatus from "./components/BackendStatus";
 
 const queryClient = new QueryClient();
 
