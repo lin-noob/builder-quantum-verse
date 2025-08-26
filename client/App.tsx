@@ -42,6 +42,7 @@ import PersonalSettings from "./pages/Account/PersonalSettings";
 import { usePageRequestManager } from "./hooks/useRequestManager";
 import AdminApp from "./admin/AdminApp";
 import MarketingHome from "./pages/MarketingHome";
+import PageLoader from "./components/PageLoader";
 
 // 懒加载特色页面以提升性能
 const AIMarketingFeature = React.lazy(() => import("./pages/features/AIMarketing"));
@@ -74,22 +75,22 @@ const AppWithRequestManager = () => {
 
           {/* 功能介绍页面 - 懒加载 */}
           <Route path="/features/ai-marketing" element={
-            <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div></div>}>
+            <Suspense fallback={<PageLoader type="ai-marketing" />}>
               <AIMarketingFeature />
             </Suspense>
           } />
           <Route path="/features/user-profiling" element={
-            <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div></div>}>
+            <Suspense fallback={<PageLoader type="user-profiling" />}>
               <UserProfilingFeature />
             </Suspense>
           } />
           <Route path="/features/real-time-monitoring" element={
-            <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div></div>}>
+            <Suspense fallback={<PageLoader type="real-time-monitoring" />}>
               <RealTimeMonitoringFeature />
             </Suspense>
           } />
           <Route path="/features/effect-tracking" element={
-            <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600"></div></div>}>
+            <Suspense fallback={<PageLoader type="effect-tracking" />}>
               <EffectTrackingFeature />
             </Suspense>
           } />
