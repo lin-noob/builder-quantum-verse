@@ -38,7 +38,7 @@ export default function MarketingHome() {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">正在跳转到仪表盘...</p>
+          <p className="text-gray-600">��在跳转到仪表盘...</p>
         </div>
       </div>
     );
@@ -103,7 +103,7 @@ export default function MarketingHome() {
     },
     {
       title: "金融营销",
-      description: "风险评估、产品推荐、客户生命周期管理",
+      description: "风���评估、产品推荐、客户生命周期管理",
       scenarios: ["智能产品推荐", "风险用户识别", "客户价值分析"]
     }
   ];
@@ -298,35 +298,15 @@ export default function MarketingHome() {
             加入数千家企业，体验AI驱动的营销效果提升
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            {currentUser && isPreviewMode ? (
-              // 已登录用户在预览模式下的CTA
-              <>
-                <Button
-                  size="lg"
-                  className="bg-white text-blue-600 hover:bg-gray-100 text-lg px-8 py-4"
-                  onClick={() => navigate("/dashboard")}
-                >
-                  <Star className="mr-2 h-5 w-5" />
-                  进入我的工作台
-                </Button>
-                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-blue-600 text-lg px-8 py-4">
-                  联系销售顾问
-                </Button>
-              </>
-            ) : (
-              // 未登录用户的CTA
-              <>
-                <Link to="/auth">
-                  <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100 text-lg px-8 py-4">
-                    <Star className="mr-2 h-5 w-5" />
-                    立即免费试用
-                  </Button>
-                </Link>
-                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-blue-600 text-lg px-8 py-4">
-                  联系销售顾问
-                </Button>
-              </>
-            )}
+            <Link to="/auth">
+              <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100 text-lg px-8 py-4">
+                <Star className="mr-2 h-5 w-5" />
+                立即免费试用
+              </Button>
+            </Link>
+            <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-blue-600 text-lg px-8 py-4">
+              联系销售顾问
+            </Button>
           </div>
         </div>
       </section>
