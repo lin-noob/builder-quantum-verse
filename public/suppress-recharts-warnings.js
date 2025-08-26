@@ -125,15 +125,23 @@
       };
     }
 
-    // Prevent console methods from being restored
+    // Attempt to prevent console methods from being restored (if possible)
     if (typeof Object !== 'undefined' && Object.defineProperty) {
       try {
         ['warn', 'error', 'log'].forEach(function(method) {
-          Object.defineProperty(console, method, {
-            value: console[method],
-            writable: false,
-            configurable: false,
-          });
+          // Check if the property is already configured as we want
+          var descriptor = Object.getOwnPropertyDescriptor(console, method);
+          if (descriptor && descriptor.configurable !== false) {
+            try {
+              Object.defineProperty(console, method, {
+                value: console[method],
+                writable: false,
+                configurable: false,
+              });
+            } catch (methodError) {
+              // This specific method can't be locked
+            }
+          }
         });
       } catch (e) {
         // Ignore if properties can't be made non-configurable
