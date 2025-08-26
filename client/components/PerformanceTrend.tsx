@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   LineChart,
@@ -10,6 +10,35 @@ import {
   Legend,
 } from "recharts";
 import { type PerformanceMetric } from "@shared/dashboardData";
+
+// Targeted warning suppression for this component
+const suppressRechartsWarnings = () => {
+  if (typeof console !== 'undefined' && process.env.NODE_ENV === 'development') {
+    const originalWarn = console.warn;
+    const originalError = console.error;
+
+    const shouldSuppress = (...args: any[]) => {
+      const message = args.join(' ').toLowerCase();
+      return message.includes('defaultprops') && (
+        message.includes('xaxis') ||
+        message.includes('yaxis') ||
+        message.includes('recharts')
+      );
+    };
+
+    console.warn = (...args: any[]) => {
+      if (!shouldSuppress(...args)) {
+        originalWarn.apply(console, args);
+      }
+    };
+
+    console.error = (...args: any[]) => {
+      if (!shouldSuppress(...args)) {
+        originalError.apply(console, args);
+      }
+    };
+  }
+};
 
 interface PerformanceTrendProps {
   metrics: PerformanceMetric[];
