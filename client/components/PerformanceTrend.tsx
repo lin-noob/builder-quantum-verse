@@ -303,4 +303,7 @@ const PerformanceTrend: React.FC<PerformanceTrendProps> = ({
       </CardContent>
     </Card>
   );
-}
+};
+
+// 🚀 使用React.memo优化组件，避免不必要的重新渲染
+export default React.memo(PerformanceTrend);
