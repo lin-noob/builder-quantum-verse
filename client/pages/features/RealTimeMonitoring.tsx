@@ -66,7 +66,7 @@ export default function RealTimeMonitoring() {
   const alertTypes = [
     {
       type: "性能异常",
-      description: "系统响应时间超过阈值或错误率异常上升",
+      description: "系统响应时间超过��值或错误率异常上升",
       response: "自动扩容、流量限制、紧急切换备用系统",
       icon: <Monitor className="h-6 w-6 text-red-500" />
     },
@@ -102,7 +102,7 @@ export default function RealTimeMonitoring() {
   return (
     <div className="min-h-screen bg-white">
       {/* 导航栏 */}
-      <MarketingNav showBackButton={true} />
+      <MarketingNav />
 
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-purple-50 to-violet-100 py-20">

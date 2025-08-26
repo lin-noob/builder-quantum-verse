@@ -134,7 +134,7 @@ export default function EffectTracking() {
   return (
     <div className="min-h-screen bg-white">
       {/* 导航栏 */}
-      <MarketingNav showBackButton={true} />
+      <MarketingNav />
 
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-orange-50 to-red-100 py-20">
