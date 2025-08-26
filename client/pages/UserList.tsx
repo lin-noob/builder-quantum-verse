@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import AdvancedDateRangePicker from "@/components/AdvancedDateRangePicker";
 import { request } from "@/lib/request";
 import { toast } from "@/hooks/use-toast";
+import { MockDataService } from "@/services/mockDataService";
 
 interface DateRange {
   start: Date | null;
@@ -190,11 +191,26 @@ export default function UserList() {
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
-      // 首先测试连通性
-      const isConnected = await testConnectivity();
-      if (!isConnected) {
-        console.warn("代理连通性测试失败，但仍然尝试API请求...");
+      // 在开发环境中优先使用模拟数据，避免网络延迟
+      if (MockDataService.shouldUseMockData()) {
+        console.log("🚀 使用模拟数据，避免API延迟");
+
+        const mockResponse = await MockDataService.getUsers({
+          page: currentPage,
+          pageSize: itemsPerPage,
+          search: searchQuery.trim() || undefined,
+          sortField: sortConfig.field || undefined,
+          sortDirection: sortConfig.direction
+        });
+
+        setUsers(mockResponse.users);
+        setTotalCount(mockResponse.total);
+        setLoading(false);
+        return;
       }
+
+      // 生产环境或需要真实数据时，跳过连通性测试，直接请求
+      console.log("📡 请求真实API数据");
 
       // 根据API文档，主要参数通过POST body传递，query参数可选
 
@@ -225,7 +241,7 @@ export default function UserList() {
         requestBody.order = sortConfig.direction;
       }
 
-      // 使用通用request方法明确指定POST
+      // 使用通用request方法明确指定POST，添加快速超时
       const response = await request.request<{
         code: string;
         records: ApiUser[];
@@ -237,6 +253,7 @@ export default function UserList() {
         headers: {
           "Content-Type": "application/json",
         },
+        timeout: 3000, // 3秒快速超时
       });
 
       // 不管成功失败都显示原始响应，让用户能看到完整信息
@@ -266,7 +283,7 @@ export default function UserList() {
         return;
       }
 
-      console.error("获取用户数据失败:", error);
+      console.error("获��用户数据失败:", error);
       console.error("请求参数:", { requestBody });
 
       // 详细显示错误信息
@@ -300,7 +317,7 @@ export default function UserList() {
         console.error("错误详情:", error.message);
         console.error("错误堆栈:", error.stack);
 
-        // 针对不同类型的错误给出更具体的提示
+        // 针对不同类型的错误给出更���体的提示
         if (error.message.includes("Failed to fetch")) {
           console.error("网络连接失败，可能的原因:");
           console.error("1. 代理服务器 192.168.1.128:8099 无法访问");
