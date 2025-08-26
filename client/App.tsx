@@ -14,6 +14,7 @@ import Dashboard from "./pages/Dashboard";
 import Dashboard2 from "./pages/Dashboard2";
 import UserList from "./pages/UserList";
 import UserList2 from "./pages/UserList2";
+import UserListOptimized from "./pages/UserListOptimized";
 import UserDetail from "./pages/UserDetail";
 import UserDetailNew from "./pages/UserDetail_New";
 import UserDetail2 from "./pages/UserDetail2";
@@ -137,7 +138,7 @@ const AppWithRequestManager = () => {
             path="/users1"
             element={
               <Layout>
-                <UserList />
+                <UserListOptimized />
               </Layout>
             }
           />
