@@ -61,7 +61,7 @@ export default function MarketingHome() {
     {
       icon: <Users className="h-8 w-8 text-green-600" />,
       title: "用户画像分析",
-      description: "深度用户���为分析，精准洞察用户需求和偏好",
+      description: "深度用户行为分析，精准洞察用户需求和偏好",
       benefits: ["360°用户画像", "行为轨迹分析", "价值分群"]
     },
     {
@@ -127,7 +127,43 @@ export default function MarketingHome() {
                 <span className="ml-2 text-xl font-bold text-gray-900">AI营销平台</span>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-8">
+              {/* 产品特色下拉菜单 */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="flex items-center gap-1">
+                    产品特色
+                    <ChevronDown className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem asChild>
+                    <Link to="/features/ai-marketing" className="flex items-center gap-2 w-full">
+                      <Bot className="h-4 w-4 text-blue-600" />
+                      AI智能营销
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/features/user-profiling" className="flex items-center gap-2 w-full">
+                      <Users className="h-4 w-4 text-green-600" />
+                      用户画像分析
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/features/real-time-monitoring" className="flex items-center gap-2 w-full">
+                      <Activity className="h-4 w-4 text-purple-600" />
+                      实时监控中心
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/features/effect-tracking" className="flex items-center gap-2 w-full">
+                      <Target className="h-4 w-4 text-red-600" />
+                      效果追踪
+                    </Link>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
               <Link to="/auth">
                 <Button className="bg-blue-600 hover:bg-blue-700">
                   登录注册
