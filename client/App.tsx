@@ -48,7 +48,7 @@ import PageLoader from "./components/PageLoader";
 const AIMarketingFeature = React.lazy(() => import("./pages/features/AIMarketing"));
 const UserProfilingFeature = React.lazy(() => import("./pages/features/UserProfiling"));
 const RealTimeMonitoringFeature = React.lazy(() => import("./pages/features/RealTimeMonitoring"));
-const EffectTrackingFeature = React.lazy(() => import("./pages/features/EffectTracking"));
+const EffectTrackingFeature = React.lazy(() => import("./pages/features/EffectTrackingOptimized"));
 
 const queryClient = new QueryClient();
 
