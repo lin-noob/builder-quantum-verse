@@ -253,6 +253,17 @@ export default function Auth() {
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      {/* 返回首页按钮 */}
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => navigate("/")}
+        className="fixed top-4 left-4 z-10 flex items-center gap-2 text-muted-foreground hover:text-foreground"
+      >
+        <Home className="h-4 w-4" />
+        <span className="hidden sm:inline">返回首页</span>
+      </Button>
+
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl text-center">AI营销平台</CardTitle>
