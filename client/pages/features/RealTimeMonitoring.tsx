@@ -1,14 +1,12 @@
 import { Link } from "react-router-dom";
-import { 
-  Activity, 
-  ArrowRight, 
-  CheckCircle, 
+import {
+  Activity,
+  ArrowRight,
+  CheckCircle,
   Sparkles,
   AlertTriangle,
   BarChart3,
   Eye,
-  Home,
-  Bot,
   Zap,
   Bell,
   Monitor,
@@ -16,6 +14,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import MarketingNav from "@/components/MarketingNav";
 
 export default function RealTimeMonitoring() {
   const features = [
