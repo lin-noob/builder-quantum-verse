@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { 
-  Bot, 
-  Target, 
-  BarChart3, 
-  Users, 
-  Activity, 
-  Zap, 
-  Shield, 
+import {
+  Bot,
+  Target,
+  BarChart3,
+  Users,
+  Activity,
+  Zap,
+  Shield,
   Sparkles,
   ArrowRight,
   CheckCircle,
@@ -15,10 +15,17 @@ import {
   Star,
   TrendingUp,
   Brain,
-  Lightbulb
+  Lightbulb,
+  ChevronDown
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { authService } from "@/services/authService";
 
 export default function MarketingHome() {
@@ -26,7 +33,7 @@ export default function MarketingHome() {
   const [currentUser, setCurrentUser] = useState(authService.getCurrentUser());
 
   useEffect(() => {
-    // 如果已登录，自动跳转到���表盘
+    // 如果已登录，自动跳转到仪表盘
     if (currentUser) {
       navigate("/dashboard");
     }
@@ -54,13 +61,13 @@ export default function MarketingHome() {
     {
       icon: <Users className="h-8 w-8 text-green-600" />,
       title: "用户画像分析",
-      description: "深度用户行为分析，精准洞察用户需求和偏好",
+      description: "深度用户���为分析，精准洞察用户需求和偏好",
       benefits: ["360°用户画像", "行为轨迹分析", "价值分群"]
     },
     {
       icon: <Activity className="h-8 w-8 text-purple-600" />,
       title: "实时监控中心",
-      description: "实时监控营销活动效果，快速调��优化策略",
+      description: "实时监控营销活动效果，快速调整优化策略",
       benefits: ["实时数据监控", "异常预警", "性能优化建议"]
     },
     {
