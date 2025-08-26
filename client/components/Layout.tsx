@@ -1,4 +1,4 @@
-import { ReactNode, useState, useEffect } from "react";
+import { ReactNode, useState, useEffect, useMemo } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import {
@@ -66,8 +66,8 @@ export default function Layout({ children }: LayoutProps) {
     }
   }, [location.pathname, isSystemManagementExpanded]);
 
-  // 基础菜单项
-  const baseMenuItems: MenuItem[] = [
+  // 基础菜单项 - 使用useMemo缓存，避免重复创建
+  const baseMenuItems: MenuItem[] = useMemo(() => [
     {
       id: "dashboard",
       label: "仪表盘",
@@ -110,10 +110,10 @@ export default function Layout({ children }: LayoutProps) {
       path: "/effect-tracking",
       icon: <Target className="h-5 w-5" />,
     },
-  ];
+  ], []);
 
-  // 管理员专用菜单项
-  const adminMenuItems: MenuItem[] = [
+  // 管理员专用菜单项 - 使用useMemo缓存，避免重复创建
+  const adminMenuItems: MenuItem[] = useMemo(() => [
     {
       id: "system-management",
       label: "系统管理",
@@ -141,13 +141,13 @@ export default function Layout({ children }: LayoutProps) {
       icon: <Shield className="h-5 w-5" />,
       isSpecial: true,
     },
-  ];
+  ], []);
 
-  // 根据用户权限组合菜单
-  const menuItems: MenuItem[] = [
+  // 根据用户权限组合菜单 - 使用useMemo缓存，只在用户状态变化时重新计算
+  const menuItems: MenuItem[] = useMemo(() => [
     ...baseMenuItems,
     ...(currentUser && currentUser.isAdmin ? adminMenuItems : []),
-  ];
+  ], [baseMenuItems, adminMenuItems, currentUser]);
 
   return (
     <div className="flex h-screen bg-background-secondary">
