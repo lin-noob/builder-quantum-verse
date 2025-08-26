@@ -345,12 +345,7 @@ const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
       <AppWithRequestManager />
-      {process.env.NODE_ENV === "development" && (
-        <>
-          <APIDebugHelper />
-          <BackendStatus />
-        </>
-      )}
+      {process.env.NODE_ENV === "development" && <APIDebugHelper />}
     </QueryClientProvider>
   </ErrorBoundary>
 );
