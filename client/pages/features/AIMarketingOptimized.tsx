@@ -32,7 +32,7 @@ const HeroSection = React.memo(() => (
         </h1>
         <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
           基于人工智能的智能营销场景配置，自动生成个性化营销内容，
-          实���精准触达和高效转化，让营销更智能、更高效
+          实现精准触达和高效转化，让营销更智能、更高效
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link to="/auth">
@@ -175,7 +175,7 @@ const CTASection = React.memo(() => {
               立即开始体验
             </Button>
           </Link>
-          <Button size="lg" variant="outline" className="border-2 border-white text-white hover:bg-white hover:text-blue-600 text-lg px-8 py-4 font-semibold">
+          <Button size="lg" className="bg-white text-blue-600 border-2 border-white hover:bg-blue-50 hover:text-blue-700 text-lg px-8 py-4 font-bold shadow-lg">
             联系专家咨询
           </Button>
         </div>
@@ -200,7 +200,7 @@ export default function AIMarketingOptimized() {
       <LazySection className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">实际应用场景</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">实���应用场景</h2>
             <p className="text-xl text-gray-600">真实案例展示AI智能营销的强大能力</p>
           </div>
           <UseCasesSection />
