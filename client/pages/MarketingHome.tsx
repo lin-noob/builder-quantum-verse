@@ -147,7 +147,7 @@ export default function MarketingHome() {
               <Link to="/auth">
                 <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-lg px-8 py-4">
                   <Sparkles className="mr-2 h-5 w-5" />
-                  立即开始免费试用
+                  登录注册
                 </Button>
               </Link>
               <Button size="lg" variant="outline" className="text-lg px-8 py-4">
@@ -273,7 +273,7 @@ export default function MarketingHome() {
               },
               {
                 step: "02", 
-                title: "智���配置",
+                title: "智能配置",
                 description: "配置营销场景，AI自动生成个性化营销策略",
                 icon: <Brain className="h-8 w-8" />
               },
@@ -334,7 +334,7 @@ export default function MarketingHome() {
                 <span className="ml-2 text-xl font-bold">AI营销平台</span>
               </div>
               <p className="text-gray-400">
-                专业的AI驱动营销解决方案，��力企业实现营销效果的指数级提升。
+                专业的AI驱动营销解决方案，助力企业实现营销效果的指数级提升。
               </p>
             </div>
             <div>
@@ -359,7 +359,7 @@ export default function MarketingHome() {
               <h3 className="text-lg font-semibold mb-4">联系我们</h3>
               <ul className="space-y-2 text-gray-400">
                 <li>技术支持</li>
-                <li>销售咨询</li>
+                <li>销售咨���</li>
                 <li>合作伙伴</li>
                 <li>API文档</li>
               </ul>
