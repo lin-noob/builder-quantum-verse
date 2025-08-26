@@ -42,10 +42,10 @@ import PersonalSettings from "./pages/Account/PersonalSettings";
 import { usePageRequestManager } from "./hooks/useRequestManager";
 import AdminApp from "./admin/AdminApp";
 import MarketingHome from "./pages/MarketingHome";
-import AIMarketing from "./pages/features/AIMarketing";
-import UserProfiling from "./pages/features/UserProfiling";
-import RealTimeMonitoring from "./pages/features/RealTimeMonitoring";
-import EffectTracking from "./pages/features/EffectTracking";
+import AIMarketingFeature from "./pages/features/AIMarketing";
+import UserProfilingFeature from "./pages/features/UserProfiling";
+import RealTimeMonitoringFeature from "./pages/features/RealTimeMonitoring";
+import EffectTrackingFeature from "./pages/features/EffectTracking";
 
 const queryClient = new QueryClient();
 
