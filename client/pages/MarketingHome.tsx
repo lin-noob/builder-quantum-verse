@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { 
   Bot, 
   Target, 
@@ -38,7 +38,7 @@ export default function MarketingHome() {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">��在跳转到仪表盘...</p>
+          <p className="text-gray-600">正在跳转到仪表盘...</p>
         </div>
       </div>
     );
@@ -49,7 +49,7 @@ export default function MarketingHome() {
       icon: <Bot className="h-8 w-8 text-blue-600" />,
       title: "AI智能营销",
       description: "基于AI的智能营销场景配置，自动生成个性化营销内容",
-      benefits: ["智能内容生成", "个性化推荐", "自动化执行"]
+      benefits: ["智能内容生��", "个性化推荐", "自动化执行"]
     },
     {
       icon: <Users className="h-8 w-8 text-green-600" />,
@@ -103,7 +103,7 @@ export default function MarketingHome() {
     },
     {
       title: "金融营销",
-      description: "风���评估、产品推荐、客户生命周期管理",
+      description: "风险评估、产品推荐、客户生命周期管理",
       scenarios: ["智能产品推荐", "风险用户识别", "客户价值分析"]
     }
   ];
