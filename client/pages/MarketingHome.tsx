@@ -26,7 +26,7 @@ export default function MarketingHome() {
   const [currentUser, setCurrentUser] = useState(authService.getCurrentUser());
 
   useEffect(() => {
-    // 如果已登录，自动跳转到仪表盘
+    // 如果已登录，自动跳转到���表盘
     if (currentUser) {
       navigate("/dashboard");
     }
@@ -60,7 +60,7 @@ export default function MarketingHome() {
     {
       icon: <Activity className="h-8 w-8 text-purple-600" />,
       title: "实时监控中心",
-      description: "实时监控营销活动效果，快速调整优化策略",
+      description: "实时监控营销活动效果，快速调��优化策略",
       benefits: ["实时数据监控", "异常预警", "性能优化建议"]
     },
     {
@@ -314,7 +314,7 @@ export default function MarketingHome() {
             <Link to="/auth">
               <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100 text-lg px-8 py-4">
                 <Star className="mr-2 h-5 w-5" />
-                立即免费试用
+                登录注册
               </Button>
             </Link>
             <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-blue-600 text-lg px-8 py-4">
@@ -359,7 +359,7 @@ export default function MarketingHome() {
               <h3 className="text-lg font-semibold mb-4">联系我们</h3>
               <ul className="space-y-2 text-gray-400">
                 <li>技术支持</li>
-                <li>销售咨���</li>
+                <li>销售咨询</li>
                 <li>合作伙伴</li>
                 <li>API文档</li>
               </ul>
