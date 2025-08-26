@@ -18,7 +18,7 @@ interface ContextMenu {
   targetTab: Tab | null;
 }
 
-export default function TabManager() {
+function TabManager() {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -421,7 +421,7 @@ export default function TabManager() {
         </button>
       )}
 
-      {/* 右键菜单 */}
+      {/* 右键��单 */}
       {contextMenu.isOpen && contextMenu.targetTab && (
         <div
           className="fixed bg-white border border-gray-200 rounded shadow-lg py-1 z-50 w-20"
