@@ -102,32 +102,7 @@ export default function RealTimeMonitoring() {
   return (
     <div className="min-h-screen bg-white">
       {/* 导航栏 */}
-      <nav className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <Link to="/" className="flex items-center">
-                <Bot className="h-8 w-8 text-blue-600" />
-                <span className="ml-2 text-xl font-bold text-gray-900">AI营销平台</span>
-              </Link>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Link to="/">
-                <Button variant="ghost" className="flex items-center gap-2">
-                  <Home className="h-4 w-4" />
-                  返回首页
-                </Button>
-              </Link>
-              <Link to="/auth">
-                <Button className="bg-blue-600 hover:bg-blue-700">
-                  登录注册
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <MarketingNav showBackButton={true} />
 
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-purple-50 to-violet-100 py-20">
