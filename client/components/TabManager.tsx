@@ -394,7 +394,7 @@ function TabManager() {
               {/* 标签页图标 */}
               {tab.isHome && <Home className="h-3 w-3 flex-shrink-0" />}
 
-              {/* 标签页标题 */}
+              {/* 标签页标�� */}
               <span className="truncate max-w-32">{tab.title}</span>
 
               {/* 关闭按钮 */}
@@ -465,3 +465,6 @@ function TabManager() {
     </div>
   );
 }
+
+// 🚀 使用React.memo优化TabManager，避免不必要的重新渲染
+export default React.memo(TabManager);
