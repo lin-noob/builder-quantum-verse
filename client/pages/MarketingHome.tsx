@@ -23,21 +23,17 @@ import { authService } from "@/services/authService";
 
 export default function MarketingHome() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const [currentUser, setCurrentUser] = useState(authService.getCurrentUser());
 
-  // 检查是否是预览模式
-  const isPreviewMode = searchParams.get("preview") === "true";
-
   useEffect(() => {
-    // 只有在非预览模式下，且已登录时，才跳转到仪表盘
-    if (currentUser && !isPreviewMode) {
+    // 如果已登录，自动跳转到仪表盘
+    if (currentUser) {
       navigate("/dashboard");
     }
-  }, [currentUser, navigate, isPreviewMode]);
+  }, [currentUser, navigate]);
 
-  // 如果已登录且不是预览模式，显示加载状态
-  if (currentUser && !isPreviewMode) {
+  // 如果已登录，显示加载状态
+  if (currentUser) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
         <div className="text-center">
@@ -69,7 +65,7 @@ export default function MarketingHome() {
     },
     {
       icon: <Target className="h-8 w-8 text-red-600" />,
-      title: "效���追踪",
+      title: "效果追踪",
       description: "全链路效果追踪，量化营销ROI和转化效果",
       benefits: ["转化漏斗分析", "ROI计算", "多维度报表"]
     },
@@ -98,7 +94,7 @@ export default function MarketingHome() {
     {
       title: "电商营销",
       description: "购物车挽回、个性化推荐、会员营销",
-      scenarios: ["加入购物车挽回", "商品个性化推荐", "会员等���营销"]
+      scenarios: ["加入购物车挽回", "商品个性化推荐", "会员等级营销"]
     },
     {
       title: "内容营销",
