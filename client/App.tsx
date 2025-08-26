@@ -60,10 +60,11 @@ const AppWithRequestManager = () => {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
 
-          {/* 管理后台路由 - 独立路由，不使用Layout */}
+          {/* 管理后台路由 - 独立路由，不使��Layout */}
           <Route path="/admin/*" element={<AdminApp />} />
 
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          {/* 营销推广主页 */}
+          <Route path="/" element={<MarketingHome />} />
 
           {/* User Profile route */}
           <Route
