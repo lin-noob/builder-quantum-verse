@@ -19,17 +19,50 @@ if (typeof console !== 'undefined' && process.env.NODE_ENV === 'development') {
     );
   };
 
-  console.warn = (...args: any[]) => {
-    if (!isRechartsWarning(...args)) {
-      originalConsoleWarn.apply(console, args);
+  // Safe console override with error handling for read-only properties
+  try {
+    Object.defineProperty(console, 'warn', {
+      value: (...args: any[]) => {
+        if (!isRechartsWarning(...args)) {
+          originalConsoleWarn.apply(console, args);
+        }
+      },
+      writable: true,
+      configurable: true,
+    });
+  } catch (e) {
+    try {
+      console.warn = (...args: any[]) => {
+        if (!isRechartsWarning(...args)) {
+          originalConsoleWarn.apply(console, args);
+        }
+      };
+    } catch (e2) {
+      // Console warn can't be overridden
     }
-  };
+  }
 
-  console.error = (...args: any[]) => {
-    if (!isRechartsWarning(...args)) {
-      originalConsoleError.apply(console, args);
+  try {
+    Object.defineProperty(console, 'error', {
+      value: (...args: any[]) => {
+        if (!isRechartsWarning(...args)) {
+          originalConsoleError.apply(console, args);
+        }
+      },
+      writable: true,
+      configurable: true,
+    });
+  } catch (e) {
+    try {
+      console.error = (...args: any[]) => {
+        if (!isRechartsWarning(...args)) {
+          originalConsoleError.apply(console, args);
+        }
+      };
+    } catch (e2) {
+      // Console error can't be overridden
     }
-  };
+  }
 }
 
 // Format: { THEME_NAME: CSS_SELECTOR }
