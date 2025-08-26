@@ -36,7 +36,7 @@ export default function MarketingHome() {
     }
   }, [currentUser, navigate, isPreviewMode]);
 
-  // ���果已登录且不是预览模式，显示加载状态
+  // 如果已登录且不是预览模式，显示加载状态
   if (currentUser && !isPreviewMode) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
@@ -69,7 +69,7 @@ export default function MarketingHome() {
     },
     {
       icon: <Target className="h-8 w-8 text-red-600" />,
-      title: "效果追踪",
+      title: "效���追踪",
       description: "全链路效果追踪，量化营销ROI和转化效果",
       benefits: ["转化漏斗分析", "ROI计算", "多维度报表"]
     },
@@ -97,8 +97,8 @@ export default function MarketingHome() {
   const useCases = [
     {
       title: "电商营销",
-      description: "购物车挽回���个性化推荐、会员营销",
-      scenarios: ["加入购物车挽回", "商品个性化推荐", "会员等级营销"]
+      description: "购物车挽回、个性化推荐、会员营销",
+      scenarios: ["加入购物车挽回", "商品个性化推荐", "会员等���营销"]
     },
     {
       title: "内容营销",
@@ -126,7 +126,7 @@ export default function MarketingHome() {
             </div>
             <div className="flex items-center space-x-4">
               {currentUser && isPreviewMode ? (
-                // 已登录用户在预览模式下��选项
+                // 已登录用户在预览模式下的选项
                 <>
                   <span className="text-sm text-gray-600">您好, {currentUser.username}</span>
                   <Button onClick={() => navigate("/dashboard")} className="bg-blue-600 hover:bg-blue-700">
@@ -337,15 +337,35 @@ export default function MarketingHome() {
             加入数千家企业，体验AI驱动的营销效果提升
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/auth">
-              <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100 text-lg px-8 py-4">
-                <Star className="mr-2 h-5 w-5" />
-                立即免费试用
-              </Button>
-            </Link>
-            <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-blue-600 text-lg px-8 py-4">
-              联系销售顾问
-            </Button>
+            {currentUser && isPreviewMode ? (
+              // 已登录用户在预览模式下的CTA
+              <>
+                <Button
+                  size="lg"
+                  className="bg-white text-blue-600 hover:bg-gray-100 text-lg px-8 py-4"
+                  onClick={() => navigate("/dashboard")}
+                >
+                  <Star className="mr-2 h-5 w-5" />
+                  进入我的工作台
+                </Button>
+                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-blue-600 text-lg px-8 py-4">
+                  联系销售顾问
+                </Button>
+              </>
+            ) : (
+              // 未登录用户的CTA
+              <>
+                <Link to="/auth">
+                  <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100 text-lg px-8 py-4">
+                    <Star className="mr-2 h-5 w-5" />
+                    立即免费试用
+                  </Button>
+                </Link>
+                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-blue-600 text-lg px-8 py-4">
+                  联系销售顾问
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </section>
