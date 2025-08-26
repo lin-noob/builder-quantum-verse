@@ -6,6 +6,17 @@ import path from "path";
 export default defineConfig(({ mode }) => ({
   define: {
     "process.env.NODE_ENV": JSON.stringify(mode),
+    "__SUPPRESS_RECHARTS_WARNINGS__": true,
+    "__REACT_DEVTOOLS_SUPPRESS_WARNINGS__": true,
+  },
+  esbuild: {
+    // Drop console statements in production, but keep them in development with filtering
+    drop: mode === 'production' ? ['console', 'debugger'] : [],
+    // Suppress specific warnings during build
+    logOverride: {
+      'this-is-undefined-in-esm': 'silent',
+      'ignored-bare-import': 'silent',
+    },
   },
   server: {
     host: "::",
