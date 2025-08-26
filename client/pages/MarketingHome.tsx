@@ -75,7 +75,7 @@ export default function MarketingHome() {
     },
     {
       icon: <BarChart3 className="h-8 w-8 text-orange-600" />,
-      title: "数据驱动决策",
+      title: "���据驱动决策",
       description: "基于大数据分析的营销决策支持系统",
       benefits: ["趋势预测", "策略推荐", "A/B测试"]
     },
@@ -102,11 +102,11 @@ export default function MarketingHome() {
     },
     {
       title: "内容营销",
-      description: "用户兴趣分析、内容推荐���阅读行为优化",
+      description: "用户兴趣分析、内容推荐、阅读行为优化",
       scenarios: ["内容个性化推送", "阅读习惯分析", "用户兴趣建模"]
     },
     {
-      title: "金融营销",
+      title: "金���营销",
       description: "风险评估、产品推荐、客户生命周期管理",
       scenarios: ["智能产品推荐", "风险用户识别", "客户价值分析"]
     }
@@ -125,15 +125,29 @@ export default function MarketingHome() {
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <Link to="/auth">
-                <Button variant="ghost">登录</Button>
-              </Link>
-              <Link to="/auth">
-                <Button className="bg-blue-600 hover:bg-blue-700">
-                  免费试用
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
+              {currentUser && isPreviewMode ? (
+                // 已登录用户在预览模式下的选项
+                <>
+                  <span className="text-sm text-gray-600">您好, {currentUser.username}</span>
+                  <Button onClick={() => navigate("/dashboard")} className="bg-blue-600 hover:bg-blue-700">
+                    进入仪表盘
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </>
+              ) : (
+                // 未登录用户的选项
+                <>
+                  <Link to="/auth">
+                    <Button variant="ghost">登录</Button>
+                  </Link>
+                  <Link to="/auth">
+                    <Button className="bg-blue-600 hover:bg-blue-700">
+                      免费试用
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>
