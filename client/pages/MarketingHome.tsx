@@ -23,17 +23,21 @@ import { authService } from "@/services/authService";
 
 export default function MarketingHome() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [currentUser, setCurrentUser] = useState(authService.getCurrentUser());
 
+  // 检查是否是预览模式
+  const isPreviewMode = searchParams.get("preview") === "true";
+
   useEffect(() => {
-    // 如果已登录，自动跳转到仪表盘
-    if (currentUser) {
+    // 只有在非预览模式下，且已登录时，才跳转到仪表盘
+    if (currentUser && !isPreviewMode) {
       navigate("/dashboard");
     }
-  }, [currentUser, navigate]);
+  }, [currentUser, navigate, isPreviewMode]);
 
-  // 如果已登录，显示加载状态
-  if (currentUser) {
+  // 如果已登录且不是预览模式，显示加载状态
+  if (currentUser && !isPreviewMode) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
         <div className="text-center">
@@ -98,13 +102,13 @@ export default function MarketingHome() {
     },
     {
       title: "内容营销",
-      description: "用户兴趣分析、内容推荐、阅读行为优化",
+      description: "用户兴趣分析、内容推荐���阅读行为优化",
       scenarios: ["内容个性化推送", "阅读习惯分析", "用户兴趣建模"]
     },
     {
       title: "金融营销",
       description: "风险评估、产品推荐、客户生命周期管理",
-      scenarios: ["智能产品推荐", "风险用户识别", "���户价值分析"]
+      scenarios: ["智能产品推荐", "风险用户识别", "客户价值分析"]
     }
   ];
 
@@ -346,7 +350,7 @@ export default function MarketingHome() {
               <h3 className="text-lg font-semibold mb-4">联系我们</h3>
               <ul className="space-y-2 text-gray-400">
                 <li>技术支持</li>
-                <li>��售咨询</li>
+                <li>销售咨询</li>
                 <li>合作伙伴</li>
                 <li>API文档</li>
               </ul>
