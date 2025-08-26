@@ -119,62 +119,7 @@ export default function MarketingHome() {
   return (
     <div className="min-h-screen bg-white">
       {/* 导航栏 */}
-      <nav className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <div className="flex-shrink-0 flex items-center">
-                <Bot className="h-8 w-8 text-blue-600" />
-                <span className="ml-2 text-xl font-bold text-gray-900">AI营销平台</span>
-              </div>
-            </div>
-            <div className="flex items-center space-x-8">
-              {/* 产品特色下拉菜单 */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="flex items-center gap-1">
-                    产品特色
-                    <ChevronDown className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
-                  <DropdownMenuItem asChild>
-                    <Link to="/features/ai-marketing" className="flex items-center gap-2 w-full">
-                      <Bot className="h-4 w-4 text-blue-600" />
-                      AI智能营销
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link to="/features/user-profiling" className="flex items-center gap-2 w-full">
-                      <Users className="h-4 w-4 text-green-600" />
-                      用户画像分析
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link to="/features/real-time-monitoring" className="flex items-center gap-2 w-full">
-                      <Activity className="h-4 w-4 text-purple-600" />
-                      实时监控中心
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link to="/features/effect-tracking" className="flex items-center gap-2 w-full">
-                      <Target className="h-4 w-4 text-red-600" />
-                      效果追踪
-                    </Link>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-
-              <Link to="/auth">
-                <Button className="bg-blue-600 hover:bg-blue-700">
-                  登录注册
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <MarketingNav />
 
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-blue-50 to-indigo-100 py-20">
@@ -410,7 +355,7 @@ export default function MarketingHome() {
             </div>
           </div>
           <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>© 2024 AI营销平台. 保留所有权利.</p>
+            <p>© 2024 AI营销平台. ���留所有权利.</p>
           </div>
         </div>
       </footer>
