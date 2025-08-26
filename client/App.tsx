@@ -45,7 +45,7 @@ import MarketingHome from "./pages/MarketingHome";
 import PageLoader from "./components/PageLoader";
 
 // 懒加载特色页面以提升性能
-const AIMarketingFeature = React.lazy(() => import("./pages/features/AIMarketing"));
+const AIMarketingFeature = React.lazy(() => import("./pages/features/AIMarketingOptimized"));
 const UserProfilingFeature = React.lazy(() => import("./pages/features/UserProfiling"));
 const RealTimeMonitoringFeature = React.lazy(() => import("./pages/features/RealTimeMonitoring"));
 const EffectTrackingFeature = React.lazy(() => import("./pages/features/EffectTrackingOptimized"));
