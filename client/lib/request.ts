@@ -148,7 +148,7 @@ class RequestManager {
                   }
                 })
                 .catch(() => {
-                  // 静默处理异步错误
+                  // 静默处理异步错���
                 });
             }
           }
@@ -362,7 +362,7 @@ export class Request {
               );
             }
 
-            // 尝试解析为 JSON（可能是没有正确设置 content-type 的 JSON）
+            // 尝试解析为 JSON（��能是没有正确设置 content-type 的 JSON）
             try {
               data = JSON.parse(textContent);
             } catch (jsonError) {
@@ -467,7 +467,6 @@ export class Request {
 
     // 在开发环境中，对于特定的API路径，直接返回mock响应避免超时
     if (
-      false &&
       process.env.NODE_ENV === "development" &&
       (window.location.hostname === "localhost" ||
         window.location.hostname.includes("fly.dev")) &&
@@ -488,7 +487,7 @@ export class Request {
             aiStrategyConfig: JSON.stringify({
               defaultAIConfig: {
                 description:
-                  "AI会根据用户画像、购物车商品等信息，自主生成最合适的挽留或激励文案",
+                  "AI会根据用户画像、购物��商品等信息，自主生成最合适的挽留或激励文案",
                 strategySummary:
                   "在用户犹豫或准备离开时进行精准挽留，提升订单转化率。",
                 coreStrategies: ["网页弹窗", "智能延���", "个性化生成"],
