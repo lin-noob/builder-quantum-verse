@@ -25,29 +25,29 @@ const PerformanceTrend: React.FC<PerformanceTrendProps> = ({
   const { selectedMetrics, chartData } = useMemo(() => {
     // 构建指标映射，避免重复查找 O(1)查找性能
     const metricMap = new Map(metrics.map(m => [m.id, m]));
-
+    
     // 过滤可用的指标
     const defaultMetrics = ["totalRevenue", "totalOrders", "totalUsers", "avgOrderValue"];
     const availableMetrics = defaultMetrics.filter(id => metricMap.has(id));
-
+    
     // 如果没有可用指标，返回空数据
     if (availableMetrics.length === 0) {
       return { selectedMetrics: availableMetrics, chartData: [] };
     }
-
+    
     // 获取第一个指标的数据长度作为基准
     const firstMetric = metricMap.get(availableMetrics[0]);
     if (!firstMetric?.data) {
       return { selectedMetrics: availableMetrics, chartData: [] };
     }
-
+    
     // 高效数据组装 - 单次遍历，使用Map直接查找
     const data = firstMetric.data.map((dataPoint, index) => {
-      const point: any = {
-        label: dataPoint.label,
-        date: dataPoint.date
+      const point: any = { 
+        label: dataPoint.label, 
+        date: dataPoint.date 
       };
-
+      
       // 使用Map直接查找，避免重复find操作
       for (const metricId of availableMetrics) {
         const metric = metricMap.get(metricId);
@@ -55,79 +55,32 @@ const PerformanceTrend: React.FC<PerformanceTrendProps> = ({
           point[metricId] = metric.data[index].value;
         }
       }
-
+      
       return point;
     });
-
+    
     return { selectedMetrics: availableMetrics, chartData: data };
   }, [metrics]); // 仅依赖metrics，避免其他不必要的重计算
 
-  console.log("Available metrics:", availableMetricIds);
-  console.log("Selected metrics:", selectedMetrics);
+  // 🎨 图表颜色配置
+  const colors = ["#3b82f6", "#ef4444", "#10b981", "#f59e0b"];
 
-  const colors = ["#3b82f6", "#ef4444", "#10b981", "#f59e0b", "#8b5cf6"];
-
+  // 📊 时间轴配置
   const getXAxisDataKey = () => {
-    if (dateRange === "7days" || dateRange === "30days") {
-      return "label"; // 显示具体日期
+    switch (dateRange) {
+      case "7days":
+      case "30days":
+        return "date";
+      case "3months":
+      case "6months":
+      case "1year":
+        return "label";
+      default:
+        return "label";
     }
-    return "label"; // 默认显示label
   };
 
-  // 定义数据类型分组，相似的数据类型使用同一个Y轴
-  const getMetricGroup = (metricId: string) => {
-    if (metricId === "totalRevenue" || metricId === "avgOrderValue")
-      return "revenue"; // 金额类
-    if (metricId === "totalOrders" || metricId === "totalUsers") return "count"; // 数量类
-    return metricId; // 其他独立分组
-  };
-
-  // Combine data from all selected metrics
-  const chartData = useMemo(() => {
-    console.log("=== Chart Data Generation ===");
-    console.log("metrics:", metrics);
-    console.log("selectedMetrics:", selectedMetrics);
-
-    if (!metrics || metrics.length === 0) {
-      console.log("No metrics available");
-      return [];
-    }
-
-    if (selectedMetrics.length === 0) {
-      console.log("No selected metrics, returning empty array");
-      return [];
-    }
-
-    const firstMetric = metrics.find((m) => m.id === selectedMetrics[0]);
-    if (!firstMetric || !firstMetric.data) {
-      console.log("First metric not found or has no data:", selectedMetrics[0]);
-      return [];
-    }
-
-    console.log("First metric data length:", firstMetric.data.length);
-
-    const result = firstMetric.data.map((dataPoint, index) => {
-      const resultPoint: any = {
-        label: dataPoint.label,
-        date: dataPoint.date,
-      };
-
-      selectedMetrics.forEach((metricId) => {
-        const metric = metrics.find((m) => m.id === metricId);
-        if (metric && metric.data && metric.data[index]) {
-          resultPoint[metricId] = metric.data[index].value;
-        }
-      });
-
-      return resultPoint;
-    });
-
-    console.log("Generated chart data length:", result.length);
-    console.log("First data point:", result[0]);
-    return result;
-  }, [metrics, selectedMetrics]);
-
-  // 🎯 优化的格式化函数
+  // 🎯 格式化函数
   const formatValue = (value: number, metricId: string) => {
     if (metricId === "totalRevenue") {
       return `¥${value.toLocaleString()}`;
@@ -142,24 +95,6 @@ const PerformanceTrend: React.FC<PerformanceTrendProps> = ({
       return `${value.toLocaleString()} 人`;
     }
     return value.toLocaleString();
-  };
-
-  // 🎨 优化的图表颜色配置
-  const colors = ["#3b82f6", "#ef4444", "#10b981", "#f59e0b"];
-
-  // 📊 优化的时间轴配置
-  const getXAxisDataKey = () => {
-    switch (dateRange) {
-      case "7days":
-      case "30days":
-        return "date";
-      case "3months":
-      case "6months":
-      case "1year":
-        return "label";
-      default:
-        return "label";
-    }
   };
 
   const CustomTooltip = ({ active, payload, label }: any) => {
@@ -199,7 +134,7 @@ const PerformanceTrend: React.FC<PerformanceTrendProps> = ({
     <Card className="bg-white border border-gray-200">
       <CardHeader>
         <CardTitle className="text-lg font-semibold text-gray-900">
-          业绩走��
+          业绩走势
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -275,7 +210,7 @@ const PerformanceTrend: React.FC<PerformanceTrendProps> = ({
                     const metric = metrics.find((m) => m.id === metricId);
                     if (!metric) return null;
 
-                    // 根据���标类型选择Y轴
+                    // 根据指标类型选择Y轴
                     const yAxisId = (metricId === 'totalRevenue' || metricId === 'avgOrderValue')
                       ? 'left'
                       : 'right';
