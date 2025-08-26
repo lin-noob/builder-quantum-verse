@@ -122,11 +122,8 @@ export default function MarketingHome() {
             </div>
             <div className="flex items-center space-x-4">
               <Link to="/auth">
-                <Button variant="ghost">登录</Button>
-              </Link>
-              <Link to="/auth">
                 <Button className="bg-blue-600 hover:bg-blue-700">
-                  免费试用
+                  登录注册
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
@@ -276,14 +273,14 @@ export default function MarketingHome() {
               },
               {
                 step: "02", 
-                title: "智能配置",
+                title: "智���配置",
                 description: "配置营销场景，AI自动生成个性化营销策略",
                 icon: <Brain className="h-8 w-8" />
               },
               {
                 step: "03",
                 title: "效果优化",
-                description: "实时监控��果，AI持续优化营销策略",
+                description: "实时监控效果，AI持续优化营销策略",
                 icon: <TrendingUp className="h-8 w-8" />
               }
             ].map((item, index) => (
@@ -337,7 +334,7 @@ export default function MarketingHome() {
                 <span className="ml-2 text-xl font-bold">AI营销平台</span>
               </div>
               <p className="text-gray-400">
-                专业的AI驱动营销解决方案，助力企业实现营销效果的指数级提升。
+                专业的AI驱动营销解决方案，��力企业实现营销效果的指数级提升。
               </p>
             </div>
             <div>
