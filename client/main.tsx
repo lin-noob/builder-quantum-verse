@@ -9,7 +9,8 @@ import { setupGlobalErrorHandler } from "./lib/errorHandler";
 // Add final layer of Recharts warning suppression
 if (process.env.NODE_ENV === "development") {
   const originalConsoleWarn = console.warn;
-  console.warn = (...args: any[]) => {
+
+  const warningInterceptor = (...args: any[]) => {
     // Enhanced check for React's specific warning format
     if (args.length >= 2) {
       const firstArg = String(args[0] || "");
@@ -47,6 +48,22 @@ if (process.env.NODE_ENV === "development") {
     // Allow all other warnings
     originalConsoleWarn.apply(console, args);
   };
+
+  // Safe console override with error handling for read-only properties
+  try {
+    Object.defineProperty(console, 'warn', {
+      value: warningInterceptor,
+      writable: true,
+      configurable: true,
+    });
+  } catch (e) {
+    try {
+      console.warn = warningInterceptor;
+    } catch (e2) {
+      // Console warn can't be overridden in this environment
+      console.debug('Could not override console.warn for Recharts suppression');
+    }
+  }
 }
 
 // Initialize global error handler
