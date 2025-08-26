@@ -139,28 +139,18 @@ export default function Dashboard2() {
     { name: "户外运动", value: 280000, percentage: 32 },
     { name: "图书音像", value: 150000, percentage: 17 },
     { name: "家居生活", value: 80000, percentage: 9 },
-    { name: "服饰鞋包", value: 20000, percentage: 2 },
+    { name: "��饰鞋包", value: 20000, percentage: 2 },
   ];
 
   return (
     <div className="min-h-screen bg-slate-100 font-[Inter]">
       <div className="p-6 space-y-8">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-slate-900">战略业务洞察</h1>
-            <p className="text-slate-500 mt-1">
-              从宏观业绩到微观洞察，全面掌握您的用户与业务脉搏。
-            </p>
-          </div>
-          <div className="mt-4 sm:mt-0">
-            <input
-              type="text"
-              value="2025-07-11 - 2025-08-09"
-              readOnly
-              className="bg-white border border-slate-300 text-slate-700 text-sm rounded-lg focus:ring-sky-500 focus:border-sky-500 block w-full sm:w-64 p-2.5"
-            />
-          </div>
+        <div>
+          <h1 className="text-3xl font-bold text-slate-900">战略业务洞察</h1>
+          <p className="text-slate-500 mt-1">
+            从宏观业绩到微观洞察，全面掌握您的用户与业务脉搏。
+          </p>
         </div>
 
         {/* Core Performance Overview */}
