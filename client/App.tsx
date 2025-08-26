@@ -42,6 +42,10 @@ import PersonalSettings from "./pages/Account/PersonalSettings";
 import { usePageRequestManager } from "./hooks/useRequestManager";
 import AdminApp from "./admin/AdminApp";
 import MarketingHome from "./pages/MarketingHome";
+import AIMarketing from "./pages/features/AIMarketing";
+import UserProfiling from "./pages/features/UserProfiling";
+import RealTimeMonitoring from "./pages/features/RealTimeMonitoring";
+import EffectTracking from "./pages/features/EffectTracking";
 
 const queryClient = new QueryClient();
 
@@ -60,7 +64,7 @@ const AppWithRequestManager = () => {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
 
-          {/* 管理后台路由 - 独立路由，不使��Layout */}
+          {/* 管理后台路由 - 独立路由，不使用Layout */}
           <Route path="/admin/*" element={<AdminApp />} />
 
           {/* 营销推广主页 */}
