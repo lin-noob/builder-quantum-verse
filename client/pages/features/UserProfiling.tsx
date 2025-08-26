@@ -293,7 +293,7 @@ export default function UserProfiling() {
                 立即开始分析
               </Button>
             </Link>
-            <Button size="lg" className="bg-white text-green-600 border-2 border-white hover:bg-green-50 hover:text-green-700 text-lg px-8 py-4 font-bold shadow-lg">
+            <Button size="lg" className="bg-white text-green-600 hover:bg-green-50 hover:text-green-700 text-lg px-8 py-4 font-bold shadow-lg">
               预约产品演示
             </Button>
           </div>
