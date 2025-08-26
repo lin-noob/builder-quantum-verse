@@ -148,7 +148,7 @@ class RequestManager {
                   }
                 })
                 .catch(() => {
-                  // 静默处理异步错���
+                  // 静默处理异步错误
                 });
             }
           }
@@ -358,11 +358,11 @@ export class Request {
               }
 
               throw new Error(
-                `API返回了HTML页面而不是期望的JSON数据。请检查API端点是否正确配置。`,
+                `API返回了HTML页面而不���期望的JSON数据。请检查API端点是否正确配置。`,
               );
             }
 
-            // 尝试解析为 JSON（��能是没有正确设置 content-type 的 JSON）
+            // 尝试解析为 JSON（可能是没有正确设置 content-type 的 JSON）
             try {
               data = JSON.parse(textContent);
             } catch (jsonError) {
@@ -487,7 +487,7 @@ export class Request {
             aiStrategyConfig: JSON.stringify({
               defaultAIConfig: {
                 description:
-                  "AI会根据用户画像、购物��商品等信息，自主生成最合适的挽留或激励文案",
+                  "AI会根据用户画像、购物车商品等信息，自主生成最合适的挽留或激励文案",
                 strategySummary:
                   "在用户犹豫或准备离开时进行精准挽留，提升订单转化率。",
                 coreStrategies: ["网页弹窗", "智能延���", "个性化生成"],
@@ -547,7 +547,7 @@ export class Request {
         return { data: mockScenarios, status: 200, statusText: "OK" } as any;
       }
 
-      // 为营销场景详情API提供mock数据
+      // 为���销场景详情API提供mock数据
       if (url.includes("/quote/api/v1/scene/view/")) {
         const scenarioId = url.split("/").pop();
         console.log(`Mock scenario detail API for: ${scenarioId}`);
@@ -668,6 +668,42 @@ export class Request {
         console.log("Mock scene update API called with data:", data);
         return {
           data: { success: true },
+          status: 200,
+          statusText: "OK",
+        } as any;
+      }
+
+      // 为用户档案列表API提供mock数据
+      if (url.includes("/quote/api/v1/profile/list")) {
+        console.log("Mock profile list API called");
+        const mockProfiles = [
+          {
+            id: "user_001",
+            name: "张三",
+            email: "zhangsan@example.com",
+            phone: "13888888888",
+            status: "active",
+            createTime: "2024-01-15T10:30:00Z",
+            lastLoginTime: "2024-01-20T14:20:00Z",
+          },
+          {
+            id: "user_002",
+            name: "李四",
+            email: "lisi@example.com",
+            phone: "13999999999",
+            status: "inactive",
+            createTime: "2024-01-10T09:15:00Z",
+            lastLoginTime: "2024-01-18T11:45:00Z",
+          },
+        ];
+
+        return {
+          data: {
+            list: mockProfiles,
+            total: mockProfiles.length,
+            page: 1,
+            pageSize: 10,
+          },
           status: 200,
           statusText: "OK",
         } as any;
