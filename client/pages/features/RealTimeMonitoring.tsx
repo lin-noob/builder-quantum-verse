@@ -59,7 +59,7 @@ export default function RealTimeMonitoring() {
     },
     {
       category: "业务运营指标",
-      metrics: ["订单量", "收入", "客单价", "复购率"]
+      metrics: ["订单量", "收入", "客���价", "复购率"]
     }
   ];
 
@@ -326,7 +326,7 @@ export default function RealTimeMonitoring() {
                 立即开始监控
               </Button>
             </Link>
-            <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-purple-600 text-lg px-8 py-4">
+            <Button size="lg" className="bg-white text-purple-600 border-2 border-white hover:bg-purple-50 hover:text-purple-700 text-lg px-8 py-4 font-bold shadow-lg">
               查看监控演示
             </Button>
           </div>

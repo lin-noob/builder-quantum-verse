@@ -20,7 +20,7 @@ export default function AIMarketing() {
     {
       icon: <Brain className="h-8 w-8 text-blue-600" />,
       title: "智能内容生成",
-      description: "基于用户画像和行为数据，AI自动生成个性化营销文案、邮件内容和推荐策略",
+      description: "基于用户画像和行为数据，AI自动生成个性化营销文案、邮件内容和推荐��略",
       benefits: ["自然语言处理", "个性化文案", "多语言支持", "品牌语调适配"]
     },
     {
@@ -232,7 +232,7 @@ export default function AIMarketing() {
                 立即开始体验
               </Button>
             </Link>
-            <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-blue-600 text-lg px-8 py-4">
+            <Button size="lg" className="bg-white text-blue-600 border-2 border-white hover:bg-blue-50 hover:text-blue-700 text-lg px-8 py-4 font-bold shadow-lg">
               联系专家咨询
             </Button>
           </div>

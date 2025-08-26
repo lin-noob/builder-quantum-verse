@@ -38,7 +38,7 @@ export default function UserProfiling() {
     },
     {
       icon: <Search className="h-8 w-8 text-orange-600" />,
-      title: "实时画像更新",
+      title: "实时画像更���",
       description: "实时捕获用户行为变化，动态更新用户画像，确保洞察的时效性和准确性",
       benefits: ["实时数据采集", "增量计算更新", "异常行为监测", "���像准确性验证"]
     }
@@ -77,7 +77,7 @@ export default function UserProfiling() {
     {
       title: "用户运营",
       description: "制定差异化的用户运营和服务策略", 
-      metrics: "用户满意度提升30%"
+      metrics: "用户满���度提升30%"
     },
     {
       title: "产品优化",
@@ -293,7 +293,7 @@ export default function UserProfiling() {
                 立即开始分析
               </Button>
             </Link>
-            <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-green-600 text-lg px-8 py-4">
+            <Button size="lg" className="bg-white text-green-600 border-2 border-white hover:bg-green-50 hover:text-green-700 text-lg px-8 py-4 font-bold shadow-lg">
               预约产品演示
             </Button>
           </div>
