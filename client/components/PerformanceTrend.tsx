@@ -1,4 +1,4 @@
-import { useMemo, useEffect } from "react";
+import React, { useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   LineChart,
@@ -11,93 +11,56 @@ import {
 } from "recharts";
 import { type PerformanceMetric } from "@shared/dashboardData";
 
-// Targeted warning suppression for this component
-const suppressRechartsWarnings = () => {
-  if (typeof console !== 'undefined' && process.env.NODE_ENV === 'development') {
-    const originalWarn = console.warn;
-    const originalError = console.error;
-
-    const shouldSuppress = (...args: any[]) => {
-      const message = args.join(' ').toLowerCase();
-      return message.includes('defaultprops') && (
-        message.includes('xaxis') ||
-        message.includes('yaxis') ||
-        message.includes('recharts')
-      );
-    };
-
-    // Safe console override with error handling for read-only properties
-    try {
-      Object.defineProperty(console, 'warn', {
-        value: (...args: any[]) => {
-          if (!shouldSuppress(...args)) {
-            originalWarn.apply(console, args);
-          }
-        },
-        writable: true,
-        configurable: true,
-      });
-    } catch (e) {
-      try {
-        console.warn = (...args: any[]) => {
-          if (!shouldSuppress(...args)) {
-            originalWarn.apply(console, args);
-          }
-        };
-      } catch (e2) {
-        // Console warn can't be overridden
-      }
-    }
-
-    try {
-      Object.defineProperty(console, 'error', {
-        value: (...args: any[]) => {
-          if (!shouldSuppress(...args)) {
-            originalError.apply(console, args);
-          }
-        },
-        writable: true,
-        configurable: true,
-      });
-    } catch (e) {
-      try {
-        console.error = (...args: any[]) => {
-          if (!shouldSuppress(...args)) {
-            originalError.apply(console, args);
-          }
-        };
-      } catch (e2) {
-        // Console error can't be overridden
-      }
-    }
-  }
-};
-
 interface PerformanceTrendProps {
   metrics: PerformanceMetric[];
   dateRange?: string;
 }
 
-export default function PerformanceTrend({
+// 🚀 优化的PerformanceTrend组件 - 移除性能瓶颈
+const PerformanceTrend: React.FC<PerformanceTrendProps> = ({
   metrics,
   dateRange = "30days",
-}: PerformanceTrendProps) {
-  // Apply warning suppression when component mounts
-  useEffect(() => {
-    suppressRechartsWarnings();
-  }, []);
+}) => {
+  // 🎯 单一useMemo优化 - 避免重复计算和多次依赖更新
+  const { selectedMetrics, chartData } = useMemo(() => {
+    // 构建指标映射，避免重复查找 O(1)查找性能
+    const metricMap = new Map(metrics.map(m => [m.id, m]));
 
-  // Debug: log the received metrics
-  console.log("PerformanceTrend received metrics:", metrics);
+    // 过滤可用的指标
+    const defaultMetrics = ["totalRevenue", "totalOrders", "totalUsers", "avgOrderValue"];
+    const availableMetrics = defaultMetrics.filter(id => metricMap.has(id));
 
-  // Filter selectedMetrics to only include metrics that actually exist in the data
-  const availableMetricIds = metrics.map((m) => m.id);
-  const selectedMetrics = [
-    "totalRevenue",
-    "totalOrders",
-    "totalUsers",
-    "avgOrderValue",
-  ].filter((id) => availableMetricIds.includes(id));
+    // 如果没有可用指标，返回空数据
+    if (availableMetrics.length === 0) {
+      return { selectedMetrics: availableMetrics, chartData: [] };
+    }
+
+    // 获取第一个指标的数据长度作为基准
+    const firstMetric = metricMap.get(availableMetrics[0]);
+    if (!firstMetric?.data) {
+      return { selectedMetrics: availableMetrics, chartData: [] };
+    }
+
+    // 高效数据组装 - 单次遍历，使用Map直接查找
+    const data = firstMetric.data.map((dataPoint, index) => {
+      const point: any = {
+        label: dataPoint.label,
+        date: dataPoint.date
+      };
+
+      // 使用Map直接查找，避免重复find操作
+      for (const metricId of availableMetrics) {
+        const metric = metricMap.get(metricId);
+        if (metric?.data?.[index]) {
+          point[metricId] = metric.data[index].value;
+        }
+      }
+
+      return point;
+    });
+
+    return { selectedMetrics: availableMetrics, chartData: data };
+  }, [metrics]); // 仅依赖metrics，避免其他不必要的重计算
 
   console.log("Available metrics:", availableMetricIds);
   console.log("Selected metrics:", selectedMetrics);
