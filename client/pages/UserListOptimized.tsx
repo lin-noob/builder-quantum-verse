@@ -53,12 +53,12 @@ export default function UserListOptimized() {
   const [totalCount, setTotalCount] = useState(0);
   const itemsPerPage = 10;
 
-  // 🚀 优化后的获取用户数据函数 - 快速加载，避免API延迟
+  // 🚀 超快响应数据加载 - 即时返回结果
   const fetchUsers = useCallback(async () => {
     setLoading(true);
-    
+
     try {
-      // 优先使用模拟数据，提供即时响应
+      // 使用模拟数据提供即时响应，无任何延迟
       const mockResponse = await MockDataService.getUsers({
         page: currentPage,
         pageSize: itemsPerPage,
@@ -66,13 +66,10 @@ export default function UserListOptimized() {
         sortField: sortConfig.field || undefined,
         sortDirection: sortConfig.direction
       });
-      
+
       setUsers(mockResponse.users);
       setTotalCount(mockResponse.total);
-      
-      // 可选：在后台尝试获取真实API数据（如果需要）
-      // 这里可以添加后台API调用逻辑，但不阻塞UI渲染
-      
+
     } catch (error) {
       console.warn("数据加载失败:", error);
       setUsers([]);

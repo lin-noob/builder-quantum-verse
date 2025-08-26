@@ -16,7 +16,7 @@ export interface MockUser {
 // 生成模拟用户数据
 const generateMockUsers = (count: number): MockUser[] => {
   const companies = ["华为技术", "腾讯科技", "百度科技", "阿里巴巴", "小米科技", "字节跳动"];
-  const names = ["刘涛", "张伟", "王芳", "李明", "赵静", "陈涛"];
+  const names = ["刘涛", "张伟", "王芳", "李明", "赵��", "陈涛"];
   
   return Array.from({ length: count }, (_, index) => {
     const now = new Date();
@@ -42,11 +42,11 @@ const generateMockUsers = (count: number): MockUser[] => {
 export class MockDataService {
   private static users: MockUser[] = generateMockUsers(50);
   
-  // 模拟API延迟，但比真实API快得多
-  private static delay(ms: number = 100) {
+  // 立即响应，无延迟 - 最佳性能
+  private static delay(ms: number = 0) {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
-  
+
   static async getUsers(params: {
     page?: number;
     pageSize?: number;
@@ -54,7 +54,7 @@ export class MockDataService {
     sortField?: string;
     sortDirection?: "asc" | "desc";
   } = {}): Promise<{ users: MockUser[]; total: number }> {
-    await this.delay(100); // 100ms模拟网络延迟
+    // 移除延迟，提供即时响应
     
     let filteredUsers = [...this.users];
     
