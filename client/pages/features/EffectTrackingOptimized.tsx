@@ -17,7 +17,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import MarketingNav from "@/components/MarketingNav";
 import FeatureCard from "@/components/FeatureCard";
-import LazySection from "@/components/LazySection";
 
 // 抽取英雄区域组件
 const HeroSection = React.memo(() => (
@@ -74,7 +73,7 @@ const features = [
   },
   {
     icon: <PieChart className="h-8 w-8 text-orange-600" />,
-    title: "多维度报表",
+    title: "多维度报���",
     description: "提供丰富的可视化报表，支持自定义维度分析和数据深度钻取",
     benefits: ["可视化报表", "自定义维度", "数据钻取分析", "定时报告推送"]
   }
@@ -153,8 +152,8 @@ export default function EffectTrackingOptimized() {
       {/* 核心功能 - 立即加载 */}
       <CoreFeaturesSection />
 
-      {/* 其他内容 - 延迟加载 */}
-      <LazySection className="py-20 bg-gray-50">
+      {/* 技术架构 */}
+      <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">技术架构</h2>
@@ -195,7 +194,7 @@ export default function EffectTrackingOptimized() {
             </div>
           </div>
         </div>
-      </LazySection>
+      </section>
 
       {/* CTA区域 */}
       <AdvantagesSection />
