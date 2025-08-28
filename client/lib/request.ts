@@ -1,3 +1,4 @@
+import { useAuthStore } from "@/stores";
 import { ErrorHandler } from "./errorHandler";
 
 /**
@@ -408,6 +409,24 @@ export class Request {
       throw new Error(`响应解析失败 (${responseType}): ${errorMessage}`);
     }
 
+    // 检查是否是业务API且响应类型为JSON
+    if (responseType === "json" && data && typeof data === "object") {
+      // 检查业务状态码
+      if ("code" in data) {
+        const businessCode = String(data.code);
+        // 如果业务状态码不是 200 或 201，则抛出错误
+        if (businessCode !== "200" && businessCode !== "201") {
+          const errorMsg = data.msg || `业务请求失败，状态码: ${businessCode}`;
+          throw new RequestError(
+            errorMsg,
+            parseInt(businessCode) || 400,
+            errorMsg,
+            response,
+          );
+        }
+      }
+    }
+
     return {
       data,
       status: response.status,
@@ -460,7 +479,7 @@ export class Request {
       data,
       params,
       headers = {},
-      timeout = this.defaultConfig.timeout || 30000, // 增��超时��间到30秒
+      timeout = this.defaultConfig.timeout || 30000, // 增加超时时间到30秒
       credentials = this.defaultConfig.credentials,
       responseType = "json",
     } = config;
@@ -724,7 +743,8 @@ export class Request {
 
       fullURL = this.buildURL(url, params);
       requestId = `${method}_${fullURL}_${Date.now()}`;
-      const mergedHeaders = { ...this.defaultConfig.headers, ...headers };
+      const jsessionid = localStorage.getItem("auth_session") ?? undefined;
+      const mergedHeaders = { ...this.defaultConfig.headers, ...headers, jsessionid };
       const { body, headers: finalHeaders } = this.processRequestData(
         data,
         mergedHeaders,
@@ -1002,6 +1022,29 @@ export class Request {
   }
 
   /**
+   * 业务接口请求 - 支持自定义成功状态码
+   */
+  async businessRequestWithCodes<T = any>(
+    url: string,
+    successCodes: string[] = ["200", "0"],
+    options: RequestOptions = {},
+  ): Promise<BusinessApiResponse<T>> {
+    const response = await this.request<BusinessApiResponse<T>>(url, options);
+    const businessData = response.data;
+
+    // 根据业务码判断请求是否成功
+    if (!successCodes.includes(businessData.code)) {
+      throw new RequestError(
+        businessData.msg || "业务请求失败",
+        parseInt(businessData.code) || 400,
+        businessData.msg || "Business Error",
+      );
+    }
+
+    return businessData;
+  }
+
+  /**
    * 业务GET请求
    */
   async businessGet<T = any>(
@@ -1053,6 +1096,38 @@ export class Request {
     options?: Omit<RequestOptions, "method" | "data">,
   ): Promise<T> {
     return this.businessRequest<T>(url, { ...options, method: "PATCH", data });
+  }
+
+  /**
+   * 业务GET请求 - 支持自定义成功状态码
+   */
+  async businessGetWithCodes<T = any>(
+    url: string,
+    successCodes: string[] = ["200", "0"],
+    params?: Record<string, string | number | boolean>,
+    options?: Omit<RequestOptions, "method" | "data" | "params">,
+  ): Promise<BusinessApiResponse<T>> {
+    return this.businessRequestWithCodes<T>(url, successCodes, {
+      ...options,
+      method: "GET",
+      params,
+    });
+  }
+
+  /**
+   * 业务POST请求 - 支持自定义成功状态码
+   */
+  async businessPostWithCodes<T = any>(
+    url: string,
+    successCodes: string[] = ["200", "0"],
+    data?: RequestData,
+    options?: Omit<RequestOptions, "method" | "data">,
+  ): Promise<BusinessApiResponse<T>> {
+    return this.businessRequestWithCodes<T>(url, successCodes, {
+      ...options,
+      method: "POST",
+      data,
+    });
   }
 
   /**

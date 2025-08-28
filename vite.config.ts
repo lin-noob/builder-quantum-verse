@@ -20,7 +20,7 @@ export default defineConfig(({ mode }) => ({
   },
   server: {
     host: "::",
-    port: 8080,
+    port: 3008,
     fs: {
       allow: ["./client", "./shared"],
       deny: [".env", ".env.*", "*.{crt,pem}", "**/.git/**"],
@@ -71,30 +71,8 @@ export default defineConfig(({ mode }) => ({
           });
         },
       },
-      "/quote/api": {
-        target: "http://192.168.1.128:8099",
-        changeOrigin: true,
-        secure: false,
-        timeout: 10000,
-        configure: (proxy, _options) => {
-          proxy.on("error", (err, req, res) => {
-            console.error(`❌ Backend server unreachable: ${err.message}`);
-
-            // Send a proper error response
-            if (!res.headersSent) {
-              res.writeHead(503, { "Content-Type": "application/json" });
-              res.end(
-                JSON.stringify({
-                  error: "Backend server unavailable",
-                  message:
-                    "Could not connect to API server at 192.168.1.128:8099",
-                  code: "CONNECTION_FAILED",
-                }),
-              );
-            }
-          });
-        },
-      },
+      "/quote/api": "http://192.168.1.128:8099",
+      "/admin/api/": "http://192.168.1.128:8099",
     },
     allowedHosts: ["lt.eecart.com"],
   },

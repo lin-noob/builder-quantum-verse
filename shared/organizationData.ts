@@ -59,27 +59,20 @@ export interface Organization {
  */
 export interface Member {
   /** 成员ID - 成员的唯一标识符，主键 */
-  memberId: string;
-  /** 所属组织ID - 关联到具体的Organization */
-  organizationId: string;
+  id: string;
   /** 邮箱 - 成员用于登录的唯一邮箱地址 */
-  email: string;
-  /** 密码哈希 - 存储加密后的用户密码 */
-  passwordHash?: string;
-  /** 显示用的密码 - 仅用于界面显示，实际应用中不应存储明文密码 */
-  displayPassword?: string;
+  account: string;
   /** 姓名 - 成员的真实姓名或昵称 */
   name: string;
   /** 角色 - 定义成员的权限级别 */
-  role: MemberRole;
+  roleId: string;
   /** 账户状�� - 该成员的账户是否可以登录 */
-  accountStatus: AccountStatus;
+  status: number;
   /** 创建时间 - 该成员账户被创建的时间戳 */
-  createdAt: string;
+  createDate: string;
   /** 最后登录时间 - 记录成员最近一次成功登录的时间 */
-  lastLoginAt?: string | null;
-  /** 最后更新时间 */
-  updatedAt?: string;
+  losingEffect?: string | null;
+  lastlogintime?: string | null;
   /** 头像URL */
   avatar?: string;
   /** 电话号码 */

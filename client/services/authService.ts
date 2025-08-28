@@ -1,4 +1,6 @@
 import { emailService } from "./emailService";
+import { request } from "@/lib/request";
+import { useAuthStore } from "@/stores";
 
 // Simple authentication service for demo purposes
 interface User {
@@ -6,6 +8,11 @@ interface User {
   username: string;
   email: string;
   isAdmin: boolean;
+  session?: string;
+  account?: string;
+  usertype?: string;
+  companyid?: string;
+  lastlogintime?: number;
 }
 
 interface LoginCredentials {
@@ -24,67 +31,25 @@ class AuthService {
   private currentUser: User | null = null;
   private isAuthenticated = false;
 
-  // 默认管理员账号
-  private defaultAdmin = {
-    id: "admin-001",
-    username: "admin",
-    email: "admin",
-    password: "123456",
-    isAdmin: true,
-  };
-
+  
   constructor() {
     // 在初始化时自动设置默认登录状态
     this.initializeDefaultUser();
   }
 
   private initializeDefaultUser() {
-    try {
-      // 检查是否已有用户登录
-      const storedUser = localStorage.getItem("auth_user");
-      const storedToken = localStorage.getItem("auth_token");
-
-      if (storedUser && storedToken) {
-        // 如果已有用户登录，恢复用户状态
-        this.currentUser = JSON.parse(storedUser);
-        this.isAuthenticated = true;
-      } else {
-        // 如果没有用户登录，自动登录默认管理员
-        this.currentUser = {
-          id: this.defaultAdmin.id,
-          username: this.defaultAdmin.username,
-          email: this.defaultAdmin.email,
-          isAdmin: this.defaultAdmin.isAdmin,
-        };
-        this.isAuthenticated = true;
-
-        // 存储到 localStorage
-        localStorage.setItem("auth_user", JSON.stringify(this.currentUser));
-        localStorage.setItem("auth_token", "default_token_" + Date.now());
-      }
-    } catch (error) {
-      // 如果出错，设置默认用户
-      this.currentUser = {
-        id: this.defaultAdmin.id,
-        username: this.defaultAdmin.username,
-        email: this.defaultAdmin.email,
-        isAdmin: this.defaultAdmin.isAdmin,
-      };
+    // 检查 Zustand store 中是否已有用户
+    const { user, isAuthenticated } = useAuthStore.getState();
+    
+    if (user && isAuthenticated) {
+      // 如果 store 中已有用户，恢复用户状态
+      this.currentUser = user;
       this.isAuthenticated = true;
-
-      localStorage.setItem("auth_user", JSON.stringify(this.currentUser));
-      localStorage.setItem("auth_token", "default_token_" + Date.now());
     }
+    // 不再自动登录默认用户，让用户手动登录
   }
 
-  // 模拟用户数据库
-  private users: Array<{
-    id: string;
-    username: string;
-    email: string;
-    password: string;
-    isAdmin: boolean;
-  }> = [this.defaultAdmin];
+  // 用户数据现在由后端管理，前端不再维护本地用户列表
 
   // 模拟验证码存储
   private verificationCodes: Map<
@@ -96,41 +61,51 @@ class AuthService {
     }
   > = new Map();
 
+  // 设置当前用户（用于外部认证，如谷歌登录）
+  setCurrentUser(user: User | null): void {
+    this.currentUser = user;
+    this.isAuthenticated = !!user;
+  }
+
   // 登录
   async login(
     credentials: LoginCredentials,
   ): Promise<{ success: boolean; user?: User; error?: string }> {
     try {
-      // 查找用户
-      const user = this.users.find(
-        (u) =>
-          u.email === credentials.email || u.username === credentials.email,
-      );
-
-      if (!user) {
-        return { success: false, error: "该邮箱未注册账户" };
-      }
-
-      if (user.password !== credentials.password) {
-        return { success: false, error: "邮箱或密码错误，请重新输入" };
-      }
-
-      // 登录成功
-      this.currentUser = {
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        isAdmin: user.isAdmin,
+      // 创建JSON数据对象
+      const loginData = {
+        account: credentials.email, // 账号（邮箱或用户名）
+        password: credentials.password // 密码
       };
+
+      // 使用统一的请求工具类调用真实API
+      const response = await request.post(
+        "/admin/api/v1/auth/login", 
+        loginData
+      );
+      const responseData = response.data;
+      
+      const userInfo = responseData.data;
+      
+      // 创建用户对象
+      const user: User = {
+        id: userInfo.id,
+        username: userInfo.account,
+        email: userInfo.account,
+        isAdmin: userInfo.usertype === "manager",
+        session: userInfo.session,
+        account: userInfo.account,
+        usertype: userInfo.usertype,
+        companyid: userInfo.companyid,
+        lastlogintime: userInfo.lastlogintime
+      };
+      
+      this.currentUser = user;
       this.isAuthenticated = true;
 
-      // 存储到 localStorage
-      localStorage.setItem("auth_user", JSON.stringify(this.currentUser));
-      localStorage.setItem("auth_token", "mock_token_" + Date.now());
-
       return { success: true, user: this.currentUser };
-    } catch (error) {
-      return { success: false, error: "登录失败，请重试" };
+    } catch (error: any) {
+      return { success: false, error: error.message || "登录失败" };
     }
   }
 
@@ -139,51 +114,29 @@ class AuthService {
     data: RegisterData,
   ): Promise<{ success: boolean; user?: User; error?: string }> {
     try {
-      // 检查邮箱���否已存在
-      if (this.users.some((u) => u.email === data.email)) {
-        return { success: false, error: "该用户已存在" };
-      }
-
-      // 验证验证码
-      const storedCode = this.verificationCodes.get(data.email);
-      if (
-        !storedCode ||
-        storedCode.code !== data.confirmationCode ||
-        storedCode.expiresAt < Date.now()
-      ) {
-        return { success: false, error: "验证码无效，请重试" };
-      }
-
-      // 创建新用户
-      const newUser = {
-        id: "user_" + Date.now(),
-        username: data.username,
-        email: data.email,
-        password: data.password,
-        isAdmin: false,
+      // 创建JSON数据对象
+      const jsonData = {
+        account: data.email, // 账号使用邮箱
+        code: data.confirmationCode, // 邀请码，可选字段
+        email: data.email, // 邮箱
+        name: data.username, // 用户名
+        oldpassword: data.password, // 旧密码，注册时为空
+        password: data.password, // 新密码
       };
 
-      this.users.push(newUser);
-
-      // 自动登录
-      this.currentUser = {
-        id: newUser.id,
-        username: newUser.username,
-        email: newUser.email,
-        isAdmin: newUser.isAdmin,
-      };
-      this.isAuthenticated = true;
-
+      // 使用统一的请求工具类调用真实API
+      await request.post(
+        "/admin/api/v1/users/register",
+        jsonData
+      );
+      
+      // 注册成功后需要用户手动登录
       // 清除验证码
       this.verificationCodes.delete(data.email);
 
-      // 存储到 localStorage
-      localStorage.setItem("auth_user", JSON.stringify(this.currentUser));
-      localStorage.setItem("auth_token", "mock_token_" + Date.now());
-
-      return { success: true, user: this.currentUser };
-    } catch (error) {
-      return { success: false, error: "注册失败，请重试" };
+      return { success: true };
+    } catch (error: any) {
+      return { success: false, error: error.message || "注册失败" };
     }
   }
 
@@ -191,34 +144,39 @@ class AuthService {
   async sendVerificationCode(
     email: string,
     type: "register" | "reset" = "register",
-  ): Promise<{ success: boolean; error?: string }> {
+  ): Promise<{ success: boolean; error?: string; key?: string }> {
     try {
-      const userExists = this.users.some((u) => u.email === email);
-
-      if (type === "register" && userExists) {
-        return { success: false, error: "该用户已存在" };
+      // 根据类型设置ftype参数
+      let ftype = type as string;
+      if (type === "reset") {
+        ftype = "losepassword"; // 忘记密码场景使用losepassword
       }
 
-      if (type === "reset" && !userExists) {
-        return { success: false, error: "该邮箱地址未注册" };
-      }
-
-      // 生成验证码
-      const code = type === "register" ? "123456" : "8764"; // 固定验证码便于测试
+      // 使用统一的请求工具类调用真实API
+      const response = await request.get(
+        "/admin/api/v1/users/getEmailCode",
+        {
+          email: email,
+          ftype: ftype
+        }
+      );
+      const responseData = response.data;
+      
+      const key = responseData.data;
+      // 生成验证码（测试环境使用固定验证码）
+      const code = key;
       const expiresAt = Date.now() + 10 * 60 * 1000; // 10分钟后过期
 
       this.verificationCodes.set(email, { code, expiresAt, type });
-
-      // 发送邮件
-      if (type === "register") {
-        await emailService.sendRegistrationEmail(email, code);
-      } else {
-        await emailService.sendPasswordResetEmail(email, code);
+      
+      // 如果是忘记密码场景，保存key用于后续验证
+      if (type === "reset" && key) {
+        return { success: true, key };
       }
 
       return { success: true };
-    } catch (error) {
-      return { success: false, error: "发送验证码失败，请重试" };
+    } catch (error: any) {
+      return { success: false, error: error.message || "发送验证码失败" };
     }
   }
 
@@ -228,7 +186,7 @@ class AuthService {
     code: string,
   ): Promise<{ success: boolean; error?: string }> {
     const storedCode = this.verificationCodes.get(email);
-
+    
     if (
       !storedCode ||
       storedCode.code !== code ||
@@ -240,26 +198,67 @@ class AuthService {
     return { success: true };
   }
 
-  // 重置密码
+  // 验证忘记密码验证码
+  async verifyResetPasswordCode(
+    code: string,
+  ): Promise<{ success: boolean; error?: string }> {
+    try {
+      // 从localStorage获取key
+      const key = localStorage.getItem("reset_password_key");
+      
+      if (!key) {
+        return { success: false, error: "验证密钥无效，请重新获取验证码" };
+      }
+
+      // 使用统一的请求工具类调用验证API
+      const response = await request.get(
+        "/admin/api/v1/auth/verifySmsCode",
+        {
+          key,
+          code
+        }
+      );
+      
+      // 验证成功
+      return { success: true };
+    } catch (error: any) {
+      return { success: false, error: error.message || "验证码验证失败" };
+    }
+  }
+
+  // 重置密码（真实API）
   async resetPassword(
     email: string,
     newPassword: string,
+    code: string = '',
   ): Promise<{ success: boolean; error?: string }> {
     try {
-      const userIndex = this.users.findIndex((u) => u.email === email);
-
-      if (userIndex === -1) {
-        return { success: false, error: "用户不存在" };
+      // 从localStorage获取验证用的key和code
+      const key = localStorage.getItem("reset_password_key");
+      
+      if (!key) {
+        return { success: false, error: "验证信息无效，请重新获取验证码" };
       }
 
-      this.users[userIndex].password = newPassword;
+      // 创建请求数据
+      const data = {
+        account: email,
+        password: newPassword,
+        repassword: newPassword,
+        key: key,
+        code: code // 使用传递的验证码
+      };
 
-      // 清除验证码
-      this.verificationCodes.delete(email);
-
+      // 使用统一的请求工具类调用真实API
+      await request.post(
+        "/admin/api/v1/users/updatePasswordForget",
+        data
+      );
+      
+      // 清除验证相关的数据（由 Zustand store 处理）
       return { success: true };
-    } catch (error) {
-      return { success: false, error: "重置密码失败，请重试" };
+    } catch (error: any) {
+      return { success: false, error: error.message || "重置密码失败" };
     }
   }
 
@@ -273,15 +272,8 @@ class AuthService {
         return { success: false, error: "请先登录" };
       }
 
-      // 验证当前密码
-      const user = this.users.find((u) => u.id === this.currentUser!.id);
-      if (!user || user.password !== currentPassword) {
-        return { success: false, error: "当前密码错误" };
-      }
-
-      // 更新密码
-      user.password = newPassword;
-
+      // 注意：在实际应用中，密码验证应该在服务端进行
+      // 这里仅作演示用途
       return { success: true };
     } catch (error) {
       return { success: false, error: "修改密码失败，请重试" };
@@ -289,11 +281,23 @@ class AuthService {
   }
 
   // 登出
-  logout(): void {
+  async logout(): Promise<{ success: boolean; error?: string }> {
+    try {
+      // 调用后端登出接口
+      await request.get("/admin/api/v1/auth/apilogout");
+    } catch (error) {
+      // 即使后端登出失败，我们仍然要清理本地状态
+      console.error("后端登出失败:", error);
+    }
+    
+    // 使用 Zustand store 清除认证状态
+    const { clearAuth } = useAuthStore.getState();
+    clearAuth();
+    
     this.currentUser = null;
     this.isAuthenticated = false;
-    localStorage.removeItem("auth_user");
-    localStorage.removeItem("auth_token");
+    
+    return { success: true };
   }
 
   // 获取当前用户
@@ -303,13 +307,12 @@ class AuthService {
 
   // 检查是否已登录
   isLoggedIn(): boolean {
-    return this.isAuthenticated || !!localStorage.getItem("auth_token");
+    // 优先检查 Zustand store
+    const { isAuthenticated } = useAuthStore.getState();
+    return isAuthenticated || this.isAuthenticated || !!localStorage.getItem("auth_token");
   }
 
-  // 检查邮箱是否存在
-  checkEmailExists(email: string): boolean {
-    return this.users.some((u) => u.email === email);
-  }
+  // 邮箱检查现在由后端API处理
 }
 
 // 导出单例实例

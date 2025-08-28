@@ -14,7 +14,9 @@
   "dependencies": {
     "@hello-pangea/dnd": "^18.0.1",
     "chart.js": "^4.5.0",
-    "zod": "^3.23.8"
+    "google-auth-library": "^10.3.0",
+    "zod": "^3.23.8",
+    "zustand": "^5.0.8"
   },
   "devDependencies": {
     "@hookform/resolvers": "^3.9.0",

@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { Mail, Shield, ArrowLeft } from "lucide-react";
 import { authService } from "@/services/authService";
+import { useAuthStore } from "@/stores";
 
 interface FormData {
   email: string;
@@ -21,6 +22,15 @@ interface FormErrors {
 export default function ForgotPassword() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { 
+    isLoading, 
+    setLoading,
+    setResetPasswordKey,
+    setResetPasswordVerified,
+    setResetPasswordEmail,
+    setResetPasswordCode
+  } = useAuthStore();
+  
   const [isCodeSending, setIsCodeSending] = useState(false);
   const [countdown, setCountdown] = useState(0);
   
@@ -80,7 +90,6 @@ export default function ForgotPassword() {
     setIsCodeSending(true);
 
     const result = await authService.sendVerificationCode(formData.email, 'reset');
-
     setIsCodeSending(false);
 
     if (!result.success) {
@@ -89,6 +98,12 @@ export default function ForgotPassword() {
         variant: "destructive"
       });
       return;
+    }
+
+    // 保存key到store，用于后续验证
+    if (result.key) {
+      setResetPasswordKey(result.key);
+      setResetPasswordEmail(formData.email);
     }
 
     setCountdown(120);
@@ -124,7 +139,9 @@ export default function ForgotPassword() {
       return;
     }
 
-    const result = await authService.verifyCode(formData.email, formData.confirmationCode);
+    setLoading(true);
+    const result = await authService.verifyResetPasswordCode(formData.confirmationCode);
+    setLoading(false);
 
     if (!result.success) {
       toast({
@@ -134,15 +151,18 @@ export default function ForgotPassword() {
       return;
     }
 
+    // 更新验证状态
+    setResetPasswordVerified(true);
+    // 保存验证码
+    setResetPasswordCode(formData.confirmationCode);
+
     toast({
       title: "验证成功",
       description: "正在跳转到重置密码页面..."
     });
 
     setTimeout(() => {
-      navigate("/reset-password", {
-        state: { email: formData.email, verified: true }
-      });
+      navigate("/reset-password");
     }, 1000);
   };
 
@@ -216,8 +236,8 @@ export default function ForgotPassword() {
               <p className="text-xs text-muted-foreground">测试验证码：8764</p>
             </div>
 
-            <Button onClick={handleConfirm} className="w-full">
-              确认
+            <Button onClick={handleConfirm} className="w-full" disabled={isLoading}>
+              {isLoading ? "验证中..." : "确认"}
             </Button>
 
             <div className="text-center">

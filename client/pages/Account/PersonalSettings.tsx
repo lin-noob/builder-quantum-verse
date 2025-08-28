@@ -28,25 +28,13 @@ import {
   ChangePasswordRequest,
 } from "../../../shared/organizationData";
 import { memberApi } from "../../../shared/organizationApi";
+import { getCurrentUserInfo } from "@/services/userService.ts";
 
-// 模拟当前用户数据（实际应用中从认证上下文获取）
-const mockCurrentMember: Member = {
-  memberId: "mem_admin_001",
-  organizationId: "org_demo_001",
-  email: "admin@demo.com",
-  name: "李国帅",
-  role: MemberRole.ADMIN,
-  accountStatus: AccountStatus.ACTIVE,
-  createdAt: "2024-01-15T10:05:00Z",
-  lastLoginAt: "2024-02-01T09:30:00Z",
-  updatedAt: "2024-01-20T15:30:00Z",
-  avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=admin",
-  phone: "+86 138-0000-0001",
-};
 
 const PersonalSettings = () => {
-  const [member, setMember] = useState<Member>(mockCurrentMember);
+  const [member, setMember] = useState<Member | null>(null);
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: "",
     newPassword: "",
@@ -58,17 +46,50 @@ const PersonalSettings = () => {
     confirm: false,
   });
   const [profileForm, setProfileForm] = useState({
-    name: member.name,
-    phone: member.phone || "",
+    name: member?.name ?? "",
+    phone: member?.phone ?? "",
   });
 
   const { toast } = useToast();
 
+  // Fetch user info on component mount
   useEffect(() => {
-    setProfileForm({
-      name: member.name,
-      phone: member.phone || "",
-    });
+    const fetchUserInfo = async () => {
+      try {
+        setInitialLoading(true);
+        const userInfo = await getCurrentUserInfo();
+        
+        if (userInfo) {
+          setMember(userInfo);
+        } else {
+          toast({
+            title: "获取用户信息失败",
+            description: "无法获取用户信息，请重试",
+            variant: "destructive",
+          });
+        }
+      } catch (error) {
+        console.error("Failed to fetch user info:", error);
+        toast({
+          title: "获取用户信息失败",
+          description: "网络错误，请重试",
+          variant: "destructive",
+        });
+      } finally {
+        setInitialLoading(false);
+      }
+    };
+
+    fetchUserInfo();
+  }, [toast]);
+
+  useEffect(() => {
+    if (member) {
+      setProfileForm({
+        name: member.name,
+        phone: member.phone || "",
+      });
+    }
   }, [member]);
 
   const handleUpdateProfile = async () => {
@@ -247,6 +268,17 @@ const PersonalSettings = () => {
       minute: "2-digit",
     });
   };
+
+  if (initialLoading || !member) {
+    return (
+      <div className="p-6 max-w-4xl mx-auto space-y-6">
+        <div className="text-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
+          <p className="mt-2 text-gray-600">加载用户信息中...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 max-w-4xl mx-auto space-y-6">

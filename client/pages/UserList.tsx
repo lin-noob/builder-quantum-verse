@@ -156,64 +156,10 @@ export default function UserList() {
     }
   };
 
-  // 测试连通性
-  const testConnectivity = async () => {
-    try {
-      console.log("测试代理连通性...");
-
-      // 使用更简单的GET请求来测试连通性，而不是OPTIONS
-      // 因为有些服务器不支持OPTIONS请求或可能返回HTML错误页面
-      const response = await request.get(
-        "/quote/api/v1/profile/list",
-        { page: 1, limit: 1 }, // 最小化数据请求
-        { timeout: 5000 }, // 5秒超时，用于快速检测
-      );
-
-      console.log("连通性测试成功:", response.status);
-      return true;
-    } catch (error) {
-      console.error("连通性测试失败:", error);
-
-      if (process.env.NODE_ENV === "development") {
-        console.group("🔧 连通性测试调试信息");
-        console.log("1. 检查后端服务是否运行在 192.168.1.128:8099");
-        console.log("2. 检查网络连接");
-        console.log("3. 查看浏览器 Network 标签中的具体响应内容");
-        console.log("4. 如果看到HTML响应，说明请求被路由到了错误的地址");
-        console.groupEnd();
-      }
-
-      return false;
-    }
-  };
-
   // 调用API获取用户数据
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
-      // 在开发环境中优先使用模拟数据，避免网络延迟
-      if (MockDataService.shouldUseMockData()) {
-        console.log("🚀 使用模拟数据，避免API延迟");
-
-        const mockResponse = await MockDataService.getUsers({
-          page: currentPage,
-          pageSize: itemsPerPage,
-          search: searchQuery.trim() || undefined,
-          sortField: sortConfig.field || undefined,
-          sortDirection: sortConfig.direction,
-        });
-
-        setUsers(mockResponse.users);
-        setTotalCount(mockResponse.total);
-        setLoading(false);
-        return;
-      }
-
-      // 生产环境或需要真实数据时，跳过连通性测试，直接请求
-      console.log("📡 请求真实API数据");
-
-      // 根据API文档，主要参数通过POST body传递，query参数可选
-
       const requestBody: OrderSummaryDto = {
         currentpage: currentPage,
         pagesize: itemsPerPage,
@@ -256,10 +202,12 @@ export default function UserList() {
         timeout: 3000, // 3秒快速超时
       });
 
+      const records = response.data.data.records || [];
+
       // 不管成功失败都显示原始响应，让用户能看到完整信息
-      if (response.data.records) {
+      if (records) {
         // 即使响应码不是200也尝试处理数据
-        const apiUsers = response.data.records || [];
+        const apiUsers = records;
         if (Array.isArray(apiUsers)) {
           const convertedUsers = apiUsers.map(convertApiUserToUser);
           setUsers(convertedUsers);
@@ -282,9 +230,6 @@ export default function UserList() {
         setTotalCount(0);
         return;
       }
-
-      console.error("获��用户数据失败:", error);
-      console.error("请求参数:", { requestBody });
 
       // 详细显示错误信息
       if (error && typeof error === "object") {
@@ -499,15 +444,6 @@ export default function UserList() {
               >
                 <RotateCcw className="h-4 w-4" />
                 重置
-              </Button>
-              <Button
-                variant="outline"
-                size="default"
-                onClick={testConnectivity}
-                className="flex items-center gap-2 h-10"
-                title="测试代理服务器连通性"
-              >
-                测试连接
               </Button>
             </div>
           </div>
