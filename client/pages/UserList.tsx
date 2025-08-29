@@ -203,7 +203,6 @@ export default function UserList() {
       });
 
       const records = response.data.data.records || [];
-
       // 不管成功失败都显示原始响应，让用户能看到完整信息
       if (records) {
         // 即使响应码不是200也尝试处理数据
@@ -211,7 +210,7 @@ export default function UserList() {
         if (Array.isArray(apiUsers)) {
           const convertedUsers = apiUsers.map(convertApiUserToUser);
           setUsers(convertedUsers);
-          setTotalCount(response.data.total || 0);
+          setTotalCount(response.data.data.total || 0);
         } else {
           console.log("数据格式异常，data不是数组:", apiUsers);
           setUsers([]);
