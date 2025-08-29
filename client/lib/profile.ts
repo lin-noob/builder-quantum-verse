@@ -68,28 +68,6 @@ interface ApiEnvelope<T> {
 }
 
 export async function getProfileView(id: string): Promise<ApiUser | null> {
-  // 在开发环境中，如果是localhost或者没有真实后���，返回模拟数据
-  if (process.env.NODE_ENV === 'development' &&
-      (window.location.hostname === 'localhost' || window.location.hostname.includes('fly.dev'))) {
-    console.log('Using mock data for getProfileView in development environment');
-
-    // 模拟API延迟
-    await new Promise(resolve => setTimeout(resolve, 200));
-
-    return {
-      id,
-      name: `User ${id}`,
-      email: `user${id}@example.com`,
-      phone: `+86 138-0000-${id.padStart(4, '0')}`,
-      avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${id}`,
-      status: 'active',
-      createdAt: '2024-01-01T00:00:00Z',
-      updatedAt: '2024-01-20T00:00:00Z',
-      labels: [`标签${id}`, '活跃用户'],
-      metadata: {}
-    };
-  }
-
   try {
     // GET /quote/api/v1/profile/view/{id}
     const response = await request.get<ApiEnvelope<ApiUser>>(
@@ -101,7 +79,7 @@ export async function getProfileView(id: string): Promise<ApiUser | null> {
     // response is ApiResponse<ApiEnvelope<ApiUser>> per our request helper
     const envelope = response as unknown as ApiEnvelope<ApiUser> | any;
     if (envelope && envelope.data) {
-      return envelope.data as ApiUser;
+      return envelope.data.data as ApiUser;
     }
 
     // Fallback if backend returns raw object
