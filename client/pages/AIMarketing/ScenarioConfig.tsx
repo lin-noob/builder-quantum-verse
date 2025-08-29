@@ -203,8 +203,7 @@ const ScenarioConfig = () => {
       const response = await request.get(
         `/quote/api/v1/scene/view/${scenarioId}`,
       );
-      const data = transformApiDataToMarketingScenario(response.data);
-
+      const data = transformApiDataToMarketingScenario(response.data.data);
       data.availableFields = {
         event: [],
         session: [{ field: "device_type", label: "设备类型", type: "string" }],
