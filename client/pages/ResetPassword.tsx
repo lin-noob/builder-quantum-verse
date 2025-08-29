@@ -7,6 +7,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { Lock, ArrowLeft } from "lucide-react";
 import { authService } from "@/services/authService";
+import { useAuthStore } from "@/stores";
 
 interface FormData {
   newPassword: string;
@@ -20,8 +21,17 @@ interface FormErrors {
 
 export default function ResetPassword() {
   const navigate = useNavigate();
-  const location = useLocation();
   const { toast } = useToast();
+  const { 
+    isLoading, 
+    setLoading,
+    resetPasswordVerified,
+    resetPasswordEmail,
+    resetPasswordCode,
+    clearResetPasswordData,
+    resetPasswordCompleted,
+    setResetPasswordCompleted
+  } = useAuthStore();
   
   const [formData, setFormData] = useState<FormData>({
     newPassword: "",
@@ -30,17 +40,21 @@ export default function ResetPassword() {
 
   const [errors, setErrors] = useState<FormErrors>({});
 
-  // 检查是否从忘记密码页面正确跳转而来
+  // 检查是否已完成邮箱验证
   useEffect(() => {
-    if (!location.state?.verified) {
-      toast({
-        title: "访问被拒绝",
-        description: "请先完成邮箱验证",
-        variant: "destructive"
-      });
-      navigate("/forgot-password");
+    // 只有在组件首次加载时检查，避免在重置密码后再次检查
+    if (!resetPasswordVerified || !resetPasswordEmail) {
+      // 如果密码重置已完成，不要导航
+      if (!resetPasswordCompleted) {
+        toast({
+          title: "访问被拒绝",
+          description: "请先完成邮箱验证",
+          variant: "destructive"
+        });
+        navigate("/forgot-password");
+      }
     }
-  }, [location.state, navigate, toast]);
+  }, []); // 空依赖数组，只在组件挂载时运行一次
 
   // 验证密码强度
   const validatePassword = (password: string): string | null => {
@@ -100,7 +114,13 @@ export default function ResetPassword() {
       return;
     }
 
-    const result = await authService.resetPassword(location.state.email, formData.newPassword);
+    setLoading(true);
+    const result = await authService.resetPassword(
+      resetPasswordEmail || '', 
+      formData.newPassword,
+      resetPasswordCode || ''
+    );
+    setLoading(false);
 
     if (!result.success) {
       toast({
@@ -110,18 +130,24 @@ export default function ResetPassword() {
       return;
     }
 
+    // 清除重置密码相关的数据
+    clearResetPasswordData();
+    // 标记密码重置已完成
+    setResetPasswordCompleted(true);
+
     toast({
       title: "密码修改成功！",
       description: "正在跳转到登录页面..."
     });
 
+    // 导航到登录页面
     setTimeout(() => {
       navigate("/auth");
     }, 1500);
   };
 
-  // 如果不是从正确的流程跳转来的，不渲染页面
-  if (!location.state?.verified) {
+  // 如果未完成验证，不渲染页面
+  if (!resetPasswordVerified || !resetPasswordEmail) {
     return null;
   }
 
@@ -184,8 +210,8 @@ export default function ResetPassword() {
               {errors.confirmPassword && <p className="text-sm text-destructive">{errors.confirmPassword}</p>}
             </div>
 
-            <Button onClick={handleConfirm} className="w-full">
-              确认
+            <Button onClick={handleConfirm} className="w-full" disabled={isLoading}>
+              {isLoading ? "重置中..." : "确认"}
             </Button>
 
             <div className="text-center">

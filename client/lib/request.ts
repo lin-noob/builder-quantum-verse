@@ -1,3 +1,4 @@
+import { useAuthStore } from "@/stores";
 import { ErrorHandler } from "./errorHandler";
 
 /**
@@ -408,6 +409,24 @@ export class Request {
       throw new Error(`响应解析失败 (${responseType}): ${errorMessage}`);
     }
 
+    // 检查是否是业务API且响应类型为JSON
+    if (responseType === "json" && data && typeof data === "object") {
+      // 检查业务状态码
+      if ("code" in data) {
+        const businessCode = String(data.code);
+        // 如果业务状态码不是 200 或 201，则抛出错误
+        if (businessCode !== "200" && businessCode !== "201") {
+          const errorMsg = data.msg || `业务请求失败，状态码: ${businessCode}`;
+          throw new RequestError(
+            errorMsg,
+            parseInt(businessCode) || 400,
+            errorMsg,
+            response,
+          );
+        }
+      }
+    }
+
     return {
       data,
       status: response.status,
@@ -460,257 +479,257 @@ export class Request {
       data,
       params,
       headers = {},
-      timeout = this.defaultConfig.timeout || 30000, // 增��超时��间到30秒
+      timeout = this.defaultConfig.timeout || 30000, // 增加超时时间到30秒
       credentials = this.defaultConfig.credentials,
       responseType = "json",
     } = config;
 
     // 在开发环境中，对于特定的API路径，直接返回mock响应避免超时
-    if (
-      process.env.NODE_ENV === "development" &&
-      (window.location.hostname === "localhost" ||
-        window.location.hostname.includes("fly.dev")) &&
-      url.includes("/quote/api/")
-    ) {
-      console.log(
-        `Mock response for ${method} ${url} in development environment`,
-      );
-      await new Promise((resolve) => setTimeout(resolve, 200)); // 模拟网络延迟
+    // if (
+    //   process.env.NODE_ENV === "development" &&
+    //   (window.location.hostname === "localhost" ||
+    //     window.location.hostname.includes("fly.dev")) &&
+    //   url.includes("/quote/api/")
+    // ) {
+    //   console.log(
+    //     `Mock response for ${method} ${url} in development environment`,
+    //   );
+    //   await new Promise((resolve) => setTimeout(resolve, 200)); // 模拟网络延迟
 
-      // 为营销场景列表API提供特定的mock数据
-      if (url.includes("/quote/api/v1/scene/list")) {
-        const mockScenarios = [
-          {
-            id: "add_to_cart",
-            sceneName: "加入购物车",
-            status: 1,
-            aiStrategyConfig: JSON.stringify({
-              defaultAIConfig: {
-                description:
-                  "AI会根据用户画像、购物车商品等信息，自主生成最合适的挽留或激励文案",
-                strategySummary:
-                  "在用户犹豫或准备离开时进行精准挽留，提升订单转化率。",
-                coreStrategies: ["网页弹窗", "智能延���", "个性化生成"],
-              },
-            }),
-            gmtCreate: "2024-01-10T10:00:00Z",
-            gmtModified: "2024-01-15T14:30:00Z",
-            nullId: false,
-          },
-          {
-            id: "view_product",
-            sceneName: "商品浏览",
-            status: 0,
-            aiStrategyConfig: JSON.stringify({
-              defaultAIConfig: {
-                description: "根据用户浏览行为��商品信息，推荐相关产品或优惠",
-                strategySummary: "通过智能推荐提升用户购买转化。",
-                coreStrategies: ["个性化推荐", "智能营销", "精准投放"],
-              },
-            }),
-            gmtCreate: "2024-01-08T09:00:00Z",
-            gmtModified: "2024-01-12T16:20:00Z",
-            nullId: false,
-          },
-          {
-            id: "user_signup",
-            sceneName: "用户注册",
-            status: 1,
-            aiStrategyConfig: JSON.stringify({
-              defaultAIConfig: {
-                description: "为新注册用户提供个性化欢迎内容和新手引导",
-                strategySummary: "提升新用户的首次购买转化率。",
-                coreStrategies: ["欢迎引导", "新手优惠", "个性化推荐"],
-              },
-            }),
-            gmtCreate: "2024-01-05T08:30:00Z",
-            gmtModified: "2024-01-20T11:45:00Z",
-            nullId: false,
-          },
-          {
-            id: "purchase",
-            sceneName: "购买完成",
-            status: 1,
-            aiStrategyConfig: JSON.stringify({
-              defaultAIConfig: {
-                description: "购买后的交叉销售和复��引导策略",
-                strategySummary: "通过购买后营销提升客户生命周期价值。",
-                coreStrategies: ["交叉销售", "复购引导", "会员推荐"],
-              },
-            }),
-            gmtCreate: "2024-01-03T07:15:00Z",
-            gmtModified: "2024-01-18T13:30:00Z",
-            nullId: false,
-          },
-        ];
+    //   // 为营销场景列表API提供特定的mock数据
+    //   if (url.includes("/quote/api/v1/scene/list")) {
+    //     const mockScenarios = [
+    //       {
+    //         id: "add_to_cart",
+    //         sceneName: "加入购物车",
+    //         status: 1,
+    //         aiStrategyConfig: JSON.stringify({
+    //           defaultAIConfig: {
+    //             description:
+    //               "AI会根据用户画像、购物车商品等信息，自主生成最合适的挽留或激励文案",
+    //             strategySummary:
+    //               "在用户犹豫或准备离开时进行精准挽留，提升订单转化率。",
+    //             coreStrategies: ["网页弹窗", "智能延���", "个性化生成"],
+    //           },
+    //         }),
+    //         gmtCreate: "2024-01-10T10:00:00Z",
+    //         gmtModified: "2024-01-15T14:30:00Z",
+    //         nullId: false,
+    //       },
+    //       {
+    //         id: "view_product",
+    //         sceneName: "商品浏览",
+    //         status: 0,
+    //         aiStrategyConfig: JSON.stringify({
+    //           defaultAIConfig: {
+    //             description: "根据用户浏览行为��商品信息，推荐相关产品或优惠",
+    //             strategySummary: "通过智能推荐提升用户购买转化。",
+    //             coreStrategies: ["个性化推荐", "智能营销", "精准投放"],
+    //           },
+    //         }),
+    //         gmtCreate: "2024-01-08T09:00:00Z",
+    //         gmtModified: "2024-01-12T16:20:00Z",
+    //         nullId: false,
+    //       },
+    //       {
+    //         id: "user_signup",
+    //         sceneName: "用户注册",
+    //         status: 1,
+    //         aiStrategyConfig: JSON.stringify({
+    //           defaultAIConfig: {
+    //             description: "为新注册用户提供个性化欢迎内容和新手引导",
+    //             strategySummary: "提升新用户的首次购买转化率。",
+    //             coreStrategies: ["欢迎引导", "新手优惠", "个性化推荐"],
+    //           },
+    //         }),
+    //         gmtCreate: "2024-01-05T08:30:00Z",
+    //         gmtModified: "2024-01-20T11:45:00Z",
+    //         nullId: false,
+    //       },
+    //       {
+    //         id: "purchase",
+    //         sceneName: "购买完成",
+    //         status: 1,
+    //         aiStrategyConfig: JSON.stringify({
+    //           defaultAIConfig: {
+    //             description: "购买后的交叉销售和复��引导策略",
+    //             strategySummary: "通过购买后营销提升客户生命周期价值。",
+    //             coreStrategies: ["交叉销售", "复购引导", "会员推荐"],
+    //           },
+    //         }),
+    //         gmtCreate: "2024-01-03T07:15:00Z",
+    //         gmtModified: "2024-01-18T13:30:00Z",
+    //         nullId: false,
+    //       },
+    //     ];
 
-        return { data: mockScenarios, status: 200, statusText: "OK" } as any;
-      }
+    //     return { data: mockScenarios, status: 200, statusText: "OK" } as any;
+    //   }
 
-      // 为营销场景详情API提供mock数据
-      if (url.includes("/quote/api/v1/scene/view/")) {
-        const scenarioId = url.split("/").pop();
-        console.log(`Mock scenario detail API for: ${scenarioId}`);
+    //   // 为营销场景详情API提供mock数据
+    //   if (url.includes("/quote/api/v1/scene/view/")) {
+    //     const scenarioId = url.split("/").pop();
+    //     console.log(`Mock scenario detail API for: ${scenarioId}`);
 
-        const scenarioDetails: Record<string, any> = {
-          add_to_cart: {
-            id: "add_to_cart",
-            sceneName: "加入购物车",
-            status: 1,
-            aiStrategyConfig: JSON.stringify({
-              defaultAIConfig: {
-                allowedActionTypes: ["POPUP"],
-                timingStrategy: "SMART_DELAY",
-                contentStrategy: "FULLY_GENERATIVE",
-                description:
-                  "AI会根据用户画像、购物车商品等信息，自主生成最合适的挽留或激励文案",
-                strategySummary:
-                  "在用户犹豫或准备离开时进行精准挽留，提升订单转化率。",
-                coreStrategies: ["网页弹窗", "智能延迟", "个性化生成"],
-                dimensions: [
-                  {
-                    dimension: "营销方式",
-                    strategy: '优先使用"网页弹窗"',
-                    reasoning:
-                      "AI会优先选择干预性最强、最能实时触达的网页弹窗，以抓住稍瞬即逝的挽留机会。",
-                    examples: [
-                      "桌面端: 可能会选择模态框弹窗，信息更完整。",
-                      "移动端: 可能会选择更轻量的底部横幅或顶部通知，避免影响体验。",
-                    ],
-                  },
-                ],
-              },
-            }),
-            gmtCreate: "2024-01-10T10:00:00Z",
-            gmtModified: "2024-01-15T14:30:00Z",
-            nullId: false,
-            marketingSceneRules: [
-              {
-                id: "rule_1",
-                sceneId: "add_to_cart",
-                ruleName: "高价值用户挽留",
-                triggerCondition: "user_segment = 'vip'",
-                marketingMethod: "POPUP",
-                marketingTiming: "IMMEDIATE",
-                contentMode: "AI_ASSISTED",
-                popupTitle: "专属优惠等��领取！",
-                popupContent: "作为我们的VIP会员，为您准备了专属优惠券",
-                buttonText: "立即领取",
-                status: 1,
-                instruction: "针对VIP用户的专属优惠策略",
-              },
-            ],
-          },
-          view_product: {
-            id: "view_product",
-            sceneName: "商品浏览",
-            status: 0,
-            aiStrategyConfig: JSON.stringify({
-              defaultAIConfig: {
-                description: "根据用户浏���行为和商品信息，推荐相关产品或优惠",
-                strategySummary: "通过智能推荐提升用户购买转化。",
-                coreStrategies: ["个性化推荐", "智能营销", "精准投放"],
-              },
-            }),
-            gmtCreate: "2024-01-08T09:00:00Z",
-            gmtModified: "2024-01-12T16:20:00Z",
-            nullId: false,
-            marketingSceneRules: [],
-          },
-          user_signup: {
-            id: "user_signup",
-            sceneName: "用户注册",
-            status: 1,
-            aiStrategyConfig: JSON.stringify({
-              defaultAIConfig: {
-                description: "为新注册用户提供个性化欢迎内容和新手引导",
-                strategySummary: "提升新用户的首次购买转化率。",
-                coreStrategies: ["欢迎引��", "新手优惠", "个性化推荐"],
-              },
-            }),
-            gmtCreate: "2024-01-05T08:30:00Z",
-            gmtModified: "2024-01-20T11:45:00Z",
-            nullId: false,
-            marketingSceneRules: [],
-          },
-          purchase: {
-            id: "purchase",
-            sceneName: "购买完成",
-            status: 1,
-            aiStrategyConfig: JSON.stringify({
-              defaultAIConfig: {
-                description: "购买后的交叉销售和复购引导策略",
-                strategySummary: "通过购买后营销提升客户生命周期价值。",
-                coreStrategies: ["交叉销售", "复购引导", "会员推荐"],
-              },
-            }),
-            gmtCreate: "2024-01-03T07:15:00Z",
-            gmtModified: "2024-01-18T13:30:00Z",
-            nullId: false,
-            marketingSceneRules: [],
-          },
-        };
+    //     const scenarioDetails: Record<string, any> = {
+    //       add_to_cart: {
+    //         id: "add_to_cart",
+    //         sceneName: "加入购物车",
+    //         status: 1,
+    //         aiStrategyConfig: JSON.stringify({
+    //           defaultAIConfig: {
+    //             allowedActionTypes: ["POPUP"],
+    //             timingStrategy: "SMART_DELAY",
+    //             contentStrategy: "FULLY_GENERATIVE",
+    //             description:
+    //               "AI会根据用户画像、购物车商品等信息，自主生成最合适的挽留或激励文案",
+    //             strategySummary:
+    //               "在用户犹豫或准备离开时进行精准挽留，提升订单转化率。",
+    //             coreStrategies: ["网页弹窗", "智能延迟", "个性化生成"],
+    //             dimensions: [
+    //               {
+    //                 dimension: "营销方式",
+    //                 strategy: '优先使用"网页弹窗"',
+    //                 reasoning:
+    //                   "AI会优先选择干预性最强、最能实时触达的网页弹窗，以抓住稍瞬即逝的挽留机会。",
+    //                 examples: [
+    //                   "桌面端: 可能会选择模态框弹窗，信息更完整。",
+    //                   "移动端: 可能会选择更轻量的底部横幅或顶部通知，避免影响体验。",
+    //                 ],
+    //               },
+    //             ],
+    //           },
+    //         }),
+    //         gmtCreate: "2024-01-10T10:00:00Z",
+    //         gmtModified: "2024-01-15T14:30:00Z",
+    //         nullId: false,
+    //         marketingSceneRules: [
+    //           {
+    //             id: "rule_1",
+    //             sceneId: "add_to_cart",
+    //             ruleName: "高价值用户挽留",
+    //             triggerCondition: "user_segment = 'vip'",
+    //             marketingMethod: "POPUP",
+    //             marketingTiming: "IMMEDIATE",
+    //             contentMode: "AI_ASSISTED",
+    //             popupTitle: "专属优惠等��领取！",
+    //             popupContent: "作为我们的VIP会员，为您准备了专属优惠券",
+    //             buttonText: "立即领取",
+    //             status: 1,
+    //             instruction: "针对VIP用户的专属优惠策略",
+    //           },
+    //         ],
+    //       },
+    //       view_product: {
+    //         id: "view_product",
+    //         sceneName: "商品浏览",
+    //         status: 0,
+    //         aiStrategyConfig: JSON.stringify({
+    //           defaultAIConfig: {
+    //             description: "根据用户浏���行为和商品信息，推荐相关产品或优惠",
+    //             strategySummary: "通过智能推荐提升用户购买转化。",
+    //             coreStrategies: ["个性化推荐", "智能营销", "精准投放"],
+    //           },
+    //         }),
+    //         gmtCreate: "2024-01-08T09:00:00Z",
+    //         gmtModified: "2024-01-12T16:20:00Z",
+    //         nullId: false,
+    //         marketingSceneRules: [],
+    //       },
+    //       user_signup: {
+    //         id: "user_signup",
+    //         sceneName: "用户注册",
+    //         status: 1,
+    //         aiStrategyConfig: JSON.stringify({
+    //           defaultAIConfig: {
+    //             description: "为新注册用户提供个性化欢迎内容和新手引导",
+    //             strategySummary: "提升新用户的首次购买转化率。",
+    //             coreStrategies: ["欢迎引��", "新手优惠", "个性化推荐"],
+    //           },
+    //         }),
+    //         gmtCreate: "2024-01-05T08:30:00Z",
+    //         gmtModified: "2024-01-20T11:45:00Z",
+    //         nullId: false,
+    //         marketingSceneRules: [],
+    //       },
+    //       purchase: {
+    //         id: "purchase",
+    //         sceneName: "购买完成",
+    //         status: 1,
+    //         aiStrategyConfig: JSON.stringify({
+    //           defaultAIConfig: {
+    //             description: "购买后的交叉销售和复购引导策略",
+    //             strategySummary: "通过购买后营销提升客户生命周期价值。",
+    //             coreStrategies: ["交叉销售", "复购引导", "会员推荐"],
+    //           },
+    //         }),
+    //         gmtCreate: "2024-01-03T07:15:00Z",
+    //         gmtModified: "2024-01-18T13:30:00Z",
+    //         nullId: false,
+    //         marketingSceneRules: [],
+    //       },
+    //     };
 
-        const scenarioDetail = scenarioDetails[scenarioId as string];
-        if (scenarioDetail) {
-          return { data: scenarioDetail, status: 200, statusText: "OK" } as any;
-        } else {
-          return { data: null, status: 404, statusText: "Not Found" } as any;
-        }
-      }
+    //     const scenarioDetail = scenarioDetails[scenarioId as string];
+    //     if (scenarioDetail) {
+    //       return { data: scenarioDetail, status: 200, statusText: "OK" } as any;
+    //     } else {
+    //       return { data: null, status: 404, statusText: "Not Found" } as any;
+    //     }
+    //   }
 
-      // 为营销场景更新API提供mock响应
-      if (
-        url.includes("/quote/api/v1/scene") &&
-        method === "POST" &&
-        !url.includes("/list")
-      ) {
-        console.log("Mock scene update API called with data:", data);
-        return {
-          data: { success: true },
-          status: 200,
-          statusText: "OK",
-        } as any;
-      }
+    //   // 为营销场景更新API提供mock响应
+    //   if (
+    //     url.includes("/quote/api/v1/scene") &&
+    //     method === "POST" &&
+    //     !url.includes("/list")
+    //   ) {
+    //     console.log("Mock scene update API called with data:", data);
+    //     return {
+    //       data: { success: true },
+    //       status: 200,
+    //       statusText: "OK",
+    //     } as any;
+    //   }
 
-      // 为用户档案列表API提供mock数据
-      if (url.includes("/quote/api/v1/profile/list")) {
-        console.log("Mock profile list API called");
-        const mockProfiles = [
-          {
-            id: "user_001",
-            name: "张三",
-            email: "zhangsan@example.com",
-            phone: "13888888888",
-            status: "active",
-            createTime: "2024-01-15T10:30:00Z",
-            lastLoginTime: "2024-01-20T14:20:00Z",
-          },
-          {
-            id: "user_002",
-            name: "李四",
-            email: "lisi@example.com",
-            phone: "13999999999",
-            status: "inactive",
-            createTime: "2024-01-10T09:15:00Z",
-            lastLoginTime: "2024-01-18T11:45:00Z",
-          },
-        ];
+    //   // 为用户档案列表API提供mock数据
+    //   if (url.includes("/quote/api/v1/profile/list")) {
+    //     console.log("Mock profile list API called");
+    //     const mockProfiles = [
+    //       {
+    //         id: "user_001",
+    //         name: "张三",
+    //         email: "zhangsan@example.com",
+    //         phone: "13888888888",
+    //         status: "active",
+    //         createTime: "2024-01-15T10:30:00Z",
+    //         lastLoginTime: "2024-01-20T14:20:00Z",
+    //       },
+    //       {
+    //         id: "user_002",
+    //         name: "李四",
+    //         email: "lisi@example.com",
+    //         phone: "13999999999",
+    //         status: "inactive",
+    //         createTime: "2024-01-10T09:15:00Z",
+    //         lastLoginTime: "2024-01-18T11:45:00Z",
+    //       },
+    //     ];
 
-        return {
-          data: {
-            list: mockProfiles,
-            total: mockProfiles.length,
-            page: 1,
-            pageSize: 10,
-          },
-          status: 200,
-          statusText: "OK",
-        } as any;
-      }
+    //     return {
+    //       data: {
+    //         list: mockProfiles,
+    //         total: mockProfiles.length,
+    //         page: 1,
+    //         pageSize: 10,
+    //       },
+    //       status: 200,
+    //       statusText: "OK",
+    //     } as any;
+    //   }
 
-      return { data: null, status: 200, statusText: "OK" } as any;
-    }
+    //   return { data: null, status: 200, statusText: "OK" } as any;
+    // }
 
     let timeoutId: number | undefined;
     let requestId: string;
@@ -724,7 +743,8 @@ export class Request {
 
       fullURL = this.buildURL(url, params);
       requestId = `${method}_${fullURL}_${Date.now()}`;
-      const mergedHeaders = { ...this.defaultConfig.headers, ...headers };
+      const jsessionid = localStorage.getItem("auth_session") ?? undefined;
+      const mergedHeaders = { ...this.defaultConfig.headers, ...headers, jsessionid };
       const { body, headers: finalHeaders } = this.processRequestData(
         data,
         mergedHeaders,
@@ -1002,6 +1022,29 @@ export class Request {
   }
 
   /**
+   * 业务接口请求 - 支持自定义成功状态码
+   */
+  async businessRequestWithCodes<T = any>(
+    url: string,
+    successCodes: string[] = ["200", "0"],
+    options: RequestOptions = {},
+  ): Promise<BusinessApiResponse<T>> {
+    const response = await this.request<BusinessApiResponse<T>>(url, options);
+    const businessData = response.data;
+
+    // 根据业务码判断请求是否成功
+    if (!successCodes.includes(businessData.code)) {
+      throw new RequestError(
+        businessData.msg || "业务请求失败",
+        parseInt(businessData.code) || 400,
+        businessData.msg || "Business Error",
+      );
+    }
+
+    return businessData;
+  }
+
+  /**
    * 业务GET请求
    */
   async businessGet<T = any>(
@@ -1053,6 +1096,38 @@ export class Request {
     options?: Omit<RequestOptions, "method" | "data">,
   ): Promise<T> {
     return this.businessRequest<T>(url, { ...options, method: "PATCH", data });
+  }
+
+  /**
+   * 业务GET请求 - 支持自定义成功状态码
+   */
+  async businessGetWithCodes<T = any>(
+    url: string,
+    successCodes: string[] = ["200", "0"],
+    params?: Record<string, string | number | boolean>,
+    options?: Omit<RequestOptions, "method" | "data" | "params">,
+  ): Promise<BusinessApiResponse<T>> {
+    return this.businessRequestWithCodes<T>(url, successCodes, {
+      ...options,
+      method: "GET",
+      params,
+    });
+  }
+
+  /**
+   * 业务POST请求 - 支持自定义成功状态码
+   */
+  async businessPostWithCodes<T = any>(
+    url: string,
+    successCodes: string[] = ["200", "0"],
+    data?: RequestData,
+    options?: Omit<RequestOptions, "method" | "data">,
+  ): Promise<BusinessApiResponse<T>> {
+    return this.businessRequestWithCodes<T>(url, successCodes, {
+      ...options,
+      method: "POST",
+      data,
+    });
   }
 
   /**

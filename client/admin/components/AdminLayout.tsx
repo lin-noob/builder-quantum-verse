@@ -218,7 +218,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 </li>
 
                 {/* 主平台入口（临时） */}
-                <li>
+                {/* <li>
                   <Link
                     to={mainPlatformMenuItem.path}
                     onClick={() => setIsMobileMenuOpen(false)}
@@ -229,7 +229,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                       {mainPlatformMenuItem.label}
                     </span>
                   </Link>
-                </li>
+                </li> */}
               </ul>
             </nav>
           </div>
@@ -306,7 +306,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             </li>
 
             {/* 主平台入口（临时） */}
-            <li>
+            {/* <li>
               <Link
                 to={mainPlatformMenuItem.path}
                 className={cn(
@@ -328,14 +328,13 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                   </span>
                 )}
 
-                {/* 悬浮提示 */}
                 {isSidebarCollapsed && (
                   <div className="absolute left-full top-1/2 transform -translate-y-1/2 ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 whitespace-nowrap">
                     {mainPlatformMenuItem.label}
                   </div>
                 )}
               </Link>
-            </li>
+            </li> */}
           </ul>
         </nav>
 

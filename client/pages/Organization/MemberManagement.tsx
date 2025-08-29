@@ -39,6 +39,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { request } from "@/lib/request";
 import {
   Users,
   Search,
@@ -65,18 +66,15 @@ import {
   MemberListQuery,
   generateInitialPassword,
 } from "../../../shared/organizationData";
-import { memberApi } from "../../../shared/organizationApi";
+import { useRoleStore } from "@/stores";
 
 const MemberManagement = () => {
   const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedRole, setSelectedRole] = useState<MemberRole | "ALL">("ALL");
-  const [selectedStatus, setSelectedStatus] = useState<AccountStatus | "ALL">(
-    "ALL",
-  );
+  const [selectedRole, setSelectedRole] = useState<string>("ALL");
+  const [selectedStatus, setSelectedStatus] = useState<string | "ALL">("ALL");
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
 
   // 排序状态
@@ -84,7 +82,7 @@ const MemberManagement = () => {
     "lastLoginAt" | "createdAt" | null
   >("lastLoginAt");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
-
+  const { roles, isLoading: rolesLoading } = useRoleStore();
   // 弹窗状态
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -92,12 +90,25 @@ const MemberManagement = () => {
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
 
   // 表单状态
-  const [inviteForm, setInviteForm] = useState<InviteMemberRequest>({
-    email: "",
-    role: MemberRole.MEMBER,
+  const [inviteForm, setInviteForm] = useState<{
+    name: string;
+    account: string;
+    role: string;
+    password: string;
+  }>({
+    name: "",
+    account: "",
+    role: "",
     password: "",
   });
   const [editingMember, setEditingMember] = useState<Member | null>(null);
+  const [editForm, setEditForm] = useState({
+    name: "",
+    account: "",
+    password: "",
+    role: "",
+    id: "",
+  });
   const [statusChangeMember, setStatusChangeMember] = useState<Member | null>(
     null,
   );
@@ -110,24 +121,49 @@ const MemberManagement = () => {
 
   useEffect(() => {
     loadMembers();
-  }, [currentPage, searchQuery, selectedRole, selectedStatus]);
+  }, [
+    currentPage,
+    searchQuery,
+    selectedRole,
+    selectedStatus,
+    sortField,
+    sortOrder,
+  ]);
+
+  // Set default role when roles are loaded
+  useEffect(() => {
+    if (roles.length > 0 && !inviteForm.role) {
+      const defaultRole = roles.find((role) => !role.isSystem) || roles[0];
+      if (defaultRole) {
+        setInviteForm((prev) => ({ ...prev, role: defaultRole.id }));
+      }
+    }
+  }, [roles, inviteForm.role]);
 
   const loadMembers = async () => {
     try {
       setLoading(true);
 
-      const query: MemberListQuery = {
+      // 使用新的API接口获取成员列表
+      const response = await request.post("/admin/api/v1/users/list", {
         page: currentPage,
         limit: 10,
-        search: searchQuery,
-        role: selectedRole === "ALL" ? undefined : selectedRole,
+        searchKeywords: searchQuery || undefined,
+        roleid: selectedRole === "ALL" ? undefined : selectedRole,
         status: selectedStatus === "ALL" ? undefined : selectedStatus,
-      };
+        sort: sortField ? getSortFieldMapping(sortField) : undefined,
+        order: sortOrder,
+      });
 
-      const response = await memberApi.getMembers(currentOrganizationId, query);
-      setMembers(response.data);
-      setTotalPages(response.totalPages);
-      setTotal(response.total);
+      const res = response.data.data;
+      // 处理API响应数据
+      if (res && res.records) {
+        setMembers(res.records);
+        setTotal(res.total);
+      } else {
+        setMembers([]);
+        setTotal(0);
+      }
     } catch (error) {
       console.error("Failed to load members:", error);
       toast({
@@ -140,45 +176,83 @@ const MemberManagement = () => {
     }
   };
 
+  // 将前端排序字段映射为API字段
+  const getSortFieldMapping = (field: string) => {
+    switch (field) {
+      case "lastLoginAt":
+        return "lastlogintime";
+      case "createdAt":
+        return "createDate";
+      default:
+        return "create_date";
+    }
+  };
+
   const handleInviteMember = async () => {
-    if (!inviteForm.email || !inviteForm.role) {
+    if (
+      !inviteForm.name ||
+      !inviteForm.account ||
+      !inviteForm.password ||
+      !inviteForm.role
+    ) {
       toast({
         title: "表单验证失败",
-        description: "请填写完整的邀请信息",
+        description: "请填写完整的邀请信息（用户名、账号、密码）",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (inviteForm.password.length < 6) {
+      toast({
+        title: "表单验证失败",
+        description: "密码长度至少为6位",
         variant: "destructive",
       });
       return;
     }
 
     try {
-      const response = await memberApi.inviteMember(
-        currentOrganizationId,
-        inviteForm,
-      );
-
-      if (response.success) {
+      // 使用新的API接口邀请成员
+      const response = await request.post("/admin/api/v1/users", {
+        account: inviteForm.account,
+        name: inviteForm.name,
+        password: inviteForm.password,
+        roles: inviteForm.role ? [inviteForm.role] : [],
+        datalimits: [],
+        groups: [],
+        deptid: "",
+        disable: false,
+        losingEffect: "2033-11-13",
+        state: true,
+      });
+      const res = response.data;
+      if (res.code === "201") {
         toast({
           title: "邀请成功",
-          description: `新成员已创建，初始密码已生成`,
+          description: `新成员已创建`,
         });
 
-        setGeneratedPassword(response.data.initialPassword);
-        setPasswordDialogOpen(true);
         setInviteDialogOpen(false);
-        setInviteForm({ email: "", role: MemberRole.MEMBER, password: "" });
+        setInviteForm({
+          name: "",
+          account: "",
+          role: "",
+          password: "",
+        });
         loadMembers();
       } else {
         toast({
           title: "邀请失败",
-          description: response.message,
+          description: res?.msg || "邀请成员失败",
           variant: "destructive",
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to invite member:", error);
       toast({
         title: "邀请失败",
-        description: "网络错误，请重试",
+        description: error.message || "网络错误，请重试",
         variant: "destructive",
       });
     }
@@ -187,17 +261,46 @@ const MemberManagement = () => {
   const handleUpdateMember = async () => {
     if (!editingMember) return;
 
+    if (!editForm.name || !editForm.account) {
+      toast({
+        title: "表单验证失败",
+        description: "用户名和账号不能为空",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (editForm.password && editForm.password.length < 6) {
+      toast({
+        title: "表单验证失败",
+        description: "密码长度至少为6位",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
-      const updateRequest: UpdateMemberRequest = {
-        memberId: editingMember.memberId,
-        name: editingMember.name,
-        role: editingMember.role,
-        phone: editingMember.phone,
-      };
+      // 使用新的API接口更新成员信息
+      const response = await request.put(
+        `/admin/api/v1/users/${editingMember.id}`,
+        {
+          account: editForm.account,
+          name: editForm.name,
+          password: editForm.password || "",
+          roles: editForm.role ? [editForm.role] : [],
+          datalimits: [],
+          groups: [],
+          deptid: null,
+          disable: false,
+          losingEffect: "2035-08-26T16:00:00.000Z",
+          state: true,
+          id: editingMember.id
+        },
+      );
 
-      const response = await memberApi.updateMember(updateRequest);
+      const res = response.data;
 
-      if (response.success) {
+      if (res && res.code === "201") {
         toast({
           title: "更新成功",
           description: "成员信息已更新",
@@ -209,15 +312,15 @@ const MemberManagement = () => {
       } else {
         toast({
           title: "更新失败",
-          description: response.message,
+          description: response.data?.msg || "更新成员信息失败",
           variant: "destructive",
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to update member:", error);
       toast({
         title: "更新失败",
-        description: "网络错误，请重试",
+        description: error.message || "网络错误，请重试",
         variant: "destructive",
       });
     }
@@ -227,14 +330,18 @@ const MemberManagement = () => {
     if (!statusChangeMember) return;
 
     try {
-      const response = await memberApi.toggleMemberStatus(
-        statusChangeMember.memberId,
-      );
+      // 根据当前状态决定是禁用还是启用
+      const isDisabling = statusChangeMember.status === 0;
+      const endpoint = isDisabling
+        ? `/admin/api/v1/users/disable/${statusChangeMember.id}`
+        : `/admin/api/v1/users/enable/${statusChangeMember.id}`;
 
-      if (response.success) {
+      const response = await request.post(endpoint);
+      const res = response.data
+      if (res && res.code === "201") {
         toast({
           title: "状态更新成功",
-          description: response.message,
+          description: isDisabling ? "用户已被禁用" : "用户已被启用",
         });
 
         setStatusConfirmOpen(false);
@@ -243,54 +350,22 @@ const MemberManagement = () => {
       } else {
         toast({
           title: "状态更新失败",
-          description: response.message,
+          description: response.data?.msg || "操作失败，请重试",
           variant: "destructive",
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to toggle member status:", error);
       toast({
         title: "状态更新失败",
-        description: "��络错误，请重试",
+        description: error.message || "网络错误，请重试",
         variant: "destructive",
       });
     }
   };
 
-  // 排序函数
-  const sortMembers = (members: Member[]) => {
-    if (!sortField) return members;
-
-    return [...members].sort((a, b) => {
-      let aValue: string | null = null;
-      let bValue: string | null = null;
-
-      if (sortField === "lastLoginAt") {
-        aValue = a.lastLoginAt;
-        bValue = b.lastLoginAt;
-      } else if (sortField === "createdAt") {
-        aValue = a.createdAt;
-        bValue = b.createdAt;
-      }
-
-      // 处理null值，null值排在最后
-      if (!aValue && !bValue) return 0;
-      if (!aValue) return 1;
-      if (!bValue) return -1;
-
-      const dateA = new Date(aValue).getTime();
-      const dateB = new Date(bValue).getTime();
-
-      if (sortOrder === "desc") {
-        return dateB - dateA;
-      } else {
-        return dateA - dateB;
-      }
-    });
-  };
-
-  // 获取排序后的成员列表
-  const sortedMembers = sortMembers(members);
+  // 成员列表（排序由API处理）
+  const sortedMembers = members;
 
   const handleSort = (field: "lastLoginAt" | "createdAt") => {
     if (sortField === field) {
@@ -303,6 +378,13 @@ const MemberManagement = () => {
 
   const openEditDialog = (member: Member) => {
     setEditingMember({ ...member });
+    setEditForm({
+      name: member.name,
+      account: member.account,
+      password: "",
+      role: member.roleId || "",
+      id: member.id,
+    });
     setEditDialogOpen(true);
   };
 
@@ -311,28 +393,8 @@ const MemberManagement = () => {
     setStatusConfirmOpen(true);
   };
 
-  const copyPassword = () => {
-    navigator.clipboard.writeText(generatedPassword);
-    toast({
-      title: "已复制",
-      description: "初始密码已复制到剪贴板",
-    });
-  };
-
-  const handleResetPassword = (member: Member) => {
-    const newPassword = generateInitialPassword();
-    setGeneratedPassword(newPassword);
-    setStatusChangeMember(member);
-    setPasswordDialogOpen(true);
-
-    toast({
-      title: "密码重置成功",
-      description: `已为 ${member.name} 生成新密码`,
-    });
-  };
-
-  const getStatusBadge = (status: AccountStatus) => {
-    if (status === AccountStatus.ACTIVE) {
+  const getStatusBadge = (status: number) => {
+    if (status === 0) {
       return (
         <Badge variant="default" className="bg-green-100 text-green-800">
           活跃
@@ -347,16 +409,15 @@ const MemberManagement = () => {
     }
   };
 
-  const getRoleBadge = (role: MemberRole) => {
-    if (role === MemberRole.ADMIN) {
-      return (
-        <Badge variant="default" className="bg-blue-100 text-blue-800">
-          管理员
-        </Badge>
-      );
-    } else {
-      return <Badge variant="outline">成员</Badge>;
-    }
+  const getRoleBadge = (roleId: string) => {
+    const role = roles.find((r) => r.id === roleId);
+    if (!role) return <Badge variant="outline">未知角色</Badge>;
+
+    return (
+      <Badge variant="default" className="bg-blue-100 text-blue-800">
+        {role.name}
+      </Badge>
+    );
   };
 
   const formatDateTime = (dateString: string | null | undefined) => {
@@ -417,17 +478,18 @@ const MemberManagement = () => {
             <div className="md:w-1/4">
               <Select
                 value={selectedRole}
-                onValueChange={(value) =>
-                  setSelectedRole(value as MemberRole | "ALL")
-                }
+                onValueChange={(value) => setSelectedRole(value)}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="角色筛选" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="ALL">所有角色</SelectItem>
-                  <SelectItem value={MemberRole.ADMIN}>管理员</SelectItem>
-                  <SelectItem value={MemberRole.MEMBER}>成员</SelectItem>
+                  {roles.map((role) => (
+                    <SelectItem key={role.id} value={role.id}>
+                      {role.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -437,7 +499,7 @@ const MemberManagement = () => {
               <Select
                 value={selectedStatus}
                 onValueChange={(value) =>
-                  setSelectedStatus(value as AccountStatus | "ALL")
+                  setSelectedStatus(value as string | "ALL")
                 }
               >
                 <SelectTrigger>
@@ -445,8 +507,8 @@ const MemberManagement = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="ALL">所有状态</SelectItem>
-                  <SelectItem value={AccountStatus.ACTIVE}>活跃</SelectItem>
-                  <SelectItem value={AccountStatus.DISABLED}>已禁用</SelectItem>
+                  <SelectItem value={"0"}>活跃</SelectItem>
+                  <SelectItem value={"1"}>已禁用</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -516,26 +578,28 @@ const MemberManagement = () => {
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {sortedMembers.map((member) => (
-                  <tr key={member.memberId} className="hover:bg-gray-50">
+                  <tr key={member.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4">
                       <div className="space-y-1">
                         <div className="text-sm font-medium text-gray-900">
                           {member.name}
                         </div>
                         <div className="text-sm text-gray-500">
-                          {member.email}
+                          {member.account}
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4">{getRoleBadge(member.role)}</td>
                     <td className="px-6 py-4">
-                      {getStatusBadge(member.accountStatus)}
+                      {getRoleBadge(member.roleId)}
+                    </td>
+                    <td className="px-6 py-4">
+                      {getStatusBadge(member.status)}
                     </td>
                     <td className="px-6 py-4 text-xs text-gray-600">
-                      {formatDateTime(member.lastLoginAt)}
+                      {formatDateTime(member.lastlogintime)}
                     </td>
                     <td className="px-6 py-4 text-xs text-gray-600">
-                      {formatDateTime(member.createdAt)}
+                      {formatDateTime(member.createDate)}
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-4">
@@ -549,16 +613,14 @@ const MemberManagement = () => {
                           onClick={() => openStatusConfirm(member)}
                           className="text-blue-600 hover:text-blue-800 text-sm font-medium"
                         >
-                          {member.accountStatus === AccountStatus.ACTIVE
-                            ? "禁用"
-                            : "启用"}
+                          {member.status === 0 ? "禁用" : "启用"}
                         </button>
-                        <button
+                        {/* <button
                           onClick={() => handleResetPassword(member)}
                           className="text-orange-600 hover:text-orange-800 text-sm font-medium"
                         >
                           重置密码
-                        </button>
+                        </button> */}
                       </div>
                     </td>
                   </tr>
@@ -568,7 +630,7 @@ const MemberManagement = () => {
           </div>
 
           {/* 分页 */}
-          {totalPages > 1 && (
+          {total > 10 && (
             <div className="px-6 py-4 border-t bg-gray-50 flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="text-sm text-gray-700 order-2 sm:order-1">
                 正在显示 {(currentPage - 1) * 10 + 1} -{" "}
@@ -585,13 +647,15 @@ const MemberManagement = () => {
                 >
                   上一页
                 </Button>
-                <Button
+                <Button 
                   variant="outline"
                   size="sm"
                   onClick={() =>
-                    setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+                    setCurrentPage((prev) =>
+                      Math.min(Math.ceil(total / 10), prev + 1),
+                    )
                   }
-                  disabled={currentPage === totalPages}
+                  disabled={currentPage >= Math.ceil(total / 10)}
                 >
                   下一页
                 </Button>
@@ -612,25 +676,56 @@ const MemberManagement = () => {
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="email">邮箱地址</Label>
+              <Label htmlFor="name">用户名 *</Label>
               <Input
-                id="email"
-                type="email"
-                placeholder="请输入成员邮箱"
-                value={inviteForm.email}
+                id="name"
+                placeholder="请输入用户名"
+                value={inviteForm.name}
                 onChange={(e) =>
-                  setInviteForm((prev) => ({ ...prev, email: e.target.value }))
+                  setInviteForm((prev) => ({ ...prev, name: e.target.value }))
                 }
               />
             </div>
             <div>
-              <Label htmlFor="role">角色</Label>
+              <Label htmlFor="account">账号 *</Label>
+              <Input
+                id="account"
+                placeholder="请输入账号（邮箱或用户名）"
+                value={inviteForm.account}
+                onChange={(e) =>
+                  setInviteForm((prev) => ({
+                    ...prev,
+                    account: e.target.value,
+                  }))
+                }
+              />
+            </div>
+            <div>
+              <Label htmlFor="password">登录密码 *</Label>
+              <Input
+                id="password"
+                type="password"
+                placeholder="请输入登录密码（至少6位）"
+                value={inviteForm.password}
+                onChange={(e) =>
+                  setInviteForm((prev) => ({
+                    ...prev,
+                    password: e.target.value,
+                  }))
+                }
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                密码长度至少为6位字符
+              </p>
+            </div>
+            <div>
+              <Label htmlFor="role">角色 *</Label>
               <Select
                 value={inviteForm.role}
                 onValueChange={(value) =>
                   setInviteForm((prev) => ({
                     ...prev,
-                    role: value as MemberRole,
+                    role: value,
                   }))
                 }
               >
@@ -638,8 +733,11 @@ const MemberManagement = () => {
                   <SelectValue placeholder="选择角色" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={MemberRole.MEMBER}>成员</SelectItem>
-                  <SelectItem value={MemberRole.ADMIN}>管理员</SelectItem>
+                  {roles.map((role) => (
+                    <SelectItem key={role.id} value={role.id}>
+                      {role.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -666,54 +764,76 @@ const MemberManagement = () => {
           {editingMember && (
             <div className="space-y-4">
               <div>
-                <Label htmlFor="edit-name">姓名</Label>
+                <Label htmlFor="edit-name">用户名 *</Label>
                 <Input
                   id="edit-name"
-                  value={editingMember.name}
+                  value={editForm.name}
                   onChange={(e) =>
-                    setEditingMember((prev) =>
-                      prev ? { ...prev, name: e.target.value } : null,
-                    )
+                    setEditForm((prev) => ({ ...prev, name: e.target.value }))
                   }
+                  placeholder="请输入用户名"
                 />
               </div>
               <div>
-                <Label htmlFor="edit-phone">电话号码</Label>
+                <Label htmlFor="edit-account">账号 *</Label>
                 <Input
-                  id="edit-phone"
-                  value={editingMember.phone || ""}
+                  id="edit-account"
+                  value={editForm.account}
                   onChange={(e) =>
-                    setEditingMember((prev) =>
-                      prev ? { ...prev, phone: e.target.value } : null,
-                    )
+                    setEditForm((prev) => ({
+                      ...prev,
+                      account: e.target.value,
+                    }))
                   }
-                  placeholder="请输入电话号码"
+                  placeholder="请输入账号（邮箱或用户名）"
                 />
               </div>
               <div>
-                <Label htmlFor="edit-role">角色</Label>
+                <Label htmlFor="edit-password">登录密码</Label>
+                <Input
+                  id="edit-password"
+                  type="password"
+                  value={editForm.password}
+                  onChange={(e) =>
+                    setEditForm((prev) => ({
+                      ...prev,
+                      password: e.target.value,
+                    }))
+                  }
+                  placeholder="留空表示不修改密码"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  留空则不修改原密码，如需修改请输入新密码（至少6位）
+                </p>
+              </div>
+              <div>
+                <Label htmlFor="edit-role">角色 *</Label>
                 <Select
-                  value={editingMember.role}
+                  value={editForm.role}
                   onValueChange={(value) =>
-                    setEditingMember((prev) =>
-                      prev ? { ...prev, role: value as MemberRole } : null,
-                    )
+                    setEditForm((prev) => ({
+                      ...prev,
+                      role: value,
+                    }))
                   }
                 >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value={MemberRole.MEMBER}>成员</SelectItem>
-                    <SelectItem value={MemberRole.ADMIN}>管理员</SelectItem>
+                    {roles.map((role) => (
+                      <SelectItem key={role.id} value={role.id}>
+                        {role.name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
-              <div>
-                <Label htmlFor="edit-email">邮箱</Label>
+              <div style={{ display: "none" }}>
+                <Label htmlFor="edit-id">用户ID</Label>
                 <Input
-                  id="edit-email"
-                  value={editingMember.email}
+                  id="edit-id"
+                  value={editingMember.id}
                   readOnly
                   className="bg-gray-50 text-gray-600"
                 />
@@ -722,7 +842,7 @@ const MemberManagement = () => {
                 <Label htmlFor="edit-created">创建时间</Label>
                 <Input
                   id="edit-created"
-                  value={formatDateTime(editingMember.createdAt)}
+                  value={formatDateTime(editingMember.createDate)}
                   readOnly
                   className="bg-gray-50 text-gray-600"
                 />
@@ -735,6 +855,13 @@ const MemberManagement = () => {
               onClick={() => {
                 setEditDialogOpen(false);
                 setEditingMember(null);
+                setEditForm({
+                  name: "",
+                  account: "",
+                  password: "",
+                  role: "",
+                  id: "",
+                });
               }}
             >
               取消
@@ -749,13 +876,13 @@ const MemberManagement = () => {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {statusChangeMember?.accountStatus === AccountStatus.ACTIVE
+              {statusChangeMember?.status === 0
                 ? "禁用"
                 : "启用"}
               成员账户
             </AlertDialogTitle>
             <AlertDialogDescription>
-              {statusChangeMember?.accountStatus === AccountStatus.ACTIVE ? (
+              {statusChangeMember?.status === 0 ? (
                 <>
                   您确定要禁用「{statusChangeMember?.name}」的账户吗？
                   禁用后该成员将无法登录系统。
@@ -771,67 +898,13 @@ const MemberManagement = () => {
           <AlertDialogFooter>
             <AlertDialogCancel>取消</AlertDialogCancel>
             <AlertDialogAction onClick={handleToggleStatus}>
-              {statusChangeMember?.accountStatus === AccountStatus.ACTIVE
+              {statusChangeMember?.status === 0
                 ? "禁用"
                 : "启用"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      {/* 密码显示弹窗 */}
-      <Dialog open={passwordDialogOpen} onOpenChange={setPasswordDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>
-              {statusChangeMember ? "密码重置成功" : "成员创建成功"}
-            </DialogTitle>
-            <DialogDescription>
-              {statusChangeMember
-                ? `已为「${statusChangeMember.name}」重置密码，请复制新密码并安全地分享给该成员`
-                : "新成员账户已创建，请复制初始密码并安全地分享给该成员"}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            {statusChangeMember && (
-              <div className="p-3 bg-blue-50 rounded-lg">
-                <div className="text-sm text-blue-800">
-                  <strong>成员信息：</strong> {statusChangeMember.name} (
-                  {statusChangeMember.email})
-                </div>
-              </div>
-            )}
-            <div className="p-4 bg-gray-50 rounded-lg">
-              <div className="text-sm text-gray-600 mb-2">
-                {statusChangeMember ? "新密码" : "初始密码"}
-              </div>
-              <div className="flex items-center gap-2">
-                <code className="flex-1 p-2 bg-white border rounded text-lg font-mono">
-                  {generatedPassword}
-                </code>
-                <Button size="sm" variant="outline" onClick={copyPassword}>
-                  <Copy className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-            <div className="text-sm text-amber-600 bg-amber-50 p-3 rounded">
-              <strong>重要提醒：</strong>
-              请务必将此密码安全地告知{statusChangeMember ? "该成员" : "新成员"}
-              ，并建议其首次登录后立即修改密码。
-            </div>
-          </div>
-          <DialogFooter>
-            <Button
-              onClick={() => {
-                setPasswordDialogOpen(false);
-                setStatusChangeMember(null);
-              }}
-            >
-              我已复制密码
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };

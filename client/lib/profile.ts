@@ -136,30 +136,6 @@ export async function getUserEventList(
   size: number = 10,
   eventType: number = 0, // 0 for order data, 1 for behavior data
 ): Promise<ApiEventListResponse | null> {
-  // 在开发环境中，如果是localhost或者没有真实后端，返回模拟数据
-  if (process.env.NODE_ENV === 'development' &&
-      (window.location.hostname === 'localhost' || window.location.hostname.includes('fly.dev'))) {
-    console.log('Using mock data for getUserEventList in development environment');
-
-    // 模拟API延迟
-    await new Promise(resolve => setTimeout(resolve, 300));
-
-    return {
-      current_page: page,
-      total_pages: 3,
-      total_count: 25,
-      page_size: size,
-      events: Array.from({ length: Math.min(size, 25 - (page - 1) * size) }, (_, index) => ({
-        id: `event_${page}_${index}`,
-        timestamp: new Date(Date.now() - Math.random() * 86400000).toISOString(),
-        event_type: eventType === 0 ? 'order' : 'behavior',
-        data: eventType === 0
-          ? { order_id: `ORD_${Math.random().toString(36).substr(2, 9)}`, amount: Math.random() * 1000 }
-          : { action: 'page_view', page: '/products' }
-      }))
-    };
-  }
-
   try {
     const requestBody = {
       currentpage: page,
@@ -169,23 +145,16 @@ export async function getUserEventList(
       sessionId,
     };
 
-    const response = await request.request<ApiEnvelope<ApiEventListResponse>>(
+    const response = await request.post<ApiEnvelope<ApiEventListResponse>>(
       "/quote/api/v1/profile/order/list",
-      {
-        method: "POST",
-        data: requestBody,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        timeout: 5000, // 减少超时时间到5秒
-      },
+      requestBody,
     );
-
+    
     const envelope = response as unknown as
       | ApiEnvelope<ApiEventListResponse>
       | any;
     if (envelope && envelope.data) {
-      return envelope.data as ApiEventListResponse;
+      return envelope.data.data as ApiEventListResponse;
     }
 
     return (response as any)?.data ?? null;

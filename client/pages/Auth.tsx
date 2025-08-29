@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,9 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { Mail, Lock, User, Shield, Home, ArrowLeft } from "lucide-react";
 import { authService } from "@/services/authService";
+import { useAuthStore } from "@/stores";
+import { GoogleAuthButton } from "@/components/Auth/GoogleAuthButton";
+import { useLoginSuccess } from "@/components/Auth/useLoginSuccess";
 
 interface FormData {
   username: string;
@@ -29,8 +32,19 @@ interface FormErrors {
 export default function Auth() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { handleLoginSuccess } = useLoginSuccess();
+  const {
+    user,
+    isAuthenticated,
+    isLoading,
+    setUser,
+    setIsAuthenticated,
+    setLoading,
+    setVerificationCode,
+    getVerificationCode,
+  } = useAuthStore();
+
   const [activeTab, setActiveTab] = useState("login");
-  const [isGoogleAuth, setIsGoogleAuth] = useState(false);
   const [isCodeSending, setIsCodeSending] = useState(false);
   const [countdown, setCountdown] = useState(0);
 
@@ -43,6 +57,13 @@ export default function Auth() {
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
+
+  // 如果已经登录，重定向到首页
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      navigate("/");
+    }
+  }, [isAuthenticated, user, navigate]);
 
   // 验证邮箱格式
   const validateEmail = (email: string): boolean => {
@@ -85,10 +106,10 @@ export default function Auth() {
           return !value ? "密码格式无效" : null;
         }
         return validatePassword(value);
-      case "confirmPassword":
-        if (!value) return "请输入您的确认密码";
-        if (value !== formData.password) return "确认密码与新密码不匹配";
-        return null;
+      // case "confirmPassword":
+      //   if (!value) return "请输入您的确认密码";
+      //   if (value !== formData.password) return "确认密码与新密码不匹配";
+      //   return null;
       case "confirmationCode":
         if (!value) return "请输入您的确认验证码";
         return null;
@@ -110,11 +131,6 @@ export default function Auth() {
     if (errors[name as keyof FormErrors]) {
       setErrors((prev) => ({ ...prev, [name]: null }));
     }
-  };
-
-  // 检查邮箱是否存在
-  const checkEmailExists = (email: string): boolean => {
-    return authService.checkEmailExists(email);
   };
 
   // 发送验证码
@@ -142,6 +158,12 @@ export default function Auth() {
       return;
     }
 
+    // 保存验证码到 store（测试环境）
+    if (result.key) {
+      const expiresAt = Date.now() + 10 * 60 * 1000; // 10分钟后过期
+      setVerificationCode(formData.email, result.key, expiresAt, "register");
+    }
+
     setCountdown(120);
 
     toast({
@@ -159,27 +181,6 @@ export default function Auth() {
         return prev - 1;
       });
     }, 1000);
-  };
-
-  // 谷歌登录
-  const handleGoogleAuth = () => {
-    // 模拟谷歌登录成功
-    setIsGoogleAuth(true);
-    setFormData((prev) => ({
-      ...prev,
-      username: "google_user_" + Date.now(),
-      email: "googleuser@gmail.com",
-    }));
-
-    toast({
-      title: "谷歌登录成功",
-      description: "已自动填充信息，正在发送验证码...",
-    });
-
-    // 自动发送验证码
-    setTimeout(() => {
-      sendVerificationCode();
-    }, 500);
   };
 
   // 注册处理
@@ -201,12 +202,14 @@ export default function Auth() {
       return;
     }
 
+    setLoading(true);
     const result = await authService.register({
       username: formData.username,
       email: formData.email,
       password: formData.password,
       confirmationCode: formData.confirmationCode,
     });
+    setLoading(false);
 
     if (!result.success) {
       toast({
@@ -216,14 +219,44 @@ export default function Auth() {
       return;
     }
 
-    toast({
-      title: "注册成功！",
-      description: "正在跳转到主页...",
+    // 注册成功后自动登录并跳转到首页
+    const loginResult = await authService.login({
+      email: formData.email,
+      password: formData.password,
     });
 
-    setTimeout(() => {
-      navigate("/");
-    }, 1000);
+    if (loginResult.success && loginResult.user) {
+      // 更新 Zustand store
+      setUser(loginResult.user);
+      setIsAuthenticated(true);
+
+      toast({
+        title: "注册并登录成功！",
+        description: "欢迎使用AI营销平台",
+      });
+
+      // 直接跳转到首页
+      setTimeout(() => {
+        navigate("/");
+      }, 1000);
+    } else {
+      toast({
+        title: "注册成功，但登录失败",
+        description: "请手动登录",
+        variant: "destructive",
+      });
+
+      // 切换到登录标签页
+      setActiveTab("login");
+      // 清空表单，但保留邮箱以便登录
+      setFormData({
+        username: "",
+        email: formData.email,
+        password: "",
+        confirmPassword: "",
+        confirmationCode: "",
+      });
+    }
   };
 
   // 登录处理
@@ -241,10 +274,12 @@ export default function Auth() {
       return;
     }
 
+    setLoading(true);
     const result = await authService.login({
       email: formData.email,
       password: formData.password,
     });
+    setLoading(false);
 
     if (!result.success) {
       toast({
@@ -254,14 +289,10 @@ export default function Auth() {
       return;
     }
 
-    toast({
-      title: "登录成功！",
-      description: result.user?.isAdmin ? "欢迎回来，管理员" : "欢迎回来",
-    });
-
-    setTimeout(() => {
-      navigate("/");
-    }, 1000);
+    // 使用共享的登录完成处理函数
+    if (result.user) {
+      handleLoginSuccess(result.user, result.user.isAdmin ? "欢迎回来，管理员" : "欢迎回来");
+    }
   };
 
   return (
@@ -354,8 +385,12 @@ export default function Auth() {
                   </div>
                 </div>
 
-                <Button onClick={handleLogin} className="w-full">
-                  登录
+                <Button
+                  onClick={handleLogin}
+                  className="w-full"
+                  disabled={isLoading}
+                >
+                  {isLoading ? "登录中..." : "登录"}
                 </Button>
 
                 <div className="relative">
@@ -369,13 +404,7 @@ export default function Auth() {
                   </div>
                 </div>
 
-                <Button
-                  variant="outline"
-                  onClick={handleGoogleAuth}
-                  className="w-full"
-                >
-                  使用谷歌登���
-                </Button>
+                <GoogleAuthButton type="login" />
 
                 <div className="text-center text-sm">
                   还没有账户？{" "}
@@ -405,7 +434,6 @@ export default function Auth() {
                         handleInputChange("username", e.target.value)
                       }
                       onBlur={() => handleBlur("username")}
-                      disabled={isGoogleAuth}
                     />
                   </div>
                   {errors.username && (
@@ -430,7 +458,6 @@ export default function Auth() {
                           handleInputChange("email", e.target.value)
                         }
                         onBlur={() => handleBlur("email")}
-                        disabled={isGoogleAuth}
                       />
                     </div>
                     <Button
@@ -499,8 +526,12 @@ export default function Auth() {
                   </p>
                 </div>
 
-                <Button onClick={handleRegister} className="w-full">
-                  注册
+                <Button
+                  onClick={handleRegister}
+                  className="w-full"
+                  disabled={isLoading}
+                >
+                  {isLoading ? "注册中..." : "注册"}
                 </Button>
 
                 <div className="relative">
@@ -514,13 +545,7 @@ export default function Auth() {
                   </div>
                 </div>
 
-                <Button
-                  variant="outline"
-                  onClick={handleGoogleAuth}
-                  className="w-full"
-                >
-                  使用谷歌登录
-                </Button>
+                <GoogleAuthButton type="login" />
 
                 <div className="text-center text-sm">
                   已经有账户了？{" "}

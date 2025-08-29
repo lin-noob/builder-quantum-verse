@@ -62,6 +62,7 @@ import {
   OrganizationListQuery,
 } from "../../../shared/organizationData";
 import { organizationApi } from "../../../shared/organizationApi";
+import { organizationService } from "../services/organizationService";
 
 const OrganizationManagement = () => {
   const navigate = useNavigate();
@@ -74,9 +75,12 @@ const OrganizationManagement = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
 
   // 排序状态
-  const [sortField, setSortField] = useState<"createdAt" | null>("createdAt");
+  const [sortField, setSortField] = useState<"createdAt" | "name" | null>(
+    "createdAt",
+  );
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
   // 弹窗状��
@@ -103,7 +107,14 @@ const OrganizationManagement = () => {
 
   useEffect(() => {
     loadOrganizations();
-  }, [currentPage, searchQuery, selectedStatus]);
+  }, [
+    currentPage,
+    searchQuery,
+    selectedStatus,
+    sortField,
+    sortOrder,
+    pageSize,
+  ]);
 
   const loadOrganizations = async () => {
     try {
@@ -111,20 +122,22 @@ const OrganizationManagement = () => {
 
       const query: OrganizationListQuery = {
         page: currentPage,
-        limit: 10,
-        search: searchQuery,
+        limit: pageSize,
+        search: searchQuery.trim() || undefined,
         status: selectedStatus === "ALL" ? undefined : selectedStatus,
+        sortBy: sortField || undefined,
+        sortOrder: sortOrder,
       };
 
-      const response = await organizationApi.getOrganizations(query);
+      const response = await organizationService.getOrganizations(query);
       setOrganizations(response.data);
       setTotalPages(response.totalPages);
       setTotal(response.total);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to load organizations:", error);
       toast({
         title: "加载失败",
-        description: "无法加载组织列表，请重试",
+        description: error.message || "无法加载组织列表，请重试",
         variant: "destructive",
       });
     } finally {
@@ -136,7 +149,8 @@ const OrganizationManagement = () => {
     if (
       !createForm.name.trim() ||
       !createForm.adminName.trim() ||
-      !createForm.adminEmail.trim()
+      !createForm.adminEmail.trim() || 
+      !createForm.adminPassword.trim()
     ) {
       toast({
         title: "表单验证失败",
@@ -147,9 +161,9 @@ const OrganizationManagement = () => {
     }
 
     try {
-      const response = await organizationApi.createOrganization(createForm);
+      const bool = await organizationService.createOrganization(createForm);
 
-      if (response.success) {
+      if (bool) {
         toast({
           title: "创建成功",
           description: "新组织和管理员账户已创建",
@@ -172,15 +186,15 @@ const OrganizationManagement = () => {
       } else {
         toast({
           title: "创建失败",
-          description: response.message,
+          description: "创建失败",
           variant: "destructive",
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to create organization:", error);
       toast({
         title: "创建失败",
-        description: "网络错误，请重试",
+        description: error.message || "网络错误，请重试",
         variant: "destructive",
       });
     }
@@ -197,7 +211,8 @@ const OrganizationManagement = () => {
         subscriptionPlan: editingOrganization.subscriptionPlan,
       };
 
-      const response = await organizationApi.updateOrganization(updateRequest);
+      const response =
+        await organizationService.updateOrganization(updateRequest);
 
       if (response.success) {
         toast({
@@ -215,11 +230,11 @@ const OrganizationManagement = () => {
           variant: "destructive",
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to update organization:", error);
       toast({
         title: "更新失败",
-        description: "网络错误，请重试",
+        description: error.message || "网络错误，请重试",
         variant: "destructive",
       });
     }
@@ -230,16 +245,27 @@ const OrganizationManagement = () => {
     if (!sortField) return organizations;
 
     return [...organizations].sort((a, b) => {
-      let aValue: string = a.createdAt;
-      let bValue: string = b.createdAt;
+      let aValue: any;
+      let bValue: any;
 
-      const dateA = new Date(aValue).getTime();
-      const dateB = new Date(bValue).getTime();
+      if (sortField === "createdAt") {
+        aValue = new Date(a.createdAt).getTime();
+        bValue = new Date(b.createdAt).getTime();
+      } else if (sortField === "name") {
+        aValue = a.name.toLowerCase();
+        bValue = b.name.toLowerCase();
+      }
 
       if (sortOrder === "desc") {
-        return dateB - dateA;
+        if (typeof aValue === "string") {
+          return bValue.localeCompare(aValue);
+        }
+        return bValue - aValue;
       } else {
-        return dateA - dateB;
+        if (typeof aValue === "string") {
+          return aValue.localeCompare(bValue);
+        }
+        return aValue - bValue;
       }
     });
   };
@@ -247,13 +273,14 @@ const OrganizationManagement = () => {
   // 获取排序后的组织列表
   const sortedOrganizations = sortOrganizations(organizations);
 
-  const handleSort = (field: "createdAt") => {
+  const handleSort = (field: "createdAt" | "name") => {
     if (sortField === field) {
       setSortOrder(sortOrder === "desc" ? "asc" : "desc");
     } else {
       setSortField(field);
       setSortOrder("desc");
     }
+    setCurrentPage(1); // 重置到第一页
   };
 
   const openEditDialog = (organization: Organization) => {
@@ -281,63 +308,75 @@ const OrganizationManagement = () => {
     }
   };
 
-  // 切换组织状态
-  const handleToggleOrganizationStatus = async (organization: Organization) => {
+  // 禁用组织
+  const handleDisableOrganization = async (organization: Organization) => {
     try {
-      let newStatus: AccountStatus;
-      let actionText: string;
-
-      if (organization.accountStatus === AccountStatus.ACTIVE) {
-        newStatus = AccountStatus.SUSPENDED;
-        actionText = "暂停";
-      } else {
-        newStatus = AccountStatus.ACTIVE;
-        actionText = "启用";
-      }
-
-      const updateRequest: UpdateOrganizationRequest = {
-        organizationId: organization.organizationId,
-        name: organization.name,
-        accountStatus: newStatus,
-        subscriptionPlan: organization.subscriptionPlan,
-      };
-
-      const response = await organizationApi.updateOrganization(updateRequest);
+      const response = await organizationService.disableOrganizations([
+        organization.id,
+      ]);
 
       if (response.success) {
         toast({
-          title: `${actionText}成功`,
-          description: `组织状态已${actionText}`,
+          title: "禁用成功",
+          description: "组织已成功禁用",
         });
         loadOrganizations();
       } else {
         toast({
-          title: `${actionText}失败`,
+          title: "禁用失败",
           description: response.message,
           variant: "destructive",
         });
       }
-    } catch (error) {
-      console.error("Failed to toggle organization status:", error);
+    } catch (error: any) {
+      console.error("Failed to disable organization:", error);
       toast({
-        title: "操作失败",
-        description: "网络错误，请重试",
+        title: "禁用失败",
+        description: error.message || "网络错误，请重试",
         variant: "destructive",
       });
     }
   };
 
-  const getStatusBadge = (status: AccountStatus) => {
-    if (status === AccountStatus.ACTIVE) {
+  // 启用组织
+  const handleEnableOrganization = async (organization: Organization) => {
+    try {
+      const response = await organizationService.enableOrganizations([
+        organization.id,
+      ]);
+
+      if (response.success) {
+        toast({
+          title: "启用成功",
+          description: "组织已成功启用",
+        });
+        loadOrganizations();
+      } else {
+        toast({
+          title: "启用失败",
+          description: response.message,
+          variant: "destructive",
+        });
+      }
+    } catch (error: any) {
+      console.error("Failed to enable organization:", error);
+      toast({
+        title: "启用失败",
+        description: error.message || "网络错误，请重试",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const getStatusBadge = (status: boolean) => {
+    if (status === false) {
       return (
         <Badge variant="default" className="bg-green-100 text-green-800">
-          活跃
+          已启用
         </Badge>
       );
-    } else if (status === AccountStatus.SUSPENDED) {
-      return <Badge variant="destructive">已暂停</Badge>;
-    } else {
-      return <Badge variant="secondary">未知状态</Badge>;
+    } else if (status === true) {
+      return <Badge variant="destructive">已禁用</Badge>;
     }
   };
 
@@ -429,9 +468,9 @@ const OrganizationManagement = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="ALL">所有状态</SelectItem>
-                  <SelectItem value={AccountStatus.ACTIVE}>活跃</SelectItem>
+                  <SelectItem value={AccountStatus.ACTIVE}>已启用</SelectItem>
                   <SelectItem value={AccountStatus.SUSPENDED}>
-                    已暂停
+                    已禁用
                   </SelectItem>
                 </SelectContent>
               </Select>
@@ -445,6 +484,9 @@ const OrganizationManagement = () => {
                 onClick={() => {
                   setSearchQuery("");
                   setSelectedStatus("ALL");
+                  setSortField("createdAt");
+                  setSortOrder("desc");
+                  setPageSize(10);
                   setCurrentPage(1);
                 }}
                 className="flex items-center gap-2 h-10"
@@ -529,26 +571,26 @@ const OrganizationManagement = () => {
                         <button
                           onClick={() =>
                             navigate(
-                              `/admin/organizations/${organization.organizationId}`,
+                              `/admin/organizations/${organization.id}`,
                             )
                           }
                           className="text-blue-600 hover:text-blue-800 text-sm font-medium"
                         >
                           查看详情
                         </button>
-                        {organization.accountStatus === AccountStatus.ACTIVE ? (
+                        {!organization.accountStatus ? (
                           <button
                             onClick={() =>
-                              handleToggleOrganizationStatus(organization)
+                              handleDisableOrganization(organization)
                             }
                             className="text-orange-600 hover:text-orange-800 text-sm font-medium"
                           >
-                            暂停
+                            禁用
                           </button>
                         ) : (
                           <button
                             onClick={() =>
-                              handleToggleOrganizationStatus(organization)
+                              handleEnableOrganization(organization)
                             }
                             className="text-green-600 hover:text-green-800 text-sm font-medium"
                           >
@@ -564,36 +606,32 @@ const OrganizationManagement = () => {
           </div>
 
           {/* 分页 */}
-          {totalPages > 1 && (
-            <div className="px-6 py-4 border-t bg-gray-50 flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div className="text-sm text-gray-700 order-2 sm:order-1">
-                正在显示 {(currentPage - 1) * 10 + 1} -{" "}
-                {Math.min(currentPage * 10, total)} 条，共 {total} 条
-              </div>
-              <div className="flex items-center gap-2 order-1 sm:order-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() =>
-                    setCurrentPage((prev) => Math.max(1, prev - 1))
-                  }
-                  disabled={currentPage === 1}
-                >
-                  上一页
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() =>
-                    setCurrentPage((prev) => Math.min(totalPages, prev + 1))
-                  }
-                  disabled={currentPage === totalPages}
-                >
-                  下一页
-                </Button>
-              </div>
+          <div className="px-6 py-4 border-t bg-gray-50 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="text-sm text-gray-700 order-2 sm:order-1">
+              正在显示 {(currentPage - 1) * pageSize + 1} -{" "}
+              {Math.min(currentPage * pageSize, total)} 条，共 {total} 条
             </div>
-          )}
+            <div className="flex items-center gap-2 order-1 sm:order-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+              >
+                上一页
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+                }
+                disabled={currentPage >= Math.ceil(total / 10)}
+              >
+                下一页
+              </Button>
+            </div>
+          </div>
         </Card>
       </div>
 
@@ -760,9 +798,9 @@ const OrganizationManagement = () => {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value={AccountStatus.ACTIVE}>活跃</SelectItem>
+                    <SelectItem value={AccountStatus.ACTIVE}>已启用</SelectItem>
                     <SelectItem value={AccountStatus.SUSPENDED}>
-                      已暂停
+                      已禁用
                     </SelectItem>
                   </SelectContent>
                 </Select>

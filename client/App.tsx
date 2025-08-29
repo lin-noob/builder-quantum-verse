@@ -33,6 +33,7 @@ import ScenarioConfig from "./pages/AIMarketing/ScenarioConfig";
 import PerformanceAnalytics from "./pages/AIMarketing/PerformanceAnalytics";
 import LiveMonitoring from "./pages/AIMarketing/LiveMonitoring";
 import Auth from "./pages/Auth";
+import GoogleAuthCallback from "./pages/GoogleAuthCallback";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import UserProfile from "./pages/UserProfile";
@@ -41,18 +42,21 @@ import MemberManagement from "./pages/Organization/MemberManagement";
 import OrganizationSettings from "./pages/Organization/OrganizationSettings";
 import PersonalSettings from "./pages/Account/PersonalSettings";
 import { usePageRequestManager } from "./hooks/useRequestManager";
+import { useFetchRolesOnMount } from "./hooks/useFetchRolesOnMount";
 import AdminApp from "./admin/AdminApp";
 import MarketingHome from "./pages/MarketingHome";
 import AIMarketingFeature from "./pages/features/AIMarketingOptimized";
 import UserProfilingFeature from "./pages/features/UserProfiling";
 import RealTimeMonitoringFeature from "./pages/features/RealTimeMonitoring";
 import EffectTrackingFeature from "./pages/features/EffectTrackingOptimized";
+import SDK from "./pages/SDK";
 
 const queryClient = new QueryClient();
 
 // 请求管理包装组件
 const AppWithRequestManager = () => {
   usePageRequestManager(); // 使��页面级请求管理
+  useFetchRolesOnMount(); // 获取角色列表
 
   return (
     <TooltipProvider>
@@ -62,6 +66,7 @@ const AppWithRequestManager = () => {
         <Routes>
           {/* Authentication routes - no layout */}
           <Route path="/auth" element={<Auth />} />
+          <Route path="/auth/google/callback" element={<GoogleAuthCallback />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
 
@@ -356,6 +361,16 @@ const AppWithRequestManager = () => {
             element={
               <Layout>
                 <PersonalSettings />
+              </Layout>
+            }
+          />
+          
+          {/* SDK页面 */}
+          <Route
+            path="/sdk"
+            element={
+              <Layout>
+                <SDK />
               </Layout>
             }
           />

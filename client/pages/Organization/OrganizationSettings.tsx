@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { request } from "@/lib/request";
 import {
   Building2,
   Calendar,
@@ -13,21 +14,25 @@ import {
   Save,
   Shield,
   Info,
+  Mail,
+  User,
 } from "lucide-react";
-import {
-  Organization,
-  UpdateOrganizationRequest,
-  AccountStatus,
-  SubscriptionPlan,
-} from "../../../shared/organizationData";
-import { organizationApi, memberApi } from "../../../shared/organizationApi";
+import { OrganizationInfo } from "@shared/organizationData";
+
+// Type definitions for legacy code
+type AccountStatus = "ACTIVE" | "SUSPENDED";
+type SubscriptionPlan =
+  | "INTERNAL_TRIAL"
+  | "BASIC"
+  | "PROFESSIONAL"
+  | "ENTERPRISE";
+
+// API response types
 
 const OrganizationSettings = () => {
-  const [organization, setOrganization] = useState<Organization | null>(null);
+  const [orgInfo, setOrgInfo] = useState<OrganizationInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [memberCount, setMemberCount] = useState(0);
-  const [activeMemberCount, setActiveMemberCount] = useState(0);
 
   // 表单状态
   const [formData, setFormData] = useState({
@@ -40,25 +45,22 @@ const OrganizationSettings = () => {
   const currentOrganizationId = "org_demo_001";
 
   useEffect(() => {
-    loadOrganization();
-    loadMemberStats();
+    loadOrganizationInfo();
   }, []);
 
-  const loadOrganization = async () => {
+  const loadOrganizationInfo = async () => {
     try {
       setLoading(true);
-      const orgData = await organizationApi.getOrganizationById(
-        currentOrganizationId,
-      );
-
-      if (orgData) {
-        setOrganization(orgData);
+      const response = await request.get("/admin/api/v1/users/info");
+      const res = response.data;
+      if (res) {
+        setOrgInfo(res.data);
         setFormData({
-          name: orgData.name,
+          name: res.data.name || "",
         });
       }
     } catch (error) {
-      console.error("Failed to load organization:", error);
+      console.error("Failed to load organization info:", error);
       toast({
         title: "加载失败",
         description: "无法加载组织信息，请重试",
@@ -69,23 +71,8 @@ const OrganizationSettings = () => {
     }
   };
 
-  const loadMemberStats = async () => {
-    try {
-      const response = await memberApi.getMembers(currentOrganizationId, {
-        limit: 1000,
-      });
-      setMemberCount(response.total);
-      setActiveMemberCount(
-        response.data.filter((m) => m.accountStatus === AccountStatus.ACTIVE)
-          .length,
-      );
-    } catch (error) {
-      console.error("Failed to load member stats:", error);
-    }
-  };
-
   const handleSave = async () => {
-    if (!organization) return;
+    if (!orgInfo) return;
 
     if (!formData.name.trim()) {
       toast({
@@ -99,31 +86,35 @@ const OrganizationSettings = () => {
     try {
       setSaving(true);
 
-      const updateRequest: UpdateOrganizationRequest = {
-        organizationId: organization.organizationId,
-        name: formData.name.trim(),
-      };
+      // Update organization name using the API
+      const response = await request.post(
+        `/admin/api/v1/users/updateSelf`,
+        {
+          company: formData.name.trim(),
+        },
+      );
 
-      const response = await organizationApi.updateOrganization(updateRequest);
+      const res = response.data;
 
-      if (response.success) {
+      if (res && res.code === "201") {
         toast({
           title: "保存成功",
           description: "组织信息已更新",
         });
 
-        setOrganization(response.data);
+        // Refresh the data
+        loadOrganizationInfo();
       } else {
         toast({
           title: "保存失败",
-          description: response.message,
+          description: res?.msg || "更新失败",
           variant: "destructive",
         });
       }
     } catch (error) {
       console.error("Failed to update organization:", error);
       toast({
-        title: "保��失败",
+        title: "保存失败",
         description: "网络错误，请重试",
         variant: "destructive",
       });
@@ -132,40 +123,12 @@ const OrganizationSettings = () => {
     }
   };
 
-  const getStatusBadge = (status: AccountStatus) => {
-    if (status === AccountStatus.ACTIVE) {
-      return (
-        <Badge variant="default" className="bg-green-100 text-green-800">
-          活跃
-        </Badge>
-      );
-    } else if (status === AccountStatus.SUSPENDED) {
-      return <Badge variant="destructive">已暂停</Badge>;
-    } else {
-      return <Badge variant="secondary">未知状态</Badge>;
-    }
-  };
-
-  const getSubscriptionBadge = (plan: SubscriptionPlan) => {
-    const badges = {
-      [SubscriptionPlan.INTERNAL_TRIAL]: (
-        <Badge variant="outline" className="bg-blue-50 text-blue-700">
-          内部试用
-        </Badge>
-      ),
-      [SubscriptionPlan.BASIC]: <Badge variant="outline">基础版</Badge>,
-      [SubscriptionPlan.PROFESSIONAL]: (
-        <Badge variant="default" className="bg-purple-100 text-purple-800">
-          专业版
-        </Badge>
-      ),
-      [SubscriptionPlan.ENTERPRISE]: (
-        <Badge variant="default" className="bg-yellow-100 text-yellow-800">
-          企业版
-        </Badge>
-      ),
-    };
-    return badges[plan] || <Badge variant="secondary">未知套餐</Badge>;
+  const getSubscriptionBadge = () => {
+    return (
+      <Badge variant="outline" className="bg-blue-50 text-blue-700">
+        内部试用
+      </Badge>
+    );
   };
 
   const formatDate = (dateString: string) => {
@@ -176,6 +139,46 @@ const OrganizationSettings = () => {
       hour: "2-digit",
       minute: "2-digit",
     });
+  };
+
+  const formatTimestamp = (timestamp: number) => {
+    return new Date(timestamp).toLocaleDateString("zh-CN", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  const getUserTypeBadge = (usertype: string) => {
+    if (usertype === "manager") {
+      return (
+        <Badge variant="default" className="bg-purple-100 text-purple-800">
+          管理员
+        </Badge>
+      );
+    } else if (usertype === "member") {
+      return (
+        <Badge variant="outline" className="bg-blue-50 text-blue-700">
+          成员
+        </Badge>
+      );
+    } else {
+      return <Badge variant="secondary">{usertype}</Badge>;
+    }
+  };
+
+  const getUserStatusBadge = (disable: boolean) => {
+    if (disable) {
+      return <Badge variant="destructive">已禁用</Badge>;
+    } else {
+      return (
+        <Badge variant="default" className="bg-green-100 text-green-800">
+          活跃
+        </Badge>
+      );
+    }
   };
 
   if (loading) {
@@ -192,7 +195,7 @@ const OrganizationSettings = () => {
     );
   }
 
-  if (!organization) {
+  if (!orgInfo) {
     return (
       <div className="p-6">
         <div className="text-center py-12">
@@ -221,7 +224,7 @@ const OrganizationSettings = () => {
               <Label htmlFor="orgId">组织ID</Label>
               <Input
                 id="orgId"
-                value={organization.organizationId}
+                value={orgInfo.company.id}
                 disabled
                 className="bg-gray-50"
               />
@@ -248,7 +251,7 @@ const OrganizationSettings = () => {
             <div className="flex justify-end">
               <Button
                 onClick={handleSave}
-                disabled={saving || formData.name === organization.name}
+                disabled={saving || formData.name === orgInfo.name}
                 className="flex items-center gap-2"
               >
                 <Save className="h-4 w-4" />
@@ -268,28 +271,26 @@ const OrganizationSettings = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex justify-between items-center">
-              <span className="text-sm font-medium">账户状态</span>
-              {getStatusBadge(organization.accountStatus)}
+              <span className="text-sm font-medium">用户类型</span>
+              {getUserTypeBadge(orgInfo.usertype)}
             </div>
 
             <div className="flex justify-between items-center">
               <span className="text-sm font-medium">订阅套餐</span>
-              {getSubscriptionBadge(organization.subscriptionPlan)}
+              {getSubscriptionBadge()}
             </div>
 
             <div className="flex justify-between items-center">
               <span className="text-sm font-medium">创建时间</span>
               <span className="text-sm text-gray-600">
-                {formatDate(organization.createdAt)}
+                {orgInfo.company.gmtCreate}
               </span>
             </div>
 
             <div className="flex justify-between items-center">
               <span className="text-sm font-medium">最后更新</span>
               <span className="text-sm text-gray-600">
-                {organization.updatedAt
-                  ? formatDate(organization.updatedAt)
-                  : "未知"}
+                {orgInfo.company.gmtModified}
               </span>
             </div>
           </CardContent>
@@ -307,13 +308,13 @@ const OrganizationSettings = () => {
             <div className="grid grid-cols-2 gap-4">
               <div className="text-center p-4 bg-blue-50 rounded-lg">
                 <div className="text-2xl font-bold text-blue-600">
-                  {memberCount}
+                  {orgInfo.total}
                 </div>
                 <div className="text-sm text-blue-600">总成员数</div>
               </div>
               <div className="text-center p-4 bg-green-50 rounded-lg">
                 <div className="text-2xl font-bold text-green-600">
-                  {activeMemberCount}
+                  {orgInfo.activeMember}
                 </div>
                 <div className="text-sm text-green-600">活跃成员</div>
               </div>
