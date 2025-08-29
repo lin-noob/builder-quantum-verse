@@ -49,6 +49,7 @@ import AIMarketingFeature from "./pages/features/AIMarketingOptimized";
 import UserProfilingFeature from "./pages/features/UserProfiling";
 import RealTimeMonitoringFeature from "./pages/features/RealTimeMonitoring";
 import EffectTrackingFeature from "./pages/features/EffectTrackingOptimized";
+import SDK from "./pages/SDK";
 
 const queryClient = new QueryClient();
 
@@ -360,6 +361,16 @@ const AppWithRequestManager = () => {
             element={
               <Layout>
                 <PersonalSettings />
+              </Layout>
+            }
+          />
+          
+          {/* SDK页面 */}
+          <Route
+            path="/sdk"
+            element={
+              <Layout>
+                <SDK />
               </Layout>
             }
           />

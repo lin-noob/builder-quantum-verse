@@ -112,6 +112,12 @@ export default function Layout({ children }: LayoutProps) {
         path: "/effect-tracking",
         icon: <Target className="h-5 w-5" />,
       },
+      {
+        id: "sdk",
+        label: "开发者工具",
+        path: "/sdk",
+        icon: <Zap className="h-5 w-5" />,
+      },
     ],
     [],
   );
@@ -262,6 +268,8 @@ export default function Layout({ children }: LayoutProps) {
                       )) ||
                     (item.id === "effect-tracking" &&
                       location.pathname.startsWith("/effect-tracking")) ||
+                    (item.id === "sdk" &&
+                      location.pathname.startsWith("/sdk")) ||
                     (item.id === "admin" &&
                       location.pathname.startsWith("/admin")) ||
                     (item.id === "system-management" &&
@@ -415,6 +423,8 @@ export default function Layout({ children }: LayoutProps) {
                   )) ||
                 (item.id === "effect-tracking" &&
                   location.pathname.startsWith("/effect-tracking")) ||
+                (item.id === "sdk" &&
+                  location.pathname.startsWith("/sdk")) ||
                 (item.id === "admin" &&
                   location.pathname.startsWith("/admin")) ||
                 (item.id === "system-management" &&
