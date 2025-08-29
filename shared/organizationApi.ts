@@ -16,12 +16,6 @@ import {
   ApiResponse,
   AccountStatus,
   MemberRole,
-  mockOrganizations,
-  mockMembers,
-  getMembersByOrganization,
-  getMemberByEmail,
-  getOrganizationById,
-  getMemberById,
   generateOrganizationId,
   generateMemberId,
   generateInitialPassword,
@@ -31,8 +25,8 @@ import {
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // 内存存储（实际应用中应该是数据库）
-let organizationsStore = [...mockOrganizations];
-let membersStore = [...mockMembers];
+let organizationsStore = [];
+let membersStore = [];
 
 /**
  * 组织管理API
@@ -46,9 +40,9 @@ export const organizationApi = {
   ): Promise<PaginatedResponse<Organization>> {
     await delay(300);
 
-    const { page = 1, limit = 10, search = "", status } = query;
+    const { page = 1, limit = 10, search, status, sortBy, sortOrder } = query;
 
-    let filteredOrgs = organizationsStore;
+    let filteredOrgs = [...organizationsStore];
 
     // 搜索过滤
     if (search) {
@@ -64,6 +58,34 @@ export const organizationApi = {
       filteredOrgs = filteredOrgs.filter((org) => org.accountStatus === status);
     }
 
+    // 排序
+    if (sortBy) {
+      filteredOrgs.sort((a, b) => {
+        let aValue: any;
+        let bValue: any;
+
+        if (sortBy === "createdAt") {
+          aValue = new Date(a.createdAt).getTime();
+          bValue = new Date(b.createdAt).getTime();
+        } else if (sortBy === "name") {
+          aValue = a.name.toLowerCase();
+          bValue = b.name.toLowerCase();
+        }
+
+        if (sortOrder === "desc") {
+          if (typeof aValue === "string") {
+            return bValue.localeCompare(aValue);
+          }
+          return bValue - aValue;
+        } else {
+          if (typeof aValue === "string") {
+            return aValue.localeCompare(bValue);
+          }
+          return aValue - bValue;
+        }
+      });
+    }
+
     // 分页
     const startIndex = (page - 1) * limit;
     const endIndex = startIndex + limit;
@@ -72,9 +94,6 @@ export const organizationApi = {
     return {
       data: paginatedData,
       total: filteredOrgs.length,
-      page,
-      limit,
-      totalPages: Math.ceil(filteredOrgs.length / limit),
     };
   },
 

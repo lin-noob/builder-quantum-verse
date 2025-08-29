@@ -17,6 +17,7 @@ import {
   Mail,
   User,
 } from "lucide-react";
+import { OrganizationInfo } from "@shared/organizationData";
 
 // Type definitions for legacy code
 type AccountStatus = "ACTIVE" | "SUSPENDED";
@@ -27,43 +28,6 @@ type SubscriptionPlan =
   | "ENTERPRISE";
 
 // API response types
-interface CompanyInfo {
-  id: string;
-  name: string | null;
-  remark: string | null;
-  invitecode: string | null;
-  fromcode: string | null;
-  bossEmail: string | null;
-  organizationId: string | null;
-  gmtCreate: string;
-  gmtModified: string;
-}
-
-interface UserInfo {
-  userinfo: {
-    name: string;
-    id: string;
-    email: string;
-  };
-  id: string;
-  account: string;
-  createDate: number;
-  losingeffect: number;
-  disable: boolean;
-  lastlogintime: number;
-  shopid: string;
-}
-
-interface OrganizationInfo {
-  activeMember: string;
-  total: number;
-  name: string;
-  usertype: string;
-  company: CompanyInfo;
-  id: string;
-  user: UserInfo;
-  email: string;
-}
 
 const OrganizationSettings = () => {
   const [orgInfo, setOrgInfo] = useState<OrganizationInfo | null>(null);
@@ -156,20 +120,6 @@ const OrganizationSettings = () => {
       });
     } finally {
       setSaving(false);
-    }
-  };
-
-  const getStatusBadge = (status: AccountStatus) => {
-    if (status === AccountStatus.ACTIVE) {
-      return (
-        <Badge variant="default" className="bg-green-100 text-green-800">
-          活跃
-        </Badge>
-      );
-    } else if (status === AccountStatus.SUSPENDED) {
-      return <Badge variant="destructive">已暂停</Badge>;
-    } else {
-      return <Badge variant="secondary">未知状态</Badge>;
     }
   };
 

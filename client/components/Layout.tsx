@@ -58,13 +58,14 @@ export default function Layout({ children }: LayoutProps) {
     setCurrentUser(user);
   }, []); // 移除location依赖，避免每次路由切换都重新检查
 
-  // 自动展开系统管理菜单 - 使用useMemo缓存计算结果
+  // 自动展开系统管理菜单 - 只在初始化或从其他页面导航到组织页面时展开
   useEffect(() => {
     const shouldExpand = location.pathname.startsWith("/organization/");
-    if (shouldExpand !== isSystemManagementExpanded) {
-      setIsSystemManagementExpanded(shouldExpand);
+    // 只在应该展开但当前未展开时才自动展开
+    if (shouldExpand && !isSystemManagementExpanded) {
+      setIsSystemManagementExpanded(true);
     }
-  }, [location.pathname, isSystemManagementExpanded]);
+  }, [location.pathname]);
 
   // 基础菜单项 - 使用useMemo缓存，避免重复创建
   const baseMenuItems: MenuItem[] = useMemo(
@@ -138,13 +139,13 @@ export default function Layout({ children }: LayoutProps) {
           },
         ],
       },
-      {
-        id: "admin",
-        label: "管理后台入口（临时）",
-        path: "/admin",
-        icon: <Shield className="h-5 w-5" />,
-        isSpecial: true,
-      },
+      // {
+      //   id: "admin",
+      //   label: "管理后台入口（临时）",
+      //   path: "/admin",
+      //   icon: <Shield className="h-5 w-5" />,
+      //   isSpecial: true,
+      // },
     ],
     [],
   );

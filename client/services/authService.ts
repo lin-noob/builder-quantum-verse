@@ -3,7 +3,7 @@ import { request } from "@/lib/request";
 import { useAuthStore } from "@/stores";
 
 // Simple authentication service for demo purposes
-interface User {
+export interface User {
   id: string;
   username: string;
   email: string;

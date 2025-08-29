@@ -1,14 +1,7 @@
+import { AdminUser } from '@/services/adminAuthService';
 import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 
-// 管理员用户接口
-export interface AdminUser {
-  id: string;
-  username: string;
-  email: string;
-  role: "super_admin";
-  permissions: string[];
-}
 
 // 管理员认证状态接口
 interface AdminAuthState {
@@ -43,6 +36,9 @@ export const useAdminStore = create<AdminAuthState>()(
           if (adminUser) {
             localStorage.setItem('admin_auth_user', JSON.stringify(adminUser));
             localStorage.setItem('admin_auth_token', 'admin_token_' + Date.now());
+            if (adminUser.session) {
+              localStorage.setItem('auth_session', adminUser.session);
+            }
           } else {
             localStorage.removeItem('admin_auth_user');
             localStorage.removeItem('admin_auth_token');

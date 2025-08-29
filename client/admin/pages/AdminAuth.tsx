@@ -10,6 +10,8 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { Mail, Lock, User, Shield, Key, AlertTriangle } from "lucide-react";
 import { adminAuthService } from "@/services/adminAuthService";
+import { useAuthStore } from "@/stores";
+import { authService } from "@/services/authService";
 
 interface AdminFormData {
   username: string;
@@ -32,7 +34,7 @@ export default function AdminAuth() {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("login");
   const [isLoading, setIsLoading] = useState(false);
-
+  const { setUser, setIsAuthenticated } = useAuthStore();
   const [formData, setFormData] = useState<AdminFormData>({
     username: "",
     email: "",
@@ -208,13 +210,13 @@ export default function AdminAuth() {
               onValueChange={handleTabChange}
               className="w-full"
             >
-              <TabsList className="grid w-full grid-cols-2">
+              <TabsList className="grid w-full grid-cols-1">
                 <TabsTrigger value="login" className="text-sm">
                   登录
                 </TabsTrigger>
-                <TabsTrigger value="register" className="text-sm">
+                {/* <TabsTrigger value="register" className="text-sm">
                   注册
-                </TabsTrigger>
+                </TabsTrigger> */}
               </TabsList>
 
               <TabsContent value="login" className="space-y-4 mt-6">
@@ -272,7 +274,7 @@ export default function AdminAuth() {
 
                 <div className="mt-6 text-center">
                   <p className="text-sm text-gray-600">
-                    默认管理员账号：admin@system.com / admin123456
+                    默认管理员账号：admin@wimoor.com / 123456
                   </p>
                 </div>
               </TabsContent>

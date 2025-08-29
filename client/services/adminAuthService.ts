@@ -1,8 +1,8 @@
 // Admin authentication service for super admin access only
-import { useAdminStore } from "@/stores";
+import { User, useAdminStore } from "@/stores";
 import { request } from "@/lib/request";
 
-interface AdminUser {
+interface AdminUser extends User {
   id: string;
   username: string;
   email: string;
@@ -68,7 +68,13 @@ class AdminAuthService {
         username: userInfo.account,
         email: userInfo.account,
         role: "super_admin",
-        permissions: ["*"], // 超级管理员拥有所有权限
+        permissions: ["*"],
+        isAdmin: true,
+        session: userInfo.session,
+        account: userInfo.account,
+        usertype: userInfo.usertype,
+        companyid: userInfo.companyid,
+        lastlogintime: userInfo.lastlogintime
       };
 
       // 登录成功
