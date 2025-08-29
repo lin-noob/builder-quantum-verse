@@ -155,7 +155,7 @@ const AppWithRequestManager = () => {
             path="/users1"
             element={
               <Layout>
-                <UserListOptimized />
+                <UserList />
               </Layout>
             }
           />
