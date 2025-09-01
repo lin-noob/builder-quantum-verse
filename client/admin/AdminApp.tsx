@@ -12,6 +12,7 @@ import ScenarioConfiguration from "./pages/ScenarioConfiguration";
 import SecurityPermissions from "./pages/SecurityPermissions";
 import UserDetailsAnalytics from "./pages/UserDetailsAnalytics";
 import UserManagement from "./pages/UserManagement";
+import AdminProfile from "./pages/AdminProfile";
 
 // 临时占位页面组件
 const PlaceholderPage = ({ title }: { title: string }) => (
@@ -79,6 +80,9 @@ export default function AdminApp() {
 
                 {/* 系统配置 */}
                 <Route path="/config" element={<SystemConfig />} />
+
+                {/* 管理员个人中心 */}
+                <Route path="/profile" element={<AdminProfile />} />
 
                 {/* 默认重定向 */}
                 <Route path="*" element={<Navigate to="/admin" replace />} />

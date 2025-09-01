@@ -218,7 +218,7 @@ export interface ApiResponse<T = any> {
   data: T;
   /** 响应消息 */
   message: string;
-  msg: string;
+  msg?: string;
   /** 是否成功 */
   success: boolean;
 }

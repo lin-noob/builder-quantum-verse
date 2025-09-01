@@ -47,7 +47,8 @@ function mapApiResponseToMember(response: UserInfoResponse): Member {
   const { user } = data;
   
   return {
-    memberId: data.id,
+    account: user.account,
+    id: user.id,
     organizationId: user.shopid || "org_default",
     email: user.userinfo.email || data.email,
     name: data.name || user.userinfo.name,

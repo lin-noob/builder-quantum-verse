@@ -132,7 +132,7 @@ export default function UserList() {
       case "firstPurchaseTime":
         return "minBuyTime";
       case "lastActiveTime":
-        return "createGmt";
+        return "maxBuyTime";
       default:
         return "signTime";
     }

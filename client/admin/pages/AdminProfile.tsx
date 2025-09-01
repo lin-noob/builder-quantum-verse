@@ -30,7 +30,7 @@ import {
 import { memberApi } from "../../../shared/organizationApi";
 import { getCurrentUserInfo } from "@/services/userService.ts";
 
-const PersonalSettings = () => {
+const AdminProfile = () => {
   const [member, setMember] = useState<Member | null>(null);
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
@@ -191,7 +191,7 @@ const PersonalSettings = () => {
       if (response.success) {
         toast({
           title: "修改成功",
-          description: "密��已更新，请妥善保管新密码",
+          description: "密码已更新，请妥善保管新密码",
         });
 
         setPasswordForm({
@@ -278,7 +278,7 @@ const PersonalSettings = () => {
     <div className="p-6 max-w-4xl mx-auto space-y-6">
       {/* 页面标题 */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">个人设置</h1>
+        <h1 className="text-2xl font-bold text-gray-900">管理员个人中心</h1>
         <p className="text-gray-600 mt-1">管理您的个人信息和账户安全设置</p>
       </div>
 
@@ -295,7 +295,7 @@ const PersonalSettings = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <User className="h-5 w-5" />
-                基本��息
+                基本信息
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -654,4 +654,4 @@ const PersonalSettings = () => {
   );
 };
 
-export default PersonalSettings;
+export default AdminProfile;
