@@ -76,18 +76,18 @@ export default function Layout({ children }: LayoutProps) {
         path: "/dashboard2",
         icon: <BarChart3 className="h-5 w-5" />,
       },
-      {
-        id: "dashboard1",
-        label: "仪表盘 1.0",
-        path: "/dashboard1",
-        icon: <Home className="h-5 w-5" />,
-      },
-      {
-        id: "users",
-        label: "用户画像",
-        path: "/users2",
-        icon: <Users className="h-5 w-5" />,
-      },
+      // {
+      //   id: "dashboard1",
+      //   label: "仪表盘 1.0",
+      //   path: "/dashboard1",
+      //   icon: <Home className="h-5 w-5" />,
+      // },
+      // {
+      //   id: "users",
+      //   label: "用户画像",
+      //   path: "/users2",
+      //   icon: <Users className="h-5 w-5" />,
+      // },
       {
         id: "users1",
         label: "用户画像 1.0",

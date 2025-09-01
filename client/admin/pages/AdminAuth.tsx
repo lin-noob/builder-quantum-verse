@@ -272,11 +272,11 @@ export default function AdminAuth() {
                   </Button>
                 </div>
 
-                <div className="mt-6 text-center">
+                {/* <div className="mt-6 text-center">
                   <p className="text-sm text-gray-600">
                     默认管理员账号：admin@wimoor.com / 123456
                   </p>
-                </div>
+                </div> */}
               </TabsContent>
 
               <TabsContent value="register" className="space-y-4 mt-6">
