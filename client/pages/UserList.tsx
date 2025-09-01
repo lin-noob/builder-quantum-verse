@@ -383,7 +383,7 @@ export default function UserList() {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <Input
-                placeholder="搜索 CDP ID、姓名、公司名���或联系方式..."
+                placeholder="搜索 CDP ID、姓名、公司名称或联系方式..."
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value);
@@ -409,7 +409,7 @@ export default function UserList() {
                   <SelectItem value="firstVisitTime">首次访问时间</SelectItem>
                   <SelectItem value="registrationTime">注册时间</SelectItem>
                   <SelectItem value="firstPurchaseTime">
-                    首次购���时间
+                    首次购买时间
                   </SelectItem>
                   <SelectItem value="lastActiveTime">最后活跃时间</SelectItem>
                 </SelectContent>
