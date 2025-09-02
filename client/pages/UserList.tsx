@@ -91,7 +91,7 @@ interface ApiResponse {
 
 export default function UserList() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedTimeField, setSelectedTimeField] = useState("firstVisitTime");
+  const [selectedTimeField, setSelectedTimeField] = useState("lastActiveTime");
   const [dateRange, setDateRange] = useState<DateRange>({
     start: null,
     end: null,
@@ -354,7 +354,7 @@ export default function UserList() {
 
   const handleReset = () => {
     setSearchQuery("");
-    setSelectedTimeField("firstVisitTime");
+    setSelectedTimeField("lastActiveTime");
     setDateRange({ start: null, end: null });
     setSortConfig({ field: null, direction: "asc" });
     setCurrentPage(1);
