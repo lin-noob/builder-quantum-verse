@@ -145,17 +145,12 @@ export async function addProfileLabel(
         timeout: 5000
       },
     );
-    const envelope = res as unknown as ApiEnvelope<unknown> | any;
-    if (envelope && (envelope.code === "201" || envelope.code === "200"))
+    const data = res.data;
+    if (data && (data.code === "201" || data.code === "200"))
       return true;
     if ((res as any)?.success) return true;
-    throw new Error((envelope && envelope.msg) || "添加标签失败");
+    throw new Error((data && data.msg) || "添加标签失败");
   } catch (error) {
-    console.error("Failed to add profile label:", error);
-    if (process.env.NODE_ENV === 'development') {
-      console.log('API call failed, returning mock success in development');
-      return true; // 开发环境模拟成功
-    }
     throw error;
   }
 }
@@ -170,17 +165,12 @@ export async function deleteProfileLabel(id: string): Promise<boolean> {
         timeout: 5000
       },
     );
-    const envelope = res as unknown as ApiEnvelope<unknown> | any;
-    if (envelope && (envelope.code === "201" || envelope.code === "200"))
+    const data = res.data;
+    if (data && (data.code === "201" || data.code === "200"))
       return true;
     if ((res as any)?.success) return true;
-    throw new Error((envelope && envelope.msg) || "删除标签失败");
+    throw new Error((data && data.msg) || "删除标签失败");
   } catch (error) {
-    console.error("Failed to delete profile label:", error);
-    if (process.env.NODE_ENV === 'development') {
-      console.log('API call failed, returning mock success in development');
-      return true; // 开发环境模拟成功
-    }
     throw error;
   }
 }
