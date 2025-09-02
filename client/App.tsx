@@ -42,7 +42,6 @@ import MemberManagement from "./pages/Organization/MemberManagement";
 import OrganizationSettings from "./pages/Organization/OrganizationSettings";
 import PersonalSettings from "./pages/Account/PersonalSettings";
 import { usePageRequestManager } from "./hooks/useRequestManager";
-import { useFetchRolesOnMount } from "./hooks/useFetchRolesOnMount";
 import AdminApp from "./admin/AdminApp";
 import MarketingHome from "./pages/MarketingHome";
 import AIMarketingFeature from "./pages/features/AIMarketingOptimized";
@@ -56,7 +55,6 @@ const queryClient = new QueryClient();
 // 请求管理包装组件
 const AppWithRequestManager = () => {
   usePageRequestManager(); // 使��页面级请求管理
-  useFetchRolesOnMount(); // 获取角色列表
 
   return (
     <TooltipProvider>

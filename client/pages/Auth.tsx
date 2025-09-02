@@ -9,7 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { Mail, Lock, User, Shield, Home, ArrowLeft } from "lucide-react";
 import { authService } from "@/services/authService";
-import { useAuthStore } from "@/stores";
+import { useAuthStore, useRoleStore } from "@/stores";
 import { GoogleAuthButton } from "@/components/Auth/GoogleAuthButton";
 import { useLoginSuccess } from "@/components/Auth/useLoginSuccess";
 
@@ -43,7 +43,7 @@ export default function Auth() {
     setVerificationCode,
     getVerificationCode,
   } = useAuthStore();
-
+  const { fetchRoles } = useRoleStore();
   const [activeTab, setActiveTab] = useState("login");
   const [isCodeSending, setIsCodeSending] = useState(false);
   const [countdown, setCountdown] = useState(0);
@@ -62,6 +62,7 @@ export default function Auth() {
   useEffect(() => {
     if (isAuthenticated && user) {
       navigate("/");
+      fetchRoles();
     }
   }, [isAuthenticated, user, navigate]);
 
@@ -229,16 +230,15 @@ export default function Auth() {
       // 更新 Zustand store
       setUser(loginResult.user);
       setIsAuthenticated(true);
-
       toast({
         title: "注册并登录成功！",
         description: "欢迎使用AI营销平台",
       });
 
       // 直接跳转到首页
-      setTimeout(() => {
-        navigate("/");
-      }, 1000);
+      // setTimeout(() => {
+      //   navigate("/");
+      // }, 1000);
     } else {
       toast({
         title: "注册成功，但登录失败",
