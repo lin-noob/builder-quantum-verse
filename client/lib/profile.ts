@@ -86,22 +86,6 @@ export async function getProfileView(id: string): Promise<ApiUser | null> {
     return (response as any)?.data ?? null;
   } catch (error) {
     console.error("Failed to fetch profile view:", error);
-    if (process.env.NODE_ENV === 'development') {
-      console.log('API call failed, returning mock data in development');
-      // 返回模拟数据作为降级
-      return {
-        id,
-        name: `User ${id}`,
-        email: `user${id}@example.com`,
-        phone: `+86 138-0000-${id.padStart(4, '0')}`,
-        avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${id}`,
-        status: 'active',
-        createdAt: '2024-01-01T00:00:00Z',
-        updatedAt: '2024-01-20T00:00:00Z',
-        labels: [`标签${id}`, '活跃用户'],
-        metadata: {}
-      };
-    }
     return null;
   }
 }
@@ -151,17 +135,6 @@ export async function addProfileLabel(
   cdpUserId: string,
   labelName: string,
 ): Promise<boolean> {
-  // 在开发环境中，如果是localhost或者没有真实后端，返回模拟数据
-  if (process.env.NODE_ENV === 'development' &&
-      (window.location.hostname === 'localhost' || window.location.hostname.includes('fly.dev'))) {
-    console.log('Using mock data for addProfileLabel in development environment');
-
-    // 模拟API延迟
-    await new Promise(resolve => setTimeout(resolve, 300));
-
-    return true; // 模拟成功添加标签
-  }
-
   try {
     const payload: LabelUpdateItem = { cdpUserId, labelName };
     const res = await request.post<ApiEnvelope<unknown>>(
@@ -188,17 +161,6 @@ export async function addProfileLabel(
 }
 
 export async function deleteProfileLabel(id: string): Promise<boolean> {
-  // 在开发环境中，如果是localhost或者没有真实后端，返回模拟数据
-  if (process.env.NODE_ENV === 'development' &&
-      (window.location.hostname === 'localhost' || window.location.hostname.includes('fly.dev'))) {
-    console.log('Using mock data for deleteProfileLabel in development environment');
-
-    // 模拟API延迟
-    await new Promise(resolve => setTimeout(resolve, 300));
-
-    return true; // 模拟成功删除标签
-  }
-
   try {
     const res = await request.post<ApiEnvelope<unknown>>(
       "/quote/api/v1/profile/label/delete",

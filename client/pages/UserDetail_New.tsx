@@ -331,7 +331,7 @@ export default function UserDetail() {
                         >
                           {tag.labelName}
                           <button
-                            onClick={() => removeTag(tag.id)}
+                            onClick={() => removeTag(tag.id as string)}
                             className="ml-1 hover:text-red-600"
                             disabled={tagSaving}
                           >
