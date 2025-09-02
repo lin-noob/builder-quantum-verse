@@ -5,7 +5,6 @@ import { authService } from '@/services/authService';
 export const useFetchRolesOnMount = () => {
   const { roles, fetchRoles, isLoading, error } = useRoleStore();
   const [currentUser, setCurrentUser] = useState(authService.getCurrentUser());
-  debugger
   useEffect(() => {
     if(currentUser){
       fetchRoles();
