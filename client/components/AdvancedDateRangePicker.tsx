@@ -107,11 +107,15 @@ export default function AdvancedDateRangePicker({
 
   const formatDate = (date: Date | null) => {
     if (!date) return "";
-    return date.toISOString().split("T")[0];
+    // 使用本地时间而不是UTC时间来显示日期
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   };
 
   const formatDisplayRange = (range: DateRange) => {
-    if (!range || !range.start || !range.end) return "过去30天";
+    if (!range || !range.start || !range.end) return "最近30天";
     if (range.start.getTime() === range.end.getTime()) {
       return formatDate(range.start);
     }
@@ -130,19 +134,31 @@ export default function AdvancedDateRangePicker({
 
   const isDateInRange = (date: Date, range: DateRange) => {
     if (!range.start || !range.end) return false;
-    return date >= range.start && date <= range.end;
+    // 比较日期时使用本地时间
+    const dateStr = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
+    const startStr = range.start.getFullYear() + '-' + String(range.start.getMonth() + 1).padStart(2, '0') + '-' + String(range.start.getDate()).padStart(2, '0');
+    const endStr = range.end.getFullYear() + '-' + String(range.end.getMonth() + 1).padStart(2, '0') + '-' + String(range.end.getDate()).padStart(2, '0');
+    return dateStr >= startStr && dateStr <= endStr;
   };
 
   const isDateToday = (date: Date) => {
-    return date.toDateString() === today.toDateString();
+    const dateStr = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
+    const todayStr = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
+    return dateStr === todayStr;
   };
 
   const isDateRangeStart = (date: Date, range: DateRange) => {
-    return range.start && date.toDateString() === range.start.toDateString();
+    if (!range.start) return false;
+    const dateStr = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
+    const startStr = range.start.getFullYear() + '-' + String(range.start.getMonth() + 1).padStart(2, '0') + '-' + String(range.start.getDate()).padStart(2, '0');
+    return dateStr === startStr;
   };
 
   const isDateRangeEnd = (date: Date, range: DateRange) => {
-    return range.end && date.toDateString() === range.end.toDateString();
+    if (!range.end) return false;
+    const dateStr = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
+    const endStr = range.end.getFullYear() + '-' + String(range.end.getMonth() + 1).padStart(2, '0') + '-' + String(range.end.getDate()).padStart(2, '0');
+    return dateStr === endStr;
   };
 
   const renderCalendar = (calendarDate: Date, isLeft: boolean) => {
@@ -271,17 +287,20 @@ export default function AdvancedDateRangePicker({
               <button
                 key={index}
                 onClick={() => {
+                  // 创建基于本地时间的日期对象
+                  const selectedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+                  
                   // Handle date selection logic here
                   if (!tempRange.start || (tempRange.start && tempRange.end)) {
-                    setTempRange({ start: date, end: null });
+                    setTempRange({ start: selectedDate, end: null });
                   } else if (tempRange.start && !tempRange.end) {
-                    if (date >= tempRange.start) {
-                      const newRange = { start: tempRange.start, end: date };
+                    if (selectedDate >= tempRange.start) {
+                      const newRange = { start: tempRange.start, end: selectedDate };
                       setTempRange(newRange);
                       onChange(newRange);
                     } else {
-                      setTempRange({ start: date, end: tempRange.start });
-                      onChange({ start: date, end: tempRange.start });
+                      setTempRange({ start: selectedDate, end: tempRange.start });
+                      onChange({ start: selectedDate, end: tempRange.start });
                     }
                   }
                 }}

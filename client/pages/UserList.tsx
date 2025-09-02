@@ -22,6 +22,7 @@ import AdvancedDateRangePicker from "@/components/AdvancedDateRangePicker";
 import { request } from "@/lib/request";
 import { toast } from "@/hooks/use-toast";
 import { MockDataService } from "@/services/mockDataService";
+import { formatStartDate, formatEndDate } from "@/lib/utils";
 
 interface DateRange {
   start: Date | null;
@@ -156,6 +157,8 @@ export default function UserList() {
     }
   };
 
+  
+
   // 调用API获取用户数据
   const fetchUsers = useCallback(async () => {
     setLoading(true);
@@ -171,11 +174,11 @@ export default function UserList() {
       }
 
       if (dateRange.start) {
-        requestBody.startDate = dateRange.start.toISOString();
+        requestBody.startDate = formatStartDate(dateRange.start);
       }
 
       if (dateRange.end) {
-        requestBody.endDate = dateRange.end.toISOString();
+        requestBody.endDate = formatEndDate(dateRange.end);
       }
 
       if (selectedTimeField) {
