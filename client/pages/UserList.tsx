@@ -411,6 +411,7 @@ export default function UserList() {
                   <SelectItem value="firstPurchaseTime">
                     首次购买时间
                   </SelectItem>
+                  {/* 测试 */}
                   <SelectItem value="lastActiveTime">最后活跃时间</SelectItem>
                 </SelectContent>
               </Select>
