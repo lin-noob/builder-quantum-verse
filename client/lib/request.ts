@@ -1,5 +1,7 @@
 import { useAuthStore } from "@/stores";
 import { ErrorHandler } from "./errorHandler";
+import { authService } from "@/services/authService";
+import { adminAuthService } from "@/services/adminAuthService";
 
 /**
  * 通用请求配置接口
@@ -744,7 +746,11 @@ export class Request {
       fullURL = this.buildURL(url, params);
       requestId = `${method}_${fullURL}_${Date.now()}`;
       const jsessionid = localStorage.getItem("auth_session") ?? undefined;
-      const mergedHeaders = { ...this.defaultConfig.headers, ...headers, jsessionid };
+      const mergedHeaders = {
+        ...this.defaultConfig.headers,
+        ...headers,
+        jsessionid,
+      };
       const { body, headers: finalHeaders } = this.processRequestData(
         data,
         mergedHeaders,
@@ -826,6 +832,27 @@ export class Request {
         this.defaultConfig.onError(error as Error);
       }
 
+      const businessCode = error.status;
+      // 特别处理403错误 - 根据当前页面路径跳转到相应的登录页
+      if (businessCode === 403) {
+        // 保存当前路径，登录成功后跳转回来
+        localStorage.setItem(
+          "redirect_after_login",
+          window.location.pathname + window.location.search,
+        );
+
+        // 检查当前路径是否包含/admin，如果是则跳转到管理员登录页，否则跳转到客户端登录页
+        const currentPath = window.location.pathname;
+        if (currentPath.includes("/admin")) {
+          // 管理员页面，跳转到管理员登录页
+          adminAuthService.adminLogout();
+          window.location.href = "/admin/auth";
+        } else {
+          // 客户端页面，跳转到客户端登录页
+          authService.logout();
+          window.location.href = "/auth";
+        }
+      }
       // 重新抛出错误
       if (error instanceof RequestError) {
         throw error;

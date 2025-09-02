@@ -8,7 +8,21 @@ import {
 } from "@/lib/profile";
 
 // Event types mapping
-type EventType = "PageView" | "PageLeave" | "ScrollDepth" | "Click";
+type EventType = 
+  | "PageView" 
+  | "PageLeave" 
+  | "ScrollDepth" 
+  | "Click"
+  | "ViewProduct" 
+  | "AddToCart" 
+  | "RemoveFromCart" 
+  | "StartCheckout" 
+  | "CompletePurchase"
+  | "UserRegister" 
+  | "UserLogin" 
+  | "SubmitForm" 
+  | "Search" 
+  | "PageDwellTime";
 
 // Parsed event data structure
 interface ParsedEventData {
@@ -27,6 +41,13 @@ interface ParsedEventData {
   elementTag?: string;
   elementText?: string;
   referrer?: string;
+  // Product related fields for ViewProduct event
+  productId?: string;
+  productName?: string;
+  productCategory?: string;
+  productPrice?: number | string;
+  productCurrency?: string;
+  productBrand?: string;
 }
 export default function SessionTimeline({
   cdpUserId,
@@ -74,6 +95,13 @@ export default function SessionTimeline({
       elementTag: properties.elementTag,
       elementText: properties.elementText,
       referrer: properties.referrer,
+      // Product related fields for ViewProduct event
+      productId: properties.productId,
+      productName: properties.productName,
+      productCategory: properties.productCategory,
+      productPrice: properties.productPrice,
+      productCurrency: properties.productCurrency,
+      productBrand: properties.productBrand,
     };
   };
 
@@ -150,6 +178,56 @@ export default function SessionTimeline({
         bgColor = "bg-purple-100";
         textColor = "text-purple-800";
         displayName = "点击事件";
+        break;
+      case "ViewProduct":
+        bgColor = "bg-green-100";
+        textColor = "text-green-800";
+        displayName = "查看商品";
+        break;
+      case "AddToCart":
+        bgColor = "bg-yellow-100";
+        textColor = "text-yellow-800";
+        displayName = "加入购物车";
+        break;
+      case "RemoveFromCart":
+        bgColor = "bg-red-100";
+        textColor = "text-red-800";
+        displayName = "移除购物车";
+        break;
+      case "StartCheckout":
+        bgColor = "bg-indigo-100";
+        textColor = "text-indigo-800";
+        displayName = "开始结账";
+        break;
+      case "CompletePurchase":
+        bgColor = "bg-emerald-100";
+        textColor = "text-emerald-800";
+        displayName = "完成购买";
+        break;
+      case "UserRegister":
+        bgColor = "bg-pink-100";
+        textColor = "text-pink-800";
+        displayName = "用户注册";
+        break;
+      case "UserLogin":
+        bgColor = "bg-cyan-100";
+        textColor = "text-cyan-800";
+        displayName = "用户登录";
+        break;
+      case "SubmitForm":
+        bgColor = "bg-amber-100";
+        textColor = "text-amber-800";
+        displayName = "提交表单";
+        break;
+      case "Search":
+        bgColor = "bg-violet-100";
+        textColor = "text-violet-800";
+        displayName = "执行搜索";
+        break;
+      case "PageDwellTime":
+        bgColor = "bg-teal-100";
+        textColor = "text-teal-800";
+        displayName = "页面停留";
         break;
     }
 
@@ -464,6 +542,140 @@ export default function SessionTimeline({
                       )}
                     </>
                   )}
+                  {(selectedEvent.eventType === "ViewProduct" ||
+                    selectedEvent.eventType === "AddToCart" ||
+                    selectedEvent.eventType === "RemoveFromCart") && (
+                    <>
+                      {selectedEvent.elementText && (
+                        <div>
+                          <div className="text-xs text-slate-500">
+                            商品信息
+                          </div>
+                          <div className="font-medium text-slate-900">
+                            {selectedEvent.elementText}
+                          </div>
+                        </div>
+                      )}
+                      {selectedEvent.productName && (
+                        <div>
+                          <div className="text-xs text-slate-500">
+                            商品名称
+                          </div>
+                          <div className="font-medium text-slate-900">
+                            {selectedEvent.productName}
+                          </div>
+                        </div>
+                      )}
+                      {selectedEvent.productId && (
+                        <div>
+                          <div className="text-xs text-slate-500">
+                            商品ID
+                          </div>
+                          <div className="font-medium text-slate-900">
+                            {selectedEvent.productId}
+                          </div>
+                        </div>
+                      )}
+                      {selectedEvent.productCategory && (
+                        <div>
+                          <div className="text-xs text-slate-500">
+                            商品分类
+                          </div>
+                          <div className="font-medium text-slate-900">
+                            {selectedEvent.productCategory}
+                          </div>
+                        </div>
+                      )}
+                      {(selectedEvent.productPrice || selectedEvent.productPrice === 0) && (
+                        <div>
+                          <div className="text-xs text-slate-500">
+                            商品价格
+                          </div>
+                          <div className="font-medium text-slate-900">
+                            {selectedEvent.productCurrency || '¥'}{selectedEvent.productPrice}
+                          </div>
+                        </div>
+                      )}
+                      {selectedEvent.productBrand && (
+                        <div>
+                          <div className="text-xs text-slate-500">
+                            商品品牌
+                          </div>
+                          <div className="font-medium text-slate-900">
+                            {selectedEvent.productBrand}
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  )}
+                  {selectedEvent.eventType === "CompletePurchase" && (
+                    <>
+                      {selectedEvent.elementText && (
+                        <div>
+                          <div className="text-xs text-slate-500">
+                            订单信息
+                          </div>
+                          <div className="font-medium text-slate-900">
+                            {selectedEvent.elementText}
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  )}
+                  {(selectedEvent.eventType === "UserRegister" ||
+                    selectedEvent.eventType === "UserLogin") && (
+                    <>
+                      {selectedEvent.elementText && (
+                        <div>
+                          <div className="text-xs text-slate-500">
+                            用户信息
+                          </div>
+                          <div className="font-medium text-slate-900">
+                            {selectedEvent.elementText}
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  )}
+                  {selectedEvent.eventType === "SubmitForm" && (
+                    <>
+                      {selectedEvent.elementText && (
+                        <div>
+                          <div className="text-xs text-slate-500">
+                            表单数据
+                          </div>
+                          <div className="font-medium text-slate-900 max-h-32 overflow-y-auto">
+                            {selectedEvent.elementText}
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  )}
+                  {selectedEvent.eventType === "Search" && (
+                    <>
+                      {selectedEvent.elementText && (
+                        <div>
+                          <div className="text-xs text-slate-500">
+                            搜索关键词
+                          </div>
+                          <div className="font-medium text-slate-900">
+                            {selectedEvent.elementText}
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  )}
+                  {selectedEvent.eventType === "PageDwellTime" &&
+                    selectedEvent.dwellTimeMs && (
+                      <div>
+                        <div className="text-xs text-slate-500">
+                          页面停留时长
+                        </div>
+                        <div className="font-medium text-slate-900">
+                          {formatDwellTime(selectedEvent.dwellTimeMs)}
+                        </div>
+                      </div>
+                    )}
                 </div>
               </div>
             </div>
