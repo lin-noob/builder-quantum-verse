@@ -145,6 +145,7 @@ export async function addProfileLabel(
         timeout: 5000
       },
     );
+    console.log(res);
     const data = res.data;
     if (data && (data.code === "201" || data.code === "200"))
       return true;
