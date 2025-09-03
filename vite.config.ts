@@ -20,7 +20,7 @@ export default defineConfig(({ mode }) => ({
   },
   server: {
     host: "::",
-    port: 3008,
+    port: 8080,
     fs: {
       allow: ["./client", "./shared"],
       deny: [".env", ".env.*", "*.{crt,pem}", "**/.git/**"],
@@ -72,7 +72,7 @@ export default defineConfig(({ mode }) => ({
         },
       },
       "/quote/api": "http://192.168.1.128:8099",
-      "/admin/api/": "http://192.168.1.128:8099",
+      "/admin/api": "http://192.168.1.128:8099",
     },
     allowedHosts: ["lt.eecart.com"],
   },
