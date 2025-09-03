@@ -1,13 +1,12 @@
-import "./lib/aggressiveWarningSuppress"; // 最激进的警告抑制
-import "./lib/suppressWarnings";
 import "./global.css";
+
+import React, { Suspense } from "react";
 
 import { Toaster } from "@/components/ui/toaster";
 import { createRoot } from "react-dom/client";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { usePageRequestManager } from "./hooks/useRequestManager";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Layout from "./components/Layout";
 import ErrorBoundary from "./components/ErrorBoundary";
@@ -15,6 +14,7 @@ import Dashboard from "./pages/Dashboard";
 import Dashboard2 from "./pages/Dashboard2";
 import UserList from "./pages/UserList";
 import UserList2 from "./pages/UserList2";
+import UserListOptimized from "./pages/UserListOptimized";
 import UserDetail from "./pages/UserDetail";
 import UserDetailNew from "./pages/UserDetail_New";
 import UserDetail2 from "./pages/UserDetail2";
@@ -30,19 +30,33 @@ import SemiAuto from "./pages/AIMarketing/SemiAuto";
 import ScriptCreate from "./pages/AIMarketing/ScriptCreate";
 import ScenariosList from "./pages/AIMarketing/ScenariosList";
 import ScenarioConfig from "./pages/AIMarketing/ScenarioConfig";
-import OrderHistoryDemo from "./pages/OrderHistoryDemo";
-import NotFound from "./pages/NotFound";
+import PerformanceAnalytics from "./pages/AIMarketing/PerformanceAnalytics";
+import LiveMonitoring from "./pages/AIMarketing/LiveMonitoring";
 import Auth from "./pages/Auth";
+import GoogleAuthCallback from "./pages/GoogleAuthCallback";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import UserProfile from "./pages/UserProfile";
 import EffectTracking from "./pages/EffectTracking";
+import MemberManagement from "./pages/Organization/MemberManagement";
+import OrganizationSettings from "./pages/Organization/OrganizationSettings";
+import PersonalSettings from "./pages/Account/PersonalSettings";
+import { usePageRequestManager } from "./hooks/useRequestManager";
+import AdminApp from "./admin/AdminApp";
+import MarketingHome from "./pages/MarketingHome";
+import AIMarketingFeature from "./pages/features/AIMarketingOptimized";
+import UserProfilingFeature from "./pages/features/UserProfiling";
+import RealTimeMonitoringFeature from "./pages/features/RealTimeMonitoring";
+import EffectTrackingFeature from "./pages/features/EffectTrackingOptimized";
+import SDK from "./pages/SDK";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <ErrorBoundary>
-    <QueryClientProvider client={queryClient}>
+// 请求管理包装组件
+const AppWithRequestManager = () => {
+  usePageRequestManager(); // 使��页面级请求管理
+
+  return (
     <TooltipProvider>
       <Toaster />
       <Sonner />
@@ -50,10 +64,33 @@ const App = () => (
         <Routes>
           {/* Authentication routes - no layout */}
           <Route path="/auth" element={<Auth />} />
+          <Route path="/auth/google/callback" element={<GoogleAuthCallback />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
 
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          {/* 管理后台路由 - 独立路由，不使用Layout */}
+          <Route path="/admin/*" element={<AdminApp />} />
+
+          {/* 营销推广主页 */}
+          <Route path="/" element={<MarketingHome />} />
+
+          {/* 功能介绍页面 */}
+          <Route
+            path="/features/ai-marketing"
+            element={<AIMarketingFeature />}
+          />
+          <Route
+            path="/features/user-profiling"
+            element={<UserProfilingFeature />}
+          />
+          <Route
+            path="/features/real-time-monitoring"
+            element={<RealTimeMonitoringFeature />}
+          />
+          <Route
+            path="/features/effect-tracking"
+            element={<EffectTrackingFeature />}
+          />
 
           {/* User Profile route */}
           <Route
@@ -74,14 +111,35 @@ const App = () => (
             }
           />
 
+          {/* Main routes now point to 2.0 versions */}
           <Route
             path="/dashboard"
+            element={
+              <Layout>
+                <Dashboard2 />
+              </Layout>
+            }
+          />
+
+          <Route
+            path="/users"
+            element={
+              <Layout>
+                <UserList2 />
+              </Layout>
+            }
+          />
+
+          {/* Legacy routes for direct access to old versions */}
+          <Route
+            path="/dashboard1"
             element={
               <Layout>
                 <Dashboard />
               </Layout>
             }
           />
+
           <Route
             path="/dashboard2"
             element={
@@ -90,14 +148,16 @@ const App = () => (
               </Layout>
             }
           />
+
           <Route
-            path="/users"
+            path="/users1"
             element={
               <Layout>
                 <UserList />
               </Layout>
             }
           />
+
           <Route
             path="/users2"
             element={
@@ -106,14 +166,36 @@ const App = () => (
               </Layout>
             }
           />
+
+          {/* Main user detail route now points to 2.0 version */}
           <Route
-            path="/users/:cdpId"
+            path="/users/:userId"
+            element={
+              <Layout>
+                <UserDetail2 />
+              </Layout>
+            }
+          />
+
+          {/* Legacy routes for old versions */}
+          <Route
+            path="/users1/:cdpId"
             element={
               <Layout>
                 <UserDetailNew />
               </Layout>
             }
           />
+
+          <Route
+            path="/users-new/:userId"
+            element={
+              <Layout>
+                <UserDetailNew />
+              </Layout>
+            }
+          />
+
           <Route
             path="/users2/:userId"
             element={
@@ -122,6 +204,8 @@ const App = () => (
               </Layout>
             }
           />
+
+          {/* AI营销策略管理 */}
           <Route
             path="/ai-marketing-strategies"
             element={
@@ -130,6 +214,7 @@ const App = () => (
               </Layout>
             }
           />
+
           <Route
             path="/ai-marketing-strategies/create"
             element={
@@ -138,23 +223,17 @@ const App = () => (
               </Layout>
             }
           />
+
           <Route
-            path="/ai-marketing-strategies/edit/:id"
-            element={
-              <Layout>
-                <AIMarketingStrategyCreate />
-              </Layout>
-            }
-          />
-          <Route
-            path="/ai-marketing-strategies/:id"
+            path="/ai-marketing-strategies/:strategyId"
             element={
               <Layout>
                 <AIMarketingStrategyDetail />
               </Layout>
             }
           />
-          {/* 原有的响���动作库路由 */}
+
+          {/* 响应动作管理 */}
           <Route
             path="/response-actions"
             element={
@@ -163,6 +242,7 @@ const App = () => (
               </Layout>
             }
           />
+
           <Route
             path="/response-actions/create"
             element={
@@ -171,38 +251,17 @@ const App = () => (
               </Layout>
             }
           />
+
           <Route
-            path="/response-actions/edit/:id"
-            element={
-              <Layout>
-                <ResponseActionCreate />
-              </Layout>
-            }
-          />
-          <Route
-            path="/response-actions/:id"
+            path="/response-actions/:actionId"
             element={
               <Layout>
                 <ResponseActionDetail />
               </Layout>
             }
           />
-          <Route
-            path="/ai-marketing/scenarios"
-            element={
-              <Layout>
-                <ScenariosList />
-              </Layout>
-            }
-          />
-          <Route
-            path="/ai-marketing/scenarios/:scenarioId"
-            element={
-              <Layout>
-                <ScenarioConfig />
-              </Layout>
-            }
-          />
+
+          {/* AI营销功能模块 */}
           <Route
             path="/ai-marketing/monitoring-center"
             element={
@@ -211,6 +270,7 @@ const App = () => (
               </Layout>
             }
           />
+
           <Route
             path="/ai-marketing/fully-auto"
             element={
@@ -219,6 +279,7 @@ const App = () => (
               </Layout>
             }
           />
+
           <Route
             path="/ai-marketing/semi-auto"
             element={
@@ -227,44 +288,102 @@ const App = () => (
               </Layout>
             }
           />
+
           <Route
-            path="/ai-marketing/semi-auto/create"
+            path="/ai-marketing/script-create"
             element={
               <Layout>
                 <ScriptCreate />
               </Layout>
             }
           />
+
           <Route
-            path="/ai-marketing/semi-auto/edit/:id"
+            path="/ai-marketing/scenarios"
             element={
               <Layout>
-                <ScriptCreate />
+                <ScenariosList />
               </Layout>
             }
           />
+
           <Route
-            path="/order-history-demo"
+            path="/ai-marketing/scenarios/:scenarioId"
             element={
               <Layout>
-                <OrderHistoryDemo />
+                <ScenarioConfig />
               </Layout>
             }
           />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+
           <Route
-            path="*"
+            path="/ai-marketing/performance"
             element={
               <Layout>
-                <NotFound />
+                <PerformanceAnalytics />
+              </Layout>
+            }
+          />
+
+          <Route
+            path="/ai-marketing/live-monitoring"
+            element={
+              <Layout>
+                <LiveMonitoring />
+              </Layout>
+            }
+          />
+
+          {/* 组织管理功能 */}
+          <Route
+            path="/organization/members"
+            element={
+              <Layout>
+                <MemberManagement />
+              </Layout>
+            }
+          />
+
+          <Route
+            path="/organization/settings"
+            element={
+              <Layout>
+                <OrganizationSettings />
+              </Layout>
+            }
+          />
+
+          {/* 个人账户管理 */}
+          <Route
+            path="/account/settings"
+            element={
+              <Layout>
+                <PersonalSettings />
+              </Layout>
+            }
+          />
+          
+          {/* SDK页面 */}
+          <Route
+            path="/sdk"
+            element={
+              <Layout>
+                <SDK />
               </Layout>
             }
           />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
+  );
+};
+
+const App = () => (
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <AppWithRequestManager />
     </QueryClientProvider>
   </ErrorBoundary>
 );
 
-createRoot(document.getElementById("root")!).render(<App />);
+export default App;

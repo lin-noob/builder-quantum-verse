@@ -1285,8 +1285,8 @@ export interface UserProfileListParams {
   name?: string;
   /** 页码 */
   page?: number;
-/* It looks like the code is a comment block in TypeScript. The comment block starts with /* and ends
-with */. It is used to provide information or explanations about the code for other developers or
+  /* It looks like the code is a comment block in TypeScript. The comment block starts with /* and ends
+with . It is used to provide information or explanations about the code for other developers or
 for documentation purposes. */
   /** 请求体参数 */
   body?: OrderSummaryDto;
