@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom";
 import { Bot } from "lucide-react";
-// import { useTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next";
 
 export default function MarketingFooter() {
+  const { t } = useTranslation();
 
   return (
     <footer className="bg-gradient-to-br from-gray-900 via-gray-900 to-gray-800 text-white py-12 relative">
@@ -24,54 +25,54 @@ export default function MarketingFooter() {
             <ul className="space-y-2 text-gray-400">
               <li>
                 <Link to="/features/ai-marketing" className="hover:text-white transition-colors">
-                  AI智能营销
+                  {t('nav.aiMarketing')}
                 </Link>
               </li>
               <li>
                 <Link to="/features/user-profiling" className="hover:text-white transition-colors">
-                  用户画像分析
+                  {t('nav.userProfiling')}
                 </Link>
               </li>
               <li>
                 <Link to="/features/real-time-monitoring" className="hover:text-white transition-colors">
-                  实时监控中心
+                  {t('nav.realTimeMonitoring')}
                 </Link>
               </li>
               <li>
                 <Link to="/features/effect-tracking" className="hover:text-white transition-colors">
-                  效果追踪
+                  {t('nav.effectTracking')}
                 </Link>
               </li>
             </ul>
           </div>
           <div>
-            <h3 className="text-lg font-semibold mb-4">解决方案</h3>
+            <h3 className="text-lg font-semibold mb-4">{t('nav.solutions')}</h3>
             <ul className="space-y-2 text-gray-400">
               <li>
                 <Link to="/solutions/ecommerce" className="hover:text-white transition-colors">
-                  电商营销
+                  {t('nav.ecommerce')}
                 </Link>
               </li>
               <li>
                 <Link to="/solutions/content-marketing" className="hover:text-white transition-colors">
-                  内容营销
+                  {t('nav.contentMarketing')}
                 </Link>
               </li>
               <li>
                 <Link to="/solutions/financial-marketing" className="hover:text-white transition-colors">
-                  金融营销
+                  {t('nav.financialMarketing')}
                 </Link>
               </li>
               <li>
                 <Link to="/solutions/enterprise-services" className="hover:text-white transition-colors">
-                  企业服务
+                  {t('nav.enterpriseServices')}
                 </Link>
               </li>
             </ul>
           </div>
         </div>
         <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-          <p>© 2024 AI营销平台. 保留所有权利.</p>
+          <p>{t('footer.copyright')}</p>
         </div>
       </div>
     </footer>

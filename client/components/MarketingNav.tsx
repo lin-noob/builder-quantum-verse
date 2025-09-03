@@ -20,11 +20,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useContactModal } from "@/contexts/ContactModalContext";
-// import { useTranslation } from "react-i18next";
-// import LanguageSwitcher from "@/components/LanguageSwitcher";
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 export default function MarketingNav() {
   const { openModal } = useContactModal();
+  const { t } = useTranslation();
 
   return (
     <nav className="bg-gray-900/95 backdrop-blur-md shadow-lg border-b border-gray-800">
@@ -34,7 +35,7 @@ export default function MarketingNav() {
             <Link to="/marketing" className="flex items-center group">
               <Bot className="h-8 w-8 text-cyan-400 group-hover:text-cyan-300 transition-colors" />
               <span className="ml-2 text-xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-                AI营销平台
+                {t('nav.platformName')}
               </span>
             </Link>
 
@@ -42,7 +43,7 @@ export default function MarketingNav() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="flex items-center gap-1 text-gray-300 hover:text-white hover:bg-gray-800">
-                  产品特色
+                  {t('nav.productFeatures')}
                   <ChevronDown className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
@@ -53,7 +54,7 @@ export default function MarketingNav() {
                     className="flex items-center gap-2 w-full text-gray-300 hover:text-white hover:bg-gray-700"
                   >
                     <Bot className="h-4 w-4 text-cyan-400" />
-                    AI智能营销
+                    {t('nav.aiMarketing')}
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
@@ -62,7 +63,7 @@ export default function MarketingNav() {
                     className="flex items-center gap-2 w-full text-gray-300 hover:text-white hover:bg-gray-700"
                   >
                     <Users className="h-4 w-4 text-green-400" />
-                    用户画像分析
+                    {t('nav.userProfiling')}
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
@@ -71,7 +72,7 @@ export default function MarketingNav() {
                     className="flex items-center gap-2 w-full text-gray-300 hover:text-white hover:bg-gray-700"
                   >
                     <Activity className="h-4 w-4 text-purple-400" />
-                    实时监控中心
+                    {t('nav.realTimeMonitoring')}
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
@@ -80,7 +81,7 @@ export default function MarketingNav() {
                     className="flex items-center gap-2 w-full text-gray-300 hover:text-white hover:bg-gray-700"
                   >
                     <Target className="h-4 w-4 text-red-400" />
-                    效果追踪
+                    {t('nav.effectTracking')}
                   </Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -90,7 +91,7 @@ export default function MarketingNav() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="flex items-center gap-1 text-gray-300 hover:text-white hover:bg-gray-800">
-                  解决方案
+                  {t('nav.solutions')}
                   <ChevronDown className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
@@ -101,7 +102,7 @@ export default function MarketingNav() {
                     className="flex items-center gap-2 w-full text-gray-300 hover:text-white hover:bg-gray-700"
                   >
                     <ShoppingCart className="h-4 w-4 text-orange-400" />
-                    电商营销
+                    {t('nav.ecommerce')}
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
@@ -110,7 +111,7 @@ export default function MarketingNav() {
                     className="flex items-center gap-2 w-full text-gray-300 hover:text-white hover:bg-gray-700"
                   >
                     <FileText className="h-4 w-4 text-purple-400" />
-                    内容营销
+                    {t('nav.contentMarketing')}
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
@@ -119,7 +120,7 @@ export default function MarketingNav() {
                     className="flex items-center gap-2 w-full text-gray-300 hover:text-white hover:bg-gray-700"
                   >
                     <DollarSign className="h-4 w-4 text-green-400" />
-                    金融营销
+                    {t('nav.financialMarketing')}
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
@@ -128,7 +129,7 @@ export default function MarketingNav() {
                     className="flex items-center gap-2 w-full text-gray-300 hover:text-white hover:bg-gray-700"
                   >
                     <Building className="h-4 w-4 text-blue-400" />
-                    企业服务
+                    {t('nav.enterpriseServices')}
                   </Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -140,17 +141,17 @@ export default function MarketingNav() {
             <Button
               variant="outline"
               onClick={() => openModal({
-                title: '联系我们',
+                title: t('nav.contactUs'),
                 description: '请填写您的信息和需求，我们将尽快与您联系，为您提供专业的AI营销解决方案咨询。',
               })}
               className="border-green-500 text-green-400 hover:bg-green-500 hover:text-white bg-green-500/10 backdrop-blur-sm shadow-lg shadow-green-500/20 transition-all duration-300"
             >
               <MessageCircle className="mr-2 h-4 w-4" />
-              联系我们
+              {t('nav.contactUs')}
             </Button>
             <Link to="/auth">
               <Button className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 border-0 shadow-lg shadow-cyan-500/25">
-                启动AI
+                {t('nav.startAI')}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>

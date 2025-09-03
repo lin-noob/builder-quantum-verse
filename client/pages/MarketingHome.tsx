@@ -36,6 +36,7 @@ export default function MarketingHome() {
     if (currentUser) {
       navigate("/dashboard");
     }
+    console.log(t('nav.platformName'));
   }, [currentUser, navigate]);
 
   // 如果已登录，显示加载状态
@@ -53,72 +54,108 @@ export default function MarketingHome() {
   const features = [
     {
       icon: <Bot className="h-8 w-8 text-blue-600" />,
-      title: "AI智能营销",
-      description: "基于AI的智能营销场景配置，自动生成个性化营销内容",
-      benefits: ["智能内容生成", "个性化推荐", "自动化执行"],
+      title: t('features.aiMarketingTitle'),
+      description: t('features.aiMarketingDescription'),
+      benefits: [
+        t('features.aiMarketingBenefits.contentGeneration'),
+        t('features.aiMarketingBenefits.personalization'),
+        t('features.aiMarketingBenefits.automation')
+      ],
     },
     {
       icon: <Users className="h-8 w-8 text-green-600" />,
-      title: "用户画像分析",
-      description: "深度用户行为分析，精准洞察用户需求和偏好",
-      benefits: ["360°用户画像", "行为轨迹分析", "价值分群"],
+      title: t('features.userProfilingTitle'),
+      description: t('features.userProfilingDescription'),
+      benefits: [
+        t('features.userProfilingBenefits.fullProfile'),
+        t('features.userProfilingBenefits.behaviorAnalysis'),
+        t('features.userProfilingBenefits.valueSegmentation')
+      ],
     },
     {
       icon: <Activity className="h-8 w-8 text-purple-600" />,
-      title: "实时监控中心",
-      description: "实时监控营销活动效果，快速调整优化策略",
-      benefits: ["实时数据监控", "异常预警", "性能优化建议"],
+      title: t('features.realTimeMonitoringTitle'),
+      description: t('features.realTimeMonitoringDescription'),
+      benefits: [
+        t('features.realTimeMonitoringBenefits.realTimeData'),
+        t('features.realTimeMonitoringBenefits.alerting'),
+        t('features.realTimeMonitoringBenefits.optimization')
+      ],
     },
     {
       icon: <Target className="h-8 w-8 text-red-600" />,
-      title: "效果追踪",
-      description: "全链路效果追踪，量化营销ROI和转化效果",
-      benefits: ["转化漏斗分析", "ROI计算", "多维度报表"],
+      title: t('features.effectTrackingTitle'),
+      description: t('features.effectTrackingDescription'),
+      benefits: [
+        t('features.effectTrackingBenefits.funnelAnalysis'),
+        t('features.effectTrackingBenefits.roiCalculation'),
+        t('features.effectTrackingBenefits.multiDimensionReport')
+      ],
     },
     {
       icon: <BarChart3 className="h-8 w-8 text-orange-600" />,
-      title: "数据驱动决策",
-      description: "基于大数据分析的营销决策支持系统",
-      benefits: ["趋势预测", "策略推荐", "A/B测试"],
+      title: t('features.dataDecisionTitle'),
+      description: t('features.dataDecisionDescription'),
+      benefits: [
+        t('features.dataDecisionBenefits.trendPrediction'),
+        t('features.dataDecisionBenefits.strategyRecommendation'),
+        t('features.dataDecisionBenefits.abTesting')
+      ],
     },
     {
       icon: <Zap className="h-8 w-8 text-yellow-600" />,
-      title: "营销自动化",
-      description: "全流程营销自动化，降低人工成本提升效率",
-      benefits: ["触发式营销", "自动化工作流", "批量处理"],
+      title: t('features.automationTitle'),
+      description: t('features.automationDescription'),
+      benefits: [
+        t('features.automationBenefits.triggerMarketing'),
+        t('features.automationBenefits.workflow'),
+        t('features.automationBenefits.batchProcessing')
+      ],
     },
   ];
 
   const stats = [
     {
       value: "300%",
-      label: "平均转化提升",
+      label: t('stats.averageConversionIncrease'),
       icon: <TrendingUp className="h-5 w-5" />,
     },
-    { value: "80%", label: "运营效率提升", icon: <Zap className="h-5 w-5" /> },
-    { value: "60%", label: "成本降低", icon: <Target className="h-5 w-5" /> },
+    { value: "80%", label: t('stats.efficiencyIncrease'), icon: <Zap className="h-5 w-5" /> },
+    { value: "60%", label: t('stats.costReduction'), icon: <Target className="h-5 w-5" /> },
     {
       value: "99.9%",
-      label: "系统稳定性",
+      label: t('stats.systemStability'),
       icon: <Shield className="h-5 w-5" />,
     },
   ];
 
   const useCases = [
     {
-      title: "电商营销",
-      description: "购物车挽回、个性化推荐、会员营销",
-      scenarios: ["加入购物车挽回", "商品个性化推荐", "会员等级营销"],
+      title: t('nav.ecommerce'),
+      description: t('hero.ecommerceDescription'),
+      scenarios: [
+        t('common.explore'),
+        t('common.learnMore'),
+        t('common.getStarted')
+      ],
     },
     {
-      title: "内容营销",
-      description: "用户兴趣分析、内容推荐、阅读行为优化",
-      scenarios: ["内容个性化推送", "阅读习惯分析", "用户兴趣建模"],
+      title: t('nav.contentMarketing'),
+      description: t('hero.contentDescription'),
+      scenarios: [
+        t('common.explore'),
+        t('common.learnMore'),
+        t('common.getStarted')
+      ],
     },
     {
-      title: "金融营销",
-      description: "风险评估和产品推荐、客户生命周期管理",
-      scenarios: ["智能产品推荐", "风险用户识别", "客户价值分析"],
+      title: t('nav.financialMarketing'),
+      description: t('hero.financialDescription'),
+      scenarios: [
+        t('common.explore'),
+        t('common.learnMore'),
+        t('common.getStarted')
+      ],
     },
   ];
 
