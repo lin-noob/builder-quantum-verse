@@ -1,4 +1,5 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   Users,
   ArrowRight,
@@ -15,129 +16,137 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import MarketingNav from "@/components/MarketingNav";
+import MarketingFooter from "@/components/MarketingFooter";
+import { useContactModal } from "@/contexts/ContactModalContext";
 
 export default function UserProfiling() {
+  const navigate = useNavigate();
+  const { openModal } = useContactModal();
+  const { t } = useTranslation();
+  
   const features = [
     {
-      icon: <Eye className="h-8 w-8 text-blue-600" />,
-      title: "360°用户洞察",
-      description:
-        "整合多维度用户数据，构建完整用户画像，深度洞察用户需求和行为偏好",
+      icon: <Eye className="h-8 w-8 text-cyan-400" />,
+      title: t('features.userProfilingBenefits.fullProfile'),
+      description: t('features.userProfilingDescription'),
       benefits: [
-        "多维度数据整合",
-        "行为轨迹分析",
-        "兴趣偏好挖掘",
-        "消费能力评估",
+        t('features.userProfilingBenefits.behaviorAnalysis'),
+        t('userProfilingExtended.multiDimension'),
+        t('userProfilingExtended.interestMining'),
+        t('userProfilingExtended.consumptionEvaluation'),
       ],
     },
     {
-      icon: <Layers className="h-8 w-8 text-green-600" />,
-      title: "智能用户分群",
-      description:
-        "基于机器学习算法，自动识别用户群体特征，实现精准的用户分层管理",
-      benefits: ["RFM价值分析", "生命周期分群", "兴趣标签分组", "行为模式聚类"],
+      icon: <Layers className="h-8 w-8 text-green-400" />,
+      title: t('features.userProfilingBenefits.valueSegmentation'),
+      description: t('userProfilingExtended.valueSegmentationDesc'),
+      benefits: [t('userProfilingExtended.rfmAnalysis'), t('userProfilingExtended.lifecycleSegmentation'), t('userProfilingExtended.interestTagGrouping'), t('userProfilingExtended.behaviorClustering')],
     },
     {
-      icon: <TrendingUp className="h-8 w-8 text-purple-600" />,
-      title: "预测分析引擎",
-      description:
-        "运用先进的预测模型，预测用户行为趋势和价值变化，提前制定营销策略",
+      icon: <TrendingUp className="h-8 w-8 text-purple-400" />,
+      title: t('userProfilingExtended.predictiveAnalysisEngine'),
+      description: t('userProfilingExtended.predictiveAnalysisEngineDesc'),
       benefits: [
-        "流失风险预警",
-        "购买意向预测",
-        "价值趋势分析",
-        "复购概率计算",
+        t('userProfilingExtended.churnRiskWarning'),
+        t('userProfilingExtended.purchaseIntentPrediction'),
+        t('userProfilingExtended.valueTrendAnalysis'),
+        t('userProfilingExtended.repurchaseProbability'),
       ],
     },
     {
-      icon: <Search className="h-8 w-8 text-orange-600" />,
-      title: "实时画像更���",
-      description:
-        "实时捕获用户行为变化，动态更新用户画像，确保洞察的时效性和准确性",
+      icon: <Search className="h-8 w-8 text-orange-400" />,
+      title: t('userProfilingExtended.realTimeProfileUpdate'),
+      description: t('userProfilingExtended.realTimeProfileUpdateDesc'),
       benefits: [
-        "实时数据采集",
-        "增量计算更新",
-        "异常行为监测",
-        "���像准确性验证",
+        t('userProfilingExtended.realTimeDataCollection'),
+        t('userProfilingExtended.incrementalUpdate'),
+        t('userProfilingExtended.abnormalBehaviorMonitoring'),
+        t('userProfilingExtended.profileAccuracyValidation'),
       ],
     },
   ];
 
   const dataTypes = [
     {
-      category: "基础属性",
-      items: ["年龄、性别、地域", "职业、收入水平", "教育背景", "家庭结构"],
+      category: t('dataAnalysis.basicAttributes'),
+      items: [t('dataAnalysis.ageGenderLocation'), t('dataAnalysis.occupationIncome'), t('dataAnalysis.educationBackground'), t('dataAnalysis.familyStructure')],
     },
     {
-      category: "行为数据",
-      items: ["浏览轨迹", "购买历史", "互动行为", "使用习惯"],
+      category: t('dataAnalysis.behaviorData'),
+      items: [t('dataAnalysis.browsingTrajectory'), t('dataAnalysis.purchaseHistory'), t('dataAnalysis.interactionBehavior'), t('dataAnalysis.usageHabits')],
     },
     {
-      category: "偏好特征",
-      items: ["商品偏好", "价格敏感度", "品牌倾向", "渠道偏好"],
+      category: t('dataAnalysis.preferenceFeatures'),
+      items: [t('dataAnalysis.productPreference'), t('dataAnalysis.priceSensitivity'), t('dataAnalysis.brandTendency'), t('dataAnalysis.channelPreference')],
     },
     {
-      category: "价值指标",
-      items: ["消费能力", "活跃度", "忠诚度", "影响力"],
+      category: t('dataAnalysis.valueIndicators'),
+      items: [t('dataAnalysis.consumptionCapacity'), t('dataAnalysis.activityLevel'), t('dataAnalysis.loyalty'), t('dataAnalysis.influence')],
     },
   ];
 
   const applications = [
     {
-      title: "精准推荐",
-      description: "基于用户画像推荐个性化商品和内容",
-      metrics: "点击率提升40%",
+      title: t('applicationScenarios.preciseRecommendation'),
+      description: t('applicationScenarios.preciseRecommendationDesc'),
+      metrics: t('applicationScenarios.preciseRecommendationMetrics'),
     },
     {
-      title: "定向营销",
-      description: "向特定用户群体投放定制化营销内容",
-      metrics: "转化率提升55%",
+      title: t('applicationScenarios.targetedMarketing'),
+      description: "向特定用户群体投放定制化营��内容",
+      metrics: t('applicationScenarios.targetedMarketingMetrics'),
     },
     {
-      title: "用户运营",
-      description: "制定差异化的用户运营和服务策略",
-      metrics: "用户满���度提升30%",
+      title: t('applicationScenarios.userOperation'),
+      description: t('applicationScenarios.userOperationDesc'),
+      metrics: t('applicationScenarios.userOperationMetrics'),
     },
     {
-      title: "产品优化",
-      description: "基于用户需求洞察优化产品功能设计",
-      metrics: "产品采用率提升45%",
+      title: t('applicationScenarios.productOptimization'),
+      description: t('applicationScenarios.productOptimizationDesc'),
+      metrics: t('applicationScenarios.productOptimizationMetrics'),
     },
   ];
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gray-900">
       {/* 导航栏 */}
       <MarketingNav />
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-green-50 to-emerald-100 py-20">
+      <section className="relative bg-gradient-to-br from-gray-900 via-green-900 to-emerald-900 py-20 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <div className="flex justify-center mb-6">
-              <div className="p-4 bg-green-600 rounded-full">
+              <div className="p-6 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full shadow-lg shadow-green-500/50">
                 <Users className="h-12 w-12 text-white" />
               </div>
             </div>
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-              用户画像分析
+            <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-white via-green-400 to-emerald-400 bg-clip-text text-transparent">
+              {t('hero.userProfilingTitle')}
             </h1>
-            <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-              深度用户行为分析，精准洞察用户需求和偏好，
-              构建完整的用户画像体系，为精准营销提供数据支撑
+            <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed">
+              {t('hero.userProfilingDescription')}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/auth">
-                <Button
-                  size="lg"
-                  className="bg-green-600 hover:bg-green-700 text-lg px-8 py-4"
-                >
-                  <Sparkles className="mr-2 h-5 w-5" />
-                  立即体验
-                </Button>
-              </Link>
-              <Button size="lg" variant="outline" className="text-lg px-8 py-4">
-                查看演示
+              <Button
+                size="lg"
+                onClick={() => navigate('/auth')}
+                className="text-lg px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 border-0 shadow-lg shadow-green-500/25 text-white font-semibold"
+              >
+                <Sparkles className="mr-2 h-5 w-5" />
+                {t('hero.ctaPrimary')}
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={() => openModal({
+                  title: t('modal.userProfilingDemo'),
+                  description: t('modal.userProfilingDemoDesc'),
+                })}
+                className="text-lg px-8 py-4 border-cyan-500 text-cyan-400 hover:bg-cyan-500 hover:text-white bg-cyan-500/10 backdrop-blur-sm shadow-lg shadow-cyan-500/20 transition-all duration-300"
+              >
+                {t('hero.ctaSecondary')}
               </Button>
             </div>
           </div>
@@ -145,32 +154,36 @@ export default function UserProfiling() {
       </section>
 
       {/* 核心功能 */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-20 bg-gradient-to-b from-gray-800 to-gray-900 relative">
+        <div className="absolute inset-0 bg-gradient-to-r from-green-500/5 via-transparent to-emerald-500/5"></div>
+        <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">核心功能</h2>
-            <p className="text-xl text-gray-600">全方位用户画像分析解决方案</p>
+            <h2 className="text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent mb-4">{t('features.title')}</h2>
+            <p className="text-xl text-gray-400">{t('features.subtitle')}</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {features.map((feature, index) => (
               <Card
                 key={index}
-                className="h-full hover:shadow-lg transition-shadow duration-300"
+                className="h-full bg-gray-800/50 border-gray-700 hover:border-green-500/50 transition-all duration-300 hover:shadow-2xl hover:shadow-green-500/10 backdrop-blur-sm"
               >
                 <CardContent className="p-8">
                   <div className="flex items-center mb-6">
-                    {feature.icon}
-                    <h3 className="text-2xl font-semibold text-gray-900 ml-4">
+                    <div className="p-3 bg-gradient-to-r from-gray-700 to-gray-800 rounded-lg border border-gray-600 mr-4">
+                      {feature.icon}
+                    </div>
+                    <h3 className="text-2xl font-semibold text-white">
                       {feature.title}
                     </h3>
                   </div>
-                  <p className="text-gray-600 mb-6 text-lg">
+                  <p className="text-gray-300 mb-6 text-lg">
                     {feature.description}
                   </p>
                   <ul className="space-y-3">
                     {feature.benefits.map((benefit, idx) => (
-                      <li key={idx} className="flex items-center text-gray-600">
-                        <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
+                      <li key={idx} className="flex items-center text-gray-300">
+                        <CheckCircle className="h-5 w-5 text-green-400 mr-3" />
                         {benefit}
                       </li>
                     ))}
@@ -183,25 +196,26 @@ export default function UserProfiling() {
       </section>
 
       {/* 数据维度 */}
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-20 bg-gradient-to-b from-gray-900 to-black relative">
+        <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 via-transparent to-green-500/5"></div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              多维度数据分析
+            <h2 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-green-400 bg-clip-text text-transparent mb-4">
+              {t('dataAnalysis.title')}
             </h2>
-            <p className="text-xl text-gray-600">全面覆盖用户行为的各个维度</p>
+            <p className="text-xl text-gray-400">{t('dataAnalysis.subtitle')}</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {dataTypes.map((dataType, index) => (
-              <Card key={index} className="h-full">
+              <Card key={index} className="h-full bg-gray-800/30 border-gray-700 hover:border-cyan-500/50 transition-all duration-300 backdrop-blur-sm hover:shadow-xl hover:shadow-cyan-500/10">
                 <CardContent className="p-6">
-                  <h3 className="text-xl font-semibold text-gray-900 mb-4 text-center">
+                  <h3 className="text-xl font-semibold text-white mb-4 text-center">
                     {dataType.category}
                   </h3>
                   <ul className="space-y-3">
                     {dataType.items.map((item, idx) => (
-                      <li key={idx} className="flex items-center text-gray-600">
-                        <Target className="h-4 w-4 text-blue-500 mr-3" />
+                      <li key={idx} className="flex items-center text-gray-300">
+                        <Target className="h-4 w-4 text-cyan-400 mr-3" />
                         {item}
                       </li>
                     ))}
@@ -214,37 +228,38 @@ export default function UserProfiling() {
       </section>
 
       {/* 应用场景 */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-20 bg-gradient-to-b from-gray-800 to-gray-900 relative">
+        <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 via-transparent to-emerald-500/5"></div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">应用场景</h2>
-            <p className="text-xl text-gray-600">
-              用户画像在营销各环节的实际应用
+            <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-emerald-400 bg-clip-text text-transparent mb-4">{t('applicationScenarios.title')}</h2>
+            <p className="text-xl text-gray-400">
+              {t('applicationScenarios.subtitle')}
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {applications.map((app, index) => (
               <Card
                 key={index}
-                className="hover:shadow-lg transition-shadow duration-300"
+                className="bg-gray-800/50 border-gray-700 hover:border-purple-500/50 transition-all duration-300 hover:shadow-2xl hover:shadow-purple-500/10 backdrop-blur-sm"
               >
                 <CardContent className="p-8">
                   <div className="flex items-start justify-between mb-6">
                     <div>
-                      <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                      <h3 className="text-xl font-semibold text-white mb-3">
                         {app.title}
                       </h3>
-                      <p className="text-gray-600 mb-4">{app.description}</p>
+                      <p className="text-gray-300 mb-4">{app.description}</p>
                     </div>
                     <div className="text-right">
-                      <div className="text-2xl font-bold text-green-600">
+                      <div className="text-2xl font-bold text-green-400">
                         {app.metrics}
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center text-blue-600">
+                  <div className="flex items-center text-purple-400">
                     <BarChart3 className="h-5 w-5 mr-2" />
-                    <span className="text-sm font-medium">查看详细案例</span>
+                    <span className="text-sm font-medium">{t('applicationScenarios.viewDetailedCase')}</span>
                   </div>
                 </CardContent>
               </Card>
@@ -254,86 +269,87 @@ export default function UserProfiling() {
       </section>
 
       {/* 技术架构 */}
-      <section className="py-20 bg-green-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-20 bg-gradient-to-br from-black to-gray-900 relative">
+        <div className="absolute inset-0 bg-gradient-to-r from-green-500/10 via-transparent to-cyan-500/10"></div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-6">
-                技术架构
+              <h2 className="text-3xl font-bold bg-gradient-to-r from-green-400 to-cyan-400 bg-clip-text text-transparent mb-6">
+                {t('technicalArchitecture.title')}
               </h2>
-              <p className="text-lg text-gray-600 mb-8">
-                基于大数据和机器学习技术，构建企业级用户画像分析平台
+              <p className="text-lg text-gray-300 mb-8">
+                {t('technicalArchitecture.subtitle')}
               </p>
               <div className="space-y-6">
                 <div className="flex items-start">
-                  <div className="flex-shrink-0 w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mr-4">
-                    <Brain className="h-6 w-6 text-green-600" />
+                  <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-r from-green-500 to-cyan-500 rounded-lg flex items-center justify-center mr-4 shadow-lg shadow-green-500/25">
+                    <Brain className="h-6 w-6 text-white" />
                   </div>
                   <div>
-                    <h4 className="text-lg font-semibold text-gray-900 mb-2">
-                      机器学习引擎
+                    <h4 className="text-lg font-semibold text-white mb-2">
+                      {t('technicalArchitecture.mlEngine')}
                     </h4>
-                    <p className="text-gray-600">
-                      运用先进的ML算法，自动发现用户行为模式和特征
+                    <p className="text-gray-300">
+                      {t('technicalArchitecture.mlEngineDesc')}
                     </p>
                   </div>
                 </div>
                 <div className="flex items-start">
-                  <div className="flex-shrink-0 w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mr-4">
-                    <BarChart3 className="h-6 w-6 text-green-600" />
+                  <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg flex items-center justify-center mr-4 shadow-lg shadow-cyan-500/25">
+                    <BarChart3 className="h-6 w-6 text-white" />
                   </div>
                   <div>
-                    <h4 className="text-lg font-semibold text-gray-900 mb-2">
-                      实时计算平台
+                    <h4 className="text-lg font-semibold text-white mb-2">
+                      {t('technicalArchitecture.realTimeComputingPlatform')}
                     </h4>
-                    <p className="text-gray-600">
-                      支持大规模实时数据处理和画像更新
+                    <p className="text-gray-300">
+                      {t('technicalArchitecture.realTimeComputingPlatformDesc')}
                     </p>
                   </div>
                 </div>
                 <div className="flex items-start">
-                  <div className="flex-shrink-0 w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mr-4">
-                    <Target className="h-6 w-6 text-green-600" />
+                  <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center mr-4 shadow-lg shadow-purple-500/25">
+                    <Target className="h-6 w-6 text-white" />
                   </div>
                   <div>
-                    <h4 className="text-lg font-semibold text-gray-900 mb-2">
-                      标签管理系统
+                    <h4 className="text-lg font-semibold text-white mb-2">
+                      {t('technicalArchitecture.tagManagementSystem')}
                     </h4>
-                    <p className="text-gray-600">
-                      灵活的标签体系，支持自定义标签和标签组合
+                    <p className="text-gray-300">
+                      {t('technicalArchitecture.tagManagementSystemDesc')}
                     </p>
                   </div>
                 </div>
               </div>
             </div>
-            <div className="bg-white p-8 rounded-2xl shadow-lg">
-              <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">
-                平台能力
+            <div className="bg-gray-800/50 p-8 rounded-2xl border border-gray-700 backdrop-blur-sm">
+              <h3 className="text-2xl font-bold text-white mb-6 text-center">
+                {t('technicalArchitecture.platformCapabilities')}
               </h3>
               <div className="grid grid-cols-2 gap-6">
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-green-600 mb-2">
-                    1000万+
+                  <div className="text-3xl font-bold text-green-400 mb-2">
+                    {t('technicalArchitecture.tenMillionPlus')}
                   </div>
-                  <div className="text-gray-600">用户画像处理</div>
+                  <div className="text-gray-300">{t('technicalArchitecture.userProfileProcessing')}</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-green-600 mb-2">
-                    500+
+                  <div className="text-3xl font-bold text-cyan-400 mb-2">
+                    {t('technicalArchitecture.fiveHundredPlus')}
                   </div>
-                  <div className="text-gray-600">标签维度</div>
+                  <div className="text-gray-300">{t('technicalArchitecture.tagDimensions')}</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-green-600 mb-2">
-                    秒级
+                  <div className="text-3xl font-bold text-purple-400 mb-2">
+                    {t('technicalArchitecture.secondLevel')}
                   </div>
-                  <div className="text-gray-600">画像更新</div>
+                  <div className="text-gray-300">{t('technicalArchitecture.profileUpdateSpeed')}</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-green-600 mb-2">
-                    95%+
+                  <div className="text-3xl font-bold text-orange-400 mb-2">
+                    {t('technicalArchitecture.ninetyFivePercentPlus')}
                   </div>
-                  <div className="text-gray-600">预测准确率</div>
+                  <div className="text-gray-300">{t('technicalArchitecture.predictionAccuracy')}</div>
                 </div>
               </div>
             </div>
@@ -342,33 +358,45 @@ export default function UserProfiling() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-green-600">
-        <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-white mb-4">
-            构建您的用户画像体系
+      <section className="py-20 bg-gradient-to-br from-green-900 via-emerald-900 to-cyan-900 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-green-500/20 via-transparent to-cyan-500/20"></div>
+        <div className="absolute inset-0">
+          <div className="absolute top-0 left-1/4 w-64 h-64 bg-green-500/10 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl animate-pulse"></div>
+        </div>
+        <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8 relative">
+          <h2 className="text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent mb-4">
+            {t('cta.userProfilingTitle')}
           </h2>
-          <p className="text-xl text-green-100 mb-8">
-            深度洞察用户，精准营销决策
+          <p className="text-xl text-gray-300 mb-8">
+            {t('cta.userProfilingSubtitle')}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link to="/auth">
               <Button
                 size="lg"
-                className="bg-white text-green-600 hover:bg-gray-100 text-lg px-8 py-4"
+                className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 border-0 shadow-lg shadow-green-500/25 text-white font-semibold text-lg px-8 py-4"
               >
                 <Users className="mr-2 h-5 w-5" />
-                立即开始分析
+                {t('common.getStarted')}
               </Button>
             </Link>
             <Button
               size="lg"
-              className="bg-white text-green-600 hover:bg-green-50 hover:text-green-700 text-lg px-8 py-4 font-bold shadow-lg"
+              onClick={() => openModal({
+                title: t('common.scheduleDemo'),
+                description: t('modal.userProfilingDemoDesc'),
+              })}
+              className="bg-transparent border-2 border-orange-500/80 text-orange-400 hover:bg-orange-500 hover:text-white backdrop-blur-sm text-lg px-8 py-4 font-bold shadow-lg shadow-orange-500/20 transition-all duration-300"
             >
-              预约产品演示
+              {t('common.scheduleDemo')}
             </Button>
           </div>
         </div>
       </section>
+
+      {/* Footer */}
+      <MarketingFooter />
     </div>
   );
 }

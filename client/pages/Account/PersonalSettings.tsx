@@ -30,7 +30,6 @@ import {
 import { memberApi } from "../../../shared/organizationApi";
 import { getCurrentUserInfo } from "@/services/userService.ts";
 
-
 const PersonalSettings = () => {
   const [member, setMember] = useState<Member | null>(null);
   const [loading, setLoading] = useState(false);
@@ -58,7 +57,7 @@ const PersonalSettings = () => {
       try {
         setInitialLoading(true);
         const userInfo = await getCurrentUserInfo();
-        
+
         if (userInfo) {
           setMember(userInfo);
         } else {
@@ -183,16 +182,11 @@ const PersonalSettings = () => {
 
     try {
       setLoading(true);
-
-      const changeRequest: ChangePasswordRequest = {
-        currentPassword: passwordForm.currentPassword,
-        newPassword: passwordForm.newPassword,
-      };
-
-      const response = await memberApi.changePassword(
-        member.memberId,
-        changeRequest,
-      );
+      const response = await memberApi.changePassword({
+        account: member.account,
+        oldpassword: passwordForm.currentPassword,
+        password: passwordForm.newPassword,
+      });
 
       if (response.success) {
         toast({

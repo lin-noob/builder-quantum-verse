@@ -148,7 +148,7 @@ export default function UserListOptimized() {
           <AdvancedDateRangePicker
             value={dateRange}
             onChange={setDateRange}
-            placeholder="过去30天"
+            placeholder="最近30天"
           />
           <Button
             variant="outline"

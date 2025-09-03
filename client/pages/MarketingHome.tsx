@@ -20,17 +20,23 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import MarketingNav from "@/components/MarketingNav";
+import MarketingFooter from "@/components/MarketingFooter";
 import { authService } from "@/services/authService";
+import { useContactModal } from "@/contexts/ContactModalContext";
+import { useTranslation } from "react-i18next";
 
 export default function MarketingHome() {
   const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState(authService.getCurrentUser());
+  const { openModal } = useContactModal();
+  const { t } = useTranslation();
 
   useEffect(() => {
     // 如果已登录，自动跳转到仪表盘
     if (currentUser) {
       navigate("/dashboard");
     }
+    console.log(t('nav.platformName'));
   }, [currentUser, navigate]);
 
   // 如果已登录，显示加载状态
@@ -48,141 +54,220 @@ export default function MarketingHome() {
   const features = [
     {
       icon: <Bot className="h-8 w-8 text-blue-600" />,
-      title: "AI智能营销",
-      description: "基于AI的智能营销场景配置，自动生成个性化营销内容",
-      benefits: ["智能内容生成", "个性化推荐", "自动化执行"],
+      title: t('features.aiMarketingTitle'),
+      description: t('features.aiMarketingDescription'),
+      benefits: [
+        t('features.aiMarketingBenefits.contentGeneration'),
+        t('features.aiMarketingBenefits.personalization'),
+        t('features.aiMarketingBenefits.automation')
+      ],
     },
     {
       icon: <Users className="h-8 w-8 text-green-600" />,
-      title: "用户画像分析",
-      description: "深度用户行为分析，精准洞察用户需求和偏好",
-      benefits: ["360°用户画像", "行为轨迹分析", "价值分群"],
+      title: t('features.userProfilingTitle'),
+      description: t('features.userProfilingDescription'),
+      benefits: [
+        t('features.userProfilingBenefits.fullProfile'),
+        t('features.userProfilingBenefits.behaviorAnalysis'),
+        t('features.userProfilingBenefits.valueSegmentation')
+      ],
     },
     {
       icon: <Activity className="h-8 w-8 text-purple-600" />,
-      title: "实时监控中心",
-      description: "实时监控营销活动效果，快速调整优化策略",
-      benefits: ["实时数据监控", "异常预警", "性能优化建议"],
+      title: t('features.realTimeMonitoringTitle'),
+      description: t('features.realTimeMonitoringDescription'),
+      benefits: [
+        t('features.realTimeMonitoringBenefits.realTimeData'),
+        t('features.realTimeMonitoringBenefits.alerting'),
+        t('features.realTimeMonitoringBenefits.optimization')
+      ],
     },
     {
       icon: <Target className="h-8 w-8 text-red-600" />,
-      title: "效果追踪",
-      description: "全链路效果追踪，量化营销ROI和转化效果",
-      benefits: ["转化漏斗分析", "ROI计算", "多维度报表"],
+      title: t('features.effectTrackingTitle'),
+      description: t('features.effectTrackingDescription'),
+      benefits: [
+        t('features.effectTrackingBenefits.funnelAnalysis'),
+        t('features.effectTrackingBenefits.roiCalculation'),
+        t('features.effectTrackingBenefits.multiDimensionReport')
+      ],
     },
     {
       icon: <BarChart3 className="h-8 w-8 text-orange-600" />,
-      title: "数据驱动决策",
-      description: "基于大数据分析的营销决策支持系统",
-      benefits: ["趋势预测", "策略推荐", "A/B测试"],
+      title: t('features.dataDecisionTitle'),
+      description: t('features.dataDecisionDescription'),
+      benefits: [
+        t('features.dataDecisionBenefits.trendPrediction'),
+        t('features.dataDecisionBenefits.strategyRecommendation'),
+        t('features.dataDecisionBenefits.abTesting')
+      ],
     },
     {
       icon: <Zap className="h-8 w-8 text-yellow-600" />,
-      title: "营销自动化",
-      description: "全流程营销自动化，降低人工成本提升效率",
-      benefits: ["触发式营销", "自动化工作流", "批量处理"],
+      title: t('features.automationTitle'),
+      description: t('features.automationDescription'),
+      benefits: [
+        t('features.automationBenefits.triggerMarketing'),
+        t('features.automationBenefits.workflow'),
+        t('features.automationBenefits.batchProcessing')
+      ],
     },
   ];
 
   const stats = [
     {
       value: "300%",
-      label: "平均转化提升",
+      label: t('stats.averageConversionIncrease'),
       icon: <TrendingUp className="h-5 w-5" />,
     },
-    { value: "80%", label: "运营效率提升", icon: <Zap className="h-5 w-5" /> },
-    { value: "60%", label: "成本降低", icon: <Target className="h-5 w-5" /> },
+    { value: "80%", label: t('stats.efficiencyIncrease'), icon: <Zap className="h-5 w-5" /> },
+    { value: "60%", label: t('stats.costReduction'), icon: <Target className="h-5 w-5" /> },
     {
       value: "99.9%",
-      label: "系统稳定性",
+      label: t('stats.systemStability'),
       icon: <Shield className="h-5 w-5" />,
     },
   ];
 
   const useCases = [
     {
-      title: "电商营销",
-      description: "购物车挽回、个性化推荐、会员营销",
-      scenarios: ["加入购物车挽回", "商品个性化推荐", "会员等级营销"],
+      title: t('nav.ecommerce'),
+      description: t('hero.ecommerceDescription'),
+      scenarios: [
+        t('common.explore'),
+        t('common.learnMore'),
+        t('common.getStarted')
+      ],
     },
     {
-      title: "内容营销",
-      description: "用户兴趣分析、内容推荐、阅读行为优化",
-      scenarios: ["内容个性化推送", "阅读习惯分析", "用户兴趣建模"],
+      title: t('nav.contentMarketing'),
+      description: t('hero.contentDescription'),
+      scenarios: [
+        t('common.explore'),
+        t('common.learnMore'),
+        t('common.getStarted')
+      ],
     },
     {
-      title: "金融营销",
-      description: "风险评估、产品推荐、客户生命周期管理",
-      scenarios: ["智能产品推荐", "风险用户识别", "客户价值分析"],
+      title: t('nav.financialMarketing'),
+      description: t('hero.financialDescription'),
+      scenarios: [
+        t('common.explore'),
+        t('common.learnMore'),
+        t('common.getStarted')
+      ],
     },
   ];
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gray-900">
       {/* 导航栏 */}
       <MarketingNav />
 
-      {/* Hero Section */}
-      <section className="bg-gradient-to-br from-blue-50 to-indigo-100 py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Hero Section - AI科技风格 */}
+      <section className="relative bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 py-20 overflow-hidden">
+        {/* 背景网格效果 */}
+        <div className="absolute inset-0 opacity-20">
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage: `radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.1) 0%, transparent 50%),
+                              linear-gradient(90deg, rgba(16, 185, 129, 0.03) 1px, transparent 1px),
+                              linear-gradient(rgba(16, 185, 129, 0.03) 1px, transparent 1px)`,
+              backgroundSize: '200px 200px, 50px 50px, 50px 50px'
+            }}
+          />
+        </div>
+
+        {/* 动态光效 */}
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-500/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1s'}}></div>
+
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 z-10">
           <div className="text-center">
-            <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
-              <span className="text-blue-600">AI驱动</span>的智能营销平台
+            <div className="inline-flex items-center px-4 py-2 bg-cyan-500/10 border border-cyan-500/20 rounded-full mb-6 backdrop-blur-sm">
+              <Bot className="h-4 w-4 text-cyan-400 mr-2" />
+              <span className="text-cyan-400 text-sm font-medium">Next-Gen AI Marketing Platform</span>
+            </div>
+            <h1 className="text-4xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-white via-cyan-400 to-purple-400 bg-clip-text text-transparent leading-tight">
+              AI驱动的未来营销
             </h1>
-            <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-              通过人工智能技术，实现精准用户洞察、自动化营销执行和数据驱动决策，
+            <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed">
+              通过前沿��工智能技术，实现<span className="text-cyan-400 font-semibold">精准用户洞察</span>、
+              <span className="text-purple-400 font-semibold">自动化营销执行</span>和
+              <span className="text-green-400 font-semibold">数据驱动决策</span>，
               帮助企业实现营销效果的指数级提升
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="/auth">
                 <Button
                   size="lg"
-                  className="bg-blue-600 hover:bg-blue-700 text-lg px-8 py-4"
+                  className="text-lg px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 border-0 shadow-lg shadow-cyan-500/25 text-white font-semibold"
                 >
                   <Sparkles className="mr-2 h-5 w-5" />
-                  登录注册
+                  {t('hero.ctaStartAI')}
                 </Button>
               </Link>
-              <Button size="lg" variant="outline" className="text-lg px-8 py-4">
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={() => openModal({
+                  title: t('modal.aiMarketingDemo'),
+                  description: t('modal.aiMarketingDemoDesc'),
+                })}
+                className="text-lg px-8 py-4 border-purple-500 text-purple-400 hover:bg-purple-500 hover:text-white bg-purple-500/10 backdrop-blur-sm shadow-lg shadow-purple-500/20 transition-all duration-300"
+              >
                 <PlayCircle className="mr-2 h-5 w-5" />
-                观看产品演示
+                {t('hero.ctaWatchDemo')}
               </Button>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 成果展示 */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* 成果展示 - AI科技风格 */}
+      <section className="py-16 bg-gray-900 relative">
+        <div className="absolute inset-0 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900"></div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">数据说话</h2>
-            <p className="text-gray-600">真实客户数据验证的营销效果提升</p>
+            <h2 className="text-3xl font-bold text-white mb-4">数据驱动的成果</h2>
+            <p className="text-gray-400">真实客户数据验证的营销效果提升</p>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat, index) => (
-              <div key={index} className="text-center">
-                <div className="flex justify-center mb-4">
-                  <div className="p-3 bg-blue-100 rounded-full text-blue-600">
-                    {stat.icon}
+            {stats.map((stat, index) => {
+              const colors = [
+                { bg: 'bg-cyan-500/10', border: 'border-cyan-500/20', text: 'text-cyan-400', glow: 'shadow-cyan-500/25' },
+                { bg: 'bg-green-500/10', border: 'border-green-500/20', text: 'text-green-400', glow: 'shadow-green-500/25' },
+                { bg: 'bg-purple-500/10', border: 'border-purple-500/20', text: 'text-purple-400', glow: 'shadow-purple-500/25' },
+                { bg: 'bg-blue-500/10', border: 'border-blue-500/20', text: 'text-blue-400', glow: 'shadow-blue-500/25' }
+              ];
+              const color = colors[index % colors.length];
+
+              return (
+                <div key={index} className="text-center group">
+                  <div className="flex justify-center mb-4">
+                    <div className={`p-4 ${color.bg} ${color.border} border rounded-xl backdrop-blur-sm ${color.text} transition-all duration-300 group-hover:scale-110 shadow-lg ${color.glow}`}>
+                      {stat.icon}
+                    </div>
                   </div>
+                  <div className={`text-3xl font-bold mb-2 ${color.text} transition-all duration-300`}>
+                    {stat.value}
+                  </div>
+                  <div className="text-gray-400">{stat.label}</div>
                 </div>
-                <div className="text-3xl font-bold text-gray-900 mb-2">
-                  {stat.value}
-                </div>
-                <div className="text-gray-600">{stat.label}</div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
 
-      {/* 核心功能 */}
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* 核心功能 - AI科技风格 */}
+      <section className="py-20 bg-gradient-to-b from-gray-800 to-gray-900 relative">
+        <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 via-transparent to-purple-500/5"></div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">核心功能</h2>
-            <p className="text-xl text-gray-600">全方位AI营销解决方案</p>
+            <h2 className="text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent mb-4">核心功能矩阵</h2>
+            <p className="text-xl text-gray-400">全方位AI营销解决方案</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {features.map((feature, index) => {
@@ -192,38 +277,53 @@ export default function MarketingHome() {
                 "/features/user-profiling",
                 "/features/real-time-monitoring",
                 "/features/effect-tracking",
+                "/features/data-driven",
+                "/features/automation",
               ];
+
+              // AI科技风格的颜色配置
+              const techColors = [
+                { border: 'border-cyan-500/20', bg: 'bg-cyan-500/5', icon: 'text-cyan-400', hover: 'hover:border-cyan-500/40', glow: 'shadow-cyan-500/10' },
+                { border: 'border-green-500/20', bg: 'bg-green-500/5', icon: 'text-green-400', hover: 'hover:border-green-500/40', glow: 'shadow-green-500/10' },
+                { border: 'border-purple-500/20', bg: 'bg-purple-500/5', icon: 'text-purple-400', hover: 'hover:border-purple-500/40', glow: 'shadow-purple-500/10' },
+                { border: 'border-red-400/20', bg: 'bg-red-500/5', icon: 'text-red-400', hover: 'hover:border-red-400/40', glow: 'shadow-red-500/10' },
+                { border: 'border-orange-500/20', bg: 'bg-orange-500/5', icon: 'text-orange-400', hover: 'hover:border-orange-500/40', glow: 'shadow-orange-500/10' },
+                { border: 'border-yellow-500/20', bg: 'bg-yellow-500/5', icon: 'text-yellow-400', hover: 'hover:border-yellow-500/40', glow: 'shadow-yellow-500/10' }
+              ];
+              const color = techColors[index % techColors.length];
 
               return (
                 <Link
                   key={index}
                   to={featurePaths[index]}
-                  className="block h-full"
+                  className="block h-full group"
                 >
-                  <Card className="h-full hover:shadow-lg transition-shadow duration-300 cursor-pointer">
+                  <Card className={`h-full transition-all duration-300 cursor-pointer bg-gray-800/50 ${color.border} border backdrop-blur-sm ${color.hover} hover:shadow-lg ${color.glow} group-hover:scale-105`}>
                     <CardContent className="p-6">
                       <div className="flex items-center mb-4">
-                        {feature.icon}
-                        <h3 className="text-xl font-semibold text-gray-900 ml-3">
+                        <div className={`p-3 ${color.bg} rounded-lg mr-3 ${color.icon} transition-all duration-300 group-hover:scale-110`}>
+                          {feature.icon}
+                        </div>
+                        <h3 className="text-xl font-semibold text-white">
                           {feature.title}
                         </h3>
                       </div>
-                      <p className="text-gray-600 mb-4">
+                      <p className="text-gray-300 mb-4 leading-relaxed">
                         {feature.description}
                       </p>
-                      <ul className="space-y-2">
+                      <ul className="space-y-2 mb-4">
                         {feature.benefits.map((benefit, idx) => (
                           <li
                             key={idx}
-                            className="flex items-center text-sm text-gray-600"
+                            className="flex items-center text-sm text-gray-400"
                           >
-                            <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
+                            <CheckCircle className={`h-4 w-4 mr-2 ${color.icon}`} />
                             {benefit}
                           </li>
                         ))}
                       </ul>
-                      <div className="mt-4 flex items-center text-blue-600 text-sm font-medium">
-                        <span>了解更多</span>
+                      <div className={`mt-4 flex items-center text-sm font-medium ${color.icon} group-hover:translate-x-1 transition-transform duration-300`}>
+                        <span>探索功能</span>
                         <ArrowRight className="ml-2 h-4 w-4" />
                       </div>
                     </CardContent>
@@ -235,45 +335,59 @@ export default function MarketingHome() {
         </div>
       </section>
 
-      {/* 应用场景 */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* 应用��景 - AI科技风格 */}
+      <section className="py-20 bg-gray-900 relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-gray-900 via-blue-900/20 to-gray-900"></div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">应用场景</h2>
-            <p className="text-xl text-gray-600">适用于各行业的营销场景</p>
+            <h2 className="text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent mb-4">智能应用场景</h2>
+            <p className="text-xl text-gray-400">适用于各行业的AI营销场景</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {useCases.map((useCase, index) => (
-              <Card key={index} className="h-full">
-                <CardContent className="p-6">
-                  <h3 className="text-xl font-semibold text-gray-900 mb-3">
-                    {useCase.title}
-                  </h3>
-                  <p className="text-gray-600 mb-4">{useCase.description}</p>
-                  <div className="space-y-2">
-                    {useCase.scenarios.map((scenario, idx) => (
-                      <div
-                        key={idx}
-                        className="flex items-center text-sm text-gray-600"
-                      >
-                        <Brain className="h-4 w-4 text-blue-500 mr-2" />
-                        {scenario}
+            {useCases.map((useCase, index) => {
+              const sceneColors = [
+                { border: 'border-orange-500/20', bg: 'bg-orange-500/5', icon: 'text-orange-400', hover: 'hover:border-orange-500/40' },
+                { border: 'border-purple-500/20', bg: 'bg-purple-500/5', icon: 'text-purple-400', hover: 'hover:border-purple-500/40' },
+                { border: 'border-green-500/20', bg: 'bg-green-500/5', icon: 'text-green-400', hover: 'hover:border-green-500/40' }
+              ];
+              const color = sceneColors[index % sceneColors.length];
+
+              return (
+                <Card key={index} className={`h-full bg-gray-800/50 ${color.border} border backdrop-blur-sm ${color.hover} transition-all duration-300 hover:scale-105`}>
+                  <CardContent className="p-6">
+                    <h3 className="text-xl font-semibold text-white mb-3 flex items-center">
+                      <div className={`w-8 h-8 ${color.bg} rounded-lg flex items-center justify-center mr-3`}>
+                        <Brain className={`h-5 w-5 ${color.icon}`} />
                       </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                      {useCase.title}
+                    </h3>
+                    <p className="text-gray-300 mb-4">{useCase.description}</p>
+                    <div className="space-y-2">
+                      {useCase.scenarios.map((scenario, idx) => (
+                        <div
+                          key={idx}
+                          className="flex items-center text-sm text-gray-400"
+                        >
+                          <div className={`w-2 h-2 rounded-full mr-3 ${color.bg}`}></div>
+                          {scenario}
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         </div>
       </section>
 
       {/* 工作流程 */}
-      <section className="py-20 bg-blue-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-20 bg-gradient-to-b from-gray-800 to-gray-900 relative">
+        <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 via-transparent to-purple-500/5"></div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              简单三步，开启AI营销
+            <h2 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent mb-4">
+              三步启动AI营销引擎
             </h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -296,102 +410,85 @@ export default function MarketingHome() {
                 description: "实时监控效果，AI持续优化营销策略",
                 icon: <TrendingUp className="h-8 w-8" />,
               },
-            ].map((item, index) => (
-              <div key={index} className="text-center">
-                <div className="relative">
-                  <div className="w-16 h-16 bg-blue-600 text-white rounded-full flex items-center justify-center mx-auto mb-4">
-                    {item.icon}
+            ].map((item, index) => {
+              const colors = [
+                { bg: 'bg-cyan-500', border: 'border-cyan-400', text: 'text-cyan-400', glow: 'shadow-cyan-500/50' },
+                { bg: 'bg-blue-500', border: 'border-blue-400', text: 'text-blue-400', glow: 'shadow-blue-500/50' },
+                { bg: 'bg-purple-500', border: 'border-purple-400', text: 'text-purple-400', glow: 'shadow-purple-500/50' }
+              ];
+              const color = colors[index % colors.length];
+
+              return (
+                <div key={index} className="text-center group">
+                  <div className="relative mb-6">
+                    <div className={`w-20 h-20 ${color.bg} text-white rounded-full flex items-center justify-center mx-auto mb-4 transition-all duration-300 group-hover:scale-110 shadow-lg ${color.glow}`}>
+                      {item.icon}
+                    </div>
+                    <div className={`absolute -top-2 -right-2 w-10 h-10 bg-gray-800 ${color.text} rounded-full flex items-center justify-center text-lg font-bold ${color.border} border-2 backdrop-blur-sm`}>
+                      {item.step}
+                    </div>
+                    {/* 连接线 */}
+                    {index < 2 && (
+                      <div className="hidden md:block absolute top-10 left-full w-16 h-0.5 bg-gradient-to-r from-gray-600 to-gray-700"></div>
+                    )}
                   </div>
-                  <div className="absolute -top-2 -right-2 w-8 h-8 bg-white text-blue-600 rounded-full flex items-center justify-center text-sm font-bold border-2 border-blue-600">
-                    {item.step}
-                  </div>
+                  <h3 className="text-xl font-semibold text-white mb-3">
+                    {item.title}
+                  </h3>
+                  <p className="text-gray-400 leading-relaxed">{item.description}</p>
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-3">
-                  {item.title}
-                </h3>
-                <p className="text-gray-600">{item.description}</p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 bg-blue-600">
-        <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-white mb-4">
-            准备好开启AI营销的新时代了吗？
+      {/* CTA Section - AI科技风格 */}
+      <section className="py-20 bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 relative overflow-hidden">
+        {/* 背景动效 */}
+        <div className="absolute inset-0">
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-500/20 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        </div>
+
+        <div className="relative max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+            <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
+              准备启动AI营销革命了吗？
+            </span>
           </h2>
-          <p className="text-xl text-blue-100 mb-8">
-            加入数千家企业，体验AI驱动的营销效果提升
+          <p className="text-xl text-gray-300 mb-8 leading-relaxed">
+            加入<span className="text-cyan-400 font-semibold">数千家</span>领先企业，
+            体验<span className="text-purple-400 font-semibold">AI驱动</span>的营销效果提升
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link to="/auth">
               <Button
                 size="lg"
-                className="bg-white text-blue-600 hover:bg-gray-100 text-lg px-8 py-4"
+                className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white text-lg px-8 py-4 shadow-lg shadow-cyan-500/25 border-0"
               >
                 <Star className="mr-2 h-5 w-5" />
-                登录注册
+                立即启动
               </Button>
             </Link>
             <Button
               size="lg"
               variant="outline"
-              className="border-white text-white hover:bg-white hover:text-blue-600 text-lg px-8 py-4"
+              onClick={() => openModal({
+                title: "联系专家",
+                description: "与我们的AI营销专家直接沟通，获取专业的营销策略建议和定制化解决方案。",
+              })}
+              className="border-orange-500 text-orange-400 hover:bg-orange-500 hover:text-white bg-orange-500/10 text-lg px-8 py-4 backdrop-blur-sm shadow-lg shadow-orange-500/20 transition-all duration-300"
             >
-              联系销售顾问
+              <Users className="mr-2 h-5 w-5" />
+              联系专家
             </Button>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div>
-              <div className="flex items-center mb-4">
-                <Bot className="h-8 w-8 text-blue-400" />
-                <span className="ml-2 text-xl font-bold">AI营销平台</span>
-              </div>
-              <p className="text-gray-400">
-                专业的AI驱动营销解决方案，助力企业实现营销效果的指数级提升。
-              </p>
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold mb-4">产品功能</h3>
-              <ul className="space-y-2 text-gray-400">
-                <li>AI智能营销</li>
-                <li>用户画像分析</li>
-                <li>实时监控</li>
-                <li>效果追踪</li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold mb-4">解决方案</h3>
-              <ul className="space-y-2 text-gray-400">
-                <li>电商营销</li>
-                <li>内容营销</li>
-                <li>金融营销</li>
-                <li>企业服务</li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold mb-4">联系我们</h3>
-              <ul className="space-y-2 text-gray-400">
-                <li>技术支持</li>
-                <li>销售咨询</li>
-                <li>合作伙伴</li>
-                <li>API文档</li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>© 2024 AI营销平台. 保留所有权利.</p>
-          </div>
-        </div>
-      </footer>
+      <MarketingFooter />
     </div>
   );
 }

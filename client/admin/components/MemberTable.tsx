@@ -479,8 +479,11 @@ export const MemberTable: React.FC<MemberTableProps> = ({
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="MEMBER">成员</SelectItem>
-                    <SelectItem value="26138972975989607">管理员</SelectItem>
+                    {roles.map((role) => (
+                      <SelectItem key={role.id} value={role.id}>
+                        {role.name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>

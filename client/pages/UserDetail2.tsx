@@ -1,10 +1,14 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Copy, X, Plus } from "lucide-react";
+import { ArrowLeft, Copy, X, Plus, ChevronDown, ChevronRight } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import {
   Accordion,
   AccordionContent,
@@ -105,25 +109,68 @@ const mockActivityData = [
   { date: "2025-07-21", sessions: 3, pageViews: 14, duration: 28 },
 ];
 
+// Collapsible Section Component
+interface CollapsibleSectionProps {
+  title: string;
+  isOpen: boolean;
+  onToggle: () => void;
+  children: React.ReactNode;
+}
+
+const CollapsibleSection = ({ title, isOpen, onToggle, children }: CollapsibleSectionProps) => (
+  <Collapsible open={isOpen} onOpenChange={onToggle}>
+    <CollapsibleTrigger asChild>
+      <Button
+        variant="ghost"
+        className="w-full justify-between p-0 h-auto font-medium text-left group"
+      >
+        <span className="text-lg group-hover:text-foreground/80 transition-colors">{title}</span>
+        <ChevronRight className={`h-5 w-5 shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-90' : ''}`} />
+      </Button>
+    </CollapsibleTrigger>
+    <CollapsibleContent className="mt-4">
+      {children}
+    </CollapsibleContent>
+  </Collapsible>
+);
+
 export default function UserDetail2() {
-  const { userId } = useParams<{ userId: string }>();
+  const { cdpId } = useParams<{ cdpId: string }>();
 
   // Apply warning suppression when component mounts
   useEffect(() => {
     suppressRechartsWarnings();
   }, []);
+  
   const navigate = useNavigate();
   const [userDetail, setUserDetail] = useState<UserDetailResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [userTags, setUserTags] = useState<string[]>([]);
   const [newTag, setNewTag] = useState("");
 
+  // Collapsible states
+  const [openSections, setOpenSections] = useState({
+    identity: true,
+    value: false,
+    behavior: false,
+    tech: false,
+    timeline: false,
+    orders: false,
+  });
+
+  const toggleSection = (section: keyof typeof openSections) => {
+    setOpenSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
+
   useEffect(() => {
     const loadUserDetail = async () => {
-      if (!userId) return;
+      if (!cdpId) return;
 
       try {
-        const detail = await fetchUserDetail(userId);
+        const detail = await fetchUserDetail(cdpId);
         setUserDetail(detail);
         // Extract tags from the profile data
         const tagsFromProfile =
@@ -139,11 +186,11 @@ export default function UserDetail2() {
     };
 
     loadUserDetail();
-  }, [userId]);
+  }, [cdpId]);
 
   const handleCopyId = () => {
-    if (userId) {
-      navigator.clipboard.writeText(userId);
+    if (cdpId) {
+      navigator.clipboard.writeText(cdpId);
       toast({ title: "已复制", description: "CDP ID已复制到剪贴板" });
     }
   };
@@ -218,7 +265,7 @@ export default function UserDetail2() {
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-muted-foreground">CDP ID:</span>
                   <code className="text-sm font-mono bg-muted px-2 py-1 rounded">
-                    {userId}
+                    {cdpId}
                   </code>
                   <Button
                     variant="ghost"
@@ -380,126 +427,155 @@ export default function UserDetail2() {
           </CardContent>
         </Card>
 
-        {/* Detailed Data - Full Width */}
+        {/* Identity & Tags Information */}
         <Card className="bg-background rounded-lg border">
           <CardContent className="p-6">
-            <Tabs defaultValue="dossier" className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="dossier">用户档案</TabsTrigger>
-                <TabsTrigger value="timeline">访问与行为时间线</TabsTrigger>
-                <TabsTrigger value="orders">业务与订单统计</TabsTrigger>
-              </TabsList>
+            <CollapsibleSection
+              title="身份与标签信息"
+              isOpen={openSections.identity}
+              onToggle={() => toggleSection('identity')}
+            >
+              <div className="space-y-4">
+                {Object.entries(userDetail.allProfileData.identity).map(
+                  ([groupName, data]) => (
+                    <div key={groupName}>
+                      <h4 className="text-sm font-medium text-foreground mb-2">
+                        {groupName}
+                      </h4>
+                      <dl className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                        {Object.entries(data).map(([key, value]) => (
+                          <div key={key} className="flex flex-col">
+                            <dt className="text-xs text-muted-foreground">
+                              {key}
+                            </dt>
+                            <dd className="text-sm text-foreground">
+                              {value}
+                            </dd>
+                          </div>
+                        ))}
+                      </dl>
+                    </div>
+                  ),
+                )}
+              </div>
+            </CollapsibleSection>
+          </CardContent>
+        </Card>
 
-              {/* User Dossier Tab */}
-              <TabsContent value="dossier" className="space-y-4">
-                <Tabs defaultValue="identity" className="w-full">
-                  <TabsList className="grid w-full grid-cols-4">
-                    <TabsTrigger value="identity">身份与标签</TabsTrigger>
-                    <TabsTrigger value="value">价值与生命周期</TabsTrigger>
-                    <TabsTrigger value="behavior">行为与意图</TabsTrigger>
-                    <TabsTrigger value="tech">技术环境</TabsTrigger>
-                  </TabsList>
+        {/* Value & Lifecycle Information */}
+        <Card className="bg-background rounded-lg border">
+          <CardContent className="p-6">
+            <CollapsibleSection
+              title="价值与生命周期"
+              isOpen={openSections.value}
+              onToggle={() => toggleSection('value')}
+            >
+              <div className="space-y-4">
+                {Object.entries(userDetail.allProfileData.value).map(
+                  ([groupName, data]) => (
+                    <div key={groupName}>
+                      <h4 className="text-sm font-medium text-foreground mb-2">
+                        {groupName}
+                      </h4>
+                      <dl className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                        {Object.entries(data).map(([key, value]) => (
+                          <div key={key} className="flex flex-col">
+                            <dt className="text-xs text-muted-foreground">
+                              {key}
+                            </dt>
+                            <dd className="text-sm text-foreground">
+                              {value}
+                            </dd>
+                          </div>
+                        ))}
+                      </dl>
+                    </div>
+                  ),
+                )}
+              </div>
+            </CollapsibleSection>
+          </CardContent>
+        </Card>
 
-                  <TabsContent value="identity" className="space-y-4">
-                    {Object.entries(userDetail.allProfileData.identity).map(
-                      ([groupName, data]) => (
-                        <div key={groupName}>
-                          <h4 className="text-sm font-medium text-foreground mb-2">
-                            {groupName}
-                          </h4>
-                          <dl className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                            {Object.entries(data).map(([key, value]) => (
-                              <div key={key} className="flex flex-col">
-                                <dt className="text-xs text-muted-foreground">
-                                  {key}
-                                </dt>
-                                <dd className="text-sm text-foreground">
-                                  {value}
-                                </dd>
-                              </div>
-                            ))}
-                          </dl>
-                        </div>
-                      ),
-                    )}
-                  </TabsContent>
+        {/* Behavior & Intent Information */}
+        <Card className="bg-background rounded-lg border">
+          <CardContent className="p-6">
+            <CollapsibleSection
+              title="行为与意图"
+              isOpen={openSections.behavior}
+              onToggle={() => toggleSection('behavior')}
+            >
+              <div className="space-y-4">
+                {Object.entries(userDetail.allProfileData.behavior).map(
+                  ([groupName, data]) => (
+                    <div key={groupName}>
+                      <h4 className="text-sm font-medium text-foreground mb-2">
+                        {groupName}
+                      </h4>
+                      <dl className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                        {Object.entries(data).map(([key, value]) => (
+                          <div key={key} className="flex flex-col">
+                            <dt className="text-xs text-muted-foreground">
+                              {key}
+                            </dt>
+                            <dd className="text-sm text-foreground">
+                              {value}
+                            </dd>
+                          </div>
+                        ))}
+                      </dl>
+                    </div>
+                  ),
+                )}
+              </div>
+            </CollapsibleSection>
+          </CardContent>
+        </Card>
 
-                  <TabsContent value="value" className="space-y-4">
-                    {Object.entries(userDetail.allProfileData.value).map(
-                      ([groupName, data]) => (
-                        <div key={groupName}>
-                          <h4 className="text-sm font-medium text-foreground mb-2">
-                            {groupName}
-                          </h4>
-                          <dl className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                            {Object.entries(data).map(([key, value]) => (
-                              <div key={key} className="flex flex-col">
-                                <dt className="text-xs text-muted-foreground">
-                                  {key}
-                                </dt>
-                                <dd className="text-sm text-foreground">
-                                  {value}
-                                </dd>
-                              </div>
-                            ))}
-                          </dl>
-                        </div>
-                      ),
-                    )}
-                  </TabsContent>
+        {/* Technical Environment */}
+        <Card className="bg-background rounded-lg border">
+          <CardContent className="p-6">
+            <CollapsibleSection
+              title="技术环境"
+              isOpen={openSections.tech}
+              onToggle={() => toggleSection('tech')}
+            >
+              <div className="space-y-4">
+                {Object.entries(userDetail.allProfileData.tech).map(
+                  ([groupName, data]) => (
+                    <div key={groupName}>
+                      <h4 className="text-sm font-medium text-foreground mb-2">
+                        {groupName}
+                      </h4>
+                      <dl className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                        {Object.entries(data).map(([key, value]) => (
+                          <div key={key} className="flex flex-col">
+                            <dt className="text-xs text-muted-foreground">
+                              {key}
+                            </dt>
+                            <dd className="text-sm text-foreground">
+                              {value}
+                            </dd>
+                          </div>
+                        ))}
+                      </dl>
+                    </div>
+                  ),
+                )}
+              </div>
+            </CollapsibleSection>
+          </CardContent>
+        </Card>
 
-                  <TabsContent value="behavior" className="space-y-4">
-                    {Object.entries(userDetail.allProfileData.behavior).map(
-                      ([groupName, data]) => (
-                        <div key={groupName}>
-                          <h4 className="text-sm font-medium text-foreground mb-2">
-                            {groupName}
-                          </h4>
-                          <dl className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                            {Object.entries(data).map(([key, value]) => (
-                              <div key={key} className="flex flex-col">
-                                <dt className="text-xs text-muted-foreground">
-                                  {key}
-                                </dt>
-                                <dd className="text-sm text-foreground">
-                                  {value}
-                                </dd>
-                              </div>
-                            ))}
-                          </dl>
-                        </div>
-                      ),
-                    )}
-                  </TabsContent>
-
-                  <TabsContent value="tech" className="space-y-4">
-                    {Object.entries(userDetail.allProfileData.tech).map(
-                      ([groupName, data]) => (
-                        <div key={groupName}>
-                          <h4 className="text-sm font-medium text-foreground mb-2">
-                            {groupName}
-                          </h4>
-                          <dl className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                            {Object.entries(data).map(([key, value]) => (
-                              <div key={key} className="flex flex-col">
-                                <dt className="text-xs text-muted-foreground">
-                                  {key}
-                                </dt>
-                                <dd className="text-sm text-foreground">
-                                  {value}
-                                </dd>
-                              </div>
-                            ))}
-                          </dl>
-                        </div>
-                      ),
-                    )}
-                  </TabsContent>
-                </Tabs>
-              </TabsContent>
-
-              {/* Timeline Tab */}
-              <TabsContent value="timeline" className="space-y-4">
+        {/* Timeline & Behavior */}
+        <Card className="bg-background rounded-lg border">
+          <CardContent className="p-6">
+            <CollapsibleSection
+              title="访问与行为时间线"
+              isOpen={openSections.timeline}
+              onToggle={() => toggleSection('timeline')}
+            >
+              <div className="space-y-4">
                 {/* Activity Chart */}
                 <div className="h-64">
                   <ResponsiveContainer width="100%" height="100%">
@@ -571,10 +647,20 @@ export default function UserDetail2() {
                     </AccordionItem>
                   ))}
                 </Accordion>
-              </TabsContent>
+              </div>
+            </CollapsibleSection>
+          </CardContent>
+        </Card>
 
-              {/* Orders Tab */}
-              <TabsContent value="orders" className="space-y-4">
+        {/* Orders & Business */}
+        <Card className="bg-background rounded-lg border">
+          <CardContent className="p-6">
+            <CollapsibleSection
+              title="业务与订单统计"
+              isOpen={openSections.orders}
+              onToggle={() => toggleSection('orders')}
+            >
+              <div className="space-y-4">
                 <Accordion type="single" collapsible className="w-full">
                   {userDetail.orders.map((order, index) => (
                     <AccordionItem key={index} value={`order-${index}`}>
@@ -637,8 +723,8 @@ export default function UserDetail2() {
                     </AccordionItem>
                   ))}
                 </Accordion>
-              </TabsContent>
-            </Tabs>
+              </div>
+            </CollapsibleSection>
           </CardContent>
         </Card>
       </div>

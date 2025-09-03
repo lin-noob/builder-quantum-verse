@@ -74,7 +74,7 @@ function TabManager() {
     });
   }, [location.pathname]);
 
-  // 页面����到标题的映射
+  // 页面路径到标题的映射
   const pathToTitle = {
     "/dashboard": "仪表盘",
     "/": "仪表盘",
@@ -149,7 +149,7 @@ function TabManager() {
         })),
       );
     } else {
-      // 如果标��页不存在，创建新标签页
+      // 如果标签页不存在，创建新标签页
       let title = pathToTitle[currentPath as keyof typeof pathToTitle];
 
       // 如果没有预定义标题，尝试从路径生成友好的标题
@@ -196,7 +196,7 @@ function TabManager() {
             title = "营销策略详情";
           }
         } else if (currentPath.includes("/ai-marketing/scenarios/")) {
-          // 处理AI营销场景的动态路��
+          // 处理AI营销场景的动态路由
           const scenarioId = currentPath.split("/").pop();
           const scenarioNames = {
             add_to_cart: "加入购物车",
@@ -205,7 +205,7 @@ function TabManager() {
             user_login: "用户登录",
             start_checkout: "开始结账",
             purchase: "完成购买",
-            search: "��行搜索",
+            search: "进行搜索",
             exit_intent: "离开意图",
           };
           title =
@@ -216,13 +216,13 @@ function TabManager() {
         } else if (currentPath.includes("/ai-marketing-strategies")) {
           title = "营销策略";
         } else if (currentPath.includes("/ai-marketing")) {
-          title = "AI营���";
+          title = "AI营销";
         } else {
           // 默认使用路径最后一部分作为标题，但尝试转换为中文
           const pathParts = currentPath.split("/").filter(Boolean);
           const lastPart = pathParts[pathParts.length - 1] || "页面";
 
-          // ��单的英文到中文映射
+          // 简单的英文到中文映射
           const englishToChinese = {
             scenarios: "场景列表",
             monitoring: "监控",
@@ -271,7 +271,7 @@ function TabManager() {
     }
   }, [checkScrollStatus]);
 
-  // 监听窗口��小变化
+  // 监听窗口大小变化
   useEffect(() => {
     window.addEventListener("resize", checkScrollStatus);
     return () => window.removeEventListener("resize", checkScrollStatus);
@@ -283,7 +283,7 @@ function TabManager() {
     navigate(tab.path);
   };
 
-  // ���闭标签页
+  // 关闭标签页
   const closeTab = (tabId: string, e?: React.MouseEvent) => {
     e?.stopPropagation();
 
@@ -400,7 +400,7 @@ function TabManager() {
               {/* 标签页图标 */}
               {tab.isHome && <Home className="h-3 w-3 flex-shrink-0" />}
 
-              {/* 标签页标�� */}
+              {/* 标签页标题 */}
               <span className="truncate max-w-32">{tab.title}</span>
 
               {/* 关闭按钮 */}
@@ -417,7 +417,7 @@ function TabManager() {
         </div>
       </div>
 
-      {/* 右侧���动箭头 */}
+      {/* 右侧滚动箭头 */}
       {canScrollRight && (
         <button
           onClick={() => scrollTabs("right")}
@@ -427,7 +427,7 @@ function TabManager() {
         </button>
       )}
 
-      {/* 右键��单 */}
+      {/* 右键菜单 */}
       {contextMenu.isOpen && contextMenu.targetTab && (
         <div
           className="fixed bg-white border border-gray-200 rounded shadow-lg py-1 z-50 w-20"

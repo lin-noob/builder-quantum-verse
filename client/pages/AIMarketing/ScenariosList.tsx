@@ -116,9 +116,8 @@ const loadScenarios = async () => {
           limit: 20
         }
       );
-
       // 确保数据存在且为数组
-      const scenariosData = Array.isArray(res.data) ? res.data : [];
+      const scenariosData = Array.isArray(res.data.data) ? res.data.data : [];
 
       if (scenariosData.length === 0) {
         console.log('No scenarios data received, using empty array');

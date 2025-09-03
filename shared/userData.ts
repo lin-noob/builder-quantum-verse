@@ -88,8 +88,8 @@ export interface Order {
   totalAmount: number; // 最终支付总金额
   currency: string;
   paymentMethod: string;
-  discountCode?: string; // 优惠码（��选）
-  shippingAddress?: Address; // 收货地址（可选��
+  discountCode?: string; // 优惠码（可选）
+  shippingAddress?: Address; // 收货地址（可选）
   billingAddress?: Address; // 账单地址（可选）
   items: OrderItem[];
 }
@@ -118,7 +118,7 @@ export interface CartItem {
   quantity: number;
   totalPrice: number;
   addedTime: string; // 加入购物车时间
-  lastUpdated: string; // 最��更新时间
+  lastUpdated: string; // 最新更新时间
 }
 
 export const mockUsers: User[] = [
@@ -170,7 +170,7 @@ export const mockUsers: User[] = [
           },
           {
             timestamp: "09:25:35",
-            eventType: "��面访问",
+            eventType: "页面访问",
             pageTitle: "价格对比",
             pageUrl: "/pricing",
             stayDuration: "4分15秒",
@@ -224,9 +224,9 @@ export const mockUsers: User[] = [
           {
             timestamp: "14:49:12",
             eventType: "页面访问",
-            pageTitle: "��算页面",
+            pageTitle: "结算页面",
             pageUrl: "/checkout",
-            stayDuration: "5分20��",
+            stayDuration: "5分20秒",
             scrollDepth: "100%",
           },
         ],
@@ -245,7 +245,7 @@ export const mockUsers: User[] = [
           {
             timestamp: "16:45:10",
             eventType: "页面访问",
-            pageTitle: "技��支持",
+            pageTitle: "技术支持",
             pageUrl: "/support",
             stayDuration: "3分20秒",
             scrollDepth: "90%",
@@ -366,7 +366,7 @@ export const mockUsers: User[] = [
         },
         billingAddress: {
           name: "腾讯科技（深圳）有限公司",
-          street: "深圳市南山��技园南区R4-B栋",
+          street: "深圳市南山科技园南区R4-B栋",
           city: "深圳",
           state: "广东省",
           postalCode: "518057",
@@ -493,7 +493,7 @@ export const mockUsers: User[] = [
             eventType: "页面访问",
             pageTitle: "技术规格",
             pageUrl: "/specs",
-            stayDuration: "8分45��",
+            stayDuration: "8分45秒",
             scrollDepth: "90%",
           },
           {
@@ -593,7 +593,7 @@ export const mockUsers: User[] = [
       {
         orderNumber: "ORD-2024-015",
         orderDate: "2024-01-10",
-        status: "已��成",
+        status: "已完成",
         totalAmount: 4800.0,
         currency: "CNY",
         paymentMethod: "支付宝",
@@ -687,7 +687,7 @@ export const mockUsers: User[] = [
             totalPrice: 1200.0,
           },
           {
-            productName: "技��支持服务",
+            productName: "技术支持服务",
             unitPrice: 650.0,
             quantity: 1,
             totalPrice: 650.0,
@@ -937,7 +937,7 @@ export const mockUsers: User[] = [
       {
         orderNumber: "ORD-2024-018",
         orderDate: "2024-01-15",
-        status: "已完��",
+        status: "已完成",
         totalAmount: 4280.75,
         currency: "CNY",
         paymentMethod: "支付宝",
@@ -959,7 +959,7 @@ export const mockUsers: User[] = [
       {
         orderNumber: "ORD-2024-008",
         orderDate: "2024-01-08",
-        status: "已��成",
+        status: "已完成",
         totalAmount: 3650.0,
         currency: "CNY",
         paymentMethod: "微信支付",
@@ -1003,7 +1003,7 @@ export const mockUsers: User[] = [
       {
         orderNumber: "ORD-2023-167",
         orderDate: "2023-12-10",
-        status: "已完��",
+        status: "已完成",
         totalAmount: 2100.0,
         currency: "CNY",
         paymentMethod: "支付宝",
@@ -1053,7 +1053,7 @@ export const mockUsers: User[] = [
         paymentMethod: "微信支付",
         items: [
           {
-            productName: "基础版软��授权",
+            productName: "基础版软件授权",
             unitPrice: 1200.0,
             quantity: 1,
             totalPrice: 1200.0,
@@ -1159,7 +1159,7 @@ export const mockUsers: User[] = [
     lastPurchaseDate: "2024-01-22",
     maxOrderAmount: 8900.0,
     averagePurchaseCycle: 18,
-    tags: ["VIP��户", "长期合作"],
+    tags: ["VIP客户", "长期合作"],
     firstVisitTime: "2023-04-08 12:15:30",
     registrationTime: "2023-04-08 12:45:50",
     firstPurchaseTime: "2023-04-12 09:30:00",
@@ -1259,7 +1259,7 @@ export interface OrderSummaryDto {
   endDate?: string;
   /** 搜索关键词 */
   keywords?: string;
-  /** 排序类型(desc降��，asc升序) */
+  /** 排序类型(desc降序，asc升序) */
   order?: "desc" | "asc";
   /** 每页记录数 */
   pagesize?: number;
@@ -1285,16 +1285,16 @@ export interface UserProfileListParams {
   name?: string;
   /** 页码 */
   page?: number;
-  /** 请求��参数 */
+  /* It looks like the code is a comment block in TypeScript. The comment block starts with /* and ends
+with . It is used to provide information or explanations about the code for other developers or
+for documentation purposes. */
+  /** 请求体参数 */
   body?: OrderSummaryDto;
 }
 
 /**
  * 生成符合新API规范的用户数据
- */
-function generateNewFormatUser(id: number): User {
-  const companies = [
-    "阿里��巴集团",
+    "阿里巴巴集团",
     "腾讯科技",
     "字节跳动",
     "华为技术",
@@ -1416,7 +1416,7 @@ export function getMockUserProfileList(params: UserProfileListParams = {}) {
   const { page = 1, limit = 10, name, body = {} } = params;
   const { keywords, searchtype, sort, order } = body;
 
-  // 生成用��列表
+  // 生成用户列表
   const totalUsers = 1286;
   const allUsers: User[] = [];
 

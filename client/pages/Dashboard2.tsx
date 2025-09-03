@@ -139,7 +139,7 @@ export default function Dashboard2() {
     { name: "户外运动", value: 280000, percentage: 32 },
     { name: "图书音像", value: 150000, percentage: 17 },
     { name: "家居生活", value: 80000, percentage: 9 },
-    { name: "��饰鞋包", value: 20000, percentage: 2 },
+    { name: "服饰鞋包", value: 20000, percentage: 2 },
   ];
 
   return (

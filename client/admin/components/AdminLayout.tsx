@@ -133,12 +133,14 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem
-                  disabled
-                  className="flex items-center gap-2 cursor-not-allowed opacity-50"
-                >
-                  <Settings className="h-4 w-4" />
-                  个人设置
+                <DropdownMenuItem className="flex items-center gap-2">
+                  <Link
+                    to="/admin/profile"
+                    className="flex items-center gap-2 cursor-pointer"
+                  >
+                    <User className="h-4 w-4" />
+                    个人中心
+                  </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
@@ -215,6 +217,23 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 {/* 分隔线 */}
                 <li className="my-4">
                   <div className="border-t border-gray-300"></div>
+                </li>
+
+                {/* 个人中心 */}
+                <li>
+                  <Link
+                    to="/admin/profile"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={cn(
+                      "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+                      isActiveRoute("/admin/profile")
+                        ? "bg-blue-50 text-blue-700 border border-blue-200"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50",
+                    )}
+                  >
+                    <User className="h-5 w-5" />
+                    个人中心
+                  </Link>
                 </li>
 
                 {/* 主平台入口（临时） */}
@@ -305,6 +324,36 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               <div className="border-t border-gray-300"></div>
             </li>
 
+            {/* 个人中心 */}
+            <li>
+              <Link
+                to="/admin/profile"
+                className={cn(
+                  "flex items-center rounded-lg text-sm font-medium transition-colors relative group",
+                  isSidebarCollapsed
+                    ? "gap-0 px-3 py-2 justify-center"
+                    : "gap-3 px-3 py-2",
+                  isActiveRoute("/admin/profile")
+                    ? "bg-blue-50 text-blue-700 border border-blue-200"
+                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-50",
+                )}
+                title={isSidebarCollapsed ? "个人中心" : undefined}
+              >
+                <User className="h-5 w-5" />
+                {!isSidebarCollapsed && (
+                  <span className="whitespace-nowrap flex-1">
+                    个人中心
+                  </span>
+                )}
+
+                {isSidebarCollapsed && (
+                  <div className="absolute left-full top-1/2 transform -translate-y-1/2 ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 whitespace-nowrap">
+                    个人中心
+                  </div>
+                )}
+              </Link>
+            </li>
+
             {/* 主平台入口（临时） */}
             {/* <li>
               <Link
@@ -376,12 +425,14 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 align={isSidebarCollapsed ? "start" : "end"}
                 className="w-48"
               >
-                <DropdownMenuItem
-                  disabled
-                  className="flex items-center gap-2 cursor-not-allowed opacity-50"
-                >
-                  <Settings className="h-4 w-4" />
-                  个人设置
+                <DropdownMenuItem className="flex items-center gap-2">
+                  <Link
+                    to="/admin/profile"
+                    className="flex items-center gap-2 cursor-pointer"
+                  >
+                    <User className="h-4 w-4" />
+                    个人中心
+                  </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem

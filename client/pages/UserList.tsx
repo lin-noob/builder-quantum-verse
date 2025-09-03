@@ -22,6 +22,7 @@ import AdvancedDateRangePicker from "@/components/AdvancedDateRangePicker";
 import { request } from "@/lib/request";
 import { toast } from "@/hooks/use-toast";
 import { MockDataService } from "@/services/mockDataService";
+import { formatStartDate, formatEndDate } from "@/lib/utils";
 
 interface DateRange {
   start: Date | null;
@@ -90,7 +91,7 @@ interface ApiResponse {
 
 export default function UserList() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedTimeField, setSelectedTimeField] = useState("firstVisitTime");
+  const [selectedTimeField, setSelectedTimeField] = useState("lastActiveTime");
   const [dateRange, setDateRange] = useState<DateRange>({
     start: null,
     end: null,
@@ -132,7 +133,7 @@ export default function UserList() {
       case "firstPurchaseTime":
         return "minBuyTime";
       case "lastActiveTime":
-        return "createGmt";
+        return "maxBuyTime";
       default:
         return "signTime";
     }
@@ -156,6 +157,8 @@ export default function UserList() {
     }
   };
 
+  
+
   // 调用API获取用户数据
   const fetchUsers = useCallback(async () => {
     setLoading(true);
@@ -171,11 +174,11 @@ export default function UserList() {
       }
 
       if (dateRange.start) {
-        requestBody.startDate = dateRange.start.toISOString();
+        requestBody.startDate = formatStartDate(dateRange.start);
       }
 
       if (dateRange.end) {
-        requestBody.endDate = dateRange.end.toISOString();
+        requestBody.endDate = formatEndDate(dateRange.end);
       }
 
       if (selectedTimeField) {
@@ -203,7 +206,6 @@ export default function UserList() {
       });
 
       const records = response.data.data.records || [];
-
       // 不管成功失败都显示原始响应，让用户能看到完整信息
       if (records) {
         // 即使响应码不是200也尝试处理数据
@@ -211,7 +213,7 @@ export default function UserList() {
         if (Array.isArray(apiUsers)) {
           const convertedUsers = apiUsers.map(convertApiUserToUser);
           setUsers(convertedUsers);
-          setTotalCount(response.data.total || 0);
+          setTotalCount(response.data.data.total || 0);
         } else {
           console.log("数据格式异常，data不是数组:", apiUsers);
           setUsers([]);
@@ -262,7 +264,7 @@ export default function UserList() {
         console.error("错误详情:", error.message);
         console.error("错误堆栈:", error.stack);
 
-        // 针对不同类型的错误给出更���体的提示
+        // 针对不同类型的错误给出更具体的提示
         if (error.message.includes("Failed to fetch")) {
           console.error("网络连接失败，可能的原因:");
           console.error("1. 代理服务器 192.168.1.128:8099 无法访问");
@@ -352,7 +354,7 @@ export default function UserList() {
 
   const handleReset = () => {
     setSearchQuery("");
-    setSelectedTimeField("firstVisitTime");
+    setSelectedTimeField("lastActiveTime");
     setDateRange({ start: null, end: null });
     setSortConfig({ field: null, direction: "asc" });
     setCurrentPage(1);
@@ -384,7 +386,7 @@ export default function UserList() {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <Input
-                placeholder="搜索 CDP ID、姓名、公司名���或联系方式..."
+                placeholder="搜索 CDP ID、姓名、公司名称或联系方式..."
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value);
@@ -410,8 +412,9 @@ export default function UserList() {
                   <SelectItem value="firstVisitTime">首次访问时间</SelectItem>
                   <SelectItem value="registrationTime">注册时间</SelectItem>
                   <SelectItem value="firstPurchaseTime">
-                    首次购���时间
+                    首次购买时间
                   </SelectItem>
+                  {/* 测试 */}
                   <SelectItem value="lastActiveTime">最后活跃时间</SelectItem>
                 </SelectContent>
               </Select>

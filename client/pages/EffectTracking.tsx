@@ -399,7 +399,7 @@ export default function EffectTracking() {
                 <SelectValue placeholder="决策来源" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">全���来源</SelectItem>
+                <SelectItem value="all">全部来源</SelectItem>
                 <SelectItem value="DEFAULT_AI">默认AI策略</SelectItem>
                 <SelectItem value="CUSTOM_RULE">自定义规则</SelectItem>
               </SelectContent>

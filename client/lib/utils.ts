@@ -30,3 +30,27 @@ export function getDaysBetween(date1, date2) {
   const diff = Math.abs(end - start); // 毫秒差
   return Math.round(diff / (1000 * 60 * 60 * 24)) + 1; // 转成天数
 }
+
+/**
+ * 将日期格式化为当天开始时间的字符串 (00:00:00)
+ * @param date 日期对象
+ * @returns 格式化后的日期字符串 (YYYY-MM-DDTHH:mm:ss.SSSZ)
+ */
+export function formatStartDate(date: Date): string {
+  // 创建一个新的Date对象，设置时间为当天的00:00:00
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
+  return d.toISOString();
+}
+
+/**
+ * 将日期格式化为当天结束时间的字符串 (23:59:59)
+ * @param date 日期对象
+ * @returns 格式化后的日期字符串 (YYYY-MM-DDTHH:mm:ss.SSSZ)
+ */
+export function formatEndDate(date: Date): string {
+  // 创建一个新的Date对象，设置时间为当天的23:59:59
+  const d = new Date(date);
+  d.setHours(23, 59, 59, 999);
+  return d.toISOString();
+}

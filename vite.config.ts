@@ -20,7 +20,7 @@ export default defineConfig(({ mode }) => ({
   },
   server: {
     host: "::",
-    port: 3008,
+    port: 8080,
     fs: {
       allow: ["./client", "./shared"],
       deny: [".env", ".env.*", "*.{crt,pem}", "**/.git/**"],
@@ -40,12 +40,7 @@ export default defineConfig(({ mode }) => ({
         configure: (proxy, _options) => {
           proxy.on("error", (err, req, res) => {
             console.error(`❌ Backend server unreachable: ${err.message}`);
-            console.log(`🔧 Troubleshooting tips:
-              1. Check if backend server is running on 192.168.1.128:8099
-              2. Verify network connectivity to the backend
-              3. Check firewall settings
-              4. Consider using mock data for development`);
-
+            
             // Send a proper error response instead of hanging
             if (!res.headersSent) {
               res.writeHead(503, { "Content-Type": "application/json" });
@@ -72,7 +67,7 @@ export default defineConfig(({ mode }) => ({
         },
       },
       "/quote/api": "http://192.168.1.128:8099",
-      "/admin/api/": "http://192.168.1.128:8099",
+      "/admin/api": "http://192.168.1.128:8099",
     },
     allowedHosts: ["lt.eecart.com"],
   },

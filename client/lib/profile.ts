@@ -68,28 +68,6 @@ interface ApiEnvelope<T> {
 }
 
 export async function getProfileView(id: string): Promise<ApiUser | null> {
-  // 在开发环境中，如果是localhost或者没有真实后���，返回模拟数据
-  if (process.env.NODE_ENV === 'development' &&
-      (window.location.hostname === 'localhost' || window.location.hostname.includes('fly.dev'))) {
-    console.log('Using mock data for getProfileView in development environment');
-
-    // 模拟API延迟
-    await new Promise(resolve => setTimeout(resolve, 200));
-
-    return {
-      id,
-      name: `User ${id}`,
-      email: `user${id}@example.com`,
-      phone: `+86 138-0000-${id.padStart(4, '0')}`,
-      avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${id}`,
-      status: 'active',
-      createdAt: '2024-01-01T00:00:00Z',
-      updatedAt: '2024-01-20T00:00:00Z',
-      labels: [`标签${id}`, '活跃用户'],
-      metadata: {}
-    };
-  }
-
   try {
     // GET /quote/api/v1/profile/view/{id}
     const response = await request.get<ApiEnvelope<ApiUser>>(
@@ -101,29 +79,13 @@ export async function getProfileView(id: string): Promise<ApiUser | null> {
     // response is ApiResponse<ApiEnvelope<ApiUser>> per our request helper
     const envelope = response as unknown as ApiEnvelope<ApiUser> | any;
     if (envelope && envelope.data) {
-      return envelope.data as ApiUser;
+      return envelope.data.data as ApiUser;
     }
 
     // Fallback if backend returns raw object
     return (response as any)?.data ?? null;
   } catch (error) {
     console.error("Failed to fetch profile view:", error);
-    if (process.env.NODE_ENV === 'development') {
-      console.log('API call failed, returning mock data in development');
-      // 返回模拟数据作为降级
-      return {
-        id,
-        name: `User ${id}`,
-        email: `user${id}@example.com`,
-        phone: `+86 138-0000-${id.padStart(4, '0')}`,
-        avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${id}`,
-        status: 'active',
-        createdAt: '2024-01-01T00:00:00Z',
-        updatedAt: '2024-01-20T00:00:00Z',
-        labels: [`标签${id}`, '活跃用户'],
-        metadata: {}
-      };
-    }
     return null;
   }
 }
@@ -173,17 +135,6 @@ export async function addProfileLabel(
   cdpUserId: string,
   labelName: string,
 ): Promise<boolean> {
-  // 在开发环境中，如果是localhost或者没有真实后端，返回模拟数据
-  if (process.env.NODE_ENV === 'development' &&
-      (window.location.hostname === 'localhost' || window.location.hostname.includes('fly.dev'))) {
-    console.log('Using mock data for addProfileLabel in development environment');
-
-    // 模拟API延迟
-    await new Promise(resolve => setTimeout(resolve, 300));
-
-    return true; // 模拟成功添加标签
-  }
-
   try {
     const payload: LabelUpdateItem = { cdpUserId, labelName };
     const res = await request.post<ApiEnvelope<unknown>>(
@@ -194,33 +145,18 @@ export async function addProfileLabel(
         timeout: 5000
       },
     );
-    const envelope = res as unknown as ApiEnvelope<unknown> | any;
-    if (envelope && (envelope.code === "201" || envelope.code === "200"))
+    console.log(res);
+    const data = res.data;
+    if (data && (data.code === "201" || data.code === "200"))
       return true;
     if ((res as any)?.success) return true;
-    throw new Error((envelope && envelope.msg) || "添加标签失败");
+    throw new Error((data && data.msg) || "添加标签失败");
   } catch (error) {
-    console.error("Failed to add profile label:", error);
-    if (process.env.NODE_ENV === 'development') {
-      console.log('API call failed, returning mock success in development');
-      return true; // 开发环境模拟成功
-    }
     throw error;
   }
 }
 
 export async function deleteProfileLabel(id: string): Promise<boolean> {
-  // 在开发环境中，如果是localhost或者没有真实后端，返回模拟数据
-  if (process.env.NODE_ENV === 'development' &&
-      (window.location.hostname === 'localhost' || window.location.hostname.includes('fly.dev'))) {
-    console.log('Using mock data for deleteProfileLabel in development environment');
-
-    // 模拟API延迟
-    await new Promise(resolve => setTimeout(resolve, 300));
-
-    return true; // 模拟成功删除标签
-  }
-
   try {
     const res = await request.post<ApiEnvelope<unknown>>(
       "/quote/api/v1/profile/label/delete",
@@ -230,17 +166,12 @@ export async function deleteProfileLabel(id: string): Promise<boolean> {
         timeout: 5000
       },
     );
-    const envelope = res as unknown as ApiEnvelope<unknown> | any;
-    if (envelope && (envelope.code === "201" || envelope.code === "200"))
+    const data = res.data;
+    if (data && (data.code === "201" || data.code === "200"))
       return true;
     if ((res as any)?.success) return true;
-    throw new Error((envelope && envelope.msg) || "删除标签失败");
+    throw new Error((data && data.msg) || "删除标签失败");
   } catch (error) {
-    console.error("Failed to delete profile label:", error);
-    if (process.env.NODE_ENV === 'development') {
-      console.log('API call failed, returning mock success in development');
-      return true; // 开发环境模拟成功
-    }
     throw error;
   }
 }

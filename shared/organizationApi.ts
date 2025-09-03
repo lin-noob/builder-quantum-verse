@@ -1,6 +1,7 @@
 // 组织和成员管理API接口
 // 基于PRD文档的多租户账户体系API设计
 
+import { request } from "@/lib/request";
 import {
   Organization,
   Member,
@@ -515,43 +516,15 @@ export const memberApi = {
    * 修改密码（成员本人）
    */
   async changePassword(
-    memberId: string,
-    request: ChangePasswordRequest,
+    data:{
+      account: string,
+      oldpassword: string,
+      password: string,
+    }
   ): Promise<ApiResponse<void>> {
-    await delay(300);
-
-    const index = membersStore.findIndex(
-      (member) => member.memberId === memberId,
-    );
-    if (index === -1) {
-      return {
-        code: "404",
-        success: false,
-        message: "成员不存在",
-        data: null,
-      };
-    }
-
-    const currentMember = membersStore[index];
-
-    // 验证当前密码（实际应用中应该验证哈希值）
-    if (currentMember.passwordHash !== request.currentPassword) {
-      return {
-        code: "400",
-        success: false,
-        message: "当前密码错误",
-        data: null,
-      };
-    }
-
-    const updatedMember = {
-      ...currentMember,
-      passwordHash: request.newPassword, // 实际应用中应该加密
-      updatedAt: new Date().toISOString(),
-    };
-
-    membersStore[index] = updatedMember;
-
+    
+    const res = await request.post('/admin/api/v1/users/updatePasswordSelf', data);
+    
     return {
       code: "200",
       success: true,

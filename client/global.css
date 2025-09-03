@@ -2,6 +2,33 @@
 @tailwind components;
 @tailwind utilities;
 
+/* AI Tech Style - Grid Pattern & Animations */
+@layer utilities {
+  .bg-grid-pattern {
+    background-image:
+      linear-gradient(rgba(6, 182, 212, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(6, 182, 212, 0.03) 1px, transparent 1px);
+    background-size: 50px 50px;
+  }
+
+  .animate-pulse-slow {
+    animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  .animate-glow {
+    animation: glow 2s ease-in-out infinite alternate;
+  }
+
+  @keyframes glow {
+    from {
+      filter: brightness(1) blur(20px);
+    }
+    to {
+      filter: brightness(1.2) blur(25px);
+    }
+  }
+}
+
 @layer base {
   /**
    * Modern SaaS Design System - Color Tokens

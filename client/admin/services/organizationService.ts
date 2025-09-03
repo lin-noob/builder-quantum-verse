@@ -125,7 +125,7 @@ export const getOrganizations = async (
           params.status = 1;
           break;
         case AccountStatus.SUSPENDED:
-          params.status = 2;
+          params.status = 0;
           break;
         default:
           params.status = query.status;

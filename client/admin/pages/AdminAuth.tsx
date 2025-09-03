@@ -10,7 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { Mail, Lock, User, Shield, Key, AlertTriangle } from "lucide-react";
 import { adminAuthService } from "@/services/adminAuthService";
-import { useAuthStore } from "@/stores";
+import { useAuthStore, useRoleStore } from "@/stores";
 import { authService } from "@/services/authService";
 
 interface AdminFormData {
@@ -34,6 +34,7 @@ export default function AdminAuth() {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("login");
   const [isLoading, setIsLoading] = useState(false);
+  const { fetchRoles } = useRoleStore();
   const { setUser, setIsAuthenticated } = useAuthStore();
   const [formData, setFormData] = useState<AdminFormData>({
     username: "",
@@ -88,7 +89,7 @@ export default function AdminAuth() {
     if (!formData.password.trim()) {
       newErrors.password = "请输入密码";
     } else if (formData.password.length < 6) {
-      newErrors.password = "密��至少需要6个字符";
+      newErrors.password = "密码至少需要6个字符";
     }
 
     setErrors(newErrors);
@@ -120,6 +121,7 @@ export default function AdminAuth() {
           title: "登录成功",
           description: `欢迎回来，${result.user?.username}！`,
         });
+        fetchRoles();
         navigate("/admin");
       } else {
         toast({
@@ -157,6 +159,7 @@ export default function AdminAuth() {
           title: "注册成功",
           description: `欢迎，${result.user?.username}！`,
         });
+        fetchRoles();
         navigate("/admin");
       } else {
         toast({
@@ -272,11 +275,11 @@ export default function AdminAuth() {
                   </Button>
                 </div>
 
-                <div className="mt-6 text-center">
+                {/* <div className="mt-6 text-center">
                   <p className="text-sm text-gray-600">
                     默认管理员账号：admin@wimoor.com / 123456
                   </p>
-                </div>
+                </div> */}
               </TabsContent>
 
               <TabsContent value="register" className="space-y-4 mt-6">

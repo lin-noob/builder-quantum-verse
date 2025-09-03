@@ -19,6 +19,7 @@ import {
   Shield,
   ChevronDown,
   LogOut,
+  Code,
 } from "lucide-react";
 import TabManager from "./TabManager";
 // import { ThemeToggle } from "./ThemeToggle"; // 已隐藏主题切换功能
@@ -76,18 +77,18 @@ export default function Layout({ children }: LayoutProps) {
         path: "/dashboard2",
         icon: <BarChart3 className="h-5 w-5" />,
       },
-      {
-        id: "dashboard1",
-        label: "仪表盘 1.0",
-        path: "/dashboard1",
-        icon: <Home className="h-5 w-5" />,
-      },
-      {
-        id: "users",
-        label: "用户画像",
-        path: "/users2",
-        icon: <Users className="h-5 w-5" />,
-      },
+      // {
+      //   id: "dashboard1",
+      //   label: "仪表盘 1.0",
+      //   path: "/dashboard1",
+      //   icon: <Home className="h-5 w-5" />,
+      // },
+      // {
+      //   id: "users",
+      //   label: "用户画像",
+      //   path: "/users2",
+      //   icon: <Users className="h-5 w-5" />,
+      // },
       {
         id: "users1",
         label: "用户画像 1.0",
@@ -437,11 +438,11 @@ export default function Layout({ children }: LayoutProps) {
                   {item.id === "system-management" ? (
                     <div>
                       <button
-                        onClick={() =>
-                          setIsSystemManagementExpanded(
-                            !isSystemManagementExpanded,
-                          )
-                        }
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setIsSystemManagementExpanded(prev => !prev);
+                        }}
                         className={cn(
                           "w-full flex items-center rounded-lg text-sm font-medium transition-colors relative",
                           isSidebarCollapsed
@@ -546,7 +547,7 @@ export default function Layout({ children }: LayoutProps) {
                       )}
                     </div>
                   ) : (
-                    /* 普通菜单��� */
+                    /* 普通菜单项 */
                     <Link
                       to={item.path}
                       className={cn(
@@ -610,7 +611,7 @@ export default function Layout({ children }: LayoutProps) {
 
         {/* User Profile Section */}
         <div className="border-t border-gray-200 p-3 space-y-2">
-          {/* 主题切换 - 已隐��� */}
+          {/* 主题切换 - 已隐藏 */}
           {/*
           <div className={cn(
             "flex",
@@ -697,7 +698,7 @@ export default function Layout({ children }: LayoutProps) {
               {!isSidebarCollapsed && (
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-gray-700 truncate">
-                    点击登���
+                    点击登录
                   </p>
                   <p className="text-xs text-gray-500 truncate">未登录状态</p>
                 </div>

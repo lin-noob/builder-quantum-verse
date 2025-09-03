@@ -148,8 +148,8 @@ const mockPermissions: Permission[] = [
   // 场景配置权限
   {
     id: "scenario_read",
-    name: "查看���销场景",
-    description: "查看营销场��配置",
+    name: "查看营销场景",
+    description: "查看营销场景配置",
     category: "scenario",
     resource: "scenarios",
     action: "read",
@@ -933,7 +933,7 @@ export default function SecurityPermissions() {
             </Button>
             <Button
               onClick={() => {
-                // 这里应���处理保存逻辑
+                // 这里应该处理保存逻辑
                 setIsRoleDialogOpen(false);
                 setSelectedRole(null);
               }}

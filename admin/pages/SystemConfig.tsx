@@ -125,7 +125,7 @@ export default function SystemConfig() {
         {
           key: 'db.pool.max_connections',
           label: '最大连接数',
-          description: '数据库��接池的最大连接数量',
+          description: '数据库连接池的最大连接数量',
           type: 'number',
           value: 50,
           validation: { min: 1, max: 200 }
@@ -412,7 +412,7 @@ export default function SystemConfig() {
               </DialogHeader>
               <DialogFooter>
                 <Button variant="outline" onClick={() => setIsResetDialogOpen(false)}>
-                  取��
+                  取消
                 </Button>
                 <Button variant="destructive" onClick={resetConfigs}>
                   确认重置
@@ -489,7 +489,7 @@ export default function SystemConfig() {
               <CheckCircle className="h-4 w-4 text-green-600 mt-0.5" />
               <div>
                 <p className="font-medium text-gray-900">自动生效配置</p>
-                <p>大部分配置修改会立即生效，���需重启系统</p>
+                <p>大部分配置修改会立即生效，无需重启系统</p>
               </div>
             </div>
             

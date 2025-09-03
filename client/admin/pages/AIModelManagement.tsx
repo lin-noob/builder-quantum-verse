@@ -338,7 +338,7 @@ export default function AIModelManagement() {
                     .toLocaleString()}
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  总成功��{" "}
+                  总成功率{" "}
                   {(
                     models.reduce(
                       (sum, m) => sum + m.usageStats.successRate,
@@ -650,7 +650,7 @@ export default function AIModelManagement() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="GPT">GPT系列</SelectItem>
-                    <SelectItem value="Claude">Claude��列</SelectItem>
+                    <SelectItem value="Claude">Claude系列</SelectItem>
                     <SelectItem value="Gemini">Gemini系列</SelectItem>
                     <SelectItem value="Custom">自定义模型</SelectItem>
                   </SelectContent>
@@ -709,7 +709,7 @@ export default function AIModelManagement() {
               <Label htmlFor="description">描述</Label>
               <Textarea
                 id="description"
-                placeholder="描述模型的特��和适用场景..."
+                placeholder="描述模型的特点和适用场景..."
                 defaultValue={selectedModel?.description}
               />
             </div>
@@ -768,7 +768,7 @@ export default function AIModelManagement() {
                     <SelectItem value="add_to_cart">加入购物车</SelectItem>
                     <SelectItem value="view_product">查看商品</SelectItem>
                     <SelectItem value="user_signup">用户注册</SelectItem>
-                    <SelectItem value="user_login">用户��录</SelectItem>
+                    <SelectItem value="user_login">用户登录</SelectItem>
                     <SelectItem value="start_checkout">开始结账</SelectItem>
                     <SelectItem value="purchase">完成购买</SelectItem>
                     <SelectItem value="search">执行搜索</SelectItem>
@@ -802,7 +802,7 @@ export default function AIModelManagement() {
                 defaultValue={selectedPrompt?.content}
               />
               <p className="text-xs text-gray-500">
-                提示：使用方括号包围变量名，如 [username]���[productName] 等
+                提示：使用方括号包围变量名，如 [username]和[productName] 等
               </p>
             </div>
             <div className="space-y-2">

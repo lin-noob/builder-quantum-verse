@@ -1,5 +1,7 @@
-// Import ULTIMATE suppression FIRST to catch all Recharts warnings
-import "./lib/ultimateRechartsSuppress";
+// 🚀 仅在开发环境导入console劫持脚本
+if (process.env.NODE_ENV === "development") {
+  import("./lib/ultimateRechartsSuppress");
+}
 
 import React from "react";
 import { createRoot } from "react-dom/client";

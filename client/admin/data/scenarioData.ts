@@ -58,7 +58,7 @@ export const mockScenarios: MarketingScenario[] = [
       timingStrategy: "SMART_DELAY",
       contentStrategy: "FULLY_GENERATIVE",
       description: "AI会根据用户画像、购物车商品等信息，自主生成最合适的挽留或激励文案",
-      strategySummary: "在用户犹豫或准备离开时进行精准挽留，提升订单转化��。",
+      strategySummary: "在用户犹豫或准备离开时进行精准挽留，提升订单转化率。",
       coreStrategies: ["网页弹窗", "智能延迟", "个性化生成"],
       dimensions: [
         {
@@ -176,7 +176,7 @@ export const mockScenarios: MarketingScenario[] = [
           reasoning: "AI会结合使用多种方式。首先通过网页弹窗给予即时反馈，然后通过邮件提供更详细的引导。",
           examples: [
             "即时反馈: 用户注册成功后，立即在当前页弹出欢迎弹窗。",
-            "后续跟进: 5分钟后，��动发送一封欢迎邮件到用户的注册邮箱。",
+            "后续跟进: 5分钟后，自动发送一封欢迎邮件到用户的注册邮箱。",
           ],
         },
       ],
@@ -240,7 +240,7 @@ export const mockScenarios: MarketingScenario[] = [
       allowedActionTypes: ["POPUP"],
       timingStrategy: "SMART_DELAY",
       contentStrategy: "FULLY_GENERATIVE",
-      description: 'AI会分析用户画像，决策是提供"免运费"等小激励，���是用"社会认同"来增强其购买信心。',
+      description: 'AI会分析用户画像，决策是提供"免运费"等小激励，或是用"社会认同"来增强其购买信心。',
       strategySummary: "在用户于结账页停留过久或准备离开时触发，提升最终转化率。",
       coreStrategies: ["网页弹窗", "智能延迟", "购买激励生成"],
       dimensions: [
@@ -271,7 +271,7 @@ export const mockScenarios: MarketingScenario[] = [
     scenarioId: "purchase",
     scenarioName: "完成购买",
     isAIEnabled: true,
-    businessValue: "提升客单价和复购��的最佳时机",
+    businessValue: "提升客单价和复购率的最佳时机",
     createdAt: "2024-01-16T10:05:00Z",
     updatedAt: "2024-01-16T10:05:00Z",
     defaultAIConfig: {
