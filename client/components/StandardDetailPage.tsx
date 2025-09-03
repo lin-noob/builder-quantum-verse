@@ -70,7 +70,7 @@ interface DetailPageProps {
  *     name: "组织名称",
  *     description: "组织描述",
  *     metadata: [
- *       { label: "创建���间", value: "2024-01-01" },
+ *       { label: "创建时间", value: "2024-01-01" },
  *       { label: "状态", value: "活跃" }
  *     ]
  *   }}

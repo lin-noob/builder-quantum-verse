@@ -125,7 +125,7 @@ export default function SystemConfig() {
         {
           key: 'db.pool.max_connections',
           label: '最大连接数',
-          description: '数据库��接池的最大连接数量',
+          description: '数据库连接池的最大连接数量',
           type: 'number',
           value: 50,
           validation: { min: 1, max: 200 }
@@ -412,7 +412,7 @@ export default function SystemConfig() {
               </DialogHeader>
               <DialogFooter>
                 <Button variant="outline" onClick={() => setIsResetDialogOpen(false)}>
-                  取��
+                  取消
                 </Button>
                 <Button variant="destructive" onClick={resetConfigs}>
                   确认重置

@@ -130,7 +130,7 @@ export default function UserManagement() {
     admin: { label: '系统管理员', color: 'bg-red-100 text-red-700 border-red-300' },
     manager: { label: '营销经理', color: 'bg-blue-100 text-blue-700 border-blue-300' },
     operator: { label: '营销专员', color: 'bg-green-100 text-green-700 border-green-300' },
-    viewer: { label: '���看者', color: 'bg-gray-100 text-gray-700 border-gray-300' }
+    viewer: { label: '查看者', color: 'bg-gray-100 text-gray-700 border-gray-300' }
   };
 
   // 状态配置

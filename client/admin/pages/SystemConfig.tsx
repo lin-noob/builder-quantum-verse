@@ -537,7 +537,7 @@ export default function SystemConfig() {
               <div>
                 <p className="font-medium text-gray-900">重要提醒</p>
                 <p>
-                  修改配置前建议备份当前设置，错误的配置���能影响系统正常运行
+                  修改配置前建议备份当前设置，错误的配置可能影响系统正常运行
                 </p>
               </div>
             </div>

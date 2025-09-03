@@ -293,7 +293,7 @@ const RuleBuilderModal = ({
     const hasUserFields = scenario?.availableFields?.user?.length > 0;
     const hasTriggerConditions = hasEventFields || hasUserFields;
 
-    // 如果有可用的触发���件字段，才验证条件
+    // 如果有可用的触发事件字段，才验证条件
     if (hasTriggerConditions) {
       const totalConditions =
         triggerConditions.eventConditions.length +
@@ -308,7 +308,7 @@ const RuleBuilderModal = ({
         return false;
       }
 
-      // 检查所有条件是否���写完整
+      // 检查所有条件是否填写完整
       const allConditions = [
         ...triggerConditions.eventConditions,
         ...triggerConditions.userConditions,
@@ -346,7 +346,7 @@ const RuleBuilderModal = ({
           !responseAction.actionConfig.emailBody
         ) {
           toast({
-            title: "请填写邮��主题和内容",
+            title: "请填写邮件主题和内容",
             variant: "destructive",
           });
           setCurrentTab("action");
@@ -355,7 +355,7 @@ const RuleBuilderModal = ({
       } else if (responseAction.actionType === "SMS") {
         if (!responseAction.actionConfig.smsContent) {
           toast({
-            title: "请��写短信内容",
+            title: "请填写短信内容",
             variant: "destructive",
           });
           setCurrentTab("action");
@@ -600,7 +600,7 @@ const RuleBuilderModal = ({
         <Alert>
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            内容将完全由AI根据用户��像和场景自动生成，无需配置具体内容。
+            内容将完全由AI根据用户画像和场景自动生成，无需配置具体内容。
           </AlertDescription>
         </Alert>
       );
@@ -694,7 +694,7 @@ const RuleBuilderModal = ({
         return (
           <div className="space-y-4">
             <div>
-              <Label htmlFor="smsContent">���信内容 *</Label>
+              <Label htmlFor="smsContent">短信内容 *</Label>
               <Textarea
                 id="smsContent"
                 placeholder="输入短信内容（建议控制在70字以内）"
@@ -756,7 +756,7 @@ const RuleBuilderModal = ({
                   <Alert>
                     <AlertCircle className="h-4 w-4" />
                     <AlertDescription>
-                      当前场景下无可用的触发条件字段，规则将直接应用于该场景的��有触发事件。
+                      当前场景下无可用的触发条件字段，规则将直接应用于该场景的有触发事件。
                     </AlertDescription>
                   </Alert>
 
@@ -853,7 +853,7 @@ const RuleBuilderModal = ({
             return (
               <Tabs value={currentTab} onValueChange={setCurrentTab}>
                 <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="conditions">触发��件</TabsTrigger>
+                  <TabsTrigger value="conditions">触发事件</TabsTrigger>
                   <TabsTrigger value="action">响应动作</TabsTrigger>
                 </TabsList>
 
@@ -909,7 +909,7 @@ const RuleBuilderModal = ({
                   </div>
 
                   <div>
-                    <Label>营销时���</Label>
+                    <Label>营销时机</Label>
                     <Select
                       value={responseAction.timing}
                       onValueChange={(value) =>
@@ -1031,7 +1031,7 @@ const RuleBuilderModal = ({
                 onClick={handleRedetectConflicts}
                 className="text-xs"
               >
-                重���检测
+                重新检测
               </Button>
             </div>
           </div>

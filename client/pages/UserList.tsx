@@ -264,7 +264,7 @@ export default function UserList() {
         console.error("错误详情:", error.message);
         console.error("错误堆栈:", error.stack);
 
-        // 针对不同类型的错误给出更���体的提示
+        // 针对不同类型的错误给出更具体的提示
         if (error.message.includes("Failed to fetch")) {
           console.error("网络连接失败，可能的原因:");
           console.error("1. 代理服务器 192.168.1.128:8099 无法访问");

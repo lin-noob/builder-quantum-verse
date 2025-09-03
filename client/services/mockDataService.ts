@@ -23,7 +23,7 @@ const generateMockUsers = (count: number): MockUser[] => {
     "小米科技",
     "字节跳动",
   ];
-  const names = ["刘涛", "张伟", "王芳", "李明", "赵��", "陈涛"];
+  const names = ["刘涛", "张伟", "王芳", "李明", "赵敏", "陈涛"];
 
   return Array.from({ length: count }, (_, index) => {
     const now = new Date();

@@ -89,7 +89,7 @@ export default function AdminAuth() {
     if (!formData.password.trim()) {
       newErrors.password = "请输入密码";
     } else if (formData.password.length < 6) {
-      newErrors.password = "密��至少需要6个字符";
+      newErrors.password = "密码至少需要6个字符";
     }
 
     setErrors(newErrors);

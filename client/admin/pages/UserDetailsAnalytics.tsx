@@ -35,7 +35,7 @@ import {
   Mail,
 } from "lucide-react";
 
-// 用户行为���据类型定义
+// 用户行为数据类型定义
 interface UserAnalytics {
   userId: string;
   basicInfo: {
@@ -100,7 +100,7 @@ interface UserAnalytics {
   }[];
 }
 
-// 模���用户分析数据
+// 模拟用户分析数据
 const mockUserAnalytics: UserAnalytics = {
   userId: "1",
   basicInfo: {
@@ -236,7 +236,7 @@ const mockUserAnalytics: UserAnalytics = {
     ],
     commonPaths: [
       { path: "登录 → 仪表盘 → AI营销策略", frequency: 156 },
-      { path: "登录 → 用户分析 ��� 查看详情", frequency: 89 },
+      { path: "登录 → 用户分析 → 查看详情", frequency: 89 },
       { path: "登录 → 营销监控 → 实时数据", frequency: 134 },
       { path: "登录 → 效果追踪 → 分析报告", frequency: 98 },
     ],
@@ -693,7 +693,7 @@ export default function UserDetailsAnalytics() {
 
           <Card>
             <CardHeader>
-              <CardTitle>地理位���分��</CardTitle>
+              <CardTitle>地理位置分布</CardTitle>
               <CardDescription>用户登录的地理位置统计</CardDescription>
             </CardHeader>
             <CardContent>

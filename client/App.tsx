@@ -1,6 +1,6 @@
 import "./global.css";
 
-import React from "react";
+import React, { Suspense } from "react";
 
 import { Toaster } from "@/components/ui/toaster";
 import { createRoot } from "react-dom/client";

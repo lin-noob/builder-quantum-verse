@@ -266,7 +266,7 @@ export default function ScenarioConfiguration() {
               %
             </div>
             <p className="text-xs text-muted-foreground">
-              {stats.enabledScenarios}/{stats.totalScenarios} 场景已启���
+              {stats.enabledScenarios}/{stats.totalScenarios} 场景已启用
             </p>
           </CardContent>
         </Card>
@@ -639,7 +639,7 @@ export default function ScenarioConfiguration() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="POPUP">网页弹��</SelectItem>
+                        <SelectItem value="POPUP">网页弹窗</SelectItem>
                         <SelectItem value="EMAIL">发送邮件</SelectItem>
                         <SelectItem value="SMS">短信通知</SelectItem>
                       </SelectContent>
