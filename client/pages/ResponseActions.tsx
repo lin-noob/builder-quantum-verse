@@ -1,0 +1,400 @@
+import { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Plus, MoreVertical, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import {
+  actionsData,
+  ActionData,
+  ActionStatus,
+  MonitoringScope,
+  STATUS_DISPLAY,
+  formatNumber
+} from "@shared/actionLibraryData";
+import { useToast } from "@/hooks/use-toast";
+
+// 筛选状态接口
+interface FilterState {
+  search: string;
+  status: string;
+}
+
+// 排序状态接口
+interface SortState {
+  field: string | null;
+  direction: "asc" | "desc";
+}
+
+type SortableFields = "totalExecutions" | "conversions" | "lastUpdated";
+
+export default function ResponseActions() {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  
+  // 筛选状态
+  const [filters, setFilters] = useState<FilterState>({
+    search: '',
+    status: 'all'
+  });
+
+  // 排序状态 - 默认按最后更新时间排序
+  const [sortState, setSortState] = useState<SortState>({
+    field: 'lastUpdated',
+    direction: 'desc'
+  });
+
+  // 分页状态
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  // 下拉菜单状态
+  const [dropdownOpen, setDropdownOpen] = useState<string | null>(null);
+
+  // 过滤、排序和分页后的数据
+  const processedData = useMemo(() => {
+    // 1. 过滤数据
+    let filtered = actionsData.filter(action => {
+      const matchesSearch = filters.search === '' ||
+        action.name.toLowerCase().includes(filters.search.toLowerCase());
+
+      const matchesStatus = filters.status === 'all' ||
+        action.status === filters.status;
+
+      return matchesSearch && matchesStatus;
+    });
+
+    // 2. 排序数据
+    if (sortState.field) {
+      filtered.sort((a, b) => {
+        let aValue: any;
+        let bValue: any;
+
+        switch (sortState.field) {
+          case 'totalExecutions':
+            aValue = a.totalExecutions;
+            bValue = b.totalExecutions;
+            break;
+          case 'conversions':
+            aValue = a.conversions;
+            bValue = b.conversions;
+            break;
+          case 'lastUpdated':
+            aValue = new Date(a.lastUpdated);
+            bValue = new Date(b.lastUpdated);
+            break;
+          default:
+            return 0;
+        }
+
+        if (sortState.direction === 'asc') {
+          return aValue > bValue ? 1 : aValue < bValue ? -1 : 0;
+        } else {
+          return aValue < bValue ? 1 : aValue > bValue ? -1 : 0;
+        }
+      });
+    }
+
+    // 3. 分页数据
+    const totalCount = filtered.length;
+    const totalPages = Math.ceil(totalCount / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const paginatedData = filtered.slice(startIndex, startIndex + itemsPerPage);
+
+    return {
+      data: paginatedData,
+      totalCount,
+      totalPages
+    };
+  }, [filters, sortState, currentPage, itemsPerPage]);
+
+  // 重置筛选
+  const resetFilters = () => {
+    setFilters({
+      search: '',
+      status: 'all'
+    });
+    setCurrentPage(1);
+  };
+
+  // 处理排序
+  const handleSort = (field: SortableFields) => {
+    setSortState(prev => ({
+      field,
+      direction: prev.field === field && prev.direction === 'desc' ? 'asc' : 'desc'
+    }));
+    setCurrentPage(1);
+  };
+
+  // 获取排序图标
+  const getSortIcon = (field: SortableFields) => {
+    if (sortState.field !== field) {
+      return <ArrowUpDown className="h-4 w-4 text-gray-400" />;
+    }
+    return sortState.direction === 'desc' ? (
+      <ArrowDown className="h-4 w-4 text-blue-600" />
+    ) : (
+      <ArrowUp className="h-4 w-4 text-blue-600" />
+    );
+  };
+
+  // 查询函数（刷新数据）
+  const renderActionList = () => {
+    // 筛选逻辑已在 useMemo 中处理，这里可以添加刷新逻辑
+    setCurrentPage(1); // 重置到第一页
+    toast({
+      title: "数据已刷新",
+      description: `找到 ${processedData.totalCount} 条动作记录`
+    });
+  };
+
+  // 处理操作按钮点击
+  const handleActionOperation = (actionId: string, operation: string) => {
+    const action = actionsData.find(a => a.id === actionId);
+    if (!action) return;
+
+    switch (operation) {
+      case 'enable':
+        toast({
+          title: "启用成功",
+          description: `动作"${action.name}"已启用`
+        });
+        break;
+      case 'disable':
+        toast({
+          title: "停用成功", 
+          description: `动作"${action.name}"已停用`
+        });
+        break;
+      case 'delete':
+        toast({
+          title: "删除成功",
+          description: `动作"${action.name}"已删除`
+        });
+        break;
+    }
+    setDropdownOpen(null);
+  };
+
+  return (
+    <div className="p-6 space-y-6 bg-gray-50 min-h-full">
+      {/* 筛选区 */}
+      <Card className="bg-white p-4 rounded-lg shadow-sm">
+        <div className="flex flex-col md:flex-row gap-4 items-end">
+          {/* 搜索框 */}
+          <div className="flex-1">
+            <Input
+              placeholder="搜索动作名称..."
+              value={filters.search}
+              onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
+            />
+          </div>
+
+          {/* 状态筛选 */}
+          <div className="w-full md:w-48">
+            <Select
+              value={filters.status}
+              onValueChange={(value) => setFilters(prev => ({ ...prev, status: value }))}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">所有状态</SelectItem>
+                <SelectItem value="draft">草稿</SelectItem>
+                <SelectItem value="active">生效中</SelectItem>
+                <SelectItem value="archived">已归档</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* 操作按钮 */}
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              className="bg-slate-200 text-slate-700"
+              onClick={resetFilters}
+            >
+              重置
+            </Button>
+            <Button
+              className="bg-sky-600 text-white"
+              onClick={renderActionList}
+            >
+              查询
+            </Button>
+          </div>
+        </div>
+      </Card>
+
+      {/* 主操作区 */}
+      <div className="mb-4">
+        <Button 
+          className="bg-sky-600 text-white flex items-center gap-2"
+          onClick={() => navigate('/response-actions/create')}
+        >
+          <Plus className="h-4 w-4" />
+          创建新动作
+        </Button>
+      </div>
+
+      {/* 数据表格 */}
+      <Card className="bg-white rounded-lg shadow-sm overflow-x-auto">
+        <table className="w-full">
+          <thead className="bg-slate-50">
+            <tr>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">动作名称</th>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">状态</th>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">响应动作用途</th>
+              <th
+                className="px-6 py-4 text-left text-sm font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100"
+                onClick={() => handleSort('totalExecutions')}
+              >
+                <div className="flex items-center gap-2">
+                  累计执行次数
+                  {getSortIcon('totalExecutions')}
+                </div>
+              </th>
+              <th
+                className="px-6 py-4 text-left text-sm font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100"
+                onClick={() => handleSort('conversions')}
+              >
+                <div className="flex items-center gap-2">
+                  累计转化数
+                  {getSortIcon('conversions')}
+                </div>
+              </th>
+              <th
+                className="px-6 py-4 text-left text-sm font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100"
+                onClick={() => handleSort('lastUpdated')}
+              >
+                <div className="flex items-center gap-2">
+                  最后更新
+                  {getSortIcon('lastUpdated')}
+                </div>
+              </th>
+              <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">操作</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-200">
+            {processedData.data.map((action) => (
+              <tr key={action.id} className="hover:bg-gray-50">
+                <td className="px-6 py-4 text-sm font-medium text-gray-900">{action.name}</td>
+                <td className="px-6 py-4">
+                  <Badge
+                    variant={STATUS_DISPLAY[action.status].color === 'green' ? 'default' : 'secondary'}
+                    className={STATUS_DISPLAY[action.status].color === 'green' ? 'bg-green-100 text-green-800' : ''}
+                  >
+                    {STATUS_DISPLAY[action.status].text}
+                  </Badge>
+                </td>
+                <td className="px-6 py-4 text-sm text-gray-600">{action.purpose}</td>
+                <td className="px-6 py-4 text-sm text-gray-900">{formatNumber(action.totalExecutions)}</td>
+                <td className="px-6 py-4 text-sm text-gray-900">{formatNumber(action.conversions)}</td>
+                <td className="px-6 py-4 text-sm text-gray-600">{action.lastUpdated}</td>
+                <td className="px-6 py-4 text-sm">
+                  <div className="flex items-center gap-2">
+                    <button
+                      className="text-sky-600 hover:underline"
+                      onClick={() => navigate(`/response-actions/${action.id}`)}
+                    >
+                      详情
+                    </button>
+                    <div className="relative">
+                      <button
+                        className="text-gray-600 hover:text-gray-800 p-1"
+                        onClick={() => setDropdownOpen(dropdownOpen === action.id ? null : action.id)}
+                      >
+                        <MoreVertical className="h-4 w-4" />
+                      </button>
+                      {dropdownOpen === action.id && (
+                        <div className="absolute right-0 top-6 bg-white border rounded-lg shadow-lg py-1 z-50 min-w-[100px]">
+                          <button
+                            className="block w-full text-left px-3 py-1 text-sm text-sky-600 hover:bg-gray-100"
+                            onClick={() => navigate(`/response-actions/edit/${action.id}`)}
+                          >
+                            编辑
+                          </button>
+                          {action.status === 'active' && (
+                            <button
+                              className="block w-full text-left px-3 py-1 text-sm text-gray-700 hover:bg-gray-100"
+                              onClick={() => handleActionOperation(action.id, 'disable')}
+                            >
+                              停用
+                            </button>
+                          )}
+                          {action.status === 'draft' && (
+                            <>
+                              <button
+                                className="block w-full text-left px-3 py-1 text-sm text-gray-700 hover:bg-gray-100"
+                                onClick={() => handleActionOperation(action.id, 'enable')}
+                              >
+                                启用
+                              </button>
+                              <button
+                                className="block w-full text-left px-3 py-1 text-sm text-red-600 hover:bg-gray-100"
+                                onClick={() => handleActionOperation(action.id, 'delete')}
+                              >
+                                删除
+                              </button>
+                            </>
+                          )}
+                          {action.status === 'archived' && (
+                            <button
+                              className="block w-full text-left px-3 py-1 text-sm text-red-600 hover:bg-gray-100"
+                              onClick={() => handleActionOperation(action.id, 'delete')}
+                            >
+                              删除
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {/* 分页区域 */}
+        <div className="px-6 py-4 border-t bg-gray-50 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="text-sm text-gray-700 order-2 sm:order-1">
+            正在显示 {((currentPage - 1) * itemsPerPage) + 1} - {Math.min(currentPage * itemsPerPage, processedData.totalCount)} 条，共 {processedData.totalCount} 条
+            {(filters.search || filters.status !== 'all') && ` (已筛选，共 ${actionsData.length} 条)`}
+          </div>
+          <div className="flex items-center gap-2 order-1 sm:order-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+              disabled={currentPage === 1}
+            >
+              上一页
+            </Button>
+            <span className="text-sm text-gray-600">
+              第 {currentPage} 页，共 {processedData.totalPages} 页
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(Math.min(processedData.totalPages, currentPage + 1))}
+              disabled={currentPage >= processedData.totalPages}
+            >
+              下一页
+            </Button>
+          </div>
+        </div>
+      </Card>
+      
+      {/* 点击外部关闭下拉菜单 */}
+      {dropdownOpen && (
+        <div 
+          className="fixed inset-0 z-40"
+          onClick={() => setDropdownOpen(null)}
+        />
+      )}
+    </div>
+  );
+}
