@@ -2,6 +2,7 @@ import { useAuthStore } from "@/stores";
 import { ErrorHandler } from "./errorHandler";
 import { authService } from "@/services/authService";
 import { adminAuthService } from "@/services/adminAuthService";
+import useProjectStore from "@/store/projectStore";
 
 /**
  * 通用请求配置接口
@@ -746,10 +747,13 @@ export class Request {
       fullURL = this.buildURL(url, params);
       requestId = `${method}_${fullURL}_${Date.now()}`;
       const jsessionid = localStorage.getItem("auth_session") ?? undefined;
+      const projectId =
+        useProjectStore.getState()?.currentProject?.id ?? '';
       const mergedHeaders = {
         ...this.defaultConfig.headers,
         ...headers,
         jsessionid,
+        "PROJECT-INFO": projectId,
       };
       const { body, headers: finalHeaders } = this.processRequestData(
         data,

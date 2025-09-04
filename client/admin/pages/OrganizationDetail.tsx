@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select,
   SelectContent,
@@ -21,6 +22,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { MemberTable } from "../components/MemberTable";
+import { ProjectTable } from "../components/ProjectTable";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -41,6 +43,7 @@ import {
   Building2,
   Shield,
   Crown,
+  Building,
 } from "lucide-react";
 import {
   Organization,
@@ -289,14 +292,36 @@ const OrganizationDetail = () => {
           </CardContent>
         </Card>
 
-        {/* 成员管理 */}
-        <MemberTable
-          organizationId={organizationId}
-          apiEndpoint="/admin/api/v1/company/user/list"
-          enableEndpoint="/admin/api/v1/users/enable"
-          disableEndpoint="/admin/api/v1/users/disable"
-          title="成员管理"
-        />
+        {/* 成员和项目管理 */}
+        <Tabs defaultValue="members" className="space-y-6">
+          <TabsList>
+            <TabsTrigger value="members" className="flex items-center gap-2">
+              <Users className="h-4 w-4" />
+              成员管理
+            </TabsTrigger>
+            <TabsTrigger value="projects" className="flex items-center gap-2">
+              <Building className="h-4 w-4" />
+              项目管理
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="members">
+            <MemberTable
+              organizationId={organizationId}
+              apiEndpoint="/admin/api/v1/company/user/list"
+              enableEndpoint="/admin/api/v1/users/enable"
+              disableEndpoint="/admin/api/v1/users/disable"
+              title="成员管理"
+            />
+          </TabsContent>
+
+          <TabsContent value="projects">
+            <ProjectTable
+              organizationId={organizationId}
+              title="项目管理"
+            />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

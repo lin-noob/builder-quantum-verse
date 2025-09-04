@@ -27,6 +27,8 @@ import MarketingHome from "./pages/MarketingHome";
 import I18nTest from "./pages/I18nTest";
 import TranslationTest from "./pages/TranslationTest";
 import SDK from "./pages/SDK";
+import ProjectList from "./pages/ProjectList";
+import ProjectDetail from "./pages/ProjectDetail";
 
 // 🎯 路由级懒加载 - 将大型页面组件延迟加载
 const Dashboard = React.lazy(() => import("./pages/Dashboard"));
@@ -580,6 +582,26 @@ const AppContent: React.FC = () => {
               <LazyRoute>
                 <EnterpriseSolution />
               </LazyRoute>
+            }
+          />
+          
+          {/* 项目管理路由 */}
+          <Route
+            path="/projects"
+            element={
+              <Layout>
+                <LazyRoute>
+                  <ProjectList />
+                </LazyRoute>
+              </Layout>
+            }
+          />
+          <Route
+            path="/projects/:id"
+            element={
+              <Layout>
+                <ProjectDetail />
+              </Layout>
             }
           />
         </Routes>

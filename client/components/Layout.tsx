@@ -1,5 +1,5 @@
 import { ReactNode, useState, useEffect, useMemo } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import {
   BarChart3,
@@ -20,6 +20,8 @@ import {
   ChevronDown,
   LogOut,
   Code,
+  Building,
+  Check,
 } from "lucide-react";
 import TabManager from "./TabManager";
 // import { ThemeToggle } from "./ThemeToggle"; // 已隐藏主题切换功能
@@ -29,8 +31,14 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { request } from "@/lib/request";
+import useProjectStore from "@/store/projectStore";
+import { CreateProjectDialog } from "./CreateProjectDialog";
 
 interface LayoutProps {
   children: ReactNode;
@@ -45,18 +53,68 @@ interface MenuItem {
   isSpecial?: boolean;
 }
 
+interface Project {
+  id: string;
+  name: string;
+  tenantId: string;
+  createdAt: string;
+}
+
 export default function Layout({ children }: LayoutProps) {
+  const navigate = useNavigate();
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [currentUser, setCurrentUser] = useState(authService.getCurrentUser());
   const [isSystemManagementExpanded, setIsSystemManagementExpanded] =
     useState(false);
+  const [showCreateProjectDialog, setShowCreateProjectDialog] = useState(false);
+  const [isDialogClosable, setIsDialogClosable] = useState(true);
 
-  // 只在组件挂载时检查用户状态，不依赖路由变化
+  // 使用store管理项目状态
+  const {
+    projects,
+    currentProject,
+    loading,
+    setCurrentProject,
+    fetchProjects,
+    createProject,
+  } = useProjectStore();
+
+  // 处理项目创建
+  const handleCreateProject = async (project: { name: string }) => {
+    try {
+      setShowCreateProjectDialog(false);
+      setIsDialogClosable(true);
+    } catch (error) {
+      console.error("创建项目失败:", error);
+    }
+  };
+
+  // 只在组件挂载时检查用户状态和获取项目
   useEffect(() => {
     const user = authService.getCurrentUser();
     setCurrentUser(user);
+
+    // 如果用户已登录，获取项目列表
+    if (user) {
+      fetchProjects()
+        .then(() => {
+          // 检查是否需要显示创建项目对话框
+          const currentProjects = useProjectStore.getState().projects;
+          if (currentProjects.length === 0) {
+            setShowCreateProjectDialog(true);
+            setIsDialogClosable(false);
+          }
+        })
+        .catch(() => {
+          // 如果获取失败且没有缓存的项目，显示创建项目弹框
+          if (projects.length === 0) {
+            setShowCreateProjectDialog(true);
+            setIsDialogClosable(false);
+          }
+        });
+    }
   }, []); // 移除location依赖，避免每次路由切换都重新检查
 
   // 自动展开系统管理菜单 - 只在初始化或从其他页面导航到组织页面时展开
@@ -113,12 +171,12 @@ export default function Layout({ children }: LayoutProps) {
         path: "/effect-tracking",
         icon: <Target className="h-5 w-5" />,
       },
-      {
-        id: "sdk",
-        label: "开发者工具",
-        path: "/sdk",
-        icon: <Zap className="h-5 w-5" />,
-      },
+      // {
+      //   id: "sdk",
+      //   label: "开发者工具",
+      //   path: "/sdk",
+      //   icon: <Zap className="h-5 w-5" />,
+      // },
     ],
     [],
   );
@@ -166,6 +224,11 @@ export default function Layout({ children }: LayoutProps) {
     [baseMenuItems, adminMenuItems, currentUser],
   );
 
+  function changeProject(project: Project) {
+    setCurrentProject(project);
+    navigate(0);
+  }
+
   return (
     <div className="flex h-screen bg-background-secondary">
       {/* Mobile Header */}
@@ -176,13 +239,68 @@ export default function Layout({ children }: LayoutProps) {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
-                  className="w-8 h-8 rounded-full flex items-center justify-center transition-colors bg-primary hover:bg-primary/90"
+                  className="flex items-center gap-3 p-1 rounded-lg text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-colors"
                   title="个人信息"
                 >
-                  <User className="h-4 w-4 text-primary-foreground" />
+                  <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
+                    <User className="h-4 w-4 text-primary-foreground" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900 truncate">
+                      {currentUser.username}
+                    </p>
+                    <p className="text-xs text-gray-500 truncate">
+                      {currentProject?.name || "未选择项目"}
+                    </p>
+                  </div>
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuContent align="end" className="w-64">
+                {/* Project Selector - 二级菜单形式 */}
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger className="flex items-center gap-2">
+                    <Building className="h-4 w-4" />
+                    <span>项目列表</span>
+                    {currentProject && (
+                      <span className="ml-auto text-xs text-muted-foreground">
+                        {currentProject.name}
+                      </span>
+                    )}
+                  </DropdownMenuSubTrigger>
+                  <DropdownMenuSubContent className="w-56">
+                    {projects.map((project) => (
+                      <DropdownMenuItem
+                        key={project.id}
+                        className="flex items-center justify-between cursor-pointer"
+                        onClick={() => {
+                          setCurrentProject(project);
+                          setIsMobileMenuOpen(false);
+                        }}
+                      >
+                        <div className="flex items-center gap-2">
+                          <Building className="h-3 w-3" />
+                          <span>{project.name}</span>
+                        </div>
+                        {currentProject?.id === project.id && (
+                          <Check className="h-3 w-3 text-primary" />
+                        )}
+                      </DropdownMenuItem>
+                    ))}
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link
+                        to="/projects"
+                        className="flex items-center gap-2 cursor-pointer text-primary"
+                      >
+                        <Settings className="h-3 w-3" />
+                        <span>项目管理</span>
+                      </Link>
+                    </DropdownMenuItem>
+                  </DropdownMenuSubContent>
+                </DropdownMenuSub>
+
+                <DropdownMenuSeparator />
+
                 <DropdownMenuItem asChild>
                   <Link
                     to="/account/settings"
@@ -259,6 +377,9 @@ export default function Layout({ children }: LayoutProps) {
                     (item.id === "users1" &&
                       (location.pathname === "/users1" ||
                         location.pathname.startsWith("/users1/"))) ||
+                    (item.id === "projects" &&
+                      (location.pathname === "/projects" ||
+                        location.pathname.startsWith("/projects/"))) ||
                     (item.id === "ai-marketing-scenarios" &&
                       location.pathname.startsWith(
                         "/ai-marketing/scenarios",
@@ -281,11 +402,13 @@ export default function Layout({ children }: LayoutProps) {
 
                   return (
                     <li key={item.id}>
-                      {/* 系统管理菜单 */}
-                      {item.id === "system-management" ? (
+                      {/* 项目管理菜单或系统管理菜单 */}
+                      {item.id === "projects" ||
+                      item.id === "system-management" ? (
                         <div>
                           <button
                             onClick={() =>
+                              item.id === "system-management" &&
                               setIsSystemManagementExpanded(
                                 !isSystemManagementExpanded,
                               )
@@ -304,47 +427,56 @@ export default function Layout({ children }: LayoutProps) {
                             <ChevronDown
                               className={cn(
                                 "h-4 w-4 transition-transform",
-                                isSystemManagementExpanded ? "rotate-180" : "",
+                                item.id === "system-management" &&
+                                  isSystemManagementExpanded
+                                  ? "rotate-180"
+                                  : "",
                               )}
                             />
                           </button>
 
                           {/* 二级菜单 */}
-                          {isSystemManagementExpanded && item.subItems && (
-                            <div className="mt-1 ml-6 space-y-1">
-                              {item.subItems.map((subItem) => {
-                                const subIsActive =
-                                  location.pathname === subItem.path ||
-                                  (subItem.id === "organization-members" &&
-                                    location.pathname.startsWith(
-                                      "/organization/members",
-                                    )) ||
-                                  (subItem.id === "organization-settings" &&
-                                    location.pathname.startsWith(
-                                      "/organization/settings",
-                                    ));
+                          {(item.id === "system-management" &&
+                            isSystemManagementExpanded) ||
+                            (item.id === "projects" && item.subItems && (
+                              <div className="mt-1 ml-6 space-y-1 max-h-60 overflow-y-auto">
+                                {item.subItems.map((subItem) => {
+                                  const subIsActive =
+                                    location.pathname === subItem.path ||
+                                    (item.id === "projects" &&
+                                      location.pathname.startsWith(
+                                        `/projects/${subItem.id.split("-")[1]}`,
+                                      )) ||
+                                    (subItem.id === "organization-members" &&
+                                      location.pathname.startsWith(
+                                        "/organization/members",
+                                      )) ||
+                                    (subItem.id === "organization-settings" &&
+                                      location.pathname.startsWith(
+                                        "/organization/settings",
+                                      ));
 
-                                return (
-                                  <Link
-                                    key={subItem.id}
-                                    to={subItem.path}
-                                    onClick={() => setIsMobileMenuOpen(false)}
-                                    className={cn(
-                                      "flex items-center gap-2 px-3 py-2 text-sm rounded-md transition-colors",
-                                      subIsActive
-                                        ? "bg-blue-50 text-blue-700 border border-blue-200"
-                                        : "text-gray-500 hover:text-gray-900 hover:bg-gray-50",
-                                    )}
-                                  >
-                                    <div className="w-4 h-4 flex items-center justify-center">
-                                      <div className="w-1.5 h-1.5 bg-current rounded-full" />
-                                    </div>
-                                    {subItem.label}
-                                  </Link>
-                                );
-                              })}
-                            </div>
-                          )}
+                                  return (
+                                    <Link
+                                      key={subItem.id}
+                                      to={subItem.path}
+                                      onClick={() => setIsMobileMenuOpen(false)}
+                                      className={cn(
+                                        "flex items-center gap-2 px-3 py-2 text-sm rounded-md transition-colors",
+                                        subIsActive
+                                          ? "bg-blue-50 text-blue-700 border border-blue-200"
+                                          : "text-gray-500 hover:text-gray-900 hover:bg-gray-50",
+                                      )}
+                                    >
+                                      <div className="w-4 h-4 flex items-center justify-center">
+                                        <div className="w-1.5 h-1.5 bg-current rounded-full" />
+                                      </div>
+                                      {subItem.label}
+                                    </Link>
+                                  );
+                                })}
+                              </div>
+                            ))}
                         </div>
                       ) : (
                         /* 普通菜单项 */
@@ -383,18 +515,142 @@ export default function Layout({ children }: LayoutProps) {
           isSidebarCollapsed ? "w-16" : "w-64",
         )}
       >
-        {/* Logo */}
-        <div className="h-16 flex items-center justify-center px-3 border-b border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-              <BarChart3 className="h-5 w-5 text-white" />
+        {/* User Profile and Project Section */}
+        <div className="border-b border-gray-200 p-3 space-y-3">
+          {/* User Information */}
+          {currentUser ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className={cn(
+                    "flex items-center gap-3 p-2 rounded-lg text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-colors w-full",
+                    isSidebarCollapsed ? "justify-center" : "justify-start",
+                  )}
+                  title={
+                    isSidebarCollapsed
+                      ? `${currentUser.username} - 个人信息`
+                      : ""
+                  }
+                >
+                  <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
+                    <User className="h-4 w-4 text-primary-foreground" />
+                  </div>
+                  {!isSidebarCollapsed && (
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900 truncate">
+                        {currentUser.username}
+                      </p>
+                      {currentProject && (
+                        <p className="text-xs text-primary truncate">
+                          {currentProject.name}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                  {!isSidebarCollapsed && (
+                    <ChevronDown className="h-4 w-4 text-gray-400" />
+                  )}
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align={isSidebarCollapsed ? "start" : "end"}
+                className="w-64"
+              >
+                {/* Project Selector - 二级菜单形式 */}
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger className="flex items-center gap-2">
+                    <Building className="h-4 w-4" />
+                    <span>项目列表</span>
+                    {currentProject && (
+                      <span className="ml-auto text-xs text-muted-foreground">
+                        {currentProject.name}
+                      </span>
+                    )}
+                  </DropdownMenuSubTrigger>
+                  <DropdownMenuSubContent className="w-56">
+                    {projects.map((project) => (
+                      <DropdownMenuItem
+                        key={project.id}
+                        className="flex items-center justify-between cursor-pointer"
+                        onClick={() => changeProject(project)}
+                      >
+                        <div className="flex items-center gap-2">
+                          <Building className="h-3 w-3" />
+                          <span>{project.name}</span>
+                        </div>
+                        {currentProject?.id === project.id && (
+                          <Check className="h-3 w-3 text-primary" />
+                        )}
+                      </DropdownMenuItem>
+                    ))}
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link
+                        to="/projects"
+                        className="flex items-center gap-2 cursor-pointer text-primary"
+                      >
+                        <Settings className="h-3 w-3" />
+                        <span>项目管理</span>
+                      </Link>
+                    </DropdownMenuItem>
+                  </DropdownMenuSubContent>
+                </DropdownMenuSub>
+
+                <DropdownMenuSeparator />
+
+                <DropdownMenuItem asChild>
+                  <Link
+                    to="/account/settings"
+                    className="flex items-center gap-2 cursor-pointer"
+                  >
+                    <Settings className="h-4 w-4" />
+                    个人设置
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="flex items-center gap-2 text-red-600 focus:text-red-600 cursor-pointer"
+                  onClick={() => {
+                    authService.logout();
+                    window.location.href = "/auth";
+                  }}
+                >
+                  <LogOut className="h-4 w-4" />
+                  退出登录
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Link
+              to="/auth"
+              className={cn(
+                "flex items-center gap-3 p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-colors border border-dashed border-gray-300",
+                isSidebarCollapsed ? "justify-center" : "justify-start",
+              )}
+              title={isSidebarCollapsed ? "点击登录" : ""}
+            >
+              <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center flex-shrink-0">
+                <User className="h-4 w-4 text-gray-500" />
+              </div>
+              {!isSidebarCollapsed && (
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-gray-700 truncate">
+                    点击登录
+                  </p>
+                  <p className="text-xs text-gray-500 truncate">未登录状态</p>
+                </div>
+              )}
+            </Link>
+          )}
+
+          {/* Logo - Only show when sidebar is collapsed */}
+          {isSidebarCollapsed && (
+            <div className="h-16 flex items-center justify-center px-3 border-t border-gray-200 mt-3 pt-3">
+              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                <BarChart3 className="h-5 w-5 text-white" />
+              </div>
             </div>
-            {!isSidebarCollapsed && (
-              <span className="text-xl font-bold text-gray-900 whitespace-nowrap overflow-hidden">
-                AI营销平台
-              </span>
-            )}
-          </div>
+          )}
         </div>
 
         {/* Navigation Menu */}
@@ -424,8 +680,7 @@ export default function Layout({ children }: LayoutProps) {
                   )) ||
                 (item.id === "effect-tracking" &&
                   location.pathname.startsWith("/effect-tracking")) ||
-                (item.id === "sdk" &&
-                  location.pathname.startsWith("/sdk")) ||
+                (item.id === "sdk" && location.pathname.startsWith("/sdk")) ||
                 (item.id === "admin" &&
                   location.pathname.startsWith("/admin")) ||
                 (item.id === "system-management" &&
@@ -434,14 +689,16 @@ export default function Layout({ children }: LayoutProps) {
 
               return (
                 <li key={item.id} className="relative group">
-                  {/* 系统管理菜单（包含二级菜单） */}
-                  {item.id === "system-management" ? (
+                  {/* 项目管理菜单或系统管理菜单（包含二级菜单） */}
+                  {item.id === "projects" || item.id === "system-management" ? (
                     <div>
                       <button
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
-                          setIsSystemManagementExpanded(prev => !prev);
+                          if (item.id === "system-management") {
+                            setIsSystemManagementExpanded((prev) => !prev);
+                          }
                         }}
                         className={cn(
                           "w-full flex items-center rounded-lg text-sm font-medium transition-colors relative",
@@ -452,7 +709,7 @@ export default function Layout({ children }: LayoutProps) {
                             ? "bg-blue-50 text-blue-700 border border-blue-200"
                             : "text-gray-600 hover:text-gray-900 hover:bg-gray-50",
                         )}
-                        title={isSidebarCollapsed ? "系统管理" : undefined}
+                        title={isSidebarCollapsed ? item.label : undefined}
                       >
                         <div className="flex items-center gap-3">
                           {item.icon}
@@ -462,24 +719,31 @@ export default function Layout({ children }: LayoutProps) {
                             </span>
                           )}
                         </div>
-                        {!isSidebarCollapsed && (
-                          <ChevronDown
-                            className={cn(
-                              "h-4 w-4 transition-transform",
-                              isSystemManagementExpanded ? "rotate-180" : "",
-                            )}
-                          />
-                        )}
+                        {!isSidebarCollapsed &&
+                          item.id === "system-management" && (
+                            <ChevronDown
+                              className={cn(
+                                "h-4 w-4 transition-transform",
+                                isSystemManagementExpanded ? "rotate-180" : "",
+                              )}
+                            />
+                          )}
                       </button>
 
                       {/* 二级菜单 */}
                       {!isSidebarCollapsed &&
-                        isSystemManagementExpanded &&
+                        ((item.id === "system-management" &&
+                          isSystemManagementExpanded) ||
+                          item.id === "projects") &&
                         item.subItems && (
-                          <div className="mt-1 ml-6 space-y-1">
+                          <div className="mt-1 ml-6 space-y-1 max-h-60 overflow-y-auto">
                             {item.subItems.map((subItem) => {
                               const subIsActive =
                                 location.pathname === subItem.path ||
+                                (item.id === "projects" &&
+                                  location.pathname.startsWith(
+                                    `/projects/${subItem.id.split("-")[1]}`,
+                                  )) ||
                                 (subItem.id === "organization-members" &&
                                   location.pathname.startsWith(
                                     "/organization/members",
@@ -510,13 +774,17 @@ export default function Layout({ children }: LayoutProps) {
                           </div>
                         )}
 
-                      {/* 系统管理悬浮二级菜单 - 仅在折叠状态下显示 */}
+                      {/* 项目管理或系统管理悬浮二级菜单 - 仅在折叠状态下显示 */}
                       {isSidebarCollapsed && item.subItems && (
                         <div className="absolute left-full top-0 ml-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                          <div className="p-2">
+                          <div className="p-2 max-h-60 overflow-y-auto">
                             {item.subItems.map((subItem) => {
                               const subIsActive =
                                 location.pathname === subItem.path ||
+                                (item.id === "projects" &&
+                                  location.pathname.startsWith(
+                                    `/projects/${subItem.id.split("-")[1]}`,
+                                  )) ||
                                 (subItem.id === "organization-members" &&
                                   location.pathname.startsWith(
                                     "/organization/members",
@@ -609,104 +877,6 @@ export default function Layout({ children }: LayoutProps) {
           </ul>
         </nav>
 
-        {/* User Profile Section */}
-        <div className="border-t border-gray-200 p-3 space-y-2">
-          {/* 主题切换 - 已隐藏 */}
-          {/*
-          <div className={cn(
-            "flex",
-            isSidebarCollapsed ? "justify-center" : "justify-between items-center"
-          )}>
-            {!isSidebarCollapsed && (
-              <span className="text-xs text-muted-foreground">主题模式</span>
-            )}
-            <ThemeToggle />
-          </div>
-          */}
-
-          {/* 用户信息 */}
-          {currentUser ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button
-                  className={cn(
-                    "flex items-center gap-3 p-2 rounded-lg text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-colors w-full",
-                    isSidebarCollapsed ? "justify-center" : "justify-start",
-                  )}
-                  title={
-                    isSidebarCollapsed
-                      ? `${currentUser.username} - 个人信息`
-                      : ""
-                  }
-                >
-                  <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
-                    <User className="h-4 w-4 text-primary-foreground" />
-                  </div>
-                  {!isSidebarCollapsed && (
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">
-                        {currentUser.username}
-                      </p>
-                      <p className="text-xs text-gray-500 truncate">
-                        {currentUser.isAdmin ? "管理员" : "用户"}
-                      </p>
-                    </div>
-                  )}
-                  {!isSidebarCollapsed && (
-                    <ChevronDown className="h-4 w-4 text-gray-400" />
-                  )}
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align={isSidebarCollapsed ? "start" : "end"}
-                className="w-48"
-              >
-                <DropdownMenuItem asChild>
-                  <Link
-                    to="/account/settings"
-                    className="flex items-center gap-2 cursor-pointer"
-                  >
-                    <Settings className="h-4 w-4" />
-                    个人设置
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  className="flex items-center gap-2 text-red-600 focus:text-red-600 cursor-pointer"
-                  onClick={() => {
-                    authService.logout();
-                    window.location.href = "/auth";
-                  }}
-                >
-                  <LogOut className="h-4 w-4" />
-                  退出登录
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
-            <Link
-              to="/auth"
-              className={cn(
-                "flex items-center gap-3 p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-colors border border-dashed border-gray-300",
-                isSidebarCollapsed ? "justify-center" : "justify-start",
-              )}
-              title={isSidebarCollapsed ? "点击登录" : ""}
-            >
-              <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center flex-shrink-0">
-                <User className="h-4 w-4 text-gray-500" />
-              </div>
-              {!isSidebarCollapsed && (
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-700 truncate">
-                    点击登录
-                  </p>
-                  <p className="text-xs text-gray-500 truncate">未登录状态</p>
-                </div>
-              )}
-            </Link>
-          )}
-        </div>
-
         {/* Collapse Toggle Button */}
         <div className="border-t border-gray-200 p-2">
           <button
@@ -733,6 +903,20 @@ export default function Layout({ children }: LayoutProps) {
         {/* Main Content */}
         <main className="flex-1 overflow-auto pt-16 lg:pt-0">{children}</main>
       </div>
+
+      {/* 创建项目弹框 - 当没有项目时强制显示 */}
+      {showCreateProjectDialog && (
+        <CreateProjectDialog
+          open={showCreateProjectDialog}
+          onOpenChange={(open) => {
+            if (isDialogClosable) {
+              setShowCreateProjectDialog(open);
+            }
+          }}
+          onProjectCreate={handleCreateProject}
+          closable={isDialogClosable}
+        />
+      )}
     </div>
   );
 }
