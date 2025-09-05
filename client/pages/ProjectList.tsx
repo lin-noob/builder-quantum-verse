@@ -143,7 +143,7 @@ export default function ProjectList() {
                 </div>
                 <div className="flex items-center justify-between pt-2">
                   <Button variant="outline" size="sm" asChild>
-                    <Link to={`/projects/${project.id}`}>查看详情</Link>
+                    <Link to={`/projects/${project.id}`}>SDK集成</Link>
                   </Button>
                 </div>
               </div>
