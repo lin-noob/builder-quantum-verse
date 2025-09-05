@@ -93,7 +93,7 @@ export default function UserProfiling() {
     },
     {
       title: t('applicationScenarios.targetedMarketing'),
-      description: "向特定用户群体投放定制化营��内容",
+      description: t('applicationScenarios.targetedMarketingDesc'),
       metrics: t('applicationScenarios.targetedMarketingMetrics'),
     },
     {

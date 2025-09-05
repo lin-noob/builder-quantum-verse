@@ -1,0 +1,444 @@
+{
+  "nav": {
+    "platformName": "AI营销平台",
+    "productFeatures": "产品特色",
+    "solutions": "解决方案",
+    "contactUs": "联系我们",
+    "startAI": "启动AI",
+    "aiMarketing": "AI智能营销",
+    "userProfiling": "用户画像分析",
+    "realTimeMonitoring": "实时监控中心",
+    "effectTracking": "效果追踪",
+    "ecommerce": "电商营销",
+    "contentMarketing": "内容营销",
+    "financialMarketing": "金融营销",
+    "enterpriseServices": "企服务"
+  },
+  "hero": {
+    "aiMarketingTitle": "AI驱动的未来营销",
+    "aiMarketingDescription": "通过前沿人工智能技术，实现{{preciseTech}}、{{automation}}和{{dataDecision}}，帮助企业实现营销效果的指数级提升",
+    "preciseTech": "精准用户洞察",
+    "automation": "自动化营销执行",
+    "dataDecision": "数据驱动决策",
+    "enterpriseTitle": "企业服务解决方案",
+    "enterpriseDescription": "专为B2B企业服务打造的AI营销解决方案，精准获客、高效转化、客户成功管理，助力企业服务商业务增长",
+    "financialTitle": "金融营销解决方案",
+    "financialDescription": "专为金融行业打造的AI营销解决方案，合规安全、精准获客、提升客户价值，助力金融机构数字化转型",
+    "ecommerceTitle": "电商营销解决方案",
+    "ecommerceDescription": "专为电商平台打造的AI智能营销解决方案，提升转化率、减少购物车放弃、增强用户留存，助力电商业务持续增长",
+    "contentTitle": "内容营销解决方案",
+    "contentDescription": "AI驱动的内容营销解决方案，自动生成优质内容、精准投放、提升品牌影响力和用户参与度",
+    "userProfilingTitle": "用户画像分析",
+    "userProfilingDescription": "深度用户行为分析，精准洞察用户需求和偏好，构建完整的用户画像体系，为精准营销提供数据支撑",
+    "effectTrackingTitle": "效果追踪",
+    "effectTrackingDescription": "全链路效果追踪，量化营销ROI和转化效果，提供精准的数据分析和优化建议，让每一分投入都可衡量",
+    "realTimeMonitoringTitle": "实时监控中心",
+    "realTimeMonitoringDescription": "实时监控营销活动效果，智能异常检测和预警，快速调整优化策略，确保营销目标的达成",
+    "ctaPrimary": "立即体验",
+    "ctaSecondary": "观看演示",
+    "ctaStartAI": "启动AI营销",
+    "ctaWatchDemo": "观看产品演示",
+    "ctaContactExpert": "联系专家",
+    "ctaFreeTrial": "免费试用",
+    "ctaViewDemo": "查看演示"
+  },
+  "features": {
+    "title": "核心功能矩阵",
+    "subtitle": "全方位AI营销解决方案",
+    "aiMarketingTitle": "AI智能营销",
+    "aiMarketingDescription": "基于AI的智能营销场景配置，自动生成个性化营销内容",
+    "aiMarketingBenefits": {
+      "contentGeneration": "智能内容生成",
+      "personalization": "个性化推荐",
+      "automation": "自动化执行"
+    },
+    "userProfilingTitle": "用户画像分析",
+    "userProfilingDescription": "深度用户行为分析，精准洞察用户需求和偏好",
+    "userProfilingBenefits": {
+      "fullProfile": "360°用户画像",
+      "behaviorAnalysis": "行为轨迹分析",
+      "valueSegmentation": "价值分群"
+    },
+    "realTimeMonitoringTitle": "实时监控中心",
+    "realTimeMonitoringDescription": "实时监控营销活动效果，快速调整优化策略",
+    "realTimeMonitoringBenefits": {
+      "realTimeData": "实时数据监控",
+      "alerting": "异常预警",
+      "optimization": "性能优化建议"
+    },
+    "effectTrackingTitle": "效果追踪",
+    "effectTrackingDescription": "全链路效果追踪，量化营销ROI和转化效果",
+    "effectTrackingBenefits": {
+      "funnelAnalysis": "转化漏斗分析",
+      "roiCalculation": "ROI计算",
+      "multiDimensionReport": "多维度报表"
+    },
+    "dataDecisionTitle": "数据驱动决策",
+    "dataDecisionDescription": "基于大数据分析的营销决策支持系统",
+    "dataDecisionBenefits": {
+      "trendPrediction": "趋势预测",
+      "strategyRecommendation": "策略推荐",
+      "abTesting": "A/B测试"
+    },
+    "automationTitle": "营销自动化",
+    "automationDescription": "全流程营销自动化，降低人工成本提升效率",
+    "automationBenefits": {
+      "triggerMarketing": "触发式营销",
+      "workflow": "自动化工作流",
+      "batchProcessing": "批量处理"
+    },
+    "enterpriseCore": {
+      "preciseLeadsTitle": "精准线索获取",
+      "preciseLeadsDescription": "基于企业画像和决策人分析，智能识别高价值潜在客户和商机",
+      "salesOptimizationTitle": "销售流程优化",
+      "salesOptimizationDescription": "AI驱动的销售流程管理，提升销售效率和成单率",
+      "customerSuccessTitle": "客户成功管理",
+      "customerSuccessDescription": "全生命周期客户管理，提升客户满意度和续费率",
+      "marketingAnalyticsTitle": "营销数据分析",
+      "marketingAnalyticsDescription": "深度分析B2B营销数据，洞察客户需求和市场趋势"
+    },
+    "financialCore": {
+      "complianceTitle": "合规营销管理",
+      "complianceDescription": "严格遵循金融监管要求，确保营销活动合规性和风险控制",
+      "preciseAcquisitionTitle": "精准客户获取",
+      "preciseAcquisitionDescription": "基于风险模型和客户画像，精准识别高价值潜在客户",
+      "valueEnhancementTitle": "客户价值提升",
+      "valueEnhancementDescription": "通过智能推荐和交叉销售，提升单客价值和客户生命周期",
+      "riskControlTitle": "风险控制营销",
+      "riskControlDescription": "实时监控营销风险，防范欺诈行为，保护客户资金安全"
+    },
+    "contentCore": {
+      "smartGenerationTitle": "智能内容生成",
+      "smartGenerationDescription": "基于品牌调性和目标受众，AI自动生成高质量营销内容和创意素材",
+      "preciseDistributionTitle": "精准内容投放",
+      "preciseDistributionDescription": "智能识别最佳发布时机和渠道，确保内容触达最精准的目标用户",
+      "effectAnalysisTitle": "内容效果分析",
+      "effectAnalysisDescription": "实时监控内容表现，分析用户互动数据，持续优化内容策略",
+      "socialMediaTitle": "社交媒体管理",
+      "socialMediaDescription": "统一管理多平台社交媒体内容，自动化发布和用户互动响应",
+      "subtitle": "AI赋能的全链路内容营销解决方案，提升品牌影响力和用户参与度"
+    },
+    "aiMarketingOptimized": {
+      "smartContentGeneration": "智能内容生成",
+      "smartContentGenerationDesc": "基于用户画像和行为数据，AI自动生成个性化营销文案、邮件内容和推荐策略",
+      "smartContentGenerationBenefits": {
+        "naturalLanguageProcessing": "自然语言处理",
+        "personalizedContent": "个性化文案",
+        "multiLanguageSupport": "多语言支持",
+        "brandToneAdaptation": "品牌语调适配"
+      },
+      "preciseScenarioTriggering": "精准场景触发",
+      "preciseScenarioTriggeringDesc": "智能识别用户行为模式，在最佳时机触发营销动作，提升转化效果",
+      "preciseScenarioTriggeringBenefits": {
+        "behaviorPrediction": "行为预测",
+        "timingOptimization": "时机优化",
+        "scenarioAdaptation": "场景适配",
+        "automaticTriggering": "自动化触发"
+      },
+      "strategyAutoOptimization": "策略自动优化",
+      "strategyAutoOptimizationDesc": "实时分析营销效果，AI自动调整策略参数，持续优化营销效果",
+      "strategyAutoOptimizationBenefits": {
+        "effectMonitoring": "效果监控",
+        "parameterTuning": "参数调优",
+        "abTesting": "A/B测试",
+        "strategyEvolution": "策略进化"
+      },
+      "multiChannelCollaboration": "多渠道协同",
+      "multiChannelCollaborationDesc": "统一管理多个营销渠道，确保用户体验一致性和营销效果最大化",
+      "multiChannelCollaborationBenefits": {
+        "channelIntegration": "渠道整合",
+        "messageUnification": "消息统一",
+        "userJourney": "用户旅程",
+        "effectAggregation": "效果聚合"
+      },
+      "ecommerceCartRecovery": "电商购物车挽回",
+      "ecommerceCartRecoveryAI": "AI分析用户偏好和价格敏感度，生成个性化优惠券",
+      "ecommerceCartRecoveryResult": "转化率提升45%",
+      "newUserWelcomeSequence": "新用户欢迎序列",
+      "newUserWelcomeSequenceAI": "根据注册渠道定制化欢迎内容和产品推荐",
+      "newUserWelcomeSequenceResult": "首购转化率提升60%",
+      "memberUpgradeMarketing": "会员升级营销",
+      "memberUpgradeMarketingAI": "分析消费行为推送定制化升级方案",
+      "memberUpgradeMarketingResult": "会员升级率提升35%",
+      "aiAutoProcessing": "AI自动处理",
+      "realScenarioTitle": "实际应用场景",
+      "realScenarioSubtitle": "真实案例展示AI智能营销的强大能力",
+      "technicalAdvantagesTitle": "技术优势",
+      "technicalAdvantagesDesc": "基于先进的机器学习算法和大数据分析技术",
+      "systemAvailability": "系统可用性",
+      "dailyMessageProcessing": "日处理消息",
+      "averageEffectImprovement": "平均效果提升",
+      "newEraTitle": "开启AI智能营销新时代",
+      "newEraSubtitle": "让人工智能为您的营销策略注入强大动力",
+      "startExperienceNow": "立即开始体验",
+      "contactExpertConsultation": "联系专家咨询",
+      "fullTimeIntelligentOperation": "24/7全天候智能运营",
+      "millisecondUserResponse": "毫秒级响应用户行为",
+      "personalizedContentGeneration": "个性化内容生成",
+      "autoABTestOptimization": "自动A/B测试优化"
+    },
+    "intelligentRecommendation": "智能推荐",
+    "intelligentRecommendationDesc": "基于用户行为和偏好分析，实时推荐相关商品和服务",
+    "preciseMarketing": "精准营销",
+    "preciseMarketingDesc": "通过用户画像实现千人千面的个性化营销推送",
+    "userBehaviorAnalysis": "用户行为分析",
+    "userBehaviorAnalysisDesc": "深度分析用户浏览、购买等行为，洞察用户需求",
+    "customerLoyalty": "客户忠诚度",
+    "customerLoyaltyDesc": "通过积分、会员体系等方式提升客户粘性和复购率"
+  },
+  "stats": {
+    "conversionIncrease": "转化率提升",
+    "efficiencyIncrease": "运营效率提升",
+    "costReduction": "成本降低",
+    "systemStability": "系统稳定性",
+    "averageConversionIncrease": "平均转化提升",
+    "customerRetentionImprovement": "客户复购率增长",
+    "adROIIncrease": "广告ROI提升",
+    "cartRecoveryRate": "购物车挽回率",
+    "contentCreationEfficiencyIncrease": "内容创作效率提升",
+    "userEngagementGrowth": "用户参与度增长",
+    "brandAwarenessIncrease": "品牌认知度提升",
+    "contentConversionRateGrowth": "内容转化率增长",
+    "leadQualityIncrease": "销售线索质量提升",
+    "salesCycleShortened": "销售周期缩短",
+    "customerRenewalRateIncrease": "客户续费率提升",
+    "customerSatisfaction": "客户满意度",
+    "customerAcquisitionCostReduction": "获客成本降低",
+    "customerValueGrowth": "客户价值增长",
+    "complianceGuarantee": "合规率保证"
+  },
+  "cta": {
+    "homeTitle": "准备启动AI营销革命了吗？",
+    "homeSubtitle": "加入{{companiesCount}}领先企业，体验{{aiDriven}}的营销效果提升",
+    "companiesCount": "数千家",
+    "aiDriven": "AI驱动",
+    "primaryAction": "立即启动",
+    "secondaryAction": "联系专家",
+    "enterpriseTitle": "准备加速您的企业服务增长了吗？",
+    "enterpriseSubtitle": "加入领先企业服务商，体验B2B营销的智能化升级",
+    "financialTitle": "准备提升您的金融营销效果了吗？",
+    "financialSubtitle": "加入领先金融机构，体验合规高效的AI营销",
+    "ecommerceTitle": "准备提升您的电商营销效果了吗？",
+    "ecommerceSubtitle": "加入领先电商平台，体验智能化营销的强大威力",
+    "contentTitle": "准备开启智能内容营销新时代了吗？",
+    "contentSubtitle": "加入创新品牌行列，体验AI内容营销的无限可能",
+    "userProfilingTitle": "构建您的用户画像体系",
+    "userProfilingSubtitle": "深度洞察用户，精准营销决策",
+    "effectTrackingTitle": "开启实时监控新体验",
+    "effectTrackingSubtitle": "让数据监控变得简单智能",
+    "realTimeMonitoringTitle": "开启实时监控新体验",
+    "realTimeMonitoringSubtitle": "让数据监控变得简单智能"
+  },
+  "common": {
+    "explore": "探索功能",
+    "learnMore": "了解更多",
+    "getStarted": "开始使用",
+    "demoTitle": "观看演示",
+    "contactTitle": "联系我们",
+    "freeTrialTitle": "免费试用",
+    "scheduleDemo": "预约演示",
+    "dataResults": "数据驱动的成果",
+    "dataResultsSubtitle": "真实客户数据验证的营销效果提升",
+    "threeStepsTitle": "三步启动AI营销引擎",
+    "dataIntegration": "数据接入",
+    "dataIntegrationDesc": "连接您的用户数据源，AI自动分析用户行为和偏好",
+    "intelligentConfiguration": "智能配置",
+    "intelligentConfigurationDesc": "配置营销场景，AI自动生成个性化营销策略",
+    "effectOptimization": "效果优化",
+    "effectOptimizationDesc": "实时监控效果，AI持续优化营销策略",
+    "coreCapabilities": "核心能力",
+    "technicalAdvantages": "技术优势",
+    "applicationScenarios": "实际应用场景",
+    "systemAvailability": "系统可用性",
+    "responseTime": "响应时间",
+    "dailyProcessing": "日处理事件",
+    "continuousMonitoring": "不间断监控",
+    "dataLatency": "数据延迟",
+    "monitoringAccuracy": "监控准确率",
+    "lastUpdated": "最后更新",
+    "justNow": "刚刚"
+  },
+  "effectTracking": {
+    "features": {
+      "fullTrackingTitle": "全链路追踪",
+      "fullTrackingDescription": "从用户触点到最终转化，全程跟踪用户行为路径，量化每个环节的效果贡献",
+      "fullTrackingBenefits": [
+        "多触点归因分析",
+        "转化路径追踪",
+        "渠道效果对比",
+        "用户旅程可视化"
+      ],
+      "roiCalculationTitle": "ROI精准计算",
+      "roiCalculationDescription": "智能计算营销投入产出比，提供多维度的成本效益分析和优化建议",
+      "roiCalculationBenefits": [
+        "投入成本核算",
+        "收益精确计算",
+        "ROI/ROAS分析",
+        "成本优化建议"
+      ],
+      "predictionModelTitle": "效果预测模型",
+      "predictionModelDescription": "基于历史数据和机器学习算法，预测营销活动的效果趋势和优化空间",
+      "predictionModelBenefits": [
+        "效果趋势预测",
+        "季节性分析",
+        "增长预测模型",
+        "优化策略推荐"
+      ],
+      "multiDimensionTitle": "多维度报表",
+      "multiDimensionDescription": "提供丰富的可视化报表，支持自定义维度分析和数据钻取分析",
+      "multiDimensionBenefits": [
+        "可视化报表",
+        "自定义维度",
+        "数据钻取分析",
+        "定时报告推送"
+      ],
+      "fullTrackingBenefits": [
+        "多触点归因分析",
+        "转化路径追踪",
+        "渠道效果对比",
+        "用户旅程可视化"
+      ],
+      "roiCalculationBenefits": [
+        "投入成本核算",
+        "收益精确计算",
+        "ROI/ROAS分析",
+        "成本优化建议"
+      ],
+      "predictionModelBenefits": [
+        "效果趋势预测",
+        "季节性分析",
+        "增长预测模型",
+        "优化策略推荐"
+      ],
+      "multiDimensionBenefitsArray": [
+        "可视化报表",
+        "自定义维度",
+        "数据钻取分析",
+        "定时报告推送"
+      ]
+    },
+    "architecture": {
+      "title": "技术架构",
+      "subtitle": "基于大数据和AI的效果追踪平台",
+      "platformCapacity": "平台能力",
+      "dailyEvents": "日处理事件",
+      "dataAccuracy": "数据准确率",
+      "realTimeResponse": "实时响应",
+      "roiImprovement": "ROI提升",
+      "trackingMetrics": "追踪指标",
+      "conversionRate": "转化率",
+      "customerAcquisitionCost": "客户获客成本",
+      "lifetimeValue": "生命周期价值"
+    },
+    "advantages": {
+      "title": "量化每一分营销投入",
+      "subtitle": "让数据驱动您的营销决策",
+      "benefits": [
+        "跨平台数据整合",
+        "实时效果监控",
+        "智能归因分析",
+        "多维度报表分析",
+        "预测洞察",
+        "自动化报告生成"
+      ],
+      "ctaStart": "立即开始追踪",
+      "ctaDemo": "预约产品演示"
+    }
+  },
+  "modal": {
+    "aiMarketingDemo": "观看AI智能营销演示",
+    "aiMarketingDemoDesc": "预约产品演示，了解AI智能营销如何帮助您实现精准获客和高效转化。",
+    "enterpriseDemo": "观看企业服务解决方案演示",
+    "enterpriseDemoDesc": "预约产品演示，了解我们如何帮助您的企业实现B2B营销智能化升级。",
+    "financialDemo": "观看金融营销解决方案演示",
+    "financialDemoDesc": "预约产品演示，深入了解我们的金融营销解决方案如何帮助您实现合规的精准营销。",
+    "ecommerceDemo": "观看电商营销解决方案演示",
+    "ecommerceDemoDesc": "预约演示，了解AI如何帮助电商平台提升转化率、减少购物车放弃、增强用户留存。",
+    "contentDemo": "观看内容营销解决方案演示",
+    "contentDemoDesc": "预约演示，了解AI如何帮助您实现智能化内容创作、精准投放和效果分析。",
+    "userProfilingDemo": "查看用户画像分析演示",
+    "userProfilingDemoDesc": "预约演示，了解如何通过深度用户行为分析实现精准营销和个性化推荐。",
+    "effectTrackingDemo": "查看效果追踪报告演示",
+    "effectTrackingDemoDesc": "预约演示，查看真实的效果追踪报表和数据分析结果。",
+    "effectTrackingProductDemo": "预约效果追踪产品演示",
+    "effectTrackingProductDemoDesc": "预约产品演示，看看我们如何帮助您实现数据驱动的营销决策。",
+    "realTimeMonitoringDemo": "查看实时监控大屏",
+    "realTimeMonitoringDemoDesc": "预约演示实时监控大屏，体验专业的营销数据监控和分析功能。",
+    "contactTitle": "联系我们",
+    "contactDesc": "请填写您的信息和需求，我们将尽快与您联系，为您提供专业的AI营销解决方案咨询。",
+    "aiMarketingExpert": "联系AI营销专家",
+    "aiMarketingExpertDesc": "与我们的AI营销专家一对一沟通，获取个性化的智能营销解决方案和专业建议。",
+    "enterpriseExpert": "联系企业服务专家",
+    "enterpriseExpertDesc": "与我们的B2B营销专家沟通，为您的企业定制专业的解决方案。",
+    "financialExpert": "联系金融营销专家",
+    "financialExpertDesc": "与我们的金融营销专家沟通，为您的金融机构定制专业的合规营销解决方案。",
+    "ecommerceExpert": "联系电商营销专家",
+    "ecommerceExpertDesc": "与我们的电商营销专家沟通，为您的电商平台定制专业的智能营销解决方案。",
+    "contentExpert": "联系内容营销专家",
+    "contentExpertDesc": "与我们的内容营销专家沟通，为您的品牌定制专业的AI内容营销解决方案。"
+  },
+  "footer": {
+    "description": "专业的AI驱动营销解决方案，助力企业实现营销效果的指数级提升。",
+    "productFeatures": "产品功能",
+    "copyright": "© 2024 AI营销平台. 保留所有权利."
+  },
+  "useCases": {
+    "pricingOptimization": "价格优化",
+    "pricingOptimizationDesc": "基于市场数据和用户行为，智能调整商品价格以最大化收益",
+    "competitorPriceMonitoring": "竞品价格监控",
+    "dynamicPricing": "动态定价策略",
+    "promotionOptimization": "促销活动优化",
+    "inventoryManagement": "库存管理优化",
+    "ecommerceSubtitle": "电商营销在各业务场景的实际应用",
+    "personalizedRecommendation": "个性化推荐",
+    "personalizedRecommendationDesc": "基于用户浏览历史和购买偏好，实时推荐相关商品，提升交叉销售",
+    "collaborativeFiltering": "协同过滤算法",
+    "contentRecommendationEngine": "内容推荐引擎",
+    "realTimePersonalization": "实时个性化",
+    "abTestOptimization": "A/B测试优化",
+    "cartRecovery": "购物车挽回",
+    "cartRecoveryDesc": "智能识别购物车放弃行为，通过邮件、短信等方式精准挽回客户",
+    "behavioralPredictionModel": "行为预测模型",
+    "multiChannelReach": "多渠道触达",
+    "personalizedOffers": "个性化优惠",
+    "optimalTiming": "最佳时机推送",
+    "content": {
+      "title": "应用场景",
+      "subtitle": "覆盖内容营销全生命周期，从策划到发布再到效果分析的完整流程",
+      "brandMarketing": {
+        "title": "品牌内容营销",
+        "description": "构建完整的品牌内容体系，提升品牌知名度和用户认知度",
+        "features": {
+          "storyCreation": "品牌故事创作",
+          "visualDesign": "视觉内容设计",
+          "multimediaProduction": "多媒体内容制作",
+          "consistencyManagement": "品牌一致性管理"
+        }
+      },
+      "socialMedia": {
+        "title": "社交媒体运营",
+        "description": "智能化社交媒体内容策划和发布，增强用户互动和粉丝粘性",
+        "features": {
+          "contentCalendar": "内容日历规划",
+          "interactiveTopics": "互动话题策划",
+          "ugcIncentives": "用户UGC激励",
+          "communityManagement": "社群运营管理"
+        }
+      },
+      "ecommerceMarketing": {
+        "title": "内容电商营销",
+        "description": "通过优质内容驱动商品销售，实现内容价值的商业化转换",
+        "features": {
+          "productPackaging": "产品内容包装",
+          "grassContent": "种草内容创作",
+          "liveStreaming": "直播内容策划",
+          "conversionOptimization": "转化漏斗优化"
+        }
+      }
+    }
+  },
+  "results": {
+    "ecommerceSubtitle": "电商营销解决方案带来的实际业务提升",
+    "contentSubtitle": "真实品牌数据验证，全面提升内容营销效果和品牌影响力"
+  }
+}

@@ -105,7 +105,7 @@ const CoreFeatures = React.memo(() => {
             {t('features.title')}
           </h2>
           <p className="text-xl text-gray-400">
-            AI赋能的全链路内容营销解决方案，提升品牌影响力和用户参与度
+            {t('features.contentCore.subtitle')}
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -130,21 +130,37 @@ const CoreFeatures = React.memo(() => {
 
 // 应用场景组件
 const UseCases = React.memo(() => {
+  const { t } = useTranslation();
   const cases = [
     {
-      title: "品牌内容营销",
-      description: "构建完整的品牌内容体系，提升品牌知名度和用户认知度",
-      features: ["品牌故事创作", "视觉内容设计", "多媒体内容制作", "品牌一致性管理"],
+      title: t('useCases.content.brandMarketing.title'),
+      description: t('useCases.content.brandMarketing.description'),
+      features: [
+        t('useCases.content.brandMarketing.features.storyCreation'),
+        t('useCases.content.brandMarketing.features.visualDesign'),
+        t('useCases.content.brandMarketing.features.multimediaProduction'),
+        t('useCases.content.brandMarketing.features.consistencyManagement')
+      ],
     },
     {
-      title: "社交媒体运营",
-      description: "智能化社交媒体内容策划和发布，增强用户互动和粉丝粘性",
-      features: ["内容日历规划", "互动话题策划", "用户UGC激励", "社群运营管理"],
+      title: t('useCases.content.socialMedia.title'),
+      description: t('useCases.content.socialMedia.description'),
+      features: [
+        t('useCases.content.socialMedia.features.contentCalendar'),
+        t('useCases.content.socialMedia.features.interactiveTopics'),
+        t('useCases.content.socialMedia.features.ugcIncentives'),
+        t('useCases.content.socialMedia.features.communityManagement')
+      ],
     },
     {
-      title: "内容电商营销",
-      description: "通过优质内容驱动商品销售，实现内容价值的商业化转换",
-      features: ["产品内容包装", "种草内容创作", "直播内容策划", "转化漏斗优化"],
+      title: t('useCases.content.ecommerceMarketing.title'),
+      description: t('useCases.content.ecommerceMarketing.description'),
+      features: [
+        t('useCases.content.ecommerceMarketing.features.productPackaging'),
+        t('useCases.content.ecommerceMarketing.features.grassContent'),
+        t('useCases.content.ecommerceMarketing.features.liveStreaming'),
+        t('useCases.content.ecommerceMarketing.features.conversionOptimization')
+      ],
     },
   ];
 
@@ -153,9 +169,9 @@ const UseCases = React.memo(() => {
       <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/5 via-transparent to-purple-500/5"></div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent mb-4">应用场景</h2>
+          <h2 className="text-3xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent mb-4">{t('useCases.content.title')}</h2>
           <p className="text-xl text-gray-400">
-            覆盖内容营销全生命周期，从策划到发布再到效果分析的完整流程
+            {t('useCases.content.subtitle')}
           </p>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -202,7 +218,7 @@ const Results = React.memo(() => {
             {t('common.dataResults')}
           </h2>
           <p className="text-xl text-gray-300">
-            真实品牌数据验证，全面提升内容营销效果和品牌影响力
+            {t('results.contentSubtitle')}
           </p>
         </div>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">

@@ -133,14 +133,14 @@ const UseCases = React.memo(() => {
   const { t } = useTranslation();
   const cases = [
     {
-      title: "个性化推荐",
-      description: "基于用户浏览历史和购买偏好，实时推荐相关商品，提升交叉销售",
-      features: ["协同过滤算法", "内容推荐引擎", "实时个性化", "A/B测试优化"],
+      title: t('useCases.personalizedRecommendation'),
+      description: t('useCases.personalizedRecommendationDesc'),
+      features: [t('useCases.collaborativeFiltering'), t('useCases.contentRecommendationEngine'), t('useCases.realTimePersonalization'), t('useCases.abTestOptimization')],
     },
     {
-      title: "购物车挽回",
-      description: "智能识别购物车放弃行为，通过邮件、短信等方式精准挽回客户",
-      features: ["��为预测模型", "多渠道触达", "个性化优惠", "最佳时机推送"],
+      title: t('useCases.cartRecovery'),
+      description: t('useCases.cartRecoveryDesc'),
+      features: [t('useCases.behavioralPredictionModel'), t('useCases.multiChannelReach'), t('useCases.personalizedOffers'), t('useCases.optimalTiming')],
     },
     {
       title: t('useCases.pricingOptimization'),
