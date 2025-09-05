@@ -461,6 +461,10 @@ export default function Layout({ children }: LayoutProps) {
                                     (subItem.id === "organization-settings" &&
                                       location.pathname.startsWith(
                                         "/organization/settings",
+                                      )) ||
+                                    (subItem.id === "organization-permissions" &&
+                                      location.pathname.startsWith(
+                                        "/organization/permissions",
                                       ));
 
                                   return (
