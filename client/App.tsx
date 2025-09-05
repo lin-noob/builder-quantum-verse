@@ -50,6 +50,7 @@ const EffectTracking = React.lazy(() => import("./pages/EffectTracking"));
 const SDKIntegration = React.lazy(() => import("./pages/Integration/SDKIntegration"));
 const MemberManagement = React.lazy(() => import("./pages/Organization/MemberManagement"));
 const OrganizationSettings = React.lazy(() => import("./pages/Organization/OrganizationSettings"));
+const GranularPermissionManagement = React.lazy(() => import("./pages/Organization/GranularPermissionManagement"));
 const PersonalSettings = React.lazy(() => import("./pages/Account/PersonalSettings"));
 
 // 🚀 管理后台��加载 - AdminApp通常很大
@@ -428,6 +429,16 @@ const AppContent: React.FC = () => {
                   <Layout>
                     <LazyRoute>
                       <OrganizationSettings />
+                    </LazyRoute>
+                  </Layout>
+                }
+              />
+              <Route
+                path="/organization/permissions"
+                element={
+                  <Layout>
+                    <LazyRoute>
+                      <GranularPermissionManagement />
                     </LazyRoute>
                   </Layout>
                 }

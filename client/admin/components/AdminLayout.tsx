@@ -17,6 +17,7 @@ import {
   User,
   Cog,
   ChevronDown,
+  CreditCard
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -92,6 +93,18 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       label: "安全与权限",
       path: "/admin/security",
       icon: <Shield className="h-5 w-5" />,
+    },
+    {
+      id: "granular-permissions",
+      label: "精细化权限",
+      path: "/admin/granular-permissions",
+      icon: <Shield className="h-5 w-5" />,
+    },
+    {
+      id: "subscriptions",
+      label: "订阅套餐",
+      path: "/admin/subscriptions",
+      icon: <CreditCard className="h-5 w-5" />,
     },
     {
       id: "monitoring",

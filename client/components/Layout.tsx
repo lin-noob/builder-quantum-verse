@@ -141,6 +141,12 @@ export default function Layout({ children }: LayoutProps) {
             path: "/organization/settings",
             icon: <Settings className="h-5 w-5" />,
           },
+          {
+            id: "organization-permissions",
+            label: "权限管理",
+            path: "/organization/permissions",
+            icon: <Shield className="h-5 w-5" />,
+          },
         ],
       },
       {
