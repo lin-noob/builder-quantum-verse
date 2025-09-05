@@ -13,6 +13,7 @@ import SecurityPermissions from "./pages/SecurityPermissions";
 import UserDetailsAnalytics from "./pages/UserDetailsAnalytics";
 import UserManagement from "./pages/UserManagement";
 import AdminProfile from "./pages/AdminProfile";
+import SubscriptionManagement from "./pages/SubscriptionManagement";
 
 // 临时占位页面组件
 const PlaceholderPage = ({ title }: { title: string }) => (
@@ -71,6 +72,9 @@ export default function AdminApp() {
 
                 {/* 安全与权限 */}
                 <Route path="/security" element={<SecurityPermissions />} />
+
+                {/* 订阅套餐管理 */}
+                <Route path="/subscriptions" element={<SubscriptionManagement />} />
 
                 {/* 系统监控 */}
                 <Route
