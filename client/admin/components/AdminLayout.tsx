@@ -70,6 +70,12 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       icon: <Users className="h-5 w-5" />,
     },
     {
+      id: "subscriptions",
+      label: "订阅套餐管理",
+      path: "/admin/subscriptions",
+      icon: <Cog className="h-5 w-5" />,
+    },
+    {
       id: "ai-models",
       label: "AI模型管理",
       path: "/admin/ai-models",

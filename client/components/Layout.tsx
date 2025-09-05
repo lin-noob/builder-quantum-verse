@@ -202,6 +202,12 @@ export default function Layout({ children }: LayoutProps) {
             path: "/organization/settings",
             icon: <Settings className="h-5 w-5" />,
           },
+          {
+            id: "organization-permissions",
+            label: "权限管理",
+            path: "/organization/permissions",
+            icon: <Shield className="h-5 w-5" />,
+          },
         ],
       },
       // {
@@ -398,7 +404,8 @@ export default function Layout({ children }: LayoutProps) {
                       (location.pathname.startsWith("/organization/members") ||
                         location.pathname.startsWith(
                           "/organization/settings",
-                        )));
+                        ) ||
+                        location.pathname.startsWith("/organization/permissions")));
 
                   return (
                     <li key={item.id}>
@@ -454,6 +461,10 @@ export default function Layout({ children }: LayoutProps) {
                                     (subItem.id === "organization-settings" &&
                                       location.pathname.startsWith(
                                         "/organization/settings",
+                                      )) ||
+                                    (subItem.id === "organization-permissions" &&
+                                      location.pathname.startsWith(
+                                        "/organization/permissions",
                                       ));
 
                                   return (
@@ -680,12 +691,14 @@ export default function Layout({ children }: LayoutProps) {
                   )) ||
                 (item.id === "effect-tracking" &&
                   location.pathname.startsWith("/effect-tracking")) ||
-                (item.id === "sdk" && location.pathname.startsWith("/sdk")) ||
+                (item.id === "sdk" &&
+                  location.pathname.startsWith("/sdk")) ||
                 (item.id === "admin" &&
                   location.pathname.startsWith("/admin")) ||
                 (item.id === "system-management" &&
                   (location.pathname.startsWith("/organization/members") ||
-                    location.pathname.startsWith("/organization/settings")));
+                    location.pathname.startsWith("/organization/settings") ||
+                    location.pathname.startsWith("/organization/permissions")));
 
               return (
                 <li key={item.id} className="relative group">
@@ -751,6 +764,10 @@ export default function Layout({ children }: LayoutProps) {
                                 (subItem.id === "organization-settings" &&
                                   location.pathname.startsWith(
                                     "/organization/settings",
+                                  )) ||
+                                (subItem.id === "organization-permissions" &&
+                                  location.pathname.startsWith(
+                                    "/organization/permissions",
                                   ));
 
                               return (
@@ -792,6 +809,10 @@ export default function Layout({ children }: LayoutProps) {
                                 (subItem.id === "organization-settings" &&
                                   location.pathname.startsWith(
                                     "/organization/settings",
+                                  )) ||
+                                (subItem.id === "organization-permissions" &&
+                                  location.pathname.startsWith(
+                                    "/organization/permissions",
                                   ));
 
                               return (

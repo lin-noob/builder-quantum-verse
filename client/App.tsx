@@ -86,6 +86,9 @@ const MemberManagement = React.lazy(
 const OrganizationSettings = React.lazy(
   () => import("./pages/Organization/OrganizationSettings"),
 );
+const GranularPermissionManagement = React.lazy(
+  () => import("./pages/Organization/GranularPermissionManagement"),
+);
 const PersonalSettings = React.lazy(
   () => import("./pages/Account/PersonalSettings"),
 );
@@ -483,6 +486,16 @@ const AppContent: React.FC = () => {
               <Layout>
                 <LazyRoute>
                   <OrganizationSettings />
+                </LazyRoute>
+              </Layout>
+            }
+          />
+          <Route
+            path="/organization/permissions"
+            element={
+              <Layout>
+                <LazyRoute>
+                  <GranularPermissionManagement />
                 </LazyRoute>
               </Layout>
             }
