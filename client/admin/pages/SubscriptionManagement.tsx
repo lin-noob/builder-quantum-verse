@@ -587,7 +587,6 @@ export default function SubscriptionManagement() {
                         >
                           <Checkbox
                             checked={isModuleFullySelected(module.id)}
-                            indeterminate={isModulePartiallySelected(module.id)}
                             onCheckedChange={() => toggleModule(module.id)}
                             className="mr-3"
                           />
@@ -657,9 +656,7 @@ export default function SubscriptionManagement() {
                                 >
                                   <Checkbox
                                     checked={childFeatures.length > 0 && childFeatures.every(f => selectedPackage.features.includes(f.id))}
-                                    indeterminate={childFeatures.some(f => selectedPackage.features.includes(f.id)) && !childFeatures.every(f => selectedPackage.features.includes(f.id))}
-                                    onCheckedChange={(e) => {
-                                      e.stopPropagation();
+                                    onCheckedChange={() => {
                                       // 如果该子模块有对应的功能，切换所有功能的选中状态
                                       if (child.resource) {
                                         const features = mockFeatures.filter(f => f.resource === child.resource);

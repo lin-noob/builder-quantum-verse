@@ -795,7 +795,6 @@ export default function OrganizationGranularPermissionManagement() {
                               >
                                 <Checkbox
                                   checked={isModuleFullySelected(module.id)}
-                                  indeterminate={isModulePartiallySelected(module.id)}
                                   onCheckedChange={() => toggleModule(module.id)}
                                   className="mr-3"
                                 />
@@ -839,8 +838,7 @@ export default function OrganizationGranularPermissionManagement() {
                                     >
                                       <Checkbox
                                         checked={child.resource ? isSubModuleFullySelected(child.resource) : false}
-                                        onCheckedChange={(e) => {
-                                          e.stopPropagation();
+                                        onCheckedChange={() => {
                                           if (child.resource) {
                                             toggleSubModule(child.resource);
                                           }
