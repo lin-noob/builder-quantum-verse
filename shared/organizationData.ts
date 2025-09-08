@@ -221,6 +221,7 @@ export interface ApiResponse<T = any> {
   msg?: string;
   /** 是否成功 */
   success: boolean;
+  total?: number;
 }
 
 // Mock数据生成函数

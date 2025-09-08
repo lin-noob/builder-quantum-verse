@@ -17,6 +17,7 @@ import {
   User,
   Cog,
   ChevronDown,
+  Key,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -98,6 +99,12 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       label: "安全与权限",
       path: "/admin/security",
       icon: <Shield className="h-5 w-5" />,
+    },
+    {
+      id: "granular-permissions",
+      label: "精细化权限",
+      path: "/admin/granular-permissions",
+      icon: <Key className="h-5 w-5" />,
     },
     {
       id: "monitoring",
