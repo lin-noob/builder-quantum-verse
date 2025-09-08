@@ -161,6 +161,7 @@ const MenuManagementComponent: React.FC = () => {
 
   const fetchMenuData = async () => {
     try {
+      const response = await request.get('/admin/api/v1/menus/table');
       setMenuData(response.data.data);
     } catch (error) {
       console.error('Failed to fetch menu data:', error);
