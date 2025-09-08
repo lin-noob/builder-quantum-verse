@@ -89,9 +89,9 @@ const OrganizationSettings = React.lazy(
 const GranularPermissionManagement = React.lazy(
   () => import("./pages/Organization/GranularPermissionManagement"),
 );
-const MenuManagement = React.lazy(
-  () => import("./pages/Organization/MenuManagement"),
-);
+// const MenuManagement = React.lazy(
+//   () => import("./pages/Organization/MenuManagement"),
+// );
 const PersonalSettings = React.lazy(
   () => import("./pages/Account/PersonalSettings"),
 );
@@ -503,7 +503,7 @@ const AppContent: React.FC = () => {
               </Layout>
             }
           />
-          <Route
+          {/* <Route
             path="/organization/menus"
             element={
               <Layout>
@@ -512,7 +512,7 @@ const AppContent: React.FC = () => {
                 </LazyRoute>
               </Layout>
             }
-          />
+          /> */}
 
           {/* 个人设置 */}
           <Route

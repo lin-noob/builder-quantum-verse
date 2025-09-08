@@ -18,6 +18,7 @@ import {
   Cog,
   ChevronDown,
   Key,
+  List,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -63,6 +64,12 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       label: "系统概览",
       path: "/admin",
       icon: <LayoutDashboard className="h-5 w-5" />,
+    },
+    {
+      id: "menus",
+      label: "菜单管理",
+      path: "/admin/menus",
+      icon: <List className="h-5 w-5" />,
     },
     {
       id: "organizations",

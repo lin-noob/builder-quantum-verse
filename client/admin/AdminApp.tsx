@@ -15,6 +15,7 @@ import UserManagement from "./pages/UserManagement";
 import AdminProfile from "./pages/AdminProfile";
 import SubscriptionManagement from "./pages/SubscriptionManagement";
 import GranularPermissionManagement from "./pages/GranularPermissionManagement";
+import MenuManagement from "./pages/MenuManagement";
 
 // 临时占位页面组件
 const PlaceholderPage = ({ title }: { title: string }) => (
@@ -41,6 +42,9 @@ export default function AdminApp() {
               <Routes>
                 {/* 系统概览 */}
                 <Route path="/" element={<AdminDashboard />} />
+
+                {/* 菜单管理 */}
+                <Route path="/menus" element={<MenuManagement />} />
 
                 {/* 组织管理 */}
                 <Route
