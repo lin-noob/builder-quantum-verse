@@ -16,8 +16,8 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
 import TreeSelect from './TreeSelect';
 import IconPicker from './IconPicker';
-import { request } from 'D:/program/builder-quantum-verse/client/lib/request.ts';
 import { useToast } from "@/components/ui/use-toast";
+import { request } from '@/lib/request';
 
 interface TreeNode {
   id: string;

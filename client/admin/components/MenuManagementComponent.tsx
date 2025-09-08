@@ -13,10 +13,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { request } from 'D:/program/builder-quantum-verse/client/lib/request.ts';
 import AddMenuDialog from './AddMenuDialog';
 import EditMenuDialog from './EditMenuDialog';
 import { useToast } from "@/components/ui/use-toast";
+import { request } from '@/lib/request';
 
 interface MenuItem {
   id: number;
@@ -161,7 +161,6 @@ const MenuManagementComponent: React.FC = () => {
 
   const fetchMenuData = async () => {
     try {
-      const response = await request.get('/admin/api/v1/menus/table');
       setMenuData(response.data.data);
     } catch (error) {
       console.error('Failed to fetch menu data:', error);
