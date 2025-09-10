@@ -29,9 +29,9 @@ export const useLoginSuccess = () => {
       description: message || (user.isAdmin ? "欢迎回来，管理员" : "欢迎回来"),
     });
 
-    // setTimeout(() => {
-    //   navigate("/");
-    // }, 1000);
+    setTimeout(() => {
+      navigate("/dashboard2");
+    }, 500);
   };
 
   return { handleLoginSuccess };

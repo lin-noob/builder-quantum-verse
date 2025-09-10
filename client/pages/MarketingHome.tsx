@@ -34,7 +34,7 @@ export default function MarketingHome() {
   useEffect(() => {
     // 如果已登录，自动跳转到仪表盘
     if (currentUser) {
-      navigate("/dashboard");
+      navigate("/dashboard2");
     }
     console.log(t('nav.platformName'));
   }, [currentUser, navigate]);

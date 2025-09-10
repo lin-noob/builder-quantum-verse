@@ -31,38 +31,35 @@ export interface RoleListParams {
 }
 
 // 获取角色列表
-export const fetchRoles = async (
-  params: any,
-): Promise<RoleListResponse> => {
+export const fetchRoles = async (params: any): Promise<RoleListResponse> => {
   const data = (
-    await request.get<RoleListResponse>(
-      "/admin/api/v1/roles/page",
-      params,
-    )
+    await request.get<RoleListResponse>("/admin/api/v1/roles/page", params)
   ).data;
   return data;
 };
 
 // 删除角色
-export const deleteRole = async (
-  id: string,
-): Promise<{ code: string; msg: string }> => {
-  return await request.businessDelete(`/admin/api/v1/roles/${id}`);
+export const deleteRole = async (id: string): Promise<RoleListResponse> => {
+  return (await request.delete<RoleListResponse>(`/admin/api/v1/roles/${id}`))
+    .data;
 };
 
 // 创建角色
-export const createRole = async (
-  roleData: Omit<Role, "id">,
-): Promise<{ code: string; msg: string; data: Role }> => {
-  return await request.businessPost<Role>("/admin/api/v1/roles", roleData);
+export const createRole = async (roleData: {
+  name: string;
+}): Promise<RoleListResponse> => {
+  return (await request.post<RoleListResponse>("/admin/api/v1/roles", roleData))
+    .data;
 };
 
 // 更新角色
 export const updateRole = async (
   id: string,
   roleData: Partial<Role>,
-): Promise<{ code: string; msg: string; data: Role }> => {
-  return await request.businessPut<Role>(`/admin/api/v1/roles/${id}`, roleData);
+): Promise<RoleListResponse> => {
+  return (
+    await request.put<RoleListResponse>(`/admin/api/v1/roles/${id}`, roleData)
+  ).data;
 };
 
 // 使用角色列表的自定义 hook
@@ -81,7 +78,7 @@ export const useDeleteRole = () => {
   return useMutation({
     mutationFn: deleteRole,
     onSuccess: (data) => {
-      if (data.code === "200" || data.code === "0") {
+      if (data.code === "200" || data.code === "201") {
         queryClient.invalidateQueries({ queryKey: ["roles"] });
         toast({
           title: "删除成功",
@@ -112,7 +109,7 @@ export const useCreateRole = () => {
   return useMutation({
     mutationFn: createRole,
     onSuccess: (data) => {
-      if (data.code === "200" || data.code === "0") {
+      if (data.code === "200" || data.code === "201") {
         queryClient.invalidateQueries({ queryKey: ["roles"] });
         toast({
           title: "创建成功",
@@ -144,7 +141,7 @@ export const useUpdateRole = () => {
     mutationFn: ({ id, data }: { id: string; data: Partial<Role> }) =>
       updateRole(id, data),
     onSuccess: (data) => {
-      if (data.code === "200" || data.code === "0") {
+      if (data.code === "200" || data.code === "201") {
         queryClient.invalidateQueries({ queryKey: ["roles"] });
         toast({
           title: "更新成功",

@@ -48,7 +48,7 @@ const AddMenuDialog: React.FC<AddMenuDialogProps> = ({ onMenuAdded }) => {
   const [formData, setFormData] = useState<MenuFormData>({
     parentId: null,
     name: '',
-    type: 'CATALOG',
+    type: 'MENU',
     icon: '',
     visible: true,
     sort: 1,
@@ -114,7 +114,7 @@ const AddMenuDialog: React.FC<AddMenuDialogProps> = ({ onMenuAdded }) => {
     setFormData({
       parentId: null,
       name: '',
-      type: 'CATALOG',
+      type: 'MENU',
       icon: '',
       visible: true,
       sort: 1,

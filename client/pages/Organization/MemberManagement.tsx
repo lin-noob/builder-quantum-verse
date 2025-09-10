@@ -294,7 +294,7 @@ const MemberManagement = () => {
           disable: false,
           losingEffect: "2035-08-26T16:00:00.000Z",
           state: true,
-          id: editingMember.id
+          id: editingMember.id,
         },
       );
 
@@ -337,7 +337,7 @@ const MemberManagement = () => {
         : `/admin/api/v1/users/enable/${statusChangeMember.id}`;
 
       const response = await request.post(endpoint);
-      const res = response.data
+      const res = response.data;
       if (res && res.code === "201") {
         toast({
           title: "状态更新成功",
@@ -409,16 +409,16 @@ const MemberManagement = () => {
     }
   };
 
-  const getRoleBadge = (roleId: string) => {
-    const role = roles.find((r) => r.id === roleId);
-    if (!role) return <Badge variant="outline">未知角色</Badge>;
+  // const getRoleBadge = (roleId: string) => {
+  //   const role = roles.find((r) => r.id === roleId);
+  //   if (!role) return <Badge variant="outline">未知角色</Badge>;
 
-    return (
-      <Badge variant="default" className="bg-blue-100 text-blue-800">
-        {role.name}
-      </Badge>
-    );
-  };
+  //   return (
+  //     <Badge variant="default" className="bg-blue-100 text-blue-800">
+  //       {role.name}
+  //     </Badge>
+  //   );
+  // };
 
   const formatDateTime = (dateString: string | null | undefined) => {
     if (!dateString) return "从未登录";
@@ -590,7 +590,13 @@ const MemberManagement = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      {getRoleBadge(member.roleId)}
+                      {/* {getRoleBadge(member.roleId)} */}
+                      <Badge
+                        variant="default"
+                        className="bg-blue-100 text-blue-800"
+                      >
+                        {member.roleName}
+                      </Badge>
                     </td>
                     <td className="px-6 py-4">
                       {getStatusBadge(member.status)}
@@ -647,7 +653,7 @@ const MemberManagement = () => {
                 >
                   上一页
                 </Button>
-                <Button 
+                <Button
                   variant="outline"
                   size="sm"
                   onClick={() =>
@@ -876,9 +882,7 @@ const MemberManagement = () => {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {statusChangeMember?.status === 0
-                ? "禁用"
-                : "启用"}
+              {statusChangeMember?.status === 0 ? "禁用" : "启用"}
               成员账户
             </AlertDialogTitle>
             <AlertDialogDescription>
@@ -898,9 +902,7 @@ const MemberManagement = () => {
           <AlertDialogFooter>
             <AlertDialogCancel>取消</AlertDialogCancel>
             <AlertDialogAction onClick={handleToggleStatus}>
-              {statusChangeMember?.status === 0
-                ? "禁用"
-                : "启用"}
+              {statusChangeMember?.status === 0 ? "禁用" : "启用"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense, useEffect, useMemo, useState } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import AdminLayout from "./components/AdminLayout";
 import AdminRouteGuard from "./components/AdminRouteGuard";
@@ -6,103 +6,116 @@ import AdminAuth from "./pages/AdminAuth";
 import AdminDashboard from "./pages/AdminDashboard";
 import OrganizationManagement from "./pages/OrganizationManagement";
 import OrganizationDetail from "./pages/OrganizationDetail";
-import SystemConfig from "./pages/SystemConfig";
+import UserManagement from "./pages/UserManagement";
+import UserDetailsAnalytics from "./pages/UserDetailsAnalytics";
 import AIModelManagement from "./pages/AIModelManagement";
 import ScenarioConfiguration from "./pages/ScenarioConfiguration";
 import SecurityPermissions from "./pages/SecurityPermissions";
-import UserDetailsAnalytics from "./pages/UserDetailsAnalytics";
-import UserManagement from "./pages/UserManagement";
 import AdminProfile from "./pages/AdminProfile";
-import SubscriptionManagement from "./pages/SubscriptionManagement";
+import SystemConfig from "./pages/SystemConfig";
 import GranularPermissionManagement from "./pages/GranularPermissionManagement";
+import SubscriptionManagement from "./pages/SubscriptionManagement";
 import MenuManagement from "./pages/MenuManagement";
-
-// 临时占位页面组件
-const PlaceholderPage = ({ title }: { title: string }) => (
-  <div className="p-6">
-    <div className="text-center py-12">
-      <h2 className="text-2xl font-bold text-gray-900 mb-4">{title}</h2>
-      <p className="text-gray-600">此页面正在开发中...</p>
-    </div>
-  </div>
-);
+import { AdminMenuApiItem, fetchAdminMenus } from "./services/menuRouteService";
+import { loadLazyComponentByPath } from "./utils/dynamicRouteLoader";
+import { useAdminStore } from "@/stores";
 
 export default function AdminApp() {
+  // 动态路由：仅登录后构建
+  const isAdminAuthenticated = useAdminStore((s) => s.isAdminAuthenticated);
+  const [menus, setMenus] = useState<AdminMenuApiItem[] | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+    const load = async () => {
+      if (!isAdminAuthenticated) {
+        setMenus(null);
+        return;
+      }
+      const data = await fetchAdminMenus();
+      if (mounted) setMenus(data);
+    };
+    load();
+    return () => {
+      mounted = false;
+    };
+  }, [isAdminAuthenticated]);
+
+  // 静态路由片段
+  const staticRoutes = (
+    <>
+      <Route index element={<AdminDashboard />} />
+      <Route path="menus" element={<MenuManagement />} />
+      <Route path="organizations" element={<OrganizationManagement />} />
+      <Route path="organizations/:organizationId" element={<OrganizationDetail />} />
+      <Route path="users" element={<UserManagement />} />
+      <Route path="users/:userId/details" element={<UserDetailsAnalytics />} />
+      <Route path="ai-models" element={<AIModelManagement />} />
+      <Route path="scenarios" element={<ScenarioConfiguration />} />
+      <Route path="security" element={<SecurityPermissions />} />
+      <Route path="granular-permissions" element={<GranularPermissionManagement />} />
+      <Route path="subscriptions" element={<SubscriptionManagement />} />
+      <Route path="config" element={<SystemConfig />} />
+      <Route path="profile" element={<AdminProfile />} />
+    </>
+  );
+
+  // 动态路由片段（根据接口）
+  const dynamicRoutes = useMemo(() => {
+    if (!menus) return null;
+
+    const normalizeChildPath = (p: string) => {
+      if (!p || !p.startsWith("/admin")) return null;
+      let child = p.replace(/^\/admin\/?/, "");
+      child = child.replace(/^\/+/, "");
+      return child; // 空字符串表示 index
+    };
+
+    const built: JSX.Element[] = [];
+    const addRoute = (m: AdminMenuApiItem) => {
+      if (m.path && m.component) {
+        const childPath = normalizeChildPath(m.path);
+        if (childPath !== null) {
+          const LazyComp = loadLazyComponentByPath(m.component);
+          if (LazyComp) {
+            const el = (
+              <Suspense fallback={<div className="p-4 text-sm text-gray-500">加载中...</div>}>
+                <LazyComp />
+              </Suspense>
+            );
+            if (childPath === "") {
+              built.push(<Route key="dyn-index" index element={el} />);
+            } else {
+              built.push(<Route key={m.path} path={childPath} element={el} />);
+            }
+          }
+        }
+      }
+      if (m.children) m.children.forEach(addRoute);
+    };
+
+    menus.forEach(addRoute);
+    return <>{built}</>;
+  }, [menus]);
+
   return (
     <Routes>
       {/* 管理员认证页面（不需要Layout和路由保护） */}
-      <Route path="/auth" element={<AdminAuth />} />
+      <Route path="/admin/auth" element={<AdminAuth />} />
 
-      {/* 受保护的管理员路由 */}
+      {/* 受保护的管理员路由（静态 + 动态） */}
       <Route
-        path="/*"
+        path="/admin/*"
         element={
           <AdminRouteGuard>
-            <AdminLayout>
-              <Routes>
-                {/* 系统概览 */}
-                <Route path="/" element={<AdminDashboard />} />
-
-                {/* 菜单管理 */}
-                <Route path="/menus" element={<MenuManagement />} />
-
-                {/* 组织管理 */}
-                <Route
-                  path="/organizations"
-                  element={<OrganizationManagement />}
-                />
-                <Route
-                  path="/organizations/:organizationId"
-                  element={<OrganizationDetail />}
-                />
-
-                {/* 用户管理 */}
-                <Route path="/users" element={<UserManagement />} />
-                <Route
-                  path="/users/:userId/details"
-                  element={<UserDetailsAnalytics />}
-                />
-
-                {/* AI模型管理 */}
-                <Route path="/ai-models" element={<AIModelManagement />} />
-
-                {/* 场景配置管理 */}
-                <Route path="/scenarios" element={<ScenarioConfiguration />} />
-
-                {/* 数据源管理 */}
-                <Route
-                  path="/data-sources"
-                  element={<PlaceholderPage title="数据源管理" />}
-                />
-
-                {/* 安全与权限 */}
-                <Route path="/security" element={<SecurityPermissions />} />
-                
-                {/* 精细化权限管理 */}
-                <Route path="/granular-permissions" element={<GranularPermissionManagement />} />
-
-                {/* 订阅套餐管理 */}
-                <Route path="/subscriptions" element={<SubscriptionManagement />} />
-
-                {/* 系统监控 */}
-                <Route
-                  path="/monitoring"
-                  element={<PlaceholderPage title="系统监控" />}
-                />
-
-                {/* 系统配置 */}
-                <Route path="/config" element={<SystemConfig />} />
-
-                {/* 管理员个人中心 */}
-                <Route path="/profile" element={<AdminProfile />} />
-
-                {/* 默认重定向 */}
-                <Route path="*" element={<Navigate to="/admin" replace />} />
-              </Routes>
-            </AdminLayout>
+            <AdminLayout />
           </AdminRouteGuard>
         }
-      />
+      >
+        {staticRoutes}
+        {dynamicRoutes}
+        <Route path="*" element={<Navigate to="/admin" replace />} />
+      </Route>
     </Routes>
   );
 }

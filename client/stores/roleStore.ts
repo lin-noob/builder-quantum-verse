@@ -8,13 +8,16 @@ interface RoleState {
   isLoading: boolean;
   error: string | null;
   lastFetch: number | null;
+  permissions: string[];
   
   // Actions
   setRoles: (roles: Role[]) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
+  setPermissions: (permissions: string[]) => void;
   fetchRoles: () => Promise<void>;
   clearRoles: () => void;
+  hasPermission: (permission: string) => boolean;
 }
 
 export const useRoleStore = create<RoleState>()(
@@ -26,11 +29,13 @@ export const useRoleStore = create<RoleState>()(
         isLoading: false,
         error: null,
         lastFetch: null,
+        permissions: [],
 
         // Actions
         setRoles: (roles) => set({ roles }),
         setLoading: (isLoading) => set({ isLoading }),
         setError: (error) => set({ error }),
+        setPermissions: (permissions) => set({ permissions }),
         
         fetchRoles: async () => {
           const { isLoading, lastFetch } = get();
@@ -39,10 +44,10 @@ export const useRoleStore = create<RoleState>()(
           if (isLoading) return;
           
           // Cache for 5 minutes (300000 ms)
-          const cacheTime = 300000;
-          if (lastFetch && Date.now() - lastFetch < cacheTime) {
-            return;
-          }
+          // const cacheTime = 300000;
+          // if (lastFetch && Date.now() - lastFetch < cacheTime) {
+          //   return;
+          // }
 
           set({ isLoading: true, error: null });
 
@@ -64,14 +69,21 @@ export const useRoleStore = create<RoleState>()(
         clearRoles: () => set({ 
           roles: [], 
           lastFetch: null, 
-          error: null 
+          error: null,
+          permissions: [],
         }),
+
+        hasPermission: (permission: string) => {
+          const { permissions } = get();
+          return permissions.includes(permission);
+        },
       }),
       {
         name: 'role-storage',
         partialize: (state) => ({
           roles: state.roles,
           lastFetch: state.lastFetch,
+          permissions: state.permissions,
         }),
       }
     ),

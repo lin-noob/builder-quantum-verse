@@ -19,6 +19,7 @@ interface CheckableTreeMenuProps {
   selectedItems: number[];
   onSelectionChange: (selectedItems: number[]) => void;
   className?: string;
+  onFocusItem?: (id: number) => void;
 }
 
 interface TreeItemProps {
@@ -28,15 +29,17 @@ interface TreeItemProps {
   selectedItems: number[];
   onToggle: (id: number) => void;
   onSelectionChange: (selectedItems: number[]) => void;
+  onFocusItem?: (id: number) => void;
 }
 
-const TreeItem: React.FC<TreeItemProps> = ({ 
-  item, 
-  level, 
-  expandedItems, 
+const TreeItem: React.FC<TreeItemProps> = ({
+  item,
+  level,
+  expandedItems,
   selectedItems,
-  onToggle, 
-  onSelectionChange 
+  onToggle,
+  onSelectionChange,
+  onFocusItem,
 }) => {
   const hasChildren = item.children && item.children.length > 0;
   const isExpanded = expandedItems.has(item.id);
@@ -46,14 +49,15 @@ const TreeItem: React.FC<TreeItemProps> = ({
   
   // 检查子节点选中情况
   const getChildSelectionState = () => {
-    if (!hasChildren) return { allSelected: false, someSelected: false };
+    if (!hasChildren) return { allSelected: false, someSelected: false, hasSelected: false };
     
     const childIds = getAllChildIds(item);
     const selectedChildCount = childIds.filter(id => selectedItems.includes(id)).length;
     
     return {
       allSelected: selectedChildCount > 0 && selectedChildCount === childIds.length,
-      someSelected: selectedChildCount > 0 && selectedChildCount < childIds.length
+      someSelected: selectedChildCount > 0 && selectedChildCount < childIds.length,
+      hasSelected: selectedChildCount > 0
     };
   };
   
@@ -66,35 +70,64 @@ const TreeItem: React.FC<TreeItemProps> = ({
         ids = ids.concat(getAllChildIds(child));
       });
     }
+    console.log(`getAllChildIds for ${menuItem.name} (${menuItem.id}):`, ids);
     return ids;
   };
   
-  const { allSelected: childrenAllSelected, someSelected: childrenSomeSelected } = getChildSelectionState();
+  const { allSelected: childrenAllSelected, someSelected: childrenSomeSelected, hasSelected: childrenHasSelected } = getChildSelectionState();
   
   // 处理选择变化
   const handleSelectionChange = (checked: boolean) => {
     let newSelection = [...selectedItems];
     
+    console.log('handleSelectionChange', {
+      itemId: item.id,
+      itemName: item.name,
+      checked,
+      currentSelection: selectedItems,
+      isSelected,
+      hasChildren,
+      childrenAllSelected,
+      childrenSomeSelected,
+      childrenHasSelected
+    });
+    
     if (checked) {
-      // 选中当前节点
+      // 勾选操作：选中当前节点和所有子节点
       if (!newSelection.includes(item.id)) {
         newSelection.push(item.id);
       }
+      
       // 选中所有子节点
-      const childIds = getAllChildIds(item);
-      childIds.forEach(id => {
-        if (!newSelection.includes(id)) {
-          newSelection.push(id);
-        }
-      });
+      if (hasChildren) {
+        const childIds = getAllChildIds(item);
+        childIds.forEach(id => {
+          if (!newSelection.includes(id)) {
+            newSelection.push(id);
+          }
+        });
+      }
     } else {
-      // 取消选中当前节点
+      // 取消勾选操作：取消选中当前节点和所有子节点
+      console.log('Before removing current item:', newSelection);
       newSelection = newSelection.filter(id => id !== item.id);
+      console.log('After removing current item:', newSelection);
+      
       // 取消选中所有子节点
-      const childIds = getAllChildIds(item);
-      newSelection = newSelection.filter(id => !childIds.includes(id));
+      if (hasChildren) {
+        const childIds = getAllChildIds(item);
+        console.log('Removing child IDs:', childIds);
+        console.log('Child IDs types:', childIds.map(id => typeof id));
+        console.log('Current selection types:', newSelection.map(id => typeof id));
+        const beforeChildFilter = [...newSelection];
+        newSelection = newSelection.filter(id => !childIds.includes(id));
+        console.log('Before child filter:', beforeChildFilter);
+        console.log('After child filter:', newSelection);
+        console.log('Items that were supposed to be removed:', beforeChildFilter.filter(id => childIds.includes(id)));
+      }
     }
     
+    console.log('newSelection before onSelectionChange:', newSelection);
     onSelectionChange(newSelection);
   };
   
@@ -120,19 +153,19 @@ const TreeItem: React.FC<TreeItemProps> = ({
         {!hasChildren && <div className="w-6 mr-2" />}
         
         <Checkbox
-          checked={isSelected || childrenAllSelected}
+          checked={isSelected || (hasChildren && childrenAllSelected)}
           onCheckedChange={handleSelectionChange}
           className={cn(
             "mr-3",
-            childrenSomeSelected && !childrenAllSelected && !isSelected && "data-[state=unchecked]:bg-blue-100"
+            childrenSomeSelected && !isSelected && !childrenAllSelected && "data-[state=unchecked]:bg-blue-100"
           )}
         />
         
-        <div className="flex items-center gap-2 flex-1">
+        <div className="flex items-center gap-2 flex-1" onClick={() => onFocusItem && onFocusItem(item.id)}>
           <span className="text-sm font-medium text-gray-900">
             {item.name}
           </span>
-          {childrenSomeSelected && !childrenAllSelected && !isSelected && (
+          {childrenSomeSelected && !isSelected && !childrenAllSelected && (
             <span className="text-xs text-blue-600">(部分选中)</span>
           )}
         </div>
@@ -147,16 +180,18 @@ const TreeItem: React.FC<TreeItemProps> = ({
           selectedItems={selectedItems}
           onToggle={onToggle}
           onSelectionChange={onSelectionChange}
+          onFocusItem={onFocusItem}
         />
       ))}
     </>
   );
 };
 
-const CheckableTreeMenu: React.FC<CheckableTreeMenuProps> = ({ 
-  selectedItems, 
-  onSelectionChange, 
-  className 
+const CheckableTreeMenu: React.FC<CheckableTreeMenuProps> = ({
+  selectedItems,
+  onSelectionChange,
+  className,
+  onFocusItem,
 }) => {
   const [menuData, setMenuData] = useState<MenuItem[]>([]);
   const [expandedItems, setExpandedItems] = useState<Set<number>>(new Set());
@@ -280,12 +315,13 @@ const CheckableTreeMenu: React.FC<CheckableTreeMenuProps> = ({
                 selectedItems={selectedItems}
                 onToggle={toggleExpanded}
                 onSelectionChange={onSelectionChange}
+                onFocusItem={onFocusItem}
               />
             ))}
           </div>
         ) : (
           <div className="text-center text-gray-500 py-8">
-            暂无菜单数据
+            暂无菜单数��
           </div>
         )}
       </div>
