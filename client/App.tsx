@@ -89,11 +89,31 @@ const OrganizationSettings = React.lazy(
 const GranularPermissionManagement = React.lazy(
   () => import("./pages/Organization/GranularPermissionManagement"),
 );
+const SubscriptionRecharge = React.lazy(
+  () => import("./pages/Organization/SubscriptionRecharge"),
+);
+const OperationLogs = React.lazy(
+  () => import("./pages/Organization/OperationLogs"),
+);
 const PersonalSettings = React.lazy(
   () => import("./pages/Account/PersonalSettings"),
 );
 
-// 🚀 管理后台��加载 - AdminApp通常很大
+// 🎯 帮助中心页面懒加载
+const HelpCenter = React.lazy(
+  () => import("./pages/HelpCenter/HelpCenter"),
+);
+const DocumentDetail = React.lazy(
+  () => import("./pages/HelpCenter/DocumentDetail"),
+);
+const MarketingHelpCenter = React.lazy(
+  () => import("./pages/MarketingHelpCenter"),
+);
+const MarketingDocumentDetail = React.lazy(
+  () => import("./pages/MarketingDocumentDetail"),
+);
+
+// 🚀 管理后台懒加载 - AdminApp通常很大
 const AdminApp = React.lazy(() => import("./admin/AdminApp"));
 
 // 🎯 特性页面懒加载
@@ -498,6 +518,62 @@ const AppContent: React.FC = () => {
                   <GranularPermissionManagement />
                 </LazyRoute>
               </Layout>
+            }
+          />
+          <Route
+            path="/organization/subscription-recharge"
+            element={
+              <Layout>
+                <LazyRoute>
+                  <SubscriptionRecharge />
+                </LazyRoute>
+              </Layout>
+            }
+          />
+          <Route
+            path="/organization/operation-logs"
+            element={
+              <Layout>
+                <LazyRoute>
+                  <OperationLogs />
+                </LazyRoute>
+              </Layout>
+            }
+          />
+
+          {/* 帮助中心路由 */}
+          <Route
+            path="/help"
+            element={
+              <LazyRoute>
+                <HelpCenter />
+              </LazyRoute>
+            }
+          />
+          <Route
+            path="/help/documents/:documentId"
+            element={
+              <LazyRoute>
+                <DocumentDetail />
+              </LazyRoute>
+            }
+          />
+
+          {/* 营销网站帮助中心路由 */}
+          <Route
+            path="/marketing/help"
+            element={
+              <LazyRoute>
+                <MarketingHelpCenter />
+              </LazyRoute>
+            }
+          />
+          <Route
+            path="/marketing/help/:documentId"
+            element={
+              <LazyRoute>
+                <MarketingHelpCenter />
+              </LazyRoute>
             }
           />
 

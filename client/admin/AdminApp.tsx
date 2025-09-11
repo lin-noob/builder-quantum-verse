@@ -14,6 +14,9 @@ import UserDetailsAnalytics from "./pages/UserDetailsAnalytics";
 import UserManagement from "./pages/UserManagement";
 import AdminProfile from "./pages/AdminProfile";
 import SubscriptionManagement from "./pages/SubscriptionManagement";
+import RechargeRecords from "./pages/RechargeRecords";
+import UserFeedback from "./pages/UserFeedback";
+import HelpDocumentManagement from "./pages/HelpDocumentManagement";
 
 // 临时占位页面组件
 const PlaceholderPage = ({ title }: { title: string }) => (
@@ -75,6 +78,15 @@ export default function AdminApp() {
 
                 {/* 订阅套餐管理 */}
                 <Route path="/subscriptions" element={<SubscriptionManagement />} />
+
+                {/* 充值记录管理 */}
+                <Route path="/recharge-records" element={<RechargeRecords />} />
+
+                {/* 用户反馈管理 */}
+                <Route path="/user-feedback" element={<UserFeedback />} />
+
+                {/* 帮助文档管理 */}
+                <Route path="/help-documents" element={<HelpDocumentManagement />} />
 
                 {/* 系统监控 */}
                 <Route

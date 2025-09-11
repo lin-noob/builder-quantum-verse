@@ -17,6 +17,8 @@ import {
   User,
   Cog,
   ChevronDown,
+  MessageCircle,
+  BookOpen,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -76,6 +78,24 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       icon: <Cog className="h-5 w-5" />,
     },
     {
+      id: "recharge-records",
+      label: "充值记录管理",
+      path: "/admin/recharge-records",
+      icon: <Database className="h-5 w-5" />,
+    },
+    {
+      id: "user-feedback",
+      label: "用户反馈管理",
+      path: "/admin/user-feedback",
+      icon: <MessageCircle className="h-5 w-5" />,
+    },
+    {
+      id: "help-documents",
+      label: "帮助文档管理",
+      path: "/admin/help-documents",
+      icon: <BookOpen className="h-5 w-5" />,
+    },
+    {
       id: "ai-models",
       label: "AI模型管理",
       path: "/admin/ai-models",
@@ -107,14 +127,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     },
   ];
 
-  // 主平台入口菜单项（临时）
-  const mainPlatformMenuItem = {
-    id: "main-platform",
-    label: "主平台入口（临时）",
-    path: "/dashboard",
-    icon: <ChevronRight className="h-5 w-5" />,
-  };
-
   const isActiveRoute = (path: string) => {
     return (
       location.pathname === path ||
@@ -124,7 +136,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   return (
     <div className="flex h-screen bg-background-secondary">
-      {/* 移动��头部 */}
+      {/* 移动端头部 */}
       <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-card border-b border-border flex items-center justify-between px-4 z-50">
         <div className="flex items-center gap-3">
           {/* Admin User Profile Dropdown */}
@@ -241,20 +253,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                     个人中心
                   </Link>
                 </li>
-
-                {/* 主平台入口（临时） */}
-                {/* <li>
-                  <Link
-                    to={mainPlatformMenuItem.path}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors border-2 border-dashed border-orange-300 bg-orange-50 hover:bg-orange-100 text-orange-700 hover:text-orange-800"
-                  >
-                    {mainPlatformMenuItem.icon}
-                    <span className="font-semibold">
-                      {mainPlatformMenuItem.label}
-                    </span>
-                  </Link>
-                </li> */}
               </ul>
             </nav>
           </div>
@@ -359,37 +357,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 )}
               </Link>
             </li>
-
-            {/* 主平台入口（临时） */}
-            {/* <li>
-              <Link
-                to={mainPlatformMenuItem.path}
-                className={cn(
-                  "flex items-center rounded-lg text-sm font-medium transition-colors relative group",
-                  "border-2 border-dashed border-orange-300 bg-orange-50 hover:bg-orange-100",
-                  "text-orange-700 hover:text-orange-800",
-                  isSidebarCollapsed
-                    ? "gap-0 px-3 py-2 justify-center"
-                    : "gap-3 px-3 py-2",
-                )}
-                title={
-                  isSidebarCollapsed ? mainPlatformMenuItem.label : undefined
-                }
-              >
-                {mainPlatformMenuItem.icon}
-                {!isSidebarCollapsed && (
-                  <span className="whitespace-nowrap flex-1 font-semibold">
-                    {mainPlatformMenuItem.label}
-                  </span>
-                )}
-
-                {isSidebarCollapsed && (
-                  <div className="absolute left-full top-1/2 transform -translate-y-1/2 ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 whitespace-nowrap">
-                    {mainPlatformMenuItem.label}
-                  </div>
-                )}
-              </Link>
-            </li> */}
           </ul>
         </nav>
 

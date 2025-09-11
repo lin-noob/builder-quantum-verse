@@ -22,6 +22,8 @@ import {
   Code,
   Building,
   Check,
+  CreditCard,
+  HelpCircle,
 } from "lucide-react";
 import TabManager from "./TabManager";
 // import { ThemeToggle } from "./ThemeToggle"; // 已隐藏主题切换功能
@@ -208,6 +210,18 @@ export default function Layout({ children }: LayoutProps) {
             path: "/organization/permissions",
             icon: <Shield className="h-5 w-5" />,
           },
+          {
+            id: "subscription-recharge",
+            label: "订阅充值",
+            path: "/organization/subscription-recharge",
+            icon: <CreditCard className="h-5 w-5" />,
+          },
+          {
+            id: "operation-logs",
+            label: "操作日志",
+            path: "/organization/operation-logs",
+            icon: <Activity className="h-5 w-5" />,
+          },
         ],
       },
       // {
@@ -344,6 +358,14 @@ export default function Layout({ children }: LayoutProps) {
           <span className="text-xl font-bold text-gray-900">AI营销平台</span>
         </div>
         <div className="flex items-center gap-2">
+          {/* Help Icon */}
+          <Link 
+            to="/marketing/help" 
+            className="p-2 rounded-lg text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+            title="帮助中心"
+          >
+            <HelpCircle className="h-5 w-5" />
+          </Link>
           {/* <ThemeToggle /> */}
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -897,6 +919,30 @@ export default function Layout({ children }: LayoutProps) {
             })}
           </ul>
         </nav>
+
+        {/* Help Center Link */}
+        <div className="border-t border-gray-200 p-2">
+          <a
+            href="/marketing/help"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={cn(
+              "flex items-center rounded-lg text-sm font-medium transition-colors relative",
+              isSidebarCollapsed
+                ? "gap-0 px-3 py-2 justify-center"
+                : "gap-3 px-3 py-2",
+              "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+            )}
+            title={isSidebarCollapsed ? "帮助中心" : undefined}
+          >
+            <HelpCircle className="h-5 w-5" />
+            {!isSidebarCollapsed && (
+              <span className="whitespace-nowrap overflow-hidden">
+                帮助中心
+              </span>
+            )}
+          </a>
+        </div>
 
         {/* Collapse Toggle Button */}
         <div className="border-t border-gray-200 p-2">
