@@ -129,7 +129,7 @@ export default function Layout({ children }: LayoutProps) {
     setCurrentUser(user);
 
     // 如果用户已登录，获取项目列表
-    if (user) {
+    if (user && user.usertype !== 'admin') {
       fetchProjects()
         .then(() => {
           // 检查是否需要显示创建项目对话框
