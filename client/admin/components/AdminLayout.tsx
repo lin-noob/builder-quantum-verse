@@ -1,6 +1,7 @@
 import React, { ReactNode, useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, Outlet } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import * as LucideIcons from "lucide-react";
 import {
   LayoutDashboard,
   Users,
@@ -17,11 +18,14 @@ import {
   User,
   Cog,
   ChevronDown,
+  Key,
+  List,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { adminAuthService } from "@/services/adminAuthService";
 import TabManager from "@/components/TabManager";
+import { useAdminStore } from "@/stores";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,9 +33,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { AdminMenuApiItem, fetchAdminMenus, flattenVisibleMenus } from "../services/menuRouteService";
 
 interface AdminLayoutProps {
-  children: ReactNode;
+  children?: ReactNode;
 }
 
 interface AdminMenuItem {
@@ -42,6 +47,13 @@ interface AdminMenuItem {
   badge?: string;
 }
 
+function getIconByName(name?: string) {
+  if (!name) return <List className="h-5 w-5" />;
+  const Icon = (LucideIcons as any)[name];
+  if (Icon) return <Icon className="h-5 w-5" />;
+  return <List className="h-5 w-5" />;
+}
+
 export default function AdminLayout({ children }: AdminLayoutProps) {
   const location = useLocation();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -49,65 +61,38 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const [currentAdminUser, setCurrentAdminUser] = useState(
     adminAuthService.getCurrentAdminUser(),
   );
+  const [menuItems, setMenuItems] = useState<AdminMenuItem[]>([]);
 
-  // 监听管理员用户状态变化
   useEffect(() => {
     const adminUser = adminAuthService.getCurrentAdminUser();
     setCurrentAdminUser(adminUser);
   }, [location]);
 
-  const menuItems: AdminMenuItem[] = [
-    {
-      id: "dashboard",
-      label: "系统概览",
-      path: "/admin",
-      icon: <LayoutDashboard className="h-5 w-5" />,
-    },
-    {
-      id: "organizations",
-      label: "组织管理",
-      path: "/admin/organizations",
-      icon: <Users className="h-5 w-5" />,
-    },
-    {
-      id: "ai-models",
-      label: "AI模型管理",
-      path: "/admin/ai-models",
-      icon: <Bot className="h-5 w-5" />,
-    },
-    {
-      id: "scenarios",
-      label: "场景配置",
-      path: "/admin/scenarios",
-      icon: <Settings className="h-5 w-5" />,
-    },
-    {
-      id: "data-sources",
-      label: "数据源管理",
-      path: "/admin/data-sources",
-      icon: <Database className="h-5 w-5" />,
-    },
-    {
-      id: "security",
-      label: "安全与权限",
-      path: "/admin/security",
-      icon: <Shield className="h-5 w-5" />,
-    },
-    {
-      id: "monitoring",
-      label: "系统监控",
-      path: "/admin/monitoring",
-      icon: <BarChart3 className="h-5 w-5" />,
-    },
-  ];
+  const isAdminAuthenticated = useAdminStore((s) => s.isAdminAuthenticated);
 
-  // 主平台入口菜单项（临时）
-  const mainPlatformMenuItem = {
-    id: "main-platform",
-    label: "主平台入口（临时）",
-    path: "/dashboard",
-    icon: <ChevronRight className="h-5 w-5" />,
-  };
+  useEffect(() => {
+    let mounted = true;
+    const loadMenus = async () => {
+      if (!isAdminAuthenticated) {
+        setMenuItems([]);
+        return;
+      }
+      const menus = await fetchAdminMenus();
+      if (!mounted) return;
+      const visible = flattenVisibleMenus(menus).filter(m => m.path && m.meta?.title);
+      const items: AdminMenuItem[] = visible
+        .filter(m => m.path.startsWith("/admin"))
+        .map((m) => ({
+          id: m.name || m.path,
+          label: (m.meta?.title as string) || (m as any).title || m.path,
+          path: m.path,
+          icon: getIconByName(m.meta?.icon),
+        }));
+      setMenuItems(items);
+    };
+    loadMenus();
+    return () => { mounted = false; };
+  }, [isAdminAuthenticated]);
 
   const isActiveRoute = (path: string) => {
     return (
@@ -118,7 +103,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   return (
     <div className="flex h-screen bg-background-secondary">
-      {/* 移动��头部 */}
+      {/* 移动端头部 */}
       <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-card border-b border-border flex items-center justify-between px-4 z-50">
         <div className="flex items-center gap-3">
           {/* Admin User Profile Dropdown */}
@@ -235,20 +220,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                     个人中心
                   </Link>
                 </li>
-
-                {/* 主平台入口（临时） */}
-                {/* <li>
-                  <Link
-                    to={mainPlatformMenuItem.path}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors border-2 border-dashed border-orange-300 bg-orange-50 hover:bg-orange-100 text-orange-700 hover:text-orange-800"
-                  >
-                    {mainPlatformMenuItem.icon}
-                    <span className="font-semibold">
-                      {mainPlatformMenuItem.label}
-                    </span>
-                  </Link>
-                </li> */}
               </ul>
             </nav>
           </div>
@@ -353,37 +324,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 )}
               </Link>
             </li>
-
-            {/* 主平台入口（临时） */}
-            {/* <li>
-              <Link
-                to={mainPlatformMenuItem.path}
-                className={cn(
-                  "flex items-center rounded-lg text-sm font-medium transition-colors relative group",
-                  "border-2 border-dashed border-orange-300 bg-orange-50 hover:bg-orange-100",
-                  "text-orange-700 hover:text-orange-800",
-                  isSidebarCollapsed
-                    ? "gap-0 px-3 py-2 justify-center"
-                    : "gap-3 px-3 py-2",
-                )}
-                title={
-                  isSidebarCollapsed ? mainPlatformMenuItem.label : undefined
-                }
-              >
-                {mainPlatformMenuItem.icon}
-                {!isSidebarCollapsed && (
-                  <span className="whitespace-nowrap flex-1 font-semibold">
-                    {mainPlatformMenuItem.label}
-                  </span>
-                )}
-
-                {isSidebarCollapsed && (
-                  <div className="absolute left-full top-1/2 transform -translate-y-1/2 ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 whitespace-nowrap">
-                    {mainPlatformMenuItem.label}
-                  </div>
-                )}
-              </Link>
-            </li> */}
           </ul>
         </nav>
 
@@ -486,15 +426,42 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         </div>
       </div>
 
-      {/* 主内容区域 */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Tab Manager - Hidden on mobile */}
-        <div className="hidden lg:block">
+      {/* 主内容区 */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* 桌面端头部（固定） */}
+        <div className="hidden lg:flex h-16 bg-card border-b border-border items-center px-4 justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+              <BarChart3 className="h-5 w-5 text-white" />
+            </div>
+            <span className="text-xl font-bold text-gray-900">
+              AI营销管理后台
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" className="gap-2">
+              <Shield className="h-4 w-4" />
+              安全检查
+            </Button>
+            <Button variant="outline" size="sm" className="gap-2">
+              <Database className="h-4 w-4" />
+              数据同步
+            </Button>
+          </div>
+        </div>
+
+        {/* 标签页管理（可选） */}
+        <div className="border-b border-border bg-card/50">
           <TabManager />
         </div>
 
-        {/* 主内容 */}
-        <main className="flex-1 overflow-auto">{children}</main>
+        <main className="flex-1 overflow-auto">
+          <div className="p-6">
+            {/* Nested routes render here */}
+            <Outlet />
+            {children}
+          </div>
+        </main>
       </div>
     </div>
   );

@@ -22,8 +22,38 @@ import {
   Code,
   Building,
   Check,
+  CreditCard,
+  HelpCircle,
 } from "lucide-react";
+
+const LucideIcons = {
+  BarChart3,
+  Users,
+  Home,
+  Menu,
+  X,
+  MessageSquare,
+  Bot,
+  Target,
+  Activity,
+  ChevronLeft,
+  ChevronRight,
+  Zap,
+  User,
+  Settings,
+  Shield,
+  ChevronDown,
+  LogOut,
+  Code,
+  Building,
+  Check,
+};
 import TabManager from "./TabManager";
+import {
+  fetchClientMenus,
+  filterClientMenus,
+  type ClientMenuApiItem,
+} from "@/services/clientMenuService";
 // import { ThemeToggle } from "./ThemeToggle"; // 已隐藏主题切换功能
 import { authService } from "@/services/authService";
 import {
@@ -53,6 +83,8 @@ interface MenuItem {
   isSpecial?: boolean;
 }
 
+import { getIconByName } from "./IconRenderer";
+
 interface Project {
   id: string;
   name: string;
@@ -66,10 +98,12 @@ export default function Layout({ children }: LayoutProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [currentUser, setCurrentUser] = useState(authService.getCurrentUser());
-  const [isSystemManagementExpanded, setIsSystemManagementExpanded] =
-    useState(false);
+  const [expandedMenuItems, setExpandedMenuItems] = useState<Set<string>>(
+    new Set(),
+  );
   const [showCreateProjectDialog, setShowCreateProjectDialog] = useState(false);
   const [isDialogClosable, setIsDialogClosable] = useState(true);
+  const [dynamicMenuItems, setDynamicMenuItems] = useState<MenuItem[]>([]);
 
   // 使用store管理项目状态
   const {
@@ -97,7 +131,7 @@ export default function Layout({ children }: LayoutProps) {
     setCurrentUser(user);
 
     // 如果用户已登录，获取项目列表
-    if (user) {
+    if (user && user.usertype !== 'admin') {
       fetchProjects()
         .then(() => {
           // 检查是否需要显示创建项目对话框
@@ -117,112 +151,150 @@ export default function Layout({ children }: LayoutProps) {
     }
   }, []); // 移除location依赖，避免每次路由切换都重新检查
 
-  // 自动展开系统管理菜单 - 只在初始化或从其他页面导航到组织页面时展开
+  // 自动展开包含当前页面的二级菜单
   useEffect(() => {
-    const shouldExpand = location.pathname.startsWith("/organization/");
-    // 只在应该展开但当前未展开时才自动展开
-    if (shouldExpand && !isSystemManagementExpanded) {
-      setIsSystemManagementExpanded(true);
+    const newExpanded = new Set<string>();
+
+    // 检查动态菜单项
+    dynamicMenuItems.forEach((item) => {
+      if (item.subItems && item.subItems.length > 0) {
+        const hasActiveChild = item.subItems.some(
+          (subItem) =>
+            location.pathname === subItem.path ||
+            location.pathname.startsWith(subItem.path + "/"),
+        );
+        if (hasActiveChild) {
+          newExpanded.add(item.id);
+        }
+      }
+    });
+
+    // 特殊处理：组织管理菜单
+    if (location.pathname.startsWith("/organization/")) {
+      newExpanded.add("system-management");
     }
-  }, [location.pathname]);
 
-  // 基础菜单项 - 使用useMemo缓存，避免重复创建
-  const baseMenuItems: MenuItem[] = useMemo(
-    () => [
-      {
-        id: "dashboard",
-        label: "仪表盘",
-        path: "/dashboard2",
-        icon: <BarChart3 className="h-5 w-5" />,
-      },
-      // {
-      //   id: "dashboard1",
-      //   label: "仪表盘 1.0",
-      //   path: "/dashboard1",
-      //   icon: <Home className="h-5 w-5" />,
-      // },
-      // {
-      //   id: "users",
-      //   label: "用户画像",
-      //   path: "/users2",
-      //   icon: <Users className="h-5 w-5" />,
-      // },
-      {
-        id: "users1",
-        label: "用户画像 1.0",
-        path: "/users1",
-        icon: <User className="h-5 w-5" />,
-      },
-      {
-        id: "ai-marketing-scenarios",
-        label: "AI营销",
-        path: "/ai-marketing/scenarios",
-        icon: <Bot className="h-5 w-5" />,
-      },
-      {
-        id: "monitoring-center",
-        label: "监控中心",
-        path: "/ai-marketing/monitoring-center",
-        icon: <Activity className="h-5 w-5" />,
-      },
-      {
-        id: "effect-tracking",
-        label: "效果追踪",
-        path: "/effect-tracking",
-        icon: <Target className="h-5 w-5" />,
-      },
-      // {
-      //   id: "sdk",
-      //   label: "开发者工具",
-      //   path: "/sdk",
-      //   icon: <Zap className="h-5 w-5" />,
-      // },
-    ],
-    [],
-  );
+    setExpandedMenuItems(newExpanded);
+  }, [location.pathname, dynamicMenuItems]);
 
-  // 管理员专用菜单项 - 使用useMemo缓存，避免重复创建
-  const adminMenuItems: MenuItem[] = useMemo(
-    () => [
-      {
-        id: "system-management",
-        label: "系统管理",
-        path: "/organization/members", // 默认跳转到成员管理
-        icon: <Settings className="h-5 w-5" />,
-        subItems: [
-          {
-            id: "organization-members",
-            label: "成员管理",
-            path: "/organization/members",
-            icon: <Users className="h-5 w-5" />,
-          },
-          {
-            id: "organization-settings",
-            label: "组织设置",
-            path: "/organization/settings",
-            icon: <Settings className="h-5 w-5" />,
-          },
-        ],
-      },
-      // {
-      //   id: "admin",
-      //   label: "管理后台入口（临时）",
-      //   path: "/admin",
-      //   icon: <Shield className="h-5 w-5" />,
-      //   isSpecial: true,
-      // },
-    ],
-    [],
-  );
+  // Dashboard2 作为静态菜单项
+  const baseMenuItems: MenuItem[] = useMemo(() => [
+    {
+      id: "dashboard2",
+      label: "仪表盘",
+      path: "/dashboard2",
+      icon: <BarChart3 className="h-5 w-5" />,
+    }
+  ], []);
 
-  // 根据用户权限组合菜单 - 使用useMemo缓存，只在用户状态变化时重新计算
-  const menuItems: MenuItem[] = useMemo(
-    () => [
-      ...baseMenuItems,
-      ...(currentUser && currentUser.isAdmin ? adminMenuItems : []),
-    ],
-    [baseMenuItems, adminMenuItems, currentUser],
-  );
+  // 管理员菜单也设置为空，完全依赖动态菜单
+  const adminMenuItems: MenuItem[] = useMemo(() => [], []);
+
+  // 登录后请求动态菜单并显示
+  useEffect(() => {
+    const user = authService.getCurrentUser();
+    if (!user) {
+      setDynamicMenuItems([]);
+      return;
+    }
+    let mounted = true;
+    const buildDynamic = (menus: ClientMenuApiItem[]): MenuItem[] => {
+      const result: MenuItem[] = [];
+
+      const add = (m: ClientMenuApiItem, level = 0) => {
+        if (m.hidden) return;
+
+        const label = (m.meta?.title as string) || m.name || m.path;
+        if (!label) return;
+
+        // 如果没有 component 但有 children，则作为二级菜单处理
+        if (!m.component && m.children && m.children.length > 0) {
+          const subItems: MenuItem[] = [];
+          m.children.forEach((child) => {
+            if (!child.hidden && child.path) {
+              const childLabel =
+                (child.meta?.title as string) || child.name || child.path;
+              if (childLabel) {
+                subItems.push({
+                  id: `dyn-${child.path}`,
+                  label: childLabel,
+                  path: child.path,
+                  icon: getIconByName(child.meta?.icon),
+                });
+              }
+            }
+          });
+
+          // 如果有有效的子菜单，添加二级菜单
+          if (subItems.length > 0) {
+            result.push({
+              id: `dyn-parent-${m.name}`,
+              label,
+              path: m.path || `#${m.name}`, // 如果没有path，使用锚点
+              icon: getIconByName(m.meta?.icon),
+              subItems: subItems.sort((a, b) => {
+                const aSort =
+                  m.children?.find((c) => c.path === a.path)?.sort ?? 0;
+                const bSort =
+                  m.children?.find((c) => c.path === b.path)?.sort ?? 0;
+                return aSort - bSort;
+              }),
+            });
+          }
+        }
+        // 普通菜单项（有 component 或没有 children）
+        else if (m.path) {
+          result.push({
+            id: `dyn-${m.path}`,
+            label,
+            path: m.path,
+            icon: getIconByName(m.meta?.icon),
+          });
+        }
+
+        // 如果有 component 且有 children，也处理子菜单（深层嵌套）
+        if (m.component && m.children && m.children.length > 0) {
+          m.children.forEach((child) => add(child, level + 1));
+        }
+      };
+
+      menus.forEach((menu) => add(menu));
+      return result.sort((a, b) => {
+        const aSort =
+          menus.find(
+            (m) =>
+              m.path === a.path || m.name === a.id.replace("dyn-parent-", ""),
+          )?.sort ?? 0;
+        const bSort =
+          menus.find(
+            (m) =>
+              m.path === b.path || m.name === b.id.replace("dyn-parent-", ""),
+          )?.sort ?? 0;
+        return aSort - bSort;
+      });
+    };
+
+    (async () => {
+      try {
+        const rawMenus = await fetchClientMenus();
+        const menus = filterClientMenus(rawMenus);
+        if (!mounted) return;
+        const items = buildDynamic(menus);
+        setDynamicMenuItems(items);
+      } catch {
+        if (!mounted) return;
+        setDynamicMenuItems([]);
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  // 合并静态菜单和动态菜单，静态菜单在前
+  const menuItems: MenuItem[] = useMemo(() => {
+    return [ ...dynamicMenuItems];
+  }, [dynamicMenuItems]);
 
   function changeProject(project: Project) {
     setCurrentProject(project);
@@ -338,6 +410,14 @@ export default function Layout({ children }: LayoutProps) {
           <span className="text-xl font-bold text-gray-900">AI营销平台</span>
         </div>
         <div className="flex items-center gap-2">
+          {/* Help Icon */}
+          <Link 
+            to="/marketing/help" 
+            className="p-2 rounded-lg text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+            title="帮助中心"
+          >
+            <HelpCircle className="h-5 w-5" />
+          </Link>
           {/* <ThemeToggle /> */}
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -362,57 +442,25 @@ export default function Layout({ children }: LayoutProps) {
             <nav>
               <ul className="space-y-2">
                 {menuItems.map((item) => {
-                  const isActive =
-                    location.pathname === item.path ||
-                    (item.id === "dashboard" &&
-                      (location.pathname === "/" ||
-                        location.pathname === "/dashboard" ||
-                        location.pathname === "/dashboard2")) ||
-                    (item.id === "dashboard1" &&
-                      location.pathname === "/dashboard1") ||
-                    (item.id === "users" &&
-                      (location.pathname === "/users" ||
-                        location.pathname === "/users2" ||
-                        location.pathname.startsWith("/users2/"))) ||
-                    (item.id === "users1" &&
-                      (location.pathname === "/users1" ||
-                        location.pathname.startsWith("/users1/"))) ||
-                    (item.id === "projects" &&
-                      (location.pathname === "/projects" ||
-                        location.pathname.startsWith("/projects/"))) ||
-                    (item.id === "ai-marketing-scenarios" &&
-                      location.pathname.startsWith(
-                        "/ai-marketing/scenarios",
-                      )) ||
-                    (item.id === "monitoring-center" &&
-                      location.pathname.startsWith(
-                        "/ai-marketing/monitoring-center",
-                      )) ||
-                    (item.id === "effect-tracking" &&
-                      location.pathname.startsWith("/effect-tracking")) ||
-                    (item.id === "sdk" &&
-                      location.pathname.startsWith("/sdk")) ||
-                    (item.id === "admin" &&
-                      location.pathname.startsWith("/admin")) ||
-                    (item.id === "system-management" &&
-                      (location.pathname.startsWith("/organization/members") ||
-                        location.pathname.startsWith(
-                          "/organization/settings",
-                        )));
-
+                  const isActive = location.pathname === item.path;
                   return (
                     <li key={item.id}>
-                      {/* 项目管理菜单或系统管理菜单 */}
-                      {item.id === "projects" ||
-                      item.id === "system-management" ? (
+                      {/* 动态二级菜单或静态二级菜单 */}
+                      {item.subItems && item.subItems.length > 0 ? (
                         <div>
                           <button
-                            onClick={() =>
-                              item.id === "system-management" &&
-                              setIsSystemManagementExpanded(
-                                !isSystemManagementExpanded,
-                              )
-                            }
+                            onClick={() => {
+                              // 切换当前菜单项的展开状态
+                              setExpandedMenuItems((prev) => {
+                                const newSet = new Set(prev);
+                                if (newSet.has(item.id)) {
+                                  newSet.delete(item.id);
+                                } else {
+                                  newSet.add(item.id);
+                                }
+                                return newSet;
+                              });
+                            }}
                             className={cn(
                               "w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
                               isActive
@@ -427,8 +475,7 @@ export default function Layout({ children }: LayoutProps) {
                             <ChevronDown
                               className={cn(
                                 "h-4 w-4 transition-transform",
-                                item.id === "system-management" &&
-                                  isSystemManagementExpanded
+                                expandedMenuItems.has(item.id)
                                   ? "rotate-180"
                                   : "",
                               )}
@@ -436,47 +483,38 @@ export default function Layout({ children }: LayoutProps) {
                           </button>
 
                           {/* 二级菜单 */}
-                          {(item.id === "system-management" &&
-                            isSystemManagementExpanded) ||
-                            (item.id === "projects" && item.subItems && (
-                              <div className="mt-1 ml-6 space-y-1 max-h-60 overflow-y-auto">
-                                {item.subItems.map((subItem) => {
-                                  const subIsActive =
-                                    location.pathname === subItem.path ||
-                                    (item.id === "projects" &&
-                                      location.pathname.startsWith(
-                                        `/projects/${subItem.id.split("-")[1]}`,
-                                      )) ||
-                                    (subItem.id === "organization-members" &&
-                                      location.pathname.startsWith(
-                                        "/organization/members",
-                                      )) ||
-                                    (subItem.id === "organization-settings" &&
-                                      location.pathname.startsWith(
-                                        "/organization/settings",
-                                      ));
+                          {expandedMenuItems.has(item.id) && item.subItems && (
+                            <div className="mt-1 ml-6 space-y-1 max-h-60 overflow-y-auto">
+                              {item.subItems.map((subItem) => {
+                                const subIsActive =
+                                  location.pathname === subItem.path ||
+                                  location.pathname.startsWith(
+                                    subItem.path + "/",
+                                  );
 
-                                  return (
-                                    <Link
-                                      key={subItem.id}
-                                      to={subItem.path}
-                                      onClick={() => setIsMobileMenuOpen(false)}
-                                      className={cn(
-                                        "flex items-center gap-2 px-3 py-2 text-sm rounded-md transition-colors",
-                                        subIsActive
-                                          ? "bg-blue-50 text-blue-700 border border-blue-200"
-                                          : "text-gray-500 hover:text-gray-900 hover:bg-gray-50",
-                                      )}
-                                    >
+                                return (
+                                  <Link
+                                    key={subItem.id}
+                                    to={subItem.path}
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                    className={cn(
+                                      "flex items-center gap-2 px-3 py-2 text-sm rounded-md transition-colors",
+                                      subIsActive
+                                        ? "bg-blue-50 text-blue-700 border border-blue-200"
+                                        : "text-gray-500 hover:text-gray-900 hover:bg-gray-50",
+                                    )}
+                                  >
+                                    {subItem.icon || (
                                       <div className="w-4 h-4 flex items-center justify-center">
                                         <div className="w-1.5 h-1.5 bg-current rounded-full" />
                                       </div>
-                                      {subItem.label}
-                                    </Link>
-                                  );
-                                })}
-                              </div>
-                            ))}
+                                    )}
+                                    {subItem.label}
+                                  </Link>
+                                );
+                              })}
+                            </div>
+                          )}
                         </div>
                       ) : (
                         /* 普通菜单项 */
@@ -659,46 +697,31 @@ export default function Layout({ children }: LayoutProps) {
             {menuItems.map((item) => {
               const isActive =
                 location.pathname === item.path ||
-                (item.id === "dashboard" &&
+                (item.id === "dashboard2" &&
                   (location.pathname === "/" ||
-                    location.pathname === "/dashboard" ||
                     location.pathname === "/dashboard2")) ||
-                (item.id === "dashboard1" &&
-                  location.pathname === "/dashboard1") ||
-                (item.id === "users" &&
-                  (location.pathname === "/users" ||
-                    location.pathname === "/users2" ||
-                    location.pathname.startsWith("/users2/"))) ||
-                (item.id === "users1" &&
-                  (location.pathname === "/users1" ||
-                    location.pathname.startsWith("/users1/"))) ||
-                (item.id === "ai-marketing-scenarios" &&
-                  location.pathname.startsWith("/ai-marketing/scenarios")) ||
-                (item.id === "monitoring-center" &&
-                  location.pathname.startsWith(
-                    "/ai-marketing/monitoring-center",
-                  )) ||
-                (item.id === "effect-tracking" &&
-                  location.pathname.startsWith("/effect-tracking")) ||
-                (item.id === "sdk" && location.pathname.startsWith("/sdk")) ||
-                (item.id === "admin" &&
-                  location.pathname.startsWith("/admin")) ||
-                (item.id === "system-management" &&
-                  (location.pathname.startsWith("/organization/members") ||
-                    location.pathname.startsWith("/organization/settings")));
+                // 对于动态菜单项，只需要简单的路径匹配
+                location.pathname.startsWith(item.path + '/');
 
               return (
                 <li key={item.id} className="relative group">
-                  {/* 项目管理菜单或系统管理菜单（包含二级菜单） */}
-                  {item.id === "projects" || item.id === "system-management" ? (
+                  {/* 动态二级菜单或静态二级菜单（包含子菜单项） */}
+                  {item.subItems && item.subItems.length > 0 ? (
                     <div>
                       <button
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
-                          if (item.id === "system-management") {
-                            setIsSystemManagementExpanded((prev) => !prev);
-                          }
+                          // 切换当前菜单项的展开状态
+                          setExpandedMenuItems((prev) => {
+                            const newSet = new Set(prev);
+                            if (newSet.has(item.id)) {
+                              newSet.delete(item.id);
+                            } else {
+                              newSet.add(item.id);
+                            }
+                            return newSet;
+                          });
                         }}
                         className={cn(
                           "w-full flex items-center rounded-lg text-sm font-medium transition-colors relative",
@@ -719,39 +742,29 @@ export default function Layout({ children }: LayoutProps) {
                             </span>
                           )}
                         </div>
-                        {!isSidebarCollapsed &&
-                          item.id === "system-management" && (
-                            <ChevronDown
-                              className={cn(
-                                "h-4 w-4 transition-transform",
-                                isSystemManagementExpanded ? "rotate-180" : "",
-                              )}
-                            />
-                          )}
+                        {!isSidebarCollapsed && (
+                          <ChevronDown
+                            className={cn(
+                              "h-4 w-4 transition-transform",
+                              expandedMenuItems.has(item.id)
+                                ? "rotate-180"
+                                : "",
+                            )}
+                          />
+                        )}
                       </button>
 
                       {/* 二级菜单 */}
                       {!isSidebarCollapsed &&
-                        ((item.id === "system-management" &&
-                          isSystemManagementExpanded) ||
-                          item.id === "projects") &&
+                        expandedMenuItems.has(item.id) &&
                         item.subItems && (
                           <div className="mt-1 ml-6 space-y-1 max-h-60 overflow-y-auto">
                             {item.subItems.map((subItem) => {
                               const subIsActive =
                                 location.pathname === subItem.path ||
-                                (item.id === "projects" &&
-                                  location.pathname.startsWith(
-                                    `/projects/${subItem.id.split("-")[1]}`,
-                                  )) ||
-                                (subItem.id === "organization-members" &&
-                                  location.pathname.startsWith(
-                                    "/organization/members",
-                                  )) ||
-                                (subItem.id === "organization-settings" &&
-                                  location.pathname.startsWith(
-                                    "/organization/settings",
-                                  ));
+                                location.pathname.startsWith(
+                                  subItem.path + "/",
+                                );
 
                               return (
                                 <Link
@@ -764,9 +777,11 @@ export default function Layout({ children }: LayoutProps) {
                                       : "text-gray-500 hover:text-gray-900 hover:bg-gray-50",
                                   )}
                                 >
-                                  <div className="w-4 h-4 flex items-center justify-center">
-                                    <div className="w-1.5 h-1.5 bg-current rounded-full" />
-                                  </div>
+                                  {subItem.icon || (
+                                    <div className="w-4 h-4 flex items-center justify-center">
+                                      <div className="w-1.5 h-1.5 bg-current rounded-full" />
+                                    </div>
+                                  )}
                                   {subItem.label}
                                 </Link>
                               );
@@ -774,25 +789,16 @@ export default function Layout({ children }: LayoutProps) {
                           </div>
                         )}
 
-                      {/* 项目管理或系统管理悬浮二级菜单 - 仅在折叠状态下显示 */}
+                      {/* 项目管理或系统管理悬浮二级菜单 - 仅在折���状态下显示 */}
                       {isSidebarCollapsed && item.subItems && (
                         <div className="absolute left-full top-0 ml-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                           <div className="p-2 max-h-60 overflow-y-auto">
                             {item.subItems.map((subItem) => {
                               const subIsActive =
                                 location.pathname === subItem.path ||
-                                (item.id === "projects" &&
-                                  location.pathname.startsWith(
-                                    `/projects/${subItem.id.split("-")[1]}`,
-                                  )) ||
-                                (subItem.id === "organization-members" &&
-                                  location.pathname.startsWith(
-                                    "/organization/members",
-                                  )) ||
-                                (subItem.id === "organization-settings" &&
-                                  location.pathname.startsWith(
-                                    "/organization/settings",
-                                  ));
+                                location.pathname.startsWith(
+                                  subItem.path + "/",
+                                );
 
                               return (
                                 <Link
@@ -805,7 +811,11 @@ export default function Layout({ children }: LayoutProps) {
                                       : "text-gray-600 hover:text-gray-900 hover:bg-gray-50",
                                   )}
                                 >
-                                  {subItem.icon}
+                                  {subItem.icon || (
+                                    <div className="w-4 h-4 flex items-center justify-center">
+                                      <div className="w-1.5 h-1.5 bg-current rounded-full" />
+                                    </div>
+                                  )}
                                   {subItem.label}
                                 </Link>
                               );
@@ -876,6 +886,30 @@ export default function Layout({ children }: LayoutProps) {
             })}
           </ul>
         </nav>
+
+        {/* Help Center Link */}
+        <div className="border-t border-gray-200 p-2">
+          <a
+            href="/marketing/help"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={cn(
+              "flex items-center rounded-lg text-sm font-medium transition-colors relative",
+              isSidebarCollapsed
+                ? "gap-0 px-3 py-2 justify-center"
+                : "gap-3 px-3 py-2",
+              "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+            )}
+            title={isSidebarCollapsed ? "帮助中心" : undefined}
+          >
+            <HelpCircle className="h-5 w-5" />
+            {!isSidebarCollapsed && (
+              <span className="whitespace-nowrap overflow-hidden">
+                帮助中心
+              </span>
+            )}
+          </a>
+        </div>
 
         {/* Collapse Toggle Button */}
         <div className="border-t border-gray-200 p-2">

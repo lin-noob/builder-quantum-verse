@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Card,
   CardContent,
@@ -7,20 +7,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import {
   Table,
   TableBody,
@@ -38,976 +26,477 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
-  Shield,
-  Users,
-  Plus,
-  Edit,
-  Trash2,
-  Key,
-  Eye,
-  Settings,
-  Lock,
-  Unlock,
-  UserCheck,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { 
+  Plus, 
+  Edit, 
+  Trash2, 
+  Shield, 
+  Users, 
+  Eye, 
+  Save,
   Crown,
   User,
-  Database,
-  BarChart3,
-  Brain,
+  Bot,
   Target,
+  BarChart3,
+  Settings,
+  LayoutDashboard
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { marketingPermissionService, MarketingRole } from "@/admin/services/marketingPermissionService";
 
-// 权限类型定义
-export type Permission = {
-  id: string;
+// 角色定义
+interface Role {
+  id: MarketingRole;
   name: string;
   description: string;
-  category: "user" | "ai" | "scenario" | "system" | "data";
-  resource: string;
-  action: "read" | "write" | "delete" | "execute";
-};
-
-// 角色类型定义
-export type Role = {
-  id: string;
-  name: string;
-  description: string;
-  color: string;
   isSystem: boolean;
-  permissions: string[];
   userCount: number;
-  createdAt: string;
-  updatedAt: string;
-};
-
-// 用户角色绑定类型
-export type UserRole = {
-  userId: string;
-  userName: string;
-  email: string;
-  roles: string[];
-  lastLogin: string;
-  status: "active" | "inactive";
-};
-
-// 模拟权限数据
-const mockPermissions: Permission[] = [
-  // 用户管理权限
-  {
-    id: "user_read",
-    name: "查看用户",
-    description: "查看用户列表和详细信息",
-    category: "user",
-    resource: "users",
-    action: "read",
-  },
-  {
-    id: "user_write",
-    name: "编辑用户",
-    description: "创建和编辑用户信息",
-    category: "user",
-    resource: "users",
-    action: "write",
-  },
-  {
-    id: "user_delete",
-    name: "删除用户",
-    description: "删除用户账户",
-    category: "user",
-    resource: "users",
-    action: "delete",
-  },
-
-  // AI模型管理权限
-  {
-    id: "ai_model_read",
-    name: "查看AI模型",
-    description: "查看AI模型配置和状态",
-    category: "ai",
-    resource: "ai_models",
-    action: "read",
-  },
-  {
-    id: "ai_model_write",
-    name: "管理AI模型",
-    description: "配置AI模型参数和设置",
-    category: "ai",
-    resource: "ai_models",
-    action: "write",
-  },
-  {
-    id: "ai_model_execute",
-    name: "测试AI模型",
-    description: "执行AI模型测试和调试",
-    category: "ai",
-    resource: "ai_models",
-    action: "execute",
-  },
-
-  // 场景配置权限
-  {
-    id: "scenario_read",
-    name: "查看营销场景",
-    description: "查看营销场景配置",
-    category: "scenario",
-    resource: "scenarios",
-    action: "read",
-  },
-  {
-    id: "scenario_write",
-    name: "配置营销场景",
-    description: "编辑营销场景和规则",
-    category: "scenario",
-    resource: "scenarios",
-    action: "write",
-  },
-  {
-    id: "scenario_execute",
-    name: "执行营销场景",
-    description: "启用/禁用营销场景",
-    category: "scenario",
-    resource: "scenarios",
-    action: "execute",
-  },
-
-  // 系统管理权限
-  {
-    id: "system_read",
-    name: "查看系统配置",
-    description: "查看系统设置和状态",
-    category: "system",
-    resource: "system",
-    action: "read",
-  },
-  {
-    id: "system_write",
-    name: "管理系统配置",
-    description: "修改系统设置和参数",
-    category: "system",
-    resource: "system",
-    action: "write",
-  },
-  {
-    id: "system_delete",
-    name: "重置系统",
-    description: "执行系统重置和维护操作",
-    category: "system",
-    resource: "system",
-    action: "delete",
-  },
-
-  // 数据管理权限
-  {
-    id: "data_read",
-    name: "查看数据",
-    description: "查看业务数据和报表",
-    category: "data",
-    resource: "data",
-    action: "read",
-  },
-  {
-    id: "data_write",
-    name: "管理数据",
-    description: "导入导出数据",
-    category: "data",
-    resource: "data",
-    action: "write",
-  },
-  {
-    id: "data_delete",
-    name: "删除数据",
-    description: "删除业务数据",
-    category: "data",
-    resource: "data",
-    action: "delete",
-  },
-];
+  color: string;
+}
 
 // 模拟角色数据
 const mockRoles: Role[] = [
   {
     id: "super_admin",
     name: "超级管理员",
-    description: "拥有系统所有权限，可以管理系统的所有功能和设置",
-    color: "bg-red-100 text-red-800",
+    description: "拥有营销管理后台所有权限，可以管理系统的所有功能和设置",
     isSystem: true,
-    permissions: mockPermissions.map((p) => p.id),
-    userCount: 2,
-    createdAt: "2024-01-01T00:00:00Z",
-    updatedAt: "2024-01-01T00:00:00Z",
+    userCount: 1,
+    color: "bg-red-100 text-red-800"
   },
   {
-    id: "admin",
-    name: "系统管理员",
-    description: "拥有大部分系统权限，负责日常运营管理",
-    color: "bg-blue-100 text-blue-800",
+    id: "marketing_manager",
+    name: "营销经理",
+    description: "负责营销策略制定和管理，拥有核心功能权限",
     isSystem: true,
-    permissions: [
-      "user_read",
-      "user_write",
-      "ai_model_read",
-      "ai_model_write",
-      "ai_model_execute",
-      "scenario_read",
-      "scenario_write",
-      "scenario_execute",
-      "system_read",
-      "system_write",
-      "data_read",
-      "data_write",
-    ],
-    userCount: 5,
-    createdAt: "2024-01-01T00:00:00Z",
-    updatedAt: "2024-01-15T10:30:00Z",
+    userCount: 3,
+    color: "bg-blue-100 text-blue-800"
   },
   {
-    id: "operator",
-    name: "运营人员",
-    description: "负责AI营销场景的配置和日常运营",
-    color: "bg-green-100 text-green-800",
-    isSystem: false,
-    permissions: [
-      "user_read",
-      "ai_model_read",
-      "scenario_read",
-      "scenario_write",
-      "scenario_execute",
-      "data_read",
-    ],
+    id: "marketing_specialist",
+    name: "营销专员",
+    description: "执行具体的营销任务，拥有基础功能权限",
+    isSystem: true,
     userCount: 8,
-    createdAt: "2024-01-05T09:00:00Z",
-    updatedAt: "2024-01-20T14:15:00Z",
+    color: "bg-green-100 text-green-800"
   },
   {
-    id: "viewer",
-    name: "只读用户",
-    description: "只能查看系统信息，无法进行修改操作",
-    color: "bg-gray-100 text-gray-800",
-    isSystem: false,
-    permissions: [
-      "user_read",
-      "ai_model_read",
-      "scenario_read",
-      "system_read",
-      "data_read",
-    ],
-    userCount: 12,
-    createdAt: "2024-01-10T11:30:00Z",
-    updatedAt: "2024-01-18T16:20:00Z",
-  },
-];
-
-// 模拟用户角色数据
-const mockUserRoles: UserRole[] = [
-  {
-    userId: "user_1",
-    userName: "张三",
-    email: "zhang.san@company.com",
-    roles: ["super_admin"],
-    lastLogin: "2024-01-20T08:30:00Z",
-    status: "active",
-  },
-  {
-    userId: "user_2",
-    userName: "李四",
-    email: "li.si@company.com",
-    roles: ["admin"],
-    lastLogin: "2024-01-20T09:15:00Z",
-    status: "active",
-  },
-  {
-    userId: "user_3",
-    userName: "王五",
-    email: "wang.wu@company.com",
-    roles: ["operator"],
-    lastLogin: "2024-01-19T17:45:00Z",
-    status: "active",
-  },
-  {
-    userId: "user_4",
-    userName: "赵六",
-    email: "zhao.liu@company.com",
-    roles: ["viewer"],
-    lastLogin: "2024-01-18T14:20:00Z",
-    status: "inactive",
-  },
+    id: "data_analyst",
+    name: "数据分析师",
+    description: "负责数据分析和报表，拥有数据相关功能权限",
+    isSystem: true,
+    userCount: 2,
+    color: "bg-purple-100 text-purple-800"
+  }
 ];
 
 export default function SecurityPermissions() {
   const [roles, setRoles] = useState<Role[]>(mockRoles);
-  const [permissions] = useState<Permission[]>(mockPermissions);
-  const [userRoles, setUserRoles] = useState<UserRole[]>(mockUserRoles);
-  const [selectedRole, setSelectedRole] = useState<Role | null>(null);
+  const [selectedRole, setSelectedRole] = useState<Role | null>(mockRoles[1]);
   const [isRoleDialogOpen, setIsRoleDialogOpen] = useState(false);
-  const [isUserRoleDialogOpen, setIsUserRoleDialogOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<UserRole | null>(null);
-
-  // Pagination state for roles
-  const [currentRolePage, setCurrentRolePage] = useState(1);
-  const [rolesPerPage] = useState(6);
-
-  // Pagination state for user roles
-  const [currentUserPage, setCurrentUserPage] = useState(1);
-  const [usersPerPage] = useState(8);
-
-  // Pagination logic for roles
-  const totalRolePages = Math.ceil(roles.length / rolesPerPage);
-  const startRoleIndex = (currentRolePage - 1) * rolesPerPage;
-  const endRoleIndex = startRoleIndex + rolesPerPage;
-  const currentRoles = roles.slice(startRoleIndex, endRoleIndex);
-
-  // Pagination logic for user roles
-  const totalUserPages = Math.ceil(userRoles.length / usersPerPage);
-  const startUserIndex = (currentUserPage - 1) * usersPerPage;
-  const endUserIndex = startUserIndex + usersPerPage;
-  const currentUserRoles = userRoles.slice(startUserIndex, endUserIndex);
-
-  const getCategoryIcon = (category: Permission["category"]) => {
-    switch (category) {
-      case "user":
-        return <Users className="h-4 w-4" />;
-      case "ai":
-        return <Brain className="h-4 w-4" />;
-      case "scenario":
-        return <Target className="h-4 w-4" />;
-      case "system":
-        return <Settings className="h-4 w-4" />;
-      case "data":
-        return <Database className="h-4 w-4" />;
-    }
-  };
-
-  const getActionIcon = (action: Permission["action"]) => {
-    switch (action) {
-      case "read":
-        return <Eye className="h-3 w-3" />;
-      case "write":
-        return <Edit className="h-3 w-3" />;
-      case "delete":
-        return <Trash2 className="h-3 w-3" />;
-      case "execute":
-        return <Settings className="h-3 w-3" />;
-    }
-  };
-
+  const [searchTerm, setSearchTerm] = useState("");
+  const allMenus = marketingPermissionService.getAllMenus();
+  
+  // 新角色表单状态
+  const [newRole, setNewRole] = useState({
+    name: "",
+    description: ""
+  });
+  
+  // 角色权限状态
+  const [rolePermissions, setRolePermissions] = useState<Record<MarketingRole, string[]>>(() => {
+    const initialPermissions: Record<MarketingRole, string[]> = {} as Record<MarketingRole, string[]>;
+    mockRoles.forEach(role => {
+      initialPermissions[role.id] = marketingPermissionService.getRolePermissions(role.id);
+    });
+    return initialPermissions;
+  });
+  
+  // 获取角色图标
   const getRoleIcon = (roleName: string) => {
     if (roleName.includes("超级")) return <Crown className="h-4 w-4" />;
-    if (roleName.includes("管理")) return <Shield className="h-4 w-4" />;
+    if (roleName.includes("经理")) return <Shield className="h-4 w-4" />;
+    if (roleName.includes("专员")) return <User className="h-4 w-4" />;
+    if (roleName.includes("分析师")) return <BarChart3 className="h-4 w-4" />;
     return <User className="h-4 w-4" />;
   };
-
-  const handleCreateRole = () => {
-    setSelectedRole(null);
-    setIsRoleDialogOpen(true);
+  
+  // 获取菜单图标
+  const getMenuIcon = (menuId: string) => {
+    switch (menuId) {
+      case "dashboard":
+        return <LayoutDashboard className="h-4 w-4" />;
+      case "user-profile":
+        return <User className="h-4 w-4" />;
+      case "ai-strategy":
+        return <Bot className="h-4 w-4" />;
+      case "effect-tracking":
+        return <Target className="h-4 w-4" />;
+      case "user-list":
+        return <Users className="h-4 w-4" />;
+      case "real-time-monitoring":
+        return <BarChart3 className="h-4 w-4" />;
+      case "response-actions":
+        return <Settings className="h-4 w-4" />;
+      case "organization":
+        return <Users className="h-4 w-4" />;
+      case "security-permissions":
+        return <Shield className="h-4 w-4" />;
+      default:
+        return <Eye className="h-4 w-4" />;
+    }
   };
-
+  
+  // 处理角色选择
+  const handleSelectRole = (role: Role) => {
+    setSelectedRole(role);
+  };
+  
+  // 处理编辑角色
   const handleEditRole = (role: Role) => {
     setSelectedRole(role);
     setIsRoleDialogOpen(true);
   };
-
+  
+  // 处理删除角色
   const handleDeleteRole = (roleId: string) => {
-    const role = roles.find((r) => r.id === roleId);
-    if (role?.isSystem) {
-      alert("系统角色不能删除");
-      return;
-    }
     if (confirm("确定要删除这个角色吗？")) {
-      setRoles((prev) => prev.filter((r) => r.id !== roleId));
+      // 过滤掉要删除的角色
+      const updatedRoles = roles.filter(role => role.id !== roleId);
+      setRoles(updatedRoles);
+      
+      // 如果删除的是当前选中的角色，清空选中
+      if (selectedRole && selectedRole.id === roleId) {
+        setSelectedRole(null);
+      }
+      
+      // 从权限状态中移除该角色
+      const updatedPermissions = { ...rolePermissions };
+      delete updatedPermissions[roleId as MarketingRole];
+      setRolePermissions(updatedPermissions);
     }
   };
-
-  const handleEditUserRoles = (user: UserRole) => {
-    setSelectedUser(user);
-    setIsUserRoleDialogOpen(true);
-  };
-
-  const getStats = () => {
-    const totalRoles = roles.length;
-    const customRoles = roles.filter((r) => !r.isSystem).length;
-    const totalUsers = userRoles.length;
-    const activeUsers = userRoles.filter((u) => u.status === "active").length;
-
-    return {
-      totalRoles,
-      customRoles,
-      totalUsers,
-      activeUsers,
+  
+  // 处理创建角色
+  const handleCreateRole = () => {
+    if (!newRole.name.trim()) return;
+    
+    // 生成新的角色ID（在实际应用中可能需要服务器生成）
+    const newRoleId = `custom_role_${Date.now()}` as MarketingRole;
+    
+    // 创建新角色
+    const role: Role = {
+      id: newRoleId,
+      name: newRole.name,
+      description: newRole.description,
+      isSystem: false, // 自定义角色
+      userCount: 0,
+      color: "bg-gray-100 text-gray-800"
     };
+    
+    // 添加到角色列表
+    setRoles([...roles, role]);
+    
+    // 初始化该角色的权限为空
+    setRolePermissions({
+      ...rolePermissions,
+      [newRoleId]: []
+    });
+    
+    // 重置表单并关闭对话框
+    setNewRole({ name: "", description: "" });
+    setIsRoleDialogOpen(false);
   };
-
-  const stats = getStats();
-
+  
+  // 切换菜单权限
+  const toggleMenuPermission = (menuId: string) => {
+    if (!selectedRole) return;
+    
+    setRolePermissions(prev => {
+      const currentPermissions = [...(prev[selectedRole.id] || [])];
+      const index = currentPermissions.indexOf(menuId);
+      
+      if (index > -1) {
+        // 移除权限
+        currentPermissions.splice(index, 1);
+      } else {
+        // 添加权限
+        currentPermissions.push(menuId);
+      }
+      
+      return {
+        ...prev,
+        [selectedRole.id]: currentPermissions
+      };
+    });
+  };
+  
+  // 检查角色是否具有菜单权限
+  const hasMenuPermission = (roleId: MarketingRole, menuId: string): boolean => {
+    return rolePermissions[roleId]?.includes(menuId) || false;
+  };
+  
+  // 保存权限配置
+  const handleSavePermissions = () => {
+    if (!selectedRole) return;
+    
+    // 在实际应用中，这里会调用API保存权限配置
+    marketingPermissionService.updateRolePermissions(selectedRole.id, rolePermissions[selectedRole.id]);
+    alert("权限配置已保存");
+  };
+  
   return (
     <div className="p-6 space-y-6">
-      {/* 创建角色按钮 */}
-      <div className="flex justify-end">
-        <div className="flex gap-3">
-          <Button onClick={handleCreateRole} variant="outline">
-            <Plus className="h-4 w-4 mr-2" />
-            创建角色
-          </Button>
-        </div>
-      </div>
+      {/* 移除了页面标题和副标题，但保留了适当的顶部间距 */}
 
-      {/* 统计概览 */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">总角色数</CardTitle>
-            <Shield className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalRoles}</div>
-            <p className="text-xs text-muted-foreground">
-              其中 {stats.customRoles} 个自定义角色
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">权限项目</CardTitle>
-            <Key className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{permissions.length}</div>
-            <p className="text-xs text-muted-foreground">覆盖 5 个功能模块</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">用户总数</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalUsers}</div>
-            <p className="text-xs text-muted-foreground">
-              {stats.activeUsers} 个活跃用户
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">活跃率</CardTitle>
-            <UserCheck className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {((stats.activeUsers / stats.totalUsers) * 100).toFixed(0)}%
-            </div>
-            <p className="text-xs text-muted-foreground">用户活跃度</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Tabs defaultValue="roles" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="roles">角色管理</TabsTrigger>
-          <TabsTrigger value="permissions">权限矩阵</TabsTrigger>
-          <TabsTrigger value="users">用户权限</TabsTrigger>
-        </TabsList>
-
-        {/* 角色管理Tab */}
-        <TabsContent value="roles" className="space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        {/* 左侧角色列表 (25%宽度) */}
+        <div className="lg:col-span-1">
           <Card>
             <CardHeader>
-              <CardTitle>系统角色</CardTitle>
-              <CardDescription>管理系统角色定义和权限配置</CardDescription>
+              <div className="flex items-center justify-between">
+                <CardTitle>角色列表</CardTitle>
+                <Button size="sm" onClick={() => setIsRoleDialogOpen(true)} className="flex items-center gap-1">
+                  <Plus className="h-4 w-4" />
+                  创建
+                </Button>
+              </div>
+              <CardDescription>
+                管理系统中的用户角色
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {currentRoles.map((role) => (
+              <div className="space-y-4">
+                {roles.map((role) => (
                   <div
                     key={role.id}
-                    className="border rounded-lg p-4 hover:bg-gray-50 transition-colors"
+                    className={cn(
+                      "p-4 rounded-lg border cursor-pointer transition-colors",
+                      selectedRole?.id === role.id
+                        ? "border-blue-500 bg-blue-50"
+                        : "border-gray-200 hover:bg-gray-50"
+                    )}
+                    onClick={() => handleSelectRole(role)}
                   >
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-md bg-gray-100">
                         {getRoleIcon(role.name)}
-                        <span className="font-medium">{role.name}</span>
                       </div>
-                      <Badge className={role.color}>
-                        {role.isSystem ? "系统" : "自定义"}
-                      </Badge>
-                    </div>
-
-                    <p className="text-sm text-gray-600 mb-3">
-                      {role.description}
-                    </p>
-
-                    <div className="flex items-center justify-between text-xs text-gray-500 mb-3">
-                      <span>权限数: {role.permissions.length}</span>
-                      <span>用户数: {role.userCount}</span>
-                    </div>
-
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleEditRole(role)}
-                        className="flex-1"
-                      >
-                        <Edit className="h-3 w-3 mr-1" />
-                        编辑
-                      </Button>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-medium truncate">{role.name}</h3>
+                          {role.isSystem && (
+                            <span className="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded">
+                              系统
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-sm text-gray-500 truncate">
+                          {role.description}
+                        </p>
+                        <div className="flex items-center gap-4 mt-2 text-xs text-gray-400">
+                          <span className="flex items-center gap-1">
+                            <Users className="h-3 w-3" />
+                            {role.userCount} 用户
+                          </span>
+                        </div>
+                      </div>
                       {!role.isSystem && (
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => handleDeleteRole(role.id)}
-                          className="text-red-600 hover:text-red-700"
+                          className="h-8 w-8 p-0"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteRole(role.id);
+                          }}
                         >
-                          <Trash2 className="h-3 w-3" />
+                          <Trash2 className="h-4 w-4 text-red-500" />
                         </Button>
                       )}
                     </div>
                   </div>
                 ))}
               </div>
-
-              {/* Roles Pagination */}
-              {totalRolePages > 1 && (
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 pt-4 border-t">
-                  <div className="text-sm text-gray-700 order-2 sm:order-1">
-                    正在显示 {startRoleIndex + 1} -{" "}
-                    {Math.min(endRoleIndex, roles.length)} 条，共 {roles.length}{" "}
-                    条
-                  </div>
-                  <div className="flex items-center gap-2 order-1 sm:order-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() =>
-                        setCurrentRolePage((prev) => Math.max(1, prev - 1))
-                      }
-                      disabled={currentRolePage === 1}
-                    >
-                      上一页
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() =>
-                        setCurrentRolePage((prev) =>
-                          Math.min(totalRolePages, prev + 1),
-                        )
-                      }
-                      disabled={currentRolePage === totalRolePages}
-                    >
-                      下一页
-                    </Button>
-                  </div>
-                </div>
-              )}
             </CardContent>
           </Card>
-        </TabsContent>
+        </div>
 
-        {/* 权限矩阵Tab */}
-        <TabsContent value="permissions" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>权限矩阵</CardTitle>
-              <CardDescription>查看角色和权限的对应关系</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="overflow-x-auto">
-                <table className="w-full border-collapse">
-                  <thead>
-                    <tr>
-                      <th className="text-left p-3 border-b font-medium">
-                        权限
-                      </th>
-                      {roles.map((role) => (
-                        <th
-                          key={role.id}
-                          className="text-center p-3 border-b font-medium min-w-[120px]"
-                        >
-                          <div className="flex flex-col items-center gap-1">
-                            {getRoleIcon(role.name)}
-                            <span className="text-xs">{role.name}</span>
-                          </div>
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {Object.entries(
-                      permissions.reduce(
-                        (acc, permission) => {
-                          if (!acc[permission.category]) {
-                            acc[permission.category] = [];
-                          }
-                          acc[permission.category].push(permission);
-                          return acc;
-                        },
-                        {} as Record<string, Permission[]>,
-                      ),
-                    ).map(([category, categoryPermissions]) => (
-                      <React.Fragment key={category}>
-                        <tr>
-                          <td
-                            colSpan={roles.length + 1}
-                            className="p-3 bg-gray-50 font-medium text-sm"
-                          >
-                            <div className="flex items-center gap-2">
-                              {getCategoryIcon(
-                                category as Permission["category"],
-                              )}
-                              {category === "user" && "用户管理"}
-                              {category === "ai" && "AI模型"}
-                              {category === "scenario" && "营销场景"}
-                              {category === "system" && "系统管理"}
-                              {category === "data" && "数据管理"}
-                            </div>
-                          </td>
-                        </tr>
-                        {categoryPermissions.map((permission) => (
-                          <tr key={permission.id} className="hover:bg-gray-50">
-                            <td className="p-3 border-b">
-                              <div className="flex items-center gap-2">
-                                {getActionIcon(permission.action)}
-                                <div>
-                                  <div className="font-medium text-sm">
-                                    {permission.name}
-                                  </div>
-                                  <div className="text-xs text-gray-500">
-                                    {permission.description}
-                                  </div>
+        {/* 右侧权限配置区域 (75%宽度) */}
+        <div className="lg:col-span-3">
+          {selectedRole ? (
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      {getRoleIcon(selectedRole.name)}
+                      {selectedRole.name} - 权限配置
+                    </CardTitle>
+                    <CardDescription>
+                      为 {selectedRole.name} 分配菜单访问权限
+                    </CardDescription>
+                  </div>
+                  <Button onClick={handleSavePermissions} className="flex items-center gap-2">
+                    <Save className="h-4 w-4" />
+                    保存配置
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  {/* 搜索框 */}
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <div className="flex-1">
+                      <Label htmlFor="search">搜索菜单项</Label>
+                      <Input
+                        id="search"
+                        placeholder="输入菜单名称..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                      />
+                    </div>
+                    <div className="w-40">
+                      <Label htmlFor="filter">筛选角色</Label>
+                      <Select defaultValue="all">
+                        <SelectTrigger>
+                          <SelectValue placeholder="所有角色" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">所有角色</SelectItem>
+                          {roles.map((role) => (
+                            <SelectItem key={role.id} value={role.id}>
+                              {role.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  {/* 菜单权限列表 */}
+                  <div className="border rounded-lg overflow-hidden">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="w-12"></TableHead>
+                          <TableHead>菜单项</TableHead>
+                          <TableHead>描述</TableHead>
+                          <TableHead className="w-32">权限状态</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {allMenus
+                          .filter(menu => 
+                            menu.label.toLowerCase().includes(searchTerm.toLowerCase())
+                          )
+                          .map((menu) => (
+                            <TableRow key={menu.id}>
+                              <TableCell>
+                                <div className="p-2 rounded-md bg-gray-100 w-8 h-8 flex items-center justify-center">
+                                  {getMenuIcon(menu.id)}
                                 </div>
-                              </div>
-                            </td>
-                            {roles.map((role) => (
-                              <td
-                                key={`${role.id}-${permission.id}`}
-                                className="p-3 border-b text-center"
-                              >
-                                {role.permissions.includes(permission.id) ? (
-                                  <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center mx-auto">
-                                    <Eye className="h-3 w-3 text-white" />
-                                  </div>
-                                ) : (
-                                  <div className="w-6 h-6 bg-gray-200 rounded-full mx-auto"></div>
-                                )}
-                              </td>
-                            ))}
-                          </tr>
-                        ))}
-                      </React.Fragment>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* 用户权限Tab */}
-        <TabsContent value="users" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>用户权限分配</CardTitle>
-              <CardDescription>管理用户的角色分配和权限</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>用户</TableHead>
-                    <TableHead>角色</TableHead>
-                    <TableHead>状态</TableHead>
-                    <TableHead>最后登录</TableHead>
-                    <TableHead>操作</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {currentUserRoles.map((user) => (
-                    <TableRow key={user.userId}>
-                      <TableCell>
-                        <div>
-                          <div className="font-medium">{user.userName}</div>
-                          <div className="text-sm text-gray-500">
-                            {user.email}
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex flex-wrap gap-1">
-                          {user.roles.map((roleId) => {
-                            const role = roles.find((r) => r.id === roleId);
-                            return role ? (
-                              <Badge key={roleId} className={role.color}>
-                                {role.name}
-                              </Badge>
-                            ) : null;
-                          })}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        {user.status === "active" ? (
-                          <Badge className="bg-green-100 text-green-800">
-                            <Unlock className="h-3 w-3 mr-1" />
-                            正常
-                          </Badge>
-                        ) : (
-                          <Badge className="bg-gray-100 text-gray-800">
-                            <Lock className="h-3 w-3 mr-1" />
-                            禁用
-                          </Badge>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-sm text-gray-500">
-                        {new Date(user.lastLogin).toLocaleDateString("zh-CN")}
-                      </TableCell>
-                      <TableCell>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleEditUserRoles(user)}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-
-              {/* User Roles Pagination */}
-              {totalUserPages > 1 && (
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 pt-4 border-t">
-                  <div className="text-sm text-gray-700 order-2 sm:order-1">
-                    正在显示 {startUserIndex + 1} -{" "}
-                    {Math.min(endUserIndex, userRoles.length)} 条，共{" "}
-                    {userRoles.length} 条
+                              </TableCell>
+                              <TableCell className="font-medium">
+                                {menu.label}
+                              </TableCell>
+                              <TableCell className="text-gray-500">
+                                {/* 这里可以添加菜单项的描述 */}
+                                {menu.id === "dashboard" && "营销后台首页仪表盘"}
+                                {menu.id === "user-profile" && "用户画像管理"}
+                                {menu.id === "ai-strategy" && "AI驱动的营销策略制定"}
+                                {menu.id === "effect-tracking" && "营销效果追踪分析"}
+                                {menu.id === "user-list" && "用户管理列表"}
+                                {menu.id === "real-time-monitoring" && "实时监控中心"}
+                                {menu.id === "response-actions" && "响应动作管理"}
+                                {menu.id === "organization" && "组织架构管理"}
+                                {menu.id === "security-permissions" && "权限管理配置"}
+                              </TableCell>
+                              <TableCell>
+                                <Checkbox
+                                  checked={hasMenuPermission(selectedRole.id, menu.id)}
+                                  onCheckedChange={() => toggleMenuPermission(menu.id)}
+                                  disabled={selectedRole.isSystem && menu.id === "security-permissions"}
+                                />
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                      </TableBody>
+                    </Table>
                   </div>
-                  <div className="flex items-center gap-2 order-1 sm:order-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() =>
-                        setCurrentUserPage((prev) => Math.max(1, prev - 1))
-                      }
-                      disabled={currentUserPage === 1}
-                    >
-                      上一页
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() =>
-                        setCurrentUserPage((prev) =>
-                          Math.min(totalUserPages, prev + 1),
-                        )
-                      }
-                      disabled={currentUserPage === totalUserPages}
-                    >
-                      下一页
-                    </Button>
+
+                  {/* 权限说明 */}
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <h4 className="font-medium text-blue-800 mb-2">权限说明</h4>
+                    <ul className="text-sm text-blue-700 space-y-1">
+                      <li>• 勾选菜单项表示该角色可以访问对应功能</li>
+                      <li>• 系统角色的权限配置不可修改</li>
+                      <li>• 超级管理员拥有所有菜单项的访问权限</li>
+                    </ul>
                   </div>
                 </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+              </CardContent>
+            </Card>
+          ) : (
+            <Card>
+              <CardContent className="flex items-center justify-center h-64">
+                <div className="text-center">
+                  <Shield className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-1">
+                    请选择一个角色
+                  </h3>
+                  <p className="text-gray-500">
+                    从左侧角色列表中选择一个角色来配置权限
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      </div>
 
-      {/* 角色配置对话框 */}
+      {/* 创建角色对话框 */}
       <Dialog open={isRoleDialogOpen} onOpenChange={setIsRoleDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+        <DialogContent>
           <DialogHeader>
-            <DialogTitle>
-              {selectedRole ? "编辑角色" : "创建新角色"}
-            </DialogTitle>
-            <DialogDescription>配置角色的基本信息和权限</DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-6 py-4">
-            {/* 基本信息 */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>角色名称</Label>
-                <Input
-                  placeholder="例如: 运营专员"
-                  defaultValue={selectedRole?.name}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>角色颜色</Label>
-                <Select defaultValue="bg-blue-100 text-blue-800">
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="bg-blue-100 text-blue-800">
-                      蓝色
-                    </SelectItem>
-                    <SelectItem value="bg-green-100 text-green-800">
-                      绿色
-                    </SelectItem>
-                    <SelectItem value="bg-purple-100 text-purple-800">
-                      紫色
-                    </SelectItem>
-                    <SelectItem value="bg-orange-100 text-orange-800">
-                      橙色
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label>角色描述</Label>
-              <Textarea
-                placeholder="描述这个角色的职责和权限范围..."
-                defaultValue={selectedRole?.description}
-              />
-            </div>
-
-            {/* 权限配置 */}
-            <div className="space-y-4">
-              <Label className="text-base font-medium">权限配置</Label>
-              {Object.entries(
-                permissions.reduce(
-                  (acc, permission) => {
-                    if (!acc[permission.category]) {
-                      acc[permission.category] = [];
-                    }
-                    acc[permission.category].push(permission);
-                    return acc;
-                  },
-                  {} as Record<string, Permission[]>,
-                ),
-              ).map(([category, categoryPermissions]) => (
-                <div key={category} className="border rounded-lg p-4">
-                  <div className="flex items-center gap-2 mb-3">
-                    {getCategoryIcon(category as Permission["category"])}
-                    <span className="font-medium">
-                      {category === "user" && "用户管理"}
-                      {category === "ai" && "AI模型管理"}
-                      {category === "scenario" && "营销场景"}
-                      {category === "system" && "系统管理"}
-                      {category === "data" && "数据管理"}
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    {categoryPermissions.map((permission) => (
-                      <div
-                        key={permission.id}
-                        className="flex items-center space-x-2"
-                      >
-                        <Checkbox
-                          id={permission.id}
-                          defaultChecked={selectedRole?.permissions.includes(
-                            permission.id,
-                          )}
-                        />
-                        <Label
-                          htmlFor={permission.id}
-                          className="text-sm flex items-center gap-1"
-                        >
-                          {getActionIcon(permission.action)}
-                          {permission.name}
-                        </Label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setIsRoleDialogOpen(false);
-                setSelectedRole(null);
-              }}
-            >
-              取消
-            </Button>
-            <Button
-              onClick={() => {
-                // 这里应该处理保存逻辑
-                setIsRoleDialogOpen(false);
-                setSelectedRole(null);
-              }}
-            >
-              保存
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* 用户角色分配对话框 */}
-      <Dialog
-        open={isUserRoleDialogOpen}
-        onOpenChange={setIsUserRoleDialogOpen}
-      >
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>编辑用户权限</DialogTitle>
+            <DialogTitle>创建新角色</DialogTitle>
             <DialogDescription>
-              为用户 {selectedUser?.userName} 分配角色
+              为营销管理后台创建一个新的用户角色
             </DialogDescription>
           </DialogHeader>
-
-          <div className="space-y-4 py-4">
-            <div className="space-y-3">
-              <Label>选择角色</Label>
-              {roles.map((role) => (
-                <div key={role.id} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={`user-role-${role.id}`}
-                    defaultChecked={selectedUser?.roles.includes(role.id)}
-                  />
-                  <Label
-                    htmlFor={`user-role-${role.id}`}
-                    className="flex items-center gap-2"
-                  >
-                    {getRoleIcon(role.name)}
-                    <span>{role.name}</span>
-                    <Badge className={role.color} variant="outline">
-                      {role.isSystem ? "系统" : "自定义"}
-                    </Badge>
-                  </Label>
-                </div>
-              ))}
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="user-status"
-                defaultChecked={selectedUser?.status === "active"}
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="role-name">角色名称</Label>
+              <Input
+                id="role-name"
+                value={newRole.name}
+                onChange={(e) => setNewRole({...newRole, name: e.target.value})}
+                placeholder="输入角色名称"
               />
-              <Label htmlFor="user-status">启用用户账户</Label>
+            </div>
+            <div>
+              <Label htmlFor="role-description">角色描述</Label>
+              <Input
+                id="role-description"
+                value={newRole.description}
+                onChange={(e) => setNewRole({...newRole, description: e.target.value})}
+                placeholder="描述角色的用途和权限范围"
+              />
             </div>
           </div>
-
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setIsUserRoleDialogOpen(false);
-                setSelectedUser(null);
-              }}
-            >
+            <Button variant="outline" onClick={() => setIsRoleDialogOpen(false)}>
               取消
             </Button>
-            <Button
-              onClick={() => {
-                // 这里应该处理保存逻辑
-                setIsUserRoleDialogOpen(false);
-                setSelectedUser(null);
-              }}
-            >
-              保存
-            </Button>
+            <Button onClick={handleCreateRole}>创建角色</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

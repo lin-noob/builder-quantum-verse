@@ -23,6 +23,7 @@ import { request } from "@/lib/request";
 import { toast } from "@/hooks/use-toast";
 import { MockDataService } from "@/services/mockDataService";
 import { formatStartDate, formatEndDate } from "@/lib/utils";
+import { useRoleStore } from "@/stores/roleStore";
 
 interface DateRange {
   start: Date | null;
@@ -106,6 +107,9 @@ export default function UserList() {
   const [totalCount, setTotalCount] = useState(0);
   const itemsPerPage = 10;
 
+  // 权限检查
+  const { hasPermission } = useRoleStore();
+
   // 转换API用户数据为UI格式
   const convertApiUserToUser = (apiUser: ApiUser): User => {
     return {
@@ -156,8 +160,6 @@ export default function UserList() {
         return "create_gmt";
     }
   };
-
-  
 
   // 调用API获取用户数据
   const fetchUsers = useCallback(async () => {
@@ -500,15 +502,19 @@ export default function UserList() {
                       {getSortIcon("lastActiveTime")}
                     </div>
                   </th>
-                  <th
-                    className="px-6 py-4 text-left text-sm font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100"
-                    onClick={() => handleSort("totalSpent")}
-                  >
-                    <div className="flex items-center gap-2">
-                      总消费
-                      {getSortIcon("totalSpent")}
-                    </div>
-                  </th>
+
+                  {hasPermission("user.amountspent") && (
+                    <th
+                      className="px-6 py-4 text-left text-sm font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100"
+                      onClick={() => handleSort("totalSpent")}
+                    >
+                      <div className="flex items-center gap-2">
+                        总消费
+                        {getSortIcon("totalSpent")}
+                      </div>
+                    </th>
+                  )}
+
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
                     操作
                   </th>
@@ -562,16 +568,22 @@ export default function UserList() {
                       <td className="px-6 py-4 text-xs text-gray-600">
                         {formatDateTime(user.lastActiveTime || "")}
                       </td>
-                      <td className="px-6 py-4 text-sm font-semibold text-gray-900">
-                        {formatCurrency(user.totalSpent || 0, user.currency)}
-                      </td>
+
+                      {hasPermission("user.amountspent") && (
+                        <td className="px-6 py-4 text-sm font-semibold text-gray-900">
+                          {formatCurrency(user.totalSpent || 0, user.currency)}
+                        </td>
+                      )}
+
                       <td className="px-6 py-4">
-                        <Link
-                          to={`/users1/${user.id}`}
-                          className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                        >
-                          查看详情
-                        </Link>
+                        {hasPermission("user.info") && (
+                          <Link
+                            to={`/users1/${user.id}`}
+                            className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                          >
+                            查看详情
+                          </Link>
+                        )}
                       </td>
                     </tr>
                   ))

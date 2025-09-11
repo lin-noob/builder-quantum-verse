@@ -67,6 +67,7 @@ export interface Member {
   name: string;
   /** 角色 - 定义成员的权限级别 */
   roleId: string;
+  roleName: string;
   /** 账户状�� - 该成员的账户是否可以登录 */
   status: number;
   /** 创建时间 - 该成员账户被创建的时间戳 */
@@ -221,6 +222,7 @@ export interface ApiResponse<T = any> {
   msg?: string;
   /** 是否成功 */
   success: boolean;
+  total?: number;
 }
 
 // Mock数据生成函数

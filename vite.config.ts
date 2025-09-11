@@ -22,7 +22,7 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8081,
     fs: {
-      allow: ["./client", "./shared"],
+      allow: ["./client", "./shared", "./node_modules"],
       deny: [".env", ".env.*", "*.{crt,pem}", "**/.git/**"],
     },
     proxy: {

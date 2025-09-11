@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/dialog";
 import { MemberTable } from "../components/MemberTable";
 import { ProjectTable } from "../components/ProjectTable";
+import { OperationLogsTab } from "../components/OperationLogsTab";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -44,6 +45,7 @@ import {
   Shield,
   Crown,
   Building,
+  Activity,
 } from "lucide-react";
 import {
   Organization,
@@ -303,15 +305,20 @@ const OrganizationDetail = () => {
               <Building className="h-4 w-4" />
               项目管理
             </TabsTrigger>
+            <TabsTrigger value="operation-logs" className="flex items-center gap-2">
+              <Activity className="h-4 w-4" />
+              操作日志
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="members">
+            {/* @ts-ignore */}
             <MemberTable
+              title="成员管理"
               organizationId={organizationId}
               apiEndpoint="/admin/api/v1/company/user/list"
               enableEndpoint="/admin/api/v1/users/enable"
               disableEndpoint="/admin/api/v1/users/disable"
-              title="成员管理"
             />
           </TabsContent>
 
@@ -319,6 +326,13 @@ const OrganizationDetail = () => {
             <ProjectTable
               organizationId={organizationId}
               title="项目管理"
+            />
+          </TabsContent>
+
+          <TabsContent value="operation-logs">
+            <OperationLogsTab 
+              organizationId={organizationId} 
+              organizationName={organization.name} 
             />
           </TabsContent>
         </Tabs>

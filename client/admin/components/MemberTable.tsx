@@ -239,7 +239,13 @@ export const MemberTable: React.FC<MemberTableProps> = ({
                       </div>
                     </TableCell>
                     <TableCell>
-                      <RoleBadge roleId={member.roleId}></RoleBadge>
+                      {/* <RoleBadge  roleId={member.roleId}></RoleBadge> */}
+                      <Badge
+                        variant="default"
+                        className="bg-blue-100 text-blue-800"
+                      >
+                        {member.roleName}
+                      </Badge>
                     </TableCell>
                     <TableCell>
                       <StatusBadge status={member.status}></StatusBadge>

@@ -28,14 +28,13 @@ function TabManager() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // 根据当前路径动态设置首页
+  // 统一设置 dashboard2 为首页
   const getDefaultTabs = (): Tab[] => {
-    const isAdminPlatform = location.pathname.startsWith("/admin");
     return [
       {
         id: "home",
-        title: isAdminPlatform ? "系统概览" : "首页",
-        path: isAdminPlatform ? "/admin" : "/dashboard",
+        title: "首页",
+        path: "/dashboard2",
         isHome: true,
         isActive: true,
       },
@@ -55,9 +54,10 @@ function TabManager() {
 
   // 监听路径变化，更新首页标签
   useEffect(() => {
-    const isAdminPlatform = location.pathname.startsWith("/admin");
-    const homePath = isAdminPlatform ? "/admin" : "/dashboard";
-    const homeTitle = isAdminPlatform ? "系统概览" : "首页";
+    // const isAdminPlatform = location.pathname.startsWith("/admin");
+    // const homePath = isAdminPlatform ? "/admin" : "/dashboard2";
+    const homePath = "/dashboard2";
+    const homeTitle = "首页";
 
     setTabs((prevTabs) => {
       const updatedTabs = prevTabs.map((tab) => {
@@ -97,12 +97,11 @@ function TabManager() {
     "/ai-marketing/scenarios/user_signup": "用户注册",
     "/ai-marketing/scenarios/user_login": "用户登录",
     "/effect-tracking": "效果追踪",
-    "/account/settings": "个人设置",
+    "/account/settings": "个人���置",
     // 组织管理页面
     "/organization/members": "成员管理",
     "/organization/settings": "组织设置",
     // 管理后台页面
-    "/admin": "系统概览",
     "/admin/organizations": "组织管理",
     "/admin/ai-models": "AI模型管理",
     "/admin/scenarios": "场景配置",
@@ -204,7 +203,7 @@ function TabManager() {
             user_signup: "用户注册",
             user_login: "用户登录",
             start_checkout: "开始结账",
-            purchase: "完成购买",
+            purchase: "完成购��",
             search: "进行搜索",
             exit_intent: "离开意图",
           };
@@ -330,7 +329,7 @@ function TabManager() {
   const closeAllTabs = () => {
     const homeTabs = tabs.filter((tab) => tab.isHome);
     setTabs(homeTabs.map((tab) => ({ ...tab, isActive: true })));
-    navigate("/dashboard");
+    navigate("/dashboard2");
   };
 
   // 关闭右侧标签页

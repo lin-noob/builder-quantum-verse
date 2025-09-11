@@ -1,0 +1,20 @@
+{
+  "/dashboard2": { "name": "仪表盘", "component": "client/pages/Dashboard2.tsx" },
+  "/users1": { "name": "用户画像 1.0", "component": "client/pages/UserList.tsx" },
+  "/ai-marketing/scenarios": { "name": "AI营销", "component": "client/pages/AIMarketing/ScenariosList.tsx" },
+  "/ai-marketing/monitoring-center": { "name": "监控中心", "component": "client/pages/AIMarketing/MonitoringCenter.tsx" },
+  "/effect-tracking": { "name": "效果追踪", "component": "client/pages/EffectTracking.tsx" },
+  "/organization/members": { "name": "成员管理", "component": "client/pages/Organization/MemberManagement.tsx" },
+  "/organization/settings": { "name": "组织设置", "component": "client/pages/Organization/OrganizationSettings.tsx" },
+  "/organization/permissions": { "name": "权限管理", "component": "client/pages/Organization/GranularPermissionManagement.tsx" },
+
+  "/admin": { "name": "系统概览", "component": "client/admin/pages/AdminDashboard.tsx" },
+  "/admin/menus": { "name": "菜单管理", "component": "client/admin/pages/MenuManagement.tsx" },
+  "/admin/organizations": { "name": "组织管理", "component": "client/admin/pages/OrganizationManagement.tsx" },
+  "/admin/subscriptions": { "name": "订阅套餐管理", "component": "client/admin/pages/SubscriptionManagement.tsx" },
+  "/admin/ai-models": { "name": "AI模型管理", "component": "client/admin/pages/AIModelManagement.tsx" },
+  "/admin/scenarios": { "name": "场景配置", "component": "client/admin/pages/ScenarioConfiguration.tsx" },
+  "/admin/security": { "name": "安全与权限", "component": "client/admin/pages/SecurityPermissions.tsx" },
+  "/admin/granular-permissions": { "name": "精细化权限", "component": "client/admin/pages/GranularPermissionManagement.tsx" },
+  "/admin/profile": { "name": "个人中心", "component": "client/admin/pages/AdminProfile.tsx" }
+}

@@ -81,7 +81,7 @@ export function GoogleAuthButton({
           id: userInfo.id,
           username: userInfo.account || userInfo.name || userInfo.email,
           email: userInfo.email,
-          isAdmin: userInfo.usertype === "admin",
+          isAdmin: userInfo.usertype === "manager" || userInfo.usertype === "admin",
           session: userInfo.session,
           account: userInfo.account,
           usertype: userInfo.usertype,
