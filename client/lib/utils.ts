@@ -54,3 +54,23 @@ export function formatEndDate(date: Date): string {
   d.setHours(23, 59, 59, 999);
   return d.toISOString();
 }
+
+/**
+ * 将时间（毫秒/时间串/Date）格式化为 YYYY-MM-DD（本地时区）
+ */
+export function formatDateYMD(input: number | string | Date): string {
+  const value = input instanceof Date
+    ? input
+    : typeof input === "number"
+    ? new Date(input)
+    : typeof input === "string" && /^\d+$/.test(input)
+    ? new Date(parseInt(input, 10))
+    : new Date(input);
+
+  if (isNaN(value.getTime())) return "-";
+
+  const y = value.getFullYear();
+  const m = String(value.getMonth() + 1).padStart(2, "0");
+  const d = String(value.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}

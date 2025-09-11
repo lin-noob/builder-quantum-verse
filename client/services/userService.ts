@@ -1,5 +1,9 @@
 import { request } from "@/lib/request";
-import { Member, MemberRole, AccountStatus } from "../../shared/organizationData";
+import {
+  Member,
+  MemberRole,
+  AccountStatus,
+} from "../../shared/organizationData";
 
 // API response interface for /admin/api/v1/users/info
 interface UserInfoResponse {
@@ -45,32 +49,39 @@ interface UserInfoResponse {
 function mapApiResponseToMember(response: UserInfoResponse): Member {
   const { data } = response;
   const { user } = data;
-  
+
   return {
     account: user.account,
     id: user.id,
     organizationId: user.shopid || "org_default",
-    email: user.userinfo.email || data.email,
+    email: data.user.account,
     name: data.name || user.userinfo.name,
-    role: data.usertype === "manager" ? MemberRole.ADMIN : MemberRole.MEMBER,
-    accountStatus: user.disable ? AccountStatus.INACTIVE : AccountStatus.ACTIVE,
+    role:
+      data.usertype === "manager" || data.usertype === "admin"
+        ? MemberRole.ADMIN
+        : MemberRole.MEMBER,
+    accountStatus: user.disable ? AccountStatus.DISABLED : AccountStatus.ACTIVE,
     createdAt: new Date(user.createDate).toISOString(),
     updatedAt: new Date(user.opttime).toISOString(),
-    lastLoginAt: user.lastlogintime ? new Date(user.lastlogintime).toISOString() : undefined,
+    lastLoginAt: user.lastlogintime
+      ? new Date(user.lastlogintime).toISOString()
+      : undefined,
     avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${data.id}`,
-    phone: "", // API doesn't provide phone in the response
+    phone: "",
   };
 }
 
 // Fetch current user info
 export async function getCurrentUserInfo(): Promise<Member | null> {
   try {
-    const response = await request.get<UserInfoResponse>("/admin/api/v1/users/info");
-    
+    const response = await request.get<UserInfoResponse>(
+      "/admin/api/v1/users/info",
+    );
+
     if (response.data && response.data.code === "201") {
       return mapApiResponseToMember(response.data);
     }
-    
+
     return null;
   } catch (error) {
     console.error("Failed to fetch user info:", error);

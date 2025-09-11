@@ -102,7 +102,7 @@ export function loadLazyClientComponent(componentPath?: string): React.LazyExoti
   const normalizedPath = componentPath.replace(/^\/client\/pages\//, '@/pages/');
   
   try {
-    return React.lazy(() => import(/* @vite-ignore */ normalizedPath));
+    return React.lazy(() => import(/* @vite-ignore */ componentPath));
   } catch (error) {
     console.warn(`无法加载动态组件: ${componentPath}`, error);
     return null;

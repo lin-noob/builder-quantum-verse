@@ -105,7 +105,7 @@ const AdminProfile = () => {
       setLoading(true);
 
       const updateRequest: UpdateMemberRequest = {
-        memberId: member.memberId,
+        memberId: member.id,
         name: profileForm.name.trim(),
         phone: profileForm.phone.trim() || undefined,
       };
@@ -117,7 +117,6 @@ const AdminProfile = () => {
           title: "更新成功",
           description: "个人信息已更新",
         });
-
         setMember(response.data);
       } else {
         toast({

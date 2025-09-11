@@ -3,16 +3,26 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "@/components/ui/use-toast";
 import { request } from "@/lib/request";
 
-// 定义角色数据结构
+interface FieldPermission {
+  id: string;
+  name: string;
+  description: string;
+  view: boolean;
+  edit: boolean;
+}
+
 export interface Role {
   id: string;
   name: string;
   description: string;
   isSystem: boolean;
-  menuIds: string[];
+  menuIds: string[]; // 改为 number[] 类型以匹配菜单 ID
   permissionIds: string[];
   type: string;
   shopId?: string;
+  // 以下���段用于前端显示，可能需要从 API 数据转换
+  permissions?: string[];
+  fieldPermissions?: Record<string, FieldPermission[]>;
 }
 
 // 定义 API 响应结构

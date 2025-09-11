@@ -4,6 +4,7 @@ import {
   useCreateRole,
   useUpdateRole,
   useDeleteRole,
+  Role,
 } from "@/admin/hooks/useRoleManagement";
 import { cn } from "@/lib/utils";
 import {
@@ -72,7 +73,9 @@ import {
   MoreHorizontal,
   ChevronDown,
 } from "lucide-react";
-import CheckableTreeMenu from "./CheckableTreeMenu";
+import { Tree } from "antd";
+import type { TreeDataNode } from "antd";
+import "antd/dist/reset.css";
 import { request } from "@/lib/request";
 import { useToast } from "@/hooks/use-toast";
 
@@ -86,13 +89,6 @@ interface Permission {
   action: string;
 }
 
-interface FieldPermission {
-  id: string;
-  name: string;
-  description: string;
-  view: boolean;
-  edit: boolean;
-}
 
 // 权限接口返回项
 interface ApiPermissionItem {
@@ -103,19 +99,7 @@ interface ApiPermissionItem {
 }
 
 // 角色类型定义（与 API 返回的数据结构兼容）
-interface Role {
-  id: string;
-  name: string;
-  description: string;
-  isSystem: boolean;
-  menuIds: number[]; // 改为 number[] 类型以匹配菜单 ID
-  permissionIds: string[];
-  type: string;
-  shopId?: string;
-  // 以下���段用于前端显示，可能需要从 API 数据转换
-  permissions?: string[];
-  fieldPermissions?: Record<string, FieldPermission[]>;
-}
+
 
 interface User {
   id: string;
@@ -165,7 +149,7 @@ export default function GranularPermissionManagement({
   const [loadingMenuPermissions, setLoadingMenuPermissions] = useState(false);
 
   // 当前激活的菜单与权限项
-  const [activeMenuId, setActiveMenuId] = useState<number | null>(null);
+  const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
   const [permissionItems, setPermissionItems] = useState<ApiPermissionItem[]>([]);
   const [loadingPermissions, setLoadingPermissions] = useState(false);
   const [newRole, setNewRole] = useState({
@@ -174,6 +158,10 @@ export default function GranularPermissionManagement({
     description: "",
   });
   const [isEditingRole, setIsEditingRole] = useState(false);
+  
+  // 菜单数据状态
+  const [menuTreeData, setMenuTreeData] = useState<TreeDataNode[]>([]);
+  const [loadingMenuTree, setLoadingMenuTree] = useState(true);
 
   // 删除确认对话框状态
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -183,12 +171,41 @@ export default function GranularPermissionManagement({
   const roles = rolesData?.data;
   const total = rolesData?.total;
 
+  // 获取菜单树数据
+  const fetchMenuTreeData = async () => {
+    try {
+      setLoadingMenuTree(true);
+      const response = await request.get("/admin/api/v1/menus/companytree");
+      const menuData = response.data.data || [];
+      setMenuTreeData(convertToTreeData(menuData));
+    } catch (error) {
+      console.error("Failed to fetch menu tree data:", error);
+      setMenuTreeData([]);
+    } finally {
+      setLoadingMenuTree(false);
+    }
+  };
+
+  // 将菜单数据转换为 Ant Design Tree 需要的格式
+  const convertToTreeData = (menuData: any[]): TreeDataNode[] => {
+    return menuData.map((item) => ({
+      key: item.id,
+      title: item.name,
+      children: item.children ? convertToTreeData(item.children) : undefined,
+    }));
+  };
+
   // 当��色数据加载完成时，设置默认选中的角色
   useEffect(() => {
     if (roles && roles.length > 0 && !selectedRole) {
       setSelectedRole(roles[0]);
     }
   }, [roles, selectedRole]);
+
+  // 获取菜单树数据
+  useEffect(() => {
+    fetchMenuTreeData();
+  }, []);
 
   // 当选中角色变化时，获取对应的菜单权限
   useEffect(() => {
@@ -440,7 +457,7 @@ export default function GranularPermissionManagement({
   };
 
   // 处理菜单选择变化并立即保存到后端
-  const handleMenuSelectionChange = async (selectedMenuIds: number[]) => {
+  const handleMenuSelectionChange = async (selectedMenuIds: string[]) => {
     if (!selectedRole) return;
 
     const prevMenuIds = selectedRole.menuIds || [];
@@ -479,7 +496,7 @@ export default function GranularPermissionManagement({
   };
 
   // 获取指定菜单的权限���
-  const fetchPermissionsByMenu = async (menuId: number) => {
+  const fetchPermissionsByMenu = async (menuId: string) => {
     try {
       setLoadingPermissions(true);
       const res = await request.get<ApiPermissionItem[]>(
@@ -640,11 +657,29 @@ export default function GranularPermissionManagement({
                         <CardTitle className="text-lg">菜单权限</CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <CheckableTreeMenu
-                          selectedItems={selectedRole?.menuIds || []}
-                          onSelectionChange={handleMenuSelectionChange}
-                          onFocusItem={(id) => setActiveMenuId(id)}
-                        />
+                        {loadingMenuTree ? (
+                          <div className="flex justify-center items-center h-64">
+                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                            <span className="ml-2 text-gray-500">加载菜单数据中...</span>
+                          </div>
+                        ) : (
+                          <Tree
+                            checkable
+                            checkedKeys={selectedRole?.menuIds || []}
+                            onCheck={(checkedKeys) => {
+                              const keys = Array.isArray(checkedKeys) ? checkedKeys : checkedKeys.checked;
+                              handleMenuSelectionChange(keys as string[]);
+                            }}
+                            onSelect={(selectedKeys) => {
+                              if (selectedKeys.length > 0) {
+                                setActiveMenuId(selectedKeys[0] as string);
+                              }
+                            }}
+                            treeData={menuTreeData}
+                            height={400}
+                            defaultExpandAll
+                          />
+                        )}
                       </CardContent>
                     </Card>
                   </div>

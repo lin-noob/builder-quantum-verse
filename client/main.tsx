@@ -5,6 +5,7 @@ if (process.env.NODE_ENV === "development") {
 
 import React from "react";
 import { createRoot } from "react-dom/client";
+import 'antd/dist/reset.css'; // 先加载 AntD Reset
 import "./global.css";
 import App from "./App";
 import { setupGlobalErrorHandler } from "./lib/errorHandler";

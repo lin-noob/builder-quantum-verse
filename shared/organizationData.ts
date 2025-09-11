@@ -79,6 +79,10 @@ export interface Member {
   avatar?: string;
   /** 电话号码 */
   phone?: string;
+  organizationId?: string;
+  email?: string;
+  role?: any;
+  accountStatus?:any;
 }
 
 /**

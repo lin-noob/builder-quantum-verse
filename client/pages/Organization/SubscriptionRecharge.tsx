@@ -39,6 +39,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { request } from "@/lib/request";
+import { formatDateYMD } from "@/lib/utils";
 
 // 数据模型
 interface SubscriptionPackage {
@@ -95,7 +97,7 @@ const mockPackages: SubscriptionPackage[] = [
     description: "适合大型企业使用的全部功能",
     price: 999,
     duration: "月付",
-    features: ["全部AI功能", "用户管理", "数据分析", "报告导出", "专属客服", "定制功能"],
+    features: ["全部AI功能", "用户管理", "数据分析", "报告导出", "��属客服", "定制功能"],
     isActive: true
   },
   {
@@ -231,13 +233,41 @@ export default function SubscriptionRecharge() {
   };
 
   useEffect(() => {
-    // 模拟数据加载
-    setTimeout(() => {
-      setCurrentSubscription(mockCurrentSubscription);
-      setRechargeHistory(mockRechargeHistory);
-      setFilteredHistory(mockRechargeHistory);
-      setLoading(false);
-    }, 500);
+    let mounted = true;
+    const load = async () => {
+      try {
+        setLoading(true);
+        const resp = await request.get("/admin/api/v1/managerLimit/getMyManagerLimitmeal");
+        const body: any = resp?.data;
+        const payload = body?.data ?? body;
+        const startRaw = payload?.createtime ?? payload?.createTime ?? payload?.create_date;
+        const losingRaw = payload?.losingEffect ?? payload?.losingeffect ?? payload?.losing_effect;
+        const expiry = typeof losingRaw !== "undefined" ? formatDateYMD(losingRaw) : mockCurrentSubscription.expiryDate;
+        const start = startRaw ?? mockCurrentSubscription.startDate;
+
+        if (mounted) {
+          setCurrentSubscription({
+            ...mockCurrentSubscription,
+            startDate: String(start), // createtime 原样展示
+            expiryDate: expiry,
+          });
+          setRechargeHistory(mockRechargeHistory);
+          setFilteredHistory(mockRechargeHistory);
+        }
+      } catch (e) {
+        if (mounted) {
+          setCurrentSubscription(mockCurrentSubscription);
+          setRechargeHistory(mockRechargeHistory);
+          setFilteredHistory(mockRechargeHistory);
+        }
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+    load();
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   useEffect(() => {
@@ -534,7 +564,7 @@ export default function SubscriptionRecharge() {
                   </Button>
                   {[...Array(totalPages)].map((_, index) => {
                     const page = index + 1;
-                    // 只显示当前页和前后各2页，以及第一页和最后一页
+                    // 只���示当前页和前后各2页，以及第一页和最后一页
                     if (
                       page === 1 || 
                       page === totalPages || 
@@ -626,7 +656,7 @@ export default function SubscriptionRecharge() {
           <DialogHeader>
             <DialogTitle className="text-2xl">升级套餐</DialogTitle>
             <DialogDescription className="text-base">
-              选择您想要升级到的套餐
+              选择您想要���级到的套餐
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">

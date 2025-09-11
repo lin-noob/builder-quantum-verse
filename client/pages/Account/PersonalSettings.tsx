@@ -219,6 +219,7 @@ const PersonalSettings = () => {
   };
 
   const getRoleBadge = (role: MemberRole) => {
+    debugger
     if (role === MemberRole.ADMIN) {
       return (
         <Badge variant="default" className="bg-blue-100 text-blue-800">
