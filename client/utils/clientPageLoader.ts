@@ -84,6 +84,16 @@ const CLIENT_PAGES_MAP: Record<string, () => Promise<{ default: React.ComponentT
   
   // Index
   '/client/pages/Index.tsx': () => import('@/pages/Index'),
+
+
+  '/client/admin/pages/AdminDashboard.tsx': () => import('@/admin/pages/AdminDashboard.tsx'),
+  '/client/admin/pages/OrganizationManagement.tsx': () => import('@/admin/pages/OrganizationManagement.tsx'),
+  '/client/admin/pages/SubscriptionManagement.tsx': () => import('@/admin/pages/SubscriptionManagement.tsx'),
+  '/client/admin/pages/AdminProfile.tsx': () => import('@/admin/pages/AdminProfile.tsx'),
+  '/client/pages/Organization/SubscriptionRecharge.tsx': () => import('@/pages/Organization/SubscriptionRecharge.tsx'),
+  '/client/pages/Organization/OperationLogs.tsx': () => import('@/pages/Organization/OperationLogs.tsx'),
+  '/client/admin/pages/RechargeRecords.tsx': () => import('@/admin/pages/RechargeRecords.tsx'),
+  '/client/admin/pages/UserFeedback.tsx': () => import('@/admin/pages/UserFeedback.tsx'),
 };
 
 export function loadLazyClientComponent(componentPath?: string): React.LazyExoticComponent<React.ComponentType<any>> | null {
