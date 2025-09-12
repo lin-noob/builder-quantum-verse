@@ -85,7 +85,7 @@ const CLIENT_PAGES_MAP: Record<string, () => Promise<{ default: React.ComponentT
   // Index
   '/client/pages/Index.tsx': () => import('@/pages/Index'),
 
-
+  '/client/admin/pages/MenuManagement.tsx': ()=>import('@/admin/pages/MenuManagement.tsx'),
   '/client/admin/pages/AdminDashboard.tsx': () => import('@/admin/pages/AdminDashboard.tsx'),
   '/client/admin/pages/OrganizationManagement.tsx': () => import('@/admin/pages/OrganizationManagement.tsx'),
   '/client/admin/pages/SubscriptionManagement.tsx': () => import('@/admin/pages/SubscriptionManagement.tsx'),
