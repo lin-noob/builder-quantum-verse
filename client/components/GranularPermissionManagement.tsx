@@ -804,7 +804,7 @@ export default function GranularPermissionManagement({
       <Dialog open={isRoleDialogOpen} onOpenChange={setIsRoleDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{isEditingRole ? "��辑角色" : "新建角色"}</DialogTitle>
+            <DialogTitle>{isEditingRole ? "编辑角色" : "新建角色"}</DialogTitle>
             <DialogDescription>
               {isEditingRole ? "修改角色信息" : "创建一个新的角色"}
             </DialogDescription>
