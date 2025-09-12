@@ -78,6 +78,7 @@ import type { TreeDataNode } from "antd";
 import "antd/dist/reset.css";
 import { request } from "@/lib/request";
 import { useToast } from "@/hooks/use-toast";
+import { useRoleStore } from "@/stores";
 
 // 模拟数据类型定义
 interface Permission {
@@ -136,6 +137,7 @@ export default function GranularPermissionManagement({
     isError,
     error,
   } = useRoles({ page, limit, name: searchTerm });
+  const { fetchRoles } = useRoleStore();
   const createRoleMutation = useCreateRole();
   const updateRoleMutation = useUpdateRole();
   const deleteRoleMutation = useDeleteRole();
@@ -482,7 +484,7 @@ export default function GranularPermissionManagement({
       };
 
       await request.put(`/admin/api/v1/roles/${selectedRole.id}/menus`, payload);
-      toast({ title: "保存��功" });
+      toast({ title: "保存成功" });
       if (!activeMenuId && selectedMenuIds.length > 0) {
         setActiveMenuId(selectedMenuIds[selectedMenuIds.length - 1]);
       }
