@@ -46,7 +46,7 @@ export const useRoleStore = create<RoleState>()(
           const { isLoading, lastFetch } = get();
           
           // Don't fetch if already loading
-          if (isLoading) return;
+          // if (isLoading) return;
           
           // Cache for 5 minutes (300000 ms)
           // const cacheTime = 300000;

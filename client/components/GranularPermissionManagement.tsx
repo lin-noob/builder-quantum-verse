@@ -299,9 +299,23 @@ export default function GranularPermissionManagement({
       updateRoleMutation.mutate({
         id: newRole.id,
         data: payload as any,
+      }, {
+        onSuccess: (data) => {
+          if (data.code === "200" || data.code === "201") {
+            // 重新获取角色列表以确保数据同步
+            fetchRoles();
+          }
+        }
       });
     } else {
-      createRoleMutation.mutate({ name: trimmedName });
+      createRoleMutation.mutate({ name: trimmedName }, {
+        onSuccess: (data) => {
+          if (data.code === "200" || data.code === "201") {
+            // 重新获取角色列表以确保数据同步
+            fetchRoles();
+          }
+        }
+      });
     }
 
     setIsRoleDialogOpen(false);
@@ -855,7 +869,19 @@ export default function GranularPermissionManagement({
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               onClick={() => {
                 if (deleteTarget) {
-                  deleteRoleMutation.mutate(deleteTarget.id);
+                  deleteRoleMutation.mutate(deleteTarget.id, {
+                    onSuccess: (data) => {
+                      if (data.code === "200" || data.code === "201") {
+                        // 重新获取角色列表以确保数据同步
+                        fetchRoles();
+                        
+                        // 如果删除的是当前选中的角色，清空选中状态
+                        if (selectedRole && selectedRole.id === deleteTarget.id) {
+                          setSelectedRole(null);
+                        }
+                      }
+                    }
+                  });
                 }
                 setIsDeleteDialogOpen(false);
                 setDeleteTarget(null);
