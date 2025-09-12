@@ -22,8 +22,6 @@ import {
   RefreshCw,
   ChevronUp,
   ChevronDown,
-  Filter,
-  Download,
   Eye
 } from "lucide-react";
 import {
@@ -40,19 +38,18 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { request } from "@/lib/request";
 
 // 数据模型
 interface UserFeedback {
   id: string;
-  name: string;
-  phone: string;
+  username: string;
   email: string;
   company: string;
-  position: string;
+  phone: string;
   requirementType: string;
   requirements: string;
-  submitTime: string;
-  status: "待处理" | "处理中" | "已处理" | "已联系";
+  position?: string;
 }
 
 // 需求类型映射
@@ -65,134 +62,32 @@ const requirementTypeMap: Record<string, string> = {
   "other": "其他需求"
 };
 
-// 模拟数据
-const mockUserFeedback: UserFeedback[] = [
-  {
-    id: "1",
-    name: "张三",
-    phone: "13800138000",
-    email: "zhangsan@example.com",
-    company: "ABC科技有限公司",
-    position: "市场总监",
-    requirementType: "demo",
-    requirements: "希望了解AI营销平台的产品演示，特别是用户画像和自动化营销功能。",
-    submitTime: "2024-01-15 10:30:25",
-    status: "待处理"
-  },
-  {
-    id: "2",
-    name: "李四",
-    phone: "13900139000",
-    email: "lisi@example.com",
-    company: "XYZ有限公司",
-    position: "产品经理",
-    requirementType: "trial",
-    requirements: "申请免费试用，希望体验完整的AI营销策略制定功能。",
-    submitTime: "2024-01-14 09:15:42",
-    status: "处理中"
-  },
-  {
-    id: "3",
-    name: "王五",
-    phone: "13700137000",
-    email: "wangwu@example.com",
-    company: "DEF集团",
-    position: "CTO",
-    requirementType: "custom",
-    requirements: "需要定制化的AI模型，以适配我们特定行业的用户行为分析需求。",
-    submitTime: "2024-01-13 14:20:18",
-    status: "已处理"
-  },
-  {
-    id: "4",
-    name: "赵六",
-    phone: "13600136000",
-    email: "zhaoliu@example.com",
-    company: "GHI有限公司",
-    position: "运营总监",
-    requirementType: "consultation",
-    requirements: "需要专业的AI营销咨询服务，帮助我们优化现有的营销策略。",
-    submitTime: "2024-01-12 11:45:33",
-    status: "已联系"
-  },
-  {
-    id: "5",
-    name: "孙七",
-    phone: "13500135000",
-    email: "sunqi@example.com",
-    company: "JKL科技有限公司",
-    position: "CEO",
-    requirementType: "cooperation",
-    requirements: "有意向进行商务合作，希望将AI营销平台集成到我们的SaaS产品中。",
-    submitTime: "2024-01-11 08:30:12",
-    status: "待处理"
-  },
-  {
-    id: "6",
-    name: "周八",
-    phone: "13400134000",
-    email: "zhouba@example.com",
-    company: "MNO有限公司",
-    position: "市场经理",
-    requirementType: "other",
-    requirements: "希望增加多语言支持功能，以便在海外市场推广使用。",
-    submitTime: "2024-01-10 16:20:55",
-    status: "处理中"
-  },
-  {
-    id: "7",
-    name: "吴九",
-    phone: "13300133000",
-    email: "wujiu@example.com",
-    company: "PQR集团",
-    position: "数据分析师",
-    requirementType: "demo",
-    requirements: "需要详细了解数据分析和可视化功能，特别是实时监控模块。",
-    submitTime: "2024-01-09 13:45:27",
-    status: "已处理"
-  },
-  {
-    id: "8",
-    name: "郑十",
-    phone: "13200132000",
-    email: "zhengshi@example.com",
-    company: "STU有限公司",
-    position: "技术总监",
-    requirementType: "trial",
-    requirements: "申请试用企业版功能，评估是否适合大规模部署。",
-    submitTime: "2024-01-08 09:30:44",
-    status: "已联系"
-  }
-];
-
 export default function UserFeedback() {
   const [userFeedback, setUserFeedback] = useState<UserFeedback[]>([]);
   const [filteredFeedback, setFilteredFeedback] = useState<UserFeedback[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortConfig, setSortConfig] = useState<{ key: keyof UserFeedback; direction: 'asc' | 'desc' } | null>(null);
-  const [statusFilter, setStatusFilter] = useState<string>("all");
   const [requirementTypeFilter, setRequirementTypeFilter] = useState<string>("all");
   
   // 分页状态
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10); // 每页显示10条记录
+  const [itemsPerPage] = useState(10);
+  const [totalCount, setTotalCount] = useState(0);
   
   // 详情弹窗状态
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
   const [selectedFeedback, setSelectedFeedback] = useState<UserFeedback | null>(null);
 
-  // 计算当前页的记录
+  // 计算当前页的记录 - 使用API返回的数据
   const currentRecords = useMemo(() => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    return filteredFeedback.slice(startIndex, endIndex);
-  }, [filteredFeedback, currentPage, itemsPerPage]);
+    return filteredFeedback; // API已经返回了当前页的数据
+  }, [filteredFeedback]);
 
   // 计算总页数
   const totalPages = useMemo(() => {
-    return Math.ceil(filteredFeedback.length / itemsPerPage);
-  }, [filteredFeedback, itemsPerPage]);
+    return Math.ceil(totalCount / itemsPerPage);
+  }, [totalCount, itemsPerPage]);
 
   // 处理页面切换
   const handlePageChange = (page: number) => {
@@ -213,12 +108,64 @@ export default function UserFeedback() {
     }
   };
 
+  // 获取用户反馈数据
+  const fetchUserFeedback = async (
+    page: number = 1,
+    pagesize: number = 10,
+  ) => {
+    try {
+      setLoading(true);
+      const params: any = {
+        currentpage: page,
+        pagesize: pagesize,
+      };
+
+      // 添加用户名搜索
+      if (searchTerm.trim()) {
+        params.username = searchTerm.trim();
+      }
+
+      // 添加需求类型筛选
+      if (requirementTypeFilter !== "all") {
+        params.requirementType = requirementTypeFilter;
+      }
+
+      const response = await request.get("/admin/api/v1/rfq/page", { ...params });
+      const res = response.data;
+
+      if (res && res.data) {
+        setUserFeedback(res.data);
+        setFilteredFeedback(res.data);
+        setTotalCount(res.total || 0);
+      } else {
+        setUserFeedback([]);
+        setFilteredFeedback([]);
+        setTotalCount(0);
+      }
+    } catch (error) {
+      console.error("Failed to fetch user feedback:", error);
+      setUserFeedback([]);
+      setFilteredFeedback([]);
+      setTotalCount(0);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // 重置筛选时也重置到第一页
   const handleResetFilters = () => {
     setSearchTerm("");
-    setStatusFilter("all");
     setRequirementTypeFilter("all");
-    setCurrentPage(1); // 重置到第一页
+    setCurrentPage(1);
+    // 重置后立即查询
+    setTimeout(() => {
+      fetchUserFeedback(1, itemsPerPage);
+    }, 0);
+  };
+
+  const handleSearch = () => {
+    setCurrentPage(1); // 搜索时重置到第一页
+    fetchUserFeedback(1, itemsPerPage);
   };
 
   // 查看详情
@@ -227,64 +174,15 @@ export default function UserFeedback() {
     setIsDetailDialogOpen(true);
   };
 
-  // 导出数据
-  const handleExport = () => {
-    // 这里应该是实际的导出逻辑
-    console.log("导出用户反馈数据");
-    alert("用户反馈数据已导出");
-  };
-
   useEffect(() => {
-    // 模拟数据加载
-    setTimeout(() => {
-      setUserFeedback(mockUserFeedback);
-      setFilteredFeedback(mockUserFeedback);
-      setLoading(false);
-    }, 500);
+    fetchUserFeedback(currentPage, itemsPerPage);
   }, []);
 
+  // 当分页变化时重新获取数据
   useEffect(() => {
-    // 过滤和排序逻辑
-    let result = [...userFeedback];
-    
-    // 搜索过滤
-    if (searchTerm) {
-      const term = searchTerm.toLowerCase();
-      result = result.filter(feedback => 
-        feedback.name.toLowerCase().includes(term) ||
-        feedback.company.toLowerCase().includes(term) ||
-        feedback.email.toLowerCase().includes(term) ||
-        feedback.phone.includes(term)
-      );
-    }
-    
-    // 状态过滤
-    if (statusFilter !== "all") {
-      result = result.filter(feedback => feedback.status === statusFilter);
-    }
-    
-    // 需求类型过滤
-    if (requirementTypeFilter !== "all") {
-      result = result.filter(feedback => feedback.requirementType === requirementTypeFilter);
-    }
-    
-    // 排序
-    if (sortConfig !== null) {
-      result.sort((a, b) => {
-        if (a[sortConfig.key] < b[sortConfig.key]) {
-          return sortConfig.direction === 'asc' ? -1 : 1;
-        }
-        if (a[sortConfig.key] > b[sortConfig.key]) {
-          return sortConfig.direction === 'asc' ? 1 : -1;
-        }
-        return 0;
-      });
-    }
-    
-    setFilteredFeedback(result);
-    // 重置到第一页
-    setCurrentPage(1);
-  }, [searchTerm, userFeedback, sortConfig, statusFilter, requirementTypeFilter]);
+    if (loading) return;
+    fetchUserFeedback(currentPage, itemsPerPage);
+  }, [currentPage]);
 
   const handleSort = (key: keyof UserFeedback) => {
     let direction: 'asc' | 'desc' = 'asc';
@@ -292,21 +190,6 @@ export default function UserFeedback() {
       direction = 'desc';
     }
     setSortConfig({ key, direction });
-  };
-
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "待处理":
-        return <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">待处理</Badge>;
-      case "处理中":
-        return <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100">处理中</Badge>;
-      case "已处理":
-        return <Badge className="bg-green-100 text-green-800 hover:bg-green-100">已处理</Badge>;
-      case "已联系":
-        return <Badge className="bg-purple-100 text-purple-800 hover:bg-purple-100">已联系</Badge>;
-      default:
-        return <Badge>{status}</Badge>;
-    }
   };
 
   const getRequirementTypeBadge = (type: string) => {
@@ -346,29 +229,17 @@ export default function UserFeedback() {
           <CardDescription>用户提交的反馈和需求详情</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
             <div className="relative lg:col-span-2">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <Input
-                placeholder="搜索姓名、公司、邮箱或手机号..."
+                placeholder="搜索用户名..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
+                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
               />
             </div>
-            
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="状态筛选" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">全部状态</SelectItem>
-                <SelectItem value="待处理">待处理</SelectItem>
-                <SelectItem value="处理中">处理中</SelectItem>
-                <SelectItem value="已处理">已处理</SelectItem>
-                <SelectItem value="已联系">已联系</SelectItem>
-              </SelectContent>
-            </Select>
             
             <Select value={requirementTypeFilter} onValueChange={setRequirementTypeFilter}>
               <SelectTrigger>
@@ -385,17 +256,16 @@ export default function UserFeedback() {
               </SelectContent>
             </Select>
             
-            <Button variant="outline" onClick={handleResetFilters} className="flex items-center gap-2">
-              <RefreshCw className="h-4 w-4" />
-              重置筛选
-            </Button>
-          </div>
-          
-          <div className="flex justify-end mb-4">
-            <Button variant="outline" onClick={handleExport} className="flex items-center gap-2">
-              <Download className="h-4 w-4" />
-              导出数据
-            </Button>
+            <div className="flex gap-2">
+              <Button variant="default" onClick={handleSearch} className="flex items-center gap-2">
+                <Search className="h-4 w-4" />
+                查询
+              </Button>
+              <Button variant="outline" onClick={handleResetFilters} className="flex items-center gap-2">
+                <RefreshCw className="h-4 w-4" />
+                重置筛选
+              </Button>
+            </div>
           </div>
 
           <div className="overflow-x-auto">
@@ -404,11 +274,11 @@ export default function UserFeedback() {
                 <TableRow>
                   <TableHead 
                     className="cursor-pointer"
-                    onClick={() => handleSort('name')}
+                    onClick={() => handleSort('username')}
                   >
                     <div className="flex items-center">
-                      姓名
-                      {sortConfig?.key === 'name' && (
+                      用户名
+                      {sortConfig?.key === 'username' && (
                         sortConfig.direction === 'asc' 
                           ? <ChevronUp className="ml-1 h-4 w-4" /> 
                           : <ChevronDown className="ml-1 h-4 w-4" />
@@ -428,6 +298,8 @@ export default function UserFeedback() {
                       )}
                     </div>
                   </TableHead>
+                  <TableHead>邮箱</TableHead>
+                  <TableHead>手机</TableHead>
                   <TableHead 
                     className="cursor-pointer"
                     onClick={() => handleSort('requirementType')}
@@ -441,43 +313,17 @@ export default function UserFeedback() {
                       )}
                     </div>
                   </TableHead>
-                  <TableHead 
-                    className="cursor-pointer"
-                    onClick={() => handleSort('submitTime')}
-                  >
-                    <div className="flex items-center">
-                      提交时间
-                      {sortConfig?.key === 'submitTime' && (
-                        sortConfig.direction === 'asc' 
-                          ? <ChevronUp className="ml-1 h-4 w-4" /> 
-                          : <ChevronDown className="ml-1 h-4 w-4" />
-                      )}
-                    </div>
-                  </TableHead>
-                  <TableHead 
-                    className="cursor-pointer"
-                    onClick={() => handleSort('status')}
-                  >
-                    <div className="flex items-center">
-                      状态
-                      {sortConfig?.key === 'status' && (
-                        sortConfig.direction === 'asc' 
-                          ? <ChevronUp className="ml-1 h-4 w-4" /> 
-                          : <ChevronDown className="ml-1 h-4 w-4" />
-                      )}
-                    </div>
-                  </TableHead>
                   <TableHead>操作</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {currentRecords.map((feedback) => (
                   <TableRow key={feedback.id}>
-                    <TableCell className="font-medium">{feedback.name}</TableCell>
+                    <TableCell className="font-medium">{feedback.username}</TableCell>
                     <TableCell>{feedback.company}</TableCell>
+                    <TableCell>{feedback.email}</TableCell>
+                    <TableCell>{feedback.phone}</TableCell>
                     <TableCell>{getRequirementTypeBadge(feedback.requirementType)}</TableCell>
-                    <TableCell>{feedback.submitTime}</TableCell>
-                    <TableCell>{getStatusBadge(feedback.status)}</TableCell>
                     <TableCell>
                       <Button 
                         variant="outline" 
@@ -502,10 +348,10 @@ export default function UserFeedback() {
           )}
 
           {/* 分页控件 */}
-          {filteredFeedback.length > 0 && (
+          {totalCount > 0 && (
             <div className="flex justify-between items-center mt-4">
               <div className="text-sm text-gray-500">
-                共 {filteredFeedback.length} 条记录，第 {currentPage} 页 / 共 {totalPages} 页
+                共 {totalCount} 条记录，第 {currentPage} 页 / 共 {totalPages} 页
               </div>
               <div className="flex gap-2">
                 <Button 
@@ -565,7 +411,7 @@ export default function UserFeedback() {
           <DialogHeader>
             <DialogTitle>用户反馈详情</DialogTitle>
             <DialogDescription>
-              {selectedFeedback?.name} 提交的反馈信息
+              {selectedFeedback?.username} 提交的反馈信息
             </DialogDescription>
           </DialogHeader>
           
@@ -573,8 +419,8 @@ export default function UserFeedback() {
             <div className="space-y-4 py-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium text-gray-500">姓名</label>
-                  <p className="font-medium">{selectedFeedback.name}</p>
+                  <label className="text-sm font-medium text-gray-500">用户名</label>
+                  <p className="font-medium">{selectedFeedback.username}</p>
                 </div>
                 
                 <div>
@@ -601,16 +447,6 @@ export default function UserFeedback() {
               <div>
                 <label className="text-sm font-medium text-gray-500">需求类型</label>
                 <p className="font-medium">{getRequirementTypeBadge(selectedFeedback.requirementType)}</p>
-              </div>
-              
-              <div>
-                <label className="text-sm font-medium text-gray-500">提交时间</label>
-                <p className="font-medium">{selectedFeedback.submitTime}</p>
-              </div>
-              
-              <div>
-                <label className="text-sm font-medium text-gray-500">状态</label>
-                <p className="font-medium">{getStatusBadge(selectedFeedback.status)}</p>
               </div>
               
               <div>

@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Mail, Phone, Building, User, MessageCircle } from "lucide-react";
+import { request } from "@/lib/request";
 
 interface ContactFormModalProps {
   open: boolean;
@@ -112,10 +113,11 @@ const ContactFormModal: React.FC<ContactFormModalProps> = ({
     setIsSubmitting(true);
     
     try {
-      // 这里可以添加实际的提交逻辑
-      // 比如调用API发送表单数据
-      await new Promise(resolve => setTimeout(resolve, 1000)); // 模拟API调用
-      
+      const inputForm = {
+        ...formData,
+        username: formData.name,
+      }
+      await request.post('/admin/api/v1/auth/rfq', inputForm)
       toast({
         title: "提交成功",
         description: "我们已收到您的需求，将在24小时内与您联系。",

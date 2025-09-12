@@ -31,129 +31,38 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { request } from "@/lib/request";
 
-// 数据模型
+const paymentMethodMap = {
+  1: "微信支付",
+  2: "支付宝", 
+  3: "银行转账",
+  4: "企业转账",
+};
+
+const statusMap = {
+  1: "处理中",
+  2: "成功", 
+  3: "失败",
+};
+
+// 数据模型 - 匹配新的API结构
 interface RechargeRecord {
   id: string;
+  ftype: string;
+  opttime: string;
   orderId: string;
-  userId: string;
-  userName: string;
-  organization: string;
   orderTime: string;
   amount: number;
-  paymentMethod: "微信支付" | "支付宝" | "银行转账" | "企业转账";
-  status: "成功" | "失败" | "处理中";
+  paymentMethod: number;
+  status: number;
   currency: string;
   description?: string;
+  // Admin页面额外的字段
+  userId?: string;
+  userName?: string;
+  companyName?: string;
 }
-
-// 模拟数据
-const mockRechargeHistory: RechargeRecord[] = [
-  {
-    id: "1",
-    orderId: "ORD001",
-    userId: "USER001",
-    userName: "张三",
-    organization: "ABC科技有限公司",
-    orderTime: "2024-01-15 10:30",
-    amount: 999.00,
-    paymentMethod: "微信支付",
-    status: "成功",
-    currency: "CNY",
-    description: "企业版月付套餐"
-  },
-  {
-    id: "2",
-    orderId: "ORD002",
-    userId: "USER002",
-    userName: "李四",
-    organization: "XYZ有限公司",
-    orderTime: "2024-01-14 09:15",
-    amount: 299.00,
-    paymentMethod: "支付宝",
-    status: "成功",
-    currency: "CNY",
-    description: "专业版月付套餐"
-  },
-  {
-    id: "3",
-    orderId: "ORD003",
-    userId: "USER003",
-    userName: "王五",
-    organization: "DEF集团",
-    orderTime: "2024-01-13 14:20",
-    amount: 99.00,
-    paymentMethod: "银行转账",
-    status: "成功",
-    currency: "CNY",
-    description: "基础版月付套餐"
-  },
-  {
-    id: "4",
-    orderId: "ORD004",
-    userId: "USER001",
-    userName: "张三",
-    organization: "ABC科技有限公司",
-    orderTime: "2024-01-12 11:45",
-    amount: 999.00,
-    paymentMethod: "企业转账",
-    status: "成功",
-    currency: "CNY",
-    description: "企业版月付套餐"
-  },
-  {
-    id: "5",
-    orderId: "ORD005",
-    userId: "USER004",
-    userName: "赵六",
-    organization: "GHI有限公司",
-    orderTime: "2024-01-11 08:30",
-    amount: 1999.00,
-    paymentMethod: "微信支付",
-    status: "成功",
-    currency: "CNY",
-    description: "旗舰版月付套餐"
-  },
-  {
-    id: "6",
-    orderId: "ORD006",
-    userId: "USER005",
-    userName: "孙七",
-    organization: "JKL科技有限公司",
-    orderTime: "2024-01-10 16:20",
-    amount: 299.00,
-    paymentMethod: "支付宝",
-    status: "处理中",
-    currency: "CNY",
-    description: "专业版月付套餐"
-  },
-  {
-    id: "7",
-    orderId: "ORD007",
-    userId: "USER006",
-    userName: "周八",
-    organization: "MNO有限公司",
-    orderTime: "2024-01-09 13:45",
-    amount: 999.00,
-    paymentMethod: "银行转账",
-    status: "失败",
-    currency: "CNY",
-    description: "企业版月付套餐"
-  },
-  {
-    id: "8",
-    orderId: "ORD008",
-    userId: "USER002",
-    userName: "李四",
-    organization: "XYZ有限公司",
-    orderTime: "2024-01-08 09:30",
-    amount: 299.00,
-    paymentMethod: "微信支付",
-    status: "成功",
-    currency: "CNY",
-    description: "专业版月付套餐"
-  }
-];
 
 export default function RechargeRecords() {
   const [rechargeHistory, setRechargeHistory] = useState<RechargeRecord[]>([]);
@@ -167,19 +76,18 @@ export default function RechargeRecords() {
   
   // 分页状态
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10); // 每页显示10条记录
+  const [itemsPerPage] = useState(10);
+  const [totalCount, setTotalCount] = useState(0);
 
-  // 计算当前页的记录
+  // 计算当前页的记录 - 使用API返回的数据
   const currentRecords = useMemo(() => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    return filteredHistory.slice(startIndex, endIndex);
-  }, [filteredHistory, currentPage, itemsPerPage]);
+    return filteredHistory; // API已经返回了当前页的数据
+  }, [filteredHistory]);
 
   // 计算总页数
   const totalPages = useMemo(() => {
-    return Math.ceil(filteredHistory.length / itemsPerPage);
-  }, [filteredHistory, itemsPerPage]);
+    return Math.ceil(totalCount / itemsPerPage);
+  }, [totalCount, itemsPerPage]);
 
   // 处理页面切换
   const handlePageChange = (page: number) => {
@@ -200,63 +108,109 @@ export default function RechargeRecords() {
     }
   };
 
+  // 获取充值记录数据
+  const fetchRechargeRecords = async (
+    page: number = 1,
+    pagesize: number = 10,
+  ) => {
+    try {
+      setLoading(true);
+      const requestBody: any = {
+        currentpage: page,
+        pagesize: pagesize,
+      };
+
+      // 添加聚合模糊查询
+      if (searchTerm.trim()) {
+        requestBody.keyword = searchTerm.trim();
+      }
+
+      // 添加状态筛选
+      if (statusFilter !== "all") {
+        const statusKey = Object.keys(statusMap).find(key => statusMap[key as keyof typeof statusMap] === statusFilter);
+        if (statusKey) {
+          requestBody.orderStatus = parseInt(statusKey);
+        }
+      }
+
+      // 添加支付方式筛选
+      if (paymentMethodFilter !== "all") {
+        const paymentKey = Object.keys(paymentMethodMap).find(key => paymentMethodMap[key as keyof typeof paymentMethodMap] === paymentMethodFilter);
+        if (paymentKey) {
+          requestBody.paymentMethod = parseInt(paymentKey);
+        }
+      }
+
+      // 添加金额范围筛选
+      if (amountRange.min !== "") {
+        const minAmount = parseFloat(amountRange.min);
+        if (!isNaN(minAmount)) {
+          requestBody.minPrice = minAmount;
+        }
+      }
+      if (amountRange.max !== "") {
+        const maxAmount = parseFloat(amountRange.max);
+        if (!isNaN(maxAmount)) {
+          requestBody.maxPrice = maxAmount;
+        }
+      }
+
+      const response = await request.post(
+        "/admin/api/v1/managerLimit/record",
+        requestBody,
+      );
+      const res = response.data.data;
+
+      if (res && res.records) {
+        setRechargeHistory(res.records);
+        setFilteredHistory(res.records);
+        setTotalCount(res.total || 0);
+      } else {
+        setRechargeHistory([]);
+        setFilteredHistory([]);
+        setTotalCount(0);
+      }
+    } catch (error) {
+      console.error("Failed to fetch recharge records:", error);
+      setRechargeHistory([]);
+      setFilteredHistory([]);
+      setTotalCount(0);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // 重置筛选时也重置到第一页
   const handleResetFilters = () => {
     setSearchTerm("");
     setStatusFilter("all");
     setPaymentMethodFilter("all");
     setAmountRange({ min: "", max: "" });
-    setCurrentPage(1); // 重置到第一页
+    setCurrentPage(1);
+    // 重置后立即查询
+    setTimeout(() => {
+      fetchRechargeRecords(1, itemsPerPage);
+    }, 0);
+  };
+
+  const handleSearch = () => {
+    setCurrentPage(1); // 搜索时重置到第一页
+    fetchRechargeRecords(1, itemsPerPage);
   };
 
   useEffect(() => {
-    // 模拟数据加载
-    setTimeout(() => {
-      setRechargeHistory(mockRechargeHistory);
-      setFilteredHistory(mockRechargeHistory);
-      setLoading(false);
-    }, 500);
+    fetchRechargeRecords(currentPage, itemsPerPage);
   }, []);
 
+  // 当分页变化时重新获取数据（移除搜索词等筛选条件的自动查询）
   useEffect(() => {
-    // 过滤和排序逻辑
+    if (loading) return;
+    fetchRechargeRecords(currentPage, itemsPerPage);
+  }, [currentPage]);
+
+  useEffect(() => {
+    // 本地排序逻辑（搜索和分页已由API处理）
     let result = [...rechargeHistory];
-    
-    // 搜索过滤
-    if (searchTerm) {
-      const term = searchTerm.toLowerCase();
-      result = result.filter(record => 
-        record.orderId.toLowerCase().includes(term) || 
-        record.userName.toLowerCase().includes(term) ||
-        record.organization.toLowerCase().includes(term) ||
-        (record.description && record.description.toLowerCase().includes(term))
-      );
-    }
-    
-    // 状态过滤
-    if (statusFilter !== "all") {
-      result = result.filter(record => record.status === statusFilter);
-    }
-    
-    // 支付方式过滤
-    if (paymentMethodFilter !== "all") {
-      result = result.filter(record => record.paymentMethod === paymentMethodFilter);
-    }
-    
-    // 金额范围过滤
-    if (amountRange.min !== "") {
-      const minAmount = parseFloat(amountRange.min);
-      if (!isNaN(minAmount)) {
-        result = result.filter(record => record.amount >= minAmount);
-      }
-    }
-    
-    if (amountRange.max !== "") {
-      const maxAmount = parseFloat(amountRange.max);
-      if (!isNaN(maxAmount)) {
-        result = result.filter(record => record.amount <= maxAmount);
-      }
-    }
     
     // 排序
     if (sortConfig !== null) {
@@ -272,9 +226,7 @@ export default function RechargeRecords() {
     }
     
     setFilteredHistory(result);
-    // 重置到第一页
-    setCurrentPage(1);
-  }, [searchTerm, rechargeHistory, sortConfig, statusFilter, paymentMethodFilter, amountRange]);
+  }, [rechargeHistory, sortConfig]);
 
   const handleSort = (key: keyof RechargeRecord) => {
     let direction: 'asc' | 'desc' = 'asc';
@@ -284,8 +236,9 @@ export default function RechargeRecords() {
     setSortConfig({ key, direction });
   };
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
+  const getStatusBadge = (status: string | number) => {
+    const statusText = typeof status === 'number' ? statusMap[status] : status;
+    switch (statusText) {
       case "成功":
         return <Badge className="bg-green-100 text-green-800 hover:bg-green-100">成功</Badge>;
       case "处理中":
@@ -293,7 +246,7 @@ export default function RechargeRecords() {
       case "失败":
         return <Badge className="bg-red-100 text-red-800 hover:bg-red-100">失败</Badge>;
       default:
-        return <Badge>{status}</Badge>;
+        return <Badge>{statusText}</Badge>;
     }
   };
 
@@ -319,7 +272,7 @@ export default function RechargeRecords() {
           <CardDescription>所有用户的充值记录详情</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 mb-4">
             <div className="relative lg:col-span-2">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <Input
@@ -327,6 +280,7 @@ export default function RechargeRecords() {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
+                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
               />
             </div>
             
@@ -355,6 +309,11 @@ export default function RechargeRecords() {
               </SelectContent>
             </Select>
             
+            <Button variant="default" onClick={handleSearch} className="flex items-center gap-2">
+              <Search className="h-4 w-4" />
+              查询
+            </Button>
+            
             <Button variant="outline" onClick={handleResetFilters} className="flex items-center gap-2">
               <RefreshCw className="h-4 w-4" />
               重置筛选
@@ -369,6 +328,7 @@ export default function RechargeRecords() {
                 placeholder="最小金额"
                 value={amountRange.min}
                 onChange={(e) => setAmountRange({...amountRange, min: e.target.value})}
+                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
               />
             </div>
             
@@ -379,6 +339,7 @@ export default function RechargeRecords() {
                 placeholder="最大金额"
                 value={amountRange.max}
                 onChange={(e) => setAmountRange({...amountRange, max: e.target.value})}
+                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
               />
             </div>
           </div>
@@ -415,11 +376,11 @@ export default function RechargeRecords() {
                   </TableHead>
                   <TableHead 
                     className="cursor-pointer"
-                    onClick={() => handleSort('organization')}
+                    onClick={() => handleSort('companyName')}
                   >
                     <div className="flex items-center">
                       组织
-                      {sortConfig?.key === 'organization' && (
+                      {sortConfig?.key === 'companyName' && (
                         sortConfig.direction === 'asc' 
                           ? <ChevronUp className="ml-1 h-4 w-4" /> 
                           : <ChevronDown className="ml-1 h-4 w-4" />
@@ -459,12 +420,12 @@ export default function RechargeRecords() {
               <TableBody>
                 {currentRecords.map((record) => (
                   <TableRow key={record.id}>
-                    <TableCell className="font-medium">{record.orderId}</TableCell>
-                    <TableCell>{record.userName}</TableCell>
-                    <TableCell>{record.organization}</TableCell>
-                    <TableCell>{record.orderTime}</TableCell>
-                    <TableCell>¥{record.amount.toFixed(2)}</TableCell>
-                    <TableCell>{record.paymentMethod}</TableCell>
+                    <TableCell className="font-medium">{record.id ?? "-"}</TableCell>
+                    <TableCell>{record.userName ?? "-"}</TableCell>
+                    <TableCell>{record.companyName ?? "-"}</TableCell>
+                    <TableCell>{record.opttime}</TableCell>
+                    <TableCell>{record.amount ? "$" + record.amount.toFixed(2) : "-"}</TableCell>
+                    <TableCell>{paymentMethodMap[record.paymentMethod] ?? "-"}</TableCell>
                     <TableCell>{getStatusBadge(record.status)}</TableCell>
                   </TableRow>
                 ))}
@@ -479,10 +440,10 @@ export default function RechargeRecords() {
           )}
 
           {/* 分页控件 */}
-          {filteredHistory.length > 0 && (
+          {totalCount > 0 && (
             <div className="flex justify-between items-center mt-4">
               <div className="text-sm text-gray-500">
-                共 {filteredHistory.length} 条记录，第 {currentPage} 页 / 共 {totalPages} 页
+                共 {totalCount} 条记录，第 {currentPage} 页 / 共 {totalPages} 页
               </div>
               <div className="flex gap-2">
                 <Button 
