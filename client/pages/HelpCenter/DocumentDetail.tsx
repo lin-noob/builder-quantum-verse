@@ -1,20 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet";
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
-  CardTitle 
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { 
-  Badge,
-  Separator
-} from "@/components/ui/badge";
-import { 
+import { Badge } from "@/components/ui/badge";
+import {
   ThumbsUp,
   ThumbsDown,
   MessageCircle,
@@ -23,7 +20,7 @@ import {
   ArrowLeft,
   Share2,
   Bookmark,
-  AlertCircle
+  AlertCircle,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -59,7 +56,8 @@ const mockDocuments: HelpDocument[] = [
     id: "1",
     title: "快速入门指南",
     category: "用户指南",
-    description: "了解如何快速开始使用AI营销平台，包括账户注册、项目创建和基础功能使用。",
+    description:
+      "了解如何快速开始使用AI营销平台，包括账户注册、项目创建和基础功能使用。",
     content: `
       <h2>欢迎使用AI营销平台</h2>
       <p>AI营销平台是一款基于人工智能技术的营销自动化工具，帮助您更高效地进行用户画像分析、营销策略制定和效果追踪。</p>
@@ -86,13 +84,14 @@ const mockDocuments: HelpDocument[] = [
     lastUpdated: "2024-01-15",
     views: 1250,
     likes: 98,
-    isPopular: true
+    isPopular: true,
   },
   {
     id: "2",
     title: "用户画像功能详解",
     category: "功能说明",
-    description: "深入介绍用户画像功能的使用方法，包括数据导入、标签管理和人群分群。",
+    description:
+      "深入介绍用户画像功能的使用方法，包括数据导入、标签管理和人群分群。",
     content: `
       <h2>用户画像功能详解</h2>
       <p>用户画像功能是AI营销平台的核心功能之一，帮助您深入了解目标用户群体。</p>
@@ -109,7 +108,7 @@ const mockDocuments: HelpDocument[] = [
     lastUpdated: "2024-01-12",
     views: 890,
     likes: 76,
-    isPopular: true
+    isPopular: true,
   },
   {
     id: "3",
@@ -132,13 +131,14 @@ const mockDocuments: HelpDocument[] = [
     lastUpdated: "2024-01-10",
     views: 756,
     likes: 65,
-    isPopular: false
+    isPopular: false,
   },
   {
     id: "4",
     title: "API接口文档",
     category: "开发者指南",
-    description: "完整的API接口文档，包括认证方式、请求格式、响应格式和错误码说明。",
+    description:
+      "完整的API接口文档，包括认证方式、请求格式、响应格式和错误码说明。",
     content: `
       <h2>API接口文档</h2>
       <p>为开发者提供的完整API接口文档。</p>
@@ -161,7 +161,7 @@ const mockDocuments: HelpDocument[] = [
     lastUpdated: "2024-01-08",
     views: 1120,
     likes: 89,
-    isPopular: true
+    isPopular: true,
   },
   {
     id: "5",
@@ -195,8 +195,8 @@ const mockDocuments: HelpDocument[] = [
     lastUpdated: "2024-01-05",
     views: 2100,
     likes: 156,
-    isPopular: true
-  }
+    isPopular: true,
+  },
 ];
 
 const mockFeedbacks: Feedback[] = [
@@ -205,15 +205,15 @@ const mockFeedbacks: Feedback[] = [
     userName: "张三",
     comment: "文档很详细，帮助我快速上手了平台。",
     rating: 5,
-    date: "2024-01-10"
+    date: "2024-01-10",
   },
   {
     id: "2",
     userName: "李四",
     comment: "有些地方描述不够清楚，希望能补充更多示例。",
     rating: 3,
-    date: "2024-01-08"
-  }
+    date: "2024-01-08",
+  },
 ];
 
 export default function DocumentDetail() {
@@ -227,7 +227,7 @@ export default function DocumentDetail() {
   useEffect(() => {
     // 模拟数据加载
     setTimeout(() => {
-      const doc = mockDocuments.find(d => d.id === documentId);
+      const doc = mockDocuments.find((d) => d.id === documentId);
       setDocument(doc || null);
       setFeedbacks(mockFeedbacks);
       setLoading(false);
@@ -238,7 +238,7 @@ export default function DocumentDetail() {
     if (document) {
       setDocument({
         ...document,
-        likes: document.likes + 1
+        likes: document.likes + 1,
       });
     }
   };
@@ -254,9 +254,9 @@ export default function DocumentDetail() {
         userName: "当前用户",
         comment: newFeedback,
         rating: userRating,
-        date: new Date().toISOString().split('T')[0]
+        date: new Date().toISOString().split("T")[0],
       };
-      
+
       setFeedbacks([newFeedbackItem, ...feedbacks]);
       setNewFeedback("");
       setUserRating(0);
@@ -265,15 +265,17 @@ export default function DocumentDetail() {
 
   const getCategoryBadge = (category: string) => {
     const categoryColors: Record<string, string> = {
-      "用户指南": "bg-blue-100 text-blue-800",
-      "功能说明": "bg-purple-100 text-purple-800",
-      "开发者指南": "bg-green-100 text-green-800",
-      "常见问题": "bg-yellow-100 text-yellow-800",
-      "政策说明": "bg-red-100 text-red-800"
+      用户指南: "bg-blue-100 text-blue-800",
+      功能说明: "bg-purple-100 text-purple-800",
+      开发者指南: "bg-green-100 text-green-800",
+      常见问题: "bg-yellow-100 text-yellow-800",
+      政策说明: "bg-red-100 text-red-800",
     };
-    
+
     return (
-      <Badge className={`${categoryColors[category] || "bg-gray-100 text-gray-800"} hover:bg-opacity-80`}>
+      <Badge
+        className={`${categoryColors[category] || "bg-gray-100 text-gray-800"} hover:bg-opacity-80`}
+      >
         {category}
       </Badge>
     );
@@ -297,12 +299,12 @@ export default function DocumentDetail() {
         <Card>
           <CardContent className="flex flex-col items-center justify-center h-64">
             <AlertCircle className="h-12 w-12 text-red-500 mb-4" />
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">文档未找到</h3>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              文档未找到
+            </h3>
             <p className="text-gray-600 mb-4">您要查看的文档不存在或已被删除</p>
             <Button asChild>
-              <Link to="/marketing/help">
-                返回帮助中心
-              </Link>
+              <Link to="/marketing/help">返回帮助中心</Link>
             </Button>
           </CardContent>
         </Card>
@@ -314,10 +316,15 @@ export default function DocumentDetail() {
     <div className="p-6 space-y-6">
       <Helmet>
         <title>{document.seoTitle || document.title}</title>
-        <meta name="description" content={document.seoDescription || document.description} />
-        {document.seoKeywords && <meta name="keywords" content={document.seoKeywords} />}
+        <meta
+          name="description"
+          content={document.seoDescription || document.description}
+        />
+        {document.seoKeywords && (
+          <meta name="keywords" content={document.seoKeywords} />
+        )}
       </Helmet>
-      
+
       {/* 返回按钮和操作按钮 */}
       <div className="flex flex-col sm:flex-row justify-between gap-4">
         <Button variant="outline" asChild>
@@ -372,10 +379,8 @@ export default function DocumentDetail() {
               </Button>
             </div>
           </div>
-          
-          <Separator className="my-6" />
-          
-          <div 
+
+          <div
             className="prose max-w-none"
             dangerouslySetInnerHTML={{ __html: document.content }}
           />
@@ -403,10 +408,10 @@ export default function DocumentDetail() {
                     key={star}
                     variant="outline"
                     size="sm"
-                    className={`p-2 ${userRating >= star ? 'bg-yellow-100 border-yellow-300' : ''}`}
+                    className={`p-2 ${userRating >= star ? "bg-yellow-100 border-yellow-300" : ""}`}
                     onClick={() => setUserRating(star)}
                   >
-                    {star <= userRating ? '★' : '☆'}
+                    {star <= userRating ? "★" : "☆"}
                   </Button>
                 ))}
               </div>
@@ -420,7 +425,7 @@ export default function DocumentDetail() {
                 rows={3}
               />
             </div>
-            <Button 
+            <Button
               onClick={handleSubmitFeedback}
               disabled={!newFeedback.trim() || userRating === 0}
             >
@@ -438,7 +443,14 @@ export default function DocumentDetail() {
                 </div>
                 <div className="flex items-center mb-2">
                   {[...Array(5)].map((_, i) => (
-                    <span key={i} className={i < feedback.rating ? "text-yellow-500" : "text-gray-300"}>
+                    <span
+                      key={i}
+                      className={
+                        i < feedback.rating
+                          ? "text-yellow-500"
+                          : "text-gray-300"
+                      }
+                    >
                       ★
                     </span>
                   ))}
