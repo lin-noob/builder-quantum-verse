@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 import { roleService } from '@/services/roleService';
 import type { Role } from '@/types/role';
+import type { ClientMenuApiItem } from '@/services/clientMenuService';
 
 interface RoleState {
   roles: Role[];
@@ -9,12 +10,14 @@ interface RoleState {
   error: string | null;
   lastFetch: number | null;
   permissions: string[];
+  filteredMenus: ClientMenuApiItem[];
   
   // Actions
   setRoles: (roles: Role[]) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
   setPermissions: (permissions: string[]) => void;
+  setFilteredMenus: (menus: ClientMenuApiItem[]) => void;
   fetchRoles: () => Promise<void>;
   clearRoles: () => void;
   hasPermission: (permission: string) => boolean;
@@ -30,12 +33,14 @@ export const useRoleStore = create<RoleState>()(
         error: null,
         lastFetch: null,
         permissions: [],
+        filteredMenus: [],
 
         // Actions
         setRoles: (roles) => set({ roles }),
         setLoading: (isLoading) => set({ isLoading }),
         setError: (error) => set({ error }),
         setPermissions: (permissions) => set({ permissions }),
+        setFilteredMenus: (filteredMenus) => set({ filteredMenus }),
         
         fetchRoles: async () => {
           const { isLoading, lastFetch } = get();
@@ -71,6 +76,7 @@ export const useRoleStore = create<RoleState>()(
           lastFetch: null, 
           error: null,
           permissions: [],
+          filteredMenus: [],
         }),
 
         hasPermission: (permission: string) => {
@@ -84,6 +90,7 @@ export const useRoleStore = create<RoleState>()(
           roles: state.roles,
           lastFetch: state.lastFetch,
           permissions: state.permissions,
+          filteredMenus: state.filteredMenus,
         }),
       }
     ),

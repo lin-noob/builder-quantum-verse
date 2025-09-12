@@ -49,11 +49,8 @@ const LucideIcons = {
   Check,
 };
 import TabManager from "./TabManager";
-import {
-  fetchClientMenus,
-  filterClientMenus,
-  type ClientMenuApiItem,
-} from "@/services/clientMenuService";
+import { useRoleStore } from "@/stores/roleStore";
+import type { ClientMenuApiItem } from "@/services/clientMenuService";
 // import { ThemeToggle } from "./ThemeToggle"; // 已隐藏主题切换功能
 import { authService } from "@/services/authService";
 import {
@@ -104,6 +101,9 @@ export default function Layout({ children }: LayoutProps) {
   const [showCreateProjectDialog, setShowCreateProjectDialog] = useState(false);
   const [isDialogClosable, setIsDialogClosable] = useState(true);
   const [dynamicMenuItems, setDynamicMenuItems] = useState<MenuItem[]>([]);
+
+  // 从 roleStore 获取 filteredMenus
+  const filteredMenus = useRoleStore((state) => state.filteredMenus);
 
   // 使用store管理项目状态
   const {
@@ -190,14 +190,14 @@ export default function Layout({ children }: LayoutProps) {
   // 管理员菜单也设置为空，完全依赖动态菜单
   const adminMenuItems: MenuItem[] = useMemo(() => [], []);
 
-  // 登录后请求动态菜单并显示
+  // 使用 roleStore 中的 filteredMenus 构建动态菜单
   useEffect(() => {
     const user = authService.getCurrentUser();
-    if (!user) {
+    if (!user || filteredMenus.length === 0) {
       setDynamicMenuItems([]);
       return;
     }
-    let mounted = true;
+
     const buildDynamic = (menus: ClientMenuApiItem[]): MenuItem[] => {
       const result: MenuItem[] = [];
 
@@ -274,22 +274,9 @@ export default function Layout({ children }: LayoutProps) {
       });
     };
 
-    (async () => {
-      try {
-        const rawMenus = await fetchClientMenus();
-        const menus = filterClientMenus(rawMenus);
-        if (!mounted) return;
-        const items = buildDynamic(menus);
-        setDynamicMenuItems(items);
-      } catch {
-        if (!mounted) return;
-        setDynamicMenuItems([]);
-      }
-    })();
-    return () => {
-      mounted = false;
-    };
-  }, []);
+    const items = buildDynamic(filteredMenus);
+    setDynamicMenuItems(items);
+  }, [filteredMenus]); // 依赖 filteredMenus 而不是重新获取
 
   // 合并静态菜单和动态菜单，静态菜单在前
   const menuItems: MenuItem[] = useMemo(() => {

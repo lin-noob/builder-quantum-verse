@@ -24,6 +24,7 @@ const AdminApp = React.lazy(() => import("./admin/AdminApp"));
 import { fetchClientMenus, filterClientMenus, type ClientMenuApiItem } from "./services/clientMenuService";
 import { loadLazyClientComponent } from "./utils/clientPageLoader";
 import { useAuthStore } from "./stores";
+import { useRoleStore } from "./stores/roleStore";
 import AdminAuth from "./admin/pages/AdminAuth";
 
 const queryClient = new QueryClient();
@@ -44,6 +45,7 @@ const LazyRoute: React.FC<{ children: React.ReactNode; fallback?: React.ReactNod
 function AppContent() {
   const { isOpen, closeModal, modalTitle, modalDescription } = useContactModal();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const { setFilteredMenus } = useRoleStore();
   const [menus, setMenus] = useState<ClientMenuApiItem[] | null>(null);
 
   // 登录完成后再获取并构建动态路由
@@ -52,11 +54,15 @@ function AppContent() {
     const load = async () => {
       if (!isAuthenticated) {
         setMenus(null);
+        setFilteredMenus([]);
         return;
       }
       const rawMenus = await fetchClientMenus();
       const filteredMenus = filterClientMenus(rawMenus);
-      if (mounted) setMenus(filteredMenus);
+      if (mounted) {
+        setMenus(filteredMenus);
+        setFilteredMenus(filteredMenus); // 存储到 roleStore
+      }
     };
     load();
     return () => {
@@ -111,21 +117,21 @@ function AppContent() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           {/* <Route path="/admin/auth" element={<AdminAuth />} /> */}
-
+          <Route path="/admin/auth" element={<AdminAuth />} />
           {/* 静态路由 */}
           {staticRoutes.map((route, index) => (
             <Route key={index} path={route.path} element={route.element} />
           ))}
 
           {/* 管理后台 */}
-          <Route
+          {/* <Route
             path="/admin/*"
             element={
               <LazyRoute fallback={<PageLoader message="加载管理后台..." />}>
                 <AdminApp />
               </LazyRoute>
             }
-          />
+          /> */}
 
           {/* 动态路由（登录后构建） */}
           {dynamicRoutes}

@@ -5,53 +5,66 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, Lock, User, Shield, Key, AlertTriangle } from "lucide-react";
-import { adminAuthService } from "@/services/adminAuthService";
-import { useAuthStore, useRoleStore } from "@/stores";
+import { Mail, Lock, User, Shield, Home, ArrowLeft } from "lucide-react";
 import { authService } from "@/services/authService";
+import { useAuthStore, useRoleStore } from "@/stores";
+import { GoogleAuthButton } from "@/components/Auth/GoogleAuthButton";
+import { useLoginSuccess } from "@/components/Auth/useLoginSuccess";
 
-interface AdminFormData {
+interface FormData {
   username: string;
   email: string;
   password: string;
   confirmPassword: string;
-  inviteCode: string;
+  confirmationCode: string;
 }
 
-interface AdminFormErrors {
+interface FormErrors {
   username?: string;
   email?: string;
   password?: string;
   confirmPassword?: string;
-  inviteCode?: string;
+  confirmationCode?: string;
 }
 
-export default function AdminAuth() {
+export default function Auth() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState("login");
-  const [isLoading, setIsLoading] = useState(false);
+  const { handleLoginSuccess } = useLoginSuccess();
+  const {
+    user,
+    isAuthenticated,
+    isLoading,
+    setUser,
+    setIsAuthenticated,
+    setLoading,
+    setVerificationCode,
+    getVerificationCode,
+  } = useAuthStore();
   const { fetchRoles } = useRoleStore();
-  const { setUser, setIsAuthenticated } = useAuthStore();
-  const [formData, setFormData] = useState<AdminFormData>({
+  const [activeTab, setActiveTab] = useState("login");
+  const [isCodeSending, setIsCodeSending] = useState(false);
+  const [countdown, setCountdown] = useState(0);
+
+  const [formData, setFormData] = useState<FormData>({
     username: "",
     email: "",
     password: "",
     confirmPassword: "",
-    inviteCode: "",
+    confirmationCode: "",
   });
 
-  const [errors, setErrors] = useState<AdminFormErrors>({});
+  const [errors, setErrors] = useState<FormErrors>({});
 
-  // 检查是否已经登录，如果已登录则重定向到管理后台
+  // 如果已经登录，重定向到首页
   useEffect(() => {
-    if (adminAuthService.isAdminLoggedIn()) {
-      navigate("/admin");
+    if (isAuthenticated && user) {
+      navigate("/");
+      fetchRoles();
     }
-  }, [navigate]);
+  }, [isAuthenticated, user, navigate]);
 
   // 验证邮箱格式
   const validateEmail = (email: string): boolean => {
@@ -59,371 +72,341 @@ export default function AdminAuth() {
     return emailRegex.test(email);
   };
 
-  // 表单验证
-  const validateForm = (isLogin: boolean = true): boolean => {
-    const newErrors: AdminFormErrors = {};
-
-    if (!isLogin) {
-      // 注册表单验证
-      if (!formData.username.trim()) {
-        newErrors.username = "请输入用户名";
-      } else if (formData.username.length < 3) {
-        newErrors.username = "用户名至少需要3个字符";
-      }
-
-      if (!formData.inviteCode.trim()) {
-        newErrors.inviteCode = "请输入邀请码";
-      }
-
-      if (formData.password !== formData.confirmPassword) {
-        newErrors.confirmPassword = "两次输入的密码不一致";
-      }
-    }
-
-    if (!formData.email.trim()) {
-      newErrors.email = "请输入邮箱地址";
-    } else if (!validateEmail(formData.email)) {
-      newErrors.email = "请输入有效的邮箱地址";
-    }
-
-    if (!formData.password.trim()) {
-      newErrors.password = "请输入密码";
-    } else if (formData.password.length < 6) {
-      newErrors.password = "密码至少需要6个字符";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+  // 验证密码强度
+  const validatePassword = (password: string): string | null => {
+    if (!password) return "密码为必填项";
+    if (password.length < 6 || password.length > 32)
+      return "密码长度应为6-32个字符";
+    if (!/[a-zA-Z]/.test(password)) return "密码应至少包含1个字母";
+    if (!/\d/.test(password)) return "密码应至少包含1个数字";
+    return null;
   };
 
-  // 处理输入变化
-  const handleInputChange = (field: keyof AdminFormData, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-    // 清除对应字段的错误
-    if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: undefined }));
+  // 字段验证函数
+  const validateField = (name: string, value: string): string | null => {
+    switch (name) {
+      case "username":
+        if (!value) return "用户名为必填项";
+        if (value.length < 6 || value.length > 20)
+          return "用户名长度应为6-20个字符";
+        return null;
+      case "email":
+        if (!value)
+          return activeTab === "login"
+            ? "邮箱或用户名为必填项"
+            : "邮箱为必填项";
+        if (value.length > 40) return "输入内容过长";
+        // 登录时允许用户名或邮箱，注册时只允许邮箱
+        if (activeTab === "register" && !validateEmail(value))
+          return "邮箱格式无效";
+        if (activeTab === "login" && value !== "admin" && !validateEmail(value))
+          return "请输入有效的邮箱或用户名";
+        return null;
+      case "password":
+        if (activeTab === "login") {
+          return !value ? "密码格式无效" : null;
+        }
+        return validatePassword(value);
+      // case "confirmPassword":
+      //   if (!value) return "请输入您的确认密码";
+      //   if (value !== formData.password) return "确认密码与新密码不匹配";
+      //   return null;
+      case "confirmationCode":
+        if (!value) return "请输入您的确认验证码";
+        return null;
+      default:
+        return null;
     }
   };
 
-  // 处理登录
-  const handleLogin = async () => {
-    if (!validateForm(true)) return;
+  // 处理输入框失去焦点
+  const handleBlur = (name: string) => {
+    const error = validateField(name, formData[name as keyof FormData]);
+    setErrors((prev) => ({ ...prev, [name]: error }));
+  };
 
-    setIsLoading(true);
-    try {
-      const result = await adminAuthService.adminLogin({
-        email: formData.email,
-        password: formData.password,
-      });
+  // 处理输入框值变化
+  const handleInputChange = (name: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    // 清除该字段的错误
+    if (errors[name as keyof FormErrors]) {
+      setErrors((prev) => ({ ...prev, [name]: null }));
+    }
+  };
 
-      if (result.success) {
-        toast({
-          title: "登录成功",
-          description: `欢迎回来，${result.user?.username}！`,
-        });
-        fetchRoles();
-        navigate("/admin");
-      } else {
-        toast({
-          title: "登录失败",
-          description: result.error,
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
+  // 发送验证码
+  const sendVerificationCode = async () => {
+    const emailError = validateField("email", formData.email);
+    if (emailError) {
+      setErrors((prev) => ({ ...prev, email: emailError }));
+      return;
+    }
+
+    setIsCodeSending(true);
+
+    const result = await authService.sendVerificationCode(
+      formData.email,
+      "register",
+    );
+
+    setIsCodeSending(false);
+
+    if (!result.success) {
       toast({
-        title: "登录失败",
-        description: "网络错误，请稍后重试",
+        title: result.error,
         variant: "destructive",
       });
-    } finally {
-      setIsLoading(false);
+      return;
     }
-  };
 
-  // 处理注册
-  const handleRegister = async () => {
-    if (!validateForm(false)) return;
-
-    setIsLoading(true);
-    try {
-      const result = await adminAuthService.adminRegister({
-        username: formData.username,
-        email: formData.email,
-        password: formData.password,
-        inviteCode: formData.inviteCode,
-      });
-
-      if (result.success) {
-        toast({
-          title: "注册成功",
-          description: `欢迎，${result.user?.username}！`,
-        });
-        fetchRoles();
-        navigate("/admin");
-      } else {
-        toast({
-          title: "注册失败",
-          description: result.error,
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      toast({
-        title: "注册失败",
-        description: "网络错误，请稍后重试",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
+    // 保存验证码到 store（测试环境）
+    if (result.key) {
+      const expiresAt = Date.now() + 10 * 60 * 1000; // 10分钟后过期
+      setVerificationCode(formData.email, result.key, expiresAt, "register");
     }
-  };
 
-  // 重置表单
-  const resetForm = () => {
-    setFormData({
-      username: "",
-      email: "",
-      password: "",
-      confirmPassword: "",
-      inviteCode: "",
+    setCountdown(120);
+
+    toast({
+      title: "验证码已发送至您的邮箱",
+      description: "请查收并在10分钟内使用",
     });
-    setErrors({});
+
+    // 开始倒计时
+    const timer = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
   };
 
-  // 切换标签页时重置表单
-  const handleTabChange = (tab: string) => {
-    setActiveTab(tab);
-    resetForm();
+  // 注册处理
+  const handleRegister = async () => {
+    // 验证所有字段
+    const newErrors: FormErrors = {};
+    Object.keys(formData).forEach((key) => {
+      if (
+        key === "confirmPassword" ||
+        (activeTab === "register" && key !== "password")
+      ) {
+        const error = validateField(key, formData[key as keyof FormData]);
+        if (error) newErrors[key as keyof FormErrors] = error;
+      }
+    });
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    setLoading(true);
+    const result = await authService.register({
+      username: formData.username,
+      email: formData.email,
+      password: formData.password,
+      confirmationCode: formData.confirmationCode,
+    });
+    setLoading(false);
+
+    if (!result.success) {
+      toast({
+        title: result.error,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // 注册成功后自动登录并跳转到首页
+    const loginResult = await authService.login({
+      email: formData.email,
+      password: formData.password,
+    });
+
+    if (loginResult.success && loginResult.user) {
+      // 更新 Zustand store
+      setUser(loginResult.user);
+      setIsAuthenticated(true);
+      toast({
+        title: "注册并登录成功！",
+        description: "欢迎使用AI营销平台",
+      });
+
+      // 直接跳转到首页
+      // setTimeout(() => {
+      //   navigate("/");
+      // }, 1000);
+    } else {
+      toast({
+        title: "注册成功，但登录失败",
+        description: "请手动登录",
+        variant: "destructive",
+      });
+
+      // 切换到登录标签页
+      setActiveTab("login");
+      // 清空表单，但保留邮箱以便登录
+      setFormData({
+        username: "",
+        email: formData.email,
+        password: "",
+        confirmPassword: "",
+        confirmationCode: "",
+      });
+    }
+  };
+
+  // 登录处理
+  const handleLogin = async () => {
+    // 验证字段
+    const newErrors: FormErrors = {};
+    const emailError = validateField("email", formData.email);
+    const passwordError = validateField("password", formData.password);
+
+    if (emailError) newErrors.email = emailError;
+    if (passwordError) newErrors.password = passwordError;
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    setLoading(true);
+    const result = await authService.login({
+      email: formData.email,
+      password: formData.password,
+    });
+    setLoading(false);
+
+    if (!result.success) {
+      toast({
+        title: result.error,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // 使用共享的登录完成处理函数
+    if (result.user) {
+      handleLoginSuccess(
+        result.user,
+        result.user.isAdmin ? "欢迎回来，管理员" : "欢迎回来",
+      );
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <Card className="border-0 shadow-xl">
-          <CardHeader className="space-y-1 pb-4">
-            <CardTitle className="text-xl text-center">
-              <Shield className="h-5 w-5 inline mr-2" />
-              管理员身份验证
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Tabs
-              value={activeTab}
-              onValueChange={handleTabChange}
-              className="w-full"
-            >
-              <TabsList className="grid w-full grid-cols-1">
-                <TabsTrigger value="login" className="text-sm">
-                  登录
-                </TabsTrigger>
-                {/* <TabsTrigger value="register" className="text-sm">
-                  注册
-                </TabsTrigger> */}
-              </TabsList>
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      {/* 返回首页按钮 */}
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => {
+          // 如果用户已登录，先退出登录再跳转到首页
+          const currentUser = authService.getCurrentUser();
+          if (currentUser) {
+            authService.logout();
+          }
+          navigate("/");
+        }}
+        className="fixed top-4 left-4 z-10 flex items-center gap-2 text-muted-foreground hover:text-foreground"
+      >
+        <Home className="h-4 w-4" />
+        <span className="hidden sm:inline">返回首页</span>
+      </Button>
 
-              <TabsContent value="login" className="space-y-4 mt-6">
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="login-email">管理员邮箱</Label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                      <Input
-                        id="login-email"
-                        type="email"
-                        placeholder="请输入管理员邮箱"
-                        value={formData.email}
-                        onChange={(e) =>
-                          handleInputChange("email", e.target.value)
-                        }
-                        className={`pl-10 ${errors.email ? "border-red-500" : ""}`}
-                        onKeyPress={(e) => e.key === "Enter" && handleLogin()}
-                      />
-                    </div>
-                    {errors.email && (
-                      <p className="text-sm text-red-500">{errors.email}</p>
-                    )}
+      <Card className="w-full max-w-md">
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl text-center">AI营销平台</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Tabs
+            value={activeTab}
+            onValueChange={setActiveTab}
+            className="w-full"
+          >
+            <TabsList className="grid w-full grid-cols-1">
+              <TabsTrigger value="login" className="text-sm">
+                登录
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="login" className="space-y-4 mt-6">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="login-email">管理员邮箱</Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <Input
+                      id="login-email"
+                      type="email"
+                      className="pl-10"
+                      placeholder="请输入管理员邮箱"
+                      value={formData.email}
+                      onChange={(e) =>
+                        handleInputChange("email", e.target.value)
+                      }
+                      onBlur={() => handleBlur("email")}
+                    />
                   </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="login-password">密码</Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                      <Input
-                        id="login-password"
-                        type="password"
-                        placeholder="请输入密码"
-                        value={formData.password}
-                        onChange={(e) =>
-                          handleInputChange("password", e.target.value)
-                        }
-                        className={`pl-10 ${errors.password ? "border-red-500" : ""}`}
-                        onKeyPress={(e) => e.key === "Enter" && handleLogin()}
-                      />
-                    </div>
-                    {errors.password && (
-                      <p className="text-sm text-red-500">{errors.password}</p>
-                    )}
-                  </div>
-
-                  <Button
-                    onClick={handleLogin}
-                    className="w-full bg-red-600 hover:bg-red-700"
-                    disabled={isLoading}
-                  >
-                    {isLoading ? "登录中..." : "登录管理后台"}
-                  </Button>
+                  {errors.email && (
+                    <p className="text-sm text-red-500">{errors.email}</p>
+                  )}
                 </div>
 
-                {/* <div className="mt-6 text-center">
+                <div className="space-y-2">
+                  <Label htmlFor="login-password">密码</Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <Input
+                      id="login-password"
+                      type="password"
+                      placeholder="请输入密码"
+                      value={formData.password}
+                      onChange={(e) =>
+                        handleInputChange("password", e.target.value)
+                      }
+                      className={`pl-10 ${errors.password ? "border-red-500" : ""}`}
+                      onKeyPress={(e) => e.key === "Enter" && handleLogin()}
+                    />
+                  </div>
+                  {errors.password && (
+                    <p className="text-sm text-red-500">{errors.password}</p>
+                  )}
+                </div>
+
+                <Button
+                  onClick={handleLogin}
+                  className="w-full bg-red-600 hover:bg-red-700"
+                  disabled={isLoading}
+                >
+                  {isLoading ? "登录中..." : "登录管理后台"}
+                </Button>
+              </div>
+
+              {/* <div className="mt-6 text-center">
                   <p className="text-sm text-gray-600">
                     默认管理员账号：admin@wimoor.com / 123456
                   </p>
                 </div> */}
-              </TabsContent>
+            </TabsContent>
+          </Tabs>
+          <Separator className="my-6" />
 
-              <TabsContent value="register" className="space-y-4 mt-6">
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="register-username">用户名</Label>
-                    <div className="relative">
-                      <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                      <Input
-                        id="register-username"
-                        type="text"
-                        placeholder="请输入用户名"
-                        value={formData.username}
-                        onChange={(e) =>
-                          handleInputChange("username", e.target.value)
-                        }
-                        className={`pl-10 ${errors.username ? "border-red-500" : ""}`}
-                      />
-                    </div>
-                    {errors.username && (
-                      <p className="text-sm text-red-500">{errors.username}</p>
-                    )}
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="register-email">邮箱地址</Label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                      <Input
-                        id="register-email"
-                        type="email"
-                        placeholder="请输入邮箱地址"
-                        value={formData.email}
-                        onChange={(e) =>
-                          handleInputChange("email", e.target.value)
-                        }
-                        className={`pl-10 ${errors.email ? "border-red-500" : ""}`}
-                      />
-                    </div>
-                    {errors.email && (
-                      <p className="text-sm text-red-500">{errors.email}</p>
-                    )}
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="register-password">密码</Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                      <Input
-                        id="register-password"
-                        type="password"
-                        placeholder="请输入密码（至少6位）"
-                        value={formData.password}
-                        onChange={(e) =>
-                          handleInputChange("password", e.target.value)
-                        }
-                        className={`pl-10 ${errors.password ? "border-red-500" : ""}`}
-                      />
-                    </div>
-                    {errors.password && (
-                      <p className="text-sm text-red-500">{errors.password}</p>
-                    )}
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="register-confirm-password">确认密码</Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                      <Input
-                        id="register-confirm-password"
-                        type="password"
-                        placeholder="请再次输入密码"
-                        value={formData.confirmPassword}
-                        onChange={(e) =>
-                          handleInputChange("confirmPassword", e.target.value)
-                        }
-                        className={`pl-10 ${errors.confirmPassword ? "border-red-500" : ""}`}
-                      />
-                    </div>
-                    {errors.confirmPassword && (
-                      <p className="text-sm text-red-500">
-                        {errors.confirmPassword}
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="register-invite-code">邀请码</Label>
-                    <div className="relative">
-                      <Key className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                      <Input
-                        id="register-invite-code"
-                        type="text"
-                        placeholder="请输入超级管理员邀请码"
-                        value={formData.inviteCode}
-                        onChange={(e) =>
-                          handleInputChange("inviteCode", e.target.value)
-                        }
-                        className={`pl-10 ${errors.inviteCode ? "border-red-500" : ""}`}
-                      />
-                    </div>
-                    {errors.inviteCode && (
-                      <p className="text-sm text-red-500">
-                        {errors.inviteCode}
-                      </p>
-                    )}
-                  </div>
-
-                  <Button
-                    onClick={handleRegister}
-                    className="w-full bg-red-600 hover:bg-red-700"
-                    disabled={isLoading}
-                  >
-                    {isLoading ? "注册中..." : "注册超级管理员"}
-                  </Button>
-                </div>
-
-                <div className="mt-6 text-center">
-                  <p className="text-sm text-gray-600">
-                    测试邀请码：SUPER_ADMIN_INVITE_2024
-                  </p>
-                </div>
-              </TabsContent>
-            </Tabs>
-
-            <Separator className="my-6" />
-
-            <div className="text-center">
-              <Button
-                variant="outline"
-                className="text-blue-600 hover:text-blue-700"
-                onClick={() => navigate("/")}
-              >
-                返回主平台
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        <div className="text-center mt-6 text-sm text-gray-500">
-          <p>AI营销系统管理后台 © 2024</p>
-          <p>仅限授权人员访问</p>
-        </div>
-      </div>
+          <div className="text-center">
+            <Button
+              variant="outline"
+              className="text-blue-600 hover:text-blue-700"
+              onClick={() => navigate("/")}
+            >
+              返回主平台
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
