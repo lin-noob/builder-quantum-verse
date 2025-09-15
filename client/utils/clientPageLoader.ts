@@ -102,7 +102,7 @@ export function loadLazyClientComponent(componentPath?: string): React.LazyExoti
   }
 
   // 尝试从映射表中找到对应的组件
-  const loader = CLIENT_PAGES_MAP[componentPath];
+  const loader = () => import(componentPath);
   
   if (loader) {
     return React.lazy(loader);
