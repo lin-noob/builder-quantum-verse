@@ -423,7 +423,7 @@ export default function SubscriptionManagement() {
             </div>
 
             <div>
-              <Label htmlFor="package-role">角色 *</Label>
+              <Label htmlFor="package-role">版本 *</Label>
               <Select
                 value={newPackage.roleId.toString()}
                 onValueChange={(value) =>
