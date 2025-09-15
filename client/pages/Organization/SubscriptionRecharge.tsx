@@ -51,9 +51,7 @@ export default function SubscriptionRecharge() {
   const [selectedPackage, setSelectedPackage] = useState<Subscription | null>(
     null,
   );
-  const [paymentMethod, setPaymentMethod] = useState<
-    "微信支付" | "支付宝" | "银行转账" | "企业转账"
-  >("微信支付");
+  const [paymentMethod, setPaymentMethod] = useState("PayPal");
 
   const load = async () => {
     try {
@@ -345,7 +343,7 @@ export default function SubscriptionRecharge() {
               选择您想要升级到的套餐
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-4">
+          <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {packageList.map((pkg) => (
                 <div
@@ -360,7 +358,7 @@ export default function SubscriptionRecharge() {
                     setSelectedPackage(pkg)
                   }
                 >
-                  <div className="p-6">
+                  <div className="p-4">
                     <div className="flex justify-between items-start">
                       <div>
                         <h3 className="font-bold text-lg flex items-center gap-2">
@@ -425,6 +423,32 @@ export default function SubscriptionRecharge() {
                 </div>
               ))}
             </div>
+
+            {/* 支付方式选择 - 仅在选择了套餐时显示 */}
+            {selectedPackage && (
+              <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-sm font-medium">支付方式</label>
+                    <Select
+                      value={paymentMethod}
+                      onValueChange={(value) => setPaymentMethod(value as any)}
+                    >
+                      <SelectTrigger className="w-full mt-1">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="PayPal">PayPal</SelectItem>
+                        {/* <SelectItem value="微信支付">微信支付</SelectItem>
+                        <SelectItem value="支付宝">支付宝</SelectItem>
+                        <SelectItem value="银行转账">银行转账</SelectItem>
+                        <SelectItem value="企业转账">企业转账</SelectItem> */}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
           <DialogFooter>
             <Button
