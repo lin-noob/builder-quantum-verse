@@ -133,8 +133,8 @@ export default function SubscriptionRecharge() {
 
     try {
       const data = {
-        tariffpackage: currentSubscription.tariffpackage,
-        id: selectedPackage.id,
+        tariffpackage: selectedPackage.id,
+        id: currentSubscription.id,
       };
       const resp = await request.post(
         "/admin/api/v1/managerLimit/upgrade",
