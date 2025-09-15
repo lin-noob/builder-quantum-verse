@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -45,6 +45,8 @@ import {
 } from "../hooks/useMemberManagement";
 import { RoleBadge, StatusBadge } from "@/hooks/use-role";
 import { useRoleStore } from "@/stores";
+import { roleService } from "@/services/roleService";
+import { Role } from "@/types/role";
 
 interface MemberTableProps extends UseMemberManagementProps {
   title?: string;
@@ -113,7 +115,7 @@ export const MemberTable: React.FC<MemberTableProps> = ({
   });
 
   // 状态管理
-  const { roles } = useRoleStore();
+  const [roles, setRoles] = useState<Role[]>([]);
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [statusConfirmOpen, setStatusConfirmOpen] = useState(false);
@@ -139,6 +141,15 @@ export const MemberTable: React.FC<MemberTableProps> = ({
   const openPasswordResetDialog = (member: Member) => {
     setPasswordResetMember(member);
   };
+
+  const getOrgRule = async () => {
+    const data = await roleService.getRoles(organizationId);
+    setRoles(data);
+  };
+
+  useEffect(() => {
+    getOrgRule();
+  }, []);
 
   return (
     <Card>

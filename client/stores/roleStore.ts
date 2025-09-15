@@ -42,7 +42,7 @@ export const useRoleStore = create<RoleState>()(
         setPermissions: (permissions) => set({ permissions }),
         setFilteredMenus: (filteredMenus) => set({ filteredMenus }),
         
-        fetchRoles: async () => {
+        fetchRoles: async (companyId?: string) => {
           const { isLoading, lastFetch } = get();
           
           // Don't fetch if already loading
@@ -57,7 +57,7 @@ export const useRoleStore = create<RoleState>()(
           set({ isLoading: true, error: null });
 
           try {
-            const roles = await roleService.getRoles();
+            const roles = await roleService.getRoles(companyId);
             set({ 
               roles: roles || [],
               lastFetch: Date.now(),

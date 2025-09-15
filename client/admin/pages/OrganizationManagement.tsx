@@ -94,7 +94,6 @@ const OrganizationManagement = () => {
     adminName: "",
     adminEmail: "",
     adminPassword: "",
-    subscriptionPlan: SubscriptionPlan.INTERNAL_TRIAL,
   });
   const [editingOrganization, setEditingOrganization] =
     useState<Organization | null>(null);
@@ -161,8 +160,8 @@ const OrganizationManagement = () => {
     }
 
     try {
+      
       const bool = await organizationService.createOrganization(createForm);
-
       if (bool) {
         toast({
           title: "创建成功",
@@ -180,7 +179,6 @@ const OrganizationManagement = () => {
           adminName: "",
           adminEmail: "",
           adminPassword: "",
-          subscriptionPlan: SubscriptionPlan.INTERNAL_TRIAL,
         });
         loadOrganizations();
       } else {
@@ -208,7 +206,6 @@ const OrganizationManagement = () => {
         organizationId: editingOrganization.organizationId,
         name: editingOrganization.name,
         accountStatus: editingOrganization.accountStatus,
-        subscriptionPlan: editingOrganization.subscriptionPlan,
       };
 
       const response =
@@ -718,36 +715,6 @@ const OrganizationManagement = () => {
               </div>
             </div>
 
-            <div>
-              <Label htmlFor="subscription">订阅套餐</Label>
-              <Select
-                value={createForm.subscriptionPlan}
-                onValueChange={(value) =>
-                  setCreateForm((prev) => ({
-                    ...prev,
-                    subscriptionPlan: value as SubscriptionPlan,
-                  }))
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={SubscriptionPlan.INTERNAL_TRIAL}>
-                    内部试用
-                  </SelectItem>
-                  <SelectItem value={SubscriptionPlan.BASIC} disabled>
-                    基础版
-                  </SelectItem>
-                  <SelectItem value={SubscriptionPlan.PROFESSIONAL} disabled>
-                    专业版
-                  </SelectItem>
-                  <SelectItem value={SubscriptionPlan.ENTERPRISE} disabled>
-                    企业版
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
           </div>
           <DialogFooter>
             <Button
@@ -805,40 +772,7 @@ const OrganizationManagement = () => {
                   </SelectContent>
                 </Select>
               </div>
-              <div>
-                <Label htmlFor="edit-plan">订阅套餐</Label>
-                <Select
-                  value={editingOrganization.subscriptionPlan}
-                  onValueChange={(value) =>
-                    setEditingOrganization((prev) =>
-                      prev
-                        ? {
-                            ...prev,
-                            subscriptionPlan: value as SubscriptionPlan,
-                          }
-                        : null,
-                    )
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value={SubscriptionPlan.INTERNAL_TRIAL}>
-                      内部试用
-                    </SelectItem>
-                    <SelectItem value={SubscriptionPlan.BASIC} disabled>
-                      基础版
-                    </SelectItem>
-                    <SelectItem value={SubscriptionPlan.PROFESSIONAL} disabled>
-                      专业版
-                    </SelectItem>
-                    <SelectItem value={SubscriptionPlan.ENTERPRISE} disabled>
-                      企业版
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+
               <div>
                 <Label htmlFor="edit-org-id">组织ID</Label>
                 <Input

@@ -67,7 +67,9 @@ interface UpdateOrganizationResponse {
 /**
  * 将API返回的组织记录转换为前端使用的组织对象
  */
-const transformOrganizationRecord = (record: OrganizationRecord): Organization => {
+const transformOrganizationRecord = (
+  record: OrganizationRecord,
+): Organization => {
   // 转换订阅计划
   let subscriptionPlan: SubscriptionPlan;
   switch (record.subscriptionPlan) {
@@ -103,7 +105,7 @@ const transformOrganizationRecord = (record: OrganizationRecord): Organization =
  * 获取组织列表
  */
 export const getOrganizations = async (
-  query: OrganizationListQuery = {}
+  query: OrganizationListQuery = {},
 ): Promise<PaginatedResponse<Organization>> => {
   try {
     // 构建请求参数
@@ -140,7 +142,7 @@ export const getOrganizations = async (
 
     const response = await request.post<ApiResponse<OrganizationListResponse>>(
       "/admin/api/v1/company/list",
-      params
+      params,
     );
     const res = response.data;
     // 检查响应是否成功
@@ -149,7 +151,9 @@ export const getOrganizations = async (
     }
 
     // 转换数据格式
-    const organizationList = response.data.data.records.map(transformOrganizationRecord);
+    const organizationList = response.data.data.records.map(
+      transformOrganizationRecord,
+    );
     return {
       data: organizationList,
       total: res.data.total,
@@ -164,13 +168,14 @@ export const getOrganizations = async (
  * 创建新组织
  */
 export const createOrganization = async (
-  requestPayload: CreateOrganizationRequest
+  requestPayload: CreateOrganizationRequest,
 ): Promise<boolean> => {
   try {
     // 转换请求参数格式
     const payload = {
       company: requestPayload.name,
-      account: requestPayload.adminName,
+      name: requestPayload.adminName,
+      account: requestPayload.adminEmail,
       email: requestPayload.adminEmail,
       password: requestPayload.adminPassword,
       // code: "string",
@@ -185,10 +190,9 @@ export const createOrganization = async (
       // salekey: "string"
     };
 
-    const response = await request.post<ApiResponse<CreateOrganizationResponse>>(
-      "/admin/api/v1/company",
-      payload
-    );
+    const response = await request.post<
+      ApiResponse<CreateOrganizationResponse>
+    >("/admin/api/v1/company", payload);
 
     const res = response.data;
 
@@ -196,8 +200,6 @@ export const createOrganization = async (
     if (res.code !== "201") {
       throw new Error(response.data.msg || "创建组织失败");
     }
-
-   
 
     return true;
   } catch (error) {
@@ -210,18 +212,17 @@ export const createOrganization = async (
  * 更新组织信息
  */
 export const updateOrganization = async (
-  requestPayload: Organization
+  requestPayload: Organization,
 ): Promise<boolean> => {
   try {
     // 转换请求参数格式
     const payload = {
-      ...requestPayload
+      ...requestPayload,
     };
 
-    const response = await request.post<ApiResponse<UpdateOrganizationResponse>>(
-      "/admin/api/v1/company/update",
-      payload
-    );
+    const response = await request.post<
+      ApiResponse<UpdateOrganizationResponse>
+    >("/admin/api/v1/company/update", payload);
 
     const res = response.data;
 
@@ -241,15 +242,15 @@ export const updateOrganization = async (
  * 启用组织
  */
 export const enableOrganizations = async (
-  ids: string[]
+  ids: string[],
 ): Promise<ApiResponse<{ success: boolean }>> => {
   try {
     const response = await request.post<ApiResponse<{ success: boolean }>>(
-      `/admin/api/v1/company/enable/${ids.join(',')}`,
-      {}
+      `/admin/api/v1/company/enable/${ids.join(",")}`,
+      {},
     );
 
-    const res  = response.data;
+    const res = response.data;
 
     if (res.code !== "201") {
       throw new Error(response.data.msg || "启用组织失败");
@@ -271,15 +272,15 @@ export const enableOrganizations = async (
  * 禁用组织
  */
 export const disableOrganizations = async (
-  ids: string[]
+  ids: string[],
 ): Promise<ApiResponse<{ success: boolean }>> => {
   try {
     const response = await request.post<ApiResponse<{ success: boolean }>>(
-      `/admin/api/v1/company/disable/${ids.join(',')}`,
-      {}
+      `/admin/api/v1/company/disable/${ids.join(",")}`,
+      {},
     );
-    
-    const res = response.data
+
+    const res = response.data;
 
     if (res.code !== "201") {
       throw new Error(response.data.msg || "禁用组织失败");
