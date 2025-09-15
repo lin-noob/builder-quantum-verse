@@ -36,7 +36,6 @@ export default function MarketingHome() {
     if (currentUser) {
       navigate("/dashboard2");
     }
-    console.log(t('nav.platformName'));
   }, [currentUser, navigate]);
 
   // 如果已登录，显示加载状态
