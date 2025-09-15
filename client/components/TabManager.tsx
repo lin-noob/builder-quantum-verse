@@ -8,6 +8,8 @@ import React, {
 import { useNavigate, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { X, ChevronLeft, ChevronRight, Home } from "lucide-react";
+import { useRoleStore } from "@/stores/roleStore";
+import type { ClientMenuApiItem } from "@/services/clientMenuService";
 
 interface Tab {
   id: string;
@@ -27,6 +29,26 @@ interface ContextMenu {
 function TabManager() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { filteredMenus } = useRoleStore();
+
+  // 从动态菜单生成路径到标题的映射
+  const dynamicPathToTitle = useMemo(() => {
+    const mapping: Record<string, string> = {};
+    
+    const buildMapping = (menus: ClientMenuApiItem[]) => {
+      menus.forEach((menu) => {
+        if (menu.path && menu.meta?.title) {
+          mapping[menu.path] = menu.meta.title;
+        }
+        if (menu.children && menu.children.length > 0) {
+          buildMapping(menu.children);
+        }
+      });
+    };
+    
+    buildMapping(filteredMenus);
+    return mapping;
+  }, [filteredMenus]);
 
   // 统一设置 dashboard2 为首页
   const getDefaultTabs = (): Tab[] => {
@@ -58,7 +80,6 @@ function TabManager() {
     // const homePath = isAdminPlatform ? "/admin" : "/dashboard2";
     const homePath = "/dashboard2";
     const homeTitle = "首页";
-
     setTabs((prevTabs) => {
       const updatedTabs = prevTabs.map((tab) => {
         if (tab.isHome) {
@@ -138,7 +159,6 @@ function TabManager() {
   useEffect(() => {
     const currentPath = location.pathname;
     const existingTab = tabs.find((tab) => tab.path === currentPath);
-
     if (existingTab) {
       // 如果标签页已存在，切换到该标签页
       setTabs((prev) =>
@@ -149,7 +169,8 @@ function TabManager() {
       );
     } else {
       // 如果标签页不存在，创建新标签页
-      let title = pathToTitle[currentPath as keyof typeof pathToTitle];
+      // 优先从动态菜单获取标题，否则使用硬编码映射
+      let title = dynamicPathToTitle[currentPath] || pathToTitle[currentPath as keyof typeof pathToTitle];
 
       // 如果没有预定义标题，尝试从路径生成友好的标题
       if (!title) {
@@ -258,7 +279,7 @@ function TabManager() {
         newTab,
       ]);
     }
-  }, [location.pathname]);
+  }, [location.pathname, dynamicPathToTitle]);
 
   // 监听容器滚动
   useEffect(() => {
