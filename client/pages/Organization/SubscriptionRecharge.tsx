@@ -2,14 +2,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  CreditCard,
-  Check,
-  Calendar,
-  Zap,
-  Star,
-  Clock,
-} from "lucide-react";
+import { CreditCard, Check, Calendar, Zap, Star, Clock } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -120,10 +113,11 @@ export default function SubscriptionRecharge() {
         data,
       );
       const res = resp.data;
-      toast({
-        title: "续费成功",
-      });
-      load();
+      payment(res.data);
+      // toast({
+      //   title: "续费成功",
+      // });
+      // load();
     } catch (error) {}
   };
 
@@ -141,11 +135,39 @@ export default function SubscriptionRecharge() {
         data,
       );
       const res = resp.data;
+      payment(res.data);
       toast({
         title: "升级成功",
       });
       load();
     } catch (error) {}
+  };
+
+  const payment = (parameterMap: Map<string, string>) => {
+    const formEl = document.createElement("form");
+    formEl.style.display = "none";
+    formEl.action = "https://www.sandbox.paypal.com/cgi-bin/webscr";
+    // formEl.action = 'https://www.paypal.com/cgi-bin/webscr';
+    formEl.method = "post";
+    const map = {
+      ...parameterMap,
+      return: `${window.location.origin}/subscription-recharge`,
+      notify_url: `${window.location.origin}/subscription-recharge`,
+      cancel_return: `${window.location.origin}/subscription-recharge`,
+    };
+    for (const prop in map) {
+      const inputEl = document.createElement("input");
+      inputEl.type = "hidden";
+      inputEl.name = prop;
+      if (prop === "country") {
+        inputEl.value = ",";
+      } else {
+        inputEl.value = parameterMap[prop];
+      }
+      formEl.appendChild(inputEl);
+    }
+    document.body.appendChild(formEl);
+    formEl.submit();
   };
 
   if (loading) {
