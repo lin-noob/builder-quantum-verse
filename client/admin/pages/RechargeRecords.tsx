@@ -53,7 +53,7 @@ interface RechargeRecord {
   opttime: string;
   orderId: string;
   orderTime: string;
-  amount: number;
+  totalPrice: number;
   paymentMethod: number;
   status: number;
   currency: string;
@@ -402,11 +402,11 @@ export default function RechargeRecords() {
                   </TableHead>
                   <TableHead 
                     className="cursor-pointer"
-                    onClick={() => handleSort('amount')}
+                    onClick={() => handleSort('totalPrice')}
                   >
                     <div className="flex items-center">
                       金额
-                      {sortConfig?.key === 'amount' && (
+                      {sortConfig?.key === 'totalPrice' && (
                         sortConfig.direction === 'asc' 
                           ? <ChevronUp className="ml-1 h-4 w-4" /> 
                           : <ChevronDown className="ml-1 h-4 w-4" />
@@ -424,7 +424,7 @@ export default function RechargeRecords() {
                     <TableCell>{record.userName ?? "-"}</TableCell>
                     <TableCell>{record.companyName ?? "-"}</TableCell>
                     <TableCell>{record.opttime}</TableCell>
-                    <TableCell>{record.amount ? "$" + record.amount.toFixed(2) : "-"}</TableCell>
+                    <TableCell>{record.totalPrice ? "$" + record.totalPrice.toFixed(2) : "-"}</TableCell>
                     <TableCell>{paymentMethodMap[record.paymentMethod] ?? "-"}</TableCell>
                     <TableCell>{getStatusBadge(record.status)}</TableCell>
                   </TableRow>
