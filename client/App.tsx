@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { I18nextProvider } from "react-i18next";
 import i18n from "./lib/i18n";
 import Layout from "./components/Layout";
@@ -12,7 +12,7 @@ import { usePageRequestManager } from "./hooks/useRequestManager";
 import { ContactModalProvider, useContactModal } from "./contexts/ContactModalContext";
 import ContactFormModal from "./components/ContactFormModal";
 
-import { staticRoutes } from "./config/staticRoutes";
+import { staticRoutes, isStaticRoute } from "./config/staticRoutes";
 
 // 基础页（登录相关与管理后台）
 import Auth from "./pages/Auth";
@@ -21,7 +21,7 @@ import ResetPassword from "./pages/ResetPassword";
 const AdminApp = React.lazy(() => import("./admin/AdminApp"));
 
 // 前台动态菜单与懒加载工具
-import { fetchClientMenus, filterClientMenus, type ClientMenuApiItem } from "./services/clientMenuService";
+import { fetchClientMenus, filterClientMenus, flattenClientMenus, type ClientMenuApiItem } from "./services/clientMenuService";
 import { loadLazyClientComponent } from "./utils/clientPageLoader";
 import { useAuthStore } from "./stores";
 import { useRoleStore } from "./stores/roleStore";
@@ -41,6 +41,41 @@ const PageLoader: React.FC<{ message?: string }> = ({ message = "加载中..." }
 const LazyRoute: React.FC<{ children: React.ReactNode; fallback?: React.ReactNode }> = ({ children, fallback }) => (
   <Suspense fallback={fallback || <PageLoader />}>{children}</Suspense>
 );
+
+// 智能路由保护组件，避免刷新时错误重定向
+const SmartRouteGuard: React.FC<{
+  isAuthenticated: boolean;
+  menus: ClientMenuApiItem[] | null;
+}> = ({ isAuthenticated, menus }) => {
+  const location = useLocation();
+  
+  // 如果未认证，重定向到认证页面
+  if (!isAuthenticated) {
+    return <Navigate to="/auth" replace />;
+  }
+  
+  // 检查是否为静态路由
+  if (isStaticRoute(location.pathname)) {
+    // 静态路由存在但可能还没渲染，显示加载页面而不是重定向
+    return <PageLoader message="正在加载页面..." />;
+  }
+  
+  // 检查是否为动态路由
+  if (menus) {
+    const flatMenus = flattenClientMenus(menus);
+    const isDynamicRoute = flatMenus.some(menu => menu.path === location.pathname);
+    if (isDynamicRoute) {
+      // 动态路由存在但可能还没渲染，显示加载页面而不是重定向
+      return <PageLoader message="正在加载页面..." />;
+    }
+  } else {
+    // 菜单还在加载中，等待而不是重定向
+    return <PageLoader message="正在加载菜单..." />;
+  }
+  
+  // 只有确认是无效路由时才重定向到默认页面
+  return <Navigate to="/dashboard2" replace />;
+};
 
 function AppContent() {
   const { isOpen, closeModal, modalTitle, modalDescription } = useContactModal();
@@ -152,16 +187,7 @@ function AppContent() {
           />
           <Route 
             path="*" 
-            element={
-              <Navigate 
-                to={
-                  isAuthenticated 
-                    ? "/dashboard2"
-                    : "/auth"
-                } 
-                replace 
-              />
-            } 
+            element={<SmartRouteGuard isAuthenticated={isAuthenticated} menus={menus} />}
           />
         </Routes>
       </BrowserRouter>
