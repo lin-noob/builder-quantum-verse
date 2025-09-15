@@ -99,9 +99,6 @@ interface ApiPermissionItem {
   menuId: number | string;
 }
 
-// 角色类型定义（与 API 返回的数据结构兼容）
-
-
 interface User {
   id: string;
   name: string;
@@ -124,7 +121,6 @@ interface GranularPermissionManagementProps {
 
 export default function GranularPermissionManagement({
   title = "精细化权限管理",
-  description = "配置角色的功能权限和字段级��限",
 }: GranularPermissionManagementProps) {
   const { toast } = useToast();
   // API hooks
@@ -169,9 +165,7 @@ export default function GranularPermissionManagement({
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
 
-  // 获取角色列表
   const roles = rolesData?.data;
-  const total = rolesData?.total;
 
   // 获取菜单树数据
   const fetchMenuTreeData = async () => {
@@ -281,7 +275,7 @@ export default function GranularPermissionManagement({
   const handleSaveRole = () => {
     const trimmedName = newRole.name.trim();
     if (!trimmedName) {
-      toast({ title: "请填写角色名称", variant: "destructive" });
+      toast({ title: `请填写${title}名称`, variant: "destructive" });
       return;
     }
 
@@ -302,7 +296,6 @@ export default function GranularPermissionManagement({
       }, {
         onSuccess: (data) => {
           if (data.code === "200" || data.code === "201") {
-            // 重新获取角色列表以确保数据同步
             fetchRoles();
           }
         }
@@ -311,7 +304,6 @@ export default function GranularPermissionManagement({
       createRoleMutation.mutate({ name: trimmedName }, {
         onSuccess: (data) => {
           if (data.code === "200" || data.code === "201") {
-            // 重新获取角色列表以确保数据同步
             fetchRoles();
           }
         }
@@ -561,8 +553,8 @@ export default function GranularPermissionManagement({
           <CardHeader>
             <div className="flex justify-between items-center">
               <div>
-                <CardTitle>角色列表</CardTitle>
-                <CardDescription>组织中的所有角色</CardDescription>
+                <CardTitle>{title}列表</CardTitle>
+                <CardDescription>组织中的所有{title}</CardDescription>
               </div>
               <Button onClick={handleCreateRole} size="sm">
                 <Plus className="h-4 w-4 mr-1" />
@@ -573,7 +565,7 @@ export default function GranularPermissionManagement({
           <CardContent>
             <div className="space-y-4">
               <Input
-                placeholder="搜索角色..."
+                placeholder={`搜索${title}...`}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -584,7 +576,7 @@ export default function GranularPermissionManagement({
                   </div>
                 ) : isError ? (
                   <div className="text-center text-red-500 py-4">
-                    加载角色列表失败: {error?.message || "未知错误"}
+                    加载{title}列表失败: {error?.message || "未知错误"}
                   </div>
                 ) : (
                   roles
@@ -657,8 +649,8 @@ export default function GranularPermissionManagement({
             </CardTitle>
             <CardDescription>
               {selectedRole
-                ? `为 ${selectedRole.name} 角色配置功能权限和字段权限`
-                : "请从左侧选择一个角色进行配置"}
+                ? `为 ${selectedRole.name} ${title}配置功能权限和字段权限`
+                : `请从左侧选择一个${title}进行配置`}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -809,7 +801,7 @@ export default function GranularPermissionManagement({
             ) : (
               <div className="flex flex-col items-center justify-center py-12 text-gray-500">
                 <Shield className="h-12 w-12 mb-4" />
-                <p>请选择一个角色进行权限配置</p>
+                <p>请选择一个{title}进行权限配置</p>
               </div>
             )}
           </CardContent>
@@ -820,21 +812,21 @@ export default function GranularPermissionManagement({
       <Dialog open={isRoleDialogOpen} onOpenChange={setIsRoleDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{isEditingRole ? "编辑角色" : "新建角色"}</DialogTitle>
+            <DialogTitle>{isEditingRole ? `编辑${title}` : `新建${title}`}</DialogTitle>
             <DialogDescription>
-              {isEditingRole ? "修改角色信息" : "创建一个新的角色"}
+              {isEditingRole ? `修改${title}信息` : `创建一个新的${title}`}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="role-name">角色名称</Label>
+              <Label htmlFor="role-name">{title}名称</Label>
               <Input
                 id="role-name"
                 value={newRole.name}
                 onChange={(e) =>
                   setNewRole({ ...newRole, name: e.target.value })
                 }
-                placeholder="输入角色名称"
+                placeholder={`输入${title}名称`}
               />
             </div>
           </div>
@@ -858,9 +850,9 @@ export default function GranularPermissionManagement({
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>删除角色</AlertDialogTitle>
+            <AlertDialogTitle>删除{title}</AlertDialogTitle>
             <AlertDialogDescription>
-              确认删除角色 “{deleteTarget?.name}”？该操作不可撤销。
+              确认删除{title} “{deleteTarget?.name}”？该操作不可撤销。
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
