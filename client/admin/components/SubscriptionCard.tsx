@@ -135,7 +135,7 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
       <div className="mb-6 space-y-3">
         <div className="flex items-baseline">
           <span className={cn("text-3xl font-bold", styleConfig.priceClass)}>
-            ¥{monthprice}
+            ${monthprice}
           </span>
           <span className="text-sm text-gray-500 ml-2">/月</span>
         </div>
@@ -143,12 +143,12 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
         {yearprice > 0 && (
           <div className="flex items-baseline">
             <span className={cn("text-xl font-semibold", styleConfig.priceClass)}>
-              ¥{yearprice}
+              ${yearprice}
             </span>
             <span className="text-sm text-gray-500 ml-2">/年</span>
             {monthprice > 0 && (
               <span className="text-xs text-green-600 ml-2 bg-green-100 px-2 py-1 rounded">
-                节省 ¥{Math.max(0, monthprice * 12 - yearprice)}
+                节省 ${Math.max(0, monthprice * 12 - yearprice)}
               </span>
             )}
           </div>
