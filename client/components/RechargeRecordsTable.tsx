@@ -187,14 +187,14 @@ export default function RechargeRecordsTable({
     switch (status) {
       case 1:
         return (
-          <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
-            成功
+          <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">
+            处理中
           </Badge>
         );
       case 2:
         return (
-          <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">
-            处理中
+          <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+            成功
           </Badge>
         );
       case 3:
@@ -232,7 +232,7 @@ export default function RechargeRecordsTable({
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10"
-              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
             />
           </div>
           <Button variant="default" onClick={handleSearch}>
@@ -302,7 +302,9 @@ export default function RechargeRecordsTable({
                   </TableCell>
                   <TableCell>{record.opttime}</TableCell>
                   <TableCell>
-                    {record.totalPrice ? "$" + record.totalPrice.toFixed(2) : "-"}
+                    {record.totalPrice
+                      ? "$" + record.totalPrice.toFixed(2)
+                      : "-"}
                   </TableCell>
                   <TableCell>
                     {paymentMethodMap[record.paymentMethod] ?? "-"}
