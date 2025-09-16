@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Search, Building, Calendar, Trash2, Edit3 } from "lucide-react";
 import { CreateProjectDialog } from "@/components/CreateProjectDialog";
-import useProjectStore from "@/store/projectStore";
+import useProjectStore from "@/stores/projectStore";
 
 export default function ProjectList() {
   const [searchTerm, setSearchTerm] = useState("");

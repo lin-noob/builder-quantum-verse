@@ -2,7 +2,7 @@ import { useAuthStore } from "@/stores";
 import { ErrorHandler } from "./errorHandler";
 import { authService } from "@/services/authService";
 import { adminAuthService } from "@/services/adminAuthService";
-import useProjectStore from "@/store/projectStore";
+import useProjectStore from "@/stores/projectStore";
 
 /**
  * 通用请求配置接口

@@ -64,7 +64,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { request } from "@/lib/request";
-import useProjectStore from "@/store/projectStore";
+import useProjectStore from "@/stores/projectStore";
 import { CreateProjectDialog } from "./CreateProjectDialog";
 
 interface LayoutProps {

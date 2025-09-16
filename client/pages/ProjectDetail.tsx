@@ -12,7 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Copy, Download, Check, ArrowLeft, Building } from "lucide-react";
 import { toast } from "sonner";
 import { sdkService, GenerateSDKRequest } from "@/services/sdkService";
-import useProjectStore from "@/store/projectStore";
+import useProjectStore from "@/stores/projectStore";
 
 export default function ProjectDetail() {
   const { id } = useParams<{ id: string }>();

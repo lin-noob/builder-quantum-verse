@@ -12,7 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PlusCircle, Trash2, Edit3 } from "lucide-react";
-import useProjectStore from "@/store/projectStore";
+import useProjectStore from "@/stores/projectStore";
 
 interface CreateProjectDialogProps {
   onProjectCreate?: (project: { name: string }) => void;
