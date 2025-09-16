@@ -249,7 +249,7 @@ export default function SubscriptionRecharge() {
                     包含功能
                   </h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {currentSubscription.sysMenus.map((feature, index) => (
+                    {(currentSubscription?.sysMenus || []).map((feature, index) => (
                       <div
                         key={index}
                         className="flex items-center gap-2 p-2 bg-gray-50 rounded"
@@ -411,7 +411,7 @@ export default function SubscriptionRecharge() {
                     <div className="mt-6 pt-4 border-t">
                       <h4 className="text-sm font-bold mb-3">包含功能:</h4>
                       <div className="space-y-2 max-h-32 overflow-y-auto">
-                        {pkg.sysMenus.map((feature, index) => (
+                        {pkg?.sysMenus.map((feature, index) => (
                           <div key={index} className="flex items-start gap-2">
                             <Check className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
                             <span className="text-sm">{feature.name}</span>
