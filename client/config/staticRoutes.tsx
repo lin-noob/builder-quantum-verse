@@ -11,6 +11,7 @@ import EcommerceSolution from "@/pages/solutions/EcommerceSolution";
 import ContentSolution from "@/pages/solutions/ContentSolution";
 import FinancialSolution from "@/pages/solutions/FinancialSolution";
 import EnterpriseSolution from "@/pages/solutions/EnterpriseSolution";
+import AdminProfile from "@/admin/pages/AdminProfile";
 
 // 懒加载组件
 const Dashboard2 = React.lazy(() => import("@/pages/Dashboard2"));
@@ -79,7 +80,7 @@ export const staticRoutes: RouteObject[] = [
     element: (
       <Layout>
         <LazyRoute>
-          <PersonalSettings />
+          <AdminProfile></AdminProfile>
         </LazyRoute>
       </Layout>
     ),
