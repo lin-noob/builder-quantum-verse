@@ -56,7 +56,7 @@ const OrganizationSettings = () => {
       if (res) {
         setOrgInfo(res.data);
         setFormData({
-          name: res.data.name || "",
+          name: res.data.company.name || "",
         });
       }
     } catch (error) {

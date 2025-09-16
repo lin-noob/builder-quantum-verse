@@ -83,6 +83,9 @@ export interface Member {
   email?: string;
   role?: any;
   accountStatus?:any;
+  createdAt?:any;
+  updatedAt?:any;
+  lastLoginAt?:any;
 }
 
 /**

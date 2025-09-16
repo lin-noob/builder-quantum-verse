@@ -558,7 +558,7 @@ const AdminProfile = () => {
                     成员ID
                   </Label>
                   <div className="mt-1 p-2 bg-gray-50 border rounded text-sm font-mono">
-                    {member.memberId}
+                    {member.id}
                   </div>
                 </div>
 
