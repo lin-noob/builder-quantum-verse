@@ -275,10 +275,10 @@ const OrganizationSettings = () => {
               {getUserTypeBadge(orgInfo.usertype)}
             </div>
 
-            <div className="flex justify-between items-center">
+            {/* <div className="flex justify-between items-center">
               <span className="text-sm font-medium">订阅套餐</span>
               {getSubscriptionBadge()}
-            </div>
+            </div> */}
 
             <div className="flex justify-between items-center">
               <span className="text-sm font-medium">创建时间</span>
