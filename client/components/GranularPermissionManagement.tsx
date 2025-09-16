@@ -235,6 +235,9 @@ export default function GranularPermissionManagement({
 
   // 处理角色选择
   const handleSelectRole = (role: Role) => {
+    if(role.id === selectedRole.id){
+      return;
+    }
     setSelectedRole(role);
   };
 
