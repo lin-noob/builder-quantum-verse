@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -32,6 +32,8 @@ import {
   TimingStrategy,
   TriggerConditions,
 } from "../../../shared/aiMarketingScenarioData";
+import useProjectStore from "@/stores/projectStore";
+import { mockScenarios } from "@/admin/data/scenarioData";
 
 // API响应的场景详情接口
 interface ApiScenarioDetail {
@@ -184,6 +186,7 @@ const ScenarioConfig = () => {
   const { scenarioId } = useParams<{ scenarioId: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { currentProject } = useProjectStore();
 
   const [scenario, setScenario] = useState<MarketingScenario | null>(null);
   const [loading, setLoading] = useState(true);
@@ -195,11 +198,88 @@ const ScenarioConfig = () => {
   }>({ show: false, rule: null });
   const [aiStrategyModalOpen, setAiStrategyModalOpen] = useState(false);
 
-  const loadScenario = async () => {
+  // 将 mock 数据转换为 API 数据格式
+  const convertMockScenarioToApiFormat = (mockScenario: any): ApiScenarioDetail => {
+    return {
+      id: mockScenario.scenarioId,
+      sceneName: mockScenario.scenarioName,
+      status: mockScenario.isAIEnabled ? 1 : 0,
+      aiStrategyConfig: JSON.stringify({
+        defaultAIConfig: mockScenario.defaultAIConfig,
+      }),
+      gmtCreate: mockScenario.createdAt,
+      gmtModified: mockScenario.updatedAt,
+      nullId: false,
+      marketingSceneRules: mockScenario.overrideRules?.map((rule: any, index: number) => ({
+        id: rule.ruleId,
+        sceneId: mockScenario.scenarioId,
+        ruleName: rule.ruleName,
+        triggerCondition: "",
+        marketingMethod: rule.responseAction.actionType,
+        marketingTiming: rule.responseAction.timing,
+        contentMode: rule.responseAction.contentMode,
+        popupTitle: rule.responseAction.actionConfig.title || "",
+        popupContent: rule.responseAction.actionConfig.body || "",
+        buttonText: rule.responseAction.actionConfig.buttonText || "",
+        status: rule.isEnabled ? 1 : 0,
+        instruction: rule.responseAction.actionConfig.aiPrompt || "",
+        conditions: JSON.stringify({
+          event: rule.triggerConditions?.eventConditions?.map((c: any) => ({
+            field: c.field,
+            operator: c.operator,
+            value: c.value,
+          })) || [],
+          user: rule.triggerConditions?.userConditions?.map((c: any) => ({
+            field: c.field,
+            operator: c.operator,
+            value: c.value,
+          })) || [],
+        }),
+      })) || [],
+    };
+  };
+
+  const loadScenario = useCallback(async () => {
     if (!scenarioId) return;
 
     try {
       setLoading(true);
+
+      // 检查 currentProject 是否存在或 id 是否为空
+      if (!currentProject || !currentProject.id) {
+        console.log("No current project or empty project id, using mock data for scenario");
+
+        // 使用 mock 数据
+        const mockScenario = mockScenarios.find(s => s.scenarioId === scenarioId);
+        if (mockScenario) {
+          const apiData = convertMockScenarioToApiFormat(mockScenario);
+          const data = transformApiDataToMarketingScenario(apiData);
+          data.availableFields = {
+            event: [],
+            session: [{ field: "device_type", label: "设备类型", type: "string" }],
+            user: [
+              { field: "tag", label: "用户标签", type: "string" },
+              { field: "user_segment", label: "用户分层", type: "string" },
+              {
+                field: "last_purchase_days",
+                label: "距上次购买天数",
+                type: "number",
+              },
+              { field: "total_spend", label: "累计消费", type: "number" },
+            ],
+          };
+          setScenario(data);
+        } else {
+          toast({
+            title: "场景未找到",
+            description: "指定的营销场景不存在",
+            variant: "destructive",
+          });
+        }
+        return;
+      }
+
+      // 有项目时调用真实API
       const response = await request.get(
         `/quote/api/v1/scene/view/${scenarioId}`,
       );
@@ -222,131 +302,28 @@ const ScenarioConfig = () => {
     } catch (error) {
       console.error("Failed to load scenario:", error);
 
-      // 如果API失败，提供fallback数据供开发测试使用
-      if (process.env.NODE_ENV === "development" && scenarioId) {
-        console.log("场景详情API失败，使用fallback数据");
+      // 如果API失败，使用mock数据供开发测试使用
+      console.log("场景详情API失败，使用mock数据");
 
-        const fallbackScenarios: Record<string, any> = {
-          add_to_cart: {
-            id: "add_to_cart",
-            sceneName: "加入购物车",
-            status: 1,
-            aiStrategyConfig: JSON.stringify({
-              defaultAIConfig: {
-                allowedActionTypes: ["POPUP"],
-                timingStrategy: "SMART_DELAY",
-                contentStrategy: "FULLY_GENERATIVE",
-                description:
-                  "AI会根据用户画像、购物车商品等信息，自主生成最合适的挽留或激励文案",
-                strategySummary:
-                  "在用户犹豫或准备离开时进行精准挽留，提升订单转化率。",
-                coreStrategies: ["网页弹窗", "智能延迟", "个性化生成"],
-              },
-            }),
-            gmtCreate: "2024-01-10T10:00:00Z",
-            gmtModified: "2024-01-15T14:30:00Z",
-            nullId: false,
-            marketingSceneRules: [],
-          },
-          view_product: {
-            id: "view_product",
-            sceneName: "商品浏览",
-            status: 0,
-            aiStrategyConfig: JSON.stringify({
-              defaultAIConfig: {
-                description: "根据用户浏览行为和商品信息，推荐相关产品或优惠",
-                strategySummary: "通过智能推荐提升用户购买转化。",
-                coreStrategies: ["个性化推荐", "智能营销", "精准投放"],
-              },
-            }),
-            gmtCreate: "2024-01-08T09:00:00Z",
-            gmtModified: "2024-01-12T16:20:00Z",
-            nullId: false,
-            marketingSceneRules: [],
-          },
-          user_signup: {
-            id: "user_signup",
-            sceneName: "用户注册",
-            status: 1,
-            aiStrategyConfig: JSON.stringify({
-              defaultAIConfig: {
-                description: "为新注册用户提供个性化欢迎内容和新手引导",
-                strategySummary: "提升新用户的首次购买转化率。",
-                coreStrategies: ["欢迎引导", "新手优惠", "个性化推荐"],
-              },
-            }),
-            gmtCreate: "2024-01-05T08:30:00Z",
-            gmtModified: "2024-01-20T11:45:00Z",
-            nullId: false,
-            marketingSceneRules: [],
-          },
-          purchase: {
-            id: "purchase",
-            sceneName: "购买完成",
-            status: 1,
-            aiStrategyConfig: JSON.stringify({
-              defaultAIConfig: {
-                description: "购买后的交叉销售和复购引导策略",
-                strategySummary: "通过购买后营销提升客户生命周期价值。",
-                coreStrategies: ["交叉销售", "复购引导", "会员推荐"],
-              },
-            }),
-            gmtCreate: "2024-01-03T07:15:00Z",
-            gmtModified: "2024-01-18T13:30:00Z",
-            nullId: false,
-            marketingSceneRules: [],
-          },
-          exit_intent: {
-            id: "exit_intent",
-            sceneName: "退出意图",
-            status: 1,
-            aiStrategyConfig: JSON.stringify({
-              defaultAIConfig: {
-                description: "检测用户退出意图，进行最后挽留尝试",
-                strategySummary: "在用户即将离开时进行智能挽留。",
-                coreStrategies: ["退出检测", "紧急挽留", "优惠券发放"],
-              },
-            }),
-            gmtCreate: "2024-01-02T06:00:00Z",
-            gmtModified: "2024-01-19T10:15:00Z",
-            nullId: false,
-            marketingSceneRules: [],
-          },
+      const mockScenario = mockScenarios.find(s => s.scenarioId === scenarioId);
+      if (mockScenario) {
+        const apiData = convertMockScenarioToApiFormat(mockScenario);
+        const data = transformApiDataToMarketingScenario(apiData);
+        data.availableFields = {
+          event: [],
+          session: [{ field: "device_type", label: "设备类型", type: "string" }],
+          user: [
+            { field: "tag", label: "用户标签", type: "string" },
+            { field: "user_segment", label: "用户分层", type: "string" },
+            {
+              field: "last_purchase_days",
+              label: "距上次购买天数",
+              type: "number",
+            },
+            { field: "total_spend", label: "累计消费", type: "number" },
+          ],
         };
-
-        const fallbackData = fallbackScenarios[scenarioId];
-        if (fallbackData) {
-          const data = transformApiDataToMarketingScenario(fallbackData);
-          data.availableFields = {
-            event: [],
-            session: [
-              { field: "device_type", label: "设备类型", type: "string" },
-            ],
-            user: [
-              { field: "tag", label: "用户标签", type: "string" },
-              { field: "user_segment", label: "用户分层", type: "string" },
-              {
-                field: "last_purchase_days",
-                label: "距上次购买天数",
-                type: "number",
-              },
-              { field: "total_spend", label: "累计消费", type: "number" },
-            ],
-          };
-          setScenario(data);
-
-          toast({
-            title: "使用演示数据",
-            description: "后端服务不可用，当前显示演示数据",
-            variant: "default",
-          });
-        } else {
-          toast({
-            title: "加载失败",
-            description: "无法加载场景配置",
-            variant: "destructive",
-          });
-        }
+        setScenario(data);
       } else {
         toast({
           title: "加载失败",
@@ -357,18 +334,31 @@ const ScenarioConfig = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [scenarioId, currentProject, toast]);
 
   useEffect(() => {
     if (scenarioId) {
       loadScenario();
     }
-  }, [scenarioId]);
+  }, [scenarioId, loadScenario]);
 
   const handleAIToggle = async (newState: boolean) => {
     if (!scenario) return;
 
     try {
+      // 检查是否使用 mock 数据模式
+      if (!currentProject || !currentProject.id) {
+        // Mock 数据模式下只更新本地状态
+        setScenario((prev) => (prev ? { ...prev, isAIEnabled: newState } : null));
+
+        toast({
+          title: newState ? "AI自动化已启用" : "AI自动化已暂停",
+          description: `${scenario.scenarioName}场景的自动化营销已${newState ? "启动" : "暂停"}`,
+        });
+        return;
+      }
+
+      // 有项目时调用真实API
       await updateMarketingScenario(scenario.scenarioId, {
         isAIEnabled: newState,
       });
@@ -391,7 +381,27 @@ const ScenarioConfig = () => {
     if (!scenario) return;
 
     try {
-      // 构造与API返回结构相同的数据
+      // 检查是否使用 mock 数据模式
+      if (!currentProject || !currentProject.id) {
+        // Mock 数据模式下只更新本地状态
+        setScenario((prev) =>
+          prev
+            ? {
+                ...prev,
+                defaultAIConfig: updatedConfig,
+                updatedAt: new Date().toISOString(),
+              }
+            : null,
+        );
+
+        toast({
+          title: "配置已保存",
+          description: "AI策略配置更新成功",
+        });
+        return;
+      }
+
+      // 有项目时调用真实API
       const apiData: ApiScenarioDetail = {
         id: scenarioId,
         sceneName: scenario.scenarioName,
@@ -430,7 +440,27 @@ const ScenarioConfig = () => {
     if (!scenario) return;
 
     try {
-      // 构建API请求数据
+      // 检查是否使用 mock 数据模式
+      if (!currentProject || !currentProject.id) {
+        // Mock 数据模式下只更新本地状态
+        setScenario((prev) => {
+          if (!prev) return null;
+          return {
+            ...prev,
+            overrideRules: prev.overrideRules.map((r) =>
+              r.ruleId === rule.ruleId ? { ...r, isEnabled: newState } : r,
+            ),
+          };
+        });
+
+        toast({
+          title: newState ? "规则已启用" : "规则已停用",
+          description: `自定义规则「${rule.ruleName}」已${newState ? "启用" : "停用"}`,
+        });
+        return;
+      }
+
+      // 有项目时调用真实API
       const apiData = {
         id: rule.ruleId,
         sceneId: scenario.scenarioId,
@@ -489,7 +519,29 @@ const ScenarioConfig = () => {
   const handleDeleteRule = async () => {
     if (!scenario || !deleteDialog.rule) return;
     try {
-      // 使用新的删除接口
+      // 检查是否使用 mock 数据模式
+      if (!currentProject || !currentProject.id) {
+        // Mock 数据模式下只更新本地状态
+        setScenario((prev) => {
+          if (!prev) return null;
+          return {
+            ...prev,
+            overrideRules: prev.overrideRules.filter(
+              (r) => r.ruleId !== deleteDialog.rule?.ruleId,
+            ),
+          };
+        });
+
+        toast({
+          title: "规则已删除",
+          description: `自定义规则「${deleteDialog.rule.ruleName}」已删除`,
+        });
+
+        setDeleteDialog({ show: false, rule: null });
+        return;
+      }
+
+      // 有项目时调用真实API
       await request.delete(
         `/quote/api/v1/scene/rule/${deleteDialog.rule.ruleId}`,
       );
@@ -531,6 +583,17 @@ const ScenarioConfig = () => {
     setScenario((prev) => (prev ? { ...prev, overrideRules: items } : null));
 
     try {
+      // 检查是否使用 mock 数据模式
+      if (!currentProject || !currentProject.id) {
+        // Mock 数据模式下只更新本地状态，不调用API
+        toast({
+          title: "优先级已更新",
+          description: "规则优先级调整成功",
+        });
+        return;
+      }
+
+      // 有项目时调用真实API
       const priorities = items.map((rule, index) => ({
         ruleId: rule.ruleId,
         priority: index + 1,
@@ -715,7 +778,7 @@ const ScenarioConfig = () => {
               <dl className="space-y-3">
                 <div>
                   <dt className="text-sm font-medium text-muted-foreground">
-                    场景ID
+                    ���景ID
                   </dt>
                   <dd className="mt-1 text-sm font-mono text-xs bg-muted px-2 py-1 rounded">
                     {scenario.scenarioName}
@@ -778,7 +841,7 @@ const ScenarioConfig = () => {
                   <Target className="h-4 w-4 text-blue-500 mt-0.5" />
                   <div>
                     <div className="font-medium text-foreground">智能分析</div>
-                    <div>AI分析用户行为和偏好，识别最佳营销时机。</div>
+                    <div>AI分析用户行为和偏好，识别最佳营销����机。</div>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">

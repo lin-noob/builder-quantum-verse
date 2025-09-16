@@ -521,9 +521,6 @@ export default function Auth() {
                       {errors.confirmationCode}
                     </p>
                   )}
-                  <p className="text-xs text-muted-foreground">
-                    测试验证码：123456
-                  </p>
                 </div>
 
                 <Button

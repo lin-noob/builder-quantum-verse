@@ -138,14 +138,14 @@ export default function Layout({ children }: LayoutProps) {
           const currentProjects = useProjectStore.getState().projects;
           if (currentProjects.length === 0) {
             setShowCreateProjectDialog(true);
-            setIsDialogClosable(false);
+            setIsDialogClosable(true);
           }
         })
         .catch(() => {
           // 如果获取失败且没有缓存的项目，显示创建项目弹框
           if (projects.length === 0) {
             setShowCreateProjectDialog(true);
-            setIsDialogClosable(false);
+            setIsDialogClosable(true);
           }
         });
     }

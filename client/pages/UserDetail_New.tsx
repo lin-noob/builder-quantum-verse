@@ -38,12 +38,41 @@ import {
 } from "@/lib/profile";
 import { toast } from "@/hooks/use-toast";
 import { getDaysBetween } from "@/lib/utils";
+import useProjectStore from "@/stores/projectStore";
+import { MockDataService, type MockUser } from "@/services/mockDataService";
 
 export default function UserDetail() {
   const { cdpId } = useParams<{ cdpId: string }>();
   const [loading, setLoading] = useState(false);
   const [apiUser, setApiUser] = useState<ApiUser | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const { currentProject } = useProjectStore();
+
+  // 将 MockUser 转换为 ApiUser 格式
+  const convertMockUserToApiUser = (mockUser: MockUser): ApiUser => {
+    const now = new Date();
+    return {
+      cdpUserId: Number(mockUser.cdpId),
+      fullName: mockUser.name,
+      contactInfo: mockUser.contact,
+      companyName: mockUser.company,
+      location: "中国/北京", // Mock location
+      signTime: mockUser.registrationTime,
+      createGmt: mockUser.firstVisitTime,
+      minBuyTime: mockUser.firstPurchaseTime,
+      maxBuyTime: mockUser.lastActiveTime,
+      totalOrders: mockUser.totalSpent,
+      orderCount: Math.floor(mockUser.totalSpent / 500), // Simulate order count
+      maxOrderAmount: Math.floor(mockUser.totalSpent * 0.4), // Simulate max order
+      loginDate: mockUser.lastActiveTime,
+      currencySymbol: mockUser.currency,
+      sessionId: `session-${mockUser.id}`,
+      labelList: [
+        { id: `label-1-${mockUser.id}`, labelName: "活跃用户" },
+        { id: `label-2-${mockUser.id}`, labelName: "高价值客户" }
+      ],
+    } as ApiUser;
+  };
 
   useEffect(() => {
     let mounted = true;
@@ -52,10 +81,36 @@ export default function UserDetail() {
       setLoading(true);
       setError(null);
       try {
+        // 检查 currentProject 是否存在或 id 是否为空
+        if (!currentProject || !currentProject.id) {
+          console.log("No current project or empty project id, using mock data for user detail");
+
+          // 使用 mock 数据
+          const mockUser = await MockDataService.getUserById(cdpId);
+          if (mockUser && mounted) {
+            const mockApiUser = convertMockUserToApiUser(mockUser);
+            setApiUser(mockApiUser);
+          } else if (mounted) {
+            setError("用户未找到");
+          }
+          return;
+        }
+
+        // 有项目时调用真实API
         const data = await getProfileView(cdpId);
         if (mounted) setApiUser(data);
       } catch (e: any) {
-        if (mounted) setError(e?.message || "加载失败");
+        console.error("Failed to load user detail:", e);
+
+        // 如果API失败，使用mock数据供开发测试使用
+        console.log("用户详情API失败，使用mock数据");
+        const mockUser = await MockDataService.getUserById(cdpId);
+        if (mockUser && mounted) {
+          const mockApiUser = convertMockUserToApiUser(mockUser);
+          setApiUser(mockApiUser);
+        } else if (mounted) {
+          setError(e?.message || "加载失败");
+        }
       } finally {
         if (mounted) setLoading(false);
       }
@@ -64,7 +119,7 @@ export default function UserDetail() {
     return () => {
       mounted = false;
     };
-  }, [cdpId]);
+  }, [cdpId, currentProject]);
 
   const user = useMemo(() => {
     if (!apiUser) return null;
@@ -117,6 +172,18 @@ export default function UserDetail() {
   const refetchUser = async () => {
     if (!cdpId) return;
     try {
+      // 检查是否使用 mock 数据模式
+      if (!currentProject || !currentProject.id) {
+        // Mock 数据模式下重新获取mock数据
+        const mockUser = await MockDataService.getUserById(cdpId);
+        if (mockUser) {
+          const mockApiUser = convertMockUserToApiUser(mockUser);
+          setApiUser(mockApiUser);
+        }
+        return;
+      }
+
+      // 有项目时调用真实API
       const fresh = await getProfileView(cdpId);
       if (fresh) setApiUser(fresh);
     } catch {}
@@ -172,26 +239,25 @@ export default function UserDetail() {
   const addTag = async () => {
     const value = newTag.trim();
     if (!value) return;
-    // if (userTags.includes(value)) {
-    //   toast({ title: "重复标签", description: "该标签已存在" });
-    //   setNewTag("");
-    //   setIsTagPopoverOpen(false);
-    //   return;
-    // }
     setTagSaving(true);
-
     setNewTag("");
+
     try {
+      // 检查是否使用 mock 数据模式
+      if (!currentProject || !currentProject.id) {
+        // Mock 数据模式下只更新本地状态
+        const newTagObj = { id: `label-${Date.now()}`, labelName: value };
+        setUserTags((prev) => [...prev, newTagObj]);
+        setIsTagPopoverOpen(false);
+        toast({ title: "添加成功", description: `已添加标签：${value}` });
+        return;
+      }
+
+      // 有项目时调用真实API
       await addProfileLabel(String(user.cdpId), value);
-      // optimistic update
-      // setUserTags((prev) => [...prev, value]);
-
-      // Close input immediately for better UX
       setIsTagPopoverOpen(false);
-
-      // then refetch to get server ids
       await refetchUser();
-      toast({ title: "添加成功", description: `已添加标签：${value}` });
+      toast({ title: "添��成功", description: `已添加标签：${value}` });
     } catch (e: any) {
       toast({ title: "添加失败", description: e?.message || "请稍后重试" });
     } finally {
@@ -202,13 +268,16 @@ export default function UserDetail() {
   const removeTag = async (id: string) => {
     setTagSaving(true);
     try {
+      // 检查是否使用 mock 数据模式
+      if (!currentProject || !currentProject.id) {
+        // Mock 数据模式下只更新本地状态
+        setUserTags((prev) => prev.filter((tag) => tag.id !== id));
+        toast({ title: "删除成功" });
+        return;
+      }
+
+      // 有项目时调用真实API
       await deleteProfileLabel(id);
-      // setUserTags((prev) => prev.filter((t) => t !== tagToRemove));
-      // setLabelNameToId((prev) => {
-      //   const { [tagToRemove]: _, ...rest } = prev;
-      //   return rest;
-      // });
-      // refresh from server to keep一致
       await refetchUser();
       toast({ title: "删除成功" });
     } catch (e: any) {

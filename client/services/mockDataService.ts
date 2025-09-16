@@ -117,6 +117,12 @@ export class MockDataService {
     };
   }
 
+  // 获取单个用户详情
+  static async getUserById(id: string): Promise<MockUser | null> {
+    const user = this.users.find(u => u.id === id || u.cdpId === id);
+    return user || null;
+  }
+
   // 检查是否应该使用模拟数据
   static shouldUseMockData(): boolean {
     // 在开发环境中，如果API不可用，使用模拟数据

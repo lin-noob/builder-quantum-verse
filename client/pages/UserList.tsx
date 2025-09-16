@@ -24,6 +24,7 @@ import { toast } from "@/hooks/use-toast";
 import { MockDataService } from "@/services/mockDataService";
 import { formatStartDate, formatEndDate } from "@/lib/utils";
 import { useRoleStore } from "@/stores/roleStore";
+import useProjectStore from "@/stores/projectStore";
 
 interface DateRange {
   start: Date | null;
@@ -110,6 +111,9 @@ export default function UserList() {
   // 权限检查
   const { hasPermission } = useRoleStore();
 
+  // 项目状态检查
+  const { currentProject } = useProjectStore();
+
   // 转换API用户数据为UI格式
   const convertApiUserToUser = (apiUser: ApiUser): User => {
     return {
@@ -165,6 +169,26 @@ export default function UserList() {
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
+      // 检查 currentProject 是否存在或 id 是否为空
+      if (!currentProject || !currentProject.id) {
+        console.log("No current project or empty project id, using mock data for users");
+
+        // 使用 mock 数据
+        const mockParams = {
+          page: currentPage,
+          pageSize: itemsPerPage,
+          search: searchQuery.trim() || undefined,
+          sortField: sortConfig.field || undefined,
+          sortDirection: sortConfig.direction,
+        };
+
+        const mockResult = await MockDataService.getUsers(mockParams);
+        setUsers(mockResult.users);
+        setTotalCount(mockResult.total);
+        return;
+      }
+
+      // 有项目时调用真实API
       const requestBody: OrderSummaryDto = {
         currentpage: currentPage,
         pagesize: itemsPerPage,
@@ -227,69 +251,20 @@ export default function UserList() {
         setTotalCount(0);
       }
     } catch (error) {
-      // 在开发环境中，如果是API不���用错误，静默处理
-      if (process.env.NODE_ENV === "development") {
-        console.warn("开发模式：用户数据API不可用，使用模拟数据");
-        setUsers([]);
-        setTotalCount(0);
-        return;
-      }
+      // 如果API失败，使用mock数据供开发测试使用
+      console.log("用户数据API失败，使用mock数据");
+      const mockParams = {
+        page: currentPage,
+        pageSize: itemsPerPage,
+        search: searchQuery.trim() || undefined,
+        sortField: sortConfig.field || undefined,
+        sortDirection: sortConfig.direction,
+      };
 
-      // 详细显示错误信息
-      if (error && typeof error === "object") {
-        console.error("错误对象:", error);
-        if ("response" in error) {
-          console.error("HTTP响应:", error.response);
-        }
-        if ("status" in error) {
-          console.error("HTTP状态码:", error.status);
-        }
-        if ("data" in error) {
-          console.error("错误数据:", error.data);
-        }
-      }
-
-      let errorMessage = "获取用户数据失败";
-      if (error instanceof Error) {
-        if (
-          error.message.includes("timeout") ||
-          error.message.includes("Request timeout")
-        ) {
-          errorMessage = "请求超时，请检查网络连接或稍后重试";
-        } else if (error.message.includes("Network Error")) {
-          errorMessage = "网络连接失败，请检查网络设置";
-        } else {
-          errorMessage = `获取数据失败: ${error.message}`;
-        }
-      } else if (error instanceof Error) {
-        errorMessage = error.message;
-        console.error("错误详情:", error.message);
-        console.error("错误堆栈:", error.stack);
-
-        // 针对不同类型的错误给出更具体的提示
-        if (error.message.includes("Failed to fetch")) {
-          console.error("网络连接失败，可能的原因:");
-          console.error("1. 代理服务器 192.168.1.128:8099 无法访问");
-          console.error("2. 网络连接问题");
-          console.error("3. CORS 配置问题");
-          errorMessage = "网络连接失败，请检查代理服务器是否可访问";
-        } else if (error.message.includes("timeout")) {
-          console.error("请求超时，可能的原因:");
-          console.error("1. 服务器响应缓慢");
-          console.error("2. 网络延迟过高");
-          errorMessage = "请求超时，请稍后重试";
-        }
-      }
-
-      // 显示用户友好的错误提示
-      toast({
-        title: "请求失败",
-        description: errorMessage,
-        variant: "destructive",
-      });
-
-      setUsers([]);
-      setTotalCount(0);
+      const mockResult = await MockDataService.getUsers(mockParams);
+      setUsers(mockResult.users);
+      setTotalCount(mockResult.total);
+      return;
     } finally {
       setLoading(false);
     }
@@ -300,6 +275,7 @@ export default function UserList() {
     dateRange,
     selectedTimeField,
     sortConfig,
+    currentProject,
   ]);
 
   // 初始化和依赖更新时获取数据

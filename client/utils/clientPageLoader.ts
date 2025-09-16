@@ -1,6 +1,12 @@
 import React from "react";
 
-const modules = import.meta.glob("@/**/*.tsx");
+const modulesA = import.meta.glob("@/pages/**/*.{tsx,ts}");
+const modulesB = import.meta.glob("@/admin/pages/**/*.{tsx,ts}");
+const modules: Record<string, () => Promise<any>> = {
+  ...modulesA,
+  ...modulesB,
+};
+
 export function loadLazyClientComponent(componentPath?: string) {
   if (!componentPath) {
     return null;
