@@ -54,6 +54,11 @@ const SmartRouteGuard: React.FC<{
     return <Navigate to="/auth" replace />;
   }
   
+  // 特殊处理 dashboard2 路径，避免模块加载问题
+  if (location.pathname === "/dashboard2") {
+    return <PageLoader message="正在加载仪表盘..." />;
+  }
+  
   // 检查是否为静态路由
   if (isStaticRoute(location.pathname)) {
     // 静态路由存在但可能还没渲染，显示加载页面而不是重定向

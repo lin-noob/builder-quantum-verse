@@ -14,7 +14,8 @@ import EnterpriseSolution from "@/pages/solutions/EnterpriseSolution";
 import AdminProfile from "@/admin/pages/AdminProfile";
 
 // 懒加载组件
-const Dashboard2 = React.lazy(() => import("@/pages/Dashboard2"));
+import Dashboard2 from "@/pages/Dashboard2"; // 改为直接导入解决模块加载问题
+// const Dashboard2 = React.lazy(() => import("@/pages/Dashboard2"));
 const PersonalSettings = React.lazy(
   () => import("@/pages/Account/PersonalSettings"),
 );
@@ -69,9 +70,7 @@ export const staticRoutes: RouteObject[] = [
     path: "/dashboard2",
     element: (
       <Layout>
-        <LazyRoute>
-          <Dashboard2 />
-        </LazyRoute>
+        <Dashboard2 />
       </Layout>
     ),
   },
