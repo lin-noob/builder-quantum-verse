@@ -677,7 +677,7 @@ const MemberManagement = () => {
           <DialogHeader>
             <DialogTitle>邀请新成员</DialogTitle>
             <DialogDescription>
-              为组织添加新的团队成员，系统将自动生成���始密码
+              为组织添加新的团队成员，系统将自动生成初始密码
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">

@@ -222,7 +222,7 @@ const mockUsers: UserData[] = [
     status: "active",
     lastLogin: "2025/01/18 15:30",
     createdAt: "2024/07/03",
-    department: "咨询���",
+    department: "咨询",
   },
 ];
 

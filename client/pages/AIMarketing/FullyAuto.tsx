@@ -58,7 +58,7 @@ export default function FullyAuto() {
       setCustomRuleDialog(false);
       
       toast({
-        title: '规则添加成���',
+        title: '规则添加成功',
         description: '自定义筛选规则已添加到应用范围'
       });
     }

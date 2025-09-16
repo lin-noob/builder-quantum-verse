@@ -155,7 +155,7 @@ const UseCases = React.memo(() => {
       <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-transparent to-green-500/5"></div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-green-400 bg-clip-text text-transparent mb-4">应用���景</h2>
+          <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-green-400 bg-clip-text text-transparent mb-4">应用场景</h2>
           <p className="text-xl text-gray-400">
             覆盖金融产品全链路，提升营销精准度和合规性
           </p>

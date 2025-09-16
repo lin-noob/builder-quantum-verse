@@ -25,7 +25,7 @@ export default function AdminPasswordChange() {
     const newErrors: Record<string, string> = {};
 
     if (!formData.currentPassword) {
-      newErrors.currentPassword = "请输入当���密码";
+      newErrors.currentPassword = "请输入当前密码";
     }
 
     if (!formData.newPassword) {
