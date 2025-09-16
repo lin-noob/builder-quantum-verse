@@ -131,12 +131,11 @@ export default function Layout({ children }: LayoutProps) {
     setCurrentUser(user);
 
     // 如果用户已登录，获取项目列表
-    if (user && user.usertype !== 'admin') {
+    if (user && user.usertype !== "admin") {
       fetchProjects()
         .then(() => {
           // 检查是否需要显示创建项目对话框
-          const currentProjects = useProjectStore.getState().projects;
-          if (currentProjects.length === 0) {
+          if (projects.length === 0) {
             setShowCreateProjectDialog(true);
             setIsDialogClosable(true);
           }
@@ -178,14 +177,17 @@ export default function Layout({ children }: LayoutProps) {
   }, [location.pathname, dynamicMenuItems]);
 
   // Dashboard2 作为静态菜单项
-  const baseMenuItems: MenuItem[] = useMemo(() => [
-    {
-      id: "dashboard2",
-      label: "仪表盘",
-      path: "/dashboard2",
-      icon: <BarChart3 className="h-5 w-5" />,
-    }
-  ], []);
+  const baseMenuItems: MenuItem[] = useMemo(
+    () => [
+      {
+        id: "dashboard2",
+        label: "仪表盘",
+        path: "/dashboard2",
+        icon: <BarChart3 className="h-5 w-5" />,
+      },
+    ],
+    [],
+  );
 
   // 管理员菜单也设置为空，完全依赖动态菜单
   const adminMenuItems: MenuItem[] = useMemo(() => [], []);
@@ -280,7 +282,7 @@ export default function Layout({ children }: LayoutProps) {
 
   // 合并静态菜单和动态菜单，静态菜单在前
   const menuItems: MenuItem[] = useMemo(() => {
-    return [ ...dynamicMenuItems];
+    return [...dynamicMenuItems];
   }, [dynamicMenuItems]);
 
   function changeProject(project: Project) {
@@ -398,8 +400,8 @@ export default function Layout({ children }: LayoutProps) {
         </div>
         <div className="flex items-center gap-2">
           {/* Help Icon */}
-          <Link 
-            to="/marketing/help" 
+          <Link
+            to="/marketing/help"
             className="p-2 rounded-lg text-gray-600 hover:bg-gray-100 hover:text-gray-900"
             title="帮助中心"
           >
@@ -688,7 +690,7 @@ export default function Layout({ children }: LayoutProps) {
                   (location.pathname === "/" ||
                     location.pathname === "/dashboard2")) ||
                 // 对于动态菜单项，只需要简单的路径匹配
-                location.pathname.startsWith(item.path + '/');
+                location.pathname.startsWith(item.path + "/");
 
               return (
                 <li key={item.id} className="relative group">
@@ -885,7 +887,7 @@ export default function Layout({ children }: LayoutProps) {
               isSidebarCollapsed
                 ? "gap-0 px-3 py-2 justify-center"
                 : "gap-3 px-3 py-2",
-              "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+              "text-gray-600 hover:text-gray-900 hover:bg-gray-50",
             )}
             title={isSidebarCollapsed ? "帮助中心" : undefined}
           >
