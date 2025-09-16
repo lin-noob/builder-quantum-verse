@@ -19,16 +19,6 @@ export enum MemberRole {
 }
 
 /**
- * 订阅计划枚举
- */
-export enum SubscriptionPlan {
-  INTERNAL_TRIAL = "INTERNAL_TRIAL",
-  BASIC = "BASIC",
-  PROFESSIONAL = "PROFESSIONAL",
-  ENTERPRISE = "ENTERPRISE",
-}
-
-/**
  * 组织 (Organization) 数据模型
  * 代表一个独立的客户实体，是所有数据隔离和管理的基本��位
  */
@@ -43,7 +33,7 @@ export interface Organization {
   /** 创建时间 - 该组织被创建的时间戳 */
   createdAt: string;
   /** 订阅计划 - 标识该组织的服务套餐 */
-  subscriptionPlan: SubscriptionPlan;
+  tariffName: string;
   /** 账单信息 - 存储与支付相关的客户信息 */
   billingInfo?: any | null;
   /** 最后更新时间 */
@@ -100,8 +90,6 @@ export interface CreateOrganizationRequest {
   adminEmail: string;
   /** 初始管理员密码 */
   adminPassword: string;
-  /** 订阅计划 */
-  subscriptionPlan?: SubscriptionPlan;
 }
 
 /**
@@ -114,8 +102,6 @@ export interface UpdateOrganizationRequest {
   name?: string;
   /** 账户状态 */
   accountStatus?: boolean;
-  /** 订阅计划 */
-  subscriptionPlan?: SubscriptionPlan;
 }
 
 /**
@@ -301,7 +287,6 @@ export interface OrganizationInfo {
 export default {
   AccountStatus,
   MemberRole,
-  SubscriptionPlan,
   generateOrganizationId,
   generateMemberId,
   generateInitialPassword,

@@ -29,10 +29,10 @@ interface OrganizationRecord {
   name: string;
   status: boolean;
   gmtCreate: string;
-  subscriptionPlan: string;
   organizationId: string;
   disable: boolean;
   total: number;
+  tariffName: string;
   activeMember: number;
   invitecode?: string;
   fromcode?: string;
@@ -71,31 +71,13 @@ const transformOrganizationRecord = (
   record: OrganizationRecord,
 ): Organization => {
   // 转换订阅计划
-  let subscriptionPlan: SubscriptionPlan;
-  switch (record.subscriptionPlan) {
-    case "INTERNAL_TRIAL":
-      subscriptionPlan = SubscriptionPlan.INTERNAL_TRIAL;
-      break;
-    case "BASIC":
-      subscriptionPlan = SubscriptionPlan.BASIC;
-      break;
-    case "PROFESSIONAL":
-      subscriptionPlan = SubscriptionPlan.PROFESSIONAL;
-      break;
-    case "ENTERPRISE":
-      subscriptionPlan = SubscriptionPlan.ENTERPRISE;
-      break;
-    default:
-      subscriptionPlan = SubscriptionPlan.INTERNAL_TRIAL;
-  }
-
   return {
     id: record.id,
     organizationId: record.organizationId,
     name: record.name,
+    tariffName: record.tariffName,
     accountStatus: record.disable,
     createdAt: record.gmtCreate,
-    subscriptionPlan,
     memberCount: record.total,
     activeMemberCount: record.activeMember,
   };

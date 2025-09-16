@@ -23,7 +23,7 @@ export const getOrganizationDetail = async (
       name: data.name,
       accountStatus: data.disable,
       createdAt: data.gmtCreate,
-      subscriptionPlan: data.subscriptionPlan,
+      tariffName: data.tariffName,
       memberCount: data.total,
       activeMemberCount: data.activeMember,
     };

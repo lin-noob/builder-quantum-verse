@@ -47,11 +47,7 @@ import {
   Building,
   Activity,
 } from "lucide-react";
-import {
-  Organization,
-  AccountStatus,
-  SubscriptionPlan,
-} from "../../../shared/organizationData";
+import { Organization } from "../../../shared/organizationData";
 import { getOrganizationDetail } from "../services/organizationDetailService";
 import { organizationService } from "../services/organizationService";
 
@@ -70,7 +66,7 @@ const OrganizationDetail = () => {
   const [orgFormData, setOrgFormData] = useState({
     name: "",
     accountStatus: false,
-    subscriptionPlan: SubscriptionPlan.INTERNAL_TRIAL,
+    subscriptionPlan: "",
   });
 
   useEffect(() => {
@@ -90,7 +86,7 @@ const OrganizationDetail = () => {
       setOrgFormData({
         name: orgData.name,
         accountStatus: orgData.accountStatus,
-        subscriptionPlan: orgData.subscriptionPlan,
+        subscriptionPlan: orgData.tariffName,
       });
     } catch (error: any) {
       console.error("Failed to load organization:", error);
@@ -154,10 +150,10 @@ const OrganizationDetail = () => {
     }
   };
 
-  const getSubscriptionBadge = (plan: SubscriptionPlan) => {
+  const getSubscriptionBadge = (name: string) => {
     return (
       <Badge variant="outline" className="bg-blue-50 text-blue-700">
-        内部试用
+        {name}
       </Badge>
     );
   };
@@ -215,7 +211,7 @@ const OrganizationDetail = () => {
                         setOrgFormData({
                           name: organization.name,
                           accountStatus: organization.accountStatus,
-                          subscriptionPlan: organization.subscriptionPlan,
+                          subscriptionPlan: organization.tariffName,
                         });
                       }}
                     >
@@ -287,7 +283,7 @@ const OrganizationDetail = () => {
               <div>
                 <Label htmlFor="subscriptionPlan">订阅套餐</Label>
                 <div className="mt-2">
-                  {getSubscriptionBadge(organization.subscriptionPlan)}
+                  {getSubscriptionBadge(organization.tariffName)}
                 </div>
               </div>
             </div>
@@ -305,7 +301,10 @@ const OrganizationDetail = () => {
               <Building className="h-4 w-4" />
               项目管理
             </TabsTrigger>
-            <TabsTrigger value="operation-logs" className="flex items-center gap-2">
+            <TabsTrigger
+              value="operation-logs"
+              className="flex items-center gap-2"
+            >
               <Activity className="h-4 w-4" />
               操作日志
             </TabsTrigger>
@@ -323,16 +322,13 @@ const OrganizationDetail = () => {
           </TabsContent>
 
           <TabsContent value="projects">
-            <ProjectTable
-              organizationId={organizationId}
-              title="项目管理"
-            />
+            <ProjectTable organizationId={organizationId} title="项目管理" />
           </TabsContent>
 
           <TabsContent value="operation-logs">
-            <OperationLogsTab 
-              organizationId={organizationId} 
-              organizationName={organization.name} 
+            <OperationLogsTab
+              organizationId={organizationId}
+              organizationName={organization.name}
             />
           </TabsContent>
         </Tabs>

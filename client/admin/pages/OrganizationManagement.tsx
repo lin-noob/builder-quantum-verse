@@ -56,13 +56,13 @@ import {
 import {
   Organization,
   AccountStatus,
-  SubscriptionPlan,
   CreateOrganizationRequest,
   UpdateOrganizationRequest,
   OrganizationListQuery,
 } from "../../../shared/organizationData";
 import { organizationApi } from "../../../shared/organizationApi";
 import { organizationService } from "../services/organizationService";
+import { StringFormatParams } from "zod/v4/core";
 
 const OrganizationManagement = () => {
   const navigate = useNavigate();
@@ -148,7 +148,7 @@ const OrganizationManagement = () => {
     if (
       !createForm.name.trim() ||
       !createForm.adminName.trim() ||
-      !createForm.adminEmail.trim() || 
+      !createForm.adminEmail.trim() ||
       !createForm.adminPassword.trim()
     ) {
       toast({
@@ -160,7 +160,6 @@ const OrganizationManagement = () => {
     }
 
     try {
-      
       const bool = await organizationService.createOrganization(createForm);
       if (bool) {
         toast({
@@ -377,26 +376,12 @@ const OrganizationManagement = () => {
     }
   };
 
-  const getSubscriptionBadge = (plan: SubscriptionPlan) => {
-    const badges = {
-      [SubscriptionPlan.INTERNAL_TRIAL]: (
-        <Badge variant="outline" className="bg-blue-50 text-blue-700">
-          内部试用
-        </Badge>
-      ),
-      [SubscriptionPlan.BASIC]: <Badge variant="outline">基础版</Badge>,
-      [SubscriptionPlan.PROFESSIONAL]: (
-        <Badge variant="default" className="bg-purple-100 text-purple-800">
-          专业版
-        </Badge>
-      ),
-      [SubscriptionPlan.ENTERPRISE]: (
-        <Badge variant="default" className="bg-yellow-100 text-yellow-800">
-          企业版
-        </Badge>
-      ),
-    };
-    return badges[plan] || <Badge variant="secondary">未知套餐</Badge>;
+  const getSubscriptionBadge = (tariffName: string) => {
+    return (
+      <Badge variant="outline" className="bg-blue-50 text-blue-700">
+        {tariffName}
+      </Badge>
+    );
   };
 
   const formatDateTime = (dateString: string) => {
@@ -552,7 +537,7 @@ const OrganizationManagement = () => {
                       {getStatusBadge(organization.accountStatus)}
                     </td>
                     <td className="px-6 py-4">
-                      {getSubscriptionBadge(organization.subscriptionPlan)}
+                      {getSubscriptionBadge(organization.tariffName)}
                     </td>
                     <td className="px-6 py-4">
                       <div className="text-xs text-gray-600">
@@ -567,9 +552,7 @@ const OrganizationManagement = () => {
                       <div className="flex items-center gap-4">
                         <button
                           onClick={() =>
-                            navigate(
-                              `/admin/organizations/${organization.id}`,
-                            )
+                            navigate(`/admin/organizations/${organization.id}`)
                           }
                           className="text-blue-600 hover:text-blue-800 text-sm font-medium"
                         >
@@ -714,7 +697,6 @@ const OrganizationManagement = () => {
                 </div>
               </div>
             </div>
-
           </div>
           <DialogFooter>
             <Button
