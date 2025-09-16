@@ -270,10 +270,10 @@ const OrganizationSettings = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex justify-between items-center">
+            {/* <div className="flex justify-between items-center">
               <span className="text-sm font-medium">用户类型</span>
               {getUserTypeBadge(orgInfo.usertype)}
-            </div>
+            </div> */}
 
             {/* <div className="flex justify-between items-center">
               <span className="text-sm font-medium">订阅套餐</span>
