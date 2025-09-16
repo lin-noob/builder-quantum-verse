@@ -212,16 +212,67 @@ export default function GranularPermissionManagement({
     }
   }, [selectedRole?.id]);
 
+  // 过滤出真正应该显示为选中的节点（避免父节点误选）
+  const filterActualCheckedNodes = (returnedMenuIds: string[]): string[] => {
+    if (!returnedMenuIds || returnedMenuIds.length === 0) return [];
+
+    const findNodeInTree = (nodes: TreeDataNode[], key: string): TreeDataNode | null => {
+      for (const node of nodes) {
+        if (node.key === key) return node;
+        if (node.children) {
+          const found = findNodeInTree(node.children, key);
+          if (found) return found;
+        }
+      }
+      return null;
+    };
+
+    const getAllChildKeys = (node: TreeDataNode): string[] => {
+      const keys: string[] = [];
+      if (node.children) {
+        node.children.forEach(child => {
+          keys.push(child.key as string);
+          keys.push(...getAllChildKeys(child));
+        });
+      }
+      return keys;
+    };
+
+    // 过滤逻辑：如果一个父节点在列表中，但它的子节点并非全部在列表中，则移除这个父节点
+    return returnedMenuIds.filter(menuId => {
+      const node = findNodeInTree(menuTreeData, menuId);
+
+      // 如果是叶子节点，保留
+      if (!node || !node.children || node.children.length === 0) {
+        return true;
+      }
+
+      // 如果是父节点，检查它的所有子节点是否都在返回的列表中
+      const allChildKeys = getAllChildKeys(node);
+      const allChildrenSelected = allChildKeys.every(childKey =>
+        returnedMenuIds.includes(childKey)
+      );
+
+      // 只有当所有子节点都被选中时，才保留这个父节点
+      return allChildrenSelected;
+    });
+  };
+
   // 获取角色菜单权限
   const fetchRoleMenuPermissions = async (roleId: string) => {
     try {
       setLoadingMenuPermissions(true);
       const response = await request.get(`/admin/api/v1/roles/${roleId}/menus`);
-      setRoleMenuPermissions(response.data.data || []);
+      const rawMenuIds = response.data.data || [];
+
+      // 过滤出真正应该显示为选中的节点
+      const filteredMenuIds = filterActualCheckedNodes(rawMenuIds);
+
+      setRoleMenuPermissions(filteredMenuIds);
       setSelectedRole((prv)=>{
         return {
           ...prv,
-          menuIds: response.data.data
+          menuIds: filteredMenuIds
         }
       })
 
@@ -248,7 +299,7 @@ export default function GranularPermissionManagement({
     setIsRoleDialogOpen(true);
   };
 
-  // 处理编辑角色（显式编辑模式）
+  // 处理编辑角��（显式编辑模式）
   const handleEditRole = (role: Role) => {
     setIsEditingRole(true);
     setNewRole({ id: role.id, name: role.name, description: role.description });
@@ -467,23 +518,89 @@ export default function GranularPermissionManagement({
     setFieldPermissionPage(page);
   };
 
+  // 递归获取所有叶子节点
+  const getAllLeafNodes = (nodes: TreeDataNode[]): string[] => {
+    const leafNodes: string[] = [];
+
+    const traverse = (nodeList: TreeDataNode[]) => {
+      nodeList.forEach(node => {
+        if (!node.children || node.children.length === 0) {
+          leafNodes.push(node.key as string);
+        } else {
+          traverse(node.children);
+        }
+      });
+    };
+
+    traverse(nodes);
+    return leafNodes;
+  };
+
+  // 检查一个节点的所有子节点是否都被选中
+  const areAllChildrenChecked = (nodeKey: string, checkedKeys: string[]): boolean => {
+    const findNode = (nodes: TreeDataNode[], key: string): TreeDataNode | null => {
+      for (const node of nodes) {
+        if (node.key === key) return node;
+        if (node.children) {
+          const found = findNode(node.children, key);
+          if (found) return found;
+        }
+      }
+      return null;
+    };
+
+    const node = findNode(menuTreeData, nodeKey);
+    if (!node || !node.children || node.children.length === 0) {
+      return false;
+    }
+
+    const allChildKeys = getAllLeafNodes([node]);
+    return allChildKeys.every(childKey => checkedKeys.includes(childKey));
+  };
+
+  // 获取完全选中的节点（不包括半选状态的父节点）
+  const getFullyCheckedNodes = (checkedKeys: string[], halfCheckedKeys: string[] = []) => {
+    // 过滤出真正完全选中的节点
+    return checkedKeys.filter(key => {
+      // 如果是半选状态，则不包含在结果中
+      if (halfCheckedKeys.includes(key)) {
+        return false;
+      }
+
+      // 如果是叶子节点，直接包含
+      const allLeafNodes = getAllLeafNodes(menuTreeData);
+      if (allLeafNodes.includes(key)) {
+        return true;
+      }
+
+      // 如果是父节点，检查是否所有子节点都被选中
+      return areAllChildrenChecked(key, checkedKeys);
+    });
+  };
+
   // 处理菜单选择变化并立即保存到后端
-  const handleMenuSelectionChange = async (selectedMenuIds: string[]) => {
+  const handleMenuSelectionChange = async (checkedKeysInfo: any) => {
     if (!selectedRole) return;
 
+    // 获取完全选中的节点（排除半选状态的父节点）
+    const checkedKeys = Array.isArray(checkedKeysInfo) ? checkedKeysInfo : checkedKeysInfo.checked;
+    const halfCheckedKeys = checkedKeysInfo.halfChecked || [];
+
+    // 只将完���选中的节点发送到后端
+    const fullySelectedMenuIds = getFullyCheckedNodes(checkedKeys, halfCheckedKeys);
     const prevMenuIds = selectedRole.menuIds || [];
 
     // 本地先行更新，提升交互响应
     setSelectedRole({
       ...selectedRole,
-      menuIds: selectedMenuIds,
+      menuIds: fullySelectedMenuIds,
     });
 
     try {
       const payload = {
         id: selectedRole.id,
         issystem: selectedRole.isSystem,
-        menuIds: selectedMenuIds.map((id) => String(id)),
+        menuIds: fullySelectedMenuIds.map((id) => String(id)),
         name: selectedRole.name,
         permissionIds: selectedRole.permissionIds?.length
           ? selectedRole.permissionIds
@@ -494,8 +611,8 @@ export default function GranularPermissionManagement({
 
       await request.put(`/admin/api/v1/roles/${selectedRole.id}/menus`, payload);
       toast({ title: "保存成功" });
-      if (!activeMenuId && selectedMenuIds.length > 0) {
-        setActiveMenuId(selectedMenuIds[selectedMenuIds.length - 1]);
+      if (!activeMenuId && fullySelectedMenuIds.length > 0) {
+        setActiveMenuId(fullySelectedMenuIds[fullySelectedMenuIds.length - 1]);
       }
     } catch (err: any) {
       console.error("Failed to save role menu permissions:", err);
@@ -506,7 +623,7 @@ export default function GranularPermissionManagement({
     }
   };
 
-  // 获取指定菜单的权限���
+  // ���取指定菜单的权限���
   const fetchPermissionsByMenu = async (menuId: string) => {
     try {
       setLoadingPermissions(true);
@@ -677,9 +794,8 @@ export default function GranularPermissionManagement({
                           <Tree
                             checkable
                             checkedKeys={selectedRole?.menuIds || []}
-                            onCheck={(checkedKeys) => {
-                              const keys = Array.isArray(checkedKeys) ? checkedKeys : checkedKeys.checked;
-                              handleMenuSelectionChange(keys as string[]);
+                            onCheck={(checkedKeysInfo) => {
+                              handleMenuSelectionChange(checkedKeysInfo);
                             }}
                             onSelect={(selectedKeys) => {
                               if (selectedKeys.length > 0) {
@@ -689,6 +805,7 @@ export default function GranularPermissionManagement({
                             treeData={menuTreeData}
                             height={400}
                             defaultExpandAll
+                            checkStrictly={false}
                           />
                         )}
                       </CardContent>
