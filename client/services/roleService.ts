@@ -3,9 +3,13 @@ import type { Role, RoleListResponse } from "@/types/role";
 
 class RoleService {
   async getRoles(companyId?: string): Promise<Role[]> {
-    const response = await request.get("/admin/api/v1/roles/list", {
-      companyId,
-    });
+    const data = {} as any;
+
+    if (companyId) {
+      data.companyId = companyId;
+    }
+
+    const response = await request.get("/admin/api/v1/roles/list", data);
     return response.data.data;
   }
 
