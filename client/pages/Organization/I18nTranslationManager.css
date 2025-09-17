@@ -1,0 +1,29 @@
+/* 自定义Tree组件样式 */
+.custom-tree .ant-tree-node-selected {
+  background-color: #dbeafe !important; /* 蓝色背景 */
+  color: #1e40af !important; /* 深蓝色文字 */
+  border-radius: 6px;
+}
+
+.custom-tree .ant-tree-node-selected:hover {
+  background-color: #dbeafe !important;
+}
+
+.custom-tree .ant-tree-treenode {
+  padding: 2px 0;
+}
+
+.custom-tree .ant-tree-node-content-wrapper {
+  border-radius: 6px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+}
+
+.custom-tree .ant-tree-node-content-wrapper:hover {
+  background-color: #f1f5f9;
+}
+
+.custom-tree .ant-tree-node-content-wrapper .group:hover .opacity-0 {
+  opacity: 1 !important;
+}

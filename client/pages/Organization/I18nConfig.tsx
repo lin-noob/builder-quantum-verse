@@ -36,23 +36,40 @@ import {
   Edit,
   Trash2,
   Upload,
-  Download,
   Search,
   Save,
   X,
-  ChevronDown,
-  ChevronRight,
-  FileText,
 } from "lucide-react";
 import * as i18nService from "@/services/i18nService";
+import { Tree } from "antd";
+import type { TreeDataNode } from "antd";
+import "antd/dist/reset.css";
+import { request } from "@/lib/request";
+import "./I18nConfig.css";
 
 // 扩展菜单分类类型定义以支持树状结构
 interface MenuCategory extends i18nService.MenuCategory {
   parentId: string | null;
 }
 
-// 使用原始类型定义
-type TranslationItem = i18nService.TranslationItem;
+// 翻译项类型定义 (符合新的API接口要求)
+interface TranslationItem {
+  id: string;
+  keyCode: string;
+  name: string;
+}
+
+// 新增翻译项的类型定义
+interface NewTranslationItem {
+  menuId: string;
+  name: string;
+  keyCode: string;
+}
+
+// 编辑翻译项的类型定义
+interface EditTranslationItem extends NewTranslationItem {
+  id: string;
+}
 
 const I18nConfig: React.FC = () => {
   const { toast } = useToast();
@@ -62,11 +79,15 @@ const I18nConfig: React.FC = () => {
   // 菜单分类数据
   const [menuCategories, setMenuCategories] = useState<MenuCategory[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
-  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set()); // 添加展开状态
+  const [menuTreeData, setMenuTreeData] = useState<TreeDataNode[]>([]); // 添加菜单树数据状态
   
   // 翻译文案数据
   const [translations, setTranslations] = useState<TranslationItem[]>([]);
-  const [filteredTranslations, setFilteredTranslations] = useState<TranslationItem[]>([]);
+  
+  // 分页状态
+  const [pageNumber, setPageNumber] = useState(1);
+  const [pageSize] = useState(20); // 固定每页20条数据
+  const [total, setTotal] = useState(0);
   
   // 搜索和过滤
   const [searchTerm, setSearchTerm] = useState("");
@@ -78,9 +99,8 @@ const I18nConfig: React.FC = () => {
   // 新增状态
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [newItem, setNewItem] = useState<Omit<TranslationItem, "id">>({
-    key: "",
-    zh: "",
-    en: ""
+    keyCode: "",
+    name: ""
   });
 
   // 初始化数据
@@ -94,19 +114,16 @@ const I18nConfig: React.FC = () => {
       setLoading(true);
       
       // 获取菜单分类
-      const categoryResponse = await i18nService.getI18nCategories();
+      const response = await request.get("/admin/api/v1/menus/companytree");
+      const menuData = response.data.data || [];
       // 转换为支持树状结构的类型
-      const categories: MenuCategory[] = categoryResponse.data.map(cat => ({
-        ...cat,
+      const categories: MenuCategory[] = menuData.map((item: any) => ({
+        id: item.id,
+        name: item.name,
+        count: item.children ? item.children.length : 0,
         parentId: null // 默认没有父级，实际数据中可能需要根据key的结构来确定parentId
-      })) || [];
+      }));
       setMenuCategories(categories);
-      
-      // 获取翻译文案
-      const translationResponse = await i18nService.getI18nTranslations();
-      const translationsData = translationResponse.data || [];
-      setTranslations(translationsData);
-      setFilteredTranslations(translationsData);
       
       // 默认选中第一个分类
       if (categories.length > 0) {
@@ -115,62 +132,43 @@ const I18nConfig: React.FC = () => {
     } catch (error) {
       console.error("Failed to load i18n data:", error);
       toast({
-        title: "加载失败",
-        description: "无法加载多语言配置数据，请重试",
+        title: error,
         variant: "destructive",
       });
-      
-      // 使用模拟数据作为后备
-      const mockCategories: MenuCategory[] = [
-        { id: "nav", name: "导航菜单", count: 15, parentId: null },
-        { id: "hero", name: "首页横幅", count: 20, parentId: null },
-        { id: "features", name: "功能特性", count: 35, parentId: null },
-        { id: "stats", name: "统计数据", count: 12, parentId: null },
-        { id: "footer", name: "页脚信息", count: 8, parentId: null },
-        { id: "nav.platformName", name: "平台名称", count: 1, parentId: "nav" },
-        { id: "nav.productFeatures", name: "产品特色", count: 1, parentId: "nav" },
-        { id: "nav.solutions", name: "解决方案", count: 1, parentId: "nav" },
-      ];
-      
-      const mockTranslations: TranslationItem[] = [
-        { id: "1", key: "nav.platformName", zh: "AI营销平台", en: "AI Marketing Platform" },
-        { id: "2", key: "nav.productFeatures", zh: "产品特色", en: "Product Features" },
-        { id: "3", key: "nav.solutions", zh: "解决方案", en: "Solutions" },
-        { id: "4", key: "hero.aiMarketingTitle", zh: "AI驱动的未来营销", en: "AI-Driven Future Marketing" },
-        { id: "5", key: "hero.aiMarketingDescription", zh: "通过前沿人工智能技术，实现精准用户洞察、自动化营销执行和数据驱动决策，帮助企业实现营销效果的指数级提升", en: "Through cutting-edge artificial intelligence technology, achieve precise user insights, automated marketing execution and data-driven decisions to help enterprises realize exponential marketing performance improvement" },
-      ];
-      
-      setMenuCategories(mockCategories);
-      setTranslations(mockTranslations);
-      setFilteredTranslations(mockTranslations);
-      setSelectedCategory("nav");
     } finally {
       setLoading(false);
     }
   };
 
-  // 过滤翻译项
+  // 当选中的菜单分类变化时，获取对应的翻译文案
   useEffect(() => {
-    let result = translations;
-    
-    // 根据选中的分类过滤
     if (selectedCategory) {
-      result = result.filter(item => item.key.startsWith(selectedCategory + "."));
+      fetchTranslationsByMenuId(selectedCategory, pageNumber, pageSize);
     }
-    
-    // 根据搜索词过滤
-    if (searchTerm) {
-      const term = searchTerm.toLowerCase();
-      result = result.filter(
-        item =>
-          item.key.toLowerCase().includes(term) ||
-          item.zh.toLowerCase().includes(term) ||
-          item.en.toLowerCase().includes(term)
-      );
+  }, [selectedCategory, pageNumber]);
+
+  // 根据菜单ID获取翻译文案
+  const fetchTranslationsByMenuId = async (menuId: string, page: number, size: number) => {
+    try {
+      const response = await request.get("/admin/api/v1/menus-details/page", {
+        pageNumber: page,
+        menuId: menuId,
+        pageSize: size
+      });
+      
+      const res = response.data || [];
+      const translationsData: TranslationItem[] = res.data || [];
+      setTranslations(translationsData);
+      setTotal(res.total || 0);
+    } catch (error) {
+      console.error("Failed to fetch translations by menuId:", error);
+      toast({
+        title: "加载失败",
+        description: "无法加载翻译文案数据，请重试",
+        variant: "destructive",
+      });
     }
-    
-    setFilteredTranslations(result);
-  }, [selectedCategory, searchTerm, translations]);
+  };
 
   // 处理编辑
   const handleEdit = (item: TranslationItem) => {
@@ -185,14 +183,19 @@ const I18nConfig: React.FC = () => {
     try {
       setSaving(true);
       
+      // 构造请求参数
+      const editData: EditTranslationItem = {
+        id: editingItem.id,
+        menuId: selectedCategory,
+        name: editingItem.name,
+        keyCode: editingItem.keyCode
+      };
+      
       // 调用API更新翻译
-      const response = await i18nService.updateI18nTranslation(editingItem);
+      await request.put("/admin/api/v1/menus-details", editData);
       
-      // 更新本地状态
-      setTranslations(prev =>
-        prev.map(item => (item.id === editingItem.id ? response.data : item))
-      );
-      
+      // 重新获取数据
+      fetchTranslationsByMenuId(selectedCategory, pageNumber, pageSize);
       setIsEditDialogOpen(false);
       setEditingItem(null);
       
@@ -216,10 +219,10 @@ const I18nConfig: React.FC = () => {
   const handleDelete = async (id: string) => {
     try {
       // 调用API删除翻译
-      await i18nService.deleteI18nTranslation(id);
+      await request.delete("/admin/api/v1/menus-details/" + id);
       
-      // 更新本地状态
-      setTranslations(prev => prev.filter(item => item.id !== id));
+      // 重新获取数据
+      fetchTranslationsByMenuId(selectedCategory, pageNumber, pageSize);
       
       toast({
         title: "删除成功",
@@ -237,7 +240,7 @@ const I18nConfig: React.FC = () => {
 
   // 处理新增
   const handleAdd = async () => {
-    if (!newItem.key || !newItem.zh || !newItem.en) {
+    if (!newItem.keyCode || !newItem.name) {
       toast({
         title: "验证失败",
         description: "请填写所有必填字段",
@@ -246,14 +249,30 @@ const I18nConfig: React.FC = () => {
       return;
     }
     
+    if (!selectedCategory) {
+      toast({
+        title: "验证失败",
+        description: "请选择菜单分类",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     try {
-      // 调用API新增翻译
-      const response = await i18nService.createI18nTranslation(newItem);
+      // 构造请求参数
+      const addData: NewTranslationItem = {
+        menuId: selectedCategory,
+        name: newItem.name,
+        keyCode: newItem.keyCode
+      };
       
-      // 更新本地状态
-      setTranslations(prev => [...prev, response.data]);
+      // 调用API新增翻译
+      await request.post("/admin/api/v1/menus-details", addData);
+      
+      // 重新获取数据
+      fetchTranslationsByMenuId(selectedCategory, pageNumber, pageSize);
       setIsAddDialogOpen(false);
-      setNewItem({ key: "", zh: "", en: "" });
+      setNewItem({ keyCode: "", name: "" });
       
       toast({
         title: "添加成功",
@@ -275,15 +294,23 @@ const I18nConfig: React.FC = () => {
       // 创建文件输入元素
       const input = document.createElement("input");
       input.type = "file";
-      input.accept = ".json";
+      input.accept = ".xlsx, .xls";
       
       input.onchange = async (e) => {
         const file = (e.target as HTMLInputElement).files?.[0];
         if (!file) return;
         
         try {
+          // 创建FormData对象
+          const formData = new FormData();
+          formData.append("file", file);
+          formData.append('menuId', selectedCategory);
           // 调用API导入翻译
-          await i18nService.importI18nTranslations(file);
+          await request.post("/admin/api/v1/menus-details/uploadExcel", formData, {
+            headers: {
+              "Content-Type": "multipart/form-data"
+            }
+          });
           
           toast({
             title: "导入成功",
@@ -291,7 +318,9 @@ const I18nConfig: React.FC = () => {
           });
           
           // 重新加载数据
-          loadI18nData();
+          if (selectedCategory) {
+            fetchTranslationsByMenuId(selectedCategory, pageNumber, pageSize);
+          }
         } catch (error) {
           console.error("Failed to import translations:", error);
           toast({
@@ -313,106 +342,42 @@ const I18nConfig: React.FC = () => {
     }
   };
 
-  // 处理导出
-  const handleExport = async () => {
-    try {
-      // 调用API导出翻译
-      const blob = await i18nService.exportI18nTranslations();
-      
-      // 创建下载链接
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute("download", "translations.json");
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      
-      toast({
-        title: "导出成功",
-        description: "翻译文件已开始下载",
-      });
-    } catch (error) {
-      console.error("Failed to export translations:", error);
-      toast({
-        title: "导出失败",
-        description: "无法导出翻译文件，请重试",
-        variant: "destructive",
-      });
-    }
+  const convertToTreeData = (menuData: any[]): TreeDataNode[] => {
+    return menuData.map(item => {
+      const children = item.children ? convertToTreeData(item.children) : undefined;
+      return {
+        key: item.id,
+        title: item.name,
+        children,
+      };
+    });
   };
 
-  // 处理分类展开/折叠
-  const toggleCategory = (id: string) => {
-    setExpandedCategories(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(id)) {
-        newSet.delete(id);
-      } else {
-        newSet.add(id);
+  // 当菜单分类数据变化时，更新树状数据
+  useEffect(() => {
+    // 重新获取菜单树数据
+    const fetchMenuTreeData = async () => {
+      try {
+        const response = await request.get("/admin/api/v1/menus/companytree");
+        const menuData = response.data.data || [];
+        setMenuTreeData(convertToTreeData(menuData));
+        
+        // 设置菜单分类数据
+        const categories: MenuCategory[] = menuData.map((item: any) => ({
+          id: item.id,
+          name: item.name,
+          count: item.children ? item.children.length : 0,
+          parentId: null
+        }));
+        setMenuCategories(categories);
+      } catch (error) {
+        console.error("Failed to fetch menu tree data:", error);
+        setMenuTreeData([]);
       }
-      return newSet;
-    });
-  };
+    };
 
-  // 获取子分类
-  const getChildCategories = (parentId: string | null) => {
-    return menuCategories.filter(category => category.parentId === parentId);
-  };
-
-  // 渲染分类树
-  const renderCategoryTree = (parentId: string | null = null, level = 0) => {
-    const categories = getChildCategories(parentId);
-    
-    return categories.map(category => {
-      const hasChildren = getChildCategories(category.id).length > 0;
-      const isExpanded = expandedCategories.has(category.id);
-      const isSelected = selectedCategory === category.id;
-      
-      return (
-        <div key={category.id}>
-          <button
-            className={`flex items-center gap-2 w-full text-left p-2 rounded-lg transition-colors ${
-              isSelected 
-                ? "bg-blue-100 text-blue-900 border border-blue-200" 
-                : "hover:bg-gray-100"
-            }`}
-            style={{ paddingLeft: `${level * 16 + 8}px` }}
-            onClick={() => setSelectedCategory(category.id)}
-          >
-            {hasChildren && (
-              <button 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  toggleCategory(category.id);
-                }}
-                className="p-1 hover:bg-gray-200 rounded"
-              >
-                {isExpanded ? (
-                  <ChevronDown className="h-4 w-4" />
-                ) : (
-                  <ChevronRight className="h-4 w-4" />
-                )}
-              </button>
-            )}
-            <FileText className="h-4 w-4" />
-            <div className="flex-1">
-              <div className="font-medium">{category.name}</div>
-              <div className="text-sm text-muted-foreground">
-                {category.count} 项文案
-              </div>
-            </div>
-          </button>
-          
-          {hasChildren && isExpanded && (
-            <div>
-              {renderCategoryTree(category.id, level + 1)}
-            </div>
-          )}
-        </div>
-      );
-    });
-  };
+    fetchMenuTreeData();
+  }, []);
 
   if (loading) {
     return (
@@ -430,16 +395,7 @@ const I18nConfig: React.FC = () => {
 
   return (
     <div className="p-6 space-y-6">
-      <div className="flex justify-end gap-2">
-        <Button onClick={handleImport} variant="outline">
-          <Upload className="mr-2 h-4 w-4" />
-          导入
-        </Button>
-        <Button onClick={handleExport} variant="outline">
-          <Download className="mr-2 h-4 w-4" />
-          导出
-        </Button>
-      </div>
+      {/* 移除了顶部的导入导出按钮 */}
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* 左侧菜单分类列表 */}
@@ -450,9 +406,18 @@ const I18nConfig: React.FC = () => {
             </CardHeader>
             <CardContent>
               <ScrollArea className="h-[calc(100vh-220px)]">
-                <div className="space-y-1">
-                  {renderCategoryTree(null)}
-                </div>
+                <Tree
+                  treeData={menuTreeData}
+                  selectedKeys={[selectedCategory]}
+                  onSelect={(selectedKeys) => {
+                    if (selectedKeys.length > 0) {
+                      setSelectedCategory(selectedKeys[0] as string);
+                    }
+                  }}
+                  defaultExpandAll
+                  height={600}
+                  className="custom-tree"
+                />
               </ScrollArea>
             </CardContent>
           </Card>
@@ -463,8 +428,12 @@ const I18nConfig: React.FC = () => {
           <Card>
             <CardHeader>
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <CardTitle>
+                <CardTitle className="flex justify-between items-center">
                   {menuCategories.find(c => c.id === selectedCategory)?.name || "翻译文案"}
+                  <Button onClick={handleImport} variant="outline" size="sm">
+                    <Upload className="mr-2 h-4 w-4" />
+                    导入
+                  </Button>
                 </CardTitle>
                 <div className="flex items-center gap-2">
                   <div className="relative">
@@ -492,36 +461,25 @@ const I18nConfig: React.FC = () => {
                       </DialogHeader>
                       <div className="space-y-4">
                         <div className="space-y-2">
-                          <Label htmlFor="key">Key</Label>
+                          <Label htmlFor="keyCode">Key</Label>
                           <Input
-                            id="key"
-                            value={newItem.key}
+                            id="keyCode"
+                            value={newItem.keyCode}
                             onChange={(e) =>
-                              setNewItem({ ...newItem, key: e.target.value })
+                              setNewItem({ ...newItem, keyCode: e.target.value })
                             }
                             placeholder="例如: nav.home"
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="zh">中文</Label>
+                          <Label htmlFor="name">中文</Label>
                           <Input
-                            id="zh"
-                            value={newItem.zh}
+                            id="name"
+                            value={newItem.name}
                             onChange={(e) =>
-                              setNewItem({ ...newItem, zh: e.target.value })
+                              setNewItem({ ...newItem, name: e.target.value })
                             }
                             placeholder="中文翻译"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="en">英文</Label>
-                          <Input
-                            id="en"
-                            value={newItem.en}
-                            onChange={(e) =>
-                              setNewItem({ ...newItem, en: e.target.value })
-                            }
-                            placeholder="English translation"
                           />
                         </div>
                       </div>
@@ -549,12 +507,12 @@ const I18nConfig: React.FC = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredTranslations.map((item) => (
+                  {translations.map((item) => (
                     <TableRow key={item.id}>
                       <TableCell className="font-mono text-sm">
-                        {item.key}
+                        {item.keyCode}
                       </TableCell>
-                      <TableCell>{item.zh}</TableCell>
+                      <TableCell>{item.name}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
                           <Button
@@ -578,9 +536,39 @@ const I18nConfig: React.FC = () => {
                 </TableBody>
               </Table>
               
-              {filteredTranslations.length === 0 && (
+              {translations.length === 0 && (
                 <div className="text-center py-8 text-muted-foreground">
                   <p>暂无匹配的翻译文案</p>
+                </div>
+              )}
+              
+              {/* 分页组件 */}
+              {total > 0 && (
+                <div className="flex items-center justify-between py-4">
+                  <div className="text-sm text-muted-foreground">
+                    共 {total} 条数据
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setPageNumber(prev => Math.max(prev - 1, 1))}
+                      disabled={pageNumber === 1}
+                    >
+                      上一页
+                    </Button>
+                    <div className="flex items-center text-sm">
+                      第 {pageNumber} 页，共 {Math.ceil(total / pageSize)} 页
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setPageNumber(prev => prev + 1)}
+                      disabled={pageNumber >= Math.ceil(total / pageSize)}
+                    >
+                      下一页
+                    </Button>
+                  </div>
                 </div>
               )}
             </CardContent>
@@ -600,34 +588,22 @@ const I18nConfig: React.FC = () => {
           {editingItem && (
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="edit-key">Key</Label>
+                <Label htmlFor="edit-keyCode">Key</Label>
                 <Input
-                  id="edit-key"
-                  value={editingItem.key}
+                  id="edit-keyCode"
+                  value={editingItem.keyCode}
                   onChange={(e) =>
-                    setEditingItem({ ...editingItem, key: e.target.value })
+                    setEditingItem({ ...editingItem, keyCode: e.target.value })
                   }
-                  disabled
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="edit-zh">中文</Label>
+                <Label htmlFor="edit-name">中文</Label>
                 <Textarea
-                  id="edit-zh"
-                  value={editingItem.zh}
+                  id="edit-name"
+                  value={editingItem.name}
                   onChange={(e) =>
-                    setEditingItem({ ...editingItem, zh: e.target.value })
-                  }
-                  rows={3}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="edit-en">英文</Label>
-                <Textarea
-                  id="edit-en"
-                  value={editingItem.en}
-                  onChange={(e) =>
-                    setEditingItem({ ...editingItem, en: e.target.value })
+                    setEditingItem({ ...editingItem, name: e.target.value })
                   }
                   rows={3}
                 />
