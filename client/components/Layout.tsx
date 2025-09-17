@@ -106,6 +106,8 @@ export default function Layout({ children }: LayoutProps) {
   // 从 roleStore 获取 filteredMenus
   const filteredMenus = useRoleStore((state) => state.filteredMenus);
 
+  const [hasInitializedProjects, setHasInitializedProjects] = useState(false);
+
   // 使用store管理项目状态
   const {
     projects,
@@ -126,30 +128,33 @@ export default function Layout({ children }: LayoutProps) {
     }
   };
 
-  // 只在组件挂载时检查用户状态和获取项目
+  // 检查用户状态并初始化项目数据
   useEffect(() => {
     const user = authService.getCurrentUser();
     setCurrentUser(user);
 
-    // 如果用户已登录，获取项目列表
+    // 如果是非管理员用户，获取项目数据
     if (user && user.usertype !== "admin") {
-      fetchProjects()
-        .then(() => {
-          // 检查是否需要显示创建项目对话框
-          if (projects.length === 0) {
-            setShowCreateProjectDialog(true);
-            setIsDialogClosable(true);
-          }
-        })
-        .catch(() => {
-          // 如果获取失败且没有缓存的项目，显示创建项目弹框
-          if (projects.length === 0) {
-            setShowCreateProjectDialog(true);
-            setIsDialogClosable(true);
-          }
-        });
+      fetchProjects().finally(() => {
+        setHasInitializedProjects(true);
+      });
+    } else {
+      setHasInitializedProjects(true);
     }
-  }, []); // 移除location依赖，避免每次路由切换都重新检查
+  }, []); // 只在组件挂载时执行
+
+  // 监听 projects 变化，当非管理员用户没有项目时显示创建对话框
+  useEffect(() => {
+    const user = authService.getCurrentUser();
+    if (user && user.usertype !== "admin" && hasInitializedProjects) {
+      if (projects.length === 0) {
+        setShowCreateProjectDialog(true);
+        setIsDialogClosable(true);
+      } else {
+        setShowCreateProjectDialog(false);
+      }
+    }
+  }, [projects, hasInitializedProjects]); // 依赖 projects 和 hasInitializedProjects 状态
 
   // 自动展开包含当前页面的二级菜单
   useEffect(() => {
@@ -402,7 +407,7 @@ export default function Layout({ children }: LayoutProps) {
         <div className="flex items-center gap-2">
           {/* 多语言切换 */}
           <LanguageSwitcher />
-          
+
           {/* Help Icon */}
           <Link
             to="/marketing/help"
