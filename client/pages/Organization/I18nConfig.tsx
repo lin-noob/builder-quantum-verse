@@ -86,7 +86,7 @@ const I18nConfig: React.FC = () => {
   
   // 分页状态
   const [pageNumber, setPageNumber] = useState(1);
-  const [pageSize] = useState(20); // 固定每页20条数据
+  const [pageSize] = useState(20); // 固定每页20条数��
   const [total, setTotal] = useState(0);
   
   // 搜索和过滤
@@ -103,6 +103,18 @@ const I18nConfig: React.FC = () => {
     name: ""
   });
 
+  // 转换菜单数据为树状结构
+  const convertToTreeData = (menuData: any[]): TreeDataNode[] => {
+    return menuData.map(item => {
+      const children = item.children ? convertToTreeData(item.children) : undefined;
+      return {
+        key: item.id,
+        title: item.name,
+        children,
+      };
+    });
+  };
+
   // 初始化数据
   useEffect(() => {
     loadI18nData();
@@ -112,10 +124,14 @@ const I18nConfig: React.FC = () => {
   const loadI18nData = async () => {
     try {
       setLoading(true);
-      
+
       // 获取菜单分类
       const response = await request.get("/admin/api/v1/menus/companytree");
       const menuData = response.data.data || [];
+
+      // 设置树状数据
+      setMenuTreeData(convertToTreeData(menuData));
+
       // 转换为支持树状结构的类型
       const categories: MenuCategory[] = menuData.map((item: any) => ({
         id: item.id,
@@ -124,7 +140,7 @@ const I18nConfig: React.FC = () => {
         parentId: null // 默认没有父级，实际数据中可能需要根据key的结构来确定parentId
       }));
       setMenuCategories(categories);
-      
+
       // 默认选中第一个分类
       if (categories.length > 0) {
         setSelectedCategory(categories[0].id);
@@ -132,7 +148,8 @@ const I18nConfig: React.FC = () => {
     } catch (error) {
       console.error("Failed to load i18n data:", error);
       toast({
-        title: error,
+        title: "加载失败",
+        description: error instanceof Error ? error.message : "无法加载菜单数据，请重试",
         variant: "destructive",
       });
     } finally {
@@ -341,43 +358,6 @@ const I18nConfig: React.FC = () => {
       });
     }
   };
-
-  const convertToTreeData = (menuData: any[]): TreeDataNode[] => {
-    return menuData.map(item => {
-      const children = item.children ? convertToTreeData(item.children) : undefined;
-      return {
-        key: item.id,
-        title: item.name,
-        children,
-      };
-    });
-  };
-
-  // 当菜单分类数据变化时，更新树状数据
-  useEffect(() => {
-    // 重新获取菜单树数据
-    const fetchMenuTreeData = async () => {
-      try {
-        const response = await request.get("/admin/api/v1/menus/companytree");
-        const menuData = response.data.data || [];
-        setMenuTreeData(convertToTreeData(menuData));
-        
-        // 设置菜单分类数据
-        const categories: MenuCategory[] = menuData.map((item: any) => ({
-          id: item.id,
-          name: item.name,
-          count: item.children ? item.children.length : 0,
-          parentId: null
-        }));
-        setMenuCategories(categories);
-      } catch (error) {
-        console.error("Failed to fetch menu tree data:", error);
-        setMenuTreeData([]);
-      }
-    };
-
-    fetchMenuTreeData();
-  }, []);
 
   if (loading) {
     return (
