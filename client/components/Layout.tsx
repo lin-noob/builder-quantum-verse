@@ -66,6 +66,7 @@ import {
 import { request } from "@/lib/request";
 import useProjectStore from "@/stores/projectStore";
 import { CreateProjectDialog } from "./CreateProjectDialog";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 
 interface LayoutProps {
   children: ReactNode;
@@ -399,6 +400,9 @@ export default function Layout({ children }: LayoutProps) {
           <span className="text-xl font-bold text-gray-900">AI营销平台</span>
         </div>
         <div className="flex items-center gap-2">
+          {/* 多语言切换 */}
+          <LanguageSwitcher />
+          
           {/* Help Icon */}
           <Link
             to="/marketing/help"

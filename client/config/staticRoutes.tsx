@@ -33,6 +33,8 @@ const UserDetail_New = React.lazy(() => import("@/pages/UserDetail_New"));
 const ScenarioConfig = React.lazy(
   () => import("@/pages/AIMarketing/ScenarioConfig"),
 );
+const I18nConfig = React.lazy(() => import("@/pages/Organization/I18nConfig"));
+const I18nTranslationManager = React.lazy(() => import("@/pages/Organization/I18nTranslationManager"));
 
 // LazyRoute 包装组件
 const LazyRoute: React.FC<{
@@ -222,6 +224,27 @@ export const staticRoutes: RouteObject[] = [
       </LazyRoute>
     ),
   },
+  {
+    path: "/organization/i18n",
+    element: (
+      <Layout>
+        <LazyRoute>
+          <I18nConfig />
+        </LazyRoute>
+      </Layout>
+    ),
+  },
+  {
+    path: "/organization/i18n/translation",
+    element: (
+      <Layout>
+        <LazyRoute>
+          <I18nTranslationManager />
+        </LazyRoute>
+      </Layout>
+    ),
+  },
+
 ];
 
 // 获取所有静态路由路径（用于路由匹配）

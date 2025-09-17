@@ -21,6 +21,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useContactModal } from "@/contexts/ContactModalContext";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 
 export default function MarketingNav() {
   const { openModal } = useContactModal();
@@ -156,6 +157,9 @@ export default function MarketingNav() {
           </div>
 
           <div className="flex items-center space-x-4">
+            {/* 多语言切换 */}
+            <LanguageSwitcher />
+            
             <Button
               variant="outline"
               onClick={() => openModal({

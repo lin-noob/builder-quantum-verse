@@ -1,0 +1,29 @@
+# 如何将多语言翻译管理页面添加到左侧菜单栏
+
+## 菜单信息
+- 菜单名称：多语言翻译
+- 路由路径：/organization/i18n/translation
+- 父级菜单：组织管理
+- 图标：可以选择 "Globe" 或其他合适的图标
+- 排序：建议设置为 100 或根据需要调整
+- 类型：菜单
+- 组件路径：/client/pages/Organization/I18nTranslationManager.tsx
+
+## 添加步骤
+
+1. 登录管理后台
+2. 进入菜单管理页面（/admin/menus）
+3. 点击"添加菜单"按钮
+4. 填写以下信息：
+   - 菜单名称：多语言翻译
+   - 父级菜单：选择"组织管理"
+   - 菜单类型：菜单
+   - 图标：Globe（或其他合适的图标）
+   - 页面路由：/organization/i18n/translation
+   - 组件路径：/client/pages/Organization/I18nTranslationManager.tsx
+   - 排序：100
+   - 是否显示：是
+5. 点击"确定"保存
+
+## 验证
+添加完成后，刷新前端页面，应该能在左侧菜单栏的"组织管理"下看到"多语言翻译"菜单项。

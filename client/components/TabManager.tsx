@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { X, ChevronLeft, ChevronRight, Home } from "lucide-react";
 import { useRoleStore } from "@/stores/roleStore";
 import type { ClientMenuApiItem } from "@/services/clientMenuService";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 
 interface Tab {
   id: string;
@@ -435,6 +436,11 @@ function TabManager() {
             </div>
           ))}
         </div>
+      </div>
+
+      {/* 多语言切换 */}
+      <div className="flex-shrink-0 px-2">
+        <LanguageSwitcher />
       </div>
 
       {/* 右侧滚动箭头 */}
