@@ -158,7 +158,7 @@ const BackendManagement: React.FC = () => {
 
       toast({
         title: "保存成功",
-        description: "后台��务项已更新",
+        description: "后台业务项已更新",
       });
     } catch (error) {
       console.error("Failed to update business item:", error);
