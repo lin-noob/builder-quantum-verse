@@ -309,10 +309,6 @@ const BackendManagement: React.FC = () => {
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <CardTitle className="flex justify-between items-center">
               后台业务管理
-              <Button onClick={handleImport} variant="outline" size="sm">
-                <Upload className="mr-2 h-4 w-4" />
-                导入
-              </Button>
             </CardTitle>
             <div className="flex items-center gap-2">
               <div className="relative">
