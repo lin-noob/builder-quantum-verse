@@ -30,23 +30,23 @@ const getDetectedLanguage = (): string => {
   // 3. navigator 检测
   try {
     const browserLang = navigator.language.toLowerCase();
-    if (browserLang.startsWith('zh')) return 'zh';
-    if (browserLang.startsWith('en')) return 'en';
+    if (browserLang.startsWith('en')) return 'en-US';
+    if (browserLang.startsWith('zh')) return 'zh-CN';
     // 对于其他语言，如果有对应的翻译文件就返回，否则返回英文
-    if (browserLang.startsWith('ja')) return 'en'; // 暂时返回英文，可以添加更多语言支持
-    if (browserLang.startsWith('ko')) return 'en';
-    if (browserLang.startsWith('es')) return 'en';
-    if (browserLang.startsWith('fr')) return 'en';
-    if (browserLang.startsWith('de')) return 'en';
-    if (browserLang.startsWith('pt')) return 'en';
-    if (browserLang.startsWith('ru')) return 'en';
-    if (browserLang.startsWith('ar')) return 'en';
+    if (browserLang.startsWith('ja')) return 'en-US'; // 暂时返回英文，可以添加更多语言支持
+    if (browserLang.startsWith('ko')) return 'en-US';
+    if (browserLang.startsWith('es')) return 'en-US';
+    if (browserLang.startsWith('fr')) return 'en-US';
+    if (browserLang.startsWith('de')) return 'en-US';
+    if (browserLang.startsWith('pt')) return 'en-US';
+    if (browserLang.startsWith('ru')) return 'en-US';
+    if (browserLang.startsWith('ar')) return 'en-US';
   } catch (error) {
     console.debug('Failed to detect navigator language in i18n');
   }
 
   // 默认返回中文
-  return 'zh';
+  return 'en-US';
 };
 
 // Configure i18n

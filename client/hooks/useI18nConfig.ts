@@ -86,10 +86,8 @@ export const useI18nConfig = () => {
 
     // 否则使用默认语言列表
     return [
-      { code: 'zh', name: '中文', nativeName: '中文', flag: '🇨🇳' },
-      { code: 'en', name: 'English', nativeName: 'English', flag: '🇺🇸' },
-      { code: 'ja', name: 'Japanese', nativeName: '日本語', flag: '🇯🇵' },
-      { code: 'ko', name: 'Korean', nativeName: '한국어', flag: '🇰🇷' },
+      { code: 'zh-CN', name: '中文', nativeName: '中文', flag: '🇨🇳' },
+      { code: 'en-US', name: 'English', nativeName: 'English', flag: '🇺🇸' },
     ];
   };
 
