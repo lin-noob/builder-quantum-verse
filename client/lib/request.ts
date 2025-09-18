@@ -1,4 +1,5 @@
 import { useAuthStore } from "@/stores";
+import { useConfigStore } from "@/stores/configStore";
 import { ErrorHandler } from "./errorHandler";
 import { authService } from "@/services/authService";
 import { adminAuthService } from "@/services/adminAuthService";
@@ -588,7 +589,7 @@ export class Request {
     //               "AI会根据用户画像、购物车商品等信息，自主生成最合适的挽留或激励文案",
     //             strategySummary:
     //               "在用户犹豫或准备离开时进行精准挽留，提升订单转化率。",
-    //             coreStrategies: ["网页弹窗", "智能延迟", "个性化生成"],
+    //             coreStrategies: ["网页弹窗", "智能���迟", "个性化生成"],
     //             dimensions: [
     //               {
     //                 dimension: "营销方式",
@@ -749,11 +750,13 @@ export class Request {
       const jsessionid = localStorage.getItem("auth_session") ?? undefined;
       const projectId =
         useProjectStore.getState()?.currentProject?.id ?? '';
+      const currentLanguage = useConfigStore.getState()?.langCode ?? 'zh';
       const mergedHeaders = {
         ...this.defaultConfig.headers,
         ...headers,
         jsessionid,
         "PROJECT-INFO": projectId,
+        "locale": currentLanguage,
       };
       const { body, headers: finalHeaders } = this.processRequestData(
         data,
@@ -791,7 +794,7 @@ export class Request {
 
       return await this.processResponse<T>(processedResponse, responseType);
     } catch (error) {
-      // 确保清理资源
+      // 确保���理资源
       if (timeoutId) {
         clearTimeout(timeoutId);
       }

@@ -11,6 +11,7 @@ import { X, ChevronLeft, ChevronRight, Home } from "lucide-react";
 import { useRoleStore } from "@/stores/roleStore";
 import type { ClientMenuApiItem } from "@/services/clientMenuService";
 import { LanguageSwitcher } from "./LanguageSwitcher";
+import LanguageDemo from "./LanguageDemo";
 
 interface Tab {
   id: string;

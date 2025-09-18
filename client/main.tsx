@@ -9,6 +9,7 @@ import { createRoot } from "react-dom/client";
 import "./global.css";
 import App from "./App";
 import { setupGlobalErrorHandler } from "./lib/errorHandler";
+import { initializeConfig } from "./stores/configStore";
 
 // Add final layer of Recharts warning suppression
 if (process.env.NODE_ENV === "development") {
@@ -105,5 +106,10 @@ if (process.env.NODE_ENV === "development") {
     }
   });
 }
+
+// Initialize application configuration (async)
+initializeConfig().catch((error) => {
+  console.warn('Failed to initialize config:', error);
+});
 
 createRoot(document.getElementById("root")!).render(<App />);

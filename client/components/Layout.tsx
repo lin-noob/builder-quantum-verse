@@ -26,28 +26,7 @@ import {
   HelpCircle,
 } from "lucide-react";
 
-const LucideIcons = {
-  BarChart3,
-  Users,
-  Home,
-  Menu,
-  X,
-  MessageSquare,
-  Bot,
-  Target,
-  Activity,
-  ChevronLeft,
-  ChevronRight,
-  Zap,
-  User,
-  Settings,
-  Shield,
-  ChevronDown,
-  LogOut,
-  Code,
-  Building,
-  Check,
-};
+
 import TabManager from "./TabManager";
 import { useRoleStore } from "@/stores/roleStore";
 import type { ClientMenuApiItem } from "@/services/clientMenuService";
