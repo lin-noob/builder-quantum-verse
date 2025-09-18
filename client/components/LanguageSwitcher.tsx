@@ -11,6 +11,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Languages, Loader2, AlertCircle, Check } from "lucide-react";
 import { useI18nConfig } from "@/hooks/useI18nConfig";
+import { useNavigate } from 'react-router-dom';
 
 export function LanguageSwitcher() {
   const {
@@ -22,7 +23,7 @@ export function LanguageSwitcher() {
     changeLanguage,
     getSupportedLanguages,
   } = useI18nConfig();
-
+  const navigate = useNavigate();
   // 获取要显示的语言列表（优先使用API数据）
   const languagesToDisplay = availableLanguages.length > 0
     ? availableLanguages
@@ -50,6 +51,7 @@ export function LanguageSwitcher() {
 
   const handleLanguageChange = (newLangCode: string) => {
     changeLanguage(newLangCode);
+    window.location.reload();
   };
 
   return (

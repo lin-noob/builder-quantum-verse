@@ -10,3 +10,21 @@
 export interface DemoResponse {
   message: string;
 }
+
+/**
+ * Language pack translation entry
+ */
+export interface LanguagePackEntry {
+  keyCode: string;
+  transform: string;
+}
+
+/**
+ * Language pack response from API
+ */
+export interface LanguagePackResponse {
+  success: boolean;
+  data: LanguagePackEntry[];
+  message?: string;
+  code:string
+}

@@ -2,6 +2,8 @@ import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 import i18n from '@/lib/i18n';
 import { languageService, type LanguageConfig as ApiLanguageConfig } from '@/services/languageService';
+import { languagePackService } from '@/services/languagePackService';
+import { type LanguagePackEntry } from '@shared/api';
 
 // 支持的语言代码 - 改为 string 类型
 export type LanguageCode = string;
@@ -36,6 +38,11 @@ interface ConfigState {
   languagesLoading: boolean;
   languagesError: string | null;
 
+  // 语言包状态
+  languagePacks: Record<string, LanguagePackEntry[]>;
+  languagePackLoading: boolean;
+  languagePackError: string | null;
+
   // 当前货币配置
   currencyCode: CurrencyCode;
   currentCurrency: CurrencyConfig;
@@ -63,6 +70,8 @@ interface ConfigState {
   // 语言相关方法
   fetchAvailableLanguages: () => Promise<void>;
   getLanguageConfig: (langCode: string) => LanguageConfig;
+  fetchLanguagePack: (langCode: string) => Promise<void>;
+  getLanguagePack: (langCode: string) => LanguagePackEntry[];
 
   // 获取格式化方法
   formatCurrency: (amount: number) => string;
@@ -181,6 +190,11 @@ export const useConfigStore = create<ConfigState>()(
           languagesLoading: false,
           languagesError: null,
 
+          // 语言包状态
+          languagePacks: {},
+          languagePackLoading: false,
+          languagePackError: null,
+
           currencyCode: defaultCurrencyCode,
           currentCurrency: SUPPORTED_CURRENCIES[defaultCurrencyCode],
           theme: 'system',
@@ -189,7 +203,7 @@ export const useConfigStore = create<ConfigState>()(
           numberFormat: 'comma',
           
           // 设置语言
-          setLanguage: (langCode: string) => {
+          setLanguage: async (langCode: string) => {
             // 使用 getLanguageConfig 获取语言配置（优先使用API数据）
             const currentLanguage = get().getLanguageConfig(langCode);
 
@@ -199,14 +213,21 @@ export const useConfigStore = create<ConfigState>()(
             document.documentElement.lang = langCode;
 
             // 同步到 i18n 系统
-            if (i18n.language !== langCode) {
-              i18n.changeLanguage(langCode);
-            }
+            // if (i18n.language !== langCode) {
+            //   i18n.changeLanguage(langCode);
+            // }
 
             // 持久化到 localStorage（使用 i18n 的键名保持一致）
             localStorage.setItem('i18nextLng', langCode);
             // 为了向后兼容，也保存到旧的键名
             localStorage.setItem('app_language', langCode);
+
+            // 获取对应的语言包
+            // try {
+            //   await get().fetchLanguagePack(langCode);
+            // } catch (error) {
+            //   console.warn(`Failed to fetch language pack for ${langCode}:`, error);
+            // }
           },
           
           // 设置货币
@@ -287,6 +308,41 @@ export const useConfigStore = create<ConfigState>()(
             // 如果找不到，返回默认配置（尝试从availableLanguages中获取name信息）
             return createDefaultLanguageConfig(langCode, availableLanguages);
           },
+
+          // 从API获取语言包
+          fetchLanguagePack: async (langCode: string) => {
+            set({ languagePackLoading: true, languagePackError: null });
+
+            try {
+              const languagePack = await languagePackService.fetchLanguagePack(langCode);
+
+              // 更新语言包缓存
+              const { languagePacks } = get();
+              set({
+                languagePacks: {
+                  ...languagePacks,
+                  [langCode]: languagePack
+                },
+                languagePackLoading: false,
+                languagePackError: null
+              });
+
+            } catch (error) {
+              console.error('Failed to fetch language pack:', error);
+              set({
+                languagePackLoading: false,
+                languagePackError: error instanceof Error ? error.message : 'Failed to fetch language pack'
+              });
+              throw error;
+            }
+          },
+
+          // 获取语言包（从缓存或API）
+          getLanguagePack: (langCode: string) => {
+            const { languagePacks } = get();
+            // 先从store缓存获取，再从服务缓存获取
+            return languagePacks[langCode] || languagePackService.getCachedLanguagePack(langCode);
+          },
           
           // 格式化货币
           formatCurrency: (amount) => {
@@ -355,7 +411,7 @@ export const useConfigStore = create<ConfigState>()(
             }
           },
           
-          // 重置配置
+          // 重置���置
           resetConfig: () => {
             // 清除 localStorage 中的设置（包括 i18n 的键）
             localStorage.removeItem('i18nextLng');
@@ -412,7 +468,7 @@ export const useConfigStore = create<ConfigState>()(
 
 // 初始化配置（在应用启动时调用）
 export const initializeConfig = async () => {
-  const { setLanguage, setCurrency, setTheme, fetchAvailableLanguages, langCode, currencyCode, theme } = useConfigStore.getState();
+  const { setLanguage, setCurrency, setTheme, fetchAvailableLanguages, fetchLanguagePack, langCode, currencyCode, theme } = useConfigStore.getState();
 
   // 先获取可用语言列表
   try {
@@ -456,4 +512,14 @@ export const initializeConfig = async () => {
   } else {
     setTheme(theme);
   }
+
+  // 获取当前语言的语言包并预加载其他语言包
+  const { langCode: currentLangCode, availableLanguages } = useConfigStore.getState();
+
+  // try {
+  //   // 首先加载当前语言的语言包
+  //   await fetchLanguagePack(currentLangCode);
+  // } catch (error) {
+  //   console.warn(`Failed to fetch language pack for ${currentLangCode}:`, error);
+  // }
 };

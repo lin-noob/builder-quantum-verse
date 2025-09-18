@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   Search,
   ArrowUpDown,
@@ -92,6 +93,7 @@ interface ApiResponse {
 }
 
 export default function UserList() {
+const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTimeField, setSelectedTimeField] = useState("lastActiveTime");
   const [dateRange, setDateRange] = useState<DateRange>({
@@ -364,7 +366,7 @@ export default function UserList() {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <Input
-                placeholder="搜索 CDP ID、姓名、公司名称或联系方式..."
+                placeholder={t('userList.search.placeholder')}
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value);
@@ -387,13 +389,10 @@ export default function UserList() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="firstVisitTime">首次访问时间</SelectItem>
-                  <SelectItem value="registrationTime">注册时间</SelectItem>
-                  <SelectItem value="firstPurchaseTime">
-                    首次购买时间
-                  </SelectItem>
-                  {/* 测试 */}
-                  <SelectItem value="lastActiveTime">最后活跃时间</SelectItem>
+                  <SelectItem value="firstVisitTime">{t('userList.timeFields.firstVisitTime')}</SelectItem>
+                  <SelectItem value="registrationTime">{t('userList.timeFields.registrationTime')}</SelectItem>
+                  <SelectItem value="firstPurchaseTime">{t('userList.timeFields.firstPurchaseTime')}</SelectItem>
+                  <SelectItem value="lastActiveTime">{t('userList.timeFields.lastActiveTime')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -415,7 +414,7 @@ export default function UserList() {
                 disabled={loading}
               >
                 <Search className="h-4 w-4" />
-                搜索
+                {t('userList.search.button')}
               </Button>
               <Button
                 variant="outline"
@@ -424,7 +423,7 @@ export default function UserList() {
                 className="flex items-center gap-2 h-10"
               >
                 <RotateCcw className="h-4 w-4" />
-                重置
+                {t('userList.search.reset')}
               </Button>
             </div>
           </div>
@@ -437,17 +436,17 @@ export default function UserList() {
               <thead className="bg-gray-50 border-b">
                 <tr>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
-                    用户
+                    {t('userList.table.headers.user')}
                   </th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
-                    联系方式
+                    {t('userList.table.headers.contact')}
                   </th>
                   <th
                     className="px-6 py-4 text-left text-sm font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100"
                     onClick={() => handleSort("firstVisitTime")}
                   >
                     <div className="flex items-center gap-2">
-                      首次访问
+                      {t('userList.table.headers.firstVisit')}
                       {getSortIcon("firstVisitTime")}
                     </div>
                   </th>
@@ -456,7 +455,7 @@ export default function UserList() {
                     onClick={() => handleSort("registrationTime")}
                   >
                     <div className="flex items-center gap-2">
-                      注册时间
+                      {t('userList.table.headers.registrationTime')}
                       {getSortIcon("registrationTime")}
                     </div>
                   </th>
@@ -465,7 +464,7 @@ export default function UserList() {
                     onClick={() => handleSort("firstPurchaseTime")}
                   >
                     <div className="flex items-center gap-2">
-                      首次购买
+                      {t('userList.table.headers.firstPurchase')}
                       {getSortIcon("firstPurchaseTime")}
                     </div>
                   </th>
@@ -474,7 +473,7 @@ export default function UserList() {
                     onClick={() => handleSort("lastActiveTime")}
                   >
                     <div className="flex items-center gap-2">
-                      最后活跃
+                      {t('userList.table.headers.lastActive')}
                       {getSortIcon("lastActiveTime")}
                     </div>
                   </th>
@@ -485,14 +484,14 @@ export default function UserList() {
                       onClick={() => handleSort("totalSpent")}
                     >
                       <div className="flex items-center gap-2">
-                        总消费
+                        {t('userList.table.headers.totalSpent')}
                         {getSortIcon("totalSpent")}
                       </div>
                     </th>
                   )}
 
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
-                    操作
+                    {t('userList.table.headers.actions')}
                   </th>
                 </tr>
               </thead>
@@ -502,7 +501,7 @@ export default function UserList() {
                     <td colSpan={8} className="px-6 py-8 text-center">
                       <div className="flex items-center justify-center gap-2">
                         <RefreshCw className="h-4 w-4 animate-spin" />
-                        <span>加载中...</span>
+                        <span>{t('userList.table.states.loading')}</span>
                       </div>
                     </td>
                   </tr>
@@ -512,7 +511,7 @@ export default function UserList() {
                       colSpan={8}
                       className="px-6 py-8 text-center text-gray-500"
                     >
-                      暂无数据
+                      {t('userList.table.states.noData')}
                     </td>
                   </tr>
                 ) : (
@@ -557,7 +556,7 @@ export default function UserList() {
                             to={`/users1/${user.id}`}
                             className="text-blue-600 hover:text-blue-800 text-sm font-medium"
                           >
-                            查看详情
+                            {t('userList.table.actions.viewDetails')}
                           </Link>
                         )}
                       </td>
@@ -571,8 +570,8 @@ export default function UserList() {
           {/* Pagination */}
           <div className="px-6 py-4 border-t bg-gray-50 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="text-sm text-gray-700 order-2 sm:order-1">
-              正在显示 {startIndex + 1} - {Math.min(endIndex, totalCount)}{" "}
-              条，共 {totalCount} 条
+              {t('userList.pagination.showing')} {startIndex + 1} {t('userList.pagination.to')} {Math.min(endIndex, totalCount)}{" "}
+              {t('userList.pagination.of')} {totalCount} {t('userList.pagination.total')}
             </div>
             <div className="flex items-center gap-2 order-1 sm:order-2">
               <Button
@@ -581,7 +580,7 @@ export default function UserList() {
                 onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
                 disabled={currentPage === 1 || loading}
               >
-                上一页
+                {t('userList.pagination.previous')}
               </Button>
               <Button
                 variant="outline"
@@ -591,7 +590,7 @@ export default function UserList() {
                 }
                 disabled={currentPage >= totalPages || loading}
               >
-                下一页
+                {t('userList.pagination.next')}
               </Button>
             </div>
           </div>

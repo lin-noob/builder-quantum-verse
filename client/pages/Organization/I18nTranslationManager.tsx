@@ -997,7 +997,6 @@ const I18nTranslationManager: React.FC = () => {
                   selectedKeys={selectedMenuItem ? [selectedMenuItem.id] : []}
                   onSelect={async (selectedKeys) => {
                     if (selectedKeys.length > 0) {
-                      debugger;
                       const selectedId = selectedKeys[0] as string;
                       // const selectedItem = menuItems.find(item => item.id === selectedId);
                       // if (selectedItem) {

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -56,6 +57,7 @@ export default function AdvancedDateRangePicker({
   onChange,
   onPresetChange,
 }: AdvancedDateRangePickerProps) {
+const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [activePreset, setActivePreset] = useState("last30days");
   const [leftCalendarDate, setLeftCalendarDate] = useState(new Date(2025, 6)); // July 2025
@@ -115,7 +117,7 @@ export default function AdvancedDateRangePicker({
   };
 
   const formatDisplayRange = (range: DateRange) => {
-    if (!range || !range.start || !range.end) return "最近30天";
+    if (!range || !range.start || !range.end) return t('dateRangePicker.defaultRange');
     if (range.start.getTime() === range.end.getTime()) {
       return formatDate(range.start);
     }
@@ -177,18 +179,28 @@ export default function AdvancedDateRangePicker({
     }
 
     const monthNames = [
-      "1月",
-      "2月",
-      "3月",
-      "4月",
-      "5月",
-      "6月",
-      "7月",
-      "8月",
-      "9月",
-      "10月",
-      "11月",
-      "12月",
+      t('dateRangePicker.months.january'),
+      t('dateRangePicker.months.february'),
+      t('dateRangePicker.months.march'),
+      t('dateRangePicker.months.april'),
+      t('dateRangePicker.months.may'),
+      t('dateRangePicker.months.june'),
+      t('dateRangePicker.months.july'),
+      t('dateRangePicker.months.august'),
+      t('dateRangePicker.months.september'),
+      t('dateRangePicker.months.october'),
+      t('dateRangePicker.months.november'),
+      t('dateRangePicker.months.december'),
+    ];
+
+    const weekdayNames = [
+      t('dateRangePicker.weekdays.sunday'),
+      t('dateRangePicker.weekdays.monday'),
+      t('dateRangePicker.weekdays.tuesday'),
+      t('dateRangePicker.weekdays.wednesday'),
+      t('dateRangePicker.weekdays.thursday'),
+      t('dateRangePicker.weekdays.friday'),
+      t('dateRangePicker.weekdays.saturday'),
     ];
 
     return (
@@ -227,7 +239,7 @@ export default function AdvancedDateRangePicker({
           </div>
 
           <div className="font-medium text-sm">
-            {year}年 {monthNames[month]}
+            {year}{t('dateRangePicker.yearSuffix')} {monthNames[month]}
           </div>
 
           <div className="flex items-center gap-1">
@@ -264,7 +276,7 @@ export default function AdvancedDateRangePicker({
 
         {/* Weekday Headers */}
         <div className="grid grid-cols-7 gap-0 text-xs text-gray-500 py-2">
-          {["日", "一", "二", "三", "四", "五", "六"].map((day) => (
+          {weekdayNames.map((day) => (
             <div
               key={day}
               className="h-8 flex items-center justify-center font-medium"
@@ -351,12 +363,12 @@ export default function AdvancedDateRangePicker({
             <div className="w-24 pr-3 border-r flex-shrink-0">
               <div className="space-y-1">
                 {[
-                  { key: "today", label: "今天" },
-                  { key: "yesterday", label: "昨天" },
-                  { key: "last7days", label: "最近7天" },
-                  { key: "last30days", label: "最近30天" },
-                  { key: "thisMonth", label: "本月" },
-                  { key: "lastMonth", label: "上月" },
+                  { key: "today", label: t('dateRangePicker.presets.today') },
+                  { key: "yesterday", label: t('dateRangePicker.presets.yesterday') },
+                  { key: "last7days", label: t('dateRangePicker.presets.last7days') },
+                  { key: "last30days", label: t('dateRangePicker.presets.last30days') },
+                  { key: "thisMonth", label: t('dateRangePicker.presets.thisMonth') },
+                  { key: "lastMonth", label: t('dateRangePicker.presets.lastMonth') },
                 ].map((preset) => (
                   <button
                     key={preset.key}
