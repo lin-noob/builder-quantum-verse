@@ -70,6 +70,39 @@ export interface MenuCategory {
   count: number;
 }
 
+// 语言类型定义
+export interface Language {
+  id: string;
+  name: string;
+  code: string;
+}
+
+// 帮助文档类型定义
+export interface HelpDocument {
+  id: string;
+  title: string;
+  category: string;
+  description: string;
+  content: string;
+  lastUpdated: string;
+  views: number;
+  likes: number;
+  isPopular: boolean;
+  // 多语言内容字段
+  translations: {
+    [languageCode: string]: {
+      title: string;
+      description: string;
+      content: string;
+    }
+  };
+  // SEO字段
+  url?: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  seoKeywords?: string;
+}
+
 // API响应类型
 export interface ApiResponse<T> {
   code: number;

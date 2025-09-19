@@ -13,6 +13,11 @@ import FinancialSolution from "@/pages/solutions/FinancialSolution";
 import EnterpriseSolution from "@/pages/solutions/EnterpriseSolution";
 import AdminProfile from "@/admin/pages/AdminProfile";
 
+// 帮助中心页面组件
+const HelpCenter = React.lazy(() => import("@/pages/HelpCenter/HelpCenter"));
+const DocumentDetail = React.lazy(() => import("@/pages/HelpCenter/DocumentDetail"));
+const MarketingHelpCenter = React.lazy(() => import("@/pages/MarketingHelpCenter"));
+
 // 懒加载组件
 import Dashboard2 from "@/pages/Dashboard2"; // 改为直接导入解决模块加载问题
 // const Dashboard2 = React.lazy(() => import("@/pages/Dashboard2"));
@@ -35,6 +40,7 @@ const ScenarioConfig = React.lazy(
 );
 const I18nConfig = React.lazy(() => import("@/pages/Organization/I18nConfig"));
 const I18nTranslationManager = React.lazy(() => import("@/pages/Organization/I18nTranslationManager"));
+const HelpDocumentI18nManager = React.lazy(() => import("@/pages/Organization/HelpDocumentI18nManager"));
 
 // LazyRoute 包装组件
 const LazyRoute: React.FC<{
@@ -66,6 +72,23 @@ export const staticRoutes: RouteObject[] = [
   {
     path: "/marketing",
     element: <MarketingHome />,
+  },
+  // 帮助中心路由
+  {
+    path: "/marketing/help",
+    element: (
+      <LazyRoute>
+        <MarketingHelpCenter />
+      </LazyRoute>
+    ),
+  },
+  {
+    path: "/marketing/help/:documentId",
+    element: (
+      <LazyRoute>
+        <MarketingHelpCenter />
+      </LazyRoute>
+    ),
   },
   // 基础静态路由
   {
@@ -240,6 +263,16 @@ export const staticRoutes: RouteObject[] = [
       <Layout>
         <LazyRoute>
           <I18nTranslationManager />
+        </LazyRoute>
+      </Layout>
+    ),
+  },
+  {
+    path: "/organization/help-documents/i18n",
+    element: (
+      <Layout>
+        <LazyRoute>
+          <HelpDocumentI18nManager />
         </LazyRoute>
       </Layout>
     ),
