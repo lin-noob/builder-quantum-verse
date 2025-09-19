@@ -43,6 +43,7 @@ import {
   ChevronDown,
   ChevronRight,
   FileText,
+  BookOpen,
 } from "lucide-react";
 import * as i18nService from "@/services/i18nService";
 
@@ -127,9 +128,12 @@ const I18nConfig: React.FC = () => {
         { id: "features", name: "功能特性", count: 35, parentId: null },
         { id: "stats", name: "统计数据", count: 12, parentId: null },
         { id: "footer", name: "页脚信息", count: 8, parentId: null },
+        { id: "help", name: "帮助文档", count: 10, parentId: null },
         { id: "nav.platformName", name: "平台名称", count: 1, parentId: "nav" },
         { id: "nav.productFeatures", name: "产品特色", count: 1, parentId: "nav" },
         { id: "nav.solutions", name: "解决方案", count: 1, parentId: "nav" },
+        { id: "help.quickStart", name: "快速入门", count: 1, parentId: "help" },
+        { id: "help.userGuide", name: "用户指南", count: 1, parentId: "help" },
       ];
       
       const mockTranslations: TranslationItem[] = [
@@ -138,6 +142,8 @@ const I18nConfig: React.FC = () => {
         { id: "3", key: "nav.solutions", zh: "解决方案", en: "Solutions" },
         { id: "4", key: "hero.aiMarketingTitle", zh: "AI驱动的未来营销", en: "AI-Driven Future Marketing" },
         { id: "5", key: "hero.aiMarketingDescription", zh: "通过前沿人工智能技术，实现精准用户洞察、自动化营销执行和数据驱动决策，帮助企业实现营销效果的指数级提升", en: "Through cutting-edge artificial intelligence technology, achieve precise user insights, automated marketing execution and data-driven decisions to help enterprises realize exponential marketing performance improvement" },
+        { id: "6", key: "help.quickStart.title", zh: "快速入门指南", en: "Quick Start Guide" },
+        { id: "7", key: "help.quickStart.description", zh: "了解如何快速开始使用AI营销平台", en: "Learn how to quickly get started with the AI marketing platform" },
       ];
       
       setMenuCategories(mockCategories);
@@ -395,7 +401,11 @@ const I18nConfig: React.FC = () => {
                 )}
               </button>
             )}
-            <FileText className="h-4 w-4" />
+            {category.id === "help" ? (
+              <BookOpen className="h-4 w-4" />
+            ) : (
+              <FileText className="h-4 w-4" />
+            )}
             <div className="flex-1">
               <div className="font-medium">{category.name}</div>
               <div className="text-sm text-muted-foreground">

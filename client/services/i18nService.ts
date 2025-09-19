@@ -15,6 +15,39 @@ export interface MenuCategory {
   count: number;
 }
 
+// 语言类型定义
+export interface Language {
+  id: string;
+  name: string;
+  code: string;
+}
+
+// 帮助文档类型定义
+export interface HelpDocument {
+  id: string;
+  title: string;
+  category: string;
+  description: string;
+  content: string;
+  lastUpdated: string;
+  views: number;
+  likes: number;
+  isPopular: boolean;
+  // 多语言内容字段
+  translations: {
+    [languageCode: string]: {
+      title: string;
+      description: string;
+      content: string;
+    }
+  };
+  // SEO字段
+  url?: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  seoKeywords?: string;
+}
+
 // API响应类型
 export interface ApiResponse<T> {
   code: number;
@@ -76,5 +109,53 @@ export async function importI18nTranslations(file: File): Promise<ApiResponse<vo
       "Content-Type": "multipart/form-data"
     }
   });
+  return response.data;
+}
+
+// 获取语言列表
+export async function getLanguages(): Promise<ApiResponse<Language[]>> {
+  const response = await request.get<ApiResponse<Language[]>>("/api/admin/api/v1/i18n/languages");
+  return response.data;
+}
+
+// 添加新语言
+export async function addLanguage(language: Omit<Language, "id">): Promise<ApiResponse<Language>> {
+  const response = await request.post<ApiResponse<Language>>("/api/admin/api/v1/i18n/languages", language);
+  return response.data;
+}
+
+// 更新语言
+export async function updateLanguage(language: Language): Promise<ApiResponse<Language>> {
+  const response = await request.put<ApiResponse<Language>>("/api/admin/api/v1/i18n/languages", language);
+  return response.data;
+}
+
+// 删除语言
+export async function deleteLanguage(id: string): Promise<ApiResponse<void>> {
+  const response = await request.delete<ApiResponse<void>>(`/api/admin/api/v1/i18n/languages/${id}`);
+  return response.data;
+}
+
+// 获取帮助文档列表
+export async function getHelpDocuments(): Promise<ApiResponse<HelpDocument[]>> {
+  const response = await request.get<ApiResponse<HelpDocument[]>>("/api/admin/api/v1/help/documents");
+  return response.data;
+}
+
+// 获取指定语言的帮助文档
+export async function getHelpDocumentByLanguage(documentId: string, languageCode: string): Promise<ApiResponse<HelpDocument>> {
+  const response = await request.get<ApiResponse<HelpDocument>>(`/api/admin/api/v1/help/documents/${documentId}/languages/${languageCode}`);
+  return response.data;
+}
+
+// 更新帮助文档的多语言内容
+export async function updateHelpDocumentTranslation(documentId: string, languageCode: string, translation: any): Promise<ApiResponse<HelpDocument>> {
+  const response = await request.put<ApiResponse<HelpDocument>>(`/api/admin/api/v1/help/documents/${documentId}/languages/${languageCode}`, translation);
+  return response.data;
+}
+
+// 删除帮助文档的多语言内容
+export async function deleteHelpDocumentTranslation(documentId: string, languageCode: string): Promise<ApiResponse<void>> {
+  const response = await request.delete<ApiResponse<void>>(`/api/admin/api/v1/help/documents/${documentId}/languages/${languageCode}`);
   return response.data;
 }

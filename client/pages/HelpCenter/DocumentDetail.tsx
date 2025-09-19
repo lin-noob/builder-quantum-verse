@@ -21,8 +21,14 @@ import {
   Share2,
   Bookmark,
   AlertCircle,
+  Globe,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+
+// 导入营销网站的页头和页脚组件
+import MarketingNav from "@/components/MarketingNav";
+import MarketingFooter from "@/components/MarketingFooter";
 
 // 数据模型
 interface HelpDocument {
@@ -35,11 +41,19 @@ interface HelpDocument {
   views: number;
   likes: number;
   isPopular: boolean;
-  // 新增SEO字段
-  url?: string; // 自定义URL
-  seoTitle?: string; // SEO标题
-  seoDescription?: string; // SEO描述
-  seoKeywords?: string; // SEO关键字
+  // 多语言内容字段
+  translations: {
+    [languageCode: string]: {
+      title: string;
+      description: string;
+      content: string;
+    }
+  };
+  // SEO字段
+  url?: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  seoKeywords?: string;
 }
 
 interface Feedback {
@@ -85,6 +99,35 @@ const mockDocuments: HelpDocument[] = [
     views: 1250,
     likes: 98,
     isPopular: true,
+    translations: {
+      en: {
+        title: "Quick Start Guide",
+        description: "Learn how to quickly get started with the AI marketing platform, including account registration, project creation, and basic function usage.",
+        content: `
+          <h2>Welcome to the AI Marketing Platform</h2>
+          <p>The AI marketing platform is a marketing automation tool based on artificial intelligence technology that helps you more efficiently analyze user profiles, develop marketing strategies, and track results.</p>
+          
+          <h3>Step 1: Account Registration</h3>
+          <p>Visit our official website, click the "Register" button in the upper right corner, and fill in the necessary information to complete account registration.</p>
+          
+          <h3>Step 2: Create a Project</h3>
+          <p>After logging in, click "New Project" in the console, fill in the project name and description, and select an appropriate template.</p>
+          
+          <h3>Step 3: Data Access</h3>
+          <p>Configure data sources in project settings. Multiple data access methods are supported, including API, SDK, and file upload.</p>
+          
+          <h3>Step 4: Start Using Core Functions</h3>
+          <p>After completing data access, you can start using core functions such as user profiling, AI marketing strategies, and effect tracking.</p>
+          
+          <h3>Frequently Asked Questions</h3>
+          <p><strong>Q: How long does data access take?</strong></p>
+          <p>A: Depending on the amount of data, data access and processing usually takes 1-24 hours.</p>
+          
+          <p><strong>Q: How to contact technical support?</strong></p>
+          <p>A: You can use the feedback function in the help center or directly contact our customer service team.</p>
+        `
+      }
+    }
   },
   {
     id: "2",
@@ -109,6 +152,25 @@ const mockDocuments: HelpDocument[] = [
     views: 890,
     likes: 76,
     isPopular: true,
+    translations: {
+      en: {
+        title: "User Profile Feature Details",
+        description: "In-depth introduction to the user profile feature, including data import, tag management, and audience segmentation.",
+        content: `
+          <h2>User Profile Feature Details</h2>
+          <p>The user profile feature is one of the core functions of the AI marketing platform, helping you gain in-depth understanding of your target user groups.</p>
+          
+          <h3>Data Import</h3>
+          <p>Supports multiple data source access, including user behavior data, transaction data, social media data, etc.</p>
+          
+          <h3>Tag Management</h3>
+          <p>The system provides rich preset tags and also supports custom tag creation.</p>
+          
+          <h3>Audience Segmentation</h3>
+          <p>Based on tags and behavioral data, you can create different audience segments for precise marketing.</p>
+        `
+      }
+    }
   },
   {
     id: "3",
@@ -132,6 +194,25 @@ const mockDocuments: HelpDocument[] = [
     views: 756,
     likes: 65,
     isPopular: false,
+    translations: {
+      en: {
+        title: "AI Marketing Strategy Configuration",
+        description: "Detailed instructions on how to configure and optimize AI marketing strategies to improve marketing effectiveness and conversion rates.",
+        content: `
+          <h2>AI Marketing Strategy Configuration</h2>
+          <p>AI marketing strategy is a core function of the platform that automatically optimizes marketing effectiveness through machine learning algorithms.</p>
+          
+          <h3>Strategy Creation</h3>
+          <p>Click "New Strategy" in the AI marketing module, and select the target audience and marketing objectives.</p>
+          
+          <h3>Parameter Configuration</h3>
+          <p>Set parameters such as budget, time window, and channel preferences.</p>
+          
+          <h3>Effect Monitoring</h3>
+          <p>View strategy execution results through the real-time monitoring panel and adjust optimization in a timely manner.</p>
+        `
+      }
+    }
   },
   {
     id: "4",
@@ -162,6 +243,31 @@ const mockDocuments: HelpDocument[] = [
     views: 1120,
     likes: 89,
     isPopular: true,
+    translations: {
+      en: {
+        title: "API Documentation",
+        description: "Complete API documentation, including authentication methods, request formats, response formats, and error code explanations.",
+        content: `
+          <h2>API Documentation</h2>
+          <p>Complete API documentation for developers.</p>
+          
+          <h3>Authentication Method</h3>
+          <p>Use API Key for authentication, add Authorization field in the request header.</p>
+          
+          <h3>Request Format</h3>
+          <p>All requests use JSON format with UTF-8 encoding.</p>
+          
+          <h3>Response Format</h3>
+          <p>The response contains three parts: status code, message, and data.</p>
+          
+          <h3>Error Code Explanation</h3>
+          <p>200: Request successful</p>
+          <p>400: Request parameter error</p>
+          <p>401: Authentication failed</p>
+          <p>500: Internal server error</p>
+        `
+      }
+    }
   },
   {
     id: "5",
@@ -196,6 +302,36 @@ const mockDocuments: HelpDocument[] = [
     views: 2100,
     likes: 156,
     isPopular: true,
+    translations: {
+      en: {
+        title: "Frequently Asked Questions",
+        description: "A collection of common questions and solutions encountered by users during use.",
+        content: `
+          <h2>Frequently Asked Questions</h2>
+          
+          <h3>Account and Permissions</h3>
+          <p><strong>Q: What if I forget my password?</strong></p>
+          <p>A: Click "Forgot Password" on the login page and follow the prompts to reset your password.</p>
+          
+          <p><strong>Q: How to add team members?</strong></p>
+          <p>A: Click "Invite Members" in Organization Management, enter the member's email and send an invitation.</p>
+          
+          <h3>Data Related</h3>
+          <p><strong>Q: How long does data synchronization take?</strong></p>
+          <p>A: Depending on the amount of data, data synchronization usually takes 1-24 hours.</p>
+          
+          <p><strong>Q: What data formats are supported?</strong></p>
+          <p>A: Common data formats such as CSV, JSON, and Excel are supported.</p>
+          
+          <h3>Billing and Packages</h3>
+          <p><strong>Q: How to upgrade packages?</strong></p>
+          <p>A: You can view and upgrade packages on the subscription recharge page in System Management.</p>
+          
+          <p><strong>Q: What payment methods are supported?</strong></p>
+          <p>A: Alipay, WeChat Pay, and bank transfer are supported.</p>
+        `
+      }
+    }
   },
 ];
 
@@ -223,6 +359,7 @@ export default function DocumentDetail() {
   const [loading, setLoading] = useState(true);
   const [newFeedback, setNewFeedback] = useState("");
   const [userRating, setUserRating] = useState(0);
+  const { i18n } = useTranslation();
 
   useEffect(() => {
     // 模拟数据加载
@@ -270,6 +407,11 @@ export default function DocumentDetail() {
       开发者指南: "bg-green-100 text-green-800",
       常见问题: "bg-yellow-100 text-yellow-800",
       政策说明: "bg-red-100 text-red-800",
+      "User Guide": "bg-blue-100 text-blue-800",
+      "Feature Description": "bg-purple-100 text-purple-800",
+      "Developer Guide": "bg-green-100 text-green-800",
+      FAQ: "bg-yellow-100 text-yellow-800",
+      "Policy Description": "bg-red-100 text-red-800",
     };
 
     return (
@@ -312,155 +454,181 @@ export default function DocumentDetail() {
     );
   }
 
+  // 获取当前语言的文档内容
+  const currentLanguage = i18n.language;
+  const translatedDocument = currentLanguage !== 'zh' && document.translations[currentLanguage] 
+    ? {
+        ...document,
+        title: document.translations[currentLanguage].title,
+        description: document.translations[currentLanguage].description,
+        content: document.translations[currentLanguage].content
+      }
+    : document;
+
   return (
-    <div className="p-6 space-y-6">
-      <Helmet>
-        <title>{document.seoTitle || document.title}</title>
-        <meta
-          name="description"
-          content={document.seoDescription || document.description}
-        />
-        {document.seoKeywords && (
-          <meta name="keywords" content={document.seoKeywords} />
-        )}
-      </Helmet>
-
-      {/* 返回按钮和操作按钮 */}
-      <div className="flex flex-col sm:flex-row justify-between gap-4">
-        <Button variant="outline" asChild>
-          <Link to="/marketing/help">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            返回帮助中心
-          </Link>
-        </Button>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm">
-            <Bookmark className="h-4 w-4 mr-2" />
-            收藏
-          </Button>
-          <Button variant="outline" size="sm">
-            <Share2 className="h-4 w-4 mr-2" />
-            分享
-          </Button>
-        </div>
-      </div>
-
-      {/* 文档内容 */}
-      <Card>
-        <CardHeader>
-          <div className="flex flex-wrap items-center gap-2 mb-2">
-            {getCategoryBadge(document.category)}
-            {document.isPopular && (
-              <Badge className="bg-orange-100 text-orange-800">热门</Badge>
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      {/* 页头 */}
+      <MarketingNav />
+      
+      {/* 页面内容 */}
+      <main className="flex-grow p-6">
+        <div className="max-w-4xl mx-auto">
+          <Helmet>
+            <title>{translatedDocument.seoTitle || translatedDocument.title}</title>
+            <meta
+              name="description"
+              content={translatedDocument.seoDescription || translatedDocument.description}
+            />
+            {translatedDocument.seoKeywords && (
+              <meta name="keywords" content={translatedDocument.seoKeywords} />
             )}
-          </div>
-          <CardTitle className="text-2xl">{document.title}</CardTitle>
-          <CardDescription>{document.description}</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-wrap items-center justify-between gap-4 text-sm text-gray-500 mb-6">
-            <div className="flex items-center gap-4">
-              <span className="flex items-center gap-1">
-                <Clock className="h-4 w-4" />
-                更新于 {document.lastUpdated}
-              </span>
-              <span className="flex items-center gap-1">
-                <Eye className="h-4 w-4" />
-                {document.views} 次浏览
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" onClick={handleLike}>
-                <ThumbsUp className="h-4 w-4 mr-1" />
-                {document.likes}
+          </Helmet>
+
+          {/* 返回按钮和操作按钮 */}
+          <div className="flex flex-col sm:flex-row justify-between gap-4 mb-6">
+            <Button variant="outline" asChild>
+              <Link to="/marketing/help">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                返回帮助中心
+              </Link>
+            </Button>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm">
+                <Globe className="h-4 w-4 mr-2" />
+                {currentLanguage === 'zh' ? '中文' : currentLanguage === 'en' ? 'English' : currentLanguage}
               </Button>
-              <Button variant="outline" size="sm" onClick={handleDislike}>
-                <ThumbsDown className="h-4 w-4" />
+              <Button variant="outline" size="sm">
+                <Bookmark className="h-4 w-4 mr-2" />
+                收藏
+              </Button>
+              <Button variant="outline" size="sm">
+                <Share2 className="h-4 w-4 mr-2" />
+                分享
               </Button>
             </div>
           </div>
 
-          <div
-            className="prose max-w-none"
-            dangerouslySetInnerHTML={{ __html: document.content }}
-          />
-        </CardContent>
-      </Card>
-
-      {/* 用户反馈 */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <MessageCircle className="h-5 w-5" />
-            用户反馈
-          </CardTitle>
-          <CardDescription>对本文档的评价和建议</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {/* 添加反馈表单 */}
-          <div className="mb-8 p-4 bg-gray-50 rounded-lg">
-            <h4 className="font-medium mb-3">添加您的反馈</h4>
-            <div className="mb-3">
-              <label className="block text-sm font-medium mb-1">评分</label>
-              <div className="flex gap-1">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <Button
-                    key={star}
-                    variant="outline"
-                    size="sm"
-                    className={`p-2 ${userRating >= star ? "bg-yellow-100 border-yellow-300" : ""}`}
-                    onClick={() => setUserRating(star)}
-                  >
-                    {star <= userRating ? "★" : "☆"}
+          {/* 文档内容 */}
+          <Card>
+            <CardHeader>
+              <div className="flex flex-wrap items-center gap-2 mb-2">
+                {getCategoryBadge(translatedDocument.category)}
+                {translatedDocument.isPopular && (
+                  <Badge className="bg-orange-100 text-orange-800">热门</Badge>
+                )}
+              </div>
+              <CardTitle className="text-2xl">{translatedDocument.title}</CardTitle>
+              <CardDescription>{translatedDocument.description}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap items-center justify-between gap-4 text-sm text-gray-500 mb-6">
+                <div className="flex items-center gap-4">
+                  <span className="flex items-center gap-1">
+                    <Clock className="h-4 w-4" />
+                    更新于 {translatedDocument.lastUpdated}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Eye className="h-4 w-4" />
+                    {translatedDocument.views} 次浏览
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button variant="outline" size="sm" onClick={handleLike}>
+                    <ThumbsUp className="h-4 w-4 mr-1" />
+                    {translatedDocument.likes}
                   </Button>
+                  <Button variant="outline" size="sm" onClick={handleDislike}>
+                    <ThumbsDown className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+
+              <div
+                className="prose max-w-none"
+                dangerouslySetInnerHTML={{ __html: translatedDocument.content }}
+              />
+            </CardContent>
+          </Card>
+
+          {/* 用户反馈 */}
+          <Card className="mt-6">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <MessageCircle className="h-5 w-5" />
+                用户反馈
+              </CardTitle>
+              <CardDescription>对本文档的评价和建议</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {/* 添加反馈表单 */}
+              <div className="mb-8 p-4 bg-gray-50 rounded-lg">
+                <h4 className="font-medium mb-3">添加您的反馈</h4>
+                <div className="mb-3">
+                  <label className="block text-sm font-medium mb-1">评分</label>
+                  <div className="flex gap-1">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <Button
+                        key={star}
+                        variant="outline"
+                        size="sm"
+                        className={`p-2 ${userRating >= star ? "bg-yellow-100 border-yellow-300" : ""}`}
+                        onClick={() => setUserRating(star)}
+                      >
+                        {star <= userRating ? "★" : "☆"}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+                <div className="mb-3">
+                  <label className="block text-sm font-medium mb-1">您的建议</label>
+                  <Textarea
+                    placeholder="请分享您对本文档的看法或建议..."
+                    value={newFeedback}
+                    onChange={(e) => setNewFeedback(e.target.value)}
+                    rows={3}
+                  />
+                </div>
+                <Button
+                  onClick={handleSubmitFeedback}
+                  disabled={!newFeedback.trim() || userRating === 0}
+                >
+                  提交反馈
+                </Button>
+              </div>
+
+              {/* 反馈列表 */}
+              <div className="space-y-4">
+                {feedbacks.map((feedback) => (
+                  <div key={feedback.id} className="border-b pb-4 last:border-b-0">
+                    <div className="flex justify-between mb-2">
+                      <span className="font-medium">{feedback.userName}</span>
+                      <span className="text-sm text-gray-500">{feedback.date}</span>
+                    </div>
+                    <div className="flex items-center mb-2">
+                      {[...Array(5)].map((_, i) => (
+                        <span
+                          key={i}
+                          className={
+                            i < feedback.rating
+                              ? "text-yellow-400"
+                              : "text-gray-300"
+                          }
+                        >
+                          ★
+                        </span>
+                      ))}
+                    </div>
+                    <p className="text-gray-700">{feedback.comment}</p>
+                  </div>
                 ))}
               </div>
-            </div>
-            <div className="mb-3">
-              <label className="block text-sm font-medium mb-1">您的建议</label>
-              <Textarea
-                placeholder="请分享您对本文档的看法或建议..."
-                value={newFeedback}
-                onChange={(e) => setNewFeedback(e.target.value)}
-                rows={3}
-              />
-            </div>
-            <Button
-              onClick={handleSubmitFeedback}
-              disabled={!newFeedback.trim() || userRating === 0}
-            >
-              提交反馈
-            </Button>
-          </div>
+            </CardContent>
+          </Card>
+        </div>
+      </main>
 
-          {/* 反馈列表 */}
-          <div className="space-y-4">
-            {feedbacks.map((feedback) => (
-              <div key={feedback.id} className="border-b pb-4 last:border-b-0">
-                <div className="flex justify-between mb-2">
-                  <span className="font-medium">{feedback.userName}</span>
-                  <span className="text-sm text-gray-500">{feedback.date}</span>
-                </div>
-                <div className="flex items-center mb-2">
-                  {[...Array(5)].map((_, i) => (
-                    <span
-                      key={i}
-                      className={
-                        i < feedback.rating
-                          ? "text-yellow-500"
-                          : "text-gray-300"
-                      }
-                    >
-                      ★
-                    </span>
-                  ))}
-                </div>
-                <p className="text-gray-700">{feedback.comment}</p>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      {/* 页脚 */}
+      <MarketingFooter />
     </div>
   );
 }

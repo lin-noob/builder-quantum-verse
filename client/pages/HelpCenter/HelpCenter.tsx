@@ -29,7 +29,8 @@ import {
   Eye,
   ThumbsUp,
   MessageCircle,
-  Badge as BadgeIcon // 添加BadgeIcon导入
+  Badge as BadgeIcon,
+  Globe
 } from "lucide-react";
 import {
   Select,
@@ -39,6 +40,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+
+// 导入营销网站的页头和页脚组件
+import MarketingNav from "@/components/MarketingNav";
+import MarketingFooter from "@/components/MarketingFooter";
 
 // 数据模型
 interface HelpDocument {
@@ -50,11 +56,18 @@ interface HelpDocument {
   views: number;
   likes: number;
   isPopular: boolean;
-  // 新增SEO字段
-  url?: string; // 自定义URL
-  seoTitle?: string; // SEO标题
-  seoDescription?: string; // SEO描述
-  seoKeywords?: string; // SEO关键字
+  // 多语言内容字段
+  translations: {
+    [languageCode: string]: {
+      title: string;
+      description: string;
+    }
+  };
+  // SEO字段
+  url?: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  seoKeywords?: string;
 }
 
 // 模拟数据
@@ -67,7 +80,13 @@ const mockDocuments: HelpDocument[] = [
     lastUpdated: "2024-01-15",
     views: 1250,
     likes: 98,
-    isPopular: true
+    isPopular: true,
+    translations: {
+      en: {
+        title: "Quick Start Guide",
+        description: "Learn how to quickly get started with the AI marketing platform, including account registration, project creation, and basic function usage."
+      }
+    }
   },
   {
     id: "2",
@@ -77,7 +96,13 @@ const mockDocuments: HelpDocument[] = [
     lastUpdated: "2024-01-12",
     views: 890,
     likes: 76,
-    isPopular: true
+    isPopular: true,
+    translations: {
+      en: {
+        title: "User Profile Feature Details",
+        description: "In-depth introduction to the user profile feature, including data import, tag management, and audience segmentation."
+      }
+    }
   },
   {
     id: "3",
@@ -87,7 +112,13 @@ const mockDocuments: HelpDocument[] = [
     lastUpdated: "2024-01-10",
     views: 756,
     likes: 65,
-    isPopular: false
+    isPopular: false,
+    translations: {
+      en: {
+        title: "AI Marketing Strategy Configuration",
+        description: "Detailed instructions on how to configure and optimize AI marketing strategies to improve marketing effectiveness and conversion rates."
+      }
+    }
   },
   {
     id: "4",
@@ -97,7 +128,13 @@ const mockDocuments: HelpDocument[] = [
     lastUpdated: "2024-01-08",
     views: 1120,
     likes: 89,
-    isPopular: true
+    isPopular: true,
+    translations: {
+      en: {
+        title: "API Documentation",
+        description: "Complete API documentation, including authentication methods, request formats, response formats, and error code explanations."
+      }
+    }
   },
   {
     id: "5",
@@ -107,7 +144,13 @@ const mockDocuments: HelpDocument[] = [
     lastUpdated: "2024-01-05",
     views: 2100,
     likes: 156,
-    isPopular: true
+    isPopular: true,
+    translations: {
+      en: {
+        title: "Frequently Asked Questions",
+        description: "A collection of common questions and solutions encountered by users during use."
+      }
+    }
   },
   {
     id: "6",
@@ -117,7 +160,13 @@ const mockDocuments: HelpDocument[] = [
     lastUpdated: "2023-12-28",
     views: 650,
     likes: 42,
-    isPopular: false
+    isPopular: false,
+    translations: {
+      en: {
+        title: "Data Security and Privacy Protection",
+        description: "Detailed introduction to the platform's data security measures and user privacy protection policies."
+      }
+    }
   }
 ];
 
@@ -143,6 +192,7 @@ export default function HelpCenter() {
   const [itemsPerPage] = useState(10); // 每页显示10条记录
   // 添加SEO状态筛选状态
   const [seoFilter, setSeoFilter] = useState("all"); // "all", "completed", "pending"
+  const { i18n } = useTranslation();
 
   useEffect(() => {
     // 模拟数据加载
@@ -160,11 +210,22 @@ export default function HelpCenter() {
     // 搜索过滤
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
-      result = result.filter(doc => 
-        doc.title.toLowerCase().includes(term) ||
-        doc.description.toLowerCase().includes(term) ||
-        doc.category.toLowerCase().includes(term)
-      );
+      result = result.filter(doc => {
+        // 检查当前语言的标题和描述
+        const currentLanguage = i18n.language;
+        const title = currentLanguage !== 'zh' && doc.translations[currentLanguage] 
+          ? doc.translations[currentLanguage].title 
+          : doc.title;
+        const description = currentLanguage !== 'zh' && doc.translations[currentLanguage] 
+          ? doc.translations[currentLanguage].description 
+          : doc.description;
+          
+        return (
+          title.toLowerCase().includes(term) ||
+          description.toLowerCase().includes(term) ||
+          doc.category.toLowerCase().includes(term)
+        );
+      });
     }
     
     // 分类过滤
@@ -205,7 +266,7 @@ export default function HelpCenter() {
     
     setFilteredDocuments(result);
     setCurrentPage(1); // 重置到第一页
-  }, [searchTerm, documents, sortConfig, categoryFilter, seoFilter]);
+  }, [searchTerm, documents, sortConfig, categoryFilter, seoFilter, i18n.language]);
 
   const handleSort = (key: keyof HelpDocument) => {
     let direction: 'asc' | 'desc' = 'asc';
@@ -221,7 +282,12 @@ export default function HelpCenter() {
       "功能说明": "bg-purple-100 text-purple-800",
       "开发者指南": "bg-green-100 text-green-800",
       "常见问题": "bg-yellow-100 text-yellow-800",
-      "政策说明": "bg-red-100 text-red-800"
+      "政策说明": "bg-red-100 text-red-800",
+      "User Guide": "bg-blue-100 text-blue-800",
+      "Feature Description": "bg-purple-100 text-purple-800",
+      "Developer Guide": "bg-green-100 text-green-800",
+      "FAQ": "bg-yellow-100 text-yellow-800",
+      "Policy Description": "bg-red-100 text-red-800"
     };
     
     return (
@@ -273,277 +339,151 @@ export default function HelpCenter() {
     );
   }
 
+  // 获取当前语言的文档内容
+  const getCurrentLanguageDocument = (doc: HelpDocument) => {
+    const currentLanguage = i18n.language;
+    if (currentLanguage !== 'zh' && doc.translations[currentLanguage]) {
+      return {
+        ...doc,
+        title: doc.translations[currentLanguage].title,
+        description: doc.translations[currentLanguage].description
+      };
+    }
+    return doc;
+  };
+
   return (
-    <div className="p-6 space-y-6">
-      {/* 页面标题 */}
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">帮助中心</h1>
-        <p className="text-gray-600 mt-2">在这里您可以找到使用AI营销平台的所有帮助文档</p>
-      </div>
-
-      {/* 搜索和筛选区域 */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <HelpCircle className="h-5 w-5" />
-            文档搜索
-          </CardTitle>
-          <CardDescription>搜索您需要的帮助文档</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="relative md:col-span-2">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <Input
-                placeholder="搜索文档标题、描述或分类..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            
-            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="文档分类" />
-              </SelectTrigger>
-              <SelectContent>
-                {categories.map((category) => (
-                  <SelectItem key={category.id} value={category.id}>
-                    {category.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            
-            {/* 添加SEO状态筛选 */}
-            <Select value={seoFilter} onValueChange={setSeoFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="SEO状态" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">全部</SelectItem>
-                <SelectItem value="completed">已设置</SelectItem>
-                <SelectItem value="pending">未设置</SelectItem>
-              </SelectContent>
-            </Select>
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      {/* 页头 */}
+      <MarketingNav />
+      
+      {/* 页面内容 */}
+      <main className="flex-grow p-6">
+        <div className="max-w-7xl mx-auto">
+          {/* 页面标题 */}
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">帮助中心</h1>
+            <p className="text-gray-600">在这里您可以找到使用AI营销平台的所有帮助文档</p>
           </div>
-        </CardContent>
-      </Card>
 
-      {/* 热门文档 */}
-      <div>
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">热门文档</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {documents.filter(doc => doc.isPopular).map((doc) => (
-            <Card key={doc.id} className="hover:shadow-md transition-shadow">
-              <CardHeader>
-                <CardTitle className="flex items-start justify-between">
-                  <span className="text-lg">{doc.title}</span>
-                  <BookOpen className="h-5 w-5 text-blue-500" />
-                </CardTitle>
-                <CardDescription>{doc.description}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-wrap gap-2">
-                  {getCategoryBadge(doc.category)}
-                  <Badge variant="secondary" className="flex items-center gap-1">
-                    <Eye className="h-3 w-3" />
-                    {doc.views}
-                  </Badge>
+          {/* 搜索和筛选区域 */}
+          <Card className="mb-8">
+            <CardContent className="p-6">
+              <div className="flex flex-col md:flex-row gap-4 mb-4">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                  <Input
+                    placeholder="搜索帮助文档..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10"
+                  />
                 </div>
-                <div className="flex justify-between items-center mt-4">
-                  <span className="text-sm text-gray-500">更新于 {doc.lastUpdated}</span>
-                  <Button variant="outline" size="sm" asChild>
-                    <Link to={`/marketing/help/documents/${doc.id}`}>
-                      查看详情
-                      <ChevronRight className="h-4 w-4 ml-1" />
-                    </Link>
+                <div className="flex gap-2">
+                  <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="选择分类" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories.map((category) => (
+                        <SelectItem key={category.id} value={category.id}>
+                          {category.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Button variant="outline" size="sm">
+                    <Filter className="h-4 w-4 mr-2" />
+                    筛选
                   </Button>
                 </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
+              </div>
+            </CardContent>
+          </Card>
 
-      {/* 所有文档列表 */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <FileText className="h-5 w-5" />
-            所有文档
-          </CardTitle>
-          <CardDescription>按分类浏览所有帮助文档</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>文档标题</TableHead>
-                  <TableHead 
-                    className="cursor-pointer"
-                    onClick={() => handleSort('category')}
-                  >
-                    <div className="flex items-center">
-                      分类
-                      {sortConfig?.key === 'category' && (
-                        sortConfig.direction === 'asc' 
-                          ? <ChevronRight className="ml-1 h-4 w-4 rotate-90" /> 
-                          : <ChevronRight className="ml-1 h-4 w-4 -rotate-90" />
+          {/* 文档列表 */}
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {currentItems.map((doc) => {
+              const currentDoc = getCurrentLanguageDocument(doc);
+              return (
+                <Card key={doc.id} className="hover:shadow-lg transition-shadow">
+                  <CardHeader>
+                    <CardTitle className="flex items-start gap-2">
+                      <HelpCircle className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
+                      <span className="text-lg">{currentDoc.title}</span>
+                    </CardTitle>
+                    <CardDescription>{currentDoc.description}</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
+                      <span>{currentDoc.category}</span>
+                      <span>{currentDoc.lastUpdated}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4 text-sm text-gray-500">
+                        <span className="flex items-center gap-1">
+                          <Eye className="h-4 w-4" />
+                          {currentDoc.views}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <ThumbsUp className="h-4 w-4" />
+                          {currentDoc.likes}
+                        </span>
+                      </div>
+                      {currentDoc.isPopular && (
+                        <Badge className="bg-orange-100 text-orange-800">热门</Badge>
                       )}
                     </div>
-                  </TableHead>
-                  <TableHead>描述</TableHead>
-                  <TableHead 
-                    className="cursor-pointer"
-                    onClick={() => handleSort('lastUpdated')}
-                  >
-                    <div className="flex items-center">
-                      更新时间
-                      {sortConfig?.key === 'lastUpdated' && (
-                        sortConfig.direction === 'asc' 
-                          ? <ChevronRight className="ml-1 h-4 w-4 rotate-90" /> 
-                          : <ChevronRight className="ml-1 h-4 w-4 -rotate-90" />
-                      )}
-                    </div>
-                  </TableHead>
-                  <TableHead 
-                    className="cursor-pointer"
-                    onClick={() => handleSort('views')}
-                  >
-                    <div className="flex items-center">
-                      <Eye className="h-4 w-4 mr-1" />
-                      浏览量
-                      {sortConfig?.key === 'views' && (
-                        sortConfig.direction === 'asc' 
-                          ? <ChevronRight className="ml-1 h-4 w-4 rotate-90" /> 
-                          : <ChevronRight className="ml-1 h-4 w-4 -rotate-90" />
-                      )}
-                    </div>
-                  </TableHead>
-                  <TableHead>SEO状态</TableHead>
-                  <TableHead>操作</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {currentItems.map((doc) => (
-                  <TableRow key={doc.id}>
-                    <TableCell className="font-medium">{doc.title}</TableCell>
-                    <TableCell>{getCategoryBadge(doc.category)}</TableCell>
-                    <TableCell className="max-w-xs truncate" title={doc.description}>{doc.description}</TableCell>
-                    <TableCell>{doc.lastUpdated}</TableCell>
-                    <TableCell>{doc.views}</TableCell>
-                    <TableCell>
-                      {/* SEO状态指示器 */}
-                      {doc.seoTitle && doc.seoDescription ? (
-                        <Badge className="bg-green-100 text-green-800 flex items-center">
-                          <BadgeIcon className="h-3 w-3 mr-1" />
-                          已设置
-                        </Badge>
-                      ) : (
-                        <Badge variant="secondary" className="flex items-center">
-                          <BadgeIcon className="h-3 w-3 mr-1" />
-                          未设置
-                        </Badge>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <Button variant="outline" size="sm" asChild>
-                        <Link to={`/marketing/help/documents/${doc.id}`}>
-                          查看
-                        </Link>
+                    <Link to={`/marketing/help/documents/${doc.id}`}>
+                      <Button variant="ghost" className="w-full mt-4">
+                        查看详情
+                        <ChevronRight className="h-4 w-4 ml-2" />
                       </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                    </Link>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
 
-          {filteredDocuments.length === 0 && (
-            <div className="text-center py-8 text-gray-500">
-              暂无匹配的文档
-            </div>
-          )}
-
-          {/* 添加分页控件 */}
-          {filteredDocuments.length > itemsPerPage && (
-            <div className="flex items-center justify-between border-t border-gray-200 px-4 py-3 sm:px-6">
-              <div className="flex flex-1 justify-between sm:hidden">
+          {/* 分页 */}
+          {totalPages > 1 && (
+            <div className="flex justify-center mt-8">
+              <div className="flex items-center gap-2">
                 <Button
-                  onClick={() => paginate(currentPage - 1)}
-                  disabled={currentPage === 1}
                   variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
                 >
                   上一页
                 </Button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <Button
+                    key={page}
+                    variant={currentPage === page ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setCurrentPage(page)}
+                  >
+                    {page}
+                  </Button>
+                ))}
                 <Button
-                  onClick={() => paginate(currentPage + 1)}
-                  disabled={currentPage === totalPages}
                   variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                  disabled={currentPage === totalPages}
                 >
                   下一页
                 </Button>
               </div>
-              <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
-                <div>
-                  <p className="text-sm text-gray-700">
-                    显示第 <span className="font-medium">{indexOfFirstItem + 1}</span> 到 <span className="font-medium">{Math.min(indexOfLastItem, filteredDocuments.length)}</span> 条结果，共 <span className="font-medium">{filteredDocuments.length}</span> 条
-                  </p>
-                </div>
-                <div>
-                  <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
-                    <Button
-                      onClick={() => paginate(1)}
-                      disabled={currentPage === 1}
-                      variant="outline"
-                      className="rounded-l-md"
-                    >
-                      首页
-                    </Button>
-                    <Button
-                      onClick={() => paginate(currentPage - 1)}
-                      disabled={currentPage === 1}
-                      variant="outline"
-                    >
-                      上一页
-                    </Button>
-                    
-                    {/* 页码显示 */}
-                    {getPageNumbers().map((page) => (
-                      <Button
-                        key={page}
-                        onClick={() => paginate(page)}
-                        variant={currentPage === page ? "default" : "outline"}
-                        className={currentPage === page ? "" : "hidden md:inline-flex"}
-                      >
-                        {page}
-                      </Button>
-                    ))}
-                    
-                    <Button
-                      onClick={() => paginate(currentPage + 1)}
-                      disabled={currentPage === totalPages}
-                      variant="outline"
-                    >
-                      下一页
-                    </Button>
-                    <Button
-                      onClick={() => paginate(totalPages)}
-                      disabled={currentPage === totalPages}
-                      variant="outline"
-                      className="rounded-r-md"
-                    >
-                      末页
-                    </Button>
-                  </nav>
-                </div>
-              </div>
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </main>
+
+      {/* 页脚 */}
+      <MarketingFooter />
     </div>
   );
 }

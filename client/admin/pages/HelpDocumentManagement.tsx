@@ -23,7 +23,8 @@ import {
   Folder,
   FileText,
   Save,
-  X
+  X,
+  Globe
 } from "lucide-react";
 import {
   Dialog,
@@ -61,11 +62,26 @@ interface HelpDocument {
   status: "published" | "draft" | "archived";
   createdAt: string;
   updatedAt: string;
+  // 新增多语言内容字段
+  translations: {
+    [languageCode: string]: {
+      title: string;
+      description: string;
+      content: string;
+    }
+  };
   // 新增SEO字段
   url?: string; // 自定义URL
   seoTitle?: string; // SEO标题
   seoDescription?: string; // SEO描述
   seoKeywords?: string; // SEO关键字
+}
+
+// 语言类型定义
+interface Language {
+  id: string;
+  name: string;
+  code: string;
 }
 
 // 模拟数据
@@ -117,7 +133,14 @@ const mockDocuments: HelpDocument[] = [
     isPopular: true,
     status: "published",
     createdAt: "2024-01-01",
-    updatedAt: "2024-01-15"
+    updatedAt: "2024-01-15",
+    translations: {
+      en: {
+        title: "Quick Start Guide",
+        description: "Learn how to quickly get started with the AI marketing platform, including account registration, project creation, and basic function usage.",
+        content: "<h2>Welcome to the AI Marketing Platform</h2><p>The AI marketing platform is a marketing automation tool based on artificial intelligence technology...</p>"
+      }
+    }
   },
   {
     id: "2",
@@ -131,7 +154,14 @@ const mockDocuments: HelpDocument[] = [
     isPopular: true,
     status: "published",
     createdAt: "2024-01-01",
-    updatedAt: "2024-01-12"
+    updatedAt: "2024-01-12",
+    translations: {
+      en: {
+        title: "User Profile Feature Details",
+        description: "In-depth introduction to the user profile feature, including data import, tag management, and audience segmentation.",
+        content: "<h2>User Profile Feature Details</h2><p>The user profile feature is one of the core functions of the AI marketing platform...</p>"
+      }
+    }
   },
   {
     id: "3",
@@ -145,7 +175,14 @@ const mockDocuments: HelpDocument[] = [
     isPopular: false,
     status: "published",
     createdAt: "2024-01-01",
-    updatedAt: "2024-01-10"
+    updatedAt: "2024-01-10",
+    translations: {
+      en: {
+        title: "AI Marketing Strategy Configuration",
+        description: "Detailed instructions on how to configure and optimize AI marketing strategies to improve marketing effectiveness and conversion rates.",
+        content: "<h2>AI Marketing Strategy Configuration</h2><p>AI marketing strategy is a core function of the platform that automatically optimizes marketing effectiveness through machine learning algorithms...</p>"
+      }
+    }
   },
   {
     id: "4",
@@ -159,7 +196,14 @@ const mockDocuments: HelpDocument[] = [
     isPopular: true,
     status: "published",
     createdAt: "2024-01-01",
-    updatedAt: "2024-01-08"
+    updatedAt: "2024-01-08",
+    translations: {
+      en: {
+        title: "API Documentation",
+        description: "Complete API documentation, including authentication methods, request formats, response formats, and error code explanations.",
+        content: "<h2>API Documentation</h2><p>Complete API documentation for developers...</p>"
+      }
+    }
   }
 ];
 
@@ -171,6 +215,13 @@ export default function HelpDocumentManagement() {
     "1": true,
     "2": true
   });
+  
+  // 语言相关状态
+  const [languages, setLanguages] = useState<Language[]>([
+    { id: "1", name: "中文", code: "zh" },
+    { id: "2", name: "English", code: "en" }
+  ]);
+  const [selectedLanguage, setSelectedLanguage] = useState<Language>({ id: "1", name: "中文", code: "zh" });
   
   // 对话框状态
   const [isCategoryDialogOpen, setIsCategoryDialogOpen] = useState(false);
@@ -196,6 +247,13 @@ export default function HelpDocumentManagement() {
     seoTitle: "",
     seoDescription: "",
     seoKeywords: ""
+  });
+  
+  // 多语言表单状态
+  const [translationForm, setTranslationForm] = useState({
+    title: "",
+    description: "",
+    content: ""
   });
   
   // 搜索状态
@@ -322,7 +380,16 @@ export default function HelpDocumentManagement() {
       description: "",
       content: "",
       isPopular: false,
-      status: "draft"
+      status: "draft",
+      url: "",
+      seoTitle: "",
+      seoDescription: "",
+      seoKeywords: ""
+    });
+    setTranslationForm({
+      title: "",
+      description: "",
+      content: ""
     });
     setIsDocumentDrawerOpen(true);
   };
@@ -336,8 +403,21 @@ export default function HelpDocumentManagement() {
       description: document.description,
       content: document.content,
       isPopular: document.isPopular,
-      status: document.status
+      status: document.status,
+      url: document.url || "",
+      seoTitle: document.seoTitle || "",
+      seoDescription: document.seoDescription || "",
+      seoKeywords: document.seoKeywords || ""
     });
+    
+    // 设置当前语言的翻译表单
+    const translation = document.translations[selectedLanguage.code] || {
+      title: "",
+      description: "",
+      content: ""
+    };
+    setTranslationForm(translation);
+    
     setIsDocumentDrawerOpen(true);
   };
   
@@ -356,25 +436,37 @@ export default function HelpDocumentManagement() {
     
     if (editingDocument) {
       // 更新文档
-      setDocuments(documents.map(doc => 
-        doc.id === editingDocument.id 
-          ? { 
-              ...doc, 
-              title: documentForm.title,
-              categoryId: documentForm.categoryId,
-              description: documentForm.description,
-              content: documentForm.content,
-              isPopular: documentForm.isPopular,
-              status: documentForm.status,
-              // 更新SEO字段
-              url: documentForm.url,
-              seoTitle: documentForm.seoTitle,
-              seoDescription: documentForm.seoDescription,
-              seoKeywords: documentForm.seoKeywords,
-              updatedAt: new Date().toISOString().split('T')[0]
-            } 
-          : doc
-      ));
+      setDocuments(documents.map(doc => {
+        if (doc.id === editingDocument.id) {
+          // 更新当前语言的翻译
+          const updatedTranslations = { ...doc.translations };
+          if (selectedLanguage.code !== "zh") {
+            updatedTranslations[selectedLanguage.code] = {
+              title: translationForm.title,
+              description: translationForm.description,
+              content: translationForm.content
+            };
+          }
+          
+          return {
+            ...doc,
+            title: selectedLanguage.code === "zh" ? documentForm.title : doc.title,
+            categoryId: documentForm.categoryId,
+            description: selectedLanguage.code === "zh" ? documentForm.description : doc.description,
+            content: selectedLanguage.code === "zh" ? documentForm.content : doc.content,
+            isPopular: documentForm.isPopular,
+            status: documentForm.status,
+            // 更新SEO字段
+            url: documentForm.url,
+            seoTitle: documentForm.seoTitle,
+            seoDescription: documentForm.seoDescription,
+            seoKeywords: documentForm.seoKeywords,
+            updatedAt: new Date().toISOString().split('T')[0],
+            translations: updatedTranslations
+          };
+        }
+        return doc;
+      }));
     } else {
       // 创建新文档
       const newDocument: HelpDocument = {
@@ -394,7 +486,14 @@ export default function HelpDocumentManagement() {
         seoDescription: documentForm.seoDescription,
         seoKeywords: documentForm.seoKeywords,
         createdAt: new Date().toISOString().split('T')[0],
-        updatedAt: new Date().toISOString().split('T')[0]
+        updatedAt: new Date().toISOString().split('T')[0],
+        translations: selectedLanguage.code !== "zh" ? {
+          [selectedLanguage.code]: {
+            title: translationForm.title,
+            description: translationForm.description,
+            content: translationForm.content
+          }
+        } : {}
       };
       setDocuments([...documents, newDocument]);
     }
@@ -406,6 +505,21 @@ export default function HelpDocumentManagement() {
   const handleDeleteDocument = (documentId: string) => {
     if (window.confirm("确定要删除这篇文档吗？")) {
       setDocuments(documents.filter(doc => doc.id !== documentId));
+    }
+  };
+  
+  // 处理语言切换
+  const handleLanguageChange = (language: Language) => {
+    setSelectedLanguage(language);
+    
+    // 如果正在编辑文档，更新翻译表单
+    if (editingDocument) {
+      const translation = editingDocument.translations[language.code] || {
+        title: "",
+        description: "",
+        content: ""
+      };
+      setTranslationForm(translation);
     }
   };
   
@@ -770,13 +884,38 @@ export default function HelpDocumentManagement() {
               </div>
               
               <div className="space-y-6">
+                {/* 语言切换器 */}
+                <div className="flex items-center gap-2">
+                  <Globe className="h-4 w-4 text-gray-500" />
+                  <span className="text-sm font-medium">语言:</span>
+                  {languages.map((language) => (
+                    <Button
+                      key={language.code}
+                      variant={selectedLanguage.code === language.code ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => handleLanguageChange(language)}
+                      className="text-xs"
+                    >
+                      {language.name}
+                    </Button>
+                  ))}
+                </div>
+                
                 <div>
-                  <Label htmlFor="document-title">文档标题 *</Label>
+                  <Label htmlFor="document-title">
+                    {selectedLanguage.code === "zh" ? "文档标题" : `${selectedLanguage.name}标题`} *
+                  </Label>
                   <Input
                     id="document-title"
-                    value={documentForm.title}
-                    onChange={(e) => setDocumentForm({...documentForm, title: e.target.value})}
-                    placeholder="请输入文档标题"
+                    value={selectedLanguage.code === "zh" ? documentForm.title : translationForm.title}
+                    onChange={(e) => {
+                      if (selectedLanguage.code === "zh") {
+                        setDocumentForm({...documentForm, title: e.target.value});
+                      } else {
+                        setTranslationForm({...translationForm, title: e.target.value});
+                      }
+                    }}
+                    placeholder={`请输入${selectedLanguage.name}文档标题`}
                   />
                 </div>
                 
@@ -814,22 +953,38 @@ export default function HelpDocumentManagement() {
                 </div>
                 
                 <div>
-                  <Label htmlFor="document-description">文档描述 *</Label>
+                  <Label htmlFor="document-description">
+                    {selectedLanguage.code === "zh" ? "文档描述" : `${selectedLanguage.name}描述`} *
+                  </Label>
                   <Textarea
                     id="document-description"
-                    value={documentForm.description}
-                    onChange={(e) => setDocumentForm({...documentForm, description: e.target.value})}
-                    placeholder="请输入文档简短描述"
+                    value={selectedLanguage.code === "zh" ? documentForm.description : translationForm.description}
+                    onChange={(e) => {
+                      if (selectedLanguage.code === "zh") {
+                        setDocumentForm({...documentForm, description: e.target.value});
+                      } else {
+                        setTranslationForm({...translationForm, description: e.target.value});
+                      }
+                    }}
+                    placeholder={`请输入${selectedLanguage.name}文档简短描述`}
                     rows={3}
                   />
                 </div>
                 
                 <div>
-                  <Label htmlFor="document-content">文档内容 *</Label>
+                  <Label htmlFor="document-content">
+                    {selectedLanguage.code === "zh" ? "文档内容" : `${selectedLanguage.name}内容`} *
+                  </Label>
                   <ReactQuill
                     theme="snow"
-                    value={documentForm.content}
-                    onChange={(content) => setDocumentForm({...documentForm, content})}
+                    value={selectedLanguage.code === "zh" ? documentForm.content : translationForm.content}
+                    onChange={(content) => {
+                      if (selectedLanguage.code === "zh") {
+                        setDocumentForm({...documentForm, content});
+                      } else {
+                        setTranslationForm({...translationForm, content});
+                      }
+                    }}
                     modules={{
                       toolbar: [
                         [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
