@@ -341,7 +341,7 @@ export default function HelpDocumentManagement() {
   // 处理删除分类
   const handleDeleteCategory = (categoryId: string) => {
     if (
-      window.confirm("确定要删除这个分类吗？这将同时删除该分类下的所有文档。")
+      window.confirm("确定要删除这个分类吗？这将同时删除该分���下的所有文档。")
     ) {
       // 收集要删除的分类ID（包括子分类）
       const categoriesToDelete = new Set<string>();
@@ -767,7 +767,7 @@ export default function HelpDocumentManagement() {
                                 ? "已发布"
                                 : document.status === "draft"
                                 ? "草稿"
-                                : "已归档"}
+                                : "已��档"}
                             </Badge>
                             {document.isPopular && (
                               <Badge variant="destructive">热门</Badge>
@@ -953,106 +953,25 @@ export default function HelpDocumentManagement() {
               />
             </div>
 
-            {/* 多语言标签页 */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <Globe className="h-4 w-4" />
-                <Label>多语言内容</Label>
-              </div>
-
-              <div className="flex gap-2 border-b">
-                {lang.map((lang) => (
-                  <button
-                    key={lang.id}
-                    onClick={() => setCurrentLanguage(lang.id)}
-                    className={cn(
-                      "px-3 py-2 text-sm font-medium border-b-2 transition-colors",
-                      currentLanguage === lang.id
-                        ? "border-blue-500 text-blue-600"
-                        : "border-transparent text-gray-500 hover:text-gray-700",
-                    )}
-                  >
-                    {lang.name}
-                  </button>
-                ))}
-              </div>
-
-              <div className="space-y-4">
-                {currentLanguage === "zh" ? (
-                  <>
-                    <div className="space-y-2">
-                      <Label>内容</Label>
-                      <ReactQuill
-                        value={documentForm.content}
-                        onChange={(value) =>
-                          setDocumentForm({ ...documentForm, content: value })
-                        }
-                        modules={{
-                          toolbar: [
-                            [{ header: [1, 2, 3, false] }],
-                            ["bold", "italic", "underline", "strike"],
-                            [{ list: "ordered" }, { list: "bullet" }],
-                            ["link", "image"],
-                            ["clean"],
-                          ],
-                        }}
-                        style={{ height: "200px", marginBottom: "50px" }}
-                      />
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div className="space-y-2">
-                      <Label>标题 ({lang.find(l => l.id === currentLanguage)?.name})</Label>
-                      <Input
-                        value={translationContent[currentLanguage]?.title || ""}
-                        onChange={(e) =>
-                          handleTranslationChange(
-                            "title",
-                            e.target.value,
-                            currentLanguage,
-                          )
-                        }
-                        placeholder={`请输入${lang.find(l => l.id === currentLanguage)?.name}标题`}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>描述 ({lang.find(l => l.id === currentLanguage)?.name})</Label>
-                      <Textarea
-                        value={translationContent[currentLanguage]?.description || ""}
-                        onChange={(e) =>
-                          handleTranslationChange(
-                            "description",
-                            e.target.value,
-                            currentLanguage,
-                          )
-                        }
-                        placeholder={`请输入${lang.find(l => l.id === currentLanguage)?.name}描述`}
-                        rows={3}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>内容 ({lang.find(l => l.id === currentLanguage)?.name})</Label>
-                      <ReactQuill
-                        value={translationContent[currentLanguage]?.content || ""}
-                        onChange={(value) =>
-                          handleTranslationChange("content", value, currentLanguage)
-                        }
-                        modules={{
-                          toolbar: [
-                            [{ header: [1, 2, 3, false] }],
-                            ["bold", "italic", "underline", "strike"],
-                            [{ list: "ordered" }, { list: "bullet" }],
-                            ["link", "image"],
-                            ["clean"],
-                          ],
-                        }}
-                        style={{ height: "200px", marginBottom: "50px" }}
-                      />
-                    </div>
-                  </>
-                )}
-              </div>
+            {/* 文档内容 */}
+            <div className="space-y-2">
+              <Label>文档内容</Label>
+              <ReactQuill
+                value={documentForm.content}
+                onChange={(value) =>
+                  setDocumentForm({ ...documentForm, content: value })
+                }
+                modules={{
+                  toolbar: [
+                    [{ header: [1, 2, 3, false] }],
+                    ["bold", "italic", "underline", "strike"],
+                    [{ list: "ordered" }, { list: "bullet" }],
+                    ["link", "image"],
+                    ["clean"],
+                  ],
+                }}
+                style={{ height: "200px", marginBottom: "50px" }}
+              />
             </div>
 
             {/* SEO设置 */}
