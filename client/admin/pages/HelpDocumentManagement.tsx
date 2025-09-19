@@ -235,11 +235,6 @@ export default function HelpDocumentManagement() {
     url: "",
   });
 
-  // 多语言状态
-  const [currentLanguage, setCurrentLanguage] = useState("zh");
-  const [translationContent, setTranslationContent] = useState<{
-    [key: string]: { title: string; description: string; content: string };
-  }>({});
 
   // 获取分类名称
   const getCategoryName = (categoryId: string) => {
@@ -402,8 +397,6 @@ export default function HelpDocumentManagement() {
       seoKeywords: "",
       url: "",
     });
-    setTranslationContent({});
-    setCurrentLanguage("zh");
     setIsDocumentDialogOpen(true);
   };
 
@@ -422,8 +415,6 @@ export default function HelpDocumentManagement() {
       seoKeywords: document.seoKeywords || "",
       url: document.url || "",
     });
-    setTranslationContent(document.translations || {});
-    setCurrentLanguage("zh");
     setIsDocumentDialogOpen(true);
   };
 
@@ -442,7 +433,6 @@ export default function HelpDocumentManagement() {
         editingDocument?.createdAt ||
         new Date().toISOString().split("T")[0],
       updatedAt: new Date().toISOString().split("T")[0],
-      translations: translationContent,
     };
 
     if (editingDocument) {
@@ -477,20 +467,6 @@ export default function HelpDocumentManagement() {
     setIsCategoryDialogOpen(true);
   };
 
-  // 处理多语言内容变更
-  const handleTranslationChange = (
-    field: string,
-    value: string,
-    language: string,
-  ) => {
-    setTranslationContent((prev) => ({
-      ...prev,
-      [language]: {
-        ...prev[language],
-        [field]: value,
-      },
-    }));
-  };
 
   // 渲染分类树
   const renderCategoryTree = (categories: HelpCategory[] = [], level = 0) => {
@@ -584,7 +560,7 @@ export default function HelpDocumentManagement() {
         <div>
           <h1 className="text-3xl font-bold text-gray-900">帮助文档管理</h1>
           <p className="text-gray-600 mt-2">
-            管理帮助文档的分类、内容和多语言版本
+            ��理帮助文档的分类、内容和多语言版本
           </p>
         </div>
         <div className="flex gap-2">
