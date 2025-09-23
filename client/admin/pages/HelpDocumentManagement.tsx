@@ -1285,7 +1285,7 @@ export default function HelpDocumentManagement() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <FileText className="h-5 w-5" />
-              {isEditingDocument ? "���辑文档" : "新建文档"}
+              {isEditingDocument ? "编辑文档" : "新建文档"}
             </DialogTitle>
           </DialogHeader>
 
