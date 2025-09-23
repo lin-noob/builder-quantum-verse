@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import {
@@ -56,6 +57,7 @@ export default function SessionTimeline({
   cdpUserId: string;
   sessionId: string;
 }) {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [eventData, setEventData] = useState<ApiEventListResponse | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -162,72 +164,72 @@ export default function SessionTimeline({
       case "PageView":
         bgColor = "bg-blue-100";
         textColor = "text-blue-800";
-        displayName = "页面浏览";
+        displayName = t("sessionTimeline.eventTypes.PageView");
         break;
       case "PageLeave":
         bgColor = "bg-orange-100";
         textColor = "text-orange-800";
-        displayName = "页面离开";
+        displayName = t("sessionTimeline.eventTypes.PageLeave");
         break;
       case "ScrollDepth":
         bgColor = "bg-success-light";
         textColor = "text-success";
-        displayName = "滚动深度";
+        displayName = t("sessionTimeline.eventTypes.ScrollDepth");
         break;
       case "Click":
         bgColor = "bg-purple-100";
         textColor = "text-purple-800";
-        displayName = "点击事件";
+        displayName = t("sessionTimeline.eventTypes.Click");
         break;
       case "ViewProduct":
         bgColor = "bg-green-100";
         textColor = "text-green-800";
-        displayName = "查看商品";
+        displayName = t("sessionTimeline.eventTypes.ViewProduct");
         break;
       case "AddToCart":
         bgColor = "bg-yellow-100";
         textColor = "text-yellow-800";
-        displayName = "加入购物车";
+        displayName = t("sessionTimeline.eventTypes.AddToCart");
         break;
       case "RemoveFromCart":
         bgColor = "bg-red-100";
         textColor = "text-red-800";
-        displayName = "移除购物车";
+        displayName = t("sessionTimeline.eventTypes.RemoveFromCart");
         break;
       case "StartCheckout":
         bgColor = "bg-indigo-100";
         textColor = "text-indigo-800";
-        displayName = "开始结账";
+        displayName = t("sessionTimeline.eventTypes.StartCheckout");
         break;
       case "CompletePurchase":
         bgColor = "bg-emerald-100";
         textColor = "text-emerald-800";
-        displayName = "完成购买";
+        displayName = t("sessionTimeline.eventTypes.CompletePurchase");
         break;
       case "UserRegister":
         bgColor = "bg-pink-100";
         textColor = "text-pink-800";
-        displayName = "用户注册";
+        displayName = t("sessionTimeline.eventTypes.UserRegister");
         break;
       case "UserLogin":
         bgColor = "bg-cyan-100";
         textColor = "text-cyan-800";
-        displayName = "用户登录";
+        displayName = t("sessionTimeline.eventTypes.UserLogin");
         break;
       case "SubmitForm":
         bgColor = "bg-amber-100";
         textColor = "text-amber-800";
-        displayName = "提交表单";
+        displayName = t("sessionTimeline.eventTypes.SubmitForm");
         break;
       case "Search":
         bgColor = "bg-violet-100";
         textColor = "text-violet-800";
-        displayName = "执行搜索";
+        displayName = t("sessionTimeline.eventTypes.Search");
         break;
       case "PageDwellTime":
         bgColor = "bg-teal-100";
         textColor = "text-teal-800";
-        displayName = "页面停留";
+        displayName = t("sessionTimeline.eventTypes.PageDwellTime");
         break;
     }
 
@@ -248,9 +250,9 @@ export default function SessionTimeline({
     const remainingSeconds = seconds % 60;
 
     if (minutes > 0) {
-      return `${minutes}分${remainingSeconds}秒`;
+      return `${minutes}${t("sessionTimeline.timeUnits.minutes")}${remainingSeconds}${t("sessionTimeline.timeUnits.seconds")}`;
     }
-    return `${remainingSeconds}秒`;
+    return `${remainingSeconds}${t("sessionTimeline.timeUnits.seconds")}`;
   };
 
   // Calculate pagination info
@@ -262,10 +264,10 @@ export default function SessionTimeline({
     return (
       <div className="bg-white p-6 rounded-lg shadow-sm">
         <h3 className="text-lg font-semibold text-slate-900 mb-4">
-          访问与行为时间线
+          {t("sessionTimeline.title")}
         </h3>
         <div className="flex items-center justify-center py-8">
-          <div className="text-slate-500">加载中...</div>
+          <div className="text-slate-500">{t("sessionTimeline.loading")}</div>
         </div>
       </div>
     );
@@ -275,10 +277,10 @@ export default function SessionTimeline({
     return (
       <div className="bg-white p-6 rounded-lg shadow-sm">
         <h3 className="text-lg font-semibold text-slate-900 mb-4">
-          访问与行为时间线
+          {t("sessionTimeline.title")}
         </h3>
         <div className="flex items-center justify-center py-8">
-          <div className="text-slate-500">暂无行为数据</div>
+          <div className="text-slate-500">{t("sessionTimeline.noData")}</div>
         </div>
       </div>
     );
@@ -290,10 +292,10 @@ export default function SessionTimeline({
       <div className="bg-white p-6 rounded-lg shadow-sm font-[Inter]">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-semibold text-slate-900">
-            访问与行为时间线
+            {t("sessionTimeline.title")}
           </h3>
           <div className="text-sm text-slate-500">
-            共 {eventData.total} 条记录，显示第 {startItem}-{endItem} 条
+            {t("sessionTimeline.recordsInfo", { total: eventData.total, start: startItem, end: endItem })}
           </div>
         </div>
 
@@ -302,12 +304,12 @@ export default function SessionTimeline({
           <table className="w-full text-sm text-left">
             <thead className="bg-slate-50 text-slate-500">
               <tr>
-                <th className="p-3 font-medium">事件时间</th>
-                <th className="p-3 font-medium">来源</th>
-                <th className="p-3 font-medium">设备类型</th>
-                <th className="p-3 font-medium">事件类型</th>
-                <th className="p-3 font-medium">页面URL</th>
-                <th className="p-3 font-medium">页面标题</th>
+                <th className="p-3 font-medium">{t("sessionTimeline.table.eventTime")}</th>
+                <th className="p-3 font-medium">{t("sessionTimeline.table.source")}</th>
+                <th className="p-3 font-medium">{t("sessionTimeline.table.deviceType")}</th>
+                <th className="p-3 font-medium">{t("sessionTimeline.table.eventType")}</th>
+                <th className="p-3 font-medium">{t("sessionTimeline.table.pageUrl")}</th>
+                <th className="p-3 font-medium">{t("sessionTimeline.table.pageTitle")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200">
@@ -344,7 +346,7 @@ export default function SessionTimeline({
         {totalPages > 1 && (
           <div className="flex items-center justify-between mt-4">
             <div className="text-sm text-slate-500">
-              第 {currentPage} 页，共 {totalPages} 页
+              {t("sessionTimeline.pagination.page", { current: currentPage, total: totalPages })}
             </div>
             <div className="flex items-center space-x-2">
               <Button
@@ -354,7 +356,7 @@ export default function SessionTimeline({
                 disabled={currentPage <= 1}
               >
                 <ChevronLeft className="h-4 w-4" />
-                上一页
+                {t("sessionTimeline.pagination.previous")}
               </Button>
               <Button
                 variant="outline"
@@ -362,7 +364,7 @@ export default function SessionTimeline({
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage >= totalPages}
               >
-                下一页
+                {t("sessionTimeline.pagination.next")}
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
@@ -384,7 +386,7 @@ export default function SessionTimeline({
           <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col">
             {/* 弹窗头部 */}
             <div className="flex justify-between items-center p-4 border-b border-slate-200">
-              <h3 className="text-lg font-semibold text-slate-900">事件详情</h3>
+              <h3 className="text-lg font-semibold text-slate-900">{t("sessionTimeline.modal.title")}</h3>
               <button
                 onClick={closeModal}
                 className="text-slate-400 hover:text-slate-600"
@@ -410,41 +412,41 @@ export default function SessionTimeline({
               {/* 事件基本信息 */}
               <div className="mb-6">
                 <h4 className="text-sm font-medium text-slate-900 mb-3">
-                  事件基本信息
+                  {t("sessionTimeline.modal.basicInfo")}
                 </h4>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm p-4 bg-slate-50 rounded-lg">
                   <div>
-                    <div className="text-xs text-slate-500">事件时间</div>
+                    <div className="text-xs text-slate-500">{t("sessionTimeline.modal.fields.eventTime")}</div>
                     <div className="font-medium text-slate-900">
                       {selectedEvent.eventTime}
                     </div>
                   </div>
                   <div>
-                    <div className="text-xs text-slate-500">事件类型</div>
+                    <div className="text-xs text-slate-500">{t("sessionTimeline.modal.fields.eventType")}</div>
                     <div className="font-medium text-slate-900">
                       {getEventTypeBadge(selectedEvent.eventType)}
                     </div>
                   </div>
                   <div>
-                    <div className="text-xs text-slate-500">来源</div>
+                    <div className="text-xs text-slate-500">{t("sessionTimeline.modal.fields.source")}</div>
                     <div className="font-medium text-slate-900">
                       {selectedEvent.source}
                     </div>
                   </div>
                   <div>
-                    <div className="text-xs text-slate-500">设备类型</div>
+                    <div className="text-xs text-slate-500">{t("sessionTimeline.modal.fields.deviceType")}</div>
                     <div className="font-medium text-slate-900">
                       {selectedEvent.deviceType}
                     </div>
                   </div>
                   <div>
-                    <div className="text-xs text-slate-500">浏览器</div>
+                    <div className="text-xs text-slate-500">{t("sessionTimeline.modal.fields.browser")}</div>
                     <div className="font-medium text-slate-900">
                       {selectedEvent.browser || "N/A"}
                     </div>
                   </div>
                   <div>
-                    <div className="text-xs text-slate-500">操作系统</div>
+                    <div className="text-xs text-slate-500">{t("sessionTimeline.modal.fields.os")}</div>
                     <div className="font-medium text-slate-900">
                       {selectedEvent.os || "N/A"}
                     </div>
@@ -455,24 +457,24 @@ export default function SessionTimeline({
               {/* 页面信息 */}
               <div className="mb-6">
                 <h4 className="text-sm font-medium text-slate-900 mb-3">
-                  页面信息
+                  {t("sessionTimeline.modal.pageInfo")}
                 </h4>
                 <div className="space-y-3 text-sm">
                   <div>
-                    <div className="text-xs text-slate-500">页面标题</div>
+                    <div className="text-xs text-slate-500">{t("sessionTimeline.modal.fields.pageTitle")}</div>
                     <div className="font-medium text-slate-900">
                       {selectedEvent.pageTitle}
                     </div>
                   </div>
                   <div>
-                    <div className="text-xs text-slate-500">页面URL</div>
+                    <div className="text-xs text-slate-500">{t("sessionTimeline.modal.fields.pageUrl")}</div>
                     <div className="font-medium text-slate-900 break-all">
                       {selectedEvent.pageURL}
                     </div>
                   </div>
                   {selectedEvent.referrer && (
                     <div>
-                      <div className="text-xs text-slate-500">来源页面</div>
+                      <div className="text-xs text-slate-500">{t("sessionTimeline.modal.fields.referrer")}</div>
                       <div className="font-medium text-slate-900 break-all">
                         {selectedEvent.referrer}
                       </div>
@@ -484,14 +486,14 @@ export default function SessionTimeline({
               {/* 事件特定信息 */}
               <div>
                 <h4 className="text-sm font-medium text-slate-900 mb-3">
-                  事件详细信息
+                  {t("sessionTimeline.modal.detailInfo")}
                 </h4>
                 <div className="space-y-3 text-sm">
                   {selectedEvent.eventType === "PageLeave" &&
                     selectedEvent.dwellTimeMs && (
                       <div>
                         <div className="text-xs text-slate-500">
-                          页面停留时长
+                          {t("sessionTimeline.modal.fields.dwellTime")}
                         </div>
                         <div className="font-medium text-slate-900">
                           {formatDwellTime(selectedEvent.dwellTimeMs)}
@@ -502,7 +504,7 @@ export default function SessionTimeline({
                     selectedEvent.maxScrollDepth && (
                       <div>
                         <div className="text-xs text-slate-500">
-                          最大滚动深度
+                          {t("sessionTimeline.modal.fields.maxScrollDepth")}
                         </div>
                         <div className="font-medium text-slate-900">
                           {selectedEvent.maxScrollDepth}%
@@ -512,7 +514,7 @@ export default function SessionTimeline({
                   {selectedEvent.eventType === "ScrollDepth" &&
                     selectedEvent.maxDepthPercent && (
                       <div>
-                        <div className="text-xs text-slate-500">滚动深度</div>
+                        <div className="text-xs text-slate-500">{t("sessionTimeline.modal.fields.scrollDepth")}</div>
                         <div className="font-medium text-slate-900">
                           {selectedEvent.maxDepthPercent}%
                         </div>
@@ -523,7 +525,7 @@ export default function SessionTimeline({
                       {selectedEvent.elementTag && (
                         <div>
                           <div className="text-xs text-slate-500">
-                            点击元素标签
+                            {t("sessionTimeline.modal.fields.clickElement")}
                           </div>
                           <div className="font-medium text-slate-900">
                             {selectedEvent.elementTag}
@@ -533,7 +535,7 @@ export default function SessionTimeline({
                       {selectedEvent.elementText && (
                         <div>
                           <div className="text-xs text-slate-500">
-                            元素文本内容
+                            {t("sessionTimeline.modal.fields.elementText")}
                           </div>
                           <div className="font-medium text-slate-900 max-h-32 overflow-y-auto">
                             {selectedEvent.elementText}
@@ -549,7 +551,7 @@ export default function SessionTimeline({
                       {selectedEvent.elementText && (
                         <div>
                           <div className="text-xs text-slate-500">
-                            商品信息
+                            {t("sessionTimeline.modal.fields.productInfo")}
                           </div>
                           <div className="font-medium text-slate-900">
                             {selectedEvent.elementText}
@@ -559,7 +561,7 @@ export default function SessionTimeline({
                       {selectedEvent.productName && (
                         <div>
                           <div className="text-xs text-slate-500">
-                            商品名称
+                            {t("sessionTimeline.modal.fields.productName")}
                           </div>
                           <div className="font-medium text-slate-900">
                             {selectedEvent.productName}
@@ -569,7 +571,7 @@ export default function SessionTimeline({
                       {selectedEvent.productId && (
                         <div>
                           <div className="text-xs text-slate-500">
-                            商品ID
+                            {t("sessionTimeline.modal.fields.productId")}
                           </div>
                           <div className="font-medium text-slate-900">
                             {selectedEvent.productId}
@@ -579,7 +581,7 @@ export default function SessionTimeline({
                       {selectedEvent.productCategory && (
                         <div>
                           <div className="text-xs text-slate-500">
-                            商品分类
+                            {t("sessionTimeline.modal.fields.productCategory")}
                           </div>
                           <div className="font-medium text-slate-900">
                             {selectedEvent.productCategory}
@@ -589,7 +591,7 @@ export default function SessionTimeline({
                       {(selectedEvent.productPrice || selectedEvent.productPrice === 0) && (
                         <div>
                           <div className="text-xs text-slate-500">
-                            商品价格
+                            {t("sessionTimeline.modal.fields.productPrice")}
                           </div>
                           <div className="font-medium text-slate-900">
                             {selectedEvent.productCurrency || '¥'}{selectedEvent.productPrice}
@@ -599,7 +601,7 @@ export default function SessionTimeline({
                       {selectedEvent.productBrand && (
                         <div>
                           <div className="text-xs text-slate-500">
-                            商品品牌
+                            {t("sessionTimeline.modal.fields.productBrand")}
                           </div>
                           <div className="font-medium text-slate-900">
                             {selectedEvent.productBrand}
@@ -613,7 +615,7 @@ export default function SessionTimeline({
                       {selectedEvent.elementText && (
                         <div>
                           <div className="text-xs text-slate-500">
-                            订单信息
+                            {t("sessionTimeline.modal.fields.orderInfo")}
                           </div>
                           <div className="font-medium text-slate-900">
                             {selectedEvent.elementText}
@@ -628,7 +630,7 @@ export default function SessionTimeline({
                       {selectedEvent.elementText && (
                         <div>
                           <div className="text-xs text-slate-500">
-                            用户信息
+                            {t("sessionTimeline.modal.fields.userInfo")}
                           </div>
                           <div className="font-medium text-slate-900">
                             {selectedEvent.elementText}
@@ -642,7 +644,7 @@ export default function SessionTimeline({
                       {selectedEvent.elementText && (
                         <div>
                           <div className="text-xs text-slate-500">
-                            表单数据
+                            {t("sessionTimeline.modal.fields.formData")}
                           </div>
                           <div className="font-medium text-slate-900 max-h-32 overflow-y-auto">
                             {selectedEvent.elementText}
@@ -656,7 +658,7 @@ export default function SessionTimeline({
                       {selectedEvent.elementText && (
                         <div>
                           <div className="text-xs text-slate-500">
-                            搜索关键词
+                            {t("sessionTimeline.modal.fields.searchKeywords")}
                           </div>
                           <div className="font-medium text-slate-900">
                             {selectedEvent.elementText}
@@ -669,7 +671,7 @@ export default function SessionTimeline({
                     selectedEvent.dwellTimeMs && (
                       <div>
                         <div className="text-xs text-slate-500">
-                          页面停留时长
+                          {t("sessionTimeline.modal.fields.dwellTime")}
                         </div>
                         <div className="font-medium text-slate-900">
                           {formatDwellTime(selectedEvent.dwellTimeMs)}

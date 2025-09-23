@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { useTranslation } from "react-i18next";
 import {
   ArrowLeft,
   User,
@@ -40,17 +39,40 @@ import {
 import { toast } from "@/hooks/use-toast";
 import { getDaysBetween } from "@/lib/utils";
 import useProjectStore from "@/stores/projectStore";
-
+import { MockDataService, type MockUser } from "@/services/mockDataService";
 
 export default function UserDetail() {
-  const { t } = useTranslation();
   const { cdpId } = useParams<{ cdpId: string }>();
   const [loading, setLoading] = useState(false);
   const [apiUser, setApiUser] = useState<ApiUser | null>(null);
   const [error, setError] = useState<string | null>(null);
   const { currentProject } = useProjectStore();
 
-
+  // 将 MockUser 转换为 ApiUser 格式
+  const convertMockUserToApiUser = (mockUser: MockUser): ApiUser => {
+    const now = new Date();
+    return {
+      cdpUserId: Number(mockUser.cdpId),
+      fullName: mockUser.name,
+      contactInfo: mockUser.contact,
+      companyName: mockUser.company,
+      location: "中国/北京", // Mock location
+      signTime: mockUser.registrationTime,
+      createGmt: mockUser.firstVisitTime,
+      minBuyTime: mockUser.firstPurchaseTime,
+      maxBuyTime: mockUser.lastActiveTime,
+      totalOrders: mockUser.totalSpent,
+      orderCount: Math.floor(mockUser.totalSpent / 500), // Simulate order count
+      maxOrderAmount: Math.floor(mockUser.totalSpent * 0.4), // Simulate max order
+      loginDate: mockUser.lastActiveTime,
+      currencySymbol: mockUser.currency,
+      sessionId: `session-${mockUser.id}`,
+      labelList: [
+        { id: `label-1-${mockUser.id}`, labelName: "活跃用户" },
+        { id: `label-2-${mockUser.id}`, labelName: "高价值客户" }
+      ],
+    } as ApiUser;
+  };
 
   useEffect(() => {
     let mounted = true;
@@ -59,19 +81,35 @@ export default function UserDetail() {
       setLoading(true);
       setError(null);
       try {
-        // 检查 currentProject ���否存在或 id 是否为空
+        // 检查 currentProject 是否存在或 id 是否为空
         if (!currentProject || !currentProject.id) {
-          setError(t("userDetail.error.selectProject"));
+          console.log("No current project or empty project id, using mock data for user detail");
+
+          // 使用 mock 数据
+          const mockUser = await MockDataService.getUserById(cdpId);
+          if (mockUser && mounted) {
+            const mockApiUser = convertMockUserToApiUser(mockUser);
+            setApiUser(mockApiUser);
+          } else if (mounted) {
+            setError("用户未找到");
+          }
           return;
         }
 
-        // 调用真实API
+        // 有项目时调用真实API
         const data = await getProfileView(cdpId);
         if (mounted) setApiUser(data);
       } catch (e: any) {
         console.error("Failed to load user detail:", e);
-        if (mounted) {
-          setError(e?.message || t("userDetail.error.loadFailed"));
+
+        // 如果API失败，使用mock数据供开发测试使用
+        console.log("用户详情API失败，使用mock数据");
+        const mockUser = await MockDataService.getUserById(cdpId);
+        if (mockUser && mounted) {
+          const mockApiUser = convertMockUserToApiUser(mockUser);
+          setApiUser(mockApiUser);
+        } else if (mounted) {
+          setError(e?.message || "加载失败");
         }
       } finally {
         if (mounted) setLoading(false);
@@ -106,7 +144,7 @@ export default function UserDetail() {
         const daysSpan = getDaysBetween(apiUser.maxBuyTime, apiUser.minBuyTime);
         const orders = Number(apiUser.orderCount) || 0;
         if (!daysSpan || Number.isNaN(daysSpan)) return 0;
-        if (orders <= 1) return daysSpan; // t("userDetail.comments.cantCalculateInterval")
+        if (orders <= 1) return daysSpan; // 无法计算间隔，用跨度天数
         const cycle = daysSpan / (orders - 1);
         return Math.max(1, Math.round(cycle));
       })(),
@@ -132,9 +170,20 @@ export default function UserDetail() {
   const [tagSaving, setTagSaving] = useState(false);
 
   const refetchUser = async () => {
-    if (!cdpId || !currentProject || !currentProject.id) return;
+    if (!cdpId) return;
     try {
-      // 调用真实API
+      // 检查是否使用 mock 数据模式
+      if (!currentProject || !currentProject.id) {
+        // Mock 数据模式下重新获取mock数据
+        const mockUser = await MockDataService.getUserById(cdpId);
+        if (mockUser) {
+          const mockApiUser = convertMockUserToApiUser(mockUser);
+          setApiUser(mockApiUser);
+        }
+        return;
+      }
+
+      // 有项目时调用真实API
       const fresh = await getProfileView(cdpId);
       if (fresh) setApiUser(fresh);
     } catch {}
@@ -149,7 +198,7 @@ export default function UserDetail() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center text-gray-600">{t("userDetail.loading.text")}</div>
+        <div className="text-center text-gray-600">加载中...</div>
       </div>
     );
   }
@@ -158,10 +207,10 @@ export default function UserDetail() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-gray-900 font-medium mb-2">{t("userDetail.error.loadFailed")}</p>
+          <p className="text-gray-900 font-medium mb-2">加载失败</p>
           <p className="text-gray-600 mb-4">{error}</p>
           <Link to="/users" className="text-blue-600 hover:text-blue-800">
-            {t("userDetail.actions.backToUserList")}
+            返回用户列表
           </Link>
         </div>
       </div>
@@ -172,10 +221,10 @@ export default function UserDetail() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-gray-900 font-medium mb-2">{t("userDetail.error.userNotFound")}</p>
-          <p className="text-gray-600 mb-4">{t("userDetail.error.userIdNotExist")}</p>
+          <p className="text-gray-900 font-medium mb-2">用户未找到</p>
+          <p className="text-gray-600 mb-4">指定的用户ID不存在</p>
           <Link to="/users" className="text-blue-600 hover:text-blue-800">
-            {t("userDetail.actions.backToUserList")}
+            返回用户列表
           </Link>
         </div>
       </div>
@@ -184,7 +233,7 @@ export default function UserDetail() {
 
   const handleCopyId = () => {
     navigator.clipboard.writeText(user.cdpId);
-    toast({ title: t("userDetail.toast.copied"), description: t("userDetail.toast.cdpIdCopied") });
+    toast({ title: "已复制", description: "CDP ID已复制到剪贴板" });
   };
 
   const addTag = async () => {
@@ -194,18 +243,23 @@ export default function UserDetail() {
     setNewTag("");
 
     try {
+      // 检查是否使用 mock 数据模式
       if (!currentProject || !currentProject.id) {
-        toast({ title: t("userDetail.error.addFailed"), description: t("userDetail.error.selectProject") });
+        // Mock 数据模式下只更新本地状态
+        const newTagObj = { id: `label-${Date.now()}`, labelName: value };
+        setUserTags((prev) => [...prev, newTagObj]);
+        setIsTagPopoverOpen(false);
+        toast({ title: "添加成功", description: `已添加标签：${value}` });
         return;
       }
 
-      // 调用真实API
+      // 有项目时调用真实API
       await addProfileLabel(String(user.cdpId), value);
       setIsTagPopoverOpen(false);
       await refetchUser();
-      toast({ title: t("userDetail.toast.addSuccess"), description: `${t("userDetail.toast.addedTag")}${value}` });
+      toast({ title: "添加成功", description: `已添加标签：${value}` });
     } catch (e: any) {
-      toast({ title: t("userDetail.error.addFailed"), description: e?.message || t("userDetail.error.retryLater") });
+      toast({ title: "添加失败", description: e?.message || "请稍后重试" });
     } finally {
       setTagSaving(false);
     }
@@ -214,17 +268,20 @@ export default function UserDetail() {
   const removeTag = async (id: string) => {
     setTagSaving(true);
     try {
+      // 检查是否使用 mock 数据模式
       if (!currentProject || !currentProject.id) {
-        toast({ title: t("userDetail.error.deleteFailed"), description: t("userDetail.error.selectProject") });
+        // Mock 数据模式下只更新本地状态
+        setUserTags((prev) => prev.filter((tag) => tag.id !== id));
+        toast({ title: "删除成功" });
         return;
       }
 
-      // 调用真实API
+      // 有项目时调用真实API
       await deleteProfileLabel(id);
       await refetchUser();
-      toast({ title: t("userDetail.toast.deleteSuccess") });
+      toast({ title: "删除成功" });
     } catch (e: any) {
-      toast({ title: t("userDetail.error.deleteFailed"), description: e?.message || t("userDetail.error.retryLater") });
+      toast({ title: "删除失败", description: e?.message || "请稍后重试" });
     } finally {
       setTagSaving(false);
     }
@@ -245,8 +302,8 @@ export default function UserDetail() {
       return amount;
     }
     const formatted = new Intl.NumberFormat("en-US", {
-      style: "decimal", // t("userDetail.comments.formatNumberOnly")
-      minimumFractionDigits: 2, // t("userDetail.comments.keepTwoDecimals")
+      style: "decimal", // 只格式化数字，不加货币
+      minimumFractionDigits: 2, // 保留两位小数
       maximumFractionDigits: 2,
     }).format(amount);
 
@@ -285,7 +342,7 @@ export default function UserDetail() {
                   <div>
                     <div className="flex items-center gap-2 mb-2">
                       <h4 className="text-sm font-medium text-gray-900">
-                        {t("userDetail.labels.statusTags")}
+                        状态标签
                       </h4>
                       <Popover
                         open={isTagPopoverOpen}
@@ -303,13 +360,13 @@ export default function UserDetail() {
                         <PopoverContent className="w-80" align="end">
                           <div className="space-y-4">
                             <div>
-                              <h4 className="font-medium">{t("userDetail.labels.addNewTag")}</h4>
+                              <h4 className="font-medium">添加新标签</h4>
                               <p className="text-sm text-muted-foreground">
-                                {t("userDetail.labels.addNewTagDescription")}
+                                用户添加一个新的状态标签
                               </p>
                             </div>
                             <Input
-                              placeholder={t("userDetail.labels.inputTagName")}
+                              placeholder="输入标签名称"
                               value={newTag}
                               onChange={(e) => setNewTag(e.target.value)}
                               onKeyPress={(e) => e.key === "Enter" && addTag()}
@@ -320,14 +377,14 @@ export default function UserDetail() {
                                 size="sm"
                                 onClick={() => setIsTagPopoverOpen(false)}
                               >
-                                {t("userDetail.actions.cancel")}
+                                取消
                               </Button>
                               <Button
                                 size="sm"
                                 onClick={addTag}
                                 disabled={!newTag.trim() || tagSaving}
                               >
-                                {t("userDetail.actions.add")}
+                                添加
                               </Button>
                             </div>
                           </div>
@@ -361,14 +418,14 @@ export default function UserDetail() {
                     <div className="flex items-center gap-3">
                       <Building className="h-4 w-4 text-gray-500" />
                       <div>
-                        <div className="text-xs text-gray-600">{t("userDetail.labels.company")}</div>
+                        <div className="text-xs text-gray-600">公司</div>
                         <div className="text-sm">{user.companyName}</div>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
                       <MapPin className="h-4 w-4 text-gray-500" />
                       <div>
-                        <div className="text-xs text-gray-600">{t("userDetail.labels.location")}</div>
+                        <div className="text-xs text-gray-600">位置</div>
                         <div className="text-sm">
                           {user.country}/{user.city}
                         </div>
@@ -379,7 +436,7 @@ export default function UserDetail() {
                     <div className="flex items-center gap-3">
                       <Mail className="h-4 w-4 text-gray-500" />
                       <div>
-                        <div className="text-xs text-gray-600">{t("userDetail.labels.contact")}</div>
+                        <div className="text-xs text-gray-600">联系</div>
                         <div className="text-sm">{user.contact}</div>
                       </div>
                     </div>
@@ -392,7 +449,7 @@ export default function UserDetail() {
           {/* Key Business Metrics - Full Width */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">{t("userDetail.metrics.keyBusinessMetrics")}</CardTitle>
+              <CardTitle className="text-lg">关键业务指标</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
@@ -400,69 +457,69 @@ export default function UserDetail() {
                   <div className="text-lg font-bold text-gray-900">
                     {formatWithSymbol(user.totalSpent, user.currency)}
                   </div>
-                  <div className="text-xs text-gray-600">{t("userDetail.metrics.totalAmount")}</div>
+                  <div className="text-xs text-gray-600">总消费金额</div>
                 </div>
                 <div className="text-center p-2 bg-gray-50 rounded">
                   <div className="text-lg font-bold text-gray-900">
                     {user.totalOrders}
                   </div>
-                  <div className="text-xs text-gray-600">{t("userDetail.metrics.totalOrders")}</div>
+                  <div className="text-xs text-gray-600">总订单数</div>
                 </div>
                 <div className="text-center p-2 bg-gray-50 rounded">
                   <div className="text-lg font-bold text-gray-900">
                     {formatWithSymbol(user.averageOrderValue, user.currency)}
                   </div>
-                  <div className="text-xs text-gray-600">{t("userDetail.metrics.averageOrderValue")}</div>
+                  <div className="text-xs text-gray-600">平均客单价</div>
                 </div>
                 <div className="text-center p-2 bg-gray-50 rounded">
                   <div className="text-sm font-bold text-gray-900">
                     {user.lastPurchaseDate}
                   </div>
-                  <div className="text-xs text-gray-600">{t("userDetail.metrics.lastPurchaseTime")}</div>
+                  <div className="text-xs text-gray-600">上次购买时间</div>
                 </div>
                 <div className="text-center p-2 bg-gray-50 rounded">
                   <div className="text-lg font-bold text-gray-900">
                     {formatWithSymbol(user.maxOrderAmount, user.currency)}
                   </div>
-                  <div className="text-xs text-gray-600">{t("userDetail.metrics.maxOrderAmount")}</div>
+                  <div className="text-xs text-gray-600">最高单笔订单</div>
                 </div>
                 <div className="text-center p-2 bg-gray-50 rounded">
                   <div className="text-lg font-bold text-gray-900">
-                    {user.averagePurchaseCycle}{t("userDetail.units.days")}
+                    {user.averagePurchaseCycle}天
                   </div>
-                  <div className="text-xs text-gray-600">{t("userDetail.metrics.averagePurchaseCycle")}</div>
+                  <div className="text-xs text-gray-600">平均购买周期</div>
                 </div>
               </div>
 
               {/* Time-based Information */}
               <div className="mt-4 pt-3 border-t border-gray-200">
                 <h4 className="text-sm font-medium text-gray-900 mb-2">
-                  {t("userDetail.metrics.timelineInfo")}
+                  时间轴信息
                 </h4>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                   <div className="text-center p-2 bg-gray-50 rounded">
                     <div className="text-sm font-bold text-gray-700">
                       {user.firstVisitTime}
                     </div>
-                    <div className="text-xs text-gray-600">{t("userDetail.metrics.firstVisitTime")}</div>
+                    <div className="text-xs text-gray-600">首次访问时间</div>
                   </div>
                   <div className="text-center p-2 bg-gray-50 rounded">
                     <div className="text-sm font-bold text-gray-700">
                       {user.registrationTime}
                     </div>
-                    <div className="text-xs text-gray-600">{t("userDetail.metrics.registrationTime")}</div>
+                    <div className="text-xs text-gray-600">注册时间</div>
                   </div>
                   <div className="text-center p-2 bg-gray-50 rounded">
                     <div className="text-sm font-bold text-gray-700">
                       {user.firstPurchaseTime}
                     </div>
-                    <div className="text-xs text-gray-600">{t("userDetail.metrics.firstPurchaseTime")}</div>
+                    <div className="text-xs text-gray-600">首次购买时间</div>
                   </div>
                   <div className="text-center p-2 bg-gray-50 rounded">
                     <div className="text-sm font-bold text-gray-700">
                       {user.lastActiveTime}
                     </div>
-                    <div className="text-xs text-gray-600">{t("userDetail.metrics.lastActiveTime")}</div>
+                    <div className="text-xs text-gray-600">最后活跃时间</div>
                   </div>
                 </div>
               </div>
@@ -474,8 +531,8 @@ export default function UserDetail() {
             <CardContent className="p-6">
               <Tabs defaultValue="timeline" className="w-full">
                 <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="timeline">{t("userDetail.tabs.accessTimeline")}</TabsTrigger>
-                  <TabsTrigger value="statistics">{t("userDetail.tabs.businessStatistics")}</TabsTrigger>
+                  <TabsTrigger value="timeline">访问时间线</TabsTrigger>
+                  <TabsTrigger value="statistics">业务统计</TabsTrigger>
                 </TabsList>
 
                 {/* Access Timeline Tab - NOW WITH SESSION TIMELINE */}

@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import {
@@ -42,6 +43,7 @@ export default function OrderHistory({
   cdpUserId: string;
   sessionId: string;
 }) {
+  const { t } = useTranslation();
   const { cdpId } = useParams<{ cdpId: string }>();
   const [loading, setLoading] = useState(false);
   const [eventData, setEventData] = useState<ApiEventListResponse | null>(null);
@@ -91,15 +93,15 @@ export default function OrderHistory({
   const getStatusText = (status: number): string => {
     switch (status) {
       case 0:
-        return "未确认";
+        return t("orderHistory.status.unconfirmed");
       case 1:
-        return "已确认";
+        return t("orderHistory.status.confirmed");
       case 2:
-        return "已完成";
+        return t("orderHistory.status.completed");
       case 3:
-        return "已取消";
+        return t("orderHistory.status.cancelled");
       default:
-        return "未知状态";
+        return t("orderHistory.status.unknown");
     }
   };
 
@@ -166,23 +168,23 @@ export default function OrderHistory({
     let textColor = "text-slate-800";
 
     switch (status) {
-      case "已完成":
+      case t("orderHistory.status.completed"):
         bgColor = "bg-success-light";
         textColor = "text-success";
         break;
-      case "已取消":
+      case t("orderHistory.status.cancelled"):
         bgColor = "bg-red-100";
         textColor = "text-red-800";
         break;
-      case "已支付":
+      case t("orderHistory.status.paid"):
         bgColor = "bg-blue-100";
         textColor = "text-blue-800";
         break;
-      case "待支付":
+      case t("orderHistory.status.pending"):
         bgColor = "bg-yellow-100";
         textColor = "text-yellow-800";
         break;
-      case "已发货":
+      case t("orderHistory.status.shipped"):
         bgColor = "bg-purple-100";
         textColor = "text-purple-800";
         break;
@@ -205,9 +207,9 @@ export default function OrderHistory({
   if (loading) {
     return (
       <div className="bg-white p-6 rounded-lg shadow-sm">
-        <h3 className="text-lg font-semibold text-slate-900 mb-4">订单历史</h3>
+        <h3 className="text-lg font-semibold text-slate-900 mb-4">{t("orderHistory.title")}</h3>
         <div className="flex items-center justify-center py-8">
-          <div className="text-slate-500">加载中...</div>
+          <div className="text-slate-500">{t("orderHistory.loading")}</div>
         </div>
       </div>
     );
@@ -216,9 +218,9 @@ export default function OrderHistory({
   if (!eventData || eventData.records.length === 0) {
     return (
       <div className="bg-white p-6 rounded-lg shadow-sm">
-        <h3 className="text-lg font-semibold text-slate-900 mb-4">订单历史</h3>
+        <h3 className="text-lg font-semibold text-slate-900 mb-4">{t("orderHistory.title")}</h3>
         <div className="flex items-center justify-center py-8">
-          <div className="text-slate-500">暂无订单数据</div>
+          <div className="text-slate-500">{t("orderHistory.noData")}</div>
         </div>
       </div>
     );
@@ -229,9 +231,9 @@ export default function OrderHistory({
       {/* Order History Component */}
       <div className="bg-white p-6 rounded-lg shadow-sm font-[Inter]">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-semibold text-slate-900">订单历史</h3>
+          <h3 className="text-lg font-semibold text-slate-900">{t("orderHistory.title")}</h3>
           <div className="text-sm text-slate-500">
-            共 {eventData.total} 条记录，显示第 {startItem}-{endItem} 条
+            {t("orderHistory.recordsInfo", { total: eventData.total, start: startItem, end: endItem })}
           </div>
         </div>
 
@@ -240,11 +242,11 @@ export default function OrderHistory({
           <table className="w-full text-sm text-left">
             <thead className="bg-slate-50 text-slate-500">
               <tr>
-                <th className="p-3 font-medium">订单号</th>
-                <th className="p-3 font-medium">下单时间</th>
-                <th className="p-3 font-medium">状态</th>
-                <th className="p-3 font-medium text-center">商品数量</th>
-                <th className="p-3 font-medium text-right">订单金额</th>
+                <th className="p-3 font-medium">{t("orderHistory.table.orderNumber")}</th>
+                <th className="p-3 font-medium">{t("orderHistory.table.orderTime")}</th>
+                <th className="p-3 font-medium">{t("orderHistory.table.status")}</th>
+                <th className="p-3 font-medium text-center">{t("orderHistory.table.itemCount")}</th>
+                <th className="p-3 font-medium text-right">{t("orderHistory.table.orderAmount")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200">
@@ -283,7 +285,7 @@ export default function OrderHistory({
         {totalPages > 1 && (
           <div className="flex items-center justify-between mt-4">
             <div className="text-sm text-slate-500">
-              第 {currentPage} 页，共 {totalPages} 页
+              {t("orderHistory.pagination.page", { current: currentPage, total: totalPages })}
             </div>
             <div className="flex items-center space-x-2">
               <Button
@@ -293,7 +295,7 @@ export default function OrderHistory({
                 disabled={currentPage <= 1}
               >
                 <ChevronLeft className="h-4 w-4" />
-                上一页
+                {t("orderHistory.pagination.previous")}
               </Button>
               <Button
                 variant="outline"
@@ -301,7 +303,7 @@ export default function OrderHistory({
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage >= totalPages}
               >
-                下一页
+                {t("orderHistory.pagination.next")}
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
@@ -323,7 +325,7 @@ export default function OrderHistory({
           <div className="bg-white rounded-lg shadow-xl w-full max-w-3xl max-h-[90vh] flex flex-col">
             {/* Modal Header */}
             <div className="flex justify-between items-center p-4 border-b border-slate-200">
-              <h3 className="text-lg font-semibold text-slate-900">订单详情</h3>
+              <h3 className="text-lg font-semibold text-slate-900">{t("orderHistory.modal.title")}</h3>
               <button
                 onClick={closeModal}
                 className="text-slate-400 hover:text-slate-600"
@@ -351,43 +353,43 @@ export default function OrderHistory({
                 {/* Order Information */}
                 <div>
                   <h4 className="text-sm font-medium text-slate-900 mb-3">
-                    订单信息
+                    {t("orderHistory.modal.orderInfo")}
                   </h4>
                   <dl className="space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <dt className="text-slate-500">订单号:</dt>
+                      <dt className="text-slate-500">{t("orderHistory.modal.fields.orderNumber")}:</dt>
                       <dd className="text-slate-900 font-medium">
                         {selectedOrder.sn}
                       </dd>
                     </div>
                     <div className="flex justify-between">
-                      <dt className="text-slate-500">下单时间:</dt>
+                      <dt className="text-slate-500">{t("orderHistory.modal.fields.orderTime")}:</dt>
                       <dd className="text-slate-900">
                         {selectedOrder.orderTime}
                       </dd>
                     </div>
                     <div className="flex justify-between">
-                      <dt className="text-slate-500">订单状态:</dt>
+                      <dt className="text-slate-500">{t("orderHistory.modal.fields.orderStatus")}:</dt>
                       <dd className="text-slate-900">
                         {getStatusBadge(selectedOrder.status)}
                       </dd>
                     </div>
                     <div className="flex justify-between">
-                      <dt className="text-slate-500">支付方式:</dt>
+                      <dt className="text-slate-500">{t("orderHistory.modal.fields.paymentMethod")}:</dt>
                       <dd className="text-slate-900">
-                        {selectedOrder.paymentMethod || "未知"}
+                        {selectedOrder.paymentMethod || t("orderHistory.modal.unknown")}
                       </dd>
                     </div>
                     <div className="flex justify-between">
-                      <dt className="text-slate-500">收货人:</dt>
+                      <dt className="text-slate-500">{t("orderHistory.modal.fields.consignee")}:</dt>
                       <dd className="text-slate-900">
-                        {selectedOrder.consignee || "未知"}
+                        {selectedOrder.consignee || t("orderHistory.modal.unknown")}
                       </dd>
                     </div>
                     <div className="flex justify-between">
-                      <dt className="text-slate-500">联系电话:</dt>
+                      <dt className="text-slate-500">{t("orderHistory.modal.fields.phone")}:</dt>
                       <dd className="text-slate-900">
-                        {selectedOrder.phone || "未知"}
+                        {selectedOrder.phone || t("orderHistory.modal.unknown")}
                       </dd>
                     </div>
                   </dl>
@@ -396,11 +398,11 @@ export default function OrderHistory({
                 {/* Amount Details */}
                 <div>
                   <h4 className="text-sm font-medium text-slate-900 mb-3">
-                    金额明细
+                    {t("orderHistory.modal.amountDetails")}
                   </h4>
                   <dl className="space-y-2 text-sm">
                     <div className="flex justify-between  border-slate-200 font-medium">
-                      <dt className="text-slate-900">订单汇总金额:</dt>
+                      <dt className="text-slate-900">{t("orderHistory.modal.fields.subtotalAmount")}:</dt>
                       <dd className="text-slate-900">
                         {formatCurrency(
                           selectedOrder.subtotalAmount,
@@ -409,7 +411,7 @@ export default function OrderHistory({
                       </dd>
                     </div>
                     <div className="flex justify-between  border-slate-200 font-medium">
-                      <dt className="text-slate-900">运费:</dt>
+                      <dt className="text-slate-900">{t("orderHistory.modal.fields.shippingAmount")}:</dt>
                       <dd className="text-slate-900">
                         {formatCurrency(
                           selectedOrder.shippingAmount,
@@ -418,7 +420,7 @@ export default function OrderHistory({
                       </dd>
                     </div>
                     <div className="flex justify-between  border-slate-200 font-medium">
-                      <dt className="text-slate-900">税费:</dt>
+                      <dt className="text-slate-900">{t("orderHistory.modal.fields.taxAmount")}:</dt>
                       <dd className="text-slate-900">
                         {formatCurrency(
                           selectedOrder.taxAmount,
@@ -427,7 +429,7 @@ export default function OrderHistory({
                       </dd>
                     </div>
                     <div className="flex justify-between pt-2 border-t border-slate-200 font-medium">
-                      <dt className="text-slate-900">订单总金额:</dt>
+                      <dt className="text-slate-900">{t("orderHistory.modal.fields.totalAmount")}:</dt>
                       <dd className="text-slate-900">
                         {formatCurrency(
                           selectedOrder.totalAmount,
@@ -442,23 +444,23 @@ export default function OrderHistory({
               {/* Order Items */}
               <div className="mb-6">
                 <h4 className="text-sm font-medium text-slate-900 mb-3">
-                  订单明细
+                  {t("orderHistory.modal.orderItems")}
                 </h4>
                 <div className="border border-slate-200 rounded-lg overflow-hidden">
                   <table className="w-full text-sm">
                     <thead className="bg-slate-50">
                       <tr>
                         <th className="p-3 text-left font-medium text-slate-500">
-                          商品编号
+                          {t("orderHistory.modal.fields.productSn")}
                         </th>
                         <th className="p-3 text-right font-medium text-slate-500">
-                          单价
+                          {t("orderHistory.modal.fields.unitPrice")}
                         </th>
                         <th className="p-3 text-center font-medium text-slate-500">
-                          数量
+                          {t("orderHistory.modal.fields.quantity")}
                         </th>
                         <th className="p-3 text-right font-medium text-slate-500">
-                          总价
+                          {t("orderHistory.modal.fields.totalPrice")}
                         </th>
                       </tr>
                     </thead>
@@ -489,7 +491,7 @@ export default function OrderHistory({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <h4 className="text-sm font-medium text-slate-900 mb-3">
-                    收货地址
+                    {t("orderHistory.modal.shippingAddress")}
                   </h4>
                   <p className="text-sm text-slate-600">
                     {selectedOrder.userName || ""} {"  "}
@@ -502,9 +504,9 @@ export default function OrderHistory({
                 </div>
                 <div>
                   <h4 className="text-sm font-medium text-slate-900 mb-3">
-                    账单地址
+                    {t("orderHistory.modal.billingAddress")}
                   </h4>
-                  <p className="text-sm text-slate-600">同收货地址</p>
+                  <p className="text-sm text-slate-600">{t("orderHistory.modal.sameAsShipping")}</p>
                 </div>
               </div>
             </div>
