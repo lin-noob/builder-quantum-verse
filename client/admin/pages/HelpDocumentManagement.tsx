@@ -34,22 +34,37 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { request } from "@/lib/request";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
+import { toast } from "sonner";
 
 // 数据模型
 interface HelpCategory {
   id: string;
   name: string;
   parentId: string | null;
-  children: HelpCategory[];
   order: number;
   createdAt: string;
   updatedAt: string;
+  hasParent: boolean;
+  hasChildren: boolean;
+  // children 属性在 API 响应中��能不存在
+  // 通过 normalizeCategories 函数确保始终为数组，简化后续处理逻辑
+  children?: HelpCategory[];
 }
 
 interface Language {
@@ -68,7 +83,7 @@ interface HelpDocument {
   views: number;
   likes: number;
   isPopular: boolean;
-  status: "published" | "draft" | "archived";
+  status: number; // 0=草稿, 1=已发布
   createdAt: string;
   updatedAt: string;
   // 新增多语言内容字段
@@ -79,7 +94,7 @@ interface HelpDocument {
       content: string;
     };
   };
-  // 新增SEO字段
+  // 新增SEO��段
   url?: string; // 自定义URL
   seoTitle?: string; // SEO标题
   seoDescription?: string; // SEO描述
@@ -89,29 +104,88 @@ interface HelpDocument {
 export default function HelpDocumentManagement() {
   const [categories, setCategories] = useState<HelpCategory[]>([]);
   const [documents, setDocuments] = useState<HelpDocument[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<HelpCategory | null>(null);
-  const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
+  const [selectedCategory, setSelectedCategory] = useState<HelpCategory | null>(
+    null,
+  );
+  const [expandedCategories, setExpandedCategories] = useState<
+    Record<string, boolean>
+  >({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [paginatedDocuments, setPaginatedDocuments] = useState([]);
+  const [paginatedDocuments, setPaginatedDocuments] = useState<HelpDocument[]>([]);
   // 语言相关状态
   const [lang, setLanguages] = useState<Language[]>([]);
-  const [selectedLanguage, setSelectedLanguage] = useState<Language | null>(null);
+  const [selectedLanguage, setSelectedLanguage] = useState<Language | null>(
+    null,
+  );
   const [languageLoading, setLanguageLoading] = useState(true);
+  // 分页状态
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize] = useState(10);
+    // 过滤和分页文档
+    const [filteredDocuments, setFilteredDocuments] = useState<HelpDocument[]>([]);
+  // 计算��页数
+  const totalPages = Math.ceil(filteredDocuments.length / pageSize);
+
+  // 拖拽相关状态
+  const [draggedItem, setDraggedItem] = useState<number | null>(null);
+
+  // 状态显示辅助函数
+  const getStatusDisplay = (status: number | string) => {
+    let statusNumber: number;
+    if (typeof status === 'string') {
+      // 字符串转数字（兼容处理）
+      statusNumber = status === "published" ? 1 : 0;
+    } else {
+      statusNumber = status;
+    }
+
+    return {
+      text: statusNumber === 1 ? "已发布" : "草稿",
+      variant: statusNumber === 1 ? "default" : "secondary"
+    };
+  };
+
+
+
+  // 搜索和筛选状态
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+
+  // ���话框��态
+  const [isCategoryDialogOpen, setIsCategoryDialogOpen] = useState(false);
+  const [isDocumentDialogOpen, setIsDocumentDialogOpen] = useState(false);
+  const [isEditingDocument, setIsEditingDocument] = useState(false);
+
+  // AlertDialog状态
+  const [deleteAlertOpen, setDeleteAlertOpen] = useState(false);
+  const [deleteType, setDeleteType] = useState<'category' | 'document'>('document');
+  const [deleteTarget, setDeleteTarget] = useState<{id: string, name?: string} | null>(null);
+
+  // 编辑状���
+  const [editingCategory, setEditingCategory] = useState<HelpCategory | null>(
+    null,
+  );
+  const [editingDocument, setEditingDocument] = useState<HelpDocument | null>(
+    null,
+  );
 
   // 扁平化分类树的函数
   const flattenCategories = (categories: HelpCategory[]): HelpCategory[] => {
     const result: HelpCategory[] = [];
-    
+
     const flatten = (cats: HelpCategory[]) => {
-      cats.forEach(cat => {
+      if (!Array.isArray(cats)) return;
+
+      cats.forEach((cat) => {
         result.push(cat);
+        // 由于数据已标准化，children 始终存在且为数组，只需检查长度
         if (cat.children && cat.children.length > 0) {
           flatten(cat.children);
         }
       });
     };
-    
+
     flatten(categories);
     return result;
   };
@@ -119,39 +193,68 @@ export default function HelpDocumentManagement() {
   // 获取扁平化的分类列表
   const flatCategories = flattenCategories(categories);
 
-  // 获取文档列表 - 添加locale参数
+  // 获取文档列表 - 添加locale和classifyId��数
   const fetchDocuments = async () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       // 构建请求参数
       const params: any = {};
-      if (selectedLanguage?.code) {
-        params.locale = selectedLanguage.code;
+      if (selectedCategory?.id) {
+        params.classifyId = selectedCategory.id;
       }
-      
-      const response = await request.get('/admin/api/v1/article', { params });
-      setDocuments(response.data.data || []);
+
+      const response = await request.get("/admin/api/v1/article", params);
+      setDocuments(response.data.data.tree || []);
     } catch (err) {
-      console.error('获取文档列表失败:', err);
-      setError('获取文档列表失败，请稍后重试');
+      console.error("获取文档列表失败:", err);
+      setError("获取文档列表失败，请稍后重试");
     } finally {
       setLoading(false);
     }
   };
 
-  // 获取分类列表（如果后端也有分类接口的话）
+  // 标准化分类数据，确保 children 始终是数组
+  const normalizeCategories = (categories: HelpCategory[]): HelpCategory[] => {
+    if (!Array.isArray(categories)) {
+      return [];
+    }
+
+    return categories.map(category => ({
+      ...category,
+      children: category.children && Array.isArray(category.children)
+        ? normalizeCategories(category.children)
+        : [],
+    }));
+  };
+
+  // 获取分类列表树状结构
   const fetchCategories = async () => {
     try {
-      // 如果后端有分类接口，可以调用
-      // const response = await request.get('/admin/api/v1/categories');
-      // setCategories(response.data.data || []);
+      setLoading(true);
+      setError(null);
 
-      // 暂时使用空数组，后续可以实现分类接口
-      setCategories([]);
+      // 构建请求参数
+      const params: any = {};
+      if (selectedLanguage?.code) {
+        params.locale = selectedLanguage.code;
+      }
+
+      const response = await request.get(
+        "/admin/api/v1/article/classify/tree",
+        params,
+      );
+
+      // 标准化数据，确保每个分类都有 children 数组
+      const rawCategories = response.data.data || [];
+      const normalizedCategories = normalizeCategories(rawCategories);
+      setCategories(normalizedCategories);
     } catch (err) {
-      console.error('获取分类列表失败:', err);
+      console.error("获取分类列表失败:", err);
+      setError("获取分类列表���败，请稍后重试");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -159,14 +262,14 @@ export default function HelpDocumentManagement() {
   const fetchLanguages = async () => {
     try {
       setLanguageLoading(true);
-      const response = await request.get('/admin/api/v1/auth/language');
+      const response = await request.get("/admin/api/v1/auth/language");
       const languageData: Language[] = response.data.data || [];
       setLanguages(languageData);
       if (languageData.length > 0) {
         setSelectedLanguage(languageData[0]); // 默认选择第一个语言
       }
     } catch (err) {
-      console.error('获取语言列表失败:', err);
+      console.error("获取语言列表失败:", err);
     } finally {
       setLanguageLoading(false);
     }
@@ -181,47 +284,67 @@ export default function HelpDocumentManagement() {
     }, 100);
   };
 
-  // 初始化数据
+  // 初始化数��
   useEffect(() => {
-    fetchCategories();
     fetchLanguages();
   }, []);
 
-  // 当语言选择改变时，重新获取文档
+  // 当语��选择改变时，重新获取分类和文档
   useEffect(() => {
     if (selectedLanguage) {
+      fetchCategories();
       fetchDocuments();
     }
   }, [selectedLanguage]);
 
-  // 拖拽相关状态
-  const [draggedItem, setDraggedItem] = useState<number | null>(null);
+  // 当选择的分类改变时，重新获取文档列表
+  useEffect(() => {
+    if (selectedLanguage) {
+      fetchDocuments();
+    }
+  }, [selectedCategory]);
 
-  // 分页状态
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize] = useState(10);
 
-  // 搜索和筛选状态
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
 
-  // ���话框状态
-  const [isCategoryDialogOpen, setIsCategoryDialogOpen] = useState(false);
-  const [isDocumentDialogOpen, setIsDocumentDialogOpen] = useState(false);
-  const [isEditingDocument, setIsEditingDocument] = useState(false);
+  useEffect(() => {
+    let filtered = documents;
 
-  // 编辑状态
-  const [editingCategory, setEditingCategory] = useState<HelpCategory | null>(
-    null,
-  );
-  const [editingDocument, setEditingDocument] = useState<HelpDocument | null>(
-    null,
-  );
+    // 搜索过滤
+    if (searchTerm) {
+      filtered = filtered.filter(
+        (doc) =>
+          doc.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          doc.description.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
 
-  // 表单状态
+    // 状态过滤
+    if (statusFilter !== "all") {
+      const filterStatus = parseInt(statusFilter);
+      filtered = filtered.filter((doc) => doc.status === filterStatus);
+    }
+
+    setFilteredDocuments(filtered);
+
+    // 分页
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    const paginated = filtered.slice(startIndex, endIndex);
+
+    setPaginatedDocuments(paginated);
+  }, [documents, searchTerm, statusFilter, currentPage, pageSize]);
+
+  // 当搜索条件或状态过滤改变时，重置到第一页
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, statusFilter, selectedCategory]);
+
+  
+
+  // ���单状态
   const [categoryForm, setCategoryForm] = useState({
     name: "",
-    parentId: "",
+    parentId: "0",
   });
   const [documentForm, setDocumentForm] = useState({
     title: "",
@@ -235,11 +358,10 @@ export default function HelpDocumentManagement() {
     url: "",
   });
 
-
   // 获取分类名称
   const getCategoryName = (categoryId: string) => {
     const category = flatCategories.find((cat) => cat.id === categoryId);
-    return category ? category.name : "未知分类";
+    return category ? category.name : "";
   };
 
   // 处理分类展开/折叠
@@ -250,9 +372,14 @@ export default function HelpDocumentManagement() {
     }));
   };
 
-  // 处理选择分类
+  // ���理选择分类
   const handleSelectCategory = (category: HelpCategory) => {
-    setSelectedCategory(category);
+    // 如果点击的是当前选中的��类，则取消选择（查看所有文档）
+    if (selectedCategory?.id === category.id) {
+      setSelectedCategory(null);
+    } else {
+      setSelectedCategory(category);
+    }
   };
 
   // 拖拽处理函数
@@ -272,112 +399,200 @@ export default function HelpDocumentManagement() {
   // 处理分类表单提交
   const handleCategorySubmit = async () => {
     if (!categoryForm.name.trim()) return;
-
-    if (editingCategory) {
-      // 更新分类 - 递归更新树状结构
-      const updateCategoryInTree = (categories: HelpCategory[]): HelpCategory[] => {
-        return categories.map(cat => {
-          if (cat.id === editingCategory.id) {
-            return {
-              ...cat,
-              name: categoryForm.name,
-              parentId: categoryForm.parentId || null,
-            };
-          }
-          return {
-            ...cat,
-            children: updateCategoryInTree(cat.children)
-          };
-        });
-      };
-      
-      setCategories(updateCategoryInTree(categories));
-    } else {
-      // 创建新分类
-      const newCategory: HelpCategory = {
-        id: `cat_${Date.now()}`,
-        name: categoryForm.name,
-        parentId: categoryForm.parentId || null,
-        order:
-          flatCategories.filter(
-            (c) => c.parentId === (categoryForm.parentId || null),
-          ).length + 1,
-        createdAt: new Date().toISOString().split("T")[0],
-        updatedAt: new Date().toISOString().split("T")[0],
-        children: [],
-      };
-      
-      if (categoryForm.parentId) {
-        // 添加到父分类的children中
-        const addToParent = (categories: HelpCategory[]): HelpCategory[] => {
-          return categories.map(cat => {
-            if (cat.id === categoryForm.parentId) {
-              return {
-                ...cat,
-                children: [...cat.children, newCategory]
-              };
-            }
-            return {
-              ...cat,
-              children: addToParent(cat.children)
-            };
-          });
-        };
-        setCategories(addToParent(categories));
-      } else {
-        // 添加为顶级分类
-        setCategories([...categories, newCategory]);
-      }
+    if (!selectedLanguage) {
+      toast.warning("请先选择语言");
+      return;
     }
 
-    setIsCategoryDialogOpen(false);
+    try {
+      if (editingCategory) {
+        // 更新分类 - 调用PUT接口
+        const updateData = {
+          id: editingCategory.id,
+          language: selectedLanguage.code,
+          name: categoryForm.name,
+          parentId: categoryForm.parentId || 0,
+        };
+
+        await request.put("/admin/api/v1/article/classify", updateData);
+
+        // 重新获取分类列表
+        await fetchCategories();
+      } else {
+        // 创建新分类
+        const categoryData = {
+          language: selectedLanguage.code,
+          name: categoryForm.name,
+          parentId: categoryForm.parentId || 0,
+        };
+
+        await request.post("/admin/api/v1/article/classify", categoryData);
+
+        // ���新获取分类列表
+        await fetchCategories();
+      }
+
+      setIsCategoryDialogOpen(false);
+      setCategoryForm({ name: "", parentId: "0" });
+      setEditingCategory(null);
+
+      // 显示成功提���
+      if (editingCategory) {
+        toast.success("分类更新成功");
+      } else {
+        toast.success("分类创建成功");
+      }
+    } catch (err) {
+      console.error("分类操作失败:", err);
+      toast.error("分类操作失败，请稍后重试");
+    }
+  };
+
+  // 打开删除分类确认框
+  const openDeleteCategoryDialog = (categoryId: string) => {
+    // 找到要删除的分类
+    const findCategory = (
+      categories: HelpCategory[],
+      id: string,
+    ): HelpCategory | null => {
+      for (const cat of categories) {
+        if (cat.id === id) return cat;
+        const found = findCategory(cat.children, id);
+        if (found) return found;
+      }
+      return null;
+    };
+
+    const categoryToDelete = findCategory(categories, categoryId);
+    if (categoryToDelete) {
+      setDeleteType('category');
+      setDeleteTarget({id: categoryId, name: categoryToDelete.name});
+      setDeleteAlertOpen(true);
+    }
+  };
+
+  // 执行删除分类
+  const executeDeleteCategory = async (categoryId: string) => {
+    if (!selectedLanguage) {
+      toast.warning("请先选择语言");
+      return;
+    }
+
+    try {
+      // 找到要删除的分类
+      const findCategory = (
+        categories: HelpCategory[],
+        id: string,
+      ): HelpCategory | null => {
+        for (const cat of categories) {
+          if (cat.id === id) return cat;
+          const found = findCategory(cat.children, id);
+          if (found) return found;
+        }
+        return null;
+      };
+
+      const categoryToDelete = findCategory(categories, categoryId);
+      if (!categoryToDelete) {
+        toast.error("找不到要删除的���类");
+        return;
+      }
+
+      // 调用删除API
+      const deleteData = {
+        id: categoryId,
+        language: selectedLanguage.code,
+        name: categoryToDelete.name,
+        parentId: categoryToDelete.parentId,
+      };
+
+      await request.delete("/admin/api/v1/article/classify", {
+        data: deleteData,
+      });
+
+      // 重新获取分类列表
+      await fetchCategories();
+
+      // 如果删除的是当前选中的分类，清空选中
+      if (selectedCategory && selectedCategory.id === categoryId) {
+        setSelectedCategory(null);
+      }
+
+      // 重新获取文档列表
+      await fetchDocuments();
+
+      // 显示成功提示
+      toast.success("分类删除成功");
+    } catch (err) {
+      console.error("删除分类失败:", err);
+      toast.error("删除分类失败，请稍后重试");
+    }
   };
 
   // 处理删除分类
   const handleDeleteCategory = (categoryId: string) => {
+    openDeleteCategoryDialog(categoryId);
+  };
+
+  // 备份旧函数
+  const oldHandleDeleteCategory = async (categoryId: string) => {
     if (
-      window.confirm("确定要删除这个分类吗？这将同时删除该分���下的所有文档。")
+      window.confirm("确定要删除这��分类吗？这将同时删除该分类下的所有文档。")
     ) {
-      // 收集要删除的分类ID（包括子分类）
-      const categoriesToDelete = new Set<string>();
-      
-      const collectCategoriesToDelete = (category: HelpCategory) => {
-        categoriesToDelete.add(category.id);
-        // 递归收集子分类
-        category.children.forEach(child => collectCategoriesToDelete(child));
-      };
-      
-      // 找到要删除的分类并收集���有相关ID
-      const findAndCollectCategory = (categories: HelpCategory[]) => {
-        for (const cat of categories) {
-          if (cat.id === categoryId) {
-            collectCategoriesToDelete(cat);
-            return;
+      if (!selectedLanguage) {
+        toast.warning("请先选择语言");
+        return;
+      }
+
+      try {
+        // 找到要删除的分类
+        const findCategory = (
+          categories: HelpCategory[],
+          id: string,
+        ): HelpCategory | null => {
+          for (const cat of categories) {
+            if (cat.id === id) return cat;
+            // ��于数据已标准��，children 始终存���
+            const found = findCategory(cat.children, id);
+            if (found) return found;
           }
-          findAndCollectCategory(cat.children);
+          return null;
+        };
+
+        const categoryToDelete = findCategory(categories, categoryId);
+        if (!categoryToDelete) {
+          toast.error("找不到要删除的分类");
+          return;
         }
-      };
-      
-      findAndCollectCategory(categories);
 
-      // 删除所有相关文档
-      setDocuments((docs) => docs.filter((doc) => !categoriesToDelete.has(doc.categoryId)));
-      
-      // 删除分类 - 递归从树状结构中移除
-      const removeCategoryFromTree = (categories: HelpCategory[]): HelpCategory[] => {
-        return categories
-          .filter(cat => cat.id !== categoryId)
-          .map(cat => ({
-            ...cat,
-            children: removeCategoryFromTree(cat.children)
-          }));
-      };
-      
-      setCategories(removeCategoryFromTree(categories));
+        // 调用删除API
+        const deleteData = {
+          id: categoryId,
+          language: selectedLanguage.code,
+          name: categoryToDelete.name,
+          parentId: categoryToDelete.parentId,
+        };
 
-      // 如果删除的是当前选中的分类，清空选中
-      if (selectedCategory && categoriesToDelete.has(selectedCategory.id)) {
-        setSelectedCategory(null);
+        await request.delete("/admin/api/v1/article/classify", {
+          data: deleteData,
+        });
+
+        // 重新获取分类列表
+        await fetchCategories();
+
+        // 如果删除的是当前选中的分类，清空选中
+        if (selectedCategory && selectedCategory.id === categoryId) {
+          setSelectedCategory(null);
+        }
+
+        // 重新获取文档列表
+        await fetchDocuments();
+
+        // 显示���功提示
+        toast.success("分类删除成功");
+      } catch (err) {
+        console.error("删除分������败:", err);
+        toast.error("删除分类失败，请稍后重试");
       }
     }
   };
@@ -400,76 +615,231 @@ export default function HelpDocumentManagement() {
     setIsDocumentDialogOpen(true);
   };
 
-  // 处理编辑文档
-  const handleEditDocument = (document: HelpDocument) => {
-    setEditingDocument(document);
-    setIsEditingDocument(true);
-    setDocumentForm({
-      title: document.title,
-      categoryId: document.categoryId,
-      description: document.description,
-      content: document.content,
-      status: document.status,
-      seoTitle: document.seoTitle || "",
-      seoDescription: document.seoDescription || "",
-      seoKeywords: document.seoKeywords || "",
-      url: document.url || "",
-    });
-    setIsDocumentDialogOpen(true);
+  // 获取文档详情
+  const fetchDocumentDetail = async (documentId: string) => {
+    try {
+      const response = await request.get(`/admin/api/v1/article/view/${documentId}`);
+      return response.data.data;
+    } catch (err) {
+      console.error("获取文档详情失败:", err);
+      toast.error("获取文档详情失败，请稍后重试");
+      throw err;
+    }
+  };
+
+  // 文���参数构建公共逻辑
+  const buildDocumentData = (formData: typeof documentForm, isEdit: boolean = false, documentId?: string) => {
+    if (!selectedLanguage) {
+      throw new Error("请先选择语言");
+    }
+
+    // 将字符串状态转换为数字状态
+    const getStatusNumber = (status: string) => {
+      switch (status) {
+        case "published":
+          return 1;
+        case "draft":
+          return 0;
+// 如果有归档状���
+        default:
+          return 0; // 默认为草稿
+      }
+    };
+
+    const baseData = {
+      // 必填字段
+      mainTitle: formData.title,
+      name: formData.title,
+      classifyId: formData.categoryId,
+      content: formData.content,
+      language: selectedLanguage.code,
+      status: getStatusNumber(formData.status), // 转换为��字
+
+      // SEO相关字段
+      seoTitle: formData.seoTitle || formData.title,
+      seoDescription: formData.seoDescription || formData.description,
+      seoKeyword: formData.seoKeywords,
+      url: formData.url,
+
+      // 可选字段
+      viceTitle: formData.description,
+      type: 1,
+      showContent: true,
+      bannerUrl: "",
+      directory: "",
+      // fileType: "html",
+      parentId: 0,
+      path: formData.url,
+    };
+
+    // 编辑时添加id字段
+    if (isEdit && documentId) {
+      return {
+        ...baseData,
+        id: documentId,
+      };
+    }
+
+    // 新建时添加排���字段
+    return {
+      ...baseData,
+      orders: documents.length + 1,
+    };
+  };
+
+  // 处理编辑文档 - 先获取详情再编辑
+  const handleEditDocument = async (document: HelpDocument) => {
+    // 将数字状态转换为字符串状态
+    const getStatusString = (status: number | string) => {
+      if (typeof status === 'string') return status;
+      return status === 1 ? "published" : "draft";
+    };
+
+    try {
+      // 先获取文档详情
+      const documentDetail = await fetchDocumentDetail(document.id);
+
+      setEditingDocument(document);
+      setIsEditingDocument(true);
+
+      // 使用详情数据填充表单
+      setDocumentForm({
+        title: documentDetail.mainTitle || documentDetail.title || "",
+        categoryId: documentDetail.classifyId || document.categoryId,
+        description: documentDetail.viceTitle || documentDetail.description || "",
+        content: documentDetail.content || "",
+        status: getStatusString(documentDetail.status), // 转换数字状态为字符串
+        seoTitle: documentDetail.seoTitle || "",
+        seoDescription: documentDetail.seoDescription || "",
+        seoKeywords: documentDetail.seoKeyword || "",
+        url: documentDetail.url || documentDetail.path || "",
+      });
+
+      setIsDocumentDialogOpen(true);
+    } catch (err) {
+      // 获取详情失败时，使用列表中的基本信息
+      console.warn("获取详情失败，使用��本信息:", err);
+      setEditingDocument(document);
+      setIsEditingDocument(true);
+      setDocumentForm({
+        title: document.title,
+        categoryId: document.categoryId,
+        description: document.description,
+        content: document.content,
+        status: getStatusString(document.status), // 转换状态
+        seoTitle: document.seoTitle || "",
+        seoDescription: document.seoDescription || "",
+        seoKeywords: document.seoKeywords || "",
+        url: document.url || "",
+      });
+      setIsDocumentDialogOpen(true);
+    }
   };
 
   // 处理文档表单提交
   const handleDocumentSubmit = async () => {
-    if (!documentForm.title.trim() || !documentForm.categoryId) return;
-
-    const documentData = {
-      ...documentForm,
-      id: editingDocument?.id || `doc_${Date.now()}`,
-      order: editingDocument?.order || documents.length + 1,
-      views: editingDocument?.views || 0,
-      likes: editingDocument?.likes || 0,
-      isPopular: editingDocument?.isPopular || false,
-      createdAt:
-        editingDocument?.createdAt ||
-        new Date().toISOString().split("T")[0],
-      updatedAt: new Date().toISOString().split("T")[0],
-    };
-
-    if (editingDocument) {
-      // 更新现有文档
-      setDocuments(
-        documents.map((doc) =>
-          doc.id === editingDocument.id ? documentData : doc,
-        ),
-      );
-    } else {
-      // 创建新文档
-      setDocuments([...documents, documentData]);
+    if (!documentForm.title.trim() || !documentForm.categoryId) {
+      toast.warning("请填写文档标题和选择分类");
+      return;
     }
 
-    setIsDocumentDialogOpen(false);
+    try {
+      if (editingDocument) {
+        // 编辑文档 - 调用PUT接口
+        const articleData = buildDocumentData(documentForm, true, editingDocument.id);
+
+        await request.put("/admin/api/v1/article", articleData);
+
+        // 更新成功后重新获取文档列表
+        await fetchDocuments();
+
+        toast.success("文档更新成功");
+      } else {
+        // 创建新文档 - 调用POST接口
+        const articleData = buildDocumentData(documentForm, false);
+
+        await request.post("/admin/api/v1/article", articleData);
+
+        // 创建成��后���新获取文档列表
+        await fetchDocuments();
+
+        toast.success("文档创建成功");
+      }
+
+      setIsDocumentDialogOpen(false);
+      setEditingDocument(null);
+      setIsEditingDocument(false);
+
+    } catch (err) {
+      console.error("文档操���失败:", err);
+      toast.error(editingDocument ? "文档更新失败，请稍后重试" : "文档创建失���，请稍后重试");
+    }
+  };
+
+  // 打开删除文档确认框
+  const openDeleteDocumentDialog = (documentId: string, documentTitle: string) => {
+    setDeleteType('document');
+    setDeleteTarget({id: documentId, name: documentTitle});
+    setDeleteAlertOpen(true);
+  };
+
+  // 执行删除文档
+  const executeDeleteDocument = async (documentId: string) => {
+    try {
+      // 这里应该调用删除API，现在先用本地删除模拟
+      await request.delete(`/admin/api/v1/article/${documentId}`);
+
+      // 重新获取文档列表
+      await fetchDocuments();
+
+      toast.success("文档删除成功");
+    } catch (err) {
+      console.error("删除文档失败:", err);
+      toast.error("删除文档失败，请稍后重试");
+    }
   };
 
   // 处理删除文档
-  const handleDeleteDocument = (documentId: string) => {
-    if (window.confirm("确定要删除这个文档吗？")) {
-      setDocuments(documents.filter((doc) => doc.id !== documentId));
-    }
+  const handleDeleteDocument = (documentId: string, documentTitle: string) => {
+    openDeleteDocumentDialog(documentId, documentTitle);
   };
 
-  // 处理编辑分类
+  // 统一的删除确认处理
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
+
+    setDeleteAlertOpen(false);
+
+    if (deleteType === 'category') {
+      await executeDeleteCategory(deleteTarget.id);
+    } else if (deleteType === 'document') {
+      await executeDeleteDocument(deleteTarget.id);
+    }
+
+    setDeleteTarget(null);
+  };
+
+  // 处理���辑分���
   const handleEditCategory = (category: HelpCategory) => {
+    if (!selectedLanguage) {
+      toast.warning("请先选择语言");
+      return;
+    }
     setEditingCategory(category);
     setCategoryForm({
       name: category.name,
-      parentId: category.parentId || "",
+      parentId: category.parentId || "0",
     });
     setIsCategoryDialogOpen(true);
   };
 
-
   // 渲染分类树
   const renderCategoryTree = (categories: HelpCategory[] = [], level = 0) => {
+    // 防��性检查，确保 categories 是数组
+    if (!Array.isArray(categories)) {
+      return null;
+    }
+
     return (
       <div className={level > 0 ? "ml-4" : ""}>
         {categories.map((category, index) => (
@@ -502,7 +872,8 @@ export default function HelpDocumentManagement() {
                   toggleCategory(category.id);
                 }}
               >
-                {category.children.length > 0 ? (
+                {/* 由于��据已标���化，children 始终是数组，安全���查长度 */}
+                {category.children && category.children.length > 0 ? (
                   expandedCategories[category.id] ? (
                     <ChevronDown className="h-4 w-4" />
                   ) : (
@@ -543,11 +914,14 @@ export default function HelpDocumentManagement() {
               </div>
             </div>
 
-            {expandedCategories[category.id] && category.children.length > 0 && (
-              <div className="mt-1">
-                {renderCategoryTree(category.children, level + 1)}
-              </div>
-            )}
+            {/* 由于数据已标准化，children 始终是数组，安全��查后递归渲染 */}
+            {expandedCategories[category.id] &&
+              category.children &&
+              category.children.length > 0 && (
+                <div className="mt-1">
+                  {renderCategoryTree(category.children, level + 1)}
+                </div>
+              )}
           </div>
         ))}
       </div>
@@ -560,7 +934,7 @@ export default function HelpDocumentManagement() {
         <div>
           <h1 className="text-3xl font-bold text-gray-900">帮助文档管理</h1>
           <p className="text-gray-600 mt-2">
-            ��理帮助文档的分类、内容和多语言版本
+            整理帮助文档的分类、内容和多语言版本
           </p>
         </div>
         <div className="flex gap-2">
@@ -584,7 +958,9 @@ export default function HelpDocumentManagement() {
             </CardHeader>
             <CardContent className="flex-1 overflow-hidden">
               {languageLoading ? (
-                <div className="flex items-center justify-center h-full text-gray-500">正在加载语言...</div>
+                <div className="flex items-center justify-center h-full text-gray-500">
+                  正在加载语言...
+                </div>
               ) : (
                 <ScrollArea className="h-full">
                   <div className="space-y-2">
@@ -610,7 +986,9 @@ export default function HelpDocumentManagement() {
                       </div>
                     ))}
                     {lang.length === 0 && (
-                      <div className="text-center py-4 text-gray-500">暂无语言</div>
+                      <div className="text-center py-4 text-gray-500">
+                        暂��语言
+                      </div>
                     )}
                   </div>
                 </ScrollArea>
@@ -631,8 +1009,12 @@ export default function HelpDocumentManagement() {
                 <Button
                   size="sm"
                   onClick={() => {
+                    if (!selectedLanguage) {
+                      toast.warning("���先选择语言");
+                      return;
+                    }
                     setEditingCategory(null);
-                    setCategoryForm({ name: "", parentId: "" });
+                    setCategoryForm({ name: "", parentId: "0" });
                     setIsCategoryDialogOpen(true);
                   }}
                 >
@@ -647,7 +1029,9 @@ export default function HelpDocumentManagement() {
                   {renderCategoryTree(categories)}
 
                   {categories.length === 0 && (
-                    <div className="text-center py-4 text-gray-500">暂无分类</div>
+                    <div className="text-center py-4 text-gray-500">
+                      暂无分类
+                    </div>
                   )}
                 </div>
               </ScrollArea>
@@ -661,14 +1045,17 @@ export default function HelpDocumentManagement() {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle>
-                    {selectedCategory
-                      ? `${selectedCategory.name} - 文档列表`
-                      : "所有文档"}
-                  </CardTitle>
+                  <div className="flex items-center gap-2">
+                    <CardTitle>
+                      {selectedCategory
+                        ? `${selectedCategory.name} - 文档列表`
+                        : "所有文档"}
+                    </CardTitle>
+                  </div>
                   {selectedLanguage && (
                     <p className="text-sm text-gray-600 mt-1">
-                      当前语言: {selectedLanguage.name} ({selectedLanguage.code})
+                      当前语言: {selectedLanguage.name} ({selectedLanguage.code}
+                      )
                     </p>
                   )}
                 </div>
@@ -688,9 +1075,8 @@ export default function HelpDocumentManagement() {
                     className="px-3 py-2 border border-gray-300 rounded-md text-sm"
                   >
                     <option value="all">全部状态</option>
-                    <option value="published">已发布</option>
-                    <option value="draft">草稿</option>
-                    <option value="archived">已归档</option>
+                    <option value="1">已发布</option>
+                    <option value="0">草稿</option>
                   </select>
                 </div>
               </div>
@@ -714,8 +1100,8 @@ export default function HelpDocumentManagement() {
                       {searchTerm || statusFilter !== "all"
                         ? "没有找到匹配的文档"
                         : selectedCategory
-                        ? "该分类下暂无文档"
-                        : "暂无文档"}
+                          ? "该分类下暂无文档"
+                          : "暂无文档"}
                     </div>
                   </div>
                 ) : (
@@ -728,22 +1114,12 @@ export default function HelpDocumentManagement() {
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
                             <h3 className="font-semibold text-gray-900">
-                              {document.title}
+                              {document.name}
                             </h3>
                             <Badge
-                              variant={
-                                document.status === "published"
-                                  ? "default"
-                                  : document.status === "draft"
-                                  ? "secondary"
-                                  : "outline"
-                              }
+                              variant={getStatusDisplay(document.status).variant as any}
                             >
-                              {document.status === "published"
-                                ? "已发布"
-                                : document.status === "draft"
-                                ? "草稿"
-                                : "已��档"}
+                              {getStatusDisplay(document.status).text}
                             </Badge>
                             {document.isPopular && (
                               <Badge variant="destructive">热门</Badge>
@@ -753,7 +1129,9 @@ export default function HelpDocumentManagement() {
                             {document.description}
                           </p>
                           <div className="flex items-center gap-4 text-xs text-gray-500">
-                            <span>分类: {getCategoryName(document.categoryId)}</span>
+                            {/* <span>
+                              分类: {getCategoryName(document.categoryId)}
+                            </span> */}
                             <span className="flex items-center gap-1">
                               <Eye className="h-3 w-3" />
                               {document.views}
@@ -772,7 +1150,7 @@ export default function HelpDocumentManagement() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => handleDeleteDocument(document.id)}
+                            onClick={() => handleDeleteDocument(document.id, document.name)}
                           >
                             <Trash2 className="h-4 w-4 text-red-500" />
                           </Button>
@@ -781,19 +1159,58 @@ export default function HelpDocumentManagement() {
                     </div>
                   ))
                 )}
+
+                {/* 分页控件 */}
+                {filteredDocuments.length > pageSize && (
+                  <div className="flex items-center justify-between pt-4 border-t">
+                    <div className="text-sm text-gray-500">
+                      显示 {Math.min((currentPage - 1) * pageSize + 1, filteredDocuments.length)} - {Math.min(currentPage * pageSize, filteredDocuments.length)} 条，
+                      共 {filteredDocuments.length} 条记录
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                        disabled={currentPage === 1}
+                      >
+                        上一页
+                      </Button>
+                      <span className="text-sm text-gray-600">
+                        第 {currentPage} 页，共 {totalPages} 页
+                      </span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                        disabled={currentPage === totalPages}
+                      >
+                        下一页
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
         </div>
       </div>
 
-      {/* 分类编辑对话框 */}
-      <Dialog open={isCategoryDialogOpen} onOpenChange={setIsCategoryDialogOpen}>
+      {/* 分类编��对话框 */}
+      <Dialog
+        open={isCategoryDialogOpen}
+        onOpenChange={setIsCategoryDialogOpen}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
               {editingCategory ? "编辑分类" : "新建分类"}
             </DialogTitle>
+            {selectedLanguage && (
+              <DialogDescription>
+                当前语言: {selectedLanguage.name} ({selectedLanguage.code})
+              </DialogDescription>
+            )}
           </DialogHeader>
           <div className="space-y-4">
             <div>
@@ -817,24 +1234,28 @@ export default function HelpDocumentManagement() {
                 }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
               >
-                <option value="">无上级分类</option>
+                <option value="0">无上级分类</option>
                 {flatCategories
                   .filter(
                     (cat) => !editingCategory || cat.id !== editingCategory.id,
                   )
                   .map((category) => {
                     // 计算分类层级缩进
-                    const getIndent = (catId: string, level: number = 0): number => {
-                      const cat = flatCategories.find(c => c.id === catId);
+                    const getIndent = (
+                      catId: string,
+                      level: number = 0,
+                    ): number => {
+                      const cat = flatCategories.find((c) => c.id === catId);
                       if (!cat || !cat.parentId) return level;
                       return getIndent(cat.parentId, level + 1);
                     };
                     const indent = getIndent(category.id);
-                    const prefix = '　'.repeat(indent);
-                    
+                    const prefix = "　".repeat(indent);
+
                     return (
                       <option key={category.id} value={category.id}>
-                        {prefix}{category.name}
+                        {prefix}
+                        {category.name}
                       </option>
                     );
                   })}
@@ -856,7 +1277,10 @@ export default function HelpDocumentManagement() {
       </Dialog>
 
       {/* 文档编辑对话框 */}
-      <Dialog open={isDocumentDialogOpen} onOpenChange={setIsDocumentDialogOpen}>
+      <Dialog
+        open={isDocumentDialogOpen}
+        onOpenChange={setIsDocumentDialogOpen}
+      >
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
@@ -895,17 +1319,21 @@ export default function HelpDocumentManagement() {
                   <option value="">请选择分类</option>
                   {flatCategories.map((category) => {
                     // 计算分类层级缩进
-                    const getIndent = (catId: string, level: number = 0): number => {
-                      const cat = flatCategories.find(c => c.id === catId);
+                    const getIndent = (
+                      catId: string,
+                      level: number = 0,
+                    ): number => {
+                      const cat = flatCategories.find((c) => c.id === catId);
                       if (!cat || !cat.parentId) return level;
                       return getIndent(cat.parentId, level + 1);
                     };
                     const indent = getIndent(category.id);
-                    const prefix = '　'.repeat(indent);
-                    
+                    const prefix = "　".repeat(indent);
+
                     return (
                       <option key={category.id} value={category.id}>
-                        {prefix}{category.name}
+                        {prefix}
+                        {category.name}
                       </option>
                     );
                   })}
@@ -991,7 +1419,7 @@ export default function HelpDocumentManagement() {
                       seoDescription: e.target.value,
                     })
                   }
-                  placeholder="���输入SEO描述"
+                  placeholder="请输入SEO描述"
                   rows={2}
                 />
               </div>
@@ -1020,14 +1448,15 @@ export default function HelpDocumentManagement() {
                   onChange={(e) =>
                     setDocumentForm({
                       ...documentForm,
-                      status: e.target.value as "published" | "draft" | "archived",
+                      status: e.target.value as
+                        | "published"
+                        | "draft",
                     })
                   }
                   className="px-3 py-2 border border-gray-300 rounded-md"
                 >
                   <option value="draft">草稿</option>
                   <option value="published">已发布</option>
-                  <option value="archived">已归档</option>
                 </select>
               </div>
             </div>
@@ -1047,6 +1476,27 @@ export default function HelpDocumentManagement() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* 删除确认对话框 */}
+      <AlertDialog open={deleteAlertOpen} onOpenChange={setDeleteAlertOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>确认删除</AlertDialogTitle>
+            <AlertDialogDescription>
+              {deleteType === 'category'
+                ? `确定要删除分类"${deleteTarget?.name}"吗？这将同时删除该分类下的所有文档。此操作无法撤销。`
+                : `确定要删除文档"${deleteTarget?.name}"吗？此操作无法撤销。`
+              }
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>取消</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmDelete} className="bg-red-600 hover:bg-red-700">
+              确认删除
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
