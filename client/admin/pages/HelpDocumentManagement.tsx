@@ -59,7 +59,7 @@ interface HelpCategory {
   parentId: string | null;
   order: number;
   createdAt: string;
-  updatedAt: string;
+  gmtModified: string;
   hasParent: boolean;
   hasChildren: boolean;
   // children 属性在 API 响应中��能不存在
@@ -85,7 +85,7 @@ interface HelpDocument {
   isPopular: boolean;
   status: number; // 0=草稿, 1=已发布
   createdAt: string;
-  updatedAt: string;
+  gmtModified: string;
   // 新增多语言内容字段
   translations: {
     [languageCode: string]: {
@@ -279,9 +279,11 @@ export default function HelpDocumentManagement() {
   const handleSelectLanguage = (language: Language) => {
     setSelectedLanguage(language);
     // 重新获取文档列表
-    setTimeout(() => {
-      fetchDocuments();
-    }, 100);
+    // setTimeout(() => {
+    //   fetchDocuments();
+    // }, 100);
+    setSelectedCategory(null);
+    setDocuments([]);
   };
 
   // 初始化数��
@@ -293,14 +295,16 @@ export default function HelpDocumentManagement() {
   useEffect(() => {
     if (selectedLanguage) {
       fetchCategories();
-      fetchDocuments();
+      // fetchDocuments();
     }
   }, [selectedLanguage]);
 
   // 当选择的分类改变时，重新获取文档列表
   useEffect(() => {
-    if (selectedLanguage) {
+    if (selectedCategory) {
       fetchDocuments();
+    }else{
+      setDocuments([]);
     }
   }, [selectedCategory]);
 
@@ -987,7 +991,7 @@ export default function HelpDocumentManagement() {
                     ))}
                     {lang.length === 0 && (
                       <div className="text-center py-4 text-gray-500">
-                        暂��语言
+                        暂无语言
                       </div>
                     )}
                   </div>
@@ -1136,7 +1140,7 @@ export default function HelpDocumentManagement() {
                               <Eye className="h-3 w-3" />
                               {document.views}
                             </span>
-                            <span>更新: {document.updatedAt}</span>
+                            <span>更新: {document.gmtModified}</span>
                           </div>
                         </div>
                         <div className="flex gap-2 ml-4">
