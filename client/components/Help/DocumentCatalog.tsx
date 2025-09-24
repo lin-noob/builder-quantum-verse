@@ -12,6 +12,10 @@ import {
   FileText,
   Folder,
   Search,
+  Plus,
+  Edit,
+  Trash2,
+  GripVertical,
 } from "lucide-react";
 import { request } from "@/lib/request";
 import { useConfigStore } from "@/stores/configStore";
@@ -64,6 +68,13 @@ export interface DocumentCatalogProps {
   }) => void;
   refreshKey?: number;
   defaultStatus?: number;
+  // Category tree admin features
+  enableCategoryActions?: boolean;
+  onAddCategory?: () => void;
+  onEditCategory?: (categoryId: string) => void;
+  onDeleteCategory?: (categoryId: string) => void;
+  onReorderCategories?: (sourceCategoryId: string, targetCategoryId: string) => void;
+  showAddCategoryButton?: boolean;
 }
 
 // Flatten tree for fast lookup
@@ -114,6 +125,12 @@ export const DocumentCatalog: React.FC<DocumentCatalogProps> = ({
   onDataChange,
   refreshKey = 0,
   defaultStatus,
+  enableCategoryActions = false,
+  onAddCategory,
+  onEditCategory,
+  onDeleteCategory,
+  onReorderCategories,
+  showAddCategoryButton = true,
 }) => {
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [uncontrolledSelectedCategoryId, setUncontrolledSelectedCategoryId] =
@@ -123,6 +140,8 @@ export const DocumentCatalog: React.FC<DocumentCatalogProps> = ({
     useState<string>("all");
 
   const [statusFilter, setStatusFilter] = useState("all");
+  const [dragSourceId, setDragSourceId] = useState<string | null>(null);
+  const [dragOverId, setDragOverId] = useState<string | null>(null);
 
   const selectedCategoryId =
     controlledSelectedCategoryId !== undefined
@@ -292,6 +311,10 @@ export const DocumentCatalog: React.FC<DocumentCatalogProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [effectiveLang]);
 
+  useEffect(()=>{
+    setInternalDocuments([]);
+  },[languageCode])
+
   useEffect(() => {
     const shouldFetchDocs =
       fetchFromApi && !(externalDocuments && externalDocuments.length);
@@ -325,13 +348,49 @@ export const DocumentCatalog: React.FC<DocumentCatalogProps> = ({
   const renderTree = (nodes: CategoryNode[], level = 0) => (
     <div className={level > 0 ? "ml-4" : ""}>
       {nodes.map((n) => (
-        <div key={n.id} className="mb-1">
+        <div
+          key={n.id}
+          className="mb-1"
+          draggable={enableCategoryActions}
+          onDragStart={(e) => {
+            if (!enableCategoryActions) return;
+            e.stopPropagation();
+            setDragSourceId(n.id);
+          }}
+          onDragEnter={(e) => {
+            if (!enableCategoryActions) return;
+            e.preventDefault();
+            setDragOverId(n.id);
+          }}
+          onDragOver={(e) => {
+            if (!enableCategoryActions) return;
+            e.preventDefault();
+          }}
+          onDragLeave={() => {
+            if (!enableCategoryActions) return;
+            setDragOverId((prev) => (prev === n.id ? null : prev));
+          }}
+          onDrop={(e) => {
+            if (!enableCategoryActions) return;
+            e.preventDefault();
+            if (dragSourceId && dragSourceId !== n.id) {
+              onReorderCategories?.(dragSourceId, n.id);
+            }
+            setDragSourceId(null);
+            setDragOverId(null);
+          }}
+          onDragEnd={() => {
+            if (!enableCategoryActions) return;
+            setDragSourceId(null);
+            setDragOverId(null);
+          }}
+        >
           <div
             className={cn(
-              "flex items-center gap-2 p-2 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors",
-              selectedCategoryId === n.id
-                ? "bg-blue-50 border border-blue-200"
-                : "",
+              "flex items-center gap-2 p-2 rounded-lg cursor-pointer hover:bg-gray-100 transition-all duration-150 group",
+              selectedCategoryId === n.id && "bg-blue-50 border border-blue-200",
+              dragSourceId === n.id && "opacity-70 scale-[0.98]",
+              dragOverId === n.id && "ring-2 ring-blue-400 bg-blue-50",
             )}
             onClick={() => {
               const next = selectedCategoryId === n.id ? null : n.id;
@@ -341,6 +400,9 @@ export const DocumentCatalog: React.FC<DocumentCatalogProps> = ({
               onCategorySelect?.(next);
             }}
           >
+            {enableCategoryActions && (
+              <GripVertical className="h-4 w-4 text-gray-400 cursor-move" />
+            )}
             <Button
               variant="ghost"
               size="sm"
@@ -362,6 +424,32 @@ export const DocumentCatalog: React.FC<DocumentCatalogProps> = ({
             </Button>
             <Folder className="h-4 w-4 text-blue-500 flex-shrink-0" />
             <span className="flex-1 truncate text-sm">{n.name}</span>
+            {enableCategoryActions && (
+              <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 w-6 p-0"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onEditCategory?.(n.id);
+                  }}
+                >
+                  <Edit className="h-3 w-3" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 w-6 p-0"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDeleteCategory?.(n.id);
+                  }}
+                >
+                  <Trash2 className="h-3 w-3 text-red-500" />
+                </Button>
+              </div>
+            )}
           </div>
 
           {n.children && n.children.length && expanded[n.id] ? (
@@ -378,9 +466,17 @@ export const DocumentCatalog: React.FC<DocumentCatalogProps> = ({
       <div className="lg:col-span-4 flex flex-col h-full">
         <Card className="flex-1 flex flex-col">
           <CardHeader className="pb-3">
-            <CardTitle className="text-lg flex items-center gap-2">
-              {leftTitle}
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg flex items-center gap-2">
+                {leftTitle}
+              </CardTitle>
+              {enableCategoryActions && showAddCategoryButton && (
+                <Button size="sm" onClick={onAddCategory}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  新增分类
+                </Button>
+              )}
+            </div>
           </CardHeader>
           <CardContent className="flex-1 overflow-hidden">
             <ScrollArea className="h-full">

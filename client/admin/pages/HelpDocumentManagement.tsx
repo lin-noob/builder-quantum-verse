@@ -134,7 +134,7 @@ export default function HelpDocumentManagement() {
   // 拖拽相关状态
   const [draggedItem, setDraggedItem] = useState<number | null>(null);
 
-  // 状态显示辅助函数
+  // 状态��示辅助函数
   const getStatusDisplay = (status: number | string) => {
     let statusNumber: number;
     if (typeof status === 'string') {
@@ -174,7 +174,7 @@ export default function HelpDocumentManagement() {
     null,
   );
 
-  // 扁平化分类树的函数
+  // 扁��化分类树的函数
   const flattenCategories = (categories: HelpCategory[]): HelpCategory[] => {
     const result: HelpCategory[] = [];
 
@@ -319,7 +319,7 @@ export default function HelpDocumentManagement() {
     setPaginatedDocuments(paginated);
   }, [documents, searchTerm, statusFilter, currentPage, pageSize]);
 
-  // 当搜索条件或状态过滤改变时，重置到第一页
+  // 当搜索条件或状���过滤改变时，重置到第一页
   useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm, statusFilter, selectedCategory]);
@@ -930,7 +930,7 @@ export default function HelpDocumentManagement() {
         </div>
       </div>
 
-      {/* 左中右三栏布局 */}
+      {/* 左中右三栏布��� */}
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 overflow-hidden">
         {/* 最左侧 - 语言列表 */}
         <div className="lg:col-span-2 flex flex-col h-full">
@@ -1000,6 +1000,7 @@ export default function HelpDocumentManagement() {
                 children: c.children && c.children.length ? mapCats(c.children) : [],
               }));
             })(categories)}
+            languageCode={selectedLanguage?.code}
             fetchFromApi
             refreshKey={docRefreshKey}
             selectedCategoryId={selectedCategory?.id || null}
@@ -1041,6 +1042,39 @@ export default function HelpDocumentManagement() {
                 </Button>
               </>
             )}
+            enableCategoryActions
+            onAddCategory={() => {
+              setEditingCategory(null);
+              setCategoryForm({ name: "", parentId: "0" });
+              setIsCategoryDialogOpen(true);
+            }}
+            onEditCategory={(categoryId) => {
+              const find = (cs: HelpCategory[], target: string): HelpCategory | null => {
+                for (const c of cs) {
+                  if (c.id === target) return c;
+                  const child = c.children && c.children.length ? find(c.children, target) : null;
+                  if (child) return child;
+                }
+                return null;
+              };
+              const found = find(categories, categoryId);
+              if (found) handleEditCategory(found);
+            }}
+            onDeleteCategory={(categoryId) => handleDeleteCategory(categoryId)}
+            onReorderCategories={async (sourceId, targetId) => {
+              try {
+                const formData = new FormData();
+                formData.append("sourceId", sourceId);
+                formData.append("targetId", targetId);
+                await request.post("/admin/api/v1/article/move", formData);
+                toast.success("已更新排序");
+                await fetchCategories();
+                triggerDocRefresh();
+              } catch (err) {
+                console.error("移动失败:", err);
+                toast.error("移动失败，请稍后重试");
+              }
+            }}
           />
         </div>
       </div>
@@ -1057,7 +1091,7 @@ export default function HelpDocumentManagement() {
             </DialogTitle>
             {selectedLanguage && (
               <DialogDescription>
-                当前语言: {selectedLanguage.name} ({selectedLanguage.code})
+                当��语言: {selectedLanguage.name} ({selectedLanguage.code})
               </DialogDescription>
             )}
           </DialogHeader>
