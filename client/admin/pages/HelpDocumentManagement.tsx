@@ -95,7 +95,6 @@ interface HelpDocument {
       content: string;
     };
   };
-  // 新增SEO��段
   url?: string; // 自定义URL
   seoTitle?: string; // SEO标题
   seoDescription?: string; // SEO描述
@@ -128,35 +127,14 @@ export default function HelpDocumentManagement() {
   // 触发子组件刷新文档列表
   const [docRefreshKey, setDocRefreshKey] = useState(0);
   const triggerDocRefresh = () => setDocRefreshKey((k) => k + 1);
-  // 计算��页数
-  const totalPages = Math.ceil(filteredDocuments.length / pageSize);
 
   // 拖拽相关状态
   const [draggedItem, setDraggedItem] = useState<number | null>(null);
-
-  // 状态��示辅助函数
-  const getStatusDisplay = (status: number | string) => {
-    let statusNumber: number;
-    if (typeof status === 'string') {
-      // 字符串转数字（兼容处理）
-      statusNumber = status === "published" ? 1 : 0;
-    } else {
-      statusNumber = status;
-    }
-
-    return {
-      text: statusNumber === 1 ? "已发布" : "草稿",
-      variant: statusNumber === 1 ? "default" : "secondary"
-    };
-  };
-
-
 
   // 搜索和筛选状态
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
 
-  // ���话框��态
   const [isCategoryDialogOpen, setIsCategoryDialogOpen] = useState(false);
   const [isDocumentDialogOpen, setIsDocumentDialogOpen] = useState(false);
   const [isEditingDocument, setIsEditingDocument] = useState(false);
@@ -166,7 +144,6 @@ export default function HelpDocumentManagement() {
   const [deleteType, setDeleteType] = useState<'category' | 'document'>('document');
   const [deleteTarget, setDeleteTarget] = useState<{id: string, name?: string} | null>(null);
 
-  // 编辑状���
   const [editingCategory, setEditingCategory] = useState<HelpCategory | null>(
     null,
   );
@@ -174,7 +151,6 @@ export default function HelpDocumentManagement() {
     null,
   );
 
-  // 扁��化分类树的函数
   const flattenCategories = (categories: HelpCategory[]): HelpCategory[] => {
     const result: HelpCategory[] = [];
 
@@ -235,7 +211,6 @@ export default function HelpDocumentManagement() {
       setCategories(normalizedCategories);
     } catch (err) {
       console.error("获取分类列表失败:", err);
-      setError("获取分类列表���败，请稍后重试");
     } finally {
       setLoading(false);
     }
@@ -269,12 +244,10 @@ export default function HelpDocumentManagement() {
     setDocuments([]);
   };
 
-  // 初始化数��
   useEffect(() => {
     fetchLanguages();
   }, []);
 
-  // 当语��选择改变时，重新获取分类和文档
   useEffect(() => {
     if (selectedLanguage) {
       fetchCategories();
@@ -319,14 +292,10 @@ export default function HelpDocumentManagement() {
     setPaginatedDocuments(paginated);
   }, [documents, searchTerm, statusFilter, currentPage, pageSize]);
 
-  // 当搜索条件或状���过滤改变时，重置到第一页
   useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm, statusFilter, selectedCategory]);
 
-  
-
-  // ���单状态
   const [categoryForm, setCategoryForm] = useState({
     name: "",
     parentId: "0",
@@ -357,9 +326,7 @@ export default function HelpDocumentManagement() {
     }));
   };
 
-  // ���理选择分类
   const handleSelectCategory = (category: HelpCategory) => {
-    // 如果点击的是当前选中的��类，则取消选择（查看所有文档）
     if (selectedCategory?.id === category.id) {
       setSelectedCategory(null);
     } else {
@@ -413,7 +380,6 @@ export default function HelpDocumentManagement() {
 
         await request.post("/admin/api/v1/article/classify", categoryData);
 
-        // ���新获取分类列表
         await fetchCategories();
       }
 
@@ -421,7 +387,6 @@ export default function HelpDocumentManagement() {
       setCategoryForm({ name: "", parentId: "0" });
       setEditingCategory(null);
 
-      // 显示成功提���
       if (editingCategory) {
         toast.success("分类更新成功");
       } else {
@@ -479,7 +444,7 @@ export default function HelpDocumentManagement() {
 
       const categoryToDelete = findCategory(categories, categoryId);
       if (!categoryToDelete) {
-        toast.error("找不到要删除的���类");
+        toast.error("找不到要删除的分类");
         return;
       }
 
@@ -522,7 +487,7 @@ export default function HelpDocumentManagement() {
   // 备份旧函数
   const oldHandleDeleteCategory = async (categoryId: string) => {
     if (
-      window.confirm("确定要删除这��分类吗？这将同时删除该分类下的所有文档。")
+      window.confirm("确定要删除这个分类吗？这将同时删除该分类下的所有文档。")
     ) {
       if (!selectedLanguage) {
         toast.warning("请先选择语言");
@@ -577,7 +542,7 @@ export default function HelpDocumentManagement() {
         toast.success("分类删除成功");
       } catch (err) {
         console.error("删除分������败:", err);
-        toast.error("删除分类失败��请稍后重试");
+        toast.error("删除分类失败，请稍后重试");
       }
     }
   };
@@ -703,7 +668,6 @@ export default function HelpDocumentManagement() {
       setIsDocumentDialogOpen(true);
     } catch (err) {
       // 获取详情失败时，使用列表中的基本信息
-      console.warn("获取详情失败，使用��本信息:", err);
       setEditingDocument(document);
       setIsEditingDocument(true);
       setDocumentForm({
@@ -757,7 +721,7 @@ export default function HelpDocumentManagement() {
 
     } catch (err) {
       console.error("文档操���失败:", err);
-      toast.error(editingDocument ? "文档更新失败，请稍后重试" : "文档创建失���，请稍后重试");
+      toast.error(editingDocument ? "文档更新失败，请稍后重试" : "文档创建失败，请稍后重试");
     }
   };
 
@@ -804,7 +768,6 @@ export default function HelpDocumentManagement() {
     setDeleteTarget(null);
   };
 
-  // 处理���辑分���
   const handleEditCategory = (category: HelpCategory) => {
     if (!selectedLanguage) {
       toast.warning("请先选择语言");
@@ -820,7 +783,6 @@ export default function HelpDocumentManagement() {
 
   // 渲染分类树
   const renderCategoryTree = (categories: HelpCategory[] = [], level = 0) => {
-    // 防��性检查，确保 categories 是数组
     if (!Array.isArray(categories)) {
       return null;
     }
@@ -857,7 +819,6 @@ export default function HelpDocumentManagement() {
                   toggleCategory(category.id);
                 }}
               >
-                {/* 由于��据已标���化，children 始终是数组，安全���查长度 */}
                 {category.children && category.children.length > 0 ? (
                   expandedCategories[category.id] ? (
                     <ChevronDown className="h-4 w-4" />
@@ -899,7 +860,6 @@ export default function HelpDocumentManagement() {
               </div>
             </div>
 
-            {/* 由于数据已标准化，children 始终是数组，安全��查后递归渲染 */}
             {expandedCategories[category.id] &&
               category.children &&
               category.children.length > 0 && (
@@ -930,7 +890,6 @@ export default function HelpDocumentManagement() {
         </div>
       </div>
 
-      {/* 左中右三栏布��� */}
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 overflow-hidden">
         {/* 最左侧 - 语言列表 */}
         <div className="lg:col-span-2 flex flex-col h-full">
@@ -944,7 +903,7 @@ export default function HelpDocumentManagement() {
             <CardContent className="flex-1 overflow-hidden">
               {languageLoading ? (
                 <div className="flex items-center justify-center h-full text-gray-500">
-                  正在加载���言...
+                  正在加载语言...
                 </div>
               ) : (
                 <ScrollArea className="h-full">
@@ -1079,7 +1038,6 @@ export default function HelpDocumentManagement() {
         </div>
       </div>
 
-      {/* 分类编��对话框 */}
       <Dialog
         open={isCategoryDialogOpen}
         onOpenChange={setIsCategoryDialogOpen}
@@ -1091,7 +1049,7 @@ export default function HelpDocumentManagement() {
             </DialogTitle>
             {selectedLanguage && (
               <DialogDescription>
-                当��语言: {selectedLanguage.name} ({selectedLanguage.code})
+                当前语言: {selectedLanguage.name} ({selectedLanguage.code})
               </DialogDescription>
             )}
           </DialogHeader>
@@ -1364,7 +1322,7 @@ export default function HelpDocumentManagement() {
       <AlertDialog open={deleteAlertOpen} onOpenChange={setDeleteAlertOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>���认删除</AlertDialogTitle>
+            <AlertDialogTitle>确认删除</AlertDialogTitle>
             <AlertDialogDescription>
               {deleteType === 'category'
                 ? `确定要删除分类"${deleteTarget?.name}"吗？这将同时删除该分类下的所有文档。此操作无法撤销。`
