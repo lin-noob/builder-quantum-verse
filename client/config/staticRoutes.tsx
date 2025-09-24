@@ -17,6 +17,7 @@ import AdminProfile from "@/admin/pages/AdminProfile";
 const HelpCenter = React.lazy(() => import("@/pages/HelpCenter/HelpCenter"));
 const DocumentDetail = React.lazy(() => import("@/pages/HelpCenter/DocumentDetail"));
 const MarketingHelpCenter = React.lazy(() => import("@/pages/MarketingHelpCenter"));
+const MarketingDocumentDetail = React.lazy(() => import("@/pages/MarketingDocumentDetail"));
 
 // 懒加载组件
 import Dashboard2 from "@/pages/Dashboard2"; // 改为直接导入解决模块加载问题
@@ -87,6 +88,14 @@ export const staticRoutes: RouteObject[] = [
     element: (
       <LazyRoute>
         <MarketingHelpCenter />
+      </LazyRoute>
+    ),
+  },
+  {
+    path: "/marketing/help/documents/:documentId",
+    element: (
+      <LazyRoute>
+        <MarketingDocumentDetail />
       </LazyRoute>
     ),
   },

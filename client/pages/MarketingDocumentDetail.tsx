@@ -1,52 +1,91 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
-  CardTitle 
+import { Helmet } from "react-helmet";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { 
+
+import {
   Badge
 } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { 
+import {
   ThumbsUp,
-  ThumbsDown,
-  MessageCircle,
   Eye,
   Clock,
-  ArrowLeft,
-  Share2,
-  Bookmark,
   AlertCircle
 } from "lucide-react";
 import MarketingNav from "@/components/MarketingNav";
 import MarketingFooter from "@/components/MarketingFooter";
+import { request } from "@/lib/request";
 
 // 数据模型
 interface HelpDocument {
   id: string;
   title: string;
-  category: string;
-  description: string;
+  category?: string;
+  description?: string;
   content: string;
-  lastUpdated: string;
+  lastUpdated?: string;
   views: number;
   likes: number;
-  isPopular: boolean;
+  isPopular?: boolean;
+  seoTitle?: string;
+  seoDescription?: string;
+  seoKeywords?: string;
 }
 
-interface Feedback {
-  id: string;
-  userName: string;
-  comment: string;
-  rating: number;
-  date: string;
+
+interface ArticleDetailApi {
+  id: string | number;
+  gmtCreate?: string;
+  gmtModified?: string;
+  name?: string;
+  parentId?: string | number;
+  content?: string;
+  path?: string;
+  url?: string;
+  type?: number;
+  directory?: any;
+  orders?: number;
+  status?: number;
+  showContent?: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  seoKeyword?: string;
+  bannerUrl?: string;
+  fileType?: any;
+  mainTitle?: string;
+  viceTitle?: string;
+  language?: string;
+  classifyId?: string | number;
+  browseCount?: number;
+  upvoteCount?: number;
 }
+
+const decodeHtml = (input: string): string => {
+  const map: Record<string, string> = {
+    "&amp;": "&",
+    "&lt;": "<",
+    "&gt;": ">",
+    "&quot;": '"',
+    "&#39;": "'",
+  };
+  return input.replace(/(&amp;|&lt;|&gt;|&quot;|&#39;)/g, (m) => map[m] || m);
+};
+
+const escapeHtml = (input: string): string =>
+  input
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 
 // 模拟数据
 const mockDocuments: HelpDocument[] = [
@@ -63,7 +102,7 @@ const mockDocuments: HelpDocument[] = [
       <p class="text-gray-700 mb-4">访问我们的官网，点击右上角的"注册"按钮，填写必要的信息完成账户注册。</p>
       
       <h3 class="text-xl font-semibold text-gray-900 mb-3 mt-6">第二步：创建项目</h3>
-      <p class="text-gray-700 mb-4">登录后，在控制台点击"新建项目"，填写项目名称和描述，选择适合的模板。</p>
+      <p class="text-gray-700 mb-4">登录后，在控��台点击"新建项目"，填写项目名称和描述，选择适合的模板。</p>
       
       <h3 class="text-xl font-semibold text-gray-900 mb-3 mt-6">第三步：数据接入</h3>
       <p class="text-gray-700 mb-4">在项目设置中配置数据源，支持多种数据接入方式，包括API、SDK和文件上传。</p>
@@ -90,13 +129,13 @@ const mockDocuments: HelpDocument[] = [
     description: "深入介绍用户画像功能的使用方法，包括数据导入、标签管理和人群分群。",
     content: `
       <h2 class="text-2xl font-bold text-gray-900 mb-4">用户画像功能详解</h2>
-      <p class="text-gray-700 mb-4">用户画像功能是AI营销平台的核心功能之一，帮助您深入了解目标用户群体。</p>
+      <p class="text-gray-700 mb-4">��户画像功能是AI营销平台的核心功能之一，帮助您深入了解目标用户群体。</p>
       
       <h3 class="text-xl font-semibold text-gray-900 mb-3 mt-6">数据导入</h3>
       <p class="text-gray-700 mb-4">支持多种数据源接入，包括用户行为数据、交易数据、社交媒体数据等。</p>
       
       <h3 class="text-xl font-semibold text-gray-900 mb-3 mt-6">标签管理</h3>
-      <p class="text-gray-700 mb-4">系统提供丰富的预设标签，同时也支持自定义标签创建。</p>
+      <p class="text-gray-700 mb-4">系统提供丰富的预设标签，同���也支持自定义标签创建。</p>
       
       <h3 class="text-xl font-semibold text-gray-900 mb-3 mt-6">人群分群</h3>
       <p class="text-gray-700 mb-4">基于标签和行为数据，您可以创建不同的人群分群，用于精准营销。</p>
@@ -109,14 +148,14 @@ const mockDocuments: HelpDocument[] = [
   {
     id: "3",
     title: "AI营销策略配置",
-    category: "功能说明",
+    category: "功���说明",
     description: "详细说明如何配置和优化AI营销策略，提高营销效果和转化率。",
     content: `
       <h2 class="text-2xl font-bold text-gray-900 mb-4">AI营销策略配置</h2>
       <p class="text-gray-700 mb-4">AI营销策略是平台的核心功能，通过机器学习算法自动优化营销效果。</p>
       
       <h3 class="text-xl font-semibold text-gray-900 mb-3 mt-6">策略创建</h3>
-      <p class="text-gray-700 mb-4">在AI营销模块中点击"新建策略"，选择目标人群和营销目标。</p>
+      <p class="text-gray-700 mb-4">在AI营销模块中���击"新建策略"，选择目标人群和营销目标。</p>
       
       <h3 class="text-xl font-semibold text-gray-900 mb-3 mt-6">参数配置</h3>
       <p class="text-gray-700 mb-4">设置预算、时间窗口、渠道偏好等参数。</p>
@@ -142,7 +181,7 @@ const mockDocuments: HelpDocument[] = [
       <p class="text-gray-700 mb-4">使用API Key进行认证，在请求头中添加Authorization字段。</p>
       
       <h3 class="text-xl font-semibold text-gray-900 mb-3 mt-6">请求格式</h3>
-      <p class="text-gray-700 mb-4">所有请求使用JSON格式，UTF-8编码。</p>
+      <p class="text-gray-700 mb-4">所有请求使用JSON���式，UTF-8编码。</p>
       
       <h3 class="text-xl font-semibold text-gray-900 mb-3 mt-6">响应格式</h3>
       <p class="text-gray-700 mb-4">响应包含状态码、消息和数据三个部分。</p>
@@ -162,7 +201,7 @@ const mockDocuments: HelpDocument[] = [
     id: "5",
     title: "常见问题解答",
     category: "FAQ",
-    description: "汇总用户在使用过程中遇到的常见问题及其解决方案。",
+    description: "汇总用户在使用过程中遇到的常���问题及���解决方案。",
     content: `
       <h2 class="text-2xl font-bold text-gray-900 mb-4">常见问题解答</h2>
       
@@ -205,7 +244,7 @@ const mockFeedbacks: Feedback[] = [
   {
     id: "2",
     userName: "李四",
-    comment: "有些地方描述不够清楚，希望能补充更多示例。",
+    comment: "有些地��描述不够清楚，希望能补充更多示例。",
     rating: 3,
     date: "2024-01-08"
   }
@@ -213,48 +252,75 @@ const mockFeedbacks: Feedback[] = [
 
 export default function MarketingDocumentDetail() {
   const { documentId } = useParams<{ documentId: string }>();
+  const navigate = useNavigate();
   const [document, setDocument] = useState<HelpDocument | null>(null);
-  const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
+
   const [loading, setLoading] = useState(true);
-  const [newFeedback, setNewFeedback] = useState("");
-  const [userRating, setUserRating] = useState(0);
+  const [error, setError] = useState<string | null>(null);
+
+
 
   useEffect(() => {
-    // 模拟数据加载
-    setTimeout(() => {
-      const doc = mockDocuments.find(d => d.id === documentId);
-      setDocument(doc || null);
-      setFeedbacks(mockFeedbacks);
-      setLoading(false);
-    }, 500);
+    let mounted = true;
+    const fetchDetail = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const res = await request.get(`/admin/api/v1/article/view/${documentId}`);
+        const api: ArticleDetailApi | undefined = res?.data?.data;
+        if (!mounted) return;
+        if (!api || !api.id) {
+          setDocument(null);
+          setLoading(false);
+          return;
+        }
+        const html = api.content ? decodeHtml(api.content) : "";
+        const content = html && html.trim().length > 0 ? html : (api.showContent ? `<p>${escapeHtml(api.showContent)}</p>` : "");
+        const mapped: HelpDocument = {
+          id: String(api.id),
+          title: api.mainTitle || api.name || "",
+          category: undefined,
+          description: api.viceTitle || api.seoDescription || "",
+          content,
+          lastUpdated: api.gmtModified || api.gmtCreate || "",
+          views: api.browseCount ?? 0,
+          likes: api.upvoteCount ?? 0,
+          isPopular: false,
+          seoTitle: api.seoTitle || api.mainTitle || api.name || "",
+          seoDescription: api.seoDescription || api.viceTitle || "",
+          seoKeywords: api.seoKeyword || "",
+        };
+        setDocument(mapped);
+      } catch (e) {
+        console.error(e);
+        if (!mounted) return;
+        setError("加载文档详��失败");
+        setDocument(null);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+    fetchDetail();
+
+    const formData = new FormData();
+    formData.append('articleId', documentId);
+    request.post('/admin/api/v1/article/browse', formData)
+    return () => {
+      mounted = false;
+    };
   }, [documentId]);
 
-  const handleLike = () => {
-    if (document) {
-      setDocument({
-        ...document,
-        likes: document.likes + 1
-      });
-    }
-  };
+  const handleLike = async () => {
+    if (!document) return;
+    try {
 
-  const handleDislike = () => {
-    // 处理点踩逻辑
-  };
+      const formData = new FormData();
+      formData.append('articleId',document.id);
 
-  const handleSubmitFeedback = () => {
-    if (newFeedback.trim() && userRating > 0) {
-      const newFeedbackItem: Feedback = {
-        id: (feedbacks.length + 1).toString(),
-        userName: "当前用户",
-        comment: newFeedback,
-        rating: userRating,
-        date: new Date().toISOString().split('T')[0]
-      };
-      
-      setFeedbacks([newFeedbackItem, ...feedbacks]);
-      setNewFeedback("");
-      setUserRating(0);
+      await request.post('/admin/api/v1/article/upvote', formData);
+      setDocument({ ...document, likes: (document.likes ?? 0) + 1 });
+    } catch (e) {
+      console.error(e);
     }
   };
 
@@ -276,9 +342,9 @@ export default function MarketingDocumentDetail() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background flex flex-col">
         <MarketingNav />
-        <div className="p-6">
+        <div className="p-6 flex-1">
           <Card>
             <CardContent className="flex items-center justify-center h-64">
               <div>加载中...</div>
@@ -290,16 +356,16 @@ export default function MarketingDocumentDetail() {
     );
   }
 
-  if (!document) {
+  if (error || !document) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background flex flex-col">
         <MarketingNav />
-        <div className="p-6">
+        <div className="p-6 flex-1">
           <Card>
             <CardContent className="flex flex-col items-center justify-center h-64">
               <AlertCircle className="h-12 w-12 text-red-500 mb-4" />
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">文档未找到</h3>
-              <p className="text-gray-600 mb-4">您要查看的文档不存在或已被删除</p>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">{error ? "加载失败" : "文档未找到"}</h3>
+              <p className="text-gray-600 mb-4">{error ? error : "您要查��的文档不存在或已被删除"}</p>
               <Button 
                 onClick={() => navigate('/marketing/help')} 
                 className="bg-primary hover:bg-primary/90"
@@ -315,14 +381,20 @@ export default function MarketingDocumentDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       <MarketingNav />
-      <div className="p-6 max-w-4xl mx-auto">
-        {/* 文档内容 */}
+      <div className="p-6 max-w-4xl mx-auto w-full flex-1">
+        <Helmet>
+          <title>{document.seoTitle || document.title}</title>
+          <meta name="description" content={document.seoDescription || document.description || ""} />
+          {document.seoKeywords ? (
+            <meta name="keywords" content={document.seoKeywords} />
+          ) : null}
+        </Helmet>
         <Card className="mb-8">
           <CardHeader>
             <div className="flex flex-wrap items-center gap-2 mb-2">
-              {getCategoryBadge(document.category)}
+              {document.category ? getCategoryBadge(document.category) : null}
               {document.isPopular && (
                 <Badge className="bg-orange-100 text-orange-800">热门</Badge>
               )}
@@ -335,14 +407,14 @@ export default function MarketingDocumentDetail() {
               <div className="flex items-center gap-4">
                 <span className="flex items-center gap-1">
                   <Clock className="h-4 w-4" />
-                  更新于 {document.lastUpdated}
+                  {document.lastUpdated ? `更新于 ${document.lastUpdated}` : ""}
                 </span>
                 <span className="flex items-center gap-1">
                   <Eye className="h-4 w-4" />
                   {document.views} 次浏览
                 </span>
               </div>
-              <div className="flex items-center gap-2">
+              {/* <div className="flex items-center gap-2">
                 <Button 
                   variant="outline" 
                   size="sm" 
@@ -351,14 +423,8 @@ export default function MarketingDocumentDetail() {
                   <ThumbsUp className="h-4 w-4 mr-1" />
                   {document.likes}
                 </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={handleDislike}
-                >
-                  <ThumbsDown className="h-4 w-4" />
-                </Button>
-              </div>
+
+              </div> */}
             </div>
             
             <Separator className="my-6" />
@@ -370,77 +436,7 @@ export default function MarketingDocumentDetail() {
           </CardContent>
         </Card>
 
-        {/* 用户反馈 */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <MessageCircle className="h-5 w-5" />
-              用户反馈
-            </CardTitle>
-            <CardDescription>对本文档的评价和建议</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {/* 添加反馈表单 */}
-            <div className="mb-8 p-4 bg-gray-50 rounded-lg">
-              <h4 className="font-medium text-gray-900 mb-3">添加您的反馈</h4>
-              <div className="mb-3">
-                <label className="block text-sm font-medium text-gray-700 mb-1">评分</label>
-                <div className="flex gap-1">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <Button
-                      key={star}
-                      variant="outline"
-                      size="sm"
-                      className={`p-2 ${
-                        userRating >= star 
-                          ? 'bg-yellow-100 border-yellow-300' 
-                          : ''
-                      }`}
-                      onClick={() => setUserRating(star)}
-                    >
-                      {star <= userRating ? '★' : '☆'}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-              <div className="mb-3">
-                <label className="block text-sm font-medium text-gray-700 mb-1">您的建议</label>
-                <Textarea
-                  placeholder="请分享您对本文档的看法或建议..."
-                  value={newFeedback}
-                  onChange={(e) => setNewFeedback(e.target.value)}
-                  rows={3}
-                />
-              </div>
-              <Button 
-                onClick={handleSubmitFeedback}
-                disabled={!newFeedback.trim() || userRating === 0}
-              >
-                提交反馈
-              </Button>
-            </div>
 
-            {/* 反馈列表 */}
-            <div className="space-y-4">
-              {feedbacks.map((feedback) => (
-                <div key={feedback.id} className="border-b pb-4 last:border-b-0">
-                  <div className="flex justify-between mb-2">
-                    <span className="font-medium">{feedback.userName}</span>
-                    <span className="text-sm text-gray-500">{feedback.date}</span>
-                  </div>
-                  <div className="flex items-center mb-2">
-                    {[...Array(5)].map((_, i) => (
-                      <span key={i} className={i < feedback.rating ? "text-yellow-500" : "text-gray-300"}>
-                        ★
-                      </span>
-                    ))}
-                  </div>
-                  <p className="text-gray-700">{feedback.comment}</p>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
       </div>
       <MarketingFooter />
     </div>

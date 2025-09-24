@@ -51,6 +51,7 @@ import { request } from "@/lib/request";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { toast } from "sonner";
+import DocumentCatalog, { CategoryNode, DocItem } from "@/components/Help/DocumentCatalog";
 
 // 数据模型
 interface HelpCategory {
@@ -124,6 +125,9 @@ export default function HelpDocumentManagement() {
   const [pageSize] = useState(10);
     // 过滤和分页文档
     const [filteredDocuments, setFilteredDocuments] = useState<HelpDocument[]>([]);
+  // 触发子组件刷新文档列表
+  const [docRefreshKey, setDocRefreshKey] = useState(0);
+  const triggerDocRefresh = () => setDocRefreshKey((k) => k + 1);
   // 计算��页数
   const totalPages = Math.ceil(filteredDocuments.length / pageSize);
 
@@ -193,27 +197,6 @@ export default function HelpDocumentManagement() {
   // 获取扁平化的分类列表
   const flatCategories = flattenCategories(categories);
 
-  // 获取文档列表 - 添加locale和classifyId��数
-  const fetchDocuments = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      // 构建请求参数
-      const params: any = {};
-      if (selectedCategory?.id) {
-        params.classifyId = selectedCategory.id;
-      }
-
-      const response = await request.get("/admin/api/v1/article", params);
-      setDocuments(response.data.data.tree || []);
-    } catch (err) {
-      console.error("获取文档列表失败:", err);
-      setError("获取文档列表失败，请稍后重试");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   // 标准化分类数据，确保 children 始终是数组
   const normalizeCategories = (categories: HelpCategory[]): HelpCategory[] => {
@@ -299,11 +282,9 @@ export default function HelpDocumentManagement() {
     }
   }, [selectedLanguage]);
 
-  // 当选择的分类改变时，重新获取文档列表
+  // 当选择的分类改变时，交由 DocumentCatalog 内部获取
   useEffect(() => {
-    if (selectedCategory) {
-      fetchDocuments();
-    }else{
+    if (!selectedCategory) {
       setDocuments([]);
     }
   }, [selectedCategory]);
@@ -523,7 +504,7 @@ export default function HelpDocumentManagement() {
       }
 
       // 重新获取文档列表
-      await fetchDocuments();
+      triggerDocRefresh();
 
       // 显示成功提示
       toast.success("分类删除成功");
@@ -590,13 +571,13 @@ export default function HelpDocumentManagement() {
         }
 
         // 重新获取文档列表
-        await fetchDocuments();
+        triggerDocRefresh();
 
         // 显示���功提示
         toast.success("分类删除成功");
       } catch (err) {
         console.error("删除分������败:", err);
-        toast.error("删除分类失败，请稍后重试");
+        toast.error("删除分类失败��请稍后重试");
       }
     }
   };
@@ -644,7 +625,7 @@ export default function HelpDocumentManagement() {
           return 1;
         case "draft":
           return 0;
-// 如果有归档状���
+// 如果有归档状�����
         default:
           return 0; // 默认为草稿
       }
@@ -755,7 +736,7 @@ export default function HelpDocumentManagement() {
         await request.put("/admin/api/v1/article", articleData);
 
         // 更新成功后重新获取文档列表
-        await fetchDocuments();
+        triggerDocRefresh();
 
         toast.success("文档更新成功");
       } else {
@@ -765,7 +746,7 @@ export default function HelpDocumentManagement() {
         await request.post("/admin/api/v1/article", articleData);
 
         // 创建成��后���新获取文档列表
-        await fetchDocuments();
+        triggerDocRefresh();
 
         toast.success("文档创建成功");
       }
@@ -794,7 +775,7 @@ export default function HelpDocumentManagement() {
       await request.delete(`/admin/api/v1/article/${documentId}`);
 
       // 重新获取文档列表
-      await fetchDocuments();
+      triggerDocRefresh();
 
       toast.success("文档删除成功");
     } catch (err) {
@@ -963,7 +944,7 @@ export default function HelpDocumentManagement() {
             <CardContent className="flex-1 overflow-hidden">
               {languageLoading ? (
                 <div className="flex items-center justify-center h-full text-gray-500">
-                  正在加载语言...
+                  正在加载���言...
                 </div>
               ) : (
                 <ScrollArea className="h-full">
@@ -1001,202 +982,66 @@ export default function HelpDocumentManagement() {
           </Card>
         </div>
 
-        {/* 中间 - 文档分类 */}
-        <div className="lg:col-span-3 flex flex-col h-full">
-          <Card className="flex-1 flex flex-col">
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <BookOpen className="h-5 w-5" />
-                  文档分类
-                </CardTitle>
+        {/* 右侧 - 文档分类 + 列表（复用组件） */}
+        <div className="lg:col-span-10 flex flex-col h-full">
+          <div className="mb-2">
+            {selectedLanguage && (
+              <p className="text-sm text-gray-600">
+                当前语言: {selectedLanguage.name} ({selectedLanguage.code})
+              </p>
+            )}
+          </div>
+
+          <DocumentCatalog
+            categories={(function mapCats(cs: HelpCategory[]): CategoryNode[] {
+              return cs.map((c) => ({
+                id: c.id,
+                name: c.name,
+                children: c.children && c.children.length ? mapCats(c.children) : [],
+              }));
+            })(categories)}
+            fetchFromApi
+            refreshKey={docRefreshKey}
+            selectedCategoryId={selectedCategory?.id || null}
+            onCategorySelect={(id) => {
+              if (!id) {
+                setSelectedCategory(null);
+                return;
+              }
+              // find category by id in tree
+              const find = (cs: HelpCategory[], target: string): HelpCategory | null => {
+                for (const c of cs) {
+                  if (c.id === target) return c;
+                  const child = c.children && c.children.length ? find(c.children, target) : null;
+                  if (child) return child;
+                }
+                return null;
+              };
+              const found = find(categories, id);
+              if (found) setSelectedCategory(found);
+            }}
+            showStatusFilter={true}
+            leftTitle="文档分类"
+            rightTitle={selectedCategory ? `${selectedCategory.name} - 文档列表` : "所有文档"}
+            renderDocumentActions={(document) => (
+              <>
                 <Button
+                  variant="ghost"
                   size="sm"
-                  onClick={() => {
-                    if (!selectedLanguage) {
-                      toast.warning("���先选择语言");
-                      return;
-                    }
-                    setEditingCategory(null);
-                    setCategoryForm({ name: "", parentId: "0" });
-                    setIsCategoryDialogOpen(true);
-                  }}
+                  onClick={() => handleEditDocument(document as any)}
                 >
-                  <Plus className="h-4 w-4 mr-1" />
-                  添加分类
+                  <Edit className="h-4 w-4" />
                 </Button>
-              </div>
-            </CardHeader>
-            <CardContent className="flex-1 overflow-hidden">
-              <ScrollArea className="h-full">
-                <div className="space-y-2">
-                  {renderCategoryTree(categories)}
-
-                  {categories.length === 0 && (
-                    <div className="text-center py-4 text-gray-500">
-                      暂无分类
-                    </div>
-                  )}
-                </div>
-              </ScrollArea>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* 最右侧 - 文档列表 */}
-        <div className="lg:col-span-7 flex flex-col h-full">
-          <Card className="flex-1 flex flex-col">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <CardTitle>
-                      {selectedCategory
-                        ? `${selectedCategory.name} - 文档列表`
-                        : "所有文档"}
-                    </CardTitle>
-                  </div>
-                  {selectedLanguage && (
-                    <p className="text-sm text-gray-600 mt-1">
-                      当前语言: {selectedLanguage.name} ({selectedLanguage.code}
-                      )
-                    </p>
-                  )}
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="relative">
-                    <Search className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                    <Input
-                      placeholder="搜索文档..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10 w-64"
-                    />
-                  </div>
-                  <select
-                    value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value)}
-                    className="px-3 py-2 border border-gray-300 rounded-md text-sm"
-                  >
-                    <option value="all">全部状态</option>
-                    <option value="1">已发布</option>
-                    <option value="0">草稿</option>
-                  </select>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="flex-1 overflow-hidden">
-              <div className="h-full overflow-auto space-y-4">
-                {loading ? (
-                  <div className="flex items-center justify-center h-32">
-                    <div className="text-gray-500">正在加载文档...</div>
-                  </div>
-                ) : error ? (
-                  <div className="flex flex-col items-center justify-center h-32">
-                    <div className="text-red-500">{error}</div>
-                    <Button className="mt-4" onClick={fetchDocuments}>
-                      重试
-                    </Button>
-                  </div>
-                ) : paginatedDocuments.length === 0 ? (
-                  <div className="flex items-center justify-center h-32">
-                    <div className="text-gray-500">
-                      {searchTerm || statusFilter !== "all"
-                        ? "没有找到匹配的文档"
-                        : selectedCategory
-                          ? "该分类下暂无文档"
-                          : "暂无文档"}
-                    </div>
-                  </div>
-                ) : (
-                  paginatedDocuments.map((document) => (
-                    <div
-                      key={document.id}
-                      className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow bg-white"
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <h3 className="font-semibold text-gray-900">
-                              {document.name}
-                            </h3>
-                            <Badge
-                              variant={getStatusDisplay(document.status).variant as any}
-                            >
-                              {getStatusDisplay(document.status).text}
-                            </Badge>
-                            {document.isPopular && (
-                              <Badge variant="destructive">热门</Badge>
-                            )}
-                          </div>
-                          <p className="text-gray-600 text-sm mb-2">
-                            {document.description}
-                          </p>
-                          <div className="flex items-center gap-4 text-xs text-gray-500">
-                            {/* <span>
-                              分类: {getCategoryName(document.categoryId)}
-                            </span> */}
-                            <span className="flex items-center gap-1">
-                              <Eye className="h-3 w-3" />
-                              {document.views}
-                            </span>
-                            <span>更新: {document.gmtModified}</span>
-                          </div>
-                        </div>
-                        <div className="flex gap-2 ml-4">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleEditDocument(document)}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleDeleteDocument(document.id, document.name)}
-                          >
-                            <Trash2 className="h-4 w-4 text-red-500" />
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  ))
-                )}
-
-                {/* 分页控件 */}
-                {filteredDocuments.length > pageSize && (
-                  <div className="flex items-center justify-between pt-4 border-t">
-                    <div className="text-sm text-gray-500">
-                      显示 {Math.min((currentPage - 1) * pageSize + 1, filteredDocuments.length)} - {Math.min(currentPage * pageSize, filteredDocuments.length)} 条，
-                      共 {filteredDocuments.length} 条记录
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                        disabled={currentPage === 1}
-                      >
-                        上一页
-                      </Button>
-                      <span className="text-sm text-gray-600">
-                        第 {currentPage} 页，共 {totalPages} 页
-                      </span>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                        disabled={currentPage === totalPages}
-                      >
-                        下一页
-                      </Button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleDeleteDocument(document.id, (document as any).title)}
+                >
+                  <Trash2 className="h-4 w-4 text-red-500" />
+                </Button>
+              </>
+            )}
+          />
         </div>
       </div>
 
@@ -1485,7 +1330,7 @@ export default function HelpDocumentManagement() {
       <AlertDialog open={deleteAlertOpen} onOpenChange={setDeleteAlertOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>确认删除</AlertDialogTitle>
+            <AlertDialogTitle>���认删除</AlertDialogTitle>
             <AlertDialogDescription>
               {deleteType === 'category'
                 ? `确定要删除分类"${deleteTarget?.name}"吗？这将同时删除该分类下的所有文档。此操作无法撤销。`
