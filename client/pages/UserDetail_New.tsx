@@ -40,6 +40,7 @@ import {
 import { toast } from "@/hooks/use-toast";
 import { getDaysBetween } from "@/lib/utils";
 import useProjectStore from "@/stores/projectStore";
+import { useRoleStore } from "@/stores";
 
 
 export default function UserDetail() {
@@ -49,7 +50,8 @@ export default function UserDetail() {
   const [apiUser, setApiUser] = useState<ApiUser | null>(null);
   const [error, setError] = useState<string | null>(null);
   const { currentProject } = useProjectStore();
-
+  // 权限检查
+  const { hasPermission } = useRoleStore();
 
 
   useEffect(() => {
@@ -396,12 +398,13 @@ export default function UserDetail() {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-                <div className="text-center p-2 bg-gray-50 rounded">
+                {hasPermission("user.amountspent") && <div className="text-center p-2 bg-gray-50 rounded">
                   <div className="text-lg font-bold text-gray-900">
                     {formatWithSymbol(user.totalSpent, user.currency)}
                   </div>
                   <div className="text-xs text-gray-600">{t("userDetail.metrics.totalAmount")}</div>
                 </div>
+}
                 <div className="text-center p-2 bg-gray-50 rounded">
                   <div className="text-lg font-bold text-gray-900">
                     {user.totalOrders}
