@@ -7,46 +7,11 @@ import zhTranslations from './locales/zh.json';
 import enTranslations from './locales/en.json';
 import { languagePackService } from '@/services/languagePackService';
 import { type LanguagePackEntry } from '@shared/api';
+import { getBrowserLanguage } from '@/stores';
 
 // 获取语言代码 - 与 ConfigStore 同步的检测逻辑
 const getDetectedLanguage = (): string => {
-  // 1. localStorage 检测（使用 i18n 的键名）
-  const savedLanguage = localStorage.getItem('i18nextLng');
-  if (savedLanguage && savedLanguage !== 'undefined') {
-    return savedLanguage;
-  }
-
-  // 2. URL 参数检测
-  try {
-    const urlParams = new URLSearchParams(window.location.search);
-    const urlLang = urlParams.get('lng') || urlParams.get('lang') || urlParams.get('language');
-    if (urlLang) {
-      return urlLang;
-    }
-  } catch (error) {
-    console.debug('Failed to parse URL parameters for language detection in i18n');
-  }
-
-  // 3. navigator 检测
-  try {
-    const browserLang = navigator.language.toLowerCase();
-    if (browserLang.startsWith('en')) return 'en-US';
-    if (browserLang.startsWith('zh')) return 'zh-CN';
-    // 对于其他语言，如果有对应的翻译文件就返回，否则返回英文
-    if (browserLang.startsWith('ja')) return 'en-US'; // 暂时返回英文，可以添加更多语言支持
-    if (browserLang.startsWith('ko')) return 'en-US';
-    if (browserLang.startsWith('es')) return 'en-US';
-    if (browserLang.startsWith('fr')) return 'en-US';
-    if (browserLang.startsWith('de')) return 'en-US';
-    if (browserLang.startsWith('pt')) return 'en-US';
-    if (browserLang.startsWith('ru')) return 'en-US';
-    if (browserLang.startsWith('ar')) return 'en-US';
-  } catch (error) {
-    console.debug('Failed to detect navigator language in i18n');
-  }
-
-  // 默认返回中文
-  return 'en-US';
+  return getBrowserLanguage()
 };
 
 // Configure i18n
@@ -188,7 +153,7 @@ export const preloadLanguagePacks = async (langCodes: string[]) => {
     await languagePackService.preloadLanguagePacks(langCodes);
 
     // 为当前语言加载语言包
-    const currentLang = i18n.language || 'zh';
+    const currentLang = i18n.language || 'en-US';
     if (langCodes.includes(currentLang)) {
       const success = await loadLanguagePackFromAPI(currentLang);
       if (success) {
@@ -202,7 +167,7 @@ export const preloadLanguagePacks = async (langCodes: string[]) => {
 
 // 手动刷新当前语言的语言包（强制从API重新获取）
 export const refreshCurrentLanguagePack = async () => {
-  const currentLang = i18n.language || 'zh';
+  const currentLang = i18n.language || 'en-US';
   try {
     // 清除缓存
     languagePackService.clearLanguageCache(currentLang);

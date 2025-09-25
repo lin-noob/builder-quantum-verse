@@ -131,11 +131,6 @@ const HelpDocumentI18nManager: React.FC = () => {
         }
       } catch (error) {
         console.warn("Failed to load languages from API, using mock data:", error);
-        // 使用模拟数据作为后备
-        languagesData = [
-          { id: "1", name: "中文", code: "zh" },
-          { id: "2", name: "English", code: "en" },
-        ];
       }
       
       setLanguages(languagesData);

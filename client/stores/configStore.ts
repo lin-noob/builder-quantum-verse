@@ -144,12 +144,10 @@ export const SUPPORTED_CURRENCIES: Record<CurrencyCode, CurrencyConfig> = {
 
 // 获取语言代码 - 按优先级：localStorage > URL参数 > navigator
 // 与 i18n 系统同步，使用相同的存储键和参数名
-const getBrowserLanguage = (): string => {
-  debugger
+export const getBrowserLanguage = (): string => {
   // 1. 首先从 localStorage 中获取持久化的语言设置（使用 i18n 的键名）
   const savedLanguage =
     localStorage.getItem("i18nextLng") || localStorage.getItem("app_language");
-
   if (savedLanguage === "zh") {
     return "zh-CN";
   } else if (savedLanguage === "en") {
