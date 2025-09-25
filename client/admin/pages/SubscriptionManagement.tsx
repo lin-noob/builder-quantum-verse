@@ -63,7 +63,7 @@ import { SubscriptionCard } from "../components/SubscriptionCard";
 import { useToast } from "@/hooks/use-toast";
 
 // API套餐数据类型定义
-interface TariffPackage {
+export interface TariffPackage {
   anysisProductCount: number;
   controlProductCount: number;
   dayOpenAdvCount: number;
@@ -86,7 +86,7 @@ interface TariffPackage {
 }
 
 // API调用函数
-const fetchTariffPackages = async (): Promise<TariffPackage[]> => {
+export const fetchTariffPackages = async (): Promise<TariffPackage[]> => {
   try {
     // 使用业务请求方法，自动处理标准业务响应格式
     const data = await request.get<ApiResponse<TariffPackage[]>>(

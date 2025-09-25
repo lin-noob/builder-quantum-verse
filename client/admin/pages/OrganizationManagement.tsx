@@ -63,6 +63,8 @@ import {
 import { organizationApi } from "../../../shared/organizationApi";
 import { organizationService } from "../services/organizationService";
 import { StringFormatParams } from "zod/v4/core";
+import { useRoleStore } from "@/stores";
+import { fetchTariffPackages, TariffPackage } from "./SubscriptionManagement";
 
 const OrganizationManagement = () => {
   const navigate = useNavigate();
@@ -94,6 +96,7 @@ const OrganizationManagement = () => {
     adminName: "",
     adminEmail: "",
     adminPassword: "",
+    roleId: "",
   });
   const [editingOrganization, setEditingOrganization] =
     useState<Organization | null>(null);
@@ -103,7 +106,8 @@ const OrganizationManagement = () => {
   } | null>(null);
 
   const { toast } = useToast();
-
+  // 获取角色数据
+  const [packages, setPackages] = useState<TariffPackage[]>([]);
   useEffect(() => {
     loadOrganizations();
   }, [
@@ -114,6 +118,19 @@ const OrganizationManagement = () => {
     sortOrder,
     pageSize,
   ]);
+
+  const loadPackages = async () => {
+    try {
+      const data = await fetchTariffPackages();
+      setPackages(data);
+    } catch (error) {
+    } finally {
+    }
+  };
+
+  useEffect(() => {
+    loadPackages();
+  }, []);
 
   const loadOrganizations = async () => {
     try {
@@ -178,6 +195,7 @@ const OrganizationManagement = () => {
           adminName: "",
           adminEmail: "",
           adminPassword: "",
+          roleId: "",
         });
         loadOrganizations();
       } else {
@@ -694,6 +712,29 @@ const OrganizationManagement = () => {
                       生成
                     </Button>
                   </div>
+                </div>
+                <div>
+                  <Label htmlFor="package-role">订阅套餐</Label>
+                  <Select
+                    value={createForm.roleId.toString()}
+                    onValueChange={(value) =>
+                      setCreateForm({
+                        ...createForm,
+                        roleId: value,
+                      })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="选择订阅套餐" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {packages.map((role) => (
+                        <SelectItem key={role.id} value={role.id}>
+                          {role.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
             </div>

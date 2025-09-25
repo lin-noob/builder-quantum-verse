@@ -160,6 +160,7 @@ export const createOrganization = async (
       account: requestPayload.adminEmail,
       email: requestPayload.adminEmail,
       password: requestPayload.adminPassword,
+      tariffPackagesId: requestPayload.roleId
       // code: "string",
       // company: "string",
       // ftype: "string",
