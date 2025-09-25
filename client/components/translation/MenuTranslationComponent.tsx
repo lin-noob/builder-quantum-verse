@@ -563,19 +563,19 @@ const MenuTranslationComponent: React.FC<MenuTranslationComponentProps> = ({
           </CardHeader>
           <CardContent>
             <ScrollArea className="h-[500px]">
-              <Table>
+              <Table className="w-full table-fixed">
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-1/12">
+                    <TableHead className="w-[5%]">
                       <Checkbox
                         checked={isAllSelected}
                         onCheckedChange={handleSelectAll}
                       />
                     </TableHead>
-                    <TableHead className="w-4/12">Key</TableHead>
-                    <TableHead className="w-4/12">中文文案</TableHead>
-                    <TableHead className="w-4/12">翻译文案</TableHead>
-                    <TableHead className="text-right">操作</TableHead>
+                    <TableHead className="w-[25%]">Key</TableHead>
+                    <TableHead className="w-[25%]">中文文案</TableHead>
+                    <TableHead className="w-[25%]">翻译文案</TableHead>
+                    <TableHead className="w-[20%] text-right">操作</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -589,11 +589,13 @@ const MenuTranslationComponent: React.FC<MenuTranslationComponentProps> = ({
                           }
                         />
                       </TableCell>
-                      <TableCell className="font-mono text-sm">
+                      <TableCell className="font-mono text-sm break-all">
                         {item.keyCode}
                       </TableCell>
-                      <TableCell>{item.name}</TableCell>
-                      <TableCell>{item.transform || "-"}</TableCell>
+                      <TableCell className="break-words">{item.name}</TableCell>
+                      <TableCell className="break-words">
+                        {item.transform || "-"}
+                      </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
                           <Button
