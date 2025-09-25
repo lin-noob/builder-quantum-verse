@@ -6,15 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  Plus,
   Edit,
-  Trash2,
-  GripVertical,
-  Bot,
   AlertTriangle,
   TrendingUp,
   Activity,
   Target,
+  Bot,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { request } from "@/lib/request";
@@ -23,8 +20,6 @@ import {
   OverrideRule,
   DefaultAIConfig,
   updateMarketingScenario,
-  updateOverrideRule,
-  deleteOverrideRule,
   updateRulePriorities,
   ActionType,
   ConditionCategory,
@@ -34,6 +29,27 @@ import {
 } from "../../../shared/aiMarketingScenarioData";
 import useProjectStore from "@/stores/projectStore";
 import { mockScenarios } from "@/admin/data/scenarioData";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
+  DragDropContext,
+  Droppable,
+  Draggable,
+  DropResult,
+} from "@hello-pangea/dnd";
+import RuleBuilderModal from "@/components/RuleBuilderModal";
+import CustomRulesWithConflictManager from "@/components/CustomRulesWithConflictManager";
+import AIStrategyEditorModal from "@/components/AIStrategyEditorModal";
+import { useTranslation } from "react-i18next";
+import i18n from "@/lib/i18n";
 
 // API响应的场景详情接口
 interface ApiScenarioDetail {
@@ -75,7 +91,7 @@ const parseAIConfig = (configStr: string): DefaultAIConfig => {
     const config = JSON.parse(configStr);
     return config.defaultAIConfig || {};
   } catch {
-    return {};
+    return {} as DefaultAIConfig;
   }
 };
 
@@ -162,31 +178,14 @@ const transformApiDataToMarketingScenario = (
     },
   };
 };
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import {
-  DragDropContext,
-  Droppable,
-  Draggable,
-  DropResult,
-} from "@hello-pangea/dnd";
-import RuleBuilderModal from "@/components/RuleBuilderModal";
-import CustomRulesWithConflictManager from "@/components/CustomRulesWithConflictManager";
-import AIStrategyEditorModal from "@/components/AIStrategyEditorModal";
 
 const ScenarioConfig = () => {
+  const { t } = useTranslation();
   const { scenarioId } = useParams<{ scenarioId: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
   const { currentProject } = useProjectStore();
+  const lang = i18n.language || 'zh-CN';
 
   const [scenario, setScenario] = useState<MarketingScenario | null>(null);
   const [loading, setLoading] = useState(true);
@@ -245,11 +244,7 @@ const ScenarioConfig = () => {
     try {
       setLoading(true);
 
-      // 检查 currentProject 是否存在或 id 是否为空
       if (!currentProject || !currentProject.id) {
-        console.log("No current project or empty project id, using mock data for scenario");
-
-        // 使用 mock 数据
         const mockScenario = mockScenarios.find(s => s.scenarioId === scenarioId);
         if (mockScenario) {
           const apiData = convertMockScenarioToApiFormat(mockScenario);
@@ -260,26 +255,21 @@ const ScenarioConfig = () => {
             user: [
               { field: "tag", label: "用户标签", type: "string" },
               { field: "user_segment", label: "用户分层", type: "string" },
-              {
-                field: "last_purchase_days",
-                label: "距上次购买天数",
-                type: "number",
-              },
+              { field: "last_purchase_days", label: "距上次购买天数", type: "number" },
               { field: "total_spend", label: "累计消费", type: "number" },
             ],
           };
           setScenario(data);
         } else {
           toast({
-            title: "场景未找到",
-            description: "指定的营销场景不存在",
+            title: t('scenarios.config.toasts.loadFailed'),
+            description: t('scenarios.config.toasts.loadFailedDesc'),
             variant: "destructive",
           });
         }
         return;
       }
 
-      // 有项目时调用真实API
       const response = await request.get(
         `/quote/api/v1/scene/view/${scenarioId}`,
       );
@@ -290,21 +280,12 @@ const ScenarioConfig = () => {
         user: [
           { field: "tag", label: "用户标签", type: "string" },
           { field: "user_segment", label: "用户分层", type: "string" },
-          {
-            field: "last_purchase_days",
-            label: "距上次购买天数",
-            type: "number",
-          },
+          { field: "last_purchase_days", label: "距上次购买天数", type: "number" },
           { field: "total_spend", label: "累计消费", type: "number" },
         ],
       };
       setScenario(data);
     } catch (error) {
-      console.error("Failed to load scenario:", error);
-
-      // 如果API失败，使用mock数据供开发测试使用
-      console.log("场景详情API失败，使用mock数据");
-
       const mockScenario = mockScenarios.find(s => s.scenarioId === scenarioId);
       if (mockScenario) {
         const apiData = convertMockScenarioToApiFormat(mockScenario);
@@ -315,26 +296,22 @@ const ScenarioConfig = () => {
           user: [
             { field: "tag", label: "用户标签", type: "string" },
             { field: "user_segment", label: "用户分层", type: "string" },
-            {
-              field: "last_purchase_days",
-              label: "距上次购买天数",
-              type: "number",
-            },
+            { field: "last_purchase_days", label: "距上次购买天数", type: "number" },
             { field: "total_spend", label: "累计消费", type: "number" },
           ],
         };
         setScenario(data);
       } else {
         toast({
-          title: "加载失败",
-          description: "无法加载场景配置",
+          title: t('scenarios.config.toasts.loadFailed'),
+          description: t('scenarios.config.toasts.loadFailedDesc'),
           variant: "destructive",
         });
       }
     } finally {
       setLoading(false);
     }
-  }, [scenarioId, currentProject, toast]);
+  }, [scenarioId, currentProject, toast, t]);
 
   useEffect(() => {
     if (scenarioId) {
@@ -346,32 +323,35 @@ const ScenarioConfig = () => {
     if (!scenario) return;
 
     try {
-      // 检查是否使用 mock 数据模式
       if (!currentProject || !currentProject.id) {
-        // Mock 数据模式下只更新本地状态
         setScenario((prev) => (prev ? { ...prev, isAIEnabled: newState } : null));
 
         toast({
-          title: newState ? "AI自动化已启用" : "AI自动化已暂停",
-          description: `${scenario.scenarioName}场景的自动化营销已${newState ? "启动" : "暂停"}`,
+          title: t(newState ? 'scenarios.config.toasts.aiStarted' : 'scenarios.config.toasts.aiPaused'),
+          description: t('scenarios.config.toasts.aiDesc', {
+            sceneName: scenario.scenarioName,
+            action: t(newState ? 'scenarios.list.toast.actionStart' : 'scenarios.list.toast.actionPause'),
+          }),
         });
         return;
       }
 
-      // 有项目时调用真实API
       await updateMarketingScenario(scenario.scenarioId, {
         isAIEnabled: newState,
       });
       setScenario((prev) => (prev ? { ...prev, isAIEnabled: newState } : null));
 
       toast({
-        title: newState ? "AI自动化已启用" : "AI自动化已暂停",
-        description: `${scenario.scenarioName}场景的自动化营销已${newState ? "启动" : "暂停"}`,
+        title: t(newState ? 'scenarios.config.toasts.aiStarted' : 'scenarios.config.toasts.aiPaused'),
+        description: t('scenarios.config.toasts.aiDesc', {
+          sceneName: scenario.scenarioName,
+          action: t(newState ? 'scenarios.list.toast.actionStart' : 'scenarios.list.toast.actionPause'),
+        }),
       });
     } catch (error) {
       toast({
-        title: "操作失败",
-        description: "无法更新AI开关状态，请重试",
+        title: t('scenarios.list.toast.failed'),
+        description: t('scenarios.list.toast.failedDesc'),
         variant: "destructive",
       });
     }
@@ -381,9 +361,7 @@ const ScenarioConfig = () => {
     if (!scenario) return;
 
     try {
-      // 检查是否使用 mock 数据模式
       if (!currentProject || !currentProject.id) {
-        // Mock 数据模式下只更新本地状态
         setScenario((prev) =>
           prev
             ? {
@@ -395,20 +373,19 @@ const ScenarioConfig = () => {
         );
 
         toast({
-          title: "配置已保存",
-          description: "AI策略配置更新成功",
+          title: t('scenarios.config.toasts.configSaved'),
+          description: t('scenarios.config.toasts.configSavedDesc'),
         });
         return;
       }
 
-      // 有项目时调用真实API
       const apiData: ApiScenarioDetail = {
-        id: scenarioId,
+        id: scenarioId!,
         sceneName: scenario.scenarioName,
         status: scenario.isAIEnabled ? 1 : 0,
         aiStrategyConfig: JSON.stringify({ defaultAIConfig: updatedConfig }),
         nullId: false,
-      };
+      } as any;
 
       await request.post("/quote/api/v1/scene", apiData);
 
@@ -423,16 +400,16 @@ const ScenarioConfig = () => {
       );
 
       toast({
-        title: "配置已保存",
-        description: "AI策略配置更新成功",
+        title: t('scenarios.config.toasts.configSaved'),
+        description: t('scenarios.config.toasts.configSavedDesc'),
       });
     } catch (error) {
       toast({
-        title: "保存失败",
-        description: "无法保存AI策略配置，请重试",
+        title: t('scenarios.config.toasts.saveFailed'),
+        description: t('scenarios.config.toasts.saveFailedDesc'),
         variant: "destructive",
       });
-      throw error; // Re-throw to let the editor handle the error
+      throw error;
     }
   };
 
@@ -440,9 +417,7 @@ const ScenarioConfig = () => {
     if (!scenario) return;
 
     try {
-      // 检查是否使用 mock 数据模式
       if (!currentProject || !currentProject.id) {
-        // Mock 数据模式下只更新本地状态
         setScenario((prev) => {
           if (!prev) return null;
           return {
@@ -454,18 +429,19 @@ const ScenarioConfig = () => {
         });
 
         toast({
-          title: newState ? "规则已启用" : "规则已停用",
-          description: `自定义规则「${rule.ruleName}」已${newState ? "启用" : "停用"}`,
+          title: t(newState ? 'scenarios.config.toasts.ruleEnabled' : 'scenarios.config.toasts.ruleDisabled'),
+          description: t('scenarios.config.toasts.ruleStatusDesc', {
+            ruleName: rule.ruleName,
+            action: t(newState ? 'scenarios.config.toasts.actionEnabled' : 'scenarios.config.toasts.actionDisabled'),
+          }),
         });
         return;
       }
 
-      // 有项目时调用真实API
       const apiData = {
         id: rule.ruleId,
         sceneId: scenario.scenarioId,
-        status: newState ? 1 : 0, // 1表示启用，0表示禁用
-        // 其他字段保持不变
+        status: newState ? 1 : 0,
         ruleName: rule.ruleName,
         triggerCondition: "",
         marketingMethod: rule.responseAction.actionType,
@@ -489,7 +465,6 @@ const ScenarioConfig = () => {
         }),
       };
 
-      // 调用编辑接口
       await request.post("/quote/api/v1/scene/rule", apiData);
 
       setScenario((prev) => {
@@ -503,14 +478,16 @@ const ScenarioConfig = () => {
       });
 
       toast({
-        title: newState ? "规则已启用" : "规则已停用",
-        description: `自定义规则「${rule.ruleName}」已${newState ? "启用" : "停用"}`,
+        title: t(newState ? 'scenarios.config.toasts.ruleEnabled' : 'scenarios.config.toasts.ruleDisabled'),
+        description: t('scenarios.config.toasts.ruleStatusDesc', {
+          ruleName: rule.ruleName,
+          action: t(newState ? 'scenarios.config.toasts.actionEnabled' : 'scenarios.config.toasts.actionDisabled'),
+        }),
       });
     } catch (error) {
-      console.error("Toggle rule error:", error);
       toast({
-        title: "操作失败",
-        description: "规则状态更新失败",
+        title: t('scenarios.list.toast.failed'),
+        description: t('scenarios.list.toast.failedDesc'),
         variant: "destructive",
       });
     }
@@ -519,9 +496,7 @@ const ScenarioConfig = () => {
   const handleDeleteRule = async () => {
     if (!scenario || !deleteDialog.rule) return;
     try {
-      // 检查是否使用 mock 数据模式
       if (!currentProject || !currentProject.id) {
-        // Mock 数据模式下只更新本地状态
         setScenario((prev) => {
           if (!prev) return null;
           return {
@@ -533,15 +508,14 @@ const ScenarioConfig = () => {
         });
 
         toast({
-          title: "规则已删除",
-          description: `自定义规则「${deleteDialog.rule.ruleName}」已删除`,
+          title: t('scenarios.config.toasts.deleteSuccess'),
+          description: t('scenarios.config.toasts.ruleDeletedDesc', { ruleName: deleteDialog.rule.ruleName }),
         });
 
         setDeleteDialog({ show: false, rule: null });
         return;
       }
 
-      // 有项目时调用真实API
       await request.delete(
         `/quote/api/v1/scene/rule/${deleteDialog.rule.ruleId}`,
       );
@@ -557,16 +531,15 @@ const ScenarioConfig = () => {
       });
 
       toast({
-        title: "规则已删除",
-        description: `自定义规则「${deleteDialog.rule.ruleName}」已删除`,
+        title: t('scenarios.config.toasts.deleteSuccess'),
+        description: t('scenarios.config.toasts.ruleDeletedDesc', { ruleName: deleteDialog.rule.ruleName }),
       });
 
       setDeleteDialog({ show: false, rule: null });
     } catch (error) {
-      console.error("Delete rule error:", error);
       toast({
-        title: "删除失败",
-        description: "规则删除失败",
+        title: t('scenarios.config.toasts.deleteFailed'),
+        description: t('scenarios.config.toasts.deleteFailedDesc'),
         variant: "destructive",
       });
     }
@@ -579,38 +552,33 @@ const ScenarioConfig = () => {
     const [reorderedItem] = items.splice(result.source.index, 1);
     items.splice(result.destination.index, 0, reorderedItem);
 
-    // Update local state immediately for better UX
     setScenario((prev) => (prev ? { ...prev, overrideRules: items } : null));
 
     try {
-      // 检查是否使用 mock 数据模式
       if (!currentProject || !currentProject.id) {
-        // Mock 数据模式下只更新本地状态，不调用API
         toast({
-          title: "优先级已更新",
-          description: "规则优先级调整成功",
+          title: t('scenarios.config.toasts.priorityUpdated'),
+          description: t('scenarios.config.toasts.priorityUpdatedDesc'),
         });
         return;
       }
 
-      // 有项目时调用真实API
       const priorities = items.map((rule, index) => ({
         ruleId: rule.ruleId,
         priority: index + 1,
       }));
 
-      await updateRulePriorities(scenario.scenarioId, priorities);
+      await updateRulePriorities(scenario.scenarioId, priorities as any);
 
       toast({
-        title: "优先级已更新",
-        description: "规则优先级调整成功",
+        title: t('scenarios.config.toasts.priorityUpdated'),
+        description: t('scenarios.config.toasts.priorityUpdatedDesc'),
       });
     } catch (error) {
-      // Revert on error
       loadScenario();
       toast({
-        title: "更新失败",
-        description: "规则优先级更新失败",
+        title: t('scenarios.config.toasts.priorityUpdateFailed'),
+        description: t('scenarios.config.toasts.priorityUpdateFailedDesc'),
         variant: "destructive",
       });
     }
@@ -621,7 +589,7 @@ const ScenarioConfig = () => {
       <div className="flex items-center justify-center h-64">
         <div className="text-center space-y-4">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-          <p className="text-muted-foreground">加载场景配置中...</p>
+          <p className="text-muted-foreground">{t('scenarios.config.loading')}</p>
         </div>
       </div>
     );
@@ -633,11 +601,11 @@ const ScenarioConfig = () => {
         <div className="text-center space-y-4">
           <AlertTriangle className="h-12 w-12 text-muted-foreground mx-auto" />
           <div>
-            <h3 className="text-lg font-medium">场景不存在</h3>
-            <p className="text-muted-foreground">指定的营销场景未找到</p>
+            <h3 className="text-lg font-medium">{t('scenarios.config.notFoundTitle')}</h3>
+            <p className="text-muted-foreground">{t('scenarios.config.notFoundDesc')}</p>
           </div>
           <Button onClick={() => navigate("/ai-marketing/scenarios")}>
-            返回场景列表
+            {t('scenarios.config.backToList')}
           </Button>
         </div>
       </div>
@@ -646,22 +614,19 @@ const ScenarioConfig = () => {
 
   return (
     <div className="container mx-auto py-6 space-y-6">
-      {/* 场景标题 */}
       <div>
         <h1 className="text-2xl font-bold">{scenario.scenarioName}</h1>
-        <p className="text-muted-foreground mt-1">{scenario.description}</p>
+        <p className="text-muted-foreground mt-1">{scenario.defaultAIConfig?.strategySummary || scenario.defaultAIConfig?.description}</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* 左侧主要内容 */}
         <div className="lg:col-span-2 space-y-6">
-          {/* AI策略配置 */}
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg font-semibold flex items-center gap-2">
                   <Bot className="h-5 w-5 text-primary" />
-                  AI策略配置
+                  {t('scenarios.config.aiConfigTitle')}
                 </CardTitle>
                 <div className="flex items-center gap-3">
                   <Button
@@ -670,7 +635,7 @@ const ScenarioConfig = () => {
                     onClick={() => setAiStrategyModalOpen(true)}
                   >
                     <Edit className="h-4 w-4 mr-1" />
-                    编辑配置
+                    {t('scenarios.config.editConfig')}
                   </Button>
                   <Switch
                     checked={scenario.isAIEnabled}
@@ -681,7 +646,6 @@ const ScenarioConfig = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
-                {/* 决策维度详情 - 只读展示 */}
                 <div>
                   <Tabs defaultValue="0" className="w-full">
                     <TabsList className="grid w-full grid-cols-3">
@@ -718,7 +682,7 @@ const ScenarioConfig = () => {
                             <div className="space-y-4">
                               <div>
                                 <dt className="text-sm font-medium text-muted-foreground mb-2">
-                                  决策依据
+                                  {t('scenarios.config.insight')}
                                 </dt>
                                 <dd className="text-sm text-foreground leading-relaxed">
                                   {dimension.reasoning}
@@ -727,7 +691,7 @@ const ScenarioConfig = () => {
 
                               <div>
                                 <dt className="text-sm font-medium text-muted-foreground mb-2">
-                                  策略示例
+                                  {t('scenarios.config.tracking')}
                                 </dt>
                                 <dd className="space-y-2">
                                   {dimension.examples.map(
@@ -753,7 +717,6 @@ const ScenarioConfig = () => {
             </CardContent>
           </Card>
 
-          {/* 自定义规则与冲突管理 */}
           <CustomRulesWithConflictManager
             scenario={scenario}
             onAddRule={() => setRuleBuilderOpen(true)}
@@ -767,18 +730,16 @@ const ScenarioConfig = () => {
           />
         </div>
 
-        {/* 右侧信息 */}
         <div className="space-y-6">
-          {/* 基础信息卡片 */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg font-semibold">基础信���</CardTitle>
+              <CardTitle className="text-lg font-semibold">{t('scenarios.config.baseInfo')}</CardTitle>
             </CardHeader>
             <CardContent>
               <dl className="space-y-3">
                 <div>
                   <dt className="text-sm font-medium text-muted-foreground">
-                    ���景ID
+                    {t('scenarios.config.scenarioId')}
                   </dt>
                   <dd className="mt-1 text-sm font-mono text-xs bg-muted px-2 py-1 rounded">
                     {scenario.scenarioName}
@@ -786,41 +747,31 @@ const ScenarioConfig = () => {
                 </div>
                 <div>
                   <dt className="text-sm font-medium text-muted-foreground">
-                    AI自动化状态
+                    {t('scenarios.config.aiStatus')}
                   </dt>
                   <dd className="mt-1 flex items-center gap-2">
-                    <Badge
-                      variant={scenario.isAIEnabled ? "default" : "secondary"}
-                    >
-                      {scenario.isAIEnabled ? "已启用" : "已停用"}
+                    <Badge variant={scenario.isAIEnabled ? "default" : "secondary"}>
+                      {scenario.isAIEnabled ? t('scenarios.config.enabled') : t('scenarios.config.disabled')}
                     </Badge>
                   </dd>
                 </div>
                 <div>
                   <dt className="text-sm font-medium text-muted-foreground">
-                    创建时间
+                    {t('scenarios.config.createdAt')}
                   </dt>
                   <dd className="mt-1 text-sm">
-                    {new Date(scenario.createdAt).toLocaleDateString("zh-CN", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
+                    {new Date(scenario.createdAt).toLocaleString(lang, {
+                      year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
                     })}
                   </dd>
                 </div>
                 <div>
                   <dt className="text-sm font-medium text-muted-foreground">
-                    最后更新
+                    {t('scenarios.config.lastUpdated')}
                   </dt>
                   <dd className="mt-1 text-sm">
-                    {new Date(scenario.updatedAt).toLocaleDateString("zh-CN", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
+                    {new Date(scenario.updatedAt).toLocaleString(lang, {
+                      year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
                     })}
                   </dd>
                 </div>
@@ -828,11 +779,10 @@ const ScenarioConfig = () => {
             </CardContent>
           </Card>
 
-          {/* AI工作原理 */}
           <Card>
             <CardHeader>
               <CardTitle className="text-lg font-semibold">
-                AI工作原理
+                {t('scenarios.config.aiHowItWorks')}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -840,22 +790,22 @@ const ScenarioConfig = () => {
                 <div className="flex items-start gap-3">
                   <Target className="h-4 w-4 text-blue-500 mt-0.5" />
                   <div>
-                    <div className="font-medium text-foreground">智能分析</div>
-                    <div>AI分析用户行为和偏好，识别最佳营销����机。</div>
+                    <div className="font-medium text-foreground">{t('scenarios.config.insight')}</div>
+                    <div>{t('scenarios.config.insightDesc')}</div>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <Activity className="h-4 w-4 text-green-500 mt-0.5" />
                   <div>
-                    <div className="font-medium text-foreground">规则优先</div>
-                    <div>系统优先匹配您设定的自定义规则。</div>
+                    <div className="font-medium text-foreground">{t('scenarios.config.ruleFirst')}</div>
+                    <div>{t('scenarios.config.ruleFirstDesc')}</div>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <TrendingUp className="h-4 w-4 text-purple-500 mt-0.5" />
                   <div>
-                    <div className="font-medium text-foreground">效果追踪</div>
-                    <div>记录所有动作效果，供您分析优化。</div>
+                    <div className="font-medium text-foreground">{t('scenarios.config.tracking')}</div>
+                    <div>{t('scenarios.config.trackingDesc')}</div>
                   </div>
                 </div>
               </div>
@@ -864,7 +814,6 @@ const ScenarioConfig = () => {
         </div>
       </div>
 
-      {/* 规则构建器模态���� */}
       <RuleBuilderModal
         open={ruleBuilderOpen}
         onClose={() => {
@@ -874,17 +823,14 @@ const ScenarioConfig = () => {
         scenario={scenario}
         rule={editingRule}
         onSave={() => {
-          // 先关闭弹窗，再清理状态
           setRuleBuilderOpen(false);
           setEditingRule(null);
-          // 增加延迟确保弹��完全关闭后再刷新数据
           setTimeout(() => {
             loadScenario();
           }, 200);
         }}
       />
 
-      {/* AI策略编辑弹窗 */}
       <AIStrategyEditorModal
         open={aiStrategyModalOpen}
         onClose={() => setAiStrategyModalOpen(false)}
@@ -892,25 +838,21 @@ const ScenarioConfig = () => {
         onSave={handleAIConfigSave}
       />
 
-      {/* 删除确认对话框 */}
       <AlertDialog
         open={deleteDialog.show}
-        onOpenChange={(open) =>
-          !open && setDeleteDialog({ show: false, rule: null })
-        }
+        onOpenChange={(open) => !open && setDeleteDialog({ show: false, rule: null })}
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>删除自定义规则</AlertDialogTitle>
+            <AlertDialogTitle>{t('scenarios.config.deleteDialog.title')}</AlertDialogTitle>
             <AlertDialogDescription>
-              确定要删除规则「{deleteDialog.rule?.ruleName}
-              」吗？此操作无法撤销。
+              {t('scenarios.config.deleteDialog.desc', { ruleName: deleteDialog.rule?.ruleName })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>取消</AlertDialogCancel>
+            <AlertDialogCancel>{t('scenarios.config.deleteDialog.cancel')}</AlertDialogCancel>
             <AlertDialogAction onClick={handleDeleteRule}>
-              删除
+              {t('scenarios.config.deleteDialog.confirm')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -292,24 +292,6 @@
         "数据钻取分析",
         "定时报告推送"
       ],
-      "fullTrackingBenefits": [
-        "多触点归因分析",
-        "转化路径追踪",
-        "渠道效果对比",
-        "用户旅程可视化"
-      ],
-      "roiCalculationBenefits": [
-        "投入成本核算",
-        "收益精确计算",
-        "ROI/ROAS分析",
-        "成本优化建议"
-      ],
-      "predictionModelBenefits": [
-        "效果趋势预测",
-        "季节性分析",
-        "增长预测模型",
-        "优化策略推荐"
-      ],
       "multiDimensionBenefitsArray": [
         "可视化报表",
         "自定义维度",

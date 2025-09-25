@@ -1,0 +1,75 @@
+{
+  "organization": {
+    "settings": {
+      "loadError": {
+        "title": "加载失败",
+        "desc": "无法加载组织信息，请重试"
+      },
+      "validationError": {
+        "title": "验证失败",
+        "nameRequired": "组织名称不能为空"
+      },
+      "save": {
+        "successTitle": "保存成功",
+        "successDesc": "组织信息已更新",
+        "failTitle": "保存失败",
+        "failDesc": "更新失败",
+        "networkErrorDesc": "网络错误，请重试",
+        "saving": "保存中...",
+        "saveChanges": "保存更改"
+      },
+      "subscription": {
+        "internalTrial": "内部试用"
+      },
+      "userType": {
+        "manager": "管理员",
+        "member": "成员"
+      },
+      "userStatus": {
+        "disabled": "已禁用",
+        "active": "活跃"
+      },
+      "emptyState": {
+        "title": "无法加载组织信息",
+        "desc": "请刷新页面重试"
+      },
+      "section": {
+        "basicInfo": "基本信息",
+        "statusInfo": "状态信息",
+        "memberStats": "成员统计",
+        "permissionsInfo": "权限说明"
+      },
+      "labels": {
+        "orgId": "组织ID",
+        "orgName": "组织名称"
+      },
+      "placeholders": {
+        "orgName": "请输入组织名称"
+      },
+      "helpers": {
+        "orgId": "组织的唯一标识符，不可修改",
+        "orgName": "组织的显示名称，可以修改"
+      },
+      "status": {
+        "createdAt": "创建时间",
+        "updatedAt": "最后更新"
+      },
+      "memberStats": {
+        "total": "总成员数",
+        "active": "活跃成员"
+      },
+      "permissions": {
+        "intro": "作为组织管理员，您可以：",
+        "items": {
+          "modifyInfo": "修改组织名称和基本信息",
+          "inviteMembers": "邀请新成员加入组织",
+          "manageRoles": "管理成员的角色和权限",
+          "toggleAccounts": "启用或禁用成员账户",
+          "viewStats": "查看组织的使用统计"
+        },
+        "warningTitle": "重要提醒：",
+        "warningDesc": "请谨慎管理管理员权限，确保组织始终至少有一个活跃的管理员账户。"
+      }
+    }
+  }
+}

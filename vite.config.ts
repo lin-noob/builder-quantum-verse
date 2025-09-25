@@ -2,6 +2,9 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 
+const serverurl = "https://www.sellernxt.com/api";
+// const serverurl = 'http://192.168.1.128:8099';
+
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   define: {
@@ -27,7 +30,7 @@ export default defineConfig(({ mode }) => ({
     },
     proxy: {
       "/api": {
-        target: "http://192.168.1.128:8099",
+        target: serverurl,
         changeOrigin: true,
         secure: false,
         timeout: 10000, // 减少到10秒，快速失败
@@ -66,8 +69,8 @@ export default defineConfig(({ mode }) => ({
           });
         },
       },
-      "/quote/api": "http://192.168.1.128:8099",
-      "/admin/api": "http://192.168.1.128:8099",
+      "/quote/api": serverurl,
+      "/admin/api": serverurl,
     },
     allowedHosts: ["lt.eecart.com"],
   },

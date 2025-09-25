@@ -50,6 +50,7 @@ import {
 import { Organization } from "../../../shared/organizationData";
 import { getOrganizationDetail } from "../services/organizationDetailService";
 import { organizationService } from "../services/organizationService";
+import { fetchTariffPackages, TariffPackage } from "./SubscriptionManagement";
 
 const OrganizationDetail = () => {
   const { organizationId } = useParams<{ organizationId: string }>();
@@ -67,11 +68,25 @@ const OrganizationDetail = () => {
     name: "",
     accountStatus: false,
     subscriptionPlan: "",
+    tariffPackagesId: ""
   });
+
+  // 获取角色数据
+  const [packages, setPackages] = useState<TariffPackage[]>([]);
+
+  const loadPackages = async () => {
+    try {
+      const data = await fetchTariffPackages();
+      setPackages(data);
+    } catch (error) {
+    } finally {
+    }
+  };
 
   useEffect(() => {
     if (organizationId) {
       loadOrganization();
+      loadPackages();
     }
   }, [organizationId]);
 
@@ -87,6 +102,7 @@ const OrganizationDetail = () => {
         name: orgData.name,
         accountStatus: orgData.accountStatus,
         subscriptionPlan: orgData.tariffName,
+        tariffPackagesId: orgData?.tariffPackagesId
       });
     } catch (error: any) {
       console.error("Failed to load organization:", error);
@@ -212,6 +228,7 @@ const OrganizationDetail = () => {
                           name: organization.name,
                           accountStatus: organization.accountStatus,
                           subscriptionPlan: organization.tariffName,
+                          tariffPackagesId:organization.tariffPackagesId
                         });
                       }}
                     >
@@ -282,9 +299,35 @@ const OrganizationDetail = () => {
 
               <div>
                 <Label htmlFor="subscriptionPlan">订阅套餐</Label>
-                <div className="mt-2">
-                  {getSubscriptionBadge(organization.tariffName)}
-                </div>
+                {/* {isEditing ? (
+                  <Select
+                    value={orgFormData.subscriptionPlan.toString()}
+                    onValueChange={(value) =>
+                      setOrgFormData({
+                        ...orgFormData,
+                        tariffPackagesId: value,
+                      })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="选择订阅套餐" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {packages.map((role) => (
+                        <SelectItem key={role.id} value={role.id}>
+                          {role.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <div className="mt-2">
+                    {getSubscriptionBadge(organization.tariffName)}
+                  </div>
+                )} */}
+                       <div className="mt-2">
+                    {getSubscriptionBadge(organization.tariffName)}
+                  </div>
               </div>
             </div>
           </CardContent>

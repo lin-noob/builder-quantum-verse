@@ -2,10 +2,8 @@ import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import {
-  AlertTriangle,
   Settings,
   Users,
   ShoppingCart,
@@ -14,19 +12,26 @@ import {
   Bot,
   CreditCard,
   CheckCircle,
-  Search,
+  Search as SearchIcon,
   MousePointer,
   FileText,
 } from "lucide-react";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
-import {
-  MarketingScenario,
-  updateMarketingScenario,
-  DefaultAIConfig,
-} from "../../../shared/aiMarketingScenarioData";
+import { DefaultAIConfig } from "../../../shared/aiMarketingScenarioData";
 import useProjectStore from "@/stores/projectStore";
 import { mockScenarios } from "@/admin/data/scenarioData";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { request } from "@/lib/request";
+import { useTranslation } from "react-i18next";
 
 // API响应的场景数据接口
 interface ApiScenario {
@@ -44,17 +49,6 @@ interface ApiScenario {
   strategyExample?: string | null;
   tenantId?: string | null;
 }
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { request } from "@/lib/request";
 
 const getScenarioIcon = (scenarioId: string) => {
   switch (scenarioId) {
@@ -71,7 +65,7 @@ const getScenarioIcon = (scenarioId: string) => {
     case "purchase":
       return <CheckCircle className="h-5 w-5" />;
     case "search":
-      return <Search className="h-5 w-5" />;
+      return <SearchIcon className="h-5 w-5" />;
     case "exit_intent":
       return <MousePointer className="h-5 w-5" />;
     case "submit_form":
@@ -82,6 +76,7 @@ const getScenarioIcon = (scenarioId: string) => {
 };
 
 const ScenariosList = () => {
+  const { t } = useTranslation();
   const [scenarios, setScenarios] = useState<ApiScenario[]>([]);
   const [loading, setLoading] = useState(true);
   const [switchingScenario, setSwitchingScenario] = useState<string | null>(
@@ -102,7 +97,7 @@ const ScenariosList = () => {
       const config = JSON.parse(configStr);
       return config.defaultAIConfig || {};
     } catch {
-      return {};
+      return {} as DefaultAIConfig;
     }
   };
 
@@ -123,13 +118,8 @@ const ScenariosList = () => {
 
   const loadScenarios = useCallback(async () => {
     try {
-      // 检查 currentProject 是否存在或 id 是否为空
       if (!currentProject || !currentProject.id) {
-        console.log("No current project or empty project id, using mock data");
-
-        // 使用 mock 数据
         const mockApiScenarios = mockScenarios.map(convertMockScenarioToApiFormat);
-
         const sortedMockData = mockApiScenarios.sort((a, b) => {
           if (a.status !== b.status) {
             return b.status ? 1 : -1;
@@ -139,12 +129,10 @@ const ScenariosList = () => {
             new Date(a.gmtModified).getTime()
           );
         });
-
         setScenarios(sortedMockData);
         return;
       }
 
-      // 有项目时调用真实API
       const res = await request.post<ApiScenario[]>(
         "/quote/api/v1/scene/list",
         {
@@ -153,22 +141,17 @@ const ScenariosList = () => {
         },
       );
 
-      // 确保数据存在且为数组
       const scenariosData = Array.isArray(res.data.data) ? res.data.data : [];
 
       if (scenariosData.length === 0) {
-        console.log("No scenarios data received, using empty array");
         setScenarios([]);
         return;
       }
 
-      // 排序：启用的���前，暂停的在后，同类型内按更新时间倒序
       const sortedData = scenariosData.sort((a, b) => {
-        // 首先按启用状态排序（启用的在前）
         if (a.status !== b.status) {
           return b.status ? 1 : -1;
         }
-        // 同样状态内按更新时间倒序
         return (
           new Date(b.gmtModified).getTime() - new Date(a.gmtModified).getTime()
         );
@@ -176,12 +159,7 @@ const ScenariosList = () => {
 
       setScenarios(sortedData);
     } catch (error) {
-      console.error("Failed to load scenarios:", error);
-
-      // 如果API失败，使用mock数据供开发测试使用
-      console.log("API失败，使用mock数据");
       const mockApiScenarios = mockScenarios.map(convertMockScenarioToApiFormat);
-
       setScenarios(
         mockApiScenarios.sort((a, b) => {
           if (a.status !== b.status) {
@@ -196,7 +174,7 @@ const ScenariosList = () => {
     } finally {
       setLoading(false);
     }
-  }, [currentProject, toast]);
+  }, [currentProject]);
 
   useEffect(() => {
     loadScenarios();
@@ -217,11 +195,6 @@ const ScenariosList = () => {
     setSwitchingScenario(scenario.id);
 
     try {
-      // TODO: 这里需要调用实际的API来更新状态
-      // await updateMarketingScenario(scenario.id, {
-      //   status: newState ? 1 : 0,
-      // });
-
       const data = {
         id: scenario.id,
         status: newState ? 1 : 0,
@@ -233,7 +206,6 @@ const ScenariosList = () => {
         const updated = prev.map((s) =>
           s.id === scenario.id ? { ...s, status: newState ? 1 : 0 } : s,
         );
-        // 重新排序：启用的在前，暂停的在后
         return updated.sort((a, b) => {
           if (a.status !== b.status) {
             return b.status ? 1 : -1;
@@ -246,13 +218,24 @@ const ScenariosList = () => {
       });
 
       toast({
-        title: newState ? "AI自动化已启动" : "AI自动化已暂停",
-        description: `${scenario.sceneName}场景的自动��营销已${newState ? "启动" : "暂停"}`,
+        title: t(
+          newState
+            ? "scenarios.list.toast.started"
+            : "scenarios.list.toast.paused",
+        ),
+        description: t("scenarios.list.toast.desc", {
+          sceneName: scenario.sceneName,
+          action: t(
+            newState
+              ? "scenarios.list.toast.actionStart"
+              : "scenarios.list.toast.actionPause",
+          ),
+        }),
       });
     } catch (error) {
       toast({
-        title: "操作失败",
-        description: "无法更新AI开关状态，请重试",
+        title: t("scenarios.list.toast.failed"),
+        description: t("scenarios.list.toast.failedDesc"),
         variant: "destructive",
       });
     } finally {
@@ -298,7 +281,6 @@ const ScenariosList = () => {
               onClick={() => navigate(`/ai-marketing/scenarios/${scenario.id}`)}
             >
               <CardHeader className="pb-4">
-                {/* 顶部：场景名称和开关 */}
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3 flex-1">
                     <div className="flex-shrink-0 w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center text-primary">
@@ -326,39 +308,29 @@ const ScenariosList = () => {
               </CardHeader>
 
               <CardContent>
-                {/* AI策略配置 - 主要区域 */}
                 <div className="bg-muted/30 rounded-lg p-4">
-                  {/* 顶部标题栏 - 左右分布 */}
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
                       <Bot className="h-4 w-4 text-primary" />
-                      <span className="text-sm font-medium">AI策略配置</span>
+                      <span className="text-sm font-medium">{t('scenarios.list.aiConfig')}</span>
                     </div>
                     <Badge variant="secondary" className="text-xs">
-                      AI策略
+                      {t('scenarios.list.aiStrategy')}
                     </Badge>
                   </div>
 
-                  {/* AI策略配置内容 */}
                   <div className="space-y-3">
-                    {/* 业务价值说明 */}
                     <div className="text-xs text-muted-foreground border-l-2 border-primary/20 pl-2">
-                      {aiConfig.description || "暂无描述"}
+                      {aiConfig.description || t('scenarios.list.noDescription')}
                     </div>
 
-                    {/* 策略摘要 */}
                     <div className="text-xs text-muted-foreground">
-                      {aiConfig.strategySummary || "暂无策略摘要"}
+                      {aiConfig.strategySummary || t('scenarios.list.noStrategySummary')}
                     </div>
 
-                    {/* 核心策略 */}
                     <div className="flex gap-1 flex-wrap">
                       {aiConfig.coreStrategies?.map((strategy, index) => (
-                        <Badge
-                          key={index}
-                          variant="outline"
-                          className="text-xs"
-                        >
+                        <Badge key={index} variant="outline" className="text-xs">
                           {strategy}
                         </Badge>
                       )) || []}
@@ -371,31 +343,31 @@ const ScenariosList = () => {
         })}
       </div>
 
-      {/* 确认对话框 */}
       <AlertDialog
         open={confirmDialog.show}
         onOpenChange={(open) =>
-          !open &&
-          setConfirmDialog({ show: false, scenario: null, newState: false })
+          !open && setConfirmDialog({ show: false, scenario: null, newState: false })
         }
       >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {confirmDialog.newState ? "启动" : "暂停"}AI自动化
+              {confirmDialog.newState
+                ? t('scenarios.list.confirm.titleStart')
+                : t('scenarios.list.confirm.titlePause')}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              您确定要{confirmDialog.newState ? "启动" : "暂停"}「
-              {confirmDialog.scenario?.sceneName}」场景下的��有自动化营销吗？
               {confirmDialog.newState
-                ? ""
-                : " 这将同时暂停默认AI策略和所有自定义规则。"}
+                ? t('scenarios.list.confirm.descStart', { sceneName: confirmDialog.scenario?.sceneName })
+                : t('scenarios.list.confirm.descPause', { sceneName: confirmDialog.scenario?.sceneName })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>取消</AlertDialogCancel>
+            <AlertDialogCancel>{t('scenarios.list.confirm.cancel')}</AlertDialogCancel>
             <AlertDialogAction onClick={confirmAIToggle}>
-              确认{confirmDialog.newState ? "启动" : "暂停"}
+              {confirmDialog.newState
+                ? t('scenarios.list.confirm.confirmStart')
+                : t('scenarios.list.confirm.confirmPause')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -18,6 +18,9 @@ import {
   User,
 } from "lucide-react";
 import { OrganizationInfo } from "@shared/organizationData";
+import { useTranslation } from "react-i18next";
+import i18n from "@/lib/i18n";
+import zhOrgSettings from "@/lib/locales/organization-settings.zh.json";
 
 // Type definitions for legacy code
 type AccountStatus = "ACTIVE" | "SUSPENDED";
@@ -30,6 +33,7 @@ type SubscriptionPlan =
 // API response types
 
 const OrganizationSettings = () => {
+  const { t } = useTranslation();
   const [orgInfo, setOrgInfo] = useState<OrganizationInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -41,8 +45,12 @@ const OrganizationSettings = () => {
 
   const { toast } = useToast();
 
-  // 当前组织ID（实际应用中应该从认证上下文获取）
-  const currentOrganizationId = "org_demo_001";
+  useEffect(() => {
+    try {
+      i18n.addResourceBundle("zh-CN", "translation", zhOrgSettings as any, true, true);
+      i18n.addResourceBundle("zh", "translation", zhOrgSettings as any, true, true);
+    } catch {}
+  }, []);
 
   useEffect(() => {
     loadOrganizationInfo();
@@ -62,8 +70,8 @@ const OrganizationSettings = () => {
     } catch (error) {
       console.error("Failed to load organization info:", error);
       toast({
-        title: "加载失败",
-        description: "无法加载组织信息，请重试",
+        title: t("organization.settings.loadError.title"),
+        description: t("organization.settings.loadError.desc"),
         variant: "destructive",
       });
     } finally {
@@ -76,8 +84,8 @@ const OrganizationSettings = () => {
 
     if (!formData.name.trim()) {
       toast({
-        title: "验证失败",
-        description: "组织名称不能为空",
+        title: t("organization.settings.validationError.title"),
+        description: t("organization.settings.validationError.nameRequired"),
         variant: "destructive",
       });
       return;
@@ -98,24 +106,24 @@ const OrganizationSettings = () => {
 
       if (res && res.code === "201") {
         toast({
-          title: "保存成功",
-          description: "组织信息已更新",
+          title: t("organization.settings.save.successTitle"),
+          description: t("organization.settings.save.successDesc"),
         });
 
         // Refresh the data
         loadOrganizationInfo();
       } else {
         toast({
-          title: "保存失败",
-          description: res?.msg || "更新失败",
+          title: t("organization.settings.save.failTitle"),
+          description: res?.msg || t("organization.settings.save.failDesc"),
           variant: "destructive",
         });
       }
     } catch (error) {
       console.error("Failed to update organization:", error);
       toast({
-        title: "保存失败",
-        description: "网络错误，请重试",
+        title: t("organization.settings.save.failTitle"),
+        description: t("organization.settings.save.networkErrorDesc"),
         variant: "destructive",
       });
     } finally {
@@ -126,7 +134,7 @@ const OrganizationSettings = () => {
   const getSubscriptionBadge = () => {
     return (
       <Badge variant="outline" className="bg-blue-50 text-blue-700">
-        内部试用
+        {t("organization.settings.subscription.internalTrial")}
       </Badge>
     );
   };
@@ -155,13 +163,13 @@ const OrganizationSettings = () => {
     if (usertype === "manager") {
       return (
         <Badge variant="default" className="bg-purple-100 text-purple-800">
-          管理员
+          {t("organization.settings.userType.manager")}
         </Badge>
       );
     } else if (usertype === "member") {
       return (
         <Badge variant="outline" className="bg-blue-50 text-blue-700">
-          成员
+          {t("organization.settings.userType.member")}
         </Badge>
       );
     } else {
@@ -171,11 +179,11 @@ const OrganizationSettings = () => {
 
   const getUserStatusBadge = (disable: boolean) => {
     if (disable) {
-      return <Badge variant="destructive">已禁用</Badge>;
+      return <Badge variant="destructive">{t("organization.settings.userStatus.disabled")}</Badge>;
     } else {
       return (
         <Badge variant="default" className="bg-green-100 text-green-800">
-          活跃
+          {t("organization.settings.userStatus.active")}
         </Badge>
       );
     }
@@ -200,9 +208,9 @@ const OrganizationSettings = () => {
       <div className="p-6">
         <div className="text-center py-12">
           <h2 className="text-xl font-semibold text-gray-900 mb-2">
-            无法加载组织信息
+            {t("organization.settings.emptyState.title")}
           </h2>
-          <p className="text-gray-600">请刷新页面重试</p>
+          <p className="text-gray-600">{t("organization.settings.emptyState.desc")}</p>
         </div>
       </div>
     );
@@ -216,12 +224,12 @@ const OrganizationSettings = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Building2 className="h-5 w-5" />
-              基本信息
+              {t("organization.settings.section.basicInfo")}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <Label htmlFor="orgId">组织ID</Label>
+              <Label htmlFor="orgId">{t("organization.settings.labels.orgId")}</Label>
               <Input
                 id="orgId"
                 value={orgInfo.company.id}
@@ -229,33 +237,33 @@ const OrganizationSettings = () => {
                 className="bg-gray-50"
               />
               <p className="text-xs text-gray-500 mt-1">
-                组织的唯一标识符，不可修改
+                {t("organization.settings.helpers.orgId")}
               </p>
             </div>
 
             <div>
-              <Label htmlFor="orgName">组织名称</Label>
+              <Label htmlFor="orgName">{t("organization.settings.labels.orgName")}</Label>
               <Input
                 id="orgName"
                 value={formData.name}
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, name: e.target.value }))
                 }
-                placeholder="请输入组织名称"
+                placeholder={t("organization.settings.placeholders.orgName") || undefined}
               />
               <p className="text-xs text-gray-500 mt-1">
-                组织的显示名称，可以修改
+                {t("organization.settings.helpers.orgName")}
               </p>
             </div>
 
             <div className="flex justify-end">
               <Button
                 onClick={handleSave}
-                disabled={saving || formData.name === orgInfo.name}
+                disabled={saving || formData.name === orgInfo.company.name}
                 className="flex items-center gap-2"
               >
                 <Save className="h-4 w-4" />
-                {saving ? "保存中..." : "保存更改"}
+                {saving ? t("organization.settings.save.saving") : t("organization.settings.save.saveChanges")}
               </Button>
             </div>
           </CardContent>
@@ -266,7 +274,7 @@ const OrganizationSettings = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Info className="h-5 w-5" />
-              状态信息
+              {t("organization.settings.section.statusInfo")}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -281,14 +289,14 @@ const OrganizationSettings = () => {
             </div> */}
 
             <div className="flex justify-between items-center">
-              <span className="text-sm font-medium">创建时间</span>
+              <span className="text-sm font-medium">{t("organization.settings.status.createdAt")}</span>
               <span className="text-sm text-gray-600">
                 {orgInfo.company.gmtCreate}
               </span>
             </div>
 
             <div className="flex justify-between items-center">
-              <span className="text-sm font-medium">最后更新</span>
+              <span className="text-sm font-medium">{t("organization.settings.status.updatedAt")}</span>
               <span className="text-sm text-gray-600">
                 {orgInfo.company.gmtModified}
               </span>
@@ -301,7 +309,7 @@ const OrganizationSettings = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Users className="h-5 w-5" />
-              成员统计
+              {t("organization.settings.section.memberStats")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -310,13 +318,13 @@ const OrganizationSettings = () => {
                 <div className="text-2xl font-bold text-blue-600">
                   {orgInfo.total}
                 </div>
-                <div className="text-sm text-blue-600">总成员数</div>
+                <div className="text-sm text-blue-600">{t("organization.settings.memberStats.total")}</div>
               </div>
               <div className="text-center p-4 bg-green-50 rounded-lg">
                 <div className="text-2xl font-bold text-green-600">
                   {orgInfo.activeMember}
                 </div>
-                <div className="text-sm text-green-600">活跃成员</div>
+                <div className="text-sm text-green-600">{t("organization.settings.memberStats.active")}</div>
               </div>
             </div>
           </CardContent>
@@ -327,18 +335,18 @@ const OrganizationSettings = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Shield className="h-5 w-5" />
-              权限说明
+              {t("organization.settings.section.permissionsInfo")}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="text-sm text-gray-600">
-              <p className="mb-2">作为组织管理员，您可以：</p>
+              <p className="mb-2">{t("organization.settings.permissions.intro")}</p>
               <ul className="space-y-1 text-xs list-disc list-inside pl-4">
-                <li>修改组织名称和基本信息</li>
-                <li>邀请新成员加入组织</li>
-                <li>管理成员的角色和权限</li>
-                <li>启用或禁用成员账户</li>
-                <li>查看组织的使用统计</li>
+                <li>{t("organization.settings.permissions.items.modifyInfo")}</li>
+                <li>{t("organization.settings.permissions.items.inviteMembers")}</li>
+                <li>{t("organization.settings.permissions.items.manageRoles")}</li>
+                <li>{t("organization.settings.permissions.items.toggleAccounts")}</li>
+                <li>{t("organization.settings.permissions.items.viewStats")}</li>
               </ul>
             </div>
 
@@ -346,8 +354,8 @@ const OrganizationSettings = () => {
               <div className="flex items-start gap-2">
                 <Crown className="h-4 w-4 text-yellow-600 mt-0.5" />
                 <div className="text-xs text-yellow-800">
-                  <strong>重要提醒：</strong>
-                  请谨慎管理管理员权限，确保组织始终至少有一个活跃的管理员账户。
+                  <strong>{t("organization.settings.permissions.warningTitle")}</strong>
+                  {t("organization.settings.permissions.warningDesc")}
                 </div>
               </div>
             </div>

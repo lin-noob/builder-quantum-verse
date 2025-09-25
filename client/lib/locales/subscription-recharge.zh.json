@@ -1,0 +1,40 @@
+{
+  "organization": {
+    "subscriptionRecharge": {
+      "loading": "加载中...",
+      "card": {
+        "title": "当前订阅套餐",
+        "statusActive": "使用中",
+        "statusExpired": "已过期",
+        "price": "套餐价格",
+        "startAt": "订阅开始时间",
+        "endAt": "订阅到期时间",
+        "features": "包含功能"
+      },
+      "actions": {
+        "renew": "续费套餐",
+        "upgrade": "升级套餐",
+        "cancel": "取消",
+        "confirmPay": "确认支付",
+        "confirmUpgrade": "确认升级",
+        "selectPlan": "选择套餐",
+        "currentPlan": "当前套餐"
+      },
+      "renewDialog": {
+        "title": "续费套餐",
+        "desc": "确认续费当前套餐: {{name}}",
+        "price": "套餐价格",
+        "paymentMethod": "支付方式"
+      },
+      "upgradeDialog": {
+        "title": "升级套餐",
+        "desc": "选择您想要升级到的套餐",
+        "features": "包含功能:",
+        "paymentMethod": "支付方式"
+      },
+      "toast": {
+        "upgradeSuccess": "升级成功"
+      }
+    }
+  }
+}
