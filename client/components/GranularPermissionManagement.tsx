@@ -79,8 +79,8 @@ import "antd/dist/reset.css";
 import { request } from "@/lib/request";
 import { useToast } from "@/hooks/use-toast";
 import { useRoleStore } from "@/stores";
+import { useTranslation } from "react-i18next";
 
-// 模拟数据类型定义
 interface Permission {
   id: string;
   name: string;
@@ -90,12 +90,10 @@ interface Permission {
   action: string;
 }
 
-
-// 权限接口返回项
 interface ApiPermissionItem {
   id: string;
   name: string;
-  type: number | string; // 1: 功能, 2: 字段
+  type: number | string;
   menuId: number | string;
 }
 
@@ -106,7 +104,6 @@ interface User {
   roles: string[];
 }
 
-// 定义功能模块树状结构
 interface Module {
   id: string;
   name: string;
@@ -119,26 +116,19 @@ interface GranularPermissionManagementProps {
   description?: string;
 }
 
-export default function GranularPermissionManagement({
-  title = "精细化权限管理",
-}: GranularPermissionManagementProps) {
+export default function GranularPermissionManagement({ title }: GranularPermissionManagementProps) {
+  const { t } = useTranslation();
+  const resolvedTitle = title || t('organization.permissions.title');
   const { toast } = useToast();
-  // API hooks
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
-  const {
-    data: rolesData,
-    isLoading,
-    isError,
-    error,
-  } = useRoles({ page, limit, name: searchTerm });
+  const { data: rolesData, isLoading, isError, error } = useRoles({ page, limit, name: searchTerm });
   const { fetchRoles } = useRoleStore();
   const createRoleMutation = useCreateRole();
   const updateRoleMutation = useUpdateRole();
   const deleteRoleMutation = useDeleteRole();
 
-  // 状态管理
   const [users, setUsers] = useState<User[]>([]);
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
   const [isRoleDialogOpen, setIsRoleDialogOpen] = useState(false);
@@ -146,28 +136,20 @@ export default function GranularPermissionManagement({
   const [roleMenuPermissions, setRoleMenuPermissions] = useState<string[]>([]);
   const [loadingMenuPermissions, setLoadingMenuPermissions] = useState(false);
 
-  // 当前激活的菜单与权限项
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
   const [permissionItems, setPermissionItems] = useState<ApiPermissionItem[]>([]);
   const [loadingPermissions, setLoadingPermissions] = useState(false);
-  const [newRole, setNewRole] = useState({
-    id: "",
-    name: "",
-    description: "",
-  });
+  const [newRole, setNewRole] = useState({ id: "", name: "", description: "" });
   const [isEditingRole, setIsEditingRole] = useState(false);
-  
-  // 菜单数据状态
+
   const [menuTreeData, setMenuTreeData] = useState<TreeDataNode[]>([]);
   const [loadingMenuTree, setLoadingMenuTree] = useState(true);
 
-  // 删除确认对话框状态
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
 
   const roles = rolesData?.data;
 
-  // 获取菜单树数据
   const fetchMenuTreeData = async () => {
     try {
       setLoadingMenuTree(true);
@@ -175,14 +157,12 @@ export default function GranularPermissionManagement({
       const menuData = response.data.data || [];
       setMenuTreeData(convertToTreeData(menuData));
     } catch (error) {
-      console.error("Failed to fetch menu tree data:", error);
       setMenuTreeData([]);
     } finally {
       setLoadingMenuTree(false);
     }
   };
 
-  // 将菜单数据转换为 Ant Design Tree 需要的格式
   const convertToTreeData = (menuData: any[]): TreeDataNode[] => {
     return menuData.map((item) => ({
       key: item.id,
@@ -191,19 +171,16 @@ export default function GranularPermissionManagement({
     }));
   };
 
-  // 当��色数据加载完成时，设置默认选中的角色
   useEffect(() => {
     if (roles && roles.length > 0 && !selectedRole) {
       setSelectedRole(roles[0]);
     }
   }, [roles, selectedRole]);
 
-  // 获取菜单树数据
   useEffect(() => {
     fetchMenuTreeData();
   }, []);
 
-  // 当选中角色变化时，获取对应的菜单权限
   useEffect(() => {
     if (selectedRole) {
       fetchRoleMenuPermissions(selectedRole.id);
@@ -212,7 +189,6 @@ export default function GranularPermissionManagement({
     }
   }, [selectedRole?.id]);
 
-  // 过滤出真正应该显示为选中的节点（避免父节点误选）
   const filterActualCheckedNodes = (returnedMenuIds: string[]): string[] => {
     if (!returnedMenuIds || returnedMenuIds.length === 0) return [];
 
@@ -238,98 +214,61 @@ export default function GranularPermissionManagement({
       return keys;
     };
 
-    // 过滤逻辑：如果一个父节点在列表中，但它的子节点并非全部在列表中，则移除这个父节点
     return returnedMenuIds.filter(menuId => {
       const node = findNodeInTree(menuTreeData, menuId);
-
-      // 如果是叶子节点，保留
       if (!node || !node.children || node.children.length === 0) {
         return true;
       }
-
-      // 如果是父节点，检查它的所有子节点是否都在返回的列表中
       const allChildKeys = getAllChildKeys(node);
-      const allChildrenSelected = allChildKeys.every(childKey =>
-        returnedMenuIds.includes(childKey)
-      );
-
-      // 只有当所有子节点都被选中时，才保留这个父节点
+      const allChildrenSelected = allChildKeys.every(childKey => returnedMenuIds.includes(childKey));
       return allChildrenSelected;
     });
   };
 
-  // 获取角色菜单权限
   const fetchRoleMenuPermissions = async (roleId: string) => {
     try {
       setLoadingMenuPermissions(true);
       const response = await request.get(`/admin/api/v1/roles/${roleId}/menus`);
       const rawMenuIds = response.data.data || [];
-
-      // 过滤出真正应该显示为选中的节点
       const filteredMenuIds = filterActualCheckedNodes(rawMenuIds);
-
       setRoleMenuPermissions(filteredMenuIds);
-      setSelectedRole((prv)=>{
-        return {
-          ...prv,
-          menuIds: filteredMenuIds
-        }
-      })
-
+      setSelectedRole((prv) => ({
+        ...prv,
+        menuIds: filteredMenuIds,
+      } as any));
     } catch (error) {
-      console.error('Failed to fetch role menu permissions:', error);
       setRoleMenuPermissions([]);
     } finally {
       setLoadingMenuPermissions(false);
     }
   };
 
-  // 处理角色选择
   const handleSelectRole = (role: Role) => {
-    if(role.id === selectedRole.id){
-      return;
-    }
+    if (selectedRole && role.id === selectedRole.id) return;
     setSelectedRole(role);
   };
 
-  // 处理创建新角色（不依赖 selectedRole）
   const handleCreateRole = () => {
     setIsEditingRole(false);
     setNewRole({ id: "", name: "", description: "" });
     setIsRoleDialogOpen(true);
   };
 
-  // 处理编辑角��（显式编辑模式）
   const handleEditRole = (role: Role) => {
     setIsEditingRole(true);
     setNewRole({ id: role.id, name: role.name, description: role.description });
     setIsRoleDialogOpen(true);
   };
 
-  // 处理复制角色
-  const handleCopyRole = (role: Role) => {
-    // 在实际应用中，这里应该调用 API 创建新角色
-    console.log("复制角色:", role);
-    // 暂时使用模拟数据
-    const copiedRole = {
-      ...role,
-      id: `copy_of_${role.id}`,
-      name: `复制-${role.name}`,
-    };
-    // setRoles([...roles, copiedRole]);
-  };
-
-  // 触发删除确认
   const handleDeleteRole = (role: Role) => {
     setDeleteTarget({ id: role.id, name: role.name });
     setIsDeleteDialogOpen(true);
   };
 
-  // 保存角色（由对话框模式决定新增或编辑）
   const handleSaveRole = () => {
     const trimmedName = newRole.name.trim();
     if (!trimmedName) {
-      toast({ title: `请填写${title}名称`, variant: "destructive" });
+      toast({ title: t('organization.permissions.validations.fillName', { title: resolvedTitle }), variant: 'destructive' });
       return;
     }
 
@@ -344,12 +283,9 @@ export default function GranularPermissionManagement({
         shopid: base?.shopId ?? "",
         type: base?.type ?? "manager",
       };
-      updateRoleMutation.mutate({
-        id: newRole.id,
-        data: payload as any,
-      }, {
+      updateRoleMutation.mutate({ id: newRole.id, data: payload as any }, {
         onSuccess: (data) => {
-          if (data.code === "200" || data.code === "201") {
+          if (data.code === '200' || data.code === '201') {
             fetchRoles();
           }
         }
@@ -357,7 +293,7 @@ export default function GranularPermissionManagement({
     } else {
       createRoleMutation.mutate({ name: trimmedName }, {
         onSuccess: (data) => {
-          if (data.code === "200" || data.code === "201") {
+          if (data.code === '200' || data.code === '201') {
             fetchRoles();
           }
         }
@@ -367,7 +303,6 @@ export default function GranularPermissionManagement({
     setIsRoleDialogOpen(false);
   };
 
-  // 切换功能权限并保存到后端
   const togglePermission = async (permissionId: string) => {
     if (!selectedRole || !activeMenuId) return;
 
@@ -376,13 +311,11 @@ export default function GranularPermissionManagement({
       ? prev.filter((id) => id !== permissionId)
       : [...prev, permissionId];
 
-    // 本地先更新
     setSelectedRole({
       ...selectedRole,
       permissionIds: updatedPermissions,
     });
 
-    // 计算勾选名称数组
     const selectedSet = new Set(updatedPermissions);
     const permissionNames = permissionItems
       .filter((p) => selectedSet.has(p.id))
@@ -395,84 +328,57 @@ export default function GranularPermissionManagement({
         permissionIds: updatedPermissions,
         permissionNames,
       });
-      toast({ title: "保存成功" });
+      toast({ title: t('organization.permissions.toasts.saveSuccess') });
     } catch (e: any) {
-      // 回滚
       setSelectedRole((curr) => (curr ? { ...curr, permissionIds: prev } : curr));
-      toast({ title: "保存失败", description: e?.message || "请稍后重试", variant: "destructive" });
+      toast({ title: t('organization.permissions.toasts.saveFailed'), description: e?.message || t('organization.permissions.unknownError'), variant: 'destructive' });
     }
   };
 
-  // 打开字段权限配置
   const openFieldPermissionConfig = (resource: string) => {
     setSelectedResource(resource);
   };
 
-  // 切换字段查看权限
   const toggleFieldViewPermission = (fieldId: string) => {
     if (!selectedRole) return;
-
     const updatedFieldPermissions = { ...selectedRole.fieldPermissions };
     const resourceFields = updatedFieldPermissions[selectedResource] || [];
     const fieldIndex = resourceFields.findIndex((f) => f.id === fieldId);
-
     if (fieldIndex !== -1) {
-      const updatedField = {
-        ...resourceFields[fieldIndex],
-        view: !resourceFields[fieldIndex].view,
-      };
-      // 如果取消查看权限，也要取消编辑权限
+      const updatedField = { ...resourceFields[fieldIndex], view: !resourceFields[fieldIndex].view };
       if (!updatedField.view) {
         updatedField.edit = false;
       }
       resourceFields[fieldIndex] = updatedField;
       updatedFieldPermissions[selectedResource] = resourceFields;
-
-      setSelectedRole({
-        ...selectedRole,
-        fieldPermissions: updatedFieldPermissions,
-      });
+      setSelectedRole({ ...selectedRole, fieldPermissions: updatedFieldPermissions });
     }
   };
 
-  // 切换字段编辑权限
   const toggleFieldEditPermission = (fieldId: string) => {
     if (!selectedRole) return;
-
     const updatedFieldPermissions = { ...selectedRole.fieldPermissions };
     const resourceFields = updatedFieldPermissions[selectedResource] || [];
     const fieldIndex = resourceFields.findIndex((f) => f.id === fieldId);
-
     if (fieldIndex !== -1) {
       const updatedField = { ...resourceFields[fieldIndex] };
-      // 如果开启编辑权限，必须开启查看权限
       if (!updatedField.view) {
         updatedField.view = true;
       }
       updatedField.edit = !updatedField.edit;
       resourceFields[fieldIndex] = updatedField;
       updatedFieldPermissions[selectedResource] = resourceFields;
-
-      setSelectedRole({
-        ...selectedRole,
-        fieldPermissions: updatedFieldPermissions,
-      });
+      setSelectedRole({ ...selectedRole, fieldPermissions: updatedFieldPermissions });
     }
   };
 
-  // 保存权限配置
   const handleSavePermissions = () => {
     if (selectedRole) {
-      // 在实际应用中，这里应该调用 API 保存权限配置
-      console.log("保存权限配置:", selectedRole);
-      // updateRoleMutation.mutate({
-      //   id: selectedRole.id,
-      //   data: selectedRole
-      // });
+      // Reserved for future API call
+      // console.log("保存权限配置:", selectedRole);
     }
   };
 
-  // 为用户分配角色
   const handleAssignRole = (userId: string, roleId: string) => {
     setUsers(
       users.map((user) => {
@@ -487,11 +393,9 @@ export default function GranularPermissionManagement({
     );
   };
 
-  // 添加分页状态
   const [fieldPermissionPage, setFieldPermissionPage] = useState(1);
-  const fieldPermissionsPerPage = 5; // 每页��示5个字段权限
+  const fieldPermissionsPerPage = 5;
 
-  // 获取指定资源的字段权限
   const getResourceFieldPermissions = (resource: string) => {
     if (selectedRole) {
       return selectedRole.fieldPermissions[resource] || [];
@@ -499,7 +403,6 @@ export default function GranularPermissionManagement({
     return [];
   };
 
-  // 获取当前页的字段权限
   const getCurrentPageFieldPermissions = () => {
     const allFieldPermissions = getResourceFieldPermissions(selectedResource);
     const startIndex = (fieldPermissionPage - 1) * fieldPermissionsPerPage;
@@ -507,21 +410,17 @@ export default function GranularPermissionManagement({
     return allFieldPermissions.slice(startIndex, endIndex);
   };
 
-  // 计算总页数
   const getFieldPermissionTotalPages = () => {
     const allFieldPermissions = getResourceFieldPermissions(selectedResource);
     return Math.ceil(allFieldPermissions.length / fieldPermissionsPerPage);
   };
 
-  // 处理页码变化
   const handleFieldPermissionPageChange = (page: number) => {
     setFieldPermissionPage(page);
   };
 
-  // 递归获取所有叶子节点
   const getAllLeafNodes = (nodes: TreeDataNode[]): string[] => {
     const leafNodes: string[] = [];
-
     const traverse = (nodeList: TreeDataNode[]) => {
       nodeList.forEach(node => {
         if (!node.children || node.children.length === 0) {
@@ -531,12 +430,10 @@ export default function GranularPermissionManagement({
         }
       });
     };
-
     traverse(nodes);
     return leafNodes;
   };
 
-  // 检查一个节点的所有子节点是否都被选中
   const areAllChildrenChecked = (nodeKey: string, checkedKeys: string[]): boolean => {
     const findNode = (nodes: TreeDataNode[], key: string): TreeDataNode | null => {
       for (const node of nodes) {
@@ -548,53 +445,31 @@ export default function GranularPermissionManagement({
       }
       return null;
     };
-
     const node = findNode(menuTreeData, nodeKey);
     if (!node || !node.children || node.children.length === 0) {
       return false;
     }
-
     const allChildKeys = getAllLeafNodes([node]);
     return allChildKeys.every(childKey => checkedKeys.includes(childKey));
   };
 
-  // 获取完全选中的节点（不包括半选状态的父节点）
   const getFullyCheckedNodes = (checkedKeys: string[], halfCheckedKeys: string[] = []) => {
-    // 过滤出真正完全选中的节点
     return checkedKeys.filter(key => {
-      // 如果是半选状态，则不包含在结果中
-      if (halfCheckedKeys.includes(key)) {
-        return false;
-      }
-
-      // 如果是叶子节点，直接包含
+      if (halfCheckedKeys.includes(key)) return false;
       const allLeafNodes = getAllLeafNodes(menuTreeData);
-      if (allLeafNodes.includes(key)) {
-        return true;
-      }
-
-      // 如果是父节点，检查是否所有子节点都被选中
+      if (allLeafNodes.includes(key)) return true;
       return areAllChildrenChecked(key, checkedKeys);
     });
   };
 
-  // 处理菜单选择变化并立即保存到后端
   const handleMenuSelectionChange = async (checkedKeysInfo: any) => {
     if (!selectedRole) return;
-
-    // 获取完全选中的节点（排除半选状态的父节点）
     const checkedKeys = Array.isArray(checkedKeysInfo) ? checkedKeysInfo : checkedKeysInfo.checked;
     const halfCheckedKeys = checkedKeysInfo.halfChecked || [];
-
-    // 只将完���选中的节点发送到后端
     const fullySelectedMenuIds = getFullyCheckedNodes(checkedKeys, halfCheckedKeys);
     const prevMenuIds = selectedRole.menuIds || [];
 
-    // 本地先行更新，提升交互响应
-    setSelectedRole({
-      ...selectedRole,
-      menuIds: fullySelectedMenuIds,
-    });
+    setSelectedRole({ ...selectedRole, menuIds: fullySelectedMenuIds });
 
     try {
       const payload = {
@@ -602,40 +477,30 @@ export default function GranularPermissionManagement({
         issystem: selectedRole.isSystem,
         menuIds: fullySelectedMenuIds.map((id) => String(id)),
         name: selectedRole.name,
-        permissionIds: selectedRole.permissionIds?.length
-          ? selectedRole.permissionIds
-          : null,
+        permissionIds: selectedRole.permissionIds?.length ? selectedRole.permissionIds : null,
         shopid: selectedRole.shopId ?? "",
         type: selectedRole.type,
       };
-
       await request.put(`/admin/api/v1/roles/${selectedRole.id}/menus`, payload);
-      toast({ title: "保存成功" });
+      toast({ title: t('organization.permissions.toasts.saveSuccess') });
       if (!activeMenuId && fullySelectedMenuIds.length > 0) {
         setActiveMenuId(fullySelectedMenuIds[fullySelectedMenuIds.length - 1]);
       }
     } catch (err: any) {
-      console.error("Failed to save role menu permissions:", err);
-      // 还原选择
       setSelectedRole((curr) => (curr ? { ...curr, menuIds: prevMenuIds } : curr));
-      const message = err?.message || "请稍后重试";
-      toast({ title: "保存失败", description: message, variant: "destructive" });
+      const message = err?.message || t('organization.permissions.unknownError');
+      toast({ title: t('organization.permissions.toasts.saveFailed'), description: message, variant: 'destructive' });
     }
   };
 
-  // ���取指定菜单的权限���
   const fetchPermissionsByMenu = async (menuId: string) => {
     try {
       setLoadingPermissions(true);
-      const res = await request.get<ApiPermissionItem[]>(
-        "/admin/api/v1/permissions",
-        { menuId },
-      );
+      const res = await request.get<ApiPermissionItem[]>("/admin/api/v1/permissions", { menuId });
       const list = (res as any)?.data?.data ?? (res as any)?.data ?? [];
       setPermissionItems(list);
     } catch (e: any) {
-      console.error("Failed to fetch permissions by menuId:", e);
-      toast({ title: "加载权限失败", description: e?.message || "请稍后重试", variant: "destructive" });
+      toast({ title: t('organization.permissions.toasts.loadPermFailed'), description: e?.message || t('organization.permissions.unknownError'), variant: 'destructive' });
       setPermissionItems([]);
     } finally {
       setLoadingPermissions(false);
@@ -645,19 +510,14 @@ export default function GranularPermissionManagement({
   useEffect(() => {
     if (activeMenuId) {
       fetchPermissionsByMenu(activeMenuId);
-      // 加载该角色在当前菜单下已勾选的权限
       const fetchRolePermissionIdsByMenu = async () => {
         if (!selectedRole) return;
         try {
-          const res = await request.get<string[]>(
-            `/admin/api/v1/roles/${selectedRole.id}/permissions`,
-            { menuId: activeMenuId },
-          );
+          const res = await request.get<string[]>(`/admin/api/v1/roles/${selectedRole.id}/permissions`, { menuId: activeMenuId });
           const ids: string[] = (res as any)?.data?.data ?? (res as any)?.data ?? [];
           setSelectedRole((curr) => (curr ? { ...curr, permissionIds: ids } : curr));
         } catch (e: any) {
-          console.error("Failed to fetch role existing permissions:", e);
-          toast({ title: "加载已选权限失败", description: e?.message || "请稍后重试", variant: "destructive" });
+          toast({ title: t('organization.permissions.toasts.loadRolePermFailed'), description: e?.message || t('organization.permissions.unknownError'), variant: 'destructive' });
           setSelectedRole((curr) => (curr ? { ...curr, permissionIds: [] } : curr));
         }
       };
@@ -668,24 +528,23 @@ export default function GranularPermissionManagement({
   return (
     <div className="p-6 space-y-6">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* 左侧角色列表 */}
         <Card className="lg:col-span-3">
           <CardHeader>
             <div className="flex justify-between items-center">
               <div>
-                <CardTitle>{title}列表</CardTitle>
-                <CardDescription>组织中的所有{title}</CardDescription>
+                <CardTitle>{t('organization.permissions.list.title', { title: resolvedTitle })}</CardTitle>
+                <CardDescription>{t('organization.permissions.list.desc', { title: resolvedTitle })}</CardDescription>
               </div>
               <Button onClick={handleCreateRole} size="sm">
                 <Plus className="h-4 w-4 mr-1" />
-                新建
+                {t('organization.permissions.actions.new')}
               </Button>
             </div>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <Input
-                placeholder={`搜索${title}...`}
+                placeholder={t('organization.permissions.searchPlaceholder', { title: resolvedTitle })!}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -696,23 +555,15 @@ export default function GranularPermissionManagement({
                   </div>
                 ) : isError ? (
                   <div className="text-center text-red-500 py-4">
-                    加载{title}列表失败: {error?.message || "未知错误"}
+                    {t('organization.permissions.loadFailed', { title: resolvedTitle })}: {error?.message || t('organization.permissions.unknownError')}
                   </div>
                 ) : (
                   roles
-                    .filter((role) =>
-                      role.name
-                        .toLowerCase()
-                        .includes(searchTerm.toLowerCase()),
-                    )
+                    .filter((role) => role.name.toLowerCase().includes(searchTerm.toLowerCase()))
                     .map((role) => (
                       <div
                         key={role.id}
-                        className={`p-4 rounded-lg border cursor-pointer transition-colors ${
-                          selectedRole?.id === role.id
-                            ? "border-blue-500 bg-blue-50"
-                            : "border-gray-200 hover:bg-gray-50"
-                        }`}
+                        className={`${selectedRole?.id === role.id ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:bg-gray-50'} p-4 rounded-lg border cursor-pointer transition-colors`}
                         onClick={() => handleSelectRole(role)}
                       >
                         <div className="flex justify-between items-start">
@@ -726,29 +577,11 @@ export default function GranularPermissionManagement({
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                              <DropdownMenuItem
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleEditRole(role);
-                                }}
-                              >
-                                编辑
+                              <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleEditRole(role); }}>
+                                {t('organization.permissions.actions.edit')}
                               </DropdownMenuItem>
-                              {/* <DropdownMenuItem
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleCopyRole(role);
-                                }}
-                              >
-                                复制
-                              </DropdownMenuItem> */}
-                              <DropdownMenuItem
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleDeleteRole(role);
-                                }}
-                              >
-                                删除
+                              <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleDeleteRole(role); }}>
+                                {t('organization.permissions.actions.delete')}
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
@@ -761,47 +594,38 @@ export default function GranularPermissionManagement({
           </CardContent>
         </Card>
 
-        {/* 右侧权限配置面板 */}
         <Card className="lg:col-span-9">
           <CardHeader>
             <CardTitle>
-              {selectedRole ? `${selectedRole.name} 权限配置` : "权限配置"}
+              {selectedRole ? t('organization.permissions.rightPanel.titleSelected', { name: selectedRole.name }) : t('organization.permissions.rightPanel.title')}
             </CardTitle>
             <CardDescription>
               {selectedRole
-                ? `为 ${selectedRole.name} ${title}配置功能权限和字段权限`
-                : `请从左侧选择一个${title}进行配置`}
+                ? t('organization.permissions.rightPanel.descSelected', { name: selectedRole.name, title: resolvedTitle })
+                : t('organization.permissions.rightPanel.desc', { title: resolvedTitle })}
             </CardDescription>
           </CardHeader>
           <CardContent>
             {selectedRole ? (
               <div className="space-y-6">
-                {/* 主从布局：左侧功能列表，右侧权限配置 */}
                 <div className="flex flex-col md:flex-row gap-6">
-                  {/* 左侧菜单权限配置 */}
                   <div className="md:w-4/12">
                     <Card>
                       <CardHeader>
-                        <CardTitle className="text-lg">菜单权限</CardTitle>
+                        <CardTitle className="text-lg">{t('organization.permissions.menu.title')}</CardTitle>
                       </CardHeader>
                       <CardContent>
                         {loadingMenuTree ? (
                           <div className="flex justify-center items-center h-64">
                             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                            <span className="ml-2 text-gray-500">加载菜单数据中...</span>
+                            <span className="ml-2 text-gray-500">{t('organization.permissions.menu.loading')}</span>
                           </div>
                         ) : (
                           <Tree
                             checkable
                             checkedKeys={selectedRole?.menuIds || []}
-                            onCheck={(checkedKeysInfo) => {
-                              handleMenuSelectionChange(checkedKeysInfo);
-                            }}
-                            onSelect={(selectedKeys) => {
-                              if (selectedKeys.length > 0) {
-                                setActiveMenuId(selectedKeys[0] as string);
-                              }
-                            }}
+                            onCheck={(checkedKeysInfo) => { handleMenuSelectionChange(checkedKeysInfo); }}
+                            onSelect={(selectedKeys) => { if (selectedKeys.length > 0) { setActiveMenuId(selectedKeys[0] as string); } }}
                             treeData={menuTreeData}
                             height={400}
                             defaultExpandAll
@@ -812,32 +636,20 @@ export default function GranularPermissionManagement({
                     </Card>
                   </div>
 
-                  {/* 右侧功能权限配置 */}
                   <div className="md:w-8/12">
                     <Card>
                       <CardHeader>
-                        <CardTitle className="text-lg">权限配置</CardTitle>
+                        <CardTitle className="text-lg">{t('organization.permissions.permissions.title')}</CardTitle>
                       </CardHeader>
                       <CardContent>
                         {activeMenuId ? (
-                          <Tabs
-                            defaultValue="permissions"
-                            className="space-y-6"
-                          >
-                            <TabsList className="grid w-full grid-cols-2">
-                              <TabsTrigger value="permissions">
-                                功能权限
-                              </TabsTrigger>
-                              <TabsTrigger value="fieldPermissions">
-                                字段权限
-                              </TabsTrigger>
+                          <Tabs defaultValue="fieldPermissions" className="space-y-6">
+                            <TabsList className="grid w-full grid-cols-2 hidden">
+                              <TabsTrigger value="permissions">{t('organization.permissions.tabs.permissions')}</TabsTrigger>
+                              <TabsTrigger value="fieldPermissions">{t('organization.permissions.tabs.fieldPermissions')}</TabsTrigger>
                             </TabsList>
 
-                            {/* 功能权限Tab */}
-                            <TabsContent
-                              value="permissions"
-                              className="space-y-6"
-                            >
+                            <TabsContent value="permissions" className="space-y-6">
                               <div className="space-y-4">
                                 {loadingPermissions ? (
                                   <div className="flex justify-center items-center py-8">
@@ -845,36 +657,22 @@ export default function GranularPermissionManagement({
                                   </div>
                                 ) : (
                                   <div className="grid grid-cols-1 gap-2">
-                                    {permissionItems.filter(p => String(p.type) === "1").length > 0 ? (
-                                      permissionItems
-                                        .filter((p) => String(p.type) === "1")
-                                        .map((p) => (
-                                          <div key={p.id} className="flex items-center space-x-2 p-3 border rounded-lg">
-                                            <Checkbox
-                                              id={`perm-${p.id}`}
-                                              checked={!!selectedRole?.permissionIds?.includes(p.id)}
-                                              onCheckedChange={() => togglePermission(p.id)}
-                                            />
-                                            <Label htmlFor={`perm-${p.id}`} className="text-sm">
-                                              {p.name}
-                                            </Label>
-                                          </div>
-                                        ))
+                                    {permissionItems.filter(p => String(p.type) === '1').length > 0 ? (
+                                      permissionItems.filter((p) => String(p.type) === '1').map((p) => (
+                                        <div key={p.id} className="flex items-center space-x-2 p-3 border rounded-lg">
+                                          <Checkbox id={`perm-${p.id}`} checked={!!selectedRole?.permissionIds?.includes(p.id)} onCheckedChange={() => togglePermission(p.id)} />
+                                          <Label htmlFor={`perm-${p.id}`} className="text-sm">{p.name}</Label>
+                                        </div>
+                                      ))
                                     ) : (
-                                      <div className="text-center text-gray-500 py-4">
-                                        暂无功能权限
-                                      </div>
+                                      <div className="text-center text-gray-500 py-4">{t('organization.permissions.empty.feature')}</div>
                                     )}
                                   </div>
                                 )}
                               </div>
                             </TabsContent>
 
-                            {/* 字段权限Tab */}
-                            <TabsContent
-                              value="fieldPermissions"
-                              className="space-y-6"
-                            >
+                            <TabsContent value="fieldPermissions" className="space-y-6">
                               <div className="space-y-4">
                                 {loadingPermissions ? (
                                   <div className="flex justify-center items-center py-8">
@@ -882,25 +680,15 @@ export default function GranularPermissionManagement({
                                   </div>
                                 ) : (
                                   <div className="grid grid-cols-1 gap-2">
-                                    {permissionItems.filter(p => String(p.type) === "2").length > 0 ? (
-                                      permissionItems
-                                        .filter((p) => String(p.type) === "2")
-                                        .map((p) => (
-                                          <div key={p.id} className="flex items-center space-x-2 p-3 border rounded-lg">
-                                            <Checkbox
-                                              id={`perm-${p.id}`}
-                                              checked={!!selectedRole?.permissionIds?.includes(p.id)}
-                                              onCheckedChange={() => togglePermission(p.id)}
-                                            />
-                                            <Label htmlFor={`perm-${p.id}`} className="text-sm">
-                                              {p.name}
-                                            </Label>
-                                          </div>
-                                        ))
+                                    {permissionItems.filter(p => String(p.type) === '2').length > 0 ? (
+                                      permissionItems.filter((p) => String(p.type) === '2').map((p) => (
+                                        <div key={p.id} className="flex items-center space-x-2 p-3 border rounded-lg">
+                                          <Checkbox id={`perm-${p.id}`} checked={!!selectedRole?.permissionIds?.includes(p.id)} onCheckedChange={() => togglePermission(p.id)} />
+                                          <Label htmlFor={`perm-${p.id}`} className="text-sm">{p.name}</Label>
+                                        </div>
+                                      ))
                                     ) : (
-                                      <div className="text-center text-gray-500 py-4">
-                                        暂无字段权限
-                                      </div>
+                                      <div className="text-center text-gray-500 py-4">{t('organization.permissions.empty.field')}</div>
                                     )}
                                   </div>
                                 )}
@@ -910,7 +698,7 @@ export default function GranularPermissionManagement({
                         ) : (
                           <div className="flex flex-col items-center justify-center py-8 text-gray-500">
                             <Shield className="h-12 w-12 mb-4" />
-                            <p>请从左侧点击一个菜单项以加载权限</p>
+                            <p>{t('organization.permissions.selectMenuHint')}</p>
                           </div>
                         )}
                       </CardContent>
@@ -921,85 +709,67 @@ export default function GranularPermissionManagement({
             ) : (
               <div className="flex flex-col items-center justify-center py-12 text-gray-500">
                 <Shield className="h-12 w-12 mb-4" />
-                <p>请选择一个{title}进行权限配置</p>
+                <p>{t('organization.permissions.rightPanel.desc', { title: resolvedTitle })}</p>
               </div>
             )}
           </CardContent>
         </Card>
       </div>
 
-      {/* 角色编辑对话框 */}
       <Dialog open={isRoleDialogOpen} onOpenChange={setIsRoleDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{isEditingRole ? `编辑${title}` : `新建${title}`}</DialogTitle>
+            <DialogTitle>{isEditingRole ? t('organization.permissions.dialogs.role.editTitle', { title: resolvedTitle }) : t('organization.permissions.dialogs.role.newTitle', { title: resolvedTitle })}</DialogTitle>
             <DialogDescription>
-              {isEditingRole ? `修改${title}信息` : `创建一个新的${title}`}
+              {isEditingRole ? t('organization.permissions.dialogs.role.editDesc', { title: resolvedTitle }) : t('organization.permissions.dialogs.role.newDesc', { title: resolvedTitle })}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="role-name">{title}名称</Label>
-              <Input
-                id="role-name"
-                value={newRole.name}
-                onChange={(e) =>
-                  setNewRole({ ...newRole, name: e.target.value })
-                }
-                placeholder={`输入${title}名称`}
-              />
+              <Label htmlFor="role-name">{t('organization.permissions.dialogs.role.nameLabel', { title: resolvedTitle })}</Label>
+              <Input id="role-name" value={newRole.name} onChange={(e) => setNewRole({ ...newRole, name: e.target.value })} placeholder={t('organization.permissions.dialogs.role.namePlaceholder', { title: resolvedTitle })!} />
             </div>
           </div>
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setIsRoleDialogOpen(false)}
-            >
+            <Button variant="outline" onClick={() => setIsRoleDialogOpen(false)}>
               <X className="h-4 w-4 mr-2" />
-              取消
+              {t('organization.permissions.dialogs.role.cancel')}
             </Button>
             <Button onClick={handleSaveRole}>
               <Save className="h-4 w-4 mr-2" />
-              保存
+              {t('organization.permissions.dialogs.role.save')}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* 删除确认对话框 */}
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>删除{title}</AlertDialogTitle>
+            <AlertDialogTitle>{t('organization.permissions.dialogs.delete.title', { title: resolvedTitle })}</AlertDialogTitle>
             <AlertDialogDescription>
-              确认删除{title} “{deleteTarget?.name}”？该操作不可撤销。
+              {t('organization.permissions.dialogs.delete.desc', { title: resolvedTitle, name: deleteTarget?.name })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setDeleteTarget(null)}>取消</AlertDialogCancel>
-            <AlertDialogAction
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              onClick={() => {
-                if (deleteTarget) {
-                  deleteRoleMutation.mutate(deleteTarget.id, {
-                    onSuccess: (data) => {
-                      if (data.code === "200" || data.code === "201") {
-                        // 重新获取角色列表以确保数据同步
-                        fetchRoles();
-                        
-                        // 如果删除的是当前选中的角色，清空选中状态
-                        if (selectedRole && selectedRole.id === deleteTarget.id) {
-                          setSelectedRole(null);
-                        }
+            <AlertDialogCancel onClick={() => setDeleteTarget(null)}>{t('organization.permissions.dialogs.delete.cancel')}</AlertDialogCancel>
+            <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={() => {
+              if (deleteTarget) {
+                deleteRoleMutation.mutate(deleteTarget.id, {
+                  onSuccess: (data) => {
+                    if (data.code === '200' || data.code === '201') {
+                      fetchRoles();
+                      if (selectedRole && selectedRole.id === deleteTarget.id) {
+                        setSelectedRole(null);
                       }
                     }
-                  });
-                }
-                setIsDeleteDialogOpen(false);
-                setDeleteTarget(null);
-              }}
-            >
-              删除
+                  }
+                });
+              }
+              setIsDeleteDialogOpen(false);
+              setDeleteTarget(null);
+            }}>
+              {t('organization.permissions.dialogs.delete.confirm')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
