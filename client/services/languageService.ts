@@ -85,7 +85,7 @@ export class LanguageService {
       code: apiLanguage.code,
       name: apiLanguage.name,
       nativeName: extras.nativeName,
-      flag: extras.flag,
+      flag: "🌐",
     };
   }
 
