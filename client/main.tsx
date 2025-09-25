@@ -10,6 +10,7 @@ import "./global.css";
 import App from "./App";
 import { setupGlobalErrorHandler } from "./lib/errorHandler";
 import { initializeConfig } from "./stores/configStore";
+import { initializeI18n } from "./lib/i18n";
 
 // Add final layer of Recharts warning suppression
 if (process.env.NODE_ENV === "development") {
@@ -107,9 +108,33 @@ if (process.env.NODE_ENV === "development") {
   });
 }
 
-// Initialize application configuration (async)
-initializeConfig().catch((error) => {
-  console.warn('Failed to initialize config:', error);
-});
+const root = createRoot(document.getElementById("root")!);
 
-createRoot(document.getElementById("root")!).render(<App />);
+// Render a loading indicator while async initializations are running
+root.render(
+  <div
+    style={{
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      height: "100vh",
+      backgroundColor: "#f0f2f5",
+      fontSize: "16px",
+      color: "#555",
+    }}
+  >
+    loading...
+  </div>,
+);
+
+// Wait for all initializations to complete
+Promise.all([
+  initializeConfig().catch((error) => {
+    console.warn("Failed to initialize config:", error);
+  }),
+  initializeI18n().catch((error) => {
+    console.warn("Failed to initialize i18n:", error);
+  }),
+]).then(() => {
+  root.render(<App />);
+});

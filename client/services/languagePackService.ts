@@ -46,7 +46,7 @@ class LanguagePackService {
     }
 
     // 缓存中没有则从API获取
-    return this.fetchLanguagePack(langCode);
+    return await this.fetchLanguagePack(langCode);
   }
 
   /**

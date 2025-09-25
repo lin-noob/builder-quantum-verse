@@ -1,53 +1,59 @@
-import i18n from 'i18next';
-import { initReactI18next } from 'react-i18next';
-import LanguageDetector from 'i18next-browser-languagedetector';
+import i18n from "i18next";
+import { initReactI18next } from "react-i18next";
+import LanguageDetector from "i18next-browser-languagedetector";
 
 // Import translation files
-import zhTranslations from './locales/zh.json';
-import enTranslations from './locales/en.json';
-import { languagePackService } from '@/services/languagePackService';
-import { type LanguagePackEntry } from '@shared/api';
-import { getBrowserLanguage } from '@/stores';
+import zhTranslations from "./locales/zh.json";
+import enTranslations from "./locales/en.json";
+import { languagePackService } from "@/services/languagePackService";
+import { type LanguagePackEntry } from "@shared/api";
+import { getBrowserLanguage } from "@/stores";
 
 // 获取语言代码 - 与 ConfigStore 同步的检测逻辑
 const getDetectedLanguage = (): string => {
-  return getBrowserLanguage()
+  return getBrowserLanguage();
 };
 
 // Configure i18n
-i18n
-  .use(LanguageDetector)
-  .use(initReactI18next)
-  .init({
-    // resources: {
-    //   zh: { translation: zhTranslations },
-    //   en: { translation: enTranslations },
-    // },
-    lng: getDetectedLanguage(),
-    fallbackLng: 'en-US',
-    debug: false,
-    interpolation: {
-      escapeValue: false
-    },
-    detection: {
-      order: ['localStorage', 'querystring', 'navigator'],
-      caches: ['localStorage'],
-      lookupLocalStorage: 'i18nextLng',
-      lookupQuerystring: 'lng'
-    }
-  }).then(() => {
-    // 初始化完成后，尝试加载当前语言的API语言包
-    const currentLang = i18n.language;
-    loadLanguagePackFromAPI(currentLang).then(success => {
-      if (success) {
-        console.debug(`Initial language pack loaded for: ${currentLang}`);
-      } else {
-        console.debug(`Using static translations for: ${currentLang}`);
-      }
-    }).catch(error => {
-      console.warn(`Failed to load initial language pack for ${currentLang}:`, error);
+export const initializeI18n = async () => {
+  await i18n
+    .use(LanguageDetector)
+    .use(initReactI18next)
+    .init({
+      // resources: {
+      //   zh: { translation: zhTranslations },
+      //   en: { translation: enTranslations },
+      // },
+      lng: getDetectedLanguage(),
+      fallbackLng: "en-US",
+      debug: false,
+      interpolation: {
+        escapeValue: false,
+      },
+      detection: {
+        order: ["localStorage", "querystring", "navigator"],
+        caches: ["localStorage"],
+        lookupLocalStorage: "i18nextLng",
+        lookupQuerystring: "lng",
+      },
     });
-  });
+
+  // 初始化完成后，尝试加载当前语言的API语言包
+  const currentLang = i18n.language;
+  try {
+    const success = await loadLanguagePackFromAPI(currentLang);
+    if (success) {
+      console.debug(`Initial language pack loaded for: ${currentLang}`);
+    } else {
+      console.debug(`Using static translations for: ${currentLang}`);
+    }
+  } catch (error) {
+    console.warn(
+      `Failed to load initial language pack for ${currentLang}:`,
+      error,
+    );
+  }
+};
 
 // 监听语言变化事件，同步到 ConfigStore
 // i18n.on('languageChanged', (lng) => {
@@ -96,17 +102,20 @@ i18n
 // });
 
 // 动态加载语言包到 i18n
-export const loadLanguagePack = async (langCode: string, languagePack: LanguagePackEntry[]) => {
+export const loadLanguagePack = async (
+  langCode: string,
+  languagePack: LanguagePackEntry[],
+) => {
   try {
     // 转换语言包格式
     const resources = languagePackService.convertToI18nResources(languagePack);
 
     // 添加或更新语言资源，合并而不是替换现有资源
-    i18n.addResourceBundle(langCode, 'translation', resources, true, true);
+    i18n.addResourceBundle(langCode, "translation", resources, true, true);
 
     console.debug(`Language pack loaded for ${langCode}:`, {
       entriesCount: languagePack.length,
-      sampleKeys: Object.keys(resources).slice(0, 5)
+      sampleKeys: Object.keys(resources).slice(0, 5),
     });
   } catch (error) {
     console.error(`Failed to load language pack for ${langCode}:`, error);
@@ -125,7 +134,10 @@ export const loadLanguagePackFromAPI = async (langCode: string) => {
         console.debug(`Fetching language pack for ${langCode} from API...`);
         languagePack = await languagePackService.getLanguagePack(langCode);
       } catch (error) {
-        console.warn(`Failed to fetch language pack for ${langCode}, using static resources:`, error);
+        console.warn(
+          `Failed to fetch language pack for ${langCode}, using static resources:`,
+          error,
+        );
         return false;
       }
     }
@@ -138,7 +150,10 @@ export const loadLanguagePackFromAPI = async (langCode: string) => {
 
     return false;
   } catch (error) {
-    console.error(`Failed to load language pack from API for ${langCode}:`, error);
+    console.error(
+      `Failed to load language pack from API for ${langCode}:`,
+      error,
+    );
     return false;
   }
 };
@@ -149,11 +164,11 @@ export const loadLanguagePackFromStore = loadLanguagePackFromAPI;
 // 预加载语言包（在应用启动时调用）
 export const preloadLanguagePacks = async (langCodes: string[]) => {
   try {
-    console.debug('Preloading language packs for:', langCodes);
+    console.debug("Preloading language packs for:", langCodes);
     await languagePackService.preloadLanguagePacks(langCodes);
 
     // 为当前语言加载语言包
-    const currentLang = i18n.language || 'en-US';
+    const currentLang = i18n.language || "en-US";
     if (langCodes.includes(currentLang)) {
       const success = await loadLanguagePackFromAPI(currentLang);
       if (success) {
@@ -161,13 +176,13 @@ export const preloadLanguagePacks = async (langCodes: string[]) => {
       }
     }
   } catch (error) {
-    console.warn('Failed to preload language packs:', error);
+    console.warn("Failed to preload language packs:", error);
   }
 };
 
 // 手动刷新当前语言的语言包（强制从API重新获取）
 export const refreshCurrentLanguagePack = async () => {
-  const currentLang = i18n.language || 'en-US';
+  const currentLang = i18n.language || "en-US";
   try {
     // 清除缓存
     languagePackService.clearLanguageCache(currentLang);

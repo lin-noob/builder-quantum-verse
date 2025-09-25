@@ -45,7 +45,6 @@ export default function MarketingHome() {
   }, []);
 
   useEffect(() => {
-    debugger;
     setFeatures([
       {
         icon: <Bot className="h-8 w-8 text-blue-600" />,
