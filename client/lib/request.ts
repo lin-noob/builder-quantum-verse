@@ -750,7 +750,7 @@ export class Request {
       const jsessionid = localStorage.getItem("auth_session") ?? undefined;
       const projectId =
         useProjectStore.getState()?.currentProject?.id ?? '';
-      const currentLanguage = useConfigStore.getState()?.langCode ?? 'zh';
+      const currentLanguage = useConfigStore.getState()?.langCode ?? 'en-US';
       const mergedHeaders = {
         ...this.defaultConfig.headers,
         ...headers,

@@ -42,6 +42,7 @@ export interface Organization {
   memberCount?: number;
   /** 活跃成员数量 */
   activeMemberCount?: number;
+  tariffPackagesId?:string
 }
 
 /**
@@ -90,6 +91,7 @@ export interface CreateOrganizationRequest {
   adminEmail: string;
   /** 初始管理员密码 */
   adminPassword: string;
+  roleId: string;
 }
 
 /**
