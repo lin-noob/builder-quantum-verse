@@ -23,8 +23,6 @@ import { formatDateYMD } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
 import RechargeRecordsTable from "@/components/RechargeRecordsTable";
 import { useTranslation } from "react-i18next";
-import i18n from "@/lib/i18n";
-import zhSub from "@/lib/locales/subscription-recharge.zh.json";
 
 interface Subscription {
   id: string;
@@ -44,13 +42,6 @@ interface Subscription {
 
 export default function SubscriptionRecharge() {
   const { t } = useTranslation();
-
-  useEffect(() => {
-    try {
-      i18n.addResourceBundle("zh-CN", "translation", zhSub as any, true, true);
-      i18n.addResourceBundle("zh", "translation", zhSub as any, true, true);
-    } catch {}
-  }, []);
 
   const [currentSubscription, setCurrentSubscription] =
     useState<Subscription | null>(null);

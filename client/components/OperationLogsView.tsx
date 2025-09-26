@@ -29,7 +29,6 @@ import AdvancedDateRangePicker from "@/components/AdvancedDateRangePicker";
 import { formatStartDate, formatEndDate } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 import i18n from "@/lib/i18n";
-import zhLogs from "@/lib/locales/operation-logs.zh.json";
 
 interface DateRange {
   start: Date | null;
@@ -70,13 +69,6 @@ interface LogListRequestDto {
 
 export default function OperationLogsView({ organizationId }: OperationLogsViewProps) {
   const { t } = useTranslation();
-
-  useEffect(() => {
-    try {
-      i18n.addResourceBundle("zh-CN", "translation", zhLogs as any, true, true);
-      i18n.addResourceBundle("zh", "translation", zhLogs as any, true, true);
-    } catch {}
-  }, []);
 
   const [logs, setLogs] = useState<OperationLog[]>([]);
   const [loading, setLoading] = useState(false);

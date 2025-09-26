@@ -20,7 +20,6 @@ import {
 import { OrganizationInfo } from "@shared/organizationData";
 import { useTranslation } from "react-i18next";
 import i18n from "@/lib/i18n";
-import zhOrgSettings from "@/lib/locales/organization-settings.zh.json";
 
 // Type definitions for legacy code
 type AccountStatus = "ACTIVE" | "SUSPENDED";
@@ -44,13 +43,6 @@ const OrganizationSettings = () => {
   });
 
   const { toast } = useToast();
-
-  useEffect(() => {
-    try {
-      i18n.addResourceBundle("zh-CN", "translation", zhOrgSettings as any, true, true);
-      i18n.addResourceBundle("zh", "translation", zhOrgSettings as any, true, true);
-    } catch {}
-  }, []);
 
   useEffect(() => {
     loadOrganizationInfo();

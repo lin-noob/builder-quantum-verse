@@ -6,6 +6,8 @@ import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/stores";
 import { useLoginSuccess } from "./useLoginSuccess";
 import { authService } from "@/services/authService";
+import { useTranslation } from "react-i18next";
+import i18n from "@/lib/i18n";
 
 interface GoogleAuthButtonProps {
   type: "login" | "register";
@@ -23,6 +25,7 @@ export function GoogleAuthButton({
   const navigate = useNavigate();
   const { toast } = useToast();
   const { setLoading } = useAuthStore();
+  const { t } = useTranslation();
   const { handleLoginSuccess } = useLoginSuccess();
 
   const global: any = typeof window === "object" ? window : {};
@@ -56,9 +59,9 @@ export function GoogleAuthButton({
       })
       .catch((error) => {
         console.error("Google sign in error", error);
-        const errorMessage = error instanceof Error ? error.message : "未知错误";
+        const errorMessage = error instanceof Error ? error.message : t('auth.errors.unknown');
         toast({
-          title: "谷歌登录失败",
+          title: t('auth.google.loginFailed'),
           description: errorMessage,
           variant: "destructive",
         });
@@ -93,19 +96,19 @@ export function GoogleAuthButton({
         authService.setCurrentUser(user);
 
         // 使用共享的登录完成处理函数
-        handleLoginSuccess(user, `欢迎回来，${user.username}！`);
+        handleLoginSuccess(user, t('auth.toasts.welcomeBackUser', { username: user.username }));
 
         // 执行成功回调
         if (onSuccess) {
           onSuccess();
         }
       } else {
-        throw new Error(responseData.msg || "谷歌登录失败");
+        throw new Error(responseData.msg || t('auth.google.loginFailed'));
       }
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "未知错误";
+      const errorMessage = error instanceof Error ? error.message : t('auth.errors.unknown');
       toast({
-        title: "谷歌登录失败",
+        title: t('auth.google.loginFailed'),
         description: errorMessage,
         variant: "destructive",
       });
@@ -118,8 +121,8 @@ export function GoogleAuthButton({
   const handleGoogleAuth = () => {
     if (!global.google || !global.google.accounts) {
       toast({
-        title: "谷歌登录初始化失败",
-        description: "请刷新页面重试",
+        title: t('auth.google.initFailed'),
+        description: t('auth.google.refreshTry'),
         variant: "destructive",
       });
       return;
@@ -137,9 +140,9 @@ export function GoogleAuthButton({
             .catch((error) => {
               console.error("Google auth error", error);
               const errorMessage =
-                error instanceof Error ? error.message : "未知错误";
+                error instanceof Error ? error.message : t('auth.errors.unknown');
               toast({
-                title: "谷歌认证失败",
+                title: t('auth.google.authFailed'),
                 description: errorMessage,
                 variant: "destructive",
               });
@@ -148,7 +151,7 @@ export function GoogleAuthButton({
         } else if (response.error) {
           const errorMessage = response.error_description || response.error;
           toast({
-            title: "谷歌认证失败",
+            title: t('auth.google.authFailed'),
             description: errorMessage,
             variant: "destructive",
           });
@@ -174,7 +177,7 @@ export function GoogleAuthButton({
       onClick={handleGoogleAuth}
       className={`w-full ${className || ""}`}
     >
-      {type === "login" ? "使用谷歌登录" : "使用谷歌账号注册"}
+      {type === "login" ? t('auth.google.login') : t('auth.google.register')}
     </Button>
   );
 }

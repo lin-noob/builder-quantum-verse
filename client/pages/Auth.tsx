@@ -12,6 +12,8 @@ import { authService } from "@/services/authService";
 import { useAuthStore, useRoleStore } from "@/stores";
 import { GoogleAuthButton } from "@/components/Auth/GoogleAuthButton";
 import { useLoginSuccess } from "@/components/Auth/useLoginSuccess";
+import { useTranslation } from "react-i18next";
+import i18n from "@/lib/i18n";
 
 interface FormData {
   username: string;
@@ -73,12 +75,13 @@ export default function Auth() {
   };
 
   // 验证密码强度
+  const { t } = useTranslation();
   const validatePassword = (password: string): string | null => {
-    if (!password) return "密码为必填项";
+    if (!password) return t('auth.validations.passwordRequired');
     if (password.length < 6 || password.length > 32)
-      return "密码长度应为6-32个字符";
-    if (!/[a-zA-Z]/.test(password)) return "密码应至少包含1个字母";
-    if (!/\d/.test(password)) return "密码应至少包含1个数字";
+      return t('auth.validations.passwordLength');
+    if (!/[a-zA-Z]/.test(password)) return t('auth.validations.passwordLetter');
+    if (!/\d/.test(password)) return t('auth.validations.passwordNumber');
     return null;
   };
 
@@ -86,25 +89,25 @@ export default function Auth() {
   const validateField = (name: string, value: string): string | null => {
     switch (name) {
       case "username":
-        if (!value) return "用户名为必填项";
+        if (!value) return t('auth.validations.usernameRequired');
         if (value.length < 6 || value.length > 20)
-          return "用户名长度应为6-20个字符";
+          return t('auth.validations.usernameLength');
         return null;
       case "email":
         if (!value)
           return activeTab === "login"
-            ? "邮箱或用户名为必填项"
-            : "邮箱为必填项";
-        if (value.length > 40) return "输入内容过长";
+            ? t('auth.validations.emailOrUsernameRequired')
+            : t('auth.validations.emailRequired');
+        if (value.length > 40) return t('auth.validations.inputTooLong');
         // 登录时允许用户名或邮箱，注册时只允许邮箱
         if (activeTab === "register" && !validateEmail(value))
-          return "邮箱格式无效";
+          return t('auth.validations.emailInvalid');
         if (activeTab === "login" && value !== "admin" && !validateEmail(value))
-          return "请输入有效的邮箱或用户名";
+          return t('auth.validations.emailOrUsernameInvalid');
         return null;
       case "password":
         if (activeTab === "login") {
-          return !value ? "密码格式无效" : null;
+          return !value ? t('auth.validations.passwordInvalid') : null;
         }
         return validatePassword(value);
       // case "confirmPassword":
@@ -112,7 +115,7 @@ export default function Auth() {
       //   if (value !== formData.password) return "确认密码与新密码不匹配";
       //   return null;
       case "confirmationCode":
-        if (!value) return "请输入您的确认验证码";
+        if (!value) return t('auth.validations.codeRequired');
         return null;
       default:
         return null;
@@ -168,8 +171,8 @@ export default function Auth() {
     setCountdown(120);
 
     toast({
-      title: "验证码已发送至您的邮箱",
-      description: "请查收并在10分钟内使用",
+      title: t('auth.toasts.codeSentTitle'),
+      description: t('auth.toasts.codeSentDesc'),
     });
 
     // 开始倒计时
@@ -231,8 +234,8 @@ export default function Auth() {
       setUser(loginResult.user);
       setIsAuthenticated(true);
       toast({
-        title: "注册并登录成功！",
-        description: "欢迎使用AI营销平台",
+        title: t('auth.toasts.registerLoginSuccessTitle'),
+        description: t('auth.toasts.registerLoginSuccessDesc'),
       });
 
       // 直接跳转到首页
@@ -241,8 +244,8 @@ export default function Auth() {
       // }, 1000);
     } else {
       toast({
-        title: "注册成功，但登录失败",
-        description: "请手动登录",
+        title: t('auth.toasts.registerSuccessLoginFailedTitle'),
+        description: t('auth.toasts.registerSuccessLoginFailedDesc'),
         variant: "destructive",
       });
 
@@ -291,7 +294,7 @@ export default function Auth() {
 
     // 使用共享的登录完成处理函数
     if (result.user) {
-      handleLoginSuccess(result.user, result.user.isAdmin ? "欢迎回来，管理员" : "欢迎回来");
+      handleLoginSuccess(result.user, result.user.isAdmin ? t('auth.toasts.welcomeBackAdmin') : t('auth.toasts.welcomeBack'));
     }
   };
 
@@ -312,12 +315,12 @@ export default function Auth() {
         className="fixed top-4 left-4 z-10 flex items-center gap-2 text-muted-foreground hover:text-foreground"
       >
         <Home className="h-4 w-4" />
-        <span className="hidden sm:inline">返回首页</span>
+        <span className="hidden sm:inline">{t('auth.home.backHome')}</span>
       </Button>
 
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl text-center">AI营销平台</CardTitle>
+          <CardTitle className="text-2xl text-center">{t('nav.platformName')}</CardTitle>
         </CardHeader>
         <CardContent>
           <Tabs
@@ -326,20 +329,20 @@ export default function Auth() {
             className="w-full"
           >
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="login">登录</TabsTrigger>
-              <TabsTrigger value="register">注册</TabsTrigger>
+              <TabsTrigger value="login">{t('auth.tabs.login')}</TabsTrigger>
+              <TabsTrigger value="register">{t('auth.tabs.register')}</TabsTrigger>
             </TabsList>
 
             <TabsContent value="login" className="space-y-4">
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="login-email">邮箱或用户名</Label>
+                  <Label htmlFor="login-email">{t('auth.fields.emailOrUsername')}</Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
                       id="login-email"
                       type="text"
-                      placeholder="请输入邮箱或用户名"
+                      placeholder={t('auth.placeholders.emailOrUsername')}
                       className="pl-10"
                       value={formData.email}
                       onChange={(e) =>
@@ -354,13 +357,13 @@ export default function Auth() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="login-password">密码</Label>
+                  <Label htmlFor="login-password">{t('auth.fields.password')}</Label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
                       id="login-password"
                       type="password"
-                      placeholder="请输入密码"
+                      placeholder={t('auth.placeholders.password')}
                       className="pl-10"
                       value={formData.password}
                       onChange={(e) =>
@@ -380,7 +383,7 @@ export default function Auth() {
                       className="px-0 text-sm"
                       onClick={() => navigate("/forgot-password")}
                     >
-                      忘记密码？
+                      {t('auth.links.forgotPassword')}
                     </Button>
                   </div>
                 </div>
@@ -390,7 +393,7 @@ export default function Auth() {
                   className="w-full"
                   disabled={isLoading}
                 >
-                  {isLoading ? "登录中..." : "登录"}
+                  {isLoading ? t('auth.actions.loggingIn') : t('auth.actions.login')}
                 </Button>
 
                 <div className="relative">
@@ -399,7 +402,7 @@ export default function Auth() {
                   </div>
                   <div className="relative flex justify-center text-xs uppercase">
                     <span className="bg-background px-2 text-muted-foreground">
-                      或通过以下方式继续
+                      {t('auth.actions.continueWith')}
                     </span>
                   </div>
                 </div>
@@ -407,13 +410,13 @@ export default function Auth() {
                 <GoogleAuthButton type="login" />
 
                 <div className="text-center text-sm">
-                  还没有账户？{" "}
+                  {t('auth.noAccount')}{" "}
                   <Button
                     variant="link"
                     className="px-0"
                     onClick={() => setActiveTab("register")}
                   >
-                    立即注册
+                    {t('auth.links.signupNow')}
                   </Button>
                 </div>
               </div>
@@ -422,12 +425,12 @@ export default function Auth() {
             <TabsContent value="register" className="space-y-4">
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="register-username">用户名</Label>
+                  <Label htmlFor="register-username">{t('auth.fields.username')}</Label>
                   <div className="relative">
                     <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
                       id="register-username"
-                      placeholder="请输入用户名"
+                      placeholder={t('auth.placeholders.username')}
                       className="pl-10"
                       value={formData.username}
                       onChange={(e) =>
@@ -444,14 +447,14 @@ export default function Auth() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="register-email">邮箱</Label>
+                  <Label htmlFor="register-email">{t('auth.fields.email')}</Label>
                   <div className="flex gap-2">
                     <div className="relative flex-1">
                       <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                       <Input
                         id="register-email"
                         type="email"
-                        placeholder="请输入邮箱"
+                        placeholder={t('auth.placeholders.email')}
                         className="pl-10"
                         value={formData.email}
                         onChange={(e) =>
@@ -467,10 +470,10 @@ export default function Auth() {
                       onClick={sendVerificationCode}
                     >
                       {isCodeSending
-                        ? "发送中..."
+                        ? t('auth.actions.sending')
                         : countdown > 0
-                          ? `重新发送 (${countdown}s)`
-                          : "发送验证码"}
+                          ? t('auth.actions.resendIn', { s: countdown })
+                          : t('auth.actions.sendCode')}
                     </Button>
                   </div>
                   {errors.email && (
@@ -479,13 +482,13 @@ export default function Auth() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="register-password">密码</Label>
+                  <Label htmlFor="register-password">{t('auth.fields.password')}</Label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
                       id="register-password"
                       type="password"
-                      placeholder="请输入密码"
+                      placeholder={t('auth.placeholders.password')}
                       className="pl-10"
                       value={formData.password}
                       onChange={(e) =>
@@ -502,12 +505,12 @@ export default function Auth() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="register-code">确认验证码</Label>
+                  <Label htmlFor="register-code">{t('auth.fields.code')}</Label>
                   <div className="relative">
                     <Shield className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
                       id="register-code"
-                      placeholder="请输入验证码"
+                      placeholder={t('auth.placeholders.code')}
                       className="pl-10"
                       value={formData.confirmationCode}
                       onChange={(e) =>
@@ -528,7 +531,7 @@ export default function Auth() {
                   className="w-full"
                   disabled={isLoading}
                 >
-                  {isLoading ? "注册中..." : "注册"}
+                  {isLoading ? t('auth.actions.registering') : t('auth.actions.register')}
                 </Button>
 
                 <div className="relative">
@@ -537,7 +540,7 @@ export default function Auth() {
                   </div>
                   <div className="relative flex justify-center text-xs uppercase">
                     <span className="bg-background px-2 text-muted-foreground">
-                      或通过以下方式继续
+                      {t('auth.actions.continueWith')}
                     </span>
                   </div>
                 </div>
@@ -545,13 +548,13 @@ export default function Auth() {
                 <GoogleAuthButton type="login" />
 
                 <div className="text-center text-sm">
-                  已经有账户了？{" "}
+                  {t('auth.haveAccount')}{" "}
                   <Button
                     variant="link"
                     className="px-0"
                     onClick={() => setActiveTab("login")}
                   >
-                    立即登录
+                    {t('auth.links.loginNow')}
                   </Button>
                 </div>
               </div>
