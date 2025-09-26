@@ -171,12 +171,16 @@ const AdvantagesSection = React.memo(() => {
   const { t } = useTranslation();
 
   const advantages = [
-    "跨平台数据整合",
-    "实时效果监控",
-    "智能归因分析",
-    "多维度报表分析",
-    "预测洞察",
-    "自动化报告生成",
+    t('effectTracking.advantages.benefits[0]'),
+    t('effectTracking.advantages.benefits[1]'),
+    t('effectTracking.advantages.benefits[2]'),
+    t('effectTracking.advantages.benefits[3]'),
+    t('effectTracking.advantages.benefits[4]'),
+    // "实时效果监控",
+    // "智能归因分析",
+    // "多维度报表分析",
+    // "预测洞察",
+    // "自动化报告生成",
   ];
 
   return (
@@ -186,7 +190,7 @@ const AdvantagesSection = React.memo(() => {
         <div className="absolute top-0 left-1/4 w-64 h-64 bg-red-500/10 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-orange-500/10 rounded-full blur-3xl animate-pulse"></div>
       </div>
-      <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8 relative">
+      <div className="max-w-5xl mx-auto text-center px-4 sm:px-6 lg:px-8 relative">
         <h2 className="text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent mb-4">
           {t('effectTracking.advantages.title')}
         </h2>
