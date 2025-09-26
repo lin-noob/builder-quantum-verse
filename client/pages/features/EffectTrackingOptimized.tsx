@@ -74,25 +74,45 @@ const features = [
     icon: <BarChart3 className="h-8 w-8 text-blue-400" />,
     title: "effectTracking.features.fullTrackingTitle",
     description: "effectTracking.features.fullTrackingDescription",
-    benefits: "effectTracking.features.fullTrackingBenefits",
+    benefits: [
+      'effectTracking.features.fullTrackingBenefits.analysis',
+      'effectTracking.features.fullTrackingBenefits.tracking',
+      'effectTracking.features.fullTrackingBenefits.comparison',
+      'effectTracking.features.fullTrackingBenefits.visualization',
+    ],
   },
   {
     icon: <Calculator className="h-8 w-8 text-green-400" />,
     title: "effectTracking.features.roiCalculationTitle",
     description: "effectTracking.features.roiCalculationDescription",
-    benefits: "effectTracking.features.roiCalculationBenefits",
+    benefits: [
+      'effectTracking.features.roiCalculationBenefits.accounting',
+      'effectTracking.features.roiCalculationBenefits.benefits',
+      'effectTracking.features.roiCalculationBenefits.ROI',
+      'effectTracking.features.roiCalculationBenefits.recommendations',
+    ],
   },
   {
     icon: <TrendingUp className="h-8 w-8 text-purple-400" />,
     title: "effectTracking.features.predictionModelTitle",
     description: "effectTracking.features.predictionModelDescription",
-    benefits: "effectTracking.features.predictionModelBenefits",
+    benefits: [
+      'effectTracking.features.predictionModelBenefits.prediction',
+      'effectTracking.features.predictionModelBenefits.seasonality',
+      'effectTracking.features.predictionModelBenefits.model',
+      'effectTracking.features.predictionModelBenefits.optimization',
+    ],
   },
   {
     icon: <PieChart className="h-8 w-8 text-orange-400" />,
     title: "effectTracking.features.multiDimensionTitle",
     description: "effectTracking.features.multiDimensionDescription",
-    benefits: "effectTracking.features.multiDimensionBenefits",
+    benefits: [
+      'effectTracking.features.multiDimensionBenefits.report',
+      'effectTracking.features.multiDimensionBenefits.dimensions',
+      'effectTracking.features.multiDimensionBenefits.drillDown',
+      'effectTracking.features.multiDimensionBenefits.scheduled',
+    ],
   },
 ];
 
@@ -128,10 +148,10 @@ const CoreFeaturesSection = React.memo(() => {
                 {t(feature.description)}
               </p>
               <ul className="space-y-3">
-                {t(feature.benefits, { returnObjects: true }).map((benefit: string, idx: number) => (
+                {feature.benefits.map((benefit: string, idx: number) => (
                   <li key={idx} className="flex items-center text-gray-300">
                     <CheckCircle className="h-5 w-5 text-red-400 mr-3" />
-                    {benefit}
+                    {t(benefit)}
                   </li>
                 ))}
               </ul>
