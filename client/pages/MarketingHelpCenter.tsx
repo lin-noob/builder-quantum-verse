@@ -18,6 +18,7 @@ import MarketingNav from "@/components/MarketingNav";
 import MarketingFooter from "@/components/MarketingFooter";
 import DocumentCatalog, { CategoryNode, DocItem } from "@/components/Help/DocumentCatalog";
 import { request } from "@/lib/request";
+import { useTranslation } from "react-i18next";
 
 // 数据模型
 interface HelpDocument {
@@ -49,7 +50,7 @@ const mockDocuments: HelpDocument[] = [
       <h3>第一步：账户注册</h3>
       <p>访问我们的官网，点击右上角的"注册"按钮，填写必要的信息完成账户注册。</p>
       <h3>第二步：创建项目</h3>
-      <p>登录后，在控制台点击"新建项目"，填写项目名称和描述，选择适合的模板。</p>
+      <p>登录后，在控制台点击"新��项目"，填写项目名称和描述，选择适合的模板。</p>
       <h3>第三步：数据接入</h3>
       <p>在项目设置中配置数据源，支持多种数据接入方式，包���API、SDK和文件上传。</p>
       <h3>第四步：开始使用核心功能</h3>
@@ -74,7 +75,7 @@ const mockDocuments: HelpDocument[] = [
       <h2>用户画像功能详解</h2>
       <p>用户画像功能是AI营销平台的核心功能之一，帮助您深入了解目标用户群体。</p>
       <h3>数据导入</h3>
-      <p>支持多种数据源接入，包括用户行为数据、交易数据、社交媒体数据等。</p>
+      <p>支持多种数据源接入，包括用户行为数据、交易数据、��交媒体数据等。</p>
       <h3>标签管���</h3>
       <p>系统提供丰富的预设标签，同时也支持自定义标签创建。</p>
       <h3>人群分群</h3>
@@ -178,6 +179,7 @@ const mockDocuments: HelpDocument[] = [
 
 export default function MarketingHelpCenter() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [documents, setDocuments] = useState<DocItem[]>([]);
   const [hotDocs, setHotDocs] = useState<DocItem[]>([]);
   const [hotLoading, setHotLoading] = useState(false);
@@ -208,12 +210,12 @@ export default function MarketingHelpCenter() {
         setHotDocs(mapped);
       } catch (e) {
         console.error(e);
-        setHotError("加载热门文档失败");
+        setHotError(t('marketingHelp.hotError'));
       } finally {
         setHotLoading(false);
       }
     })();
-  }, []);
+  }, [t]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -225,16 +227,15 @@ export default function MarketingHelpCenter() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <HelpCircle className="h-6 w-6 text-blue-600" />
-                帮助中心
+                {t('marketingHelp.title')}
               </CardTitle>
               <CardDescription>
-                欢迎使用AI营销平台帮助中心，这里有您���要的所有文档和指南
+                {t('marketingHelp.welcome')}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <p className="text-gray-700">
-                在这里您可以找到关于AI营销平台的详细使用说明、功能介绍、常见问题解答等文档。
-                以下是最受用户关注的热门文档，您也可以通过下方的文档树查找更多帮助内容。
+                {t('marketingHelp.intro')}
               </p>
             </CardContent>
           </Card>
@@ -244,18 +245,18 @@ export default function MarketingHelpCenter() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <ThumbsUp className="h-5 w-5 text-orange-500" />
-                热门文档
+                {t('marketingHelp.hot.title')}
               </CardTitle>
-              <CardDescription>最受用户关注的帮助文档</CardDescription>
+              <CardDescription>{t('marketingHelp.hot.subtitle')}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {hotLoading ? (
-                  <div className="text-sm text-gray-500">加载中...</div>
+                  <div className="text-sm text-gray-500">{t('marketingHelp.loading')}</div>
                 ) : hotError ? (
                   <div className="text-sm text-red-500">{hotError}</div>
                 ) : hotDocs.length === 0 ? (
-                  <div className="text-sm text-gray-500">暂无热门文档</div>
+                  <div className="text-sm text-gray-500">{t('marketingHelp.noHotDocs')}</div>
                 ) : (
                   hotDocs.map(doc => (
                     <div
@@ -275,7 +276,7 @@ export default function MarketingHelpCenter() {
                             {doc.views ?? 0}
                           </Badge>
                           <span className="text-xs text-gray-500">
-                            {doc.gmtModified ? `更新于 ${doc.gmtModified}` : null}
+                            {doc.gmtModified ? t('marketingHelp.updatedAt', { date: doc.gmtModified }) : null}
                           </span>
                         </div>
                       </div>
@@ -291,8 +292,8 @@ export default function MarketingHelpCenter() {
         <DocumentCatalog
           onDataChange={({ documents }) => setDocuments(documents)}
           onDocumentClick={(d) => navigate(`/marketing/help/documents/${d.id}`)}
-          leftTitle="文档分类"
-          rightTitle="所有文档"
+          leftTitle={t('marketingHelp.leftTitle')}
+          rightTitle={t('marketingHelp.rightTitle')}
           defaultStatus={1}
         />
       </div>

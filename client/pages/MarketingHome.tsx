@@ -41,10 +41,6 @@ export default function MarketingHome() {
   }, [currentUser, navigate]);
 
   useEffect(() => {
-    console.log(123);
-  }, []);
-
-  useEffect(() => {
     setFeatures([
       {
         icon: <Bot className="h-8 w-8 text-blue-600" />,
@@ -115,7 +111,7 @@ export default function MarketingHome() {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">正在跳转到仪表盘...</p>
+          <p className="text-gray-600">{t('marketingHome.redirectingToDashboard')}</p>
         </div>
       </div>
     );
@@ -210,18 +206,18 @@ export default function MarketingHome() {
               </span>
             </div>
             <h1 className="text-4xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-white via-cyan-400 to-purple-400 bg-clip-text text-transparent leading-tight">
-              AI驱动的未来营销
+              {t('hero.aiMarketingTitle')}
             </h1>
             <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed">
-              通过前沿��工智能技术，实现
-              <span className="text-cyan-400 font-semibold">精准用户洞察</span>
-              、
-              <span className="text-purple-400 font-semibold">
-                自动化营销执行
-              </span>
-              和
-              <span className="text-green-400 font-semibold">数据驱动决策</span>
-              ， 帮助企业实现营销效果的指数级提升
+              <span
+                dangerouslySetInnerHTML={{
+                  __html: t('hero.aiMarketingDescription', {
+                    preciseTech: `<span class='text-cyan-400 font-semibold'>${t('hero.preciseTech')}</span>`,
+                    automation: `<span class='text-purple-400 font-semibold'>${t('hero.automation')}</span>`,
+                    dataDecision: `<span class='text-green-400 font-semibold'>${t('hero.dataDecision')}</span>`
+                  })
+                }}
+              />
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="/auth">
@@ -258,9 +254,9 @@ export default function MarketingHome() {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-white mb-4">
-              数据驱动的成果
+              {t('common.dataResults')}
             </h2>
-            <p className="text-gray-400">真实客户数据验证的营销效果提升</p>
+            <p className="text-gray-400">{t('common.dataResultsSubtitle')}</p>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map((stat, index) => {
@@ -320,9 +316,9 @@ export default function MarketingHome() {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent mb-4">
-              核心功能矩阵
+              {t('features.title')}
             </h2>
-            <p className="text-xl text-gray-400">全方位AI营销解决方案</p>
+            <p className="text-xl text-gray-400">{t('features.subtitle')}</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {features.map((feature, index) => {
@@ -422,7 +418,7 @@ export default function MarketingHome() {
                       <div
                         className={`mt-4 flex items-center text-sm font-medium ${color.icon} group-hover:translate-x-1 transition-transform duration-300`}
                       >
-                        <span>探索功能</span>
+                        <span>{t('common.explore')}</span>
                         <ArrowRight className="ml-2 h-4 w-4" />
                       </div>
                     </CardContent>
@@ -434,15 +430,15 @@ export default function MarketingHome() {
         </div>
       </section>
 
-      {/* 应用��景 - AI科技风格 */}
+      {/* 应用场景 - AI科技风格 */}
       <section className="py-20 bg-gray-900 relative">
         <div className="absolute inset-0 bg-gradient-to-b from-gray-900 via-blue-900/20 to-gray-900"></div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent mb-4">
-              智能应用场景
+              {t('marketingHome.useCases.title')}
             </h2>
-            <p className="text-xl text-gray-400">适用于各行业的AI营销场景</p>
+            <p className="text-xl text-gray-400">{t('marketingHome.useCases.subtitle')}</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {useCases.map((useCase, index) => {
@@ -510,27 +506,27 @@ export default function MarketingHome() {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent mb-4">
-              三步启动AI营销引擎
+              {t('common.threeStepsTitle')}
             </h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
               {
                 step: "01",
-                title: "数据接入",
-                description: "连接您的用户数据源，AI自动分析用户行为和偏好",
+                title: t('common.dataIntegration'),
+                description: t('common.dataIntegrationDesc'),
                 icon: <Users className="h-8 w-8" />,
               },
               {
                 step: "02",
-                title: "智能配置",
-                description: "配置营销场景，AI自动生成个性化营销策略",
+                title: t('common.intelligentConfiguration'),
+                description: t('common.intelligentConfigurationDesc'),
                 icon: <Brain className="h-8 w-8" />,
               },
               {
                 step: "03",
-                title: "效果优化",
-                description: "实时监控效果，AI持续优化营销策略",
+                title: t('common.effectOptimization'),
+                description: t('common.effectOptimizationDesc'),
                 icon: <TrendingUp className="h-8 w-8" />,
               },
             ].map((item, index) => {
@@ -598,14 +594,18 @@ export default function MarketingHome() {
         <div className="relative max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
             <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
-              准备启动AI营销革命了吗？
+              {t('cta.homeTitle')}
             </span>
           </h2>
           <p className="text-xl text-gray-300 mb-8 leading-relaxed">
-            加入<span className="text-cyan-400 font-semibold">数千家</span>
-            领先企业， 体验
-            <span className="text-purple-400 font-semibold">AI驱动</span>
-            的营销效果提升
+            <span
+              dangerouslySetInnerHTML={{
+                __html: t('cta.homeSubtitle', {
+                  companiesCount: `<span class='text-cyan-400 font-semibold'>${t('cta.companiesCount')}</span>`,
+                  aiDriven: `<span class='text-purple-400 font-semibold'>${t('cta.aiDriven')}</span>`
+                })
+              }}
+            />
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link to="/auth">
@@ -614,7 +614,7 @@ export default function MarketingHome() {
                 className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white text-lg px-8 py-4 shadow-lg shadow-cyan-500/25 border-0"
               >
                 <Star className="mr-2 h-5 w-5" />
-                立即启动
+                {t('cta.primaryAction')}
               </Button>
             </Link>
             <Button
@@ -622,15 +622,14 @@ export default function MarketingHome() {
               variant="outline"
               onClick={() =>
                 openModal({
-                  title: "联系专家",
-                  description:
-                    "与我们的AI营销专家直接沟通，获取专业的营销策略建议和定制化解决方案。",
+                  title: t('modal.aiMarketingExpert'),
+                  description: t('modal.aiMarketingExpertDesc'),
                 })
               }
               className="border-orange-500 text-orange-400 hover:bg-orange-500 hover:text-white bg-orange-500/10 text-lg px-8 py-4 backdrop-blur-sm shadow-lg shadow-orange-500/20 transition-all duration-300"
             >
               <Users className="mr-2 h-5 w-5" />
-              联系专家
+              {t('cta.secondaryAction')}
             </Button>
           </div>
         </div>

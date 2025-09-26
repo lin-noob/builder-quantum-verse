@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { request } from "@/lib/request";
 import { useConfigStore } from "@/stores/configStore";
+import { useTranslation } from "react-i18next";
 
 export interface CategoryNode {
   id: string;
@@ -90,17 +91,6 @@ const flattenCategories = (nodes: CategoryNode[]): CategoryNode[] => {
   return out;
 };
 
-const getStatusDisplay = (status?: number | string) => {
-  if (status === undefined || status === null)
-    return { text: "", variant: "secondary" as const };
-  const num =
-    typeof status === "string" ? (status === "published" ? 1 : 0) : status;
-  return {
-    text: num === 1 ? "已发布" : "草稿",
-    variant: num === 1 ? ("default" as const) : ("secondary" as const),
-  };
-};
-
 export const DocumentCatalog: React.FC<DocumentCatalogProps> = ({
   categories: externalCategories,
   documents: externalDocuments,
@@ -132,6 +122,19 @@ export const DocumentCatalog: React.FC<DocumentCatalogProps> = ({
   onReorderCategories,
   showAddCategoryButton = true,
 }) => {
+  const { t } = useTranslation();
+
+  const getStatusDisplay = (status?: number | string) => {
+    if (status === undefined || status === null)
+      return { text: "", variant: "secondary" as const };
+    const num =
+      typeof status === "string" ? (status === "published" ? 1 : 0) : status;
+    return {
+      text: num === 1 ? t('documentCatalog.status.published') : t('documentCatalog.status.draft'),
+      variant: num === 1 ? ("default" as const) : ("secondary" as const),
+    };
+  };
+
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [uncontrolledSelectedCategoryId, setUncontrolledSelectedCategoryId] =
     useState<string | null>(null);
@@ -303,13 +306,13 @@ export const DocumentCatalog: React.FC<DocumentCatalogProps> = ({
         onDataChange?.({ categories: mapped, documents: internalDocuments });
       } catch (e: any) {
         console.error(e);
-        setInternalError("加载分类失败");
+        setInternalError(t('documentCatalog.errors.loadCategoriesFailed'));
       } finally {
         setInternalLoading(false);
       }
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [effectiveLang]);
+  }, [effectiveLang, t]);
 
   useEffect(()=>{
     setInternalDocuments([]);
@@ -473,7 +476,7 @@ export const DocumentCatalog: React.FC<DocumentCatalogProps> = ({
               {enableCategoryActions && showAddCategoryButton && (
                 <Button size="sm" onClick={onAddCategory}>
                   <Plus className="h-4 w-4 mr-2" />
-                  新增分类
+                  {t('documentCatalog.actions.addCategory')}
                 </Button>
               )}
             </div>
@@ -483,7 +486,7 @@ export const DocumentCatalog: React.FC<DocumentCatalogProps> = ({
               {categories && categories.length ? (
                 <div className="space-y-2">{renderTree(categories)}</div>
               ) : (
-                <div className="text-center py-6 text-gray-500">暂无分类</div>
+                <div className="text-center py-6 text-gray-500">{t('documentCatalog.empty.noCategories')}</div>
               )}
             </ScrollArea>
           </CardContent>
@@ -501,7 +504,7 @@ export const DocumentCatalog: React.FC<DocumentCatalogProps> = ({
                   <div className="relative">
                     <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                     <Input
-                      placeholder="搜索文档..."
+                      placeholder={t('documentCatalog.search.placeholder')}
                       value={search}
                       onChange={(e) => {
                         if (onSearchChange) onSearchChange(e.target.value);
@@ -521,9 +524,9 @@ export const DocumentCatalog: React.FC<DocumentCatalogProps> = ({
                     }}
                     className="px-3 py-2 border border-gray-300 rounded-md text-sm"
                   >
-                    <option value="all">全部状态</option>
-                    <option value="1">已发布</option>
-                    <option value="0">草稿</option>
+                    <option value="all">{t('documentCatalog.status.all')}</option>
+                    <option value="1">{t('documentCatalog.status.published')}</option>
+                    <option value="0">{t('documentCatalog.status.draft')}</option>
                   </select>
                 )}
               </div>
@@ -533,7 +536,7 @@ export const DocumentCatalog: React.FC<DocumentCatalogProps> = ({
             <div className="space-y-4">
               {loading ? (
                 <div className="flex items-center justify-center h-32 text-gray-500">
-                  正在加载文档...
+                  {t('documentCatalog.loading')}
                 </div>
               ) : error ? (
                 <div className="flex items-center justify-center h-32 text-red-500">
@@ -544,8 +547,8 @@ export const DocumentCatalog: React.FC<DocumentCatalogProps> = ({
                   {search ||
                   (showStatusFilter && statusFilter !== "all") ||
                   selectedCategoryId
-                    ? "没有找到匹配的文档"
-                    : "暂无文档"}
+                    ? t('documentCatalog.empty.noMatch')
+                    : t('documentCatalog.empty.noDocs')}
                 </div>
               ) : (
                 filteredDocs.map((d) => (
@@ -565,7 +568,7 @@ export const DocumentCatalog: React.FC<DocumentCatalogProps> = ({
                             </Badge>
                           )}
                           {d.isPopular && (
-                            <Badge variant="destructive">热门</Badge>
+                            <Badge variant="destructive">{t('documentCatalog.badges.popular')}</Badge>
                           )}
                         </div>
                         {d.description ? (
@@ -580,7 +583,7 @@ export const DocumentCatalog: React.FC<DocumentCatalogProps> = ({
                               {d.views}
                             </span>
                           )}
-                          {d.gmtModified && <span>更新: {d.gmtModified}</span>}
+                          {d.gmtModified && <span>{t('documentCatalog.updatedAt', { date: d.gmtModified })}</span>}
                         </div>
                       </div>
                       <div className="flex gap-2 ml-4">

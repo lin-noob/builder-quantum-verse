@@ -1,0 +1,19 @@
+{
+  "marketingNav": {
+    "resourcesSupport": "资源与支持",
+    "helpCenter": "帮助中心",
+    "features": {
+      "aiMarketing": "AI营销",
+      "userProfiling": "用户画像",
+      "realTimeMonitoring": "实时监控",
+      "effectTracking": "效果追踪"
+    },
+    "solutions": {
+      "ecommerce": "电商营销",
+      "contentMarketing": "内容营销",
+      "financialMarketing": "金融营销",
+      "enterpriseServices": "企业服务"
+    },
+    "startJourney": "开始AI之旅"
+  }
+}

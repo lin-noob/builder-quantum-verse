@@ -1,0 +1,80 @@
+{
+  "enterpriseSolution": {
+    "hero": {
+      "title": "企业级营销解决方案",
+      "description": "专为B2B企业服务商打造的智能营销平台，助力企业实现高效获客、精准转化和持续增长",
+      "modalTitle": "企业级解决方案演示",
+      "modalDesc": "了解企业级营销解决方案如何帮助您的企业实现高效获客和转化。"
+    },
+    "features": {
+      "title": "核心功能",
+      "subtitle": "专业的B2B营销解决方案，助力企业服务商实现可持续增长",
+      "items": {
+        "preciseLeads": {
+          "title": "精准获客",
+          "description": "基于AI的潜在客户识别和评分，提高销售线索质量"
+        },
+        "salesOptimization": {
+          "title": "销售流程优化",
+          "description": "智能销售流程管理，提升成单效率和客户体验"
+        },
+        "customerSuccess": {
+          "title": "客户成功管理",
+          "description": "全生命周期客户管理，提高续费率和客户满意度"
+        },
+        "marketingAnalytics": {
+          "title": "营销数据分析",
+          "description": "深度营销数据分析，优化营销策略和投入产出比"
+        }
+      }
+    },
+    "useCases": {
+      "title": "应用场景",
+      "subtitle": "覆盖B2B全业服务全链路，从获客到成交再到续费的完整闭环",
+      "cases": {
+        "saasMarketing": {
+          "title": "SaaS产品营销",
+          "description": "针对SaaS产品特性，制定精准的获客和转化策略，提升试用到付费转化率",
+          "features": {
+            "freeTrialOptimization": "免费试用优化",
+            "paidConversionStrategy": "付费转化策略",
+            "productUsageAnalysis": "产品使用分析",
+            "customerLifecycleManagement": "客户生命周期管理"
+          }
+        },
+        "enterpriseSolutionSales": {
+          "title": "企业解决方案销售",
+          "description": "复杂B2B解决方案的销售流程管理，提升大客户成单效率",
+          "features": {
+            "decisionChainAnalysis": "决策链分析",
+            "solutionCustomization": "方案定制化",
+            "salesProcessManagement": "销售流程管理",
+            "customerRelationshipMaintenance": "客户关系维护"
+          }
+        },
+        "professionalServicesMarketing": {
+          "title": "专业服务营销",
+          "description": "咨询、培训等专业服务的营销策略，建立专业品牌影响力",
+          "features": {
+            "professionalContentMarketing": "专业内容营销",
+            "industryInfluenceBuilding": "行业影响力建设",
+            "customerCasePromotion": "客户案例推广",
+            "wordOfMouthManagement": "口碑营销管理"
+          }
+        }
+      }
+    },
+    "results": {
+      "title": "效果数据",
+      "subtitle": "真实企业服务商数据验证，全面提升B2B营销��率和成单率"
+    },
+    "cta": {
+      "title": "开启企业级智能营销之旅",
+      "subtitle": "专业的营销解决方案，助力企业实现可持续增长"
+    },
+    "modal": {
+      "expertTitle": "联系企业专家",
+      "expertDesc": "与我们的企业营销专家一对一沟通，获取定制化的解决方案。"
+    }
+  }
+}

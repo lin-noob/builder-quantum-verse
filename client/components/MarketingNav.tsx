@@ -22,19 +22,21 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useContactModal } from "@/contexts/ContactModalContext";
 import { LanguageSwitcher } from "./LanguageSwitcher";
+import { useTranslation } from "react-i18next";
 
 export default function MarketingNav() {
   const { openModal } = useContactModal();
+  const { t } = useTranslation();
 
   return (
     <nav className="bg-white shadow-sm border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <div className="flex items-center space-x-8">
-            <Link to="/marketing" className="flex items-center group">
+          <div className="flex items-center space-x-10">
+            <Link to="/marketing" className="flex items-center group w-fit">
               <Bot className="h-8 w-8 text-blue-600 group-hover:text-blue-700 transition-colors" />
               <span className="ml-2 text-xl font-bold text-gray-900">
-                AI营销平台
+                {t('nav.platformName')}
               </span>
             </Link>
 
@@ -42,7 +44,7 @@ export default function MarketingNav() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="flex items-center gap-1 text-gray-700 hover:text-gray-900 hover:bg-gray-100">
-                  产品特色
+                  {t('nav.productFeatures')}
                   <ChevronDown className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
@@ -53,7 +55,7 @@ export default function MarketingNav() {
                     className="flex items-center gap-2 w-full text-gray-700 hover:text-gray-900 hover:bg-gray-50"
                   >
                     <Bot className="h-4 w-4 text-blue-600" />
-                    AI营销
+                    {t('marketingNav.features.aiMarketing')}
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
@@ -62,7 +64,7 @@ export default function MarketingNav() {
                     className="flex items-center gap-2 w-full text-gray-700 hover:text-gray-900 hover:bg-gray-50"
                   >
                     <Users className="h-4 w-4 text-green-600" />
-                    用户画像
+                    {t('marketingNav.features.userProfiling')}
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
@@ -71,7 +73,7 @@ export default function MarketingNav() {
                     className="flex items-center gap-2 w-full text-gray-700 hover:text-gray-900 hover:bg-gray-50"
                   >
                     <Activity className="h-4 w-4 text-purple-600" />
-                    实时监控
+                    {t('marketingNav.features.realTimeMonitoring')}
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
@@ -80,7 +82,7 @@ export default function MarketingNav() {
                     className="flex items-center gap-2 w-full text-gray-700 hover:text-gray-900 hover:bg-gray-50"
                   >
                     <Target className="h-4 w-4 text-red-600" />
-                    效果追踪
+                    {t('marketingNav.features.effectTracking')}
                   </Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -90,7 +92,7 @@ export default function MarketingNav() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="flex items-center gap-1 text-gray-700 hover:text-gray-900 hover:bg-gray-100">
-                  解决方案
+                  {t('nav.solutions')}
                   <ChevronDown className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
@@ -101,7 +103,7 @@ export default function MarketingNav() {
                     className="flex items-center gap-2 w-full text-gray-700 hover:text-gray-900 hover:bg-gray-50"
                   >
                     <ShoppingCart className="h-4 w-4 text-orange-600" />
-                    电商营销
+                    {t('marketingNav.solutions.ecommerce')}
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
@@ -110,7 +112,7 @@ export default function MarketingNav() {
                     className="flex items-center gap-2 w-full text-gray-700 hover:text-gray-900 hover:bg-gray-50"
                   >
                     <FileText className="h-4 w-4 text-purple-600" />
-                    内容营销
+                    {t('marketingNav.solutions.contentMarketing')}
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
@@ -119,7 +121,7 @@ export default function MarketingNav() {
                     className="flex items-center gap-2 w-full text-gray-700 hover:text-gray-900 hover:bg-gray-50"
                   >
                     <DollarSign className="h-4 w-4 text-green-600" />
-                    金融营销
+                    {t('marketingNav.solutions.financialMarketing')}
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
@@ -128,7 +130,7 @@ export default function MarketingNav() {
                     className="flex items-center gap-2 w-full text-gray-700 hover:text-gray-900 hover:bg-gray-50"
                   >
                     <Building className="h-4 w-4 text-blue-600" />
-                    企业服务
+                    {t('marketingNav.solutions.enterpriseServices')}
                   </Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -138,7 +140,7 @@ export default function MarketingNav() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="flex items-center gap-1 text-gray-700 hover:text-gray-900 hover:bg-gray-100">
-                  资源与支持
+                  {t('marketingNav.resourcesSupport')}
                   <ChevronDown className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
@@ -149,7 +151,7 @@ export default function MarketingNav() {
                     className="flex items-center gap-2 w-full text-gray-700 hover:text-gray-900 hover:bg-gray-50"
                   >
                     <HelpCircle className="h-4 w-4 text-blue-600" />
-                    帮助中心
+                    {t('marketingNav.helpCenter')}
                   </Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -163,17 +165,17 @@ export default function MarketingNav() {
             <Button
               variant="outline"
               onClick={() => openModal({
-                title: "联系我们",
-                description: '请填写您的信息和需求，我们将尽快与您联系，为您提供专业的AI营销解决方案咨询。',
+                title: t('modal.contactTitle'),
+                description: t('modal.contactDesc'),
               })}
               className="border-green-600 text-green-600 hover:bg-green-600 hover:text-white"
             >
               <MessageCircle className="mr-2 h-4 w-4" />
-              联系我们
+              {t('nav.contactUs')}
             </Button>
             <Link to="/auth">
               <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-                开始AI之旅
+                {t('marketingNav.startJourney')}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>

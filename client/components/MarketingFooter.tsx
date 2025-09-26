@@ -12,14 +12,14 @@ export default function MarketingFooter() {
           <div>
             <div className="flex items-center mb-4">
               <Bot className="h-8 w-8 text-blue-600" />
-              <span className="ml-2 text-xl font-bold text-gray-900">AI营销平台</span>
+              <span className="ml-2 text-xl font-bold text-gray-900">{t('nav.platformName')}</span>
             </div>
             <p className="text-gray-600">
-              专业的AI驱动营销解决方案，助力企业实现营销效果的指数级提升。
+              {t('footer.description')}
             </p>
           </div>
           <div>
-            <h3 className="text-lg font-semibold mb-4">产品功能</h3>
+            <h3 className="text-lg font-semibold mb-4">{t('footer.productFeatures')}</h3>
             <ul className="space-y-2 text-gray-600">
               <li>
                 <Link to="/features/ai-marketing" className="hover:text-blue-600 transition-colors">
