@@ -107,7 +107,7 @@ const CoreFeatures = React.memo(() => {
             {t('features.title')}
           </h2>
           <p className="text-xl text-gray-400">
-            合规安全的金融营销解决方案，提升获客质量和转化效果
+            {t('financialSolution.features.subtitle')}
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -132,21 +132,37 @@ const CoreFeatures = React.memo(() => {
 
 // 应用场景组件
 const UseCases = React.memo(() => {
+  const { t } = useTranslation();
   const cases = [
     {
-      title: "信贷产品营销",
-      description: "基于客户征信和消费行为，智能推荐适合的信贷产品和额度",
-      features: ["信用评估模型", "产品匹配算法", "风险控制机制", "个性化利率定价"],
+      title: t('financialSolution.useCases.cases.creditMarketing.title'),
+      description: t('financialSolution.useCases.cases.creditMarketing.description'),
+      features: [
+        t('financialSolution.useCases.cases.creditMarketing.features.creditAssessmentModel'),
+        t('financialSolution.useCases.cases.creditMarketing.features.productMatchingAlgorithm'),
+        t('financialSolution.useCases.cases.creditMarketing.features.riskControlMechanism'),
+        t('financialSolution.useCases.cases.creditMarketing.features.personalizedRatePricing'),
+      ],
     },
     {
-      title: "理财产品推荐",
-      description: "根据客户风险偏好和投资目标，推荐最适合的理财产品组合",
-      features: ["风险画像分析", "产品组合优化", "投资建议生成", "收益预测模型"],
+      title: t('financialSolution.useCases.cases.wealthManagementRecommendation.title'),
+      description: t('financialSolution.useCases.cases.wealthManagementRecommendation.description'),
+      features: [
+        t('financialSolution.useCases.cases.wealthManagementRecommendation.features.riskProfileAnalysis'),
+        t('financialSolution.useCases.cases.wealthManagementRecommendation.features.portfolioOptimization'),
+        t('financialSolution.useCases.cases.wealthManagementRecommendation.features.investmentAdviceGeneration'),
+        t('financialSolution.useCases.cases.wealthManagementRecommendation.features.returnPredictionModel'),
+      ],
     },
     {
-      title: "保险产品营销",
-      description: "分析客户生命周期和保障需求，推荐合适的保险产品和保额",
-      features: ["需求分析模型", "保险产品匹配", "保费优化建议", "理赔预测分析"],
+      title: t('financialSolution.useCases.cases.insuranceMarketing.title'),
+      description: t('financialSolution.useCases.cases.insuranceMarketing.description'),
+      features: [
+        t('financialSolution.useCases.cases.insuranceMarketing.features.needsAnalysisModel'),
+        t('financialSolution.useCases.cases.insuranceMarketing.features.insuranceProductMatching'),
+        t('financialSolution.useCases.cases.insuranceMarketing.features.premiumOptimizationAdvice'),
+        t('financialSolution.useCases.cases.insuranceMarketing.features.claimsPredictionAnalysis'),
+      ],
     },
   ];
 
@@ -155,9 +171,9 @@ const UseCases = React.memo(() => {
       <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-transparent to-green-500/5"></div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-green-400 bg-clip-text text-transparent mb-4">应用场景</h2>
+          <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-green-400 bg-clip-text text-transparent mb-4">{t('financialSolution.useCases.title')}</h2>
           <p className="text-xl text-gray-400">
-            覆盖金融产品全链路，提升营销精准度和合规性
+            {t('financialSolution.useCases.subtitle')}
           </p>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -204,7 +220,7 @@ const Results = React.memo(() => {
             {t('common.dataResults')}
           </h2>
           <p className="text-xl text-gray-300">
-            真实金融机构数据验证，营销效果与合规并重
+            {t('financialSolution.results.subtitle')}
           </p>
         </div>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">

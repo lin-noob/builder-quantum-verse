@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-// import { useTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next";
 import {
   Building,
   ArrowRight,
@@ -24,6 +24,7 @@ import { useContactModal } from "@/contexts/ContactModalContext";
 // 英雄区域组件
 const HeroSection = React.memo(() => {
   const { openModal } = useContactModal();
+  const { t } = useTranslation();
 
   return (
     <section className="relative bg-gradient-to-br from-gray-900 via-blue-900 to-cyan-900 py-20 overflow-hidden">
@@ -35,33 +36,33 @@ const HeroSection = React.memo(() => {
             </div>
           </div>
           <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-white via-blue-400 to-cyan-400 bg-clip-text text-transparent">
-            企业级营销解决方案
+            {t('enterpriseSolution.hero.title')}
           </h1>
           <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed">
-            专为B2B企业服务商打造的智能营销平台，助力企业实现高效获客、精准转化和持续增长
+            {t('enterpriseSolution.hero.description')}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button
               size="lg"
               onClick={() => openModal({
-                title: '企业级解决方案演示',
-                description: '了解企业级营销解决方案如何帮助您的企业实现高效获客和转化。',
+                title: t('enterpriseSolution.hero.modalTitle'),
+                description: t('enterpriseSolution.hero.modalDesc'),
               })}
               className="text-lg px-8 py-4 bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 border-0 shadow-lg shadow-blue-500/25 text-white font-semibold"
             >
               <Sparkles className="mr-2 h-5 w-5" />
-              立即体验
+              {t('hero.ctaPrimary')}
             </Button>
             <Button
               size="lg"
               variant="outline"
               onClick={() => openModal({
-                title: '企业级解决方案演示',
-                description: '了解企业级营销解决方案如何帮助您的企业实现高效获客和转化。',
+                title: t('enterpriseSolution.hero.modalTitle'),
+                description: t('enterpriseSolution.hero.modalDesc'),
               })}
               className="text-lg px-8 py-4 border-cyan-500 text-cyan-400 hover:bg-cyan-500 hover:text-white bg-cyan-500/10 backdrop-blur-sm shadow-lg shadow-cyan-500/20 transition-all duration-300"
             >
-              观看演示
+              {t('hero.ctaSecondary')}
             </Button>
           </div>
         </div>
@@ -72,26 +73,27 @@ const HeroSection = React.memo(() => {
 
 // 核心功能组件
 const CoreFeatures = React.memo(() => {
+  const { t } = useTranslation();
   const features = [
     {
       icon: <Target className="h-8 w-8 text-blue-400" />,
-      title: '精准获客',
-      description: '基于AI的潜在客户识别和评分，提高销售线索质量',
+      title: t('enterpriseSolution.features.items.preciseLeads.title'),
+      description: t('enterpriseSolution.features.items.preciseLeads.description'),
     },
     {
       icon: <Brain className="h-8 w-8 text-cyan-400" />,
-      title: '销售流程优化',
-      description: '智能销售流程管理，提升成单效率和客户体验',
+      title: t('enterpriseSolution.features.items.salesOptimization.title'),
+      description: t('enterpriseSolution.features.items.salesOptimization.description'),
     },
     {
       icon: <Users className="h-8 w-8 text-purple-400" />,
-      title: '客户成功管理',
-      description: '全生命周期客户管理，提高续费率和客户满意度',
+      title: t('enterpriseSolution.features.items.customerSuccess.title'),
+      description: t('enterpriseSolution.features.items.customerSuccess.description'),
     },
     {
       icon: <BarChart3 className="h-8 w-8 text-orange-400" />,
-      title: '营销数据分析',
-      description: '深度营销数据分析，优化营销策略和投入产出比',
+      title: t('enterpriseSolution.features.items.marketingAnalytics.title'),
+      description: t('enterpriseSolution.features.items.marketingAnalytics.description'),
     },
   ];
 
@@ -102,10 +104,10 @@ const CoreFeatures = React.memo(() => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         <div className="text-center mb-16">
           <h2 className="text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent mb-4">
-            核心功能
+            {t('enterpriseSolution.features.title')}
           </h2>
           <p className="text-xl text-gray-400">
-            专业的B2B营销解决方案，助力企业服务商实现可持续增长
+            {t('enterpriseSolution.features.subtitle')}
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -130,21 +132,37 @@ const CoreFeatures = React.memo(() => {
 
 // 应用场景组件
 const UseCases = React.memo(() => {
+  const { t } = useTranslation();
   const cases = [
     {
-      title: "SaaS产品营销",
-      description: "针对SaaS产品特性，制定精准的获客和转化策略，提升试用到付费转化率",
-      features: ["免费试用优化", "付费转化策略", "产品使用分析", "客户生命周期管理"],
+      title: t('enterpriseSolution.useCases.cases.saasMarketing.title'),
+      description: t('enterpriseSolution.useCases.cases.saasMarketing.description'),
+      features: [
+        t('enterpriseSolution.useCases.cases.saasMarketing.features.freeTrialOptimization'),
+        t('enterpriseSolution.useCases.cases.saasMarketing.features.paidConversionStrategy'),
+        t('enterpriseSolution.useCases.cases.saasMarketing.features.productUsageAnalysis'),
+        t('enterpriseSolution.useCases.cases.saasMarketing.features.customerLifecycleManagement'),
+      ],
     },
     {
-      title: "企业解决方案销售",
-      description: "复杂B2B解决方案的销售流程管理，提升大客户成单效率",
-      features: ["决策链分析", "方案定制化", "销售流程管理", "客户关系维护"],
+      title: t('enterpriseSolution.useCases.cases.enterpriseSolutionSales.title'),
+      description: t('enterpriseSolution.useCases.cases.enterpriseSolutionSales.description'),
+      features: [
+        t('enterpriseSolution.useCases.cases.enterpriseSolutionSales.features.decisionChainAnalysis'),
+        t('enterpriseSolution.useCases.cases.enterpriseSolutionSales.features.solutionCustomization'),
+        t('enterpriseSolution.useCases.cases.enterpriseSolutionSales.features.salesProcessManagement'),
+        t('enterpriseSolution.useCases.cases.enterpriseSolutionSales.features.customerRelationshipMaintenance'),
+      ],
     },
     {
-      title: "专业服务营销",
-      description: "咨询、培训等专业服务的营销策略，建立专业品牌影响力",
-      features: ["专业内容营销", "行业影响力建设", "客户案例推广", "口碑营销管理"],
+      title: t('enterpriseSolution.useCases.cases.professionalServicesMarketing.title'),
+      description: t('enterpriseSolution.useCases.cases.professionalServicesMarketing.description'),
+      features: [
+        t('enterpriseSolution.useCases.cases.professionalServicesMarketing.features.professionalContentMarketing'),
+        t('enterpriseSolution.useCases.cases.professionalServicesMarketing.features.industryInfluenceBuilding'),
+        t('enterpriseSolution.useCases.cases.professionalServicesMarketing.features.customerCasePromotion'),
+        t('enterpriseSolution.useCases.cases.professionalServicesMarketing.features.wordOfMouthManagement'),
+      ],
     },
   ];
 
@@ -153,9 +171,9 @@ const UseCases = React.memo(() => {
       <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 via-transparent to-blue-500/5"></div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent mb-4">应用场景</h2>
+          <h2 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent mb-4">{t('enterpriseSolution.useCases.title')}</h2>
           <p className="text-xl text-gray-400">
-            覆盖B2B全业服务全链路，从获客到成交再到续费的完整闭环
+            {t('enterpriseSolution.useCases.subtitle')}
           </p>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -185,11 +203,12 @@ const UseCases = React.memo(() => {
 
 // 效果数据组件
 const Results = React.memo(() => {
+  const { t } = useTranslation();
   const stats = [
-    { number: "72%", label: '销售线索质量提升', color: "text-blue-400" },
-    { number: "58%", label: '销售周期缩短', color: "text-cyan-400" },
-    { number: "64%", label: '客户续费率提升', color: "text-purple-400" },
-    { number: "89%", label: '客户满意度', color: "text-orange-400" },
+    { number: "72%", label: t('stats.leadQualityIncrease'), color: "text-blue-400" },
+    { number: "58%", label: t('stats.salesCycleShortened'), color: "text-cyan-400" },
+    { number: "64%", label: t('stats.customerRenewalRateIncrease'), color: "text-purple-400" },
+    { number: "89%", label: t('stats.customerSatisfaction'), color: "text-orange-400" },
   ];
 
   return (
@@ -198,10 +217,10 @@ const Results = React.memo(() => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         <div className="text-center mb-16">
           <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent mb-4">
-            效果数据
+            {t('enterpriseSolution.results.title')}
           </h2>
           <p className="text-xl text-gray-300">
-            真实企业服务商数据验证，全面提升B2B营销效率和成单率
+            {t('enterpriseSolution.results.subtitle')}
           </p>
         </div>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
@@ -221,6 +240,7 @@ const Results = React.memo(() => {
 
 export default function EnterpriseSolution() {
   const { openModal } = useContactModal();
+  const { t } = useTranslation();
 
   return (
     <div className="min-h-screen bg-gray-900">
@@ -239,32 +259,32 @@ export default function EnterpriseSolution() {
         </div>
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8 relative">
           <h2 className="text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent mb-4">
-            开启企业级智能营销之旅
+            {t('enterpriseSolution.cta.title')}
           </h2>
           <p className="text-xl text-gray-300 mb-8">
-            专业的营销解决方案，助力企业实现可持续增长
+            {t('enterpriseSolution.cta.subtitle')}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button
               size="lg"
               onClick={() => openModal({
-                title: '免费试用',
-                description: '了解企业级营销解决方案如何帮助您的企业实现高效获客和转化。',
+                title: t('hero.ctaFreeTrial'),
+                description: t('enterpriseSolution.hero.modalDesc'),
               })}
               className="bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 border-0 shadow-lg shadow-blue-500/25 text-white font-semibold text-lg px-8 py-4"
             >
               <Sparkles className="mr-2 h-5 w-5" />
-              免费试用
+              {t('hero.ctaFreeTrial')}
             </Button>
             <Button
               size="lg"
               onClick={() => openModal({
-                title: '联系企业专家',
-                description: '与我们的企业营销专家一对一沟通，获取定制化的解决方案。',
+                title: t('enterpriseSolution.modal.expertTitle'),
+                description: t('enterpriseSolution.modal.expertDesc'),
               })}
               className="bg-transparent border-2 border-cyan-500/80 text-cyan-400 hover:bg-cyan-500 hover:text-white backdrop-blur-sm text-lg px-8 py-4 font-bold shadow-lg shadow-cyan-500/20 transition-all duration-300"
             >
-              联系专家
+              {t('hero.ctaContactExpert')}
             </Button>
           </div>
         </div>
