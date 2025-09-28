@@ -15,9 +15,15 @@ import AdminProfile from "@/admin/pages/AdminProfile";
 
 // 帮助中心页面组件
 const HelpCenter = React.lazy(() => import("@/pages/HelpCenter/HelpCenter"));
-const DocumentDetail = React.lazy(() => import("@/pages/HelpCenter/DocumentDetail"));
-const MarketingHelpCenter = React.lazy(() => import("@/pages/MarketingHelpCenter"));
-const MarketingDocumentDetail = React.lazy(() => import("@/pages/MarketingDocumentDetail"));
+const DocumentDetail = React.lazy(
+  () => import("@/pages/HelpCenter/DocumentDetail"),
+);
+const MarketingHelpCenter = React.lazy(
+  () => import("@/pages/MarketingHelpCenter"),
+);
+const MarketingDocumentDetail = React.lazy(
+  () => import("@/pages/MarketingDocumentDetail"),
+);
 
 // 懒加载组件
 import Dashboard2 from "@/pages/Dashboard2"; // 改为直接导入解决模块加载问题
@@ -40,8 +46,19 @@ const ScenarioConfig = React.lazy(
   () => import("@/pages/AIMarketing/ScenarioConfig"),
 );
 const I18nConfig = React.lazy(() => import("@/pages/Organization/I18nConfig"));
-const I18nTranslationManager = React.lazy(() => import("@/pages/Organization/I18nTranslationManager"));
-const HelpDocumentI18nManager = React.lazy(() => import("@/pages/Organization/HelpDocumentI18nManager"));
+const I18nTranslationManager = React.lazy(
+  () => import("@/pages/Organization/I18nTranslationManager"),
+);
+const HelpDocumentI18nManager = React.lazy(
+  () => import("@/pages/Organization/HelpDocumentI18nManager"),
+);
+
+const Events = React.lazy(() => import("@/pages/events"));
+const Tasks = React.lazy(() => import("@/pages/MyTasks"));
+const Calendar = React.lazy(() => import("@/pages/TeamCalendar"));
+const LegacyAppPlaceholder = React.lazy(
+  () => import("@/pages/LegacyAppPlaceholder"),
+);
 
 // LazyRoute 包装组件
 const LazyRoute: React.FC<{
@@ -287,6 +304,46 @@ export const staticRoutes: RouteObject[] = [
     ),
   },
 
+  {
+    path: "/events",
+    element: (
+      <Layout>
+        <LazyRoute>
+          <Events />
+        </LazyRoute>
+      </Layout>
+    ),
+  },
+  {
+    path: "/tasks",
+    element: (
+      <Layout>
+        <LazyRoute>
+          <Tasks />
+        </LazyRoute>
+      </Layout>
+    ),
+  },
+  {
+    path: "/calendar",
+    element: (
+      <Layout>
+        <LazyRoute>
+          <Calendar />
+        </LazyRoute>
+      </Layout>
+    ),
+  },
+  {
+    path: "/legacy-app-placeholder",
+    element: (
+      <Layout>
+        <LazyRoute>
+          <LegacyAppPlaceholder />
+        </LazyRoute>
+      </Layout>
+    ),
+  },
 ];
 
 // 获取所有静态路由路径（用于路由匹配）

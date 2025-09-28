@@ -69,7 +69,7 @@
 
     /* === Accent Colors (Success, Warning, etc.) === */
     --accent: 300 30% 50%;
-    --accent-foreground: 0 0% 100%;
+    --accent-foreground: 222.2 47.4% 11.2%;
     --accent-light: 300 30% 95%;
 
     /* === Status Colors === */
@@ -118,6 +118,19 @@
     --sidebar-accent-foreground: 230 9% 85%;
     --sidebar-border: 230 17% 15%;
     --sidebar-ring: 259 94% 51%;
+
+        /* Intelligent Event Response Center Design System */
+    --eip-primary: 215 28% 17%; /* Deep slate for primary elements */
+    --eip-primary-foreground: 210 40% 98%;
+    --eip-accent: 239 84% 67%; /* Purple/blue accent */
+    --eip-accent-foreground: 210 40% 98%;
+    --eip-alert: 0 84% 60%; /* Red for high priority alerts */
+    --eip-alert-foreground: 210 40% 98%;
+    --eip-warning: 45 93% 47%; /* Amber for warnings */
+    --eip-warning-foreground: 26 83% 14%;
+    --eip-success: 142 76% 36%; /* Green for success/opportunities */
+    --eip-success-foreground: 210 40% 98%;
+    --eip-glass: 215 28% 17% / 0.1; /* Semi-transparent for glass effects */
   }
 
   .dark {

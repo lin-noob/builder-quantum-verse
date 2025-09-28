@@ -110,6 +110,20 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+         // Intelligent Event Response Center Design System
+        'eip': {
+          primary: "hsl(var(--eip-primary))",
+          'primary-foreground': "hsl(var(--eip-primary-foreground))",
+          accent: "hsl(var(--eip-accent))",
+          'accent-foreground': "hsl(var(--eip-accent-foreground))",
+          alert: "hsl(var(--eip-alert))",
+          'alert-foreground': "hsl(var(--eip-alert-foreground))",
+          warning: "hsl(var(--eip-warning))",
+          'warning-foreground': "hsl(var(--eip-warning-foreground))",
+          success: "hsl(var(--eip-success))",
+          'success-foreground': "hsl(var(--eip-success-foreground))",
+          glass: "hsl(var(--eip-glass))",
+        },
       },
       borderRadius: {
         lg: "var(--radius-lg)",
