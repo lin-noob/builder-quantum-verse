@@ -16,6 +16,7 @@ import SystemConfig from "./pages/SystemConfig";
 import GranularPermissionManagement from "./pages/GranularPermissionManagement";
 import SubscriptionManagement from "./pages/SubscriptionManagement";
 import MenuManagement from "./pages/MenuManagement";
+import MessageCenter from "./pages/MessageCenter";
 import { AdminMenuApiItem, fetchAdminMenus } from "./services/menuRouteService";
 import { loadLazyComponentByPath } from "./utils/dynamicRouteLoader";
 import { useAdminStore } from "@/stores";
@@ -55,6 +56,7 @@ export default function AdminApp() {
       <Route path="security" element={<SecurityPermissions />} />
       <Route path="granular-permissions" element={<GranularPermissionManagement />} />
       <Route path="subscriptions" element={<SubscriptionManagement />} />
+      <Route path="messages" element={<MessageCenter />} />
       <Route path="config" element={<SystemConfig />} />
       <Route path="profile" element={<AdminProfile />} />
     </>

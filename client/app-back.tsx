@@ -49,6 +49,10 @@ import UserProfilingFeature from "./pages/features/UserProfiling";
 import RealTimeMonitoringFeature from "./pages/features/RealTimeMonitoring";
 import EffectTrackingFeature from "./pages/features/EffectTrackingOptimized";
 import SDK from "./pages/SDK";
+import TicketManagement from "./pages/TicketManagement";
+import TicketDetail from "./pages/TicketDetail";
+import TicketCreate from "./pages/TicketCreate";
+import EmailManualProcessing from "./pages/EmailManualProcessing";
 
 const queryClient = new QueryClient();
 
@@ -261,7 +265,45 @@ const AppWithRequestManager = () => {
             }
           />
 
-          {/* AI营销功能模块 */}
+          {/* Ticket管理 */}
+          <Route
+            path="/tickets"
+            element={
+              <Layout>
+                <TicketManagement />
+              </Layout>
+            }
+          />
+
+          <Route
+            path="/tickets/create"
+            element={
+              <Layout>
+                <TicketCreate />
+              </Layout>
+            }
+          />
+
+          <Route
+            path="/tickets/:ticketId"
+            element={
+              <Layout>
+                <TicketDetail />
+              </Layout>
+            }
+          />
+
+          {/* 邮件处理 */}
+          <Route
+            path="/email-manual-processing"
+            element={
+              <Layout>
+                <EmailManualProcessing />
+              </Layout>
+            }
+          />
+
+          {/* AI营销功能模块 */}}
           <Route
             path="/ai-marketing/monitoring-center"
             element={

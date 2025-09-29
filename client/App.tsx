@@ -164,14 +164,14 @@ function AppContent() {
           ))}
 
           {/* 管理后台 */}
-          {/* <Route
+          <Route
             path="/admin/*"
             element={
               <LazyRoute fallback={<PageLoader message="加载管理后台..." />}>
                 <AdminApp />
               </LazyRoute>
             }
-          /> */}
+          />
 
           {/* 动态路由（登录后构建） */}
           {dynamicRoutes}

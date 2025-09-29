@@ -303,7 +303,7 @@ export default function IncidentDetails({ incident }: IncidentDetailsProps) {
               <ArrowUp className="w-4 h-4 mr-2" />
               ��级处理
             </Button>
-            <Button variant="outline" size="sm" onClick={() => navigate('/legacy-app-placeholder', { state: { incident } })}>
+            <Button variant="outline" size="sm" onClick={() => navigate('/email-manual-processing', { state: { incident } })}>
               ↗️ 前往传统界面手动处理
             </Button>
           </div>
