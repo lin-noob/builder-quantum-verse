@@ -55,9 +55,10 @@ const messageStatusMap = {
 interface MessageCenterDrawerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onUnreadCountChange?: (count: number) => void;
 }
 
-export default function MessageCenterDrawer({ open, onOpenChange }: MessageCenterDrawerProps) {
+export default function MessageCenterDrawer({ open, onOpenChange, onUnreadCountChange }: MessageCenterDrawerProps) {
   const [messages, setMessages] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -110,7 +111,11 @@ export default function MessageCenterDrawer({ open, onOpenChange }: MessageCente
       setMessages(messages.map(msg => 
         msg.id === messageId ? { ...msg, status: MessageStatus.READ } : msg
       ));
-      // 更新未读计数（如果需要的话，可以通过回调通知父组件）
+      // 更新未读计数
+      if (onUnreadCountChange) {
+        const count = await messageCenterService.getUnreadCount();
+        onUnreadCountChange(count);
+      }
     } catch (err) {
       toast.error("标记消息失败");
       console.error(err);
