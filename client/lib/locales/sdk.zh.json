@@ -1,0 +1,72 @@
+{
+    "projectList": {
+    "loading": "加载项目列表中...",
+    "title": "项目管理",
+    "subtitle": "管理和查看所有项目信息",
+    "filterTitle": "项目筛选",
+    "searchLabel": "搜索项目",
+    "searchPlaceholder": "按项目名称搜索...",
+    "createdAt": "创建于 {{date}}",
+    "sdkIntegration": "SDK集成",
+    "notFoundTitle": "未找到项目",
+    "notFoundDesc": "没有匹配当前筛选条件的项目。"
+  },
+  "sdk": {
+    "page": {
+      "title": "开发者工具",
+      "subtitle": "生成并集成xd-post SDK到您的项目中"
+    },
+    "generate": {
+      "title": "生成SDK",
+      "description": "点击按钮生成适用于您项目的SDK",
+      "exists": "您的SDK已生成",
+      "generating": "生成中...",
+      "button": "生成SDK",
+      "tip": {
+        "exists": "您已生成SDK，可直接使用下方的集成说明",
+        "noExists": "生成的SDK将包含xd-post的所有功能和配置"
+      },
+      "checking": "检查SDK状态中...",
+      "successBanner": {
+        "title": "SDK已生成!",
+        "desc": "您可以复制下方的SDK密钥用于项目集成"
+      },
+      "copyBtn": "复制SDK"
+    },
+    "integration": {
+      "title": "集成说明",
+      "description": "将xd-post SDK集成到您的项目中的方法",
+      "steps": {
+        "install": "1. 安装",
+        "importRule": "2. 引入规则",
+        "script": "1. 引入脚本",
+        "globalVar": "2. 使用全局变量"
+      }
+    },
+    "features": {
+      "title": "SDK功能",
+      "description": "xd-post SDK提供了以下核心功能",
+      "items": {
+        "autoTrack": { "title": "自动追踪", "desc": "自动收集用户行为数据，无需手动埋点" },
+        "eventAnalysis": { "title": "事件分析", "desc": "实时分析用户事件，洞察用户行为模式" },
+        "performance": { "title": "性能监控", "desc": "监控页面加载性能和用户交互体验" },
+        "report": { "title": "数据上报", "desc": "灵活配置数据上报策略，支持批量发送" },
+        "identify": { "title": "用户识别", "desc": "准确识别用户身份，关联用户行为数据" },
+        "customProps": { "title": "自定义属性", "desc": "支持自定义事件和用户属性，满足业务需求" }
+      }
+    },
+    "toast": {
+      "checkFailed": {
+        "title": "检查SDK失败",
+        "desc": "检查SDK时发生网络错误"
+      },
+      "generate": {
+        "success": { "title": "SDK生成成功！", "desc": "您的SDK已准备就绪，可以复制使用。" },
+        "error": { "title": "生成失败", "desc": "生成SDK时发生错误" },
+        "networkError": "生成SDK时发生网络错误"
+      },
+      "copySDK": "SDK内容已复制到剪贴板",
+      "copied": "已复制到剪贴板"
+    }
+  }
+}

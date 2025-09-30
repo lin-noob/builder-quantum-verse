@@ -1,0 +1,80 @@
+{
+  "sdkIntegration": {
+    "page": {
+      "title": "SDK集成管理",
+      "subtitle": "生成并配置JavaScript SDK，在您的网站上收集用户行为数据"
+    },
+    "config": {
+      "title": "SDK配置",
+      "websiteUrl": "网站URL",
+      "apiKey": "API密钥",
+      "regenerate": "重新生成",
+      "dataRetention": "数据保留天数"
+    },
+    "retention": {
+      "30": "30天",
+      "90": "90天",
+      "180": "180天",
+      "365": "365天"
+    },
+    "features": {
+      "title": "功能配置",
+      "realtime": { "title": "实时数据传输", "desc": "启用实时数据收集和传输" },
+      "userProfiling": { "title": "用户画像", "desc": "自动收集和分析用户特征" },
+      "aiRecommendations": { "title": "AI智能推荐", "desc": "基于用户行为的智能营销推荐" }
+    },
+    "customProps": {
+      "title": "自定义属性",
+      "add": "添加属性",
+      "remove": "删除",
+      "keyPlaceholder": "属性名",
+      "valuePlaceholder": "属性值"
+    },
+    "actions": {
+      "generateCode": "生成SDK代码",
+      "copy": "复制",
+      "download": "下载",
+      "testConnection": "测试连接",
+      "testing": "测试中..."
+    },
+    "generated": {
+      "title": "生成的SDK代码"
+    },
+    "integrationGuide": {
+      "title": "集成说明",
+      "desc": "将以上代码复制并粘贴到您网站的 <head> 标签内，或在 </body> 标签前。代码会自动开始收集用户行为数据。"
+    },
+    "status": {
+      "title": "集成状态",
+      "connection": "连接状态",
+      "connected": "已连接",
+      "disconnected": "未连接",
+      "lastDataTime": "最后数据时间",
+      "totalEvents": "总事件数",
+      "activeUsers": "活跃用户"
+    },
+    "quickGuide": {
+      "title": "集成指南",
+      "step1": { "title": "配置SDK", "desc": "填写网站URL并选择需要的功能" },
+      "step2": { "title": "生成代码", "desc": "点击生成按钮获取集成代码" },
+      "step3": { "title": "部署到网站", "desc": "��代码添加到网站页面中" },
+      "step4": { "title": "验证集成", "desc": "使用测试工具验证数据收集" }
+    },
+    "security": {
+      "title": "安全提示",
+      "tips": {
+        "1": "请妥善保管您的API密钥",
+        "2": "定期更新API密钥确保安全",
+        "3": "仅在HTTPS网站上使用SDK",
+        "4": "遵守相关隐私法规要求"
+      }
+    },
+    "toast": {
+      "copySuccess": { "title": "复制成功", "desc": "代码已复制到剪贴板" },
+      "copyFail": { "title": "复制失败", "desc": "请手动选择并复制代码" },
+      "downloadSuccess": { "title": "下载成功", "desc": "SDK文件已下载到本地" },
+      "testSuccess": { "title": "连接测试成功", "desc": "SDK集成正常，数据传输正常" },
+      "testFail": { "title": "连接测试失败", "desc": "请检查API Key和网站配置" }
+    }
+  }
+}
