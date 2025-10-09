@@ -2,17 +2,16 @@ import { request } from "@/lib/request";
 
 // 消息类型枚举
 export enum MessageType {
-  SYSTEM = "system", // 系统消息
-  NOTIFICATION = "notification", // 通知
-  ALERT = "alert", // 警告
-  UPDATE = "update", // 更新
+  SYSTEM, // 系统消息
+  NOTIFICATION, // 通知
+  ALERT, // 警告
+  UPDATE, // 更新
 }
 
 // 消息状态枚举
 export enum MessageStatus {
-  UNREAD = "unread", // 未读
-  READ = "read", // 已读
-  ARCHIVED = "archived", // 已归档
+  UNREAD, // 未读
+  READ, // 已读
 }
 
 // 消息接口

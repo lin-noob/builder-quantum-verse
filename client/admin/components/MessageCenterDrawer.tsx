@@ -50,7 +50,6 @@ const messageTypeMap = {
 const messageStatusMap = {
   [MessageStatus.UNREAD]: { label: "未读", color: "bg-red-100 text-red-800" },
   [MessageStatus.READ]: { label: "已读", color: "bg-gray-100 text-gray-800" },
-  [MessageStatus.ARCHIVED]: { label: "已归档", color: "bg-yellow-100 text-yellow-800" },
 };
 
 interface MessageCenterDrawerProps {
@@ -83,8 +82,8 @@ export default function MessageCenterDrawer({ open, onOpenChange, onUnreadCountC
       };
       
       if (searchTerm) params.search = searchTerm;
-      if (typeFilter !== "all") params.type = typeFilter;
-      if (statusFilter !== "all") params.status = statusFilter;
+      if (typeFilter !== "all") params.type = Number(typeFilter);
+      if (statusFilter !== "all") params.status = Number(statusFilter);
       
       const response = await messageCenterService.getMessages(params);
       setMessages(response.messages);

@@ -1,4 +1,11 @@
-import { MessageType, MessageStatus, Message, MessageResponse, GetMessageParams } from "./messageCenterService";
+import { request } from "@/lib/request";
+import {
+  MessageType,
+  MessageStatus,
+  Message,
+  MessageResponse,
+  GetMessageParams,
+} from "./messageCenterService";
 
 // 模拟消息数据
 const mockMessages: Message[] = [
@@ -74,7 +81,7 @@ const mockMessages: Message[] = [
 ];
 
 // 模拟延迟函数
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // 模拟消息服务类
 class MockMessageCenterService {
@@ -86,55 +93,40 @@ class MockMessageCenterService {
    * @returns 消息列表和分页信息
    */
   async getMessages(params: GetMessageParams = {}): Promise<MessageResponse> {
-    // 模拟网络延迟
-    await delay(300);
+    const { page = 1, pageSize = 10, type, status, category, search } = params;
 
-    const {
-      page = 1,
-      pageSize = 10,
-      type,
-      status,
-      category,
-      search,
-    } = params;
+    const searchParams: any = {
+      pagesize: pageSize,
+      currentpage: page,
+    };
 
-    let filteredMessages = [...this.messages];
-
-    // 按类型过滤
-    if (type) {
-      filteredMessages = filteredMessages.filter(msg => msg.type === type);
-    }
-
-    // 按状态过滤
-    if (status) {
-      filteredMessages = filteredMessages.filter(msg => msg.status === status);
-    }
-
-    // 按分类过滤
-    if (category) {
-      filteredMessages = filteredMessages.filter(msg => msg.category === category);
-    }
-
-    // 按搜索关键词过滤
     if (search) {
-      const searchLower = search.toLowerCase();
-      filteredMessages = filteredMessages.filter(msg =>
-        msg.title.toLowerCase().includes(searchLower) ||
-        msg.content.toLowerCase().includes(searchLower)
-      );
+      searchParams.name = search;
     }
 
-    // 按创建时间倒序排序
-    filteredMessages.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    if (status || status === 0) {
+      searchParams.status = status;
+    }
 
-    // 分页
-    const startIndex = (page - 1) * pageSize;
-    const endIndex = startIndex + pageSize;
-    const paginatedMessages = filteredMessages.slice(startIndex, endIndex);
+    if (type || type === 0) {
+      searchParams.type = type;
+    }
+
+    const res = await request.get("/admin/api/v1/message/page", searchParams);
+    const data = res.data.data;
+    const paginatedMessages = data.records.map(
+      ({ id, name, type, status }) => ({
+        id,
+        title: name,
+        type,
+        status,
+      }),
+    );
+    const total = data.total;
 
     return {
       messages: paginatedMessages,
-      total: filteredMessages.length,
+      total,
       page,
       pageSize,
     };
@@ -149,7 +141,7 @@ class MockMessageCenterService {
     // 模拟网络延迟
     await delay(200);
 
-    const messageIndex = this.messages.findIndex(msg => msg.id === messageId);
+    const messageIndex = this.messages.findIndex((msg) => msg.id === messageId);
     if (messageIndex === -1) {
       throw new Error(`消息 ${messageId} 不存在`);
     }
@@ -176,9 +168,14 @@ class MockMessageCenterService {
     await delay(300);
 
     const now = new Date().toISOString();
-    messageIds.forEach(messageId => {
-      const messageIndex = this.messages.findIndex(msg => msg.id === messageId);
-      if (messageIndex !== -1 && this.messages[messageIndex].status === MessageStatus.UNREAD) {
+    messageIds.forEach((messageId) => {
+      const messageIndex = this.messages.findIndex(
+        (msg) => msg.id === messageId,
+      );
+      if (
+        messageIndex !== -1 &&
+        this.messages[messageIndex].status === MessageStatus.UNREAD
+      ) {
         this.messages[messageIndex] = {
           ...this.messages[messageIndex],
           status: MessageStatus.READ,
@@ -197,7 +194,7 @@ class MockMessageCenterService {
     // 模拟网络延迟
     await delay(200);
 
-    const messageIndex = this.messages.findIndex(msg => msg.id === messageId);
+    const messageIndex = this.messages.findIndex((msg) => msg.id === messageId);
     if (messageIndex === -1) {
       throw new Error(`消息 ${messageId} 不存在`);
     }
@@ -214,7 +211,7 @@ class MockMessageCenterService {
     // 模拟网络延迟
     await delay(300);
 
-    this.messages = this.messages.filter(msg => !messageIds.includes(msg.id));
+    this.messages = this.messages.filter((msg) => !messageIds.includes(msg.id));
   }
 
   /**
@@ -223,9 +220,10 @@ class MockMessageCenterService {
    */
   async getUnreadCount(): Promise<number> {
     // 模拟网络延迟
-    await delay(100);
+    const res = await request.get("/admin/api/v1/message/count");
+    const data = res.data;
 
-    return this.messages.filter(msg => msg.status === MessageStatus.UNREAD).length;
+    return Number(data);
   }
 }
 
