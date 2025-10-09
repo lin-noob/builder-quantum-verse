@@ -48,7 +48,7 @@ import useProjectStore from "@/stores/projectStore";
 import { CreateProjectDialog } from "./CreateProjectDialog";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import MessageCenterDrawer from "@/admin/components/MessageCenterDrawer";
-import { mockMessageCenterService as messageCenterService } from "@/admin/services/mockMessageCenterService";
+import { messageCenterService } from "@/admin/services/messageCenterService";
 
 interface LayoutProps {
   children: ReactNode;
@@ -918,7 +918,7 @@ export default function Layout({ children }: LayoutProps) {
               <Bell className="h-5 w-5" />
               {unreadCount > 0 && (
                 <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center text-[10px]">
-                  {unreadCount > 9 ? "9+" : unreadCount}
+                  {unreadCount > 99 ? "99+" : unreadCount}
                 </span>
               )}
             </div>

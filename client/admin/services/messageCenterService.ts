@@ -55,13 +55,44 @@ class MessageCenterService {
    * @returns 消息列表和分页信息
    */
   async getMessages(params: GetMessageParams = {}): Promise<MessageResponse> {
-    try {
-      const response = await request.get<MessageResponse>("/api/admin/api/v1/messages", params);
-      return response.data;
-    } catch (error) {
-      console.error("获取消息列表失败:", error);
-      throw error;
+    const { page = 1, pageSize = 10, type, status, category, search } = params;
+
+    const searchParams: any = {
+      pageSize,
+      currentpage: page,
+    };
+
+    if (search) {
+      searchParams.name = search;
     }
+
+    if (status || status === 0) {
+      searchParams.status = status;
+    }
+
+    if (type || type === 0) {
+      searchParams.type = type;
+    }
+
+    const res = await request.get("/admin/api/v1/message/page", searchParams);
+    const data = res.data.data;
+    const paginatedMessages = data.records.map(
+      ({ id, title, type, status, gmtCreate }) => ({
+        id,
+        title,
+        type,
+        status,
+        createdAt: gmtCreate,
+      }),
+    );
+    const total = data.total;
+
+    return {
+      messages: paginatedMessages,
+      total,
+      page,
+      pageSize,
+    };
   }
 
   /**
@@ -71,7 +102,12 @@ class MessageCenterService {
    */
   async markAsRead(messageId: string): Promise<Message> {
     try {
-      const response = await request.put<Message>(`/api/admin/api/v1/messages/${messageId}/read`);
+      const formData = new FormData();
+      formData.append("ids", messageId);
+      const response = await request.post<Message>(
+        `/admin/api/v1/message/read`,
+        formData,
+      );
       return response.data;
     } catch (error) {
       console.error("标记消息为已读失败:", error);
@@ -86,7 +122,9 @@ class MessageCenterService {
    */
   async markMultipleAsRead(messageIds: string[]): Promise<void> {
     try {
-      await request.post("/api/admin/api/v1/messages/read", { messageIds });
+      const formData = new FormData();
+      formData.append("ids", messageIds.join(","));
+      await request.post("/admin/api/v1/message/read", formData);
     } catch (error) {
       console.error("批量标记消息为已读失败:", error);
       throw error;
@@ -100,7 +138,9 @@ class MessageCenterService {
    */
   async deleteMessage(messageId: string): Promise<void> {
     try {
-      await request.delete(`/api/admin/api/v1/messages/${messageId}`);
+      const formData = new FormData();
+      formData.append("ids", messageId);
+      await request.delete(`/admin/api/v1/message/delete`);
     } catch (error) {
       console.error("删除消息失败:", error);
       throw error;
@@ -114,7 +154,9 @@ class MessageCenterService {
    */
   async deleteMultipleMessages(messageIds: string[]): Promise<void> {
     try {
-      await request.post("/api/admin/api/v1/messages/delete", { messageIds });
+      const formData = new FormData();
+      formData.append("ids", messageIds.join(","));
+      await request.post("/admin/api/v1/message/delete", formData);
     } catch (error) {
       console.error("批量删除消息失败:", error);
       throw error;
@@ -126,13 +168,11 @@ class MessageCenterService {
    * @returns 未读消息数量
    */
   async getUnreadCount(): Promise<number> {
-    try {
-      const response = await request.get<{ count: number }>("/api/admin/api/v1/messages/unread-count");
-      return response.data.count;
-    } catch (error) {
-      console.error("获取未读消息数量失败:", error);
-      throw error;
-    }
+    // 模拟网络延迟
+    const res = await request.get("/admin/api/v1/message/count");
+    const data = res.data.data;
+
+    return Number(data);
   }
 }
 
