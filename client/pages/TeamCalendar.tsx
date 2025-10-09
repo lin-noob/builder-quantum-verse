@@ -1,27 +1,25 @@
 import { useState, useMemo, useCallback } from 'react';
-// import { Calendar, momentLocalizer, Views } from 'react-big-calendar';
-import moment from 'moment';
-// import '../styles/calendar.css';
+import { Calendar, Views, View } from 'react-big-calendar';
+import { useTranslation } from 'react-i18next';
+import 'react-big-calendar/lib/css/react-big-calendar.css';
+import '@/styles/calendar.css';
 import { ColorBy, CalendarView } from '@shared/types';
-import { 
-  getTeamCalendarTasks, 
-  getTeamMembers, 
+import {
+  getTeamCalendarTasks,
+  getTeamMembers,
   getAISuggestedTasks,
-  getTaskColor 
+  getTaskColor
 } from '@/data/teamCalendarData';
+import { localizer, calendarMessages, getCalendarLocale } from '@/utils/calendar-localization';
 import MiniMonthNavigator from '@/components/team-calendar/MiniMonthNavigator';
 import AIWorkloadAnalyzer from '@/components/team-calendar/AIWorkloadAnalyzer';
 import ViewFilters from '@/components/team-calendar/ViewFilters';
 import CalendarToolbar from '@/components/team-calendar/CalendarToolbar';
-import CustomCalendarGrid from '@/components/team-calendar/CustomCalendarGrid';
-// import CustomCalendarEvent from '@/components/team-calendar/CustomCalendarEvent';
 import { toast } from 'sonner';
 import { Brain } from 'lucide-react';
 
-// 配置moment本地化
-moment.locale('zh-cn');
-
 export default function TeamCalendar() {
+  const { i18n } = useTranslation();
   const [colorBy, setColorBy] = useState<ColorBy>('assignee');
   const [calendarView, setCalendarView] = useState<CalendarView>('month');
   const [selectedMembers, setSelectedMembers] = useState<string[]>(
@@ -51,34 +49,40 @@ export default function TeamCalendar() {
     return getAISuggestedTasks();
   }, [showAISuggestions]);
 
-  // 转换任务为日历事件格式 - 暂时禁用事件渲染，专注于日历结构
+  // 转换任务为日历事件格式
   const calendarEvents = useMemo(() => {
-    // 暂时返回空数组，优先确保日历骨架和皮肤100%正确
-    return [];
+    const regularEvents = filteredTasks
+      .filter(task => task.scheduledTime)
+      .map(task => ({
+        id: task.id,
+        title: task.title,
+        start: task.scheduledTime!.start,
+        end: task.scheduledTime!.end,
+        resource: task,
+        style: {
+          backgroundColor: getTaskColor(task, colorBy),
+          borderColor: getTaskColor(task, colorBy),
+        }
+      }));
 
-    // const regularEvents = filteredTasks
-    //   .filter(task => task.scheduledTime)
-    //   .map(task => ({
-    //     id: task.id,
-    //     title: task.title,
-    //     start: task.scheduledTime!.start,
-    //     end: task.scheduledTime!.end,
-    //     resource: task
-    //   }));
+    const aiSuggestionEvents = aiSuggestedTasks
+      .filter(task => task.scheduledTime)
+      .map(task => ({
+        id: `ai-${task.id}`,
+        title: `[AI] ${task.title}`,
+        start: task.scheduledTime!.start,
+        end: task.scheduledTime!.end,
+        resource: task,
+        isAISuggested: true,
+        style: {
+          backgroundColor: '#818cf8',
+          borderColor: '#6366f1',
+          opacity: 0.7,
+        }
+      }));
 
-    // const aiSuggestionEvents = aiSuggestedTasks
-    //   .filter(task => task.scheduledTime)
-    //   .map(task => ({
-    //     id: `ai-${task.id}`,
-    //     title: `[AI] ${task.title}`,
-    //     start: task.scheduledTime!.start,
-    //     end: task.scheduledTime!.end,
-    //     resource: task,
-    //     isAISuggested: true
-    //   }));
-
-    // return [...regularEvents, ...aiSuggestionEvents];
-  }, [filteredTasks, aiSuggestedTasks]);
+    return [...regularEvents, ...aiSuggestionEvents];
+  }, [filteredTasks, aiSuggestedTasks, colorBy]);
 
   // 处理成员筛选
   const handleMemberToggle = useCallback((memberId: string) => {
@@ -151,8 +155,32 @@ export default function TeamCalendar() {
     toast.info('新建日程功能开发中...');
   }, []);
 
-  // 暂时移除react-big-calendar相关的事件处理函数
-  // 使用自定义日历网格组件替代
+  // 处理事件选择
+  const handleEventSelect = useCallback((event: any) => {
+    console.log('Selected event:', event);
+    // 这里可以添加事件详情显示逻辑
+  }, []);
+
+  // 处理时间段选择（用于创建新事件）
+  const handleSelectSlot = useCallback((slotInfo: any) => {
+    console.log('Selected slot:', slotInfo);
+    // 这里可以添加新建事件的逻辑
+  }, []);
+
+  // 处理视图变化
+  const handleViewChange = useCallback((view: View) => {
+    const viewMap: Record<View, CalendarView> = {
+      month: 'month',
+      week: 'week',
+      day: 'day',
+      agenda: 'month', // fallback
+    };
+    setCalendarView(viewMap[view] || 'month');
+  }, []);
+
+  // 获取当前语言和本地化配置
+  const currentLocale = getCalendarLocale(i18n.language);
+  const messages = calendarMessages[currentLocale] || calendarMessages['zh-CN'];
 
   return (
       <div className="h-full flex bg-slate-50 dark:bg-slate-900">
@@ -196,18 +224,41 @@ export default function TeamCalendar() {
             onNewEvent={handleNewEvent}
           />
 
-          {/* 主日历网格 */}
+          {/* 主日历区域 */}
           <div className="flex-1 p-6">
-            <CustomCalendarGrid
-              currentDate={currentDate}
-              onDateClick={(date) => {
-                setCurrentDate(date);
-                // 如果点击日期，可以切换到日视图
-                if (calendarView === 'month') {
-                  setCalendarView('day');
-                }
-              }}
-            />
+            <div className="h-full bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+              <Calendar
+                localizer={localizer}
+                events={calendarEvents}
+                startAccessor="start"
+                endAccessor="end"
+                culture={currentLocale}
+                messages={messages}
+                date={currentDate}
+                onNavigate={setCurrentDate}
+                view={calendarView === 'month' ? Views.MONTH : calendarView === 'week' ? Views.WEEK : Views.DAY}
+                onView={handleViewChange}
+                onSelectEvent={handleEventSelect}
+                onSelectSlot={handleSelectSlot}
+                selectable
+                popup
+                showMultiDayTimes
+                step={30}
+                timeslots={2}
+                style={{ height: 'calc(100vh - 200px)' }}
+                eventPropGetter={(event) => ({
+                  style: event.style || {},
+                })}
+                dayPropGetter={(date) => ({
+                  style: {
+                    backgroundColor: 'transparent',
+                  },
+                })}
+                components={{
+                  toolbar: () => null, // 使用自定义工具栏
+                }}
+              />
+            </div>
           </div>
         </div>
       </div>

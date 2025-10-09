@@ -1,6 +1,9 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { CalendarView } from '@shared/types';
+import { useTranslation } from 'react-i18next';
+import { format } from 'date-fns';
+import { zhCN, enUS } from 'date-fns/locale';
 
 interface CalendarToolbarProps {
   currentDate: Date;
@@ -19,12 +22,14 @@ export default function CalendarToolbar({
   onTodayClick,
   onNewEvent
 }: CalendarToolbarProps) {
-  
+  const { t, i18n } = useTranslation();
+
+  // 获取当前语言的 locale
+  const locale = i18n.language.startsWith('en') ? enUS : zhCN;
+
   // 格式化显示当前年月
   const formatDisplayDate = (date: Date) => {
-    const year = date.getFullYear();
-    const month = date.getMonth() + 1;
-    return `${year}年${month}月`;
+    return format(date, i18n.language.startsWith('en') ? 'MMMM yyyy' : 'yyyy年M月', { locale });
   };
   
   // 处理上一个月
@@ -43,9 +48,9 @@ export default function CalendarToolbar({
   
   // 视图选项
   const viewOptions = [
-    { value: 'day' as CalendarView, label: '日' },
-    { value: 'week' as CalendarView, label: '周' },
-    { value: 'month' as CalendarView, label: '月' }
+    { value: 'day' as CalendarView, label: i18n.language.startsWith('en') ? 'Day' : '日' },
+    { value: 'week' as CalendarView, label: i18n.language.startsWith('en') ? 'Week' : '周' },
+    { value: 'month' as CalendarView, label: i18n.language.startsWith('en') ? 'Month' : '月' }
   ];
   
   return (
@@ -87,7 +92,7 @@ export default function CalendarToolbar({
           onClick={onTodayClick}
           className="border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 px-3 py-1.5 text-sm font-medium transition-colors"
         >
-          今天
+          {i18n.language.startsWith('en') ? 'Today' : '今天'}
         </Button>
         
         {/* 视图切换器 - 分段控件样式 */}
