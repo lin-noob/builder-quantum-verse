@@ -48,7 +48,7 @@ import useProjectStore from "@/stores/projectStore";
 import { CreateProjectDialog } from "./CreateProjectDialog";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import MessageCenterDrawer from "@/admin/components/MessageCenterDrawer";
-import { messageCenterService } from "@/admin/services/messageCenterService";
+import { mockMessageCenterService as messageCenterService } from "@/admin/services/mockMessageCenterService";
 
 interface LayoutProps {
   children: ReactNode;
@@ -900,8 +900,36 @@ export default function Layout({ children }: LayoutProps) {
           </ul>
         </nav>
 
-        {/* Help Center Link */}
-        <div className="border-t border-gray-200 p-2">
+        {/* Message Center and Help Links */}
+        <div className="border-t border-gray-200 p-2 space-y-1">
+          {/* Message Center Button */}
+          <button
+            onClick={() => setIsMessageCenterOpen(true)}
+            className={cn(
+              "w-full flex items-center rounded-lg text-sm font-medium transition-colors relative",
+              isSidebarCollapsed
+                ? "gap-0 px-3 py-2 justify-center"
+                : "gap-3 px-3 py-2",
+              "text-gray-600 hover:text-gray-900 hover:bg-gray-50",
+            )}
+            title={isSidebarCollapsed ? "消息中心" : undefined}
+          >
+            <div className="relative">
+              <Bell className="h-5 w-5" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center text-[10px]">
+                  {unreadCount > 9 ? "9+" : unreadCount}
+                </span>
+              )}
+            </div>
+            {!isSidebarCollapsed && (
+              <span className="whitespace-nowrap overflow-hidden">
+                消息中心
+              </span>
+            )}
+          </button>
+
+          {/* Help Center Link */}
           <a
             href="/marketing/help"
             target="_blank"

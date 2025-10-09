@@ -350,7 +350,7 @@ export const allMockTasks: Task[] = [
   },
   {
     id: 'task10',
-    title: '安全漏��修复',
+    title: '安全漏洞修复',
     status: 'pending',
     assignee: mockUsers[2], // 王大伟
     parentIncidentId: 'inc1',
@@ -359,6 +359,80 @@ export const allMockTasks: Task[] = [
       start: new Date('2024-01-24T14:00:00'),
       end: new Date('2024-01-24T17:00:00')
     }
+  },
+
+  // 审批流相关任务
+  {
+    id: 'task_approval1',
+    title: '客户退款申请审批',
+    status: 'pending',
+    assignee: mockUsers[1], // 李小红
+    parentIncidentId: 'inc1',
+    dueDate: new Date('2024-01-21T15:00:00'),
+    handlingType: 'external_approval',
+    externalSystem: 'OA',
+    externalUrl: 'https://oa.company.com/approval/refund/12345',
+    externalStatus: 'pending_sync'
+  },
+  {
+    id: 'task_approval2',
+    title: '系统升级预算审批',
+    status: 'pending',
+    assignee: mockUsers[2], // 王大伟
+    parentIncidentId: 'inc2',
+    dueDate: new Date('2024-01-22T10:00:00'),
+    handlingType: 'external_approval',
+    externalSystem: 'ERP',
+    externalUrl: 'https://erp.company.com/budget/approval/67890',
+    externalStatus: 'pending_sync'
+  },
+  {
+    id: 'task_approval3',
+    title: '客户数据处理授权',
+    status: 'pending',
+    assignee: mockUsers[0], // 张明
+    parentIncidentId: 'inc3',
+    dueDate: new Date('2024-01-21T14:00:00'),
+    handlingType: 'external_approval',
+    externalSystem: 'CRM',
+    externalUrl: 'https://crm.company.com/data-auth/54321',
+    externalStatus: 'pending_sync'
+  },
+  {
+    id: 'task_approval4',
+    title: '营销活动费用审批',
+    status: 'completed',
+    assignee: emailSpecialist, // 陈小雅
+    parentIncidentId: 'inc_email3',
+    dueDate: new Date('2024-01-20T16:00:00'),
+    handlingType: 'external_approval',
+    externalSystem: 'OA',
+    externalUrl: 'https://oa.company.com/approval/marketing/98765',
+    externalStatus: 'completed'
+  },
+  {
+    id: 'task_approval5',
+    title: '服务器采购申请',
+    status: 'pending',
+    assignee: mockUsers[2], // 王大伟
+    parentIncidentId: 'inc2',
+    dueDate: new Date('2024-01-23T12:00:00'),
+    handlingType: 'external_approval',
+    externalSystem: 'ERP',
+    externalUrl: 'https://erp.company.com/procurement/server/11111',
+    externalStatus: 'pending_sync'
+  },
+  {
+    id: 'task_approval6',
+    title: '客户信息变更审批',
+    status: 'pending',
+    assignee: mockUsers[1], // 李小红
+    parentIncidentId: 'inc1',
+    dueDate: new Date('2024-01-21T11:00:00'),
+    handlingType: 'external_approval',
+    externalSystem: 'CRM',
+    externalUrl: 'https://crm.company.com/customer-update/22222',
+    externalStatus: 'pending_sync'
   },
 
   // 邮件相关任务

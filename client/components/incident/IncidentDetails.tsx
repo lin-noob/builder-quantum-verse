@@ -41,7 +41,7 @@ const priorityLabels = {
 
 const statusLabels = {
   pending_human: '待人工处理',
-  in_progress: '处��中',
+  in_progress: '处理中',
   resolved: '已解决',
   automated: 'AI已处理'
 };
@@ -301,7 +301,7 @@ export default function IncidentDetails({ incident }: IncidentDetailsProps) {
             )}
             <Button variant="ghost" size="sm">
               <ArrowUp className="w-4 h-4 mr-2" />
-              ��级处理
+              升级处理
             </Button>
             <Button variant="outline" size="sm" onClick={() => navigate('/email-manual-processing', { state: { incident } })}>
               ↗️ 前往传统界面手动处理

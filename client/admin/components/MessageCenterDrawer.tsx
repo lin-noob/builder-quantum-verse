@@ -33,7 +33,8 @@ import {
   RefreshCw,
   X,
 } from "lucide-react";
-import { messageCenterService, MessageType, MessageStatus } from "../services/messageCenterService";
+import { mockMessageCenterService as messageCenterService } from "../services/mockMessageCenterService";
+import { MessageType, MessageStatus } from "../services/messageCenterService";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
