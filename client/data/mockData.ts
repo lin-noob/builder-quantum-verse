@@ -28,6 +28,17 @@ export const mockUsers: User[] = [
   }
 ];
 
+// 添加邮件专员用户
+export const emailSpecialist: User = {
+  id: '5',
+  name: '陈小雅',
+  avatarUrl: '',
+  role: 'Email Marketing Specialist'
+};
+
+// 将邮件专员添加到用户列表
+mockUsers.push(emailSpecialist);
+
 // Mock response actions
 const mockResponseActions: ResponseAction[] = [
   {
@@ -71,6 +82,70 @@ const mockResponseActions2: ResponseAction[] = [
   }
 ];
 
+// 邮件相关的响应动作
+const mockEmailResponseActions: ResponseAction[] = [
+  {
+    id: 'ra_email1',
+    title: '发送自动回复邮件',
+    description: '向投诉客户发送自动确认邮件，告知已收到投诉并将在24小时内处理',
+    type: 'communication'
+  },
+  {
+    id: 'ra_email2',
+    title: '人工审核邮件内容',
+    description: '邮件专员审核投诉内容，分析问题严重程度并制定处理方案',
+    type: 'process'
+  },
+  {
+    id: 'ra_email3',
+    title: '更新客户邮件偏好',
+    description: '根据客户退订请求，更新邮件列表和发送偏好设置',
+    type: 'data_enrichment'
+  }
+];
+
+const mockEmailResponseActions2: ResponseAction[] = [
+  {
+    id: 'ra_email4',
+    title: '检查邮件服务器状态',
+    description: '技术团队检查SMTP服务器配置和网络连接状态',
+    type: 'process'
+  },
+  {
+    id: 'ra_email5',
+    title: '重新发送失败邮件',
+    description: '使用备用邮件服务器重新发送失败的邮件',
+    type: 'process'
+  },
+  {
+    id: 'ra_email6',
+    title: '通知受影响客户',
+    description: '通过短信或其他渠道告知客户邮件发送问题',
+    type: 'communication'
+  }
+];
+
+const mockEmailResponseActions3: ResponseAction[] = [
+  {
+    id: 'ra_email7',
+    title: '清理无效邮箱地址',
+    description: '从邮件列表中移除无效和退回的邮箱地址',
+    type: 'data_enrichment'
+  },
+  {
+    id: 'ra_email8',
+    title: '优化邮件内容',
+    description: '分析退订原因，优化邮件内容和发送频率',
+    type: 'process'
+  },
+  {
+    id: 'ra_email9',
+    title: '个性化邮件策略',
+    description: '基于客户行为数据制定个性化邮件发送策略',
+    type: 'data_enrichment'
+  }
+];
+
 // Mock activities  
 const mockActivities: Activity[] = [
   {
@@ -110,6 +185,70 @@ const mockActivities2: Activity[] = [
     id: 'act6',
     timestamp: new Date('2024-01-20T13:20:00'),
     description: '启动应急响应流程',
+    actor: 'AI'
+  }
+];
+
+// 邮件相关的活动记录
+const mockEmailActivities: Activity[] = [
+  {
+    id: 'act_email1',
+    timestamp: new Date('2024-01-20T15:45:00'),
+    description: 'AI检测到客户投诉邮件，自动分类为高优先级',
+    actor: 'AI'
+  },
+  {
+    id: 'act_email2',
+    timestamp: new Date('2024-01-20T15:47:00'),
+    description: '自动提取投诉关键信息：产品质量问题',
+    actor: 'AI'
+  },
+  {
+    id: 'act_email3',
+    timestamp: new Date('2024-01-20T15:50:00'),
+    description: '生成客户投诉处理建议和响应模板',
+    actor: 'AI'
+  }
+];
+
+const mockEmailActivities2: Activity[] = [
+  {
+    id: 'act_email4',
+    timestamp: new Date('2024-01-20T16:20:00'),
+    description: '监控系统检测到邮件发送失败率异常升高',
+    actor: 'AI'
+  },
+  {
+    id: 'act_email5',
+    timestamp: new Date('2024-01-20T16:22:00'),
+    description: '确认为SMTP服务器连接超时问题',
+    actor: 'AI'
+  },
+  {
+    id: 'act_email6',
+    timestamp: new Date('2024-01-20T16:25:00'),
+    description: '启动邮件服务应急处理流程',
+    actor: 'AI'
+  }
+];
+
+const mockEmailActivities3: Activity[] = [
+  {
+    id: 'act_email7',
+    timestamp: new Date('2024-01-20T17:10:00'),
+    description: 'AI分析检测到邮件退订率异常增长',
+    actor: 'AI'
+  },
+  {
+    id: 'act_email8',
+    timestamp: new Date('2024-01-20T17:12:00'),
+    description: '自动分析退订原因：邮件频率过高',
+    actor: 'AI'
+  },
+  {
+    id: 'act_email9',
+    timestamp: new Date('2024-01-20T17:15:00'),
+    description: '生成邮件策略优化建议',
     actor: 'AI'
   }
 ];
@@ -211,7 +350,7 @@ export const allMockTasks: Task[] = [
   },
   {
     id: 'task10',
-    title: '安全漏��修复',
+    title: '安全漏洞修复',
     status: 'pending',
     assignee: mockUsers[2], // 王大伟
     parentIncidentId: 'inc1',
@@ -220,6 +359,129 @@ export const allMockTasks: Task[] = [
       start: new Date('2024-01-24T14:00:00'),
       end: new Date('2024-01-24T17:00:00')
     }
+  },
+
+  // 审批流相关任务
+  {
+    id: 'task_approval1',
+    title: '客户退款申请审批',
+    status: 'pending',
+    assignee: mockUsers[1], // 李小红
+    parentIncidentId: 'inc1',
+    dueDate: new Date('2024-01-21T15:00:00'),
+    handlingType: 'external_approval',
+    externalSystem: 'OA',
+    externalUrl: 'https://oa.company.com/approval/refund/12345',
+    externalStatus: 'pending_sync'
+  },
+  {
+    id: 'task_approval2',
+    title: '系统升级预算审批',
+    status: 'pending',
+    assignee: mockUsers[2], // 王大伟
+    parentIncidentId: 'inc2',
+    dueDate: new Date('2024-01-22T10:00:00'),
+    handlingType: 'external_approval',
+    externalSystem: 'ERP',
+    externalUrl: 'https://erp.company.com/budget/approval/67890',
+    externalStatus: 'pending_sync'
+  },
+  {
+    id: 'task_approval3',
+    title: '客户数据处理授权',
+    status: 'pending',
+    assignee: mockUsers[0], // 张明
+    parentIncidentId: 'inc3',
+    dueDate: new Date('2024-01-21T14:00:00'),
+    handlingType: 'external_approval',
+    externalSystem: 'CRM',
+    externalUrl: 'https://crm.company.com/data-auth/54321',
+    externalStatus: 'pending_sync'
+  },
+  {
+    id: 'task_approval4',
+    title: '营销活动费用审批',
+    status: 'completed',
+    assignee: emailSpecialist, // 陈小雅
+    parentIncidentId: 'inc_email3',
+    dueDate: new Date('2024-01-20T16:00:00'),
+    handlingType: 'external_approval',
+    externalSystem: 'OA',
+    externalUrl: 'https://oa.company.com/approval/marketing/98765',
+    externalStatus: 'completed'
+  },
+  {
+    id: 'task_approval5',
+    title: '服务器采购申请',
+    status: 'pending',
+    assignee: mockUsers[2], // 王大伟
+    parentIncidentId: 'inc2',
+    dueDate: new Date('2024-01-23T12:00:00'),
+    handlingType: 'external_approval',
+    externalSystem: 'ERP',
+    externalUrl: 'https://erp.company.com/procurement/server/11111',
+    externalStatus: 'pending_sync'
+  },
+  {
+    id: 'task_approval6',
+    title: '客户信息变更审批',
+    status: 'pending',
+    assignee: mockUsers[1], // 李小红
+    parentIncidentId: 'inc1',
+    dueDate: new Date('2024-01-21T11:00:00'),
+    handlingType: 'external_approval',
+    externalSystem: 'CRM',
+    externalUrl: 'https://crm.company.com/customer-update/22222',
+    externalStatus: 'pending_sync'
+  },
+
+  // 邮件相关任务
+  {
+    id: 'task_email1',
+    title: '处理客户投诉邮件',
+    status: 'pending',
+    assignee: emailSpecialist, // 陈小雅
+    parentIncidentId: 'inc_email1',
+    dueDate: new Date('2024-01-20T18:00:00'),
+    type: 'email',
+    context: {
+      incidentTitle: '客户产品质量投诉邮件',
+      customerName: '王女士'
+    }
+  },
+  {
+    id: 'task_email2',
+    title: '邮件服务器故障修复',
+    status: 'pending',
+    assignee: mockUsers[2], // 王大伟
+    parentIncidentId: 'inc_email2',
+    dueDate: new Date('2024-01-20T17:30:00'),
+    scheduledTime: {
+      start: new Date('2024-01-20T16:30:00'),
+      end: new Date('2024-01-20T18:00:00')
+    }
+  },
+  {
+    id: 'task_email3',
+    title: '邮件列表清理优化',
+    status: 'pending',
+    assignee: emailSpecialist, // 陈小雅
+    parentIncidentId: 'inc_email3',
+    dueDate: new Date('2024-01-21T12:00:00'),
+    type: 'email',
+    context: {
+      incidentTitle: '邮件退订率异常增长',
+      customerName: '多名客户'
+    }
+  },
+  {
+    id: 'task_email4',
+    title: '发送客户道歉邮件',
+    status: 'completed',
+    assignee: emailSpecialist, // 陈小雅
+    parentIncidentId: 'inc_email1',
+    dueDate: new Date('2024-01-20T16:00:00'),
+    type: 'email'
   }
 ];
 
@@ -358,6 +620,81 @@ export const mockIncidents: Incident[] = [
       }
     ],
     assignedTasks: []
+  },
+
+  // 邮件相关事件
+  {
+    id: 'inc_email1',
+    title: '客户产品质量投诉邮件',
+    status: 'pending_human',
+    priority: 'high',
+    timestamp: new Date('2024-01-20T15:40:00'),
+    involvedEntities: [
+      { type: 'customer', value: '王女士' },
+      { type: 'product', value: '智能手机' },
+      { type: 'order', value: 'ORD-2024-001456' }
+    ],
+    aiAnalysis: {
+      confidence: 90,
+      summary: '客户王女士通过邮件投诉购买的智能手机存在屏幕显示问题。邮件情绪分析显示客户非常不满，需要立即人工处理以避免负面影响扩大。',
+      keyMetrics: [
+        { label: '投诉类型', value: '产品质量' },
+        { label: '客户等级', value: '普通会员' },
+        { label: '情绪指数', value: '非常不满' },
+        { label: '紧急程度', value: '高' }
+      ]
+    },
+    suggestedResponsePlan: mockEmailResponseActions,
+    processingHistory: mockEmailActivities,
+    assignedTasks: allMockTasks.filter(task => task.parentIncidentId === 'inc_email1')
+  },
+  {
+    id: 'inc_email2',
+    title: '邮件发送服务异常',
+    status: 'in_progress',
+    priority: 'high',
+    timestamp: new Date('2024-01-20T16:15:00'),
+    involvedEntities: [
+      { type: 'product', value: '邮件服务系统' },
+      { type: 'customer', value: '多名客户' }
+    ],
+    aiAnalysis: {
+      confidence: 95,
+      summary: 'SMTP服务器出现连接超时问题，导致过去1小时内邮件发送成功率从99%下降至45%。影响营销邮件和系统通知邮件的正常发送。',
+      keyMetrics: [
+        { label: '影响邮件数', value: '2,340封' },
+        { label: '发送成功率', value: '45%' },
+        { label: '服务可用性', value: '不稳定' },
+        { label: '预计修复时间', value: '1.5小时' }
+      ]
+    },
+    suggestedResponsePlan: mockEmailResponseActions2,
+    processingHistory: mockEmailActivities2,
+    assignedTasks: allMockTasks.filter(task => task.parentIncidentId === 'inc_email2')
+  },
+  {
+    id: 'inc_email3',
+    title: '邮件退订率异常增长',
+    status: 'pending_human',
+    priority: 'medium',
+    timestamp: new Date('2024-01-20T17:05:00'),
+    involvedEntities: [
+      { type: 'customer', value: '订阅用户' },
+      { type: 'product', value: '营销邮件系统' }
+    ],
+    aiAnalysis: {
+      confidence: 80,
+      summary: '过去24小时内邮件退订率比平时增长了180%。AI分析显示主要原因是邮件发送频率过高和内容相关性不足。建议优化邮件策略。',
+      keyMetrics: [
+        { label: '退订用户数', value: '456人' },
+        { label: '退订率增长', value: '+180%' },
+        { label: '主要原因', value: '频率过高' },
+        { label: '内容相关性', value: '较低' }
+      ]
+    },
+    suggestedResponsePlan: mockEmailResponseActions3,
+    processingHistory: mockEmailActivities3,
+    assignedTasks: allMockTasks.filter(task => task.parentIncidentId === 'inc_email3')
   }
 ];
 
@@ -392,6 +729,57 @@ export const mockEvents: Event[] = [
       userId: 'USER-1001',
       source: 'organic',
       deviceType: 'mobile'
+    }
+  },
+
+  // 邮件相关原始事件
+  {
+    id: 'evt_email1',
+    type: 'email_complaint_received',
+    timestamp: new Date('2024-01-20T15:40:00'),
+    data: {
+      customerId: 'CUST-789',
+      customerEmail: 'wangms@example.com',
+      orderId: 'ORD-2024-001456',
+      complaintType: 'product_quality',
+      sentiment: 'very_negative',
+      subject: '智能手机屏幕显示异常投诉'
+    }
+  },
+  {
+    id: 'evt_email2',
+    type: 'email_delivery_failed',
+    timestamp: new Date('2024-01-20T16:15:00'),
+    data: {
+      campaignId: 'CAMP-2024-001',
+      failedCount: 1240,
+      totalCount: 2340,
+      errorType: 'smtp_timeout',
+      affectedDomains: ['gmail.com', 'qq.com', '163.com']
+    }
+  },
+  {
+    id: 'evt_email3',
+    type: 'email_unsubscribe_spike',
+    timestamp: new Date('2024-01-20T17:05:00'),
+    data: {
+      campaignId: 'CAMP-2024-002',
+      unsubscribeCount: 456,
+      normalRate: 0.5,
+      currentRate: 1.4,
+      primaryReason: 'frequency_too_high'
+    }
+  },
+  {
+    id: 'evt_email4',
+    type: 'email_bounce_rate_high',
+    timestamp: new Date('2024-01-20T14:30:00'),
+    data: {
+      campaignId: 'CAMP-2024-003',
+      bounceRate: 8.5,
+      normalRate: 2.1,
+      invalidEmails: 234,
+      bounceType: 'hard_bounce'
     }
   }
 ];

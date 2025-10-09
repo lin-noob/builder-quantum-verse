@@ -56,6 +56,7 @@ const HelpDocumentI18nManager = React.lazy(
 const Events = React.lazy(() => import("@/pages/events"));
 const Tasks = React.lazy(() => import("@/pages/MyTasks"));
 const Calendar = React.lazy(() => import("@/pages/TeamCalendar"));
+const EmailManualProcessing = React.lazy(() => import("@/pages/EmailManualProcessing"));
 const LegacyAppPlaceholder = React.lazy(
   () => import("@/pages/LegacyAppPlaceholder"),
 );
@@ -330,6 +331,16 @@ export const staticRoutes: RouteObject[] = [
       <Layout>
         <LazyRoute>
           <Calendar />
+        </LazyRoute>
+      </Layout>
+    ),
+  },
+  {
+    path: "/email-manual-processing",
+    element: (
+      <Layout>
+        <LazyRoute>
+          <EmailManualProcessing />
         </LazyRoute>
       </Layout>
     ),

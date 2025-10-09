@@ -20,12 +20,14 @@ import {
   ChevronDown,
   Key,
   List,
+  Bell,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { adminAuthService } from "@/services/adminAuthService";
 import TabManager from "@/components/TabManager";
 import { useAdminStore } from "@/stores";
+import { messageCenterService } from "../services/messageCenterService";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,6 +36,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { AdminMenuApiItem, fetchAdminMenus, flattenVisibleMenus } from "../services/menuRouteService";
+import MessageCenterDrawer from "./MessageCenterDrawer";
 
 interface AdminLayoutProps {
   children?: ReactNode;
@@ -62,6 +65,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     adminAuthService.getCurrentAdminUser(),
   );
   const [menuItems, setMenuItems] = useState<AdminMenuItem[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [isMessageCenterOpen, setIsMessageCenterOpen] = useState(false);
 
   useEffect(() => {
     const adminUser = adminAuthService.getCurrentAdminUser();
@@ -69,6 +74,37 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   }, [location]);
 
   const isAdminAuthenticated = useAdminStore((s) => s.isAdminAuthenticated);
+
+  // 获取未读消息数量
+  useEffect(() => {
+    let mounted = true;
+    const loadUnreadCount = async () => {
+      if (!isAdminAuthenticated) {
+        setUnreadCount(0);
+        return;
+      }
+      try {
+        const count = await messageCenterService.getUnreadCount();
+        if (mounted) setUnreadCount(count);
+      } catch (error) {
+        console.error("获取未读消息数量失败:", error);
+        if (mounted) setUnreadCount(0);
+      }
+    };
+    
+    // 初始加载
+    loadUnreadCount();
+    
+    // 每30秒更新一次未读消息数量
+    const interval = setInterval(() => {
+      loadUnreadCount();
+    }, 30000);
+    
+    return () => { 
+      mounted = false; 
+      clearInterval(interval);
+    };
+  }, [isAdminAuthenticated]);
 
   useEffect(() => {
     let mounted = true;
@@ -155,16 +191,32 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             AI营销管理后台
           </span>
         </div>
-        <button
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="p-2 rounded-lg text-gray-600 hover:bg-gray-100"
-        >
-          {isMobileMenuOpen ? (
-            <X className="h-5 w-5" />
-          ) : (
-            <Menu className="h-5 w-5" />
-          )}
-        </button>
+        <div className="flex items-center gap-2">
+          {/* 消息中心按钮 - 移动端 */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsMessageCenterOpen(true)}
+            className="relative"
+          >
+            <Bell className="h-5 w-5 text-gray-600" />
+            {unreadCount > 0 && (
+              <Badge className="absolute -top-1 -right-1 bg-red-500 text-white text-xs h-5 w-5 rounded-full flex items-center justify-center p-0">
+                {unreadCount > 99 ? "99+" : unreadCount}
+              </Badge>
+            )}
+          </Button>
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="p-2 rounded-lg text-gray-600 hover:bg-gray-100"
+          >
+            {isMobileMenuOpen ? (
+              <X className="h-5 w-5" />
+            ) : (
+              <Menu className="h-5 w-5" />
+            )}
+          </button>
+        </div>
       </div>
 
       {/* 移动端菜单遮罩 */}
@@ -327,8 +379,32 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           </ul>
         </nav>
 
-        {/* 管理员信息 */}
+        {/* 管理员信息和消息中心按钮 */}
         <div className="border-t border-gray-200 p-3 space-y-2">
+          {/* 消息中心按钮 - 桌面端 */}
+          <Button
+            variant="ghost"
+            className={cn(
+              "w-full flex items-center gap-3 p-2 rounded-lg text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-colors",
+              isSidebarCollapsed ? "justify-center" : "justify-start",
+            )}
+            onClick={() => setIsMessageCenterOpen(true)}
+          >
+            <div className="relative">
+              <Bell className="h-5 w-5 text-gray-600" />
+              {unreadCount > 0 && (
+                <Badge className="absolute -top-2 -right-2 bg-red-500 text-white text-xs h-4 w-4 rounded-full flex items-center justify-center p-0">
+                  {unreadCount > 99 ? "99+" : unreadCount}
+                </Badge>
+              )}
+            </div>
+            {!isSidebarCollapsed && (
+              <span className="whitespace-nowrap flex-1 text-left text-gray-700">
+                消息中心
+              </span>
+            )}
+          </Button>
+
           {currentAdminUser ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -407,62 +483,20 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             </Link>
           )}
         </div>
+      </div>
 
-        {/* 折叠按钮 */}
-        <div className="border-t border-gray-200 p-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-            className="w-full flex items-center justify-center p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-            title={isSidebarCollapsed ? "展开侧边栏" : "折叠侧边栏"}
-          >
-            {isSidebarCollapsed ? (
-              <ChevronRight className="h-5 w-5" />
-            ) : (
-              <ChevronLeft className="h-5 w-5" />
-            )}
-          </Button>
+      {/* 主内容区域 */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="flex-1 overflow-auto lg:pt-0 pt-16">
+          <Outlet />
         </div>
       </div>
 
-      {/* 主内容区 */}
-      <div className="flex-1 flex flex-col min-w-0">
-        {/* 桌面端头部（固定） */}
-        <div className="hidden lg:flex h-16 bg-card border-b border-border items-center px-4 justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-              <BarChart3 className="h-5 w-5 text-white" />
-            </div>
-            <span className="text-xl font-bold text-gray-900">
-              AI营销管理后台
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" className="gap-2">
-              <Shield className="h-4 w-4" />
-              安全检查
-            </Button>
-            <Button variant="outline" size="sm" className="gap-2">
-              <Database className="h-4 w-4" />
-              数据同步
-            </Button>
-          </div>
-        </div>
-
-        {/* 标签页管理（可选） */}
-        <div className="border-b border-border bg-card/50">
-          <TabManager />
-        </div>
-
-        <main className="flex-1 overflow-auto">
-          <div className="p-6">
-            {/* Nested routes render here */}
-            <Outlet />
-            {children}
-          </div>
-        </main>
-      </div>
+      {/* 消息中心抽屉 */}
+      <MessageCenterDrawer 
+        open={isMessageCenterOpen} 
+        onOpenChange={setIsMessageCenterOpen} 
+      />
     </div>
   );
 }

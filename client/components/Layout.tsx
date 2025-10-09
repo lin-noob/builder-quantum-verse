@@ -24,6 +24,7 @@ import {
   Check,
   CreditCard,
   HelpCircle,
+  Bell,
 } from "lucide-react";
 
 
@@ -46,6 +47,8 @@ import { request } from "@/lib/request";
 import useProjectStore from "@/stores/projectStore";
 import { CreateProjectDialog } from "./CreateProjectDialog";
 import { LanguageSwitcher } from "./LanguageSwitcher";
+import MessageCenterDrawer from "@/admin/components/MessageCenterDrawer";
+import { mockMessageCenterService as messageCenterService } from "@/admin/services/mockMessageCenterService";
 
 interface LayoutProps {
   children: ReactNode;
@@ -81,6 +84,8 @@ export default function Layout({ children }: LayoutProps) {
   const [showCreateProjectDialog, setShowCreateProjectDialog] = useState(false);
   const [isDialogClosable, setIsDialogClosable] = useState(true);
   const [dynamicMenuItems, setDynamicMenuItems] = useState<MenuItem[]>([]);
+  const [isMessageCenterOpen, setIsMessageCenterOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   // 从 roleStore 获取 filteredMenus
   const filteredMenus = useRoleStore((state) => state.filteredMenus);
@@ -134,6 +139,23 @@ export default function Layout({ children }: LayoutProps) {
       }
     }
   }, [projects, hasInitializedProjects]); // 依赖 projects 和 hasInitializedProjects 状态
+
+  // 获取未读消息数量
+  useEffect(() => {
+    const fetchUnreadCount = async () => {
+      try {
+        const count = await messageCenterService.getUnreadCount();
+        setUnreadCount(count);
+      } catch (error) {
+        console.error("获取未读消息数量失败:", error);
+      }
+    };
+
+    fetchUnreadCount();
+    // 每30秒更新一次未读数量
+    const interval = setInterval(fetchUnreadCount, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   // 自动展开包含当前页面的二级菜单
   useEffect(() => {
@@ -386,6 +408,20 @@ export default function Layout({ children }: LayoutProps) {
         <div className="flex items-center gap-2">
           {/* 多语言切换 */}
           <LanguageSwitcher />
+
+          {/* Message Center Button */}
+          <button
+            onClick={() => setIsMessageCenterOpen(true)}
+            className="relative p-2 rounded-lg text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+            title="消息中心"
+          >
+            <Bell className="h-5 w-5" />
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                {unreadCount > 99 ? "99+" : unreadCount}
+              </span>
+            )}
+          </button>
 
           {/* Help Icon */}
           <Link
@@ -864,8 +900,36 @@ export default function Layout({ children }: LayoutProps) {
           </ul>
         </nav>
 
-        {/* Help Center Link */}
-        <div className="border-t border-gray-200 p-2">
+        {/* Message Center and Help Links */}
+        <div className="border-t border-gray-200 p-2 space-y-1">
+          {/* Message Center Button */}
+          <button
+            onClick={() => setIsMessageCenterOpen(true)}
+            className={cn(
+              "w-full flex items-center rounded-lg text-sm font-medium transition-colors relative",
+              isSidebarCollapsed
+                ? "gap-0 px-3 py-2 justify-center"
+                : "gap-3 px-3 py-2",
+              "text-gray-600 hover:text-gray-900 hover:bg-gray-50",
+            )}
+            title={isSidebarCollapsed ? "消息中心" : undefined}
+          >
+            <div className="relative">
+              <Bell className="h-5 w-5" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center text-[10px]">
+                  {unreadCount > 9 ? "9+" : unreadCount}
+                </span>
+              )}
+            </div>
+            {!isSidebarCollapsed && (
+              <span className="whitespace-nowrap overflow-hidden">
+                消息中心
+              </span>
+            )}
+          </button>
+
+          {/* Help Center Link */}
           <a
             href="/marketing/help"
             target="_blank"
@@ -928,6 +992,13 @@ export default function Layout({ children }: LayoutProps) {
           closable={isDialogClosable}
         />
       )}
+
+      {/* 消息中心抽屉 */}
+      <MessageCenterDrawer
+        open={isMessageCenterOpen}
+        onOpenChange={setIsMessageCenterOpen}
+        onUnreadCountChange={setUnreadCount}
+      />
     </div>
   );
 }

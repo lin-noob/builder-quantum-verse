@@ -3,12 +3,12 @@
 export interface ResponseAction {
   id: string;
   actionName: string;
-  actionType: 'POPUP' | 'EMAIL';
+  actionType: 'POPUP' | 'EMAIL' | 'TICKET';
   purpose: string;
   status: 'DRAFT' | 'ACTIVE' | 'ARCHIVED';
   createdAt: string;
   updatedAt: string;
-  parameters: PopupParameters | EmailParameters;
+  parameters: PopupParameters | EmailParameters | TicketParameters;
   // Performance metrics
   totalExecutions: number;      // 累计执行次数
   totalInteractions: number;    // 累计互动次数
@@ -30,13 +30,27 @@ export interface EmailParameters {
   senderName: string;
 }
 
+export interface TicketParameters {
+  type: 'ticket';
+  subject: string;
+  description: string;
+  priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
+  ticketType: 'TECHNICAL_SUPPORT' | 'BILLING' | 'FEATURE_REQUEST' | 'BUG_REPORT' | 'GENERAL_INQUIRY';
+  assignedAgent?: string;
+  autoResponse?: string; // 自动回复内容
+}
+
 // Purpose options for AI-triggered scenarios
 export const PURPOSE_OPTIONS = [
   { value: 'NEW_USER_FIRST_VISIT', label: '识别到新用户首次访问时' },
   { value: 'CART_ABANDONMENT', label: '识别到用户即将放弃购物车时' },
   { value: 'LONG_STAY_NO_CONVERSION', label: '用户长时间停留但无转化动作时' },
   { value: 'PRODUCT_COMPARISON', label: '识别到用户正在进行商品对比时' },
-  { value: 'HIGH_POTENTIAL_RETURN_USER', label: '识别高潜力回访用户时' }
+  { value: 'HIGH_POTENTIAL_RETURN_USER', label: '识别高潜力回访用户时' },
+  { value: 'CUSTOMER_SUPPORT_REQUEST', label: '识别到客户支持请求时' },
+  { value: 'TECHNICAL_ISSUE_DETECTED', label: '检测到技术问题时' },
+  { value: 'BILLING_INQUIRY', label: '识别到账单相关咨询时' },
+  { value: 'FEATURE_REQUEST_SUBMITTED', label: '收到功能请求时' }
 ];
 
 // Mock data for response actions
@@ -151,6 +165,48 @@ export const mockResponseActions: ResponseAction[] = [
       content: '<h2>全场5折起</h2><p>季末清仓活动正式开始，数千款商品5折起，机会难得，快来选购吧！</p>',
       senderName: '促销活动团队'
     }
+  },
+  {
+    id: 'action-007',
+    actionName: '技术支持Ticket自动创建',
+    actionType: 'TICKET',
+    purpose: 'TECHNICAL_ISSUE_DETECTED',
+    status: 'ACTIVE',
+    createdAt: '2024-01-20T08:00:00Z',
+    updatedAt: '2024-01-25T12:00:00Z',
+    totalExecutions: 156,
+    totalInteractions: 134,
+    totalConversions: 89,
+    parameters: {
+      type: 'ticket',
+      subject: '技术问题需要支持',
+      description: '系统检测到用户遇到技术问题，自动创建支持Ticket',
+      priority: 'MEDIUM',
+      ticketType: 'TECHNICAL_SUPPORT',
+      assignedAgent: '技术支持团队',
+      autoResponse: '您好，我们已收到您的技术支持请求，技术团队将在2小时内与您联系。'
+    }
+  },
+  {
+    id: 'action-008',
+    actionName: '账单问题Ticket处理',
+    actionType: 'TICKET',
+    purpose: 'BILLING_INQUIRY',
+    status: 'ACTIVE',
+    createdAt: '2024-01-22T10:30:00Z',
+    updatedAt: '2024-01-25T14:15:00Z',
+    totalExecutions: 89,
+    totalInteractions: 76,
+    totalConversions: 65,
+    parameters: {
+      type: 'ticket',
+      subject: '账单相关咨询',
+      description: '用户对账单有疑问，需要财务团队协助处理',
+      priority: 'HIGH',
+      ticketType: 'BILLING',
+      assignedAgent: '财务支持团队',
+      autoResponse: '您好，我们已收到您的账单咨询，财务团队将在1小时内为您核查并回复。'
+    }
   }
 ];
 
@@ -161,8 +217,13 @@ export const getPurposeLabel = (value: string): string => {
 };
 
 // Helper function to get action type display text
-export const getActionTypeDisplay = (type: 'POPUP' | 'EMAIL'): string => {
-  return type === 'POPUP' ? '网页弹窗' : '发送邮件';
+export const getActionTypeDisplay = (type: 'POPUP' | 'EMAIL' | 'TICKET'): string => {
+  switch (type) {
+    case 'POPUP': return '弹窗';
+    case 'EMAIL': return '邮件';
+    case 'TICKET': return 'Ticket';
+    default: return type;
+  }
 };
 
 // Helper function to get status display info
