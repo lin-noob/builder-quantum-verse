@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
+import { Button } from "@/components/ui/button";
 import {
   Settings,
   Users,
@@ -15,6 +16,9 @@ import {
   Search as SearchIcon,
   MousePointer,
   FileText,
+  Plus,
+  Trash2,
+  MoreVertical,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { DefaultAIConfig } from "../../../shared/aiMarketingScenarioData";
@@ -30,6 +34,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { request } from "@/lib/request";
 import { useTranslation } from "react-i18next";
 
@@ -87,6 +97,11 @@ const ScenariosList = () => {
     scenario: ApiScenario | null;
     newState: boolean;
   }>({ show: false, scenario: null, newState: false });
+  const [deleteDialog, setDeleteDialog] = useState<{
+    show: boolean;
+    scenario: ApiScenario | null;
+  }>({ show: false, scenario: null });
+  const [deletingScenario, setDeletingScenario] = useState<string | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
   const { currentProject } = useProjectStore();
@@ -118,7 +133,10 @@ const ScenariosList = () => {
 
   const loadScenarios = useCallback(async () => {
     try {
-      if (!currentProject || !currentProject.id) {
+      // 在开发环境中或者没有currentProject时使用mock数据
+      const isDevelopment = import.meta.env.DEV || window.location.hostname === 'localhost';
+      
+      if (!currentProject || !currentProject.id || isDevelopment) {
         const mockApiScenarios = mockScenarios.map(convertMockScenarioToApiFormat);
         const sortedMockData = mockApiScenarios.sort((a, b) => {
           if (a.status !== b.status) {
@@ -244,6 +262,51 @@ const ScenariosList = () => {
     }
   };
 
+  const handleDeleteScenario = (scenario: ApiScenario) => {
+    setDeleteDialog({
+      show: true,
+      scenario,
+    });
+  };
+
+  const confirmDeleteScenario = async () => {
+    const { scenario } = deleteDialog;
+    if (!scenario) return;
+
+    setDeletingScenario(scenario.id);
+
+    try {
+      // 如果是开发环境或没有项目ID，直接从本地状态删除
+      if (import.meta.env.DEV || window.location.hostname === 'localhost' || !currentProject || !currentProject.id) {
+        setScenarios((prev) => prev.filter((s) => s.id !== scenario.id));
+        
+        toast({
+          title: "删除成功",
+          description: `场景 "${scenario.sceneName}" 已成功删除`,
+        });
+      } else {
+        // 生产环境调用API删除
+        await request.delete(`/quote/api/v1/scene/${scenario.id}`);
+
+        setScenarios((prev) => prev.filter((s) => s.id !== scenario.id));
+
+        toast({
+          title: "删除成功",
+          description: `场景 "${scenario.sceneName}" 已成功删除`,
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "删除失败",
+        description: "删除场景时发生错误，请稍后重试",
+        variant: "destructive",
+      });
+    } finally {
+      setDeletingScenario(null);
+      setDeleteDialog({ show: false, scenario: null });
+    }
+  };
+
   if (loading) {
     return (
       <div className="space-y-6">
@@ -269,6 +332,23 @@ const ScenariosList = () => {
 
   return (
     <div className="p-6 space-y-6">
+      {/* 页面标题和新增按钮 */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">AI营销场景</h1>
+          <p className="text-muted-foreground">
+            管理和配置AI营销场景，智能化您的营销策略
+          </p>
+        </div>
+        <Button 
+          onClick={() => navigate('/ai-marketing/scenarios/create')}
+          className="flex items-center gap-2"
+        >
+          <Plus className="h-4 w-4" />
+          新增场景
+        </Button>
+      </div>
+
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {scenarios.map((scenario) => {
           const aiConfig = parseAIConfig(scenario.aiStrategyConfig);
@@ -293,7 +373,7 @@ const ScenariosList = () => {
                     </div>
                   </div>
                   <div
-                    className="flex-shrink-0 ml-4"
+                    className="flex-shrink-0 ml-4 flex items-center gap-2"
                     onClick={(e) => e.stopPropagation()}
                   >
                     <Switch
@@ -303,6 +383,30 @@ const ScenariosList = () => {
                       }
                       disabled={isSwitching}
                     />
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0"
+                        >
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteScenario(scenario);
+                          }}
+                          className="text-red-600 focus:text-red-600"
+                          disabled={deletingScenario === scenario.id}
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          删除场景
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 </div>
               </CardHeader>
@@ -368,6 +472,33 @@ const ScenariosList = () => {
               {confirmDialog.newState
                 ? t('scenarios.list.confirm.confirmStart')
                 : t('scenarios.list.confirm.confirmPause')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* 删除确认对话框 */}
+      <AlertDialog
+        open={deleteDialog.show}
+        onOpenChange={(open) =>
+          !open && setDeleteDialog({ show: false, scenario: null })
+        }
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>删除场景</AlertDialogTitle>
+            <AlertDialogDescription>
+              确定要删除场景 "{deleteDialog.scenario?.sceneName}" 吗？此操作无法撤销。
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>取消</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmDeleteScenario}
+              className="bg-red-600 hover:bg-red-700"
+              disabled={deletingScenario !== null}
+            >
+              {deletingScenario === deleteDialog.scenario?.id ? "删除中..." : "确认删除"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
