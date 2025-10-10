@@ -61,6 +61,14 @@ const LegacyAppPlaceholder = React.lazy(
   () => import("@/pages/LegacyAppPlaceholder"),
 );
 
+// 审批管理页面组件
+const TemplateManagement = React.lazy(
+  () => import("../src/pages/Approval/TemplateManagement"),
+);
+const ApprovalConfig = React.lazy(
+  () => import("../pages/ApprovalConfig/ApprovalConfig"),
+);
+
 // LazyRoute 包装组件
 const LazyRoute: React.FC<{
   children: React.ReactNode;
@@ -346,11 +354,33 @@ export const staticRoutes: RouteObject[] = [
     ),
   },
   {
-    path: "/legacy-app-placeholder",
+    path: "/legacy-app",
     element: (
       <Layout>
         <LazyRoute>
           <LegacyAppPlaceholder />
+        </LazyRoute>
+      </Layout>
+    ),
+  },
+
+  // 审批管理路由
+  {
+    path: "/approval/config",
+    element: (
+      <Layout>
+        <LazyRoute>
+          <ApprovalConfig />
+        </LazyRoute>
+      </Layout>
+    ),
+  },
+  {
+    path: "/approval/templates",
+    element: (
+      <Layout>
+        <LazyRoute>
+          <TemplateManagement />
         </LazyRoute>
       </Layout>
     ),

@@ -29,7 +29,17 @@ const rolePermissions: Record<MarketingRole, string[]> = {
     "real-time-monitoring",
     "response-actions",
     "organization",
-    "security-permissions"
+    "security-permissions",
+    // 审批管理权限
+    "approval-management",
+    "approval-config",
+    "approval-monitor",
+    "approval-template",
+    "approval-submit",
+    "approval-approve",
+    "approval-reject",
+    "approval-delegate",
+    "approval-statistics"
   ],
   
   // 营销经理 - 核心功能
@@ -40,14 +50,26 @@ const rolePermissions: Record<MarketingRole, string[]> = {
     "effect-tracking",
     "user-list",
     "real-time-monitoring",
-    "response-actions"
+    "response-actions",
+    // 审批管理权限
+    "approval-management",
+    "approval-config",
+    "approval-monitor",
+    "approval-template",
+    "approval-submit",
+    "approval-approve",
+    "approval-reject",
+    "approval-statistics"
   ],
   
   // 营销专员 - 执行任务
   "marketing_specialist": [
     "dashboard",
     "user-profile",
-    "user-list"
+    "user-list",
+    // 审批管理权限（基础）
+    "approval-submit",
+    "approval-monitor"
   ],
   
   // 数据分析师 - 数据分析功能
@@ -55,7 +77,10 @@ const rolePermissions: Record<MarketingRole, string[]> = {
     "dashboard",
     "user-profile",
     "effect-tracking",
-    "real-time-monitoring"
+    "real-time-monitoring",
+    // 审批管理权限（查看统计）
+    "approval-monitor",
+    "approval-statistics"
   ]
 };
 
@@ -123,6 +148,35 @@ export const marketingMenuItems: MarketingMenuItem[] = [
     path: "/admin/marketing/security-permissions",
     icon: null,
     requiredRole: "super_admin"
+  },
+  // 审批管理菜单项
+  {
+    id: "approval-management",
+    label: "审批管理",
+    path: "/admin/marketing/approval",
+    icon: null,
+    requiredRole: "marketing_manager"
+  },
+  {
+    id: "approval-config",
+    label: "流程配置",
+    path: "/admin/marketing/approval/config",
+    icon: null,
+    requiredRole: "marketing_manager"
+  },
+  {
+    id: "approval-monitor",
+    label: "审批监控",
+    path: "/admin/marketing/approval/monitor",
+    icon: null,
+    requiredRole: "marketing_specialist"
+  },
+  {
+    id: "approval-template",
+    label: "模板管理",
+    path: "/admin/marketing/approval/template",
+    icon: null,
+    requiredRole: "marketing_manager"
   }
 ];
 

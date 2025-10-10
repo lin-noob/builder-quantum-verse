@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Edit,
@@ -12,6 +13,8 @@ import {
   Activity,
   Target,
   Bot,
+  Save,
+  Trash2,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { request } from "@/lib/request";
@@ -154,31 +157,32 @@ const transformMarketingRuleToOverrideRule = (
 };
 
 // 将API数据转换为MarketingScenario格式
-const transformApiDataToMarketingScenario = (
-  apiData: ApiScenarioDetail,
-): MarketingScenario => {
-  const aiConfig = parseAIConfig(apiData.aiStrategyConfig);
+  const transformApiDataToMarketingScenario = (
+    apiData: ApiScenarioDetail,
+  ): MarketingScenario => {
+    const aiConfig = parseAIConfig(apiData.aiStrategyConfig);
 
-  return {
-    scenarioId: apiData.id,
-    scenarioName: apiData.sceneName,
-    isAIEnabled: apiData.status === 1,
-    defaultAIConfig: aiConfig,
-    overrideRules:
-      apiData.marketingSceneRules?.map((rule, index) =>
-        transformMarketingRuleToOverrideRule(rule, index),
-      ) || [],
-    businessValue: aiConfig.description || "",
-    createdAt: apiData.gmtCreate,
-    updatedAt: apiData.gmtModified,
-    availableFields: {
-      event: [],
-      session: [],
-      user: [],
-    },
+    return {
+      scenarioId: apiData.id,
+      scenarioName: apiData.sceneName,
+      isAIEnabled: apiData.status === 1,
+      defaultAIConfig: aiConfig,
+      overrideRules:
+        apiData.marketingSceneRules?.map((rule, index) =>
+          transformMarketingRuleToOverrideRule(rule, index),
+        ) || [],
+      businessValue: aiConfig.description || "",
+      createdAt: apiData.gmtCreate,
+      updatedAt: apiData.gmtModified,
+      availableFields: {
+        event: [],
+        session: [],
+        user: [],
+      },
+    };
   };
-};
 
+  // 创建新场景的保存函数
 const ScenarioConfig = () => {
   const { t } = useTranslation();
   const { scenarioId } = useParams<{ scenarioId: string }>();
@@ -196,6 +200,11 @@ const ScenarioConfig = () => {
     rule: OverrideRule | null;
   }>({ show: false, rule: null });
   const [aiStrategyModalOpen, setAiStrategyModalOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [deleteScenarioDialog, setDeleteScenarioDialog] = useState<{
+    show: boolean;
+  }>({ show: false });
+  const [deletingScenario, setDeletingScenario] = useState(false);
 
   // 将 mock 数据转换为 API 数据格式
   const convertMockScenarioToApiFormat = (mockScenario: any): ApiScenarioDetail => {
@@ -240,6 +249,41 @@ const ScenarioConfig = () => {
 
   const loadScenario = useCallback(async () => {
     if (!scenarioId) return;
+
+    // 处理创建新场景的情况
+    if (scenarioId === 'create') {
+      const newScenario: MarketingScenario = {
+        scenarioId: '',
+        scenarioName: '',
+        isAIEnabled: true,
+        businessValue: '',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        defaultAIConfig: {
+          allowedActionTypes: ["POPUP"],
+          timingStrategy: "SMART_DELAY",
+          contentStrategy: "FULLY_GENERATIVE",
+          description: "",
+          strategySummary: "",
+          dimensions: [],
+          coreStrategies: [],
+        },
+        overrideRules: [],
+        availableFields: {
+          event: [],
+          session: [{ field: "device_type", label: "设备类型", type: "string" }],
+          user: [
+            { field: "tag", label: "用户标签", type: "string" },
+            { field: "user_segment", label: "用户分层", type: "string" },
+            { field: "last_purchase_days", label: "距上次购买天数", type: "number" },
+            { field: "total_spend", label: "累计消费", type: "number" },
+          ],
+        },
+      };
+      setScenario(newScenario);
+      setLoading(false);
+      return;
+    }
 
     try {
       setLoading(true);
@@ -312,6 +356,50 @@ const ScenarioConfig = () => {
       setLoading(false);
     }
   }, [scenarioId, currentProject, toast, t]);
+
+  // 创建新场景的保存函数
+  const handleCreateScenario = async () => {
+    if (!scenario || !scenario.scenarioName.trim()) {
+      toast({
+        title: "保存失败",
+        description: "请填写场景名称",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setSaving(true);
+    try {
+      // 生成新的scenarioId
+      const newScenarioId = `custom_${Date.now()}`;
+      
+      const newScenario = {
+        ...scenario,
+        scenarioId: newScenarioId,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      // 这里可以调用API保存到后端
+      // await request.post("/quote/api/v1/scene/create", newScenario);
+
+      toast({
+        title: "场景创建成功",
+        description: `场景"${scenario.scenarioName}"已创建`,
+      });
+
+      // 跳转到新创建的场景页面
+      navigate(`/ai-marketing/scenarios/${newScenarioId}`);
+    } catch (error) {
+      toast({
+        title: "创建失败",
+        description: "场景创建失败，请重试",
+        variant: "destructive",
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
 
   useEffect(() => {
     if (scenarioId) {
@@ -545,6 +633,47 @@ const ScenarioConfig = () => {
     }
   };
 
+  // 删除场景相关函数
+  const handleDeleteScenario = () => {
+    setDeleteScenarioDialog({ show: true });
+  };
+
+  const confirmDeleteScenario = async () => {
+    if (!scenario) return;
+
+    setDeletingScenario(true);
+    try {
+      // 在开发环境或localhost环境下，直接导航回列表页面
+      if (import.meta.env.DEV || window.location.hostname === 'localhost') {
+        toast({
+          title: "场景删除成功",
+          description: `场景 "${scenario.scenarioName}" 已删除`,
+        });
+        navigate('/ai-marketing');
+        return;
+      }
+
+      // 生产环境调用删除API
+      await request.delete(`/quote/api/v1/scene/${scenario.scenarioId}`);
+
+      toast({
+        title: "场景删除成功",
+        description: `场景 "${scenario.scenarioName}" 已删除`,
+      });
+
+      navigate('/ai-marketing');
+    } catch (error) {
+      toast({
+        title: "删除失败",
+        description: "删除场景时发生错误，请重试",
+        variant: "destructive",
+      });
+    } finally {
+      setDeletingScenario(false);
+      setDeleteScenarioDialog({ show: false });
+    }
+  };
+
   const handleDragEnd = async (result: DropResult) => {
     if (!result.destination || !scenario) return;
 
@@ -614,13 +743,87 @@ const ScenarioConfig = () => {
 
   return (
     <div className="container mx-auto py-6 space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">{scenario.scenarioName}</h1>
-        <p className="text-muted-foreground mt-1">{scenario.defaultAIConfig?.strategySummary || scenario.defaultAIConfig?.description}</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">
+            {scenarioId === 'create' ? '创建新场景' : scenario.scenarioName}
+          </h1>
+          <p className="text-muted-foreground mt-1">
+            {scenarioId === 'create' 
+              ? '配置新的AI营销场景，智能化您的营销策略' 
+              : (scenario.defaultAIConfig?.strategySummary || scenario.defaultAIConfig?.description)
+            }
+          </p>
+        </div>
+        
+        <div className="flex items-center gap-3">
+          <Button 
+            variant="outline" 
+            onClick={() => navigate("/ai-marketing/scenarios")}
+          >
+            返回列表
+          </Button>
+          {scenarioId !== 'create' && (
+            <Button 
+              variant="outline"
+              onClick={handleDeleteScenario}
+              disabled={deletingScenario}
+              className="flex items-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50"
+            >
+              <Trash2 className="h-4 w-4" />
+              {deletingScenario ? '删除中...' : '删除场景'}
+            </Button>
+          )}
+          {scenarioId === 'create' && (
+            <Button 
+              onClick={handleCreateScenario}
+              disabled={saving}
+              className="flex items-center gap-2"
+            >
+              <Save className="h-4 w-4" />
+              {saving ? '保存中...' : '保存场景'}
+            </Button>
+          )}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
+          {/* 创建新场景时的场景名称输入 */}
+          {scenarioId === 'create' && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg font-semibold">场景基本信息</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">
+                      场景名称 <span className="text-red-500">*</span>
+                    </label>
+                    <Input
+                      value={scenario.scenarioName}
+                      onChange={(e) => setScenario(prev => prev ? {...prev, scenarioName: e.target.value} : null)}
+                      placeholder="请输入场景名称，如：新用户注册优惠"
+                      className="w-full"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">
+                      场景描述
+                    </label>
+                    <Input
+                      value={scenario.businessValue}
+                      onChange={(e) => setScenario(prev => prev ? {...prev, businessValue: e.target.value} : null)}
+                      placeholder="请输入场景描述，如：针对新注册用户提供专属优惠券"
+                      className="w-full"
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+          
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
@@ -853,6 +1056,33 @@ const ScenarioConfig = () => {
             <AlertDialogCancel>{t('scenarios.config.deleteDialog.cancel')}</AlertDialogCancel>
             <AlertDialogAction onClick={handleDeleteRule}>
               {t('scenarios.config.deleteDialog.confirm')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* 删除场景确认对话框 */}
+      <AlertDialog
+        open={deleteScenarioDialog.show}
+        onOpenChange={(open) =>
+          !open && setDeleteScenarioDialog({ show: false })
+        }
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>删除场景</AlertDialogTitle>
+            <AlertDialogDescription>
+              确定要删除场景 "{scenario?.scenarioName}" 吗？此操作将删除场景及其所有规则，且无法撤销。
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>取消</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmDeleteScenario}
+              className="bg-red-600 hover:bg-red-700"
+              disabled={deletingScenario}
+            >
+              {deletingScenario ? "删除中..." : "确认删除"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

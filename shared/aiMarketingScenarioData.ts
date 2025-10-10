@@ -713,6 +713,362 @@ export const predefinedScenarios: MarketingScenario[] = [
       ],
     },
   },
+  // 新增场景1：首次访问
+  {
+    scenarioId: "first_visit",
+    scenarioName: "首次访问",
+    isAIEnabled: true,
+    businessValue: "抓住新访客的第一印象，提升品牌认知和转化率。",
+    createdAt: "2024-01-20T09:00:00Z",
+    updatedAt: "2024-01-20T09:00:00Z",
+    defaultAIConfig: {
+      allowedActionTypes: ["POPUP"],
+      timingStrategy: "SMART_DELAY",
+      contentStrategy: "FULLY_GENERATIVE",
+      description: "AI会根据访客来源渠道和浏览行为，生成个性化的欢迎内容和引导信息",
+      strategySummary: "为首次访客提供个性化欢迎体验，引导其了解产品和服务。",
+      coreStrategies: ["网页弹窗", "智能延迟", "渠道感知生成"],
+      dimensions: [
+        {
+          dimension: "营销方式",
+          strategy: '优先使用"网页弹窗"',
+          reasoning: "首次访问是建立第一印象的关键时刻，需要通过弹窗提供清晰的品牌介绍和价值主张。",
+          examples: [
+            "品牌介绍: 展示公司核心价值和产品优势。",
+            "新手指引: 提供网站使用指南和热门商品推荐。"
+          ]
+        },
+        {
+          dimension: "营销时机",
+          strategy: '采用"智能延迟"',
+          reasoning: "不会在用户刚进入时立即打扰，而是观察用户行为后适时触发。",
+          examples: [
+            "浏览深度: 用户浏览2-3个页面后触发欢迎弹窗。",
+            "停留时间: 在单页面停留超过30秒时提供帮助信息。"
+          ]
+        },
+        {
+          dimension: "营销内容",
+          strategy: '进行"渠道感知生成"',
+          reasoning: "AI根据用户来源渠道生成相应的欢迎内容。",
+          examples: [
+            "搜索引擎来源: 强调产品专业性和权威性。",
+            "社交媒体来源: 突出产品时尚性和社交价值。"
+          ]
+        }
+      ]
+    },
+    overrideRules: [],
+    availableFields: {
+      event: [
+        { field: "page_url", label: "页面地址", type: "string" },
+        { field: "referrer", label: "来源页面", type: "string" }
+      ],
+      session: [
+        { field: "is_first_visit", label: "是否首次访问", type: "boolean" },
+        { field: "traffic_source", label: "流量来源", type: "string" }
+      ],
+      user: [
+        { field: "user_agent", label: "用户代理", type: "string" }
+      ]
+    }
+  },
+  // 新增场景2：长时间浏览
+  {
+    scenarioId: "long_browsing",
+    scenarioName: "长时间浏览",
+    isAIEnabled: true,
+    businessValue: "识别高意向用户，提供个性化服务促进转化。",
+    createdAt: "2024-01-20T10:00:00Z",
+    updatedAt: "2024-01-20T10:00:00Z",
+    defaultAIConfig: {
+      allowedActionTypes: ["POPUP"],
+      timingStrategy: "SMART_DELAY",
+      contentStrategy: "FULLY_GENERATIVE",
+      description: "AI会分析用户的浏览深度和时长，提供个性化的购买建议或客服支持",
+      strategySummary: "为深度浏览用户提供专业建议，提升购买决策效率。",
+      coreStrategies: ["网页弹窗", "智能延迟", "意向识别生成"],
+      dimensions: [
+        {
+          dimension: "营销方式",
+          strategy: '优先使用"网页弹窗"',
+          reasoning: "长时间浏览表明用户有较强购买意向，适合通过弹窗提供专业建议。",
+          examples: [
+            "专家建议: 提供产品选择建议和对比信息。",
+            "客服支持: 主动提供在线客服咨询服务。"
+          ]
+        },
+        {
+          dimension: "营销时机",
+          strategy: '采用"智能延迟"',
+          reasoning: "在用户表现出明确的深度浏览行为后触发。",
+          examples: [
+            "浏览时长: 单次会话超过10分钟时触发。",
+            "页面数量: 浏览超过8个页面时提供帮助。"
+          ]
+        },
+        {
+          dimension: "营销内容",
+          strategy: '进行"意向识别生成"',
+          reasoning: "AI根据浏览行为分析用户意向，生成相应的建议内容。",
+          examples: [
+            "比较型用户: 提供详细的产品对比表格。",
+            "犹豫型用户: 提供用户评价和购买保障信息。"
+          ]
+        }
+      ]
+    },
+    overrideRules: [],
+    availableFields: {
+      event: [
+        { field: "session_duration", label: "会话时长(分钟)", type: "number" },
+        { field: "pages_viewed", label: "浏览页面数", type: "number" }
+      ],
+      session: [
+        { field: "bounce_rate", label: "跳出率", type: "number" }
+      ],
+      user: [
+        { field: "visit_frequency", label: "访问频率", type: "string" }
+      ]
+    }
+  },
+  // 新增场景3：重复访问
+  {
+    scenarioId: "repeat_visit",
+    scenarioName: "重复访问",
+    isAIEnabled: true,
+    businessValue: "维护老客户关系，提升客户忠诚度和复购率。",
+    createdAt: "2024-01-20T11:00:00Z",
+    updatedAt: "2024-01-20T11:00:00Z",
+    defaultAIConfig: {
+      allowedActionTypes: ["POPUP", "EMAIL"],
+      timingStrategy: "IMMEDIATE",
+      contentStrategy: "FULLY_GENERATIVE",
+      description: "AI会根据用户的访问历史和购买记录，生成个性化的回访欢迎和推荐内容",
+      strategySummary: "为回访用户提供个性化体验，增强品牌粘性。",
+      coreStrategies: ["多渠道组合", "立即触发", "历史感知生成"],
+      dimensions: [
+        {
+          dimension: "营销方式",
+          strategy: '采用"多渠道组合"',
+          reasoning: "重复访问用户价值较高，值得通过多种方式进行精细化运营。",
+          examples: [
+            "即时欢迎: 通过弹窗展示个性化欢迎信息。",
+            "邮件跟进: 发送个性化的产品推荐邮件。"
+          ]
+        },
+        {
+          dimension: "营销时机",
+          strategy: '"立即触发"',
+          reasoning: "重复访问是明确的用户行为信号，应立即响应。",
+          examples: [
+            "登录后: 用户登录后立即显示个性化内容。",
+            "页面加载: 在首页加载时展示专属推荐。"
+          ]
+        },
+        {
+          dimension: "营销内容",
+          strategy: '进行"历史感知生成"',
+          reasoning: "AI基于用户的历史行为和偏好生成个性化内容。",
+          examples: [
+            "购买历史: 基于历史购买推荐相关产品。",
+            "浏览偏好: 根据浏览历史推荐感兴趣的类目。"
+          ]
+        }
+      ]
+    },
+    overrideRules: [],
+    availableFields: {
+      event: [
+        { field: "last_visit_days", label: "距上次访问天数", type: "number" }
+      ],
+      session: [
+        { field: "visit_count", label: "访问次数", type: "number" }
+      ],
+      user: [
+        { field: "customer_level", label: "客户等级", type: "string" },
+        { field: "purchase_history", label: "购买历史", type: "string" }
+      ]
+    }
+  },
+  // 新增场景4：移动端访问
+  {
+    scenarioId: "mobile_visit",
+    scenarioName: "移动端访问",
+    isAIEnabled: true,
+    businessValue: "优化移动端用户体验，提升移动端转化率。",
+    createdAt: "2024-01-20T12:00:00Z",
+    updatedAt: "2024-01-20T12:00:00Z",
+    defaultAIConfig: {
+      allowedActionTypes: ["POPUP"],
+      timingStrategy: "SMART_DELAY",
+      contentStrategy: "FULLY_GENERATIVE",
+      description: "AI会针对移动端用户的使用习惯，生成适合小屏幕的简洁营销内容",
+      strategySummary: "为移动端用户提供简洁高效的购物体验。",
+      coreStrategies: ["网页弹窗", "智能延迟", "移动优化生成"],
+      dimensions: [
+        {
+          dimension: "营销方式",
+          strategy: '优先使用"网页弹窗"',
+          reasoning: "移动端屏幕有限，需要通过简洁的弹窗传达关键信息。",
+          examples: [
+            "底部横幅: 使用底部横幅展示优惠信息。",
+            "全屏引导: 在关键节点使用全屏引导页面。"
+          ]
+        },
+        {
+          dimension: "营销时机",
+          strategy: '采用"智能延迟"',
+          reasoning: "移动端用户注意力更分散，需要选择合适时机触发。",
+          examples: [
+            "滑动停止: 用户停止滑动时展示相关内容。",
+            "页面切换: 在页面切换间隙展示简短信息。"
+          ]
+        },
+        {
+          dimension: "营销内容",
+          strategy: '进行"移动优化生成"',
+          reasoning: "AI生成适合移动端阅读的简洁内容。",
+          examples: [
+            "简短文案: 使用简洁有力的文案表达。",
+            "大按钮设计: 提供易于点击的大按钮。"
+          ]
+        }
+      ]
+    },
+    overrideRules: [],
+    availableFields: {
+      event: [
+        { field: "screen_size", label: "屏幕尺寸", type: "string" }
+      ],
+      session: [
+        { field: "device_type", label: "设备类型", type: "string" },
+        { field: "network_type", label: "网络类型", type: "string" }
+      ],
+      user: [
+        { field: "mobile_preference", label: "移动端偏好", type: "string" }
+      ]
+    }
+  },
+  // 新增场景5：节假日访问
+  {
+    scenarioId: "holiday_visit",
+    scenarioName: "节假日访问",
+    isAIEnabled: true,
+    businessValue: "抓住节假日购物高峰，提升节日营销效果。",
+    createdAt: "2024-01-20T13:00:00Z",
+    updatedAt: "2024-01-20T13:00:00Z",
+    defaultAIConfig: {
+      allowedActionTypes: ["POPUP", "EMAIL"],
+      timingStrategy: "IMMEDIATE",
+      contentStrategy: "FULLY_GENERATIVE",
+      description: "AI会根据当前节假日和用户特征，生成应景的节日营销内容",
+      strategySummary: "为节假日访客提供应景的购物体验和优惠信息。",
+      coreStrategies: ["多渠道组合", "立即触发", "节日主题生成"],
+      dimensions: [
+        {
+          dimension: "营销方式",
+          strategy: '采用"多渠道组合"',
+          reasoning: "节假日是营销的黄金时期，需要通过多种方式最大化触达效果。",
+          examples: [
+            "节日弹窗: 展示节日主题的优惠活动。",
+            "节日邮件: 发送节日祝福和专属优惠。"
+          ]
+        },
+        {
+          dimension: "营销时机",
+          strategy: '"立即触发"',
+          reasoning: "节假日访问本身就是强烈的购买信号，应立即响应。",
+          examples: [
+            "节日当天: 在节日当天立即展示相关活动。",
+            "节前预热: 在节日前几天开始预热宣传。"
+          ]
+        },
+        {
+          dimension: "营销内容",
+          strategy: '进行"节日主题生成"',
+          reasoning: "AI根据具体节日和用户特征生成应景的营销内容。",
+          examples: [
+            "春节: 生成新年祝福和年货推荐。",
+            "情人节: 推荐礼品和浪漫套餐。"
+          ]
+        }
+      ]
+    },
+    overrideRules: [],
+    availableFields: {
+      event: [
+        { field: "holiday_name", label: "节假日名称", type: "string" }
+      ],
+      session: [
+        { field: "visit_time", label: "访问时间", type: "string" }
+      ],
+      user: [
+        { field: "holiday_preference", label: "节日偏好", type: "string" },
+        { field: "gift_history", label: "礼品购买历史", type: "string" }
+      ]
+    }
+  },
+  // 新增场景6：价格敏感行为
+  {
+    scenarioId: "price_sensitive",
+    scenarioName: "价格敏感行为",
+    isAIEnabled: true,
+    businessValue: "识别价格敏感用户，提供合适的优惠策略。",
+    createdAt: "2024-01-20T14:00:00Z",
+    updatedAt: "2024-01-20T14:00:00Z",
+    defaultAIConfig: {
+      allowedActionTypes: ["POPUP"],
+      timingStrategy: "SMART_DELAY",
+      contentStrategy: "FULLY_GENERATIVE",
+      description: "AI会识别用户的价格敏感行为，生成相应的优惠和促销信息",
+      strategySummary: "为价格敏感用户提供合适的优惠方案，促进转化。",
+      coreStrategies: ["网页弹窗", "智能延迟", "价格策略生成"],
+      dimensions: [
+        {
+          dimension: "营销方式",
+          strategy: '优先使用"网页弹窗"',
+          reasoning: "价格敏感用户需要直接明确的优惠信息展示。",
+          examples: [
+            "优惠弹窗: 直接展示折扣和优惠券信息。",
+            "比价信息: 提供价格对比和性价比分析。"
+          ]
+        },
+        {
+          dimension: "营销时机",
+          strategy: '采用"智能延迟"',
+          reasoning: "在用户表现出价格敏感行为后适时触发。",
+          examples: [
+            "多次比价: 用户多次查看价格信息时触发。",
+            "犹豫行为: 在购物车页面停留较久时提供优惠。"
+          ]
+        },
+        {
+          dimension: "营销内容",
+          strategy: '进行"价格策略生成"',
+          reasoning: "AI根据用户的价格敏感度生成合适的优惠策略。",
+          examples: [
+            "限时折扣: 提供限时的价格优惠。",
+            "满减活动: 推荐满减或买赠活动。"
+          ]
+        }
+      ]
+    },
+    overrideRules: [],
+    availableFields: {
+      event: [
+        { field: "price_comparison_count", label: "比价次数", type: "number" },
+        { field: "discount_click_count", label: "优惠点击次数", type: "number" }
+      ],
+      session: [
+        { field: "price_range_viewed", label: "查看价格区间", type: "string" }
+      ],
+      user: [
+        { field: "price_sensitivity", label: "价格敏感度", type: "string" },
+        { field: "coupon_usage_history", label: "优惠券使用历史", type: "string" }
+      ]
+    }
+  }
 ];
 
 // 获取所有营销场景
