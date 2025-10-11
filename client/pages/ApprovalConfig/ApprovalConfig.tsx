@@ -184,6 +184,7 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
       nodes: []
     });
     setIsCreateDialogOpen(true);
+    setSelectedWorkflow(null)
   };
 
   const handleEditWorkflow = (workflow: ApprovalWorkflow) => {
