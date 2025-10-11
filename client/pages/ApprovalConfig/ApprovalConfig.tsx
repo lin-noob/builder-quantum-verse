@@ -8,386 +8,148 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { Plus, Edit, Trash2, Play, Pause, Copy, Settings, Eye, FileText, Users, Clock, CheckCircle, ChevronDown, AlertCircle } from 'lucide-react';
-import { ApprovalWorkflow, DocumentType, ApprovalNodeType, ApprovalTemplate, DocumentStatus } from '@/types/approval';
+import { Plus, Edit, Trash2, Play, Pause, Copy, Settings, Eye, FileText, Users, Clock, CheckCircle, ChevronDown, AlertCircle, Loader2 } from 'lucide-react';
+import { ApprovalNodeType, ApprovalWorkflow, DocumentStatus, DocumentType } from '@/types/approval';
 import { WorkflowDiagram } from './WorkflowDiagram';
+import { approvalService } from '@/services/approvalService';
+import { useAuthStore } from '@/stores/authStore';
+import { request } from '@/lib/request';
+
+const APPROVAL_NODE_TYPE_VALUES: ApprovalNodeType[] = [
+  ApprovalNodeType.SINGLE,
+  ApprovalNodeType.MULTIPLE,
+  ApprovalNodeType.ANY_ONE,
+  ApprovalNodeType.SEQUENTIAL
+];
+
+const APPROVAL_NODE_TYPE_LABELS: Record<ApprovalNodeType, string> = {
+  [ApprovalNodeType.SINGLE]: '单人审批',
+  [ApprovalNodeType.MULTIPLE]: '多人审批（全部同意）',
+  [ApprovalNodeType.ANY_ONE]: '多人审批（任意一人即可）',
+  [ApprovalNodeType.SEQUENTIAL]: '顺序审批'
+};
+
+const APPROVAL_NODE_TYPE_OPTIONS = APPROVAL_NODE_TYPE_VALUES.map((value) => ({
+  value,
+  label: APPROVAL_NODE_TYPE_LABELS[value]
+}));
+
+const normalizeNodeType = (type?: string | null): ApprovalNodeType =>
+  APPROVAL_NODE_TYPE_VALUES.includes(type as ApprovalNodeType) ? (type as ApprovalNodeType) : ApprovalNodeType.SINGLE;
 
 interface ApprovalConfigProps {}
 
 const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
+  const { user } = useAuthStore();
   const [workflows, setWorkflows] = useState<ApprovalWorkflow[]>([]);
-  const [templates, setTemplates] = useState<ApprovalTemplate[]>([]);
   const [selectedWorkflow, setSelectedWorkflow] = useState<ApprovalWorkflow | null>(null);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'inactive'>('all');
-  const [filterDocumentType, setFilterDocumentType] = useState<DocumentType | 'all'>('all');
+  const [filterBillType, setFilterBillType] = useState<number | 'all'>('all');
+
+  // 分页状态
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [total, setTotal] = useState(0);
+
+  // 加载状态
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [statusUpdatingId, setStatusUpdatingId] = useState<number | null>(null);
 
   // 新建流程表单状态
   const [newWorkflow, setNewWorkflow] = useState({
-    name: '',
+    processName: '',
     description: '',
-    documentType: DocumentType.EXPENSE_REIMBURSEMENT,
-    isActive: true,
+    billType: 0,
+    companyId: user?.companyid || '',
+    status: 1,
     nodes: [] as any[]
   });
 
   // 当前编辑的节点
   const [currentNode, setCurrentNode] = useState({
-    name: '',
+    nodeName: '',
     description: '',
-    type: ApprovalNodeType.SINGLE,
+    nodeType: ApprovalNodeType.SINGLE,
+    approverType: 0,
     approvers: [] as any[],
-    conditions: [] as any[],
     timeLimit: 24,
-    isRequired: true,
-    triggerStatus: DocumentStatus.SUBMITTED,
-    approveToStatus: DocumentStatus.APPROVED,
-    rejectToStatus: DocumentStatus.REJECTED
+    required: true
   });
 
-  // 可选的审批人员（模拟数据）
-  const [availableUsers] = useState([
-    { id: '1', name: '张三', role: '部门主管', department: '销售部', email: 'zhangsan@company.com' },
-    { id: '2', name: '李四', role: '财务专员', department: '财务部', email: 'lisi@company.com' },
-    { id: '3', name: '王五', role: '营销经理', department: '市场部', email: 'wangwu@company.com' },
-    { id: '4', name: '赵六', role: '总监', department: '管理层', email: 'zhaoliu@company.com' },
-    { id: '5', name: '钱七', role: 'HR主管', department: '人事部', email: 'qianqi@company.com' },
-    { id: '6', name: '孙八', role: '技术总监', department: '技术部', email: 'sunba@company.com' },
-    { id: '7', name: '周九', role: '产品经理', department: '产品部', email: 'zhoujiu@company.com' },
-    { id: '8', name: '吴十', role: '运营主管', department: '运营部', email: 'wushi@company.com' },
-    { id: '9', name: '郑一', role: '法务专员', department: '法务部', email: 'zhengyi@company.com' },
-    { id: '10', name: '陈二', role: '采购经理', department: '采购部', email: 'chener@company.com' },
-    { id: '11', name: '刘三', role: '质量主管', department: '质量部', email: 'liusan@company.com' },
-    { id: '12', name: '黄四', role: '客服经理', department: '客服部', email: 'huangsi@company.com' }
-  ]);
+  // 可选的审批人员（从成员管理接口获取）
+  const [availableUsers, setAvailableUsers] = useState<any[]>([]);
 
-  // 模拟数据
+  // 加载审批流程列表
+  const loadWorkflows = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await approvalService.getWorkflows({
+        currentPage,
+        pageSize,
+        search: searchTerm,
+        billType: filterBillType === 'all' ? undefined : filterBillType,
+        status: filterStatus === 'all' ? undefined : (filterStatus === 'active' ? 1 : 0)
+      });
+
+      if (response.success) {
+        setWorkflows(response.data.items);
+        setTotal(response.data.total);
+      } else {
+        setError(response.message || '加载数据失败');
+      }
+    } catch (err) {
+      console.error('加载审批流程列表失败:', err);
+      setError(err instanceof Error ? err.message : '加载数据失败');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 加载可选的审批人员
+  const loadAvailableUsers = async () => {
+    try {
+      const response = await request.post("/admin/api/v1/users/list", {
+        page: 1,
+        limit: 100,
+      });
+
+      if (response.data && response.data.data && response.data.data.records) {
+        const users = response.data.data.records.map((member: any) => ({
+          userId: member.id,
+          userName: member.name,
+          roleName: member.roleName
+        }));
+        setAvailableUsers(users);
+      }
+    } catch (err) {
+      console.error('加载审批人员列表失败:', err);
+    }
+  };
+
+  // 初次加载和筛选条件变化时重新加载
   useEffect(() => {
-    const mockWorkflows: ApprovalWorkflow[] = [
-      {
-        id: '1',
-        name: '费用报销审批流程',
-        description: '员工费用报销的标准审批流程',
-        documentType: DocumentType.EXPENSE_REIMBURSEMENT,
-        isActive: true,
-        version: '1.0',
-        nodes: [
-          {
-            id: 'node1',
-            name: '部门主管审批',
-            type: ApprovalNodeType.SINGLE,
-            order: 1,
-            approvers: [{ userId: '1', userName: '张主管', userRole: '部门主管' }],
-            conditions: [],
-            timeLimit: 24,
-            isRequired: true
-          },
-          {
-            id: 'node2',
-            name: '财务审批',
-            type: ApprovalNodeType.SINGLE,
-            order: 2,
-            approvers: [{ userId: '2', userName: '李财务', userRole: '财务专员' }],
-            conditions: [{ type: 'amount', operator: '>', value: 1000, description: '金额大于1000元' }],
-            timeLimit: 48,
-            isRequired: true
-          }
-        ],
-        createdAt: new Date('2024-01-15'),
-        updatedAt: new Date('2024-01-20'),
-        createdBy: 'admin'
-      },
-      {
-        id: '2',
-        name: '营销活动审批流程',
-        description: '营销活动策划和执行的审批流程',
-        documentType: DocumentType.MARKETING_CAMPAIGN,
-        isActive: true,
-        version: '2.1',
-        nodes: [
-          {
-            id: 'node1',
-            name: '营销经理审批',
-            type: ApprovalNodeType.SINGLE,
-            order: 1,
-            approvers: [{ userId: '3', userName: '王经理', userRole: '营销经理' }],
-            conditions: [],
-            timeLimit: 24,
-            isRequired: true
-          },
-          {
-            id: 'node2',
-            name: '总监审批',
-            type: ApprovalNodeType.MULTIPLE,
-            order: 2,
-            approvers: [
-              { userId: '4', userName: '刘总监', userRole: '营销总监' },
-              { userId: '5', userName: '陈总监', userRole: '运营总监' }
-            ],
-            conditions: [{ type: 'amount', operator: '>', value: 50000, description: '预算大于5万元' }],
-            timeLimit: 72,
-            isRequired: true
-          }
-        ],
-        createdAt: new Date('2024-01-10'),
-        updatedAt: new Date('2024-01-25'),
-        createdBy: 'admin'
-      },
-      {
-        id: '3',
-        name: '采购申请审批流程',
-        description: '公司采购物品和服务的审批流程',
-        documentType: DocumentType.PURCHASE_REQUEST,
-        isActive: true,
-        version: '1.2',
-        nodes: [
-          {
-            id: 'node1',
-            name: '部门主管审批',
-            type: ApprovalNodeType.SINGLE,
-            order: 1,
-            approvers: [{ userId: '1', userName: '张主管', userRole: '部门主管' }],
-            conditions: [],
-            timeLimit: 24,
-            isRequired: true
-          },
-          {
-            id: 'node2',
-            name: '采购经理审批',
-            type: ApprovalNodeType.SINGLE,
-            order: 2,
-            approvers: [{ userId: '10', userName: '陈采购', userRole: '采购经理' }],
-            conditions: [{ type: 'amount', operator: '>', value: 5000, description: '金额大于5000元' }],
-            timeLimit: 48,
-            isRequired: true
-          },
-          {
-            id: 'node3',
-            name: '财务审批',
-            type: ApprovalNodeType.SINGLE,
-            order: 3,
-            approvers: [{ userId: '2', userName: '李财务', userRole: '财务专员' }],
-            conditions: [{ type: 'amount', operator: '>', value: 10000, description: '金额大于1万元' }],
-            timeLimit: 72,
-            isRequired: true
-          }
-        ],
-        createdAt: new Date('2024-01-05'),
-        updatedAt: new Date('2024-01-30'),
-        createdBy: 'admin'
-      },
-      {
-        id: '4',
-        name: '请假申请审批流程',
-        description: '员工请假申请的审批流程',
-        documentType: DocumentType.LEAVE_REQUEST,
-        isActive: true,
-        version: '1.0',
-        nodes: [
-          {
-            id: 'node1',
-            name: '直属主管审批',
-            type: ApprovalNodeType.SINGLE,
-            order: 1,
-            approvers: [{ userId: '1', userName: '张主管', userRole: '部门主管' }],
-            conditions: [],
-            timeLimit: 12,
-            isRequired: true
-          },
-          {
-            id: 'node2',
-            name: 'HR审批',
-            type: ApprovalNodeType.SINGLE,
-            order: 2,
-            approvers: [{ userId: '5', userName: '钱HR', userRole: 'HR主管' }],
-            conditions: [{ type: 'duration', operator: '>', value: 3, description: '请假天数大于3天' }],
-            timeLimit: 24,
-            isRequired: true
-          }
-        ],
-        createdAt: new Date('2024-01-08'),
-        updatedAt: new Date('2024-01-22'),
-        createdBy: 'admin'
-      },
-      {
-        id: '5',
-        name: '合同审批流程',
-        description: '商务合同签署的审批流程',
-        documentType: DocumentType.CONTRACT_APPROVAL,
-        isActive: false,
-        version: '2.0',
-        nodes: [
-          {
-            id: 'node1',
-            name: '业务负责人审批',
-            type: ApprovalNodeType.SINGLE,
-            order: 1,
-            approvers: [{ userId: '3', userName: '王经理', userRole: '营销经理' }],
-            conditions: [],
-            timeLimit: 24,
-            isRequired: true
-          },
-          {
-            id: 'node2',
-            name: '法务审批',
-            type: ApprovalNodeType.SINGLE,
-            order: 2,
-            approvers: [{ userId: '9', userName: '郑法务', userRole: '法务专员' }],
-            conditions: [],
-            timeLimit: 48,
-            isRequired: true
-          },
-          {
-            id: 'node3',
-            name: '总监审批',
-            type: ApprovalNodeType.MULTIPLE,
-            order: 3,
-            approvers: [
-              { userId: '4', userName: '刘总监', userRole: '营销总监' },
-              { userId: '6', userName: '孙技术总监', userRole: '技术总监' }
-            ],
-            conditions: [{ type: 'amount', operator: '>', value: 100000, description: '合同金额大于10万元' }],
-            timeLimit: 72,
-            isRequired: true
-          }
-        ],
-        createdAt: new Date('2024-01-12'),
-        updatedAt: new Date('2024-01-28'),
-        createdBy: 'admin'
-      },
-      {
-        id: '6',
-        name: '产品发布审批流程',
-        description: '新产品发布前的审批流程',
-        documentType: DocumentType.PRODUCT_LAUNCH,
-        isActive: true,
-        version: '1.1',
-        nodes: [
-          {
-            id: 'node1',
-            name: '产品经理审批',
-            type: ApprovalNodeType.SINGLE,
-            order: 1,
-            approvers: [{ userId: '7', userName: '周产品', userRole: '产品经理' }],
-            conditions: [],
-            timeLimit: 24,
-            isRequired: true
-          },
-          {
-            id: 'node2',
-            name: '技术审批',
-            type: ApprovalNodeType.SINGLE,
-            order: 2,
-            approvers: [{ userId: '6', userName: '孙技术总监', userRole: '技术总监' }],
-            conditions: [],
-            timeLimit: 48,
-            isRequired: true
-          },
-          {
-            id: 'node3',
-            name: '质量审批',
-            type: ApprovalNodeType.SINGLE,
-            order: 3,
-            approvers: [{ userId: '11', userName: '刘质量', userRole: '质量主管' }],
-            conditions: [],
-            timeLimit: 24,
-            isRequired: true
-          },
-          {
-            id: 'node4',
-            name: '运营审批',
-            type: ApprovalNodeType.SINGLE,
-            order: 4,
-            approvers: [{ userId: '8', userName: '吴运营', userRole: '运营主管' }],
-            conditions: [],
-            timeLimit: 24,
-            isRequired: true
-          }
-        ],
-        createdAt: new Date('2024-01-18'),
-        updatedAt: new Date('2024-02-01'),
-        createdBy: 'admin'
-      }
-    ];
+    loadWorkflows();
+  }, [currentPage, pageSize, searchTerm, filterStatus, filterBillType]);
 
-    const mockTemplates: ApprovalTemplate[] = [
-      {
-        id: 'template1',
-        name: '标准费用报销模板',
-        description: '适用于一般费用报销的标准模板',
-        documentType: DocumentType.EXPENSE_REIMBURSEMENT,
-        workflow: mockWorkflows[0],
-        isDefault: true,
-        createdAt: new Date('2024-01-01'),
-        createdBy: 'admin'
-      },
-      {
-        id: 'template2',
-        name: '营销活动审批模板',
-        description: '适用于营销活动策划的审批模板',
-        documentType: DocumentType.MARKETING_CAMPAIGN,
-        workflow: mockWorkflows[1],
-        isDefault: false,
-        createdAt: new Date('2024-01-05'),
-        createdBy: 'admin'
-      },
-      {
-        id: 'template3',
-        name: '采购申请模板',
-        description: '适用于公司采购申请的标准模板',
-        documentType: DocumentType.PURCHASE_REQUEST,
-        workflow: mockWorkflows[2],
-        isDefault: true,
-        createdAt: new Date('2024-01-08'),
-        createdBy: 'admin'
-      },
-      {
-        id: 'template4',
-        name: '请假申请模板',
-        description: '适用于员工请假申请的模板',
-        documentType: DocumentType.LEAVE_REQUEST,
-        workflow: mockWorkflows[3],
-        isDefault: true,
-        createdAt: new Date('2024-01-10'),
-        createdBy: 'admin'
-      },
-      {
-        id: 'template5',
-        name: '合同审批模板',
-        description: '适用于商务合同审批的模板',
-        documentType: DocumentType.CONTRACT_APPROVAL,
-        workflow: mockWorkflows[4],
-        isDefault: false,
-        createdAt: new Date('2024-01-12'),
-        createdBy: 'admin'
-      }
-    ];
-
-    setWorkflows(mockWorkflows);
-    setTemplates(mockTemplates);
+  // 初次加载审批人员列表
+  useEffect(() => {
+    loadAvailableUsers();
   }, []);
-
-  // 过滤工作流
-  const filteredWorkflows = workflows.filter(workflow => {
-    const matchesSearch = workflow.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         workflow.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = filterStatus === 'all' || 
-                         (filterStatus === 'active' && workflow.isActive) ||
-                         (filterStatus === 'inactive' && !workflow.isActive);
-    const matchesDocumentType = filterDocumentType === 'all' || workflow.documentType === filterDocumentType;
-    
-    return matchesSearch && matchesStatus && matchesDocumentType;
-  });
 
   const handleCreateWorkflow = () => {
     setNewWorkflow({
-      name: '',
+      processName: '',
       description: '',
-      documentType: DocumentType.EXPENSE_REIMBURSEMENT,
-      isActive: true,
+      billType: 0,
+      companyId: user?.companyid || '',
+      status: 1,
       nodes: []
     });
     setIsCreateDialogOpen(true);
@@ -395,23 +157,24 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
 
   const handleEditWorkflow = (workflow: ApprovalWorkflow) => {
     if (!workflow) return;
-    
+
     setSelectedWorkflow(workflow);
     setNewWorkflow({
-      name: workflow.name || '',
+      processName: workflow.processName || '',
       description: workflow.description || '',
-      documentType: workflow.documentType || DocumentType.EXPENSE_REIMBURSEMENT,
-      isActive: workflow.isActive !== undefined ? workflow.isActive : true,
+      billType: workflow.billType || 0,
+      companyId: workflow.companyId || user?.companyid || '',
+      status: workflow.status !== undefined ? workflow.status : 1,
       nodes: (workflow.nodes || []).map(node => ({
-        id: node.id || '',
-        name: node.name || '',
+        id: node.id || 0,
+        nodeName: node.nodeName || '',
         description: node.description || '',
-        type: node.type || ApprovalNodeType.SINGLE,
-        order: node.order || 0,
+        nodeType: normalizeNodeType(node.nodeType),
+        sortOrder: node.sortOrder || 0,
+        approverType: node.approverType || 0,
         approvers: node.approvers || [],
-        conditions: node.conditions || [],
         timeLimit: node.timeLimit || 24,
-        isRequired: node.isRequired !== undefined ? node.isRequired : true
+        required: node.required !== undefined ? node.required : true
       }))
     });
     setIsEditDialogOpen(true);
@@ -423,88 +186,123 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
     setIsDetailDialogOpen(true);
   };
 
-  const handleDeleteWorkflow = (workflowId: string) => {
+  const handleDeleteWorkflow = (workflowId: number) => {
     setWorkflows(prev => prev.filter(w => w.id !== workflowId));
   };
 
-  const handleToggleWorkflowStatus = (workflowId: string) => {
-    setWorkflows(prev => prev.map(w => 
-      w.id === workflowId ? { ...w, isActive: !w.isActive } : w
-    ));
+  const handleToggleWorkflowStatus = async (workflow: ApprovalWorkflow) => {
+    if (!workflow || statusUpdatingId === workflow.id) {
+      return;
+    }
+
+    const nextStatus = workflow.status === 1 ? 0 : 1;
+
+    try {
+      setStatusUpdatingId(workflow.id);
+      setError(null);
+
+      const response = await approvalService.toggleWorkflowStatus(workflow.id, nextStatus);
+
+      if (response.success) {
+        setWorkflows(prev => prev.map(w =>
+          w.id === workflow.id ? { ...w, status: nextStatus } : w
+        ));
+      } else {
+        setError(response.message || '更新审批流程状态失败');
+      }
+    } catch (err) {
+      console.error('更新审批流程状态失败:', err);
+      setError(err instanceof Error ? err.message : '更新审批流程状态失败');
+    } finally {
+      setStatusUpdatingId(null);
+    }
   };
 
   const handleCopyWorkflow = (workflow: ApprovalWorkflow) => {
     const newWorkflow: ApprovalWorkflow = {
       ...workflow,
-      id: Date.now().toString(),
-      name: `${workflow.name} (副本)`,
-      version: '1.0',
-      isActive: false,
-      createdAt: new Date(),
-      updatedAt: new Date()
+      id: Date.now(),
+      processName: `${workflow.processName} (副本)`,
+      status: 0
     };
     setWorkflows(prev => [...prev, newWorkflow]);
   };
 
-  const handleSaveWorkflow = () => {
-    if (!newWorkflow.name.trim()) {
-      alert('请输入流程名称');
+  const handleSaveWorkflow = async () => {
+    if (!newWorkflow.processName.trim()) {
+      setError('请输入流程名称');
       return;
     }
 
-    const workflow: ApprovalWorkflow = {
-      id: selectedWorkflow?.id || Date.now().toString(),
-      name: newWorkflow.name,
-      description: newWorkflow.description,
-      documentType: newWorkflow.documentType,
-      isActive: newWorkflow.isActive,
-      version: selectedWorkflow?.version || '1.0',
-      nodes: newWorkflow.nodes.map((node, index) => ({
-        id: node.id || `node_${Date.now()}_${index}`,
-        name: node.name,
-        description: node.description,
-        type: node.type,
-        order: index + 1,
-        approvers: node.approvers.map((approver: any) => ({
-          userId: approver.id,
-          userName: approver.name,
-          userRole: approver.role
-        })),
-        conditions: node.conditions || [],
-        timeLimit: node.timeLimit,
-        isRequired: node.isRequired
-      })),
-      createdAt: selectedWorkflow?.createdAt || new Date(),
-      updatedAt: new Date(),
-      createdBy: 'admin'
-    };
-
-    if (selectedWorkflow) {
-      // 编辑模式
-      setWorkflows(prev => prev.map(w => w.id === selectedWorkflow.id ? workflow : w));
-    } else {
-      // 新建模式
-      setWorkflows(prev => [...prev, workflow]);
+    if (newWorkflow.nodes.length === 0) {
+      setError('请至少添加一个审批节点');
+      return;
     }
 
-    setIsCreateDialogOpen(false);
-    setIsEditDialogOpen(false);
-    setSelectedWorkflow(null);
+    try {
+      setLoading(true);
+      setError(null);
+
+      const workflowData: any = {
+        processName: newWorkflow.processName,
+        description: newWorkflow.description,
+        billType: newWorkflow.billType,
+        companyId: newWorkflow.companyId,
+        status: newWorkflow.status,
+        nodes: newWorkflow.nodes.map((node: any, index) => ({
+          nodeName: node.nodeName,
+          description: node.description,
+          nodeType: node.nodeType,
+          sortOrder: index + 1,
+          approverType: node.approverType,
+          approvers: node.approvers.map((approver: any) => ({
+            userId: approver.userId,
+            userName: approver.userName,
+            roleName: approver.roleName
+          })),
+          timeLimit: node.timeLimit,
+          required: node.required
+        }))
+      };
+
+      let response;
+      if (selectedWorkflow) {
+        // 编辑模式 - 包含 id
+        response = await approvalService.updateWorkflow(selectedWorkflow.id, workflowData);
+      } else {
+        // 新建模式
+        response = await approvalService.createWorkflow(workflowData);
+      }
+      if (response.success) {
+        // 关闭对话框
+        setIsCreateDialogOpen(false);
+        setIsEditDialogOpen(false);
+        setSelectedWorkflow(null);
+
+        // 重新加载列表
+        await loadWorkflows();
+      } else {
+        setError(response.message || '保存失败');
+      }
+    } catch (err) {
+      console.error('保存审批���程失败:', err);
+      setError(err instanceof Error ? err.message : '保存失败');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleAddNode = () => {
     const newNode = {
-      id: `node_${Date.now()}`,
-      name: currentNode.name || `审批节点 ${newWorkflow.nodes.length + 1}`,
+      id: Date.now(),
+      nodeName: currentNode.nodeName || `审批节点 ${newWorkflow.nodes.length + 1}`,
       description: currentNode.description,
-      type: currentNode.type,
+      nodeType: currentNode.nodeType,
+      sortOrder: newWorkflow.nodes.length + 1,
+      approverType: currentNode.approverType,
       approvers: [...currentNode.approvers],
-      conditions: [...currentNode.conditions],
       timeLimit: currentNode.timeLimit,
-      isRequired: currentNode.isRequired,
-      triggerStatus: currentNode.triggerStatus,
-      approveToStatus: currentNode.approveToStatus,
-      rejectToStatus: currentNode.rejectToStatus
+      required: currentNode.required
     };
 
     setNewWorkflow(prev => ({
@@ -514,16 +312,13 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
 
     // 重置当前节点
     setCurrentNode({
-      name: '',
+      nodeName: '',
       description: '',
-      type: ApprovalNodeType.SINGLE,
+      nodeType: ApprovalNodeType.SINGLE,
+      approverType: 0,
       approvers: [],
-      conditions: [],
       timeLimit: 24,
-      isRequired: true,
-      triggerStatus: DocumentStatus.DRAFT,
-      approveToStatus: DocumentStatus.APPROVED,
-      rejectToStatus: DocumentStatus.REJECTED
+      required: true
     });
   };
 
@@ -535,7 +330,7 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
   };
 
   const handleAddApprover = (user: any) => {
-    if (!currentNode.approvers.find(a => a.id === user.id)) {
+    if (!currentNode.approvers.find(a => a.userId === user.userId)) {
       setCurrentNode(prev => ({
         ...prev,
         approvers: [...prev.approvers, user]
@@ -543,38 +338,55 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
     }
   };
 
-  const handleRemoveApprover = (userId: string) => {
+  const handleRemoveApprover = (userId: number) => {
     setCurrentNode(prev => ({
       ...prev,
-      approvers: prev.approvers.filter(a => a.id !== userId)
+      approvers: prev.approvers.filter(a => a.userId !== userId)
     }));
   };
 
-  const getDocumentTypeLabel = (type: DocumentType) => {
-    const labels = {
-      [DocumentType.EXPENSE_REIMBURSEMENT]: '费用报销',
-      [DocumentType.MARKETING_CAMPAIGN]: '营销活动',
-      [DocumentType.PURCHASE_REQUEST]: '采购申请',
-      [DocumentType.LEAVE_REQUEST]: '请假申请',
-      [DocumentType.BUDGET_APPROVAL]: '预算审批',
-      [DocumentType.CONTRACT_APPROVAL]: '合同审批',
-      [DocumentType.RECRUITMENT]: '招聘申请',
-      [DocumentType.TRAINING_REQUEST]: '培训申请'
-    };
-    return labels[type] || type;
+  const getNodeTypeLabel = (type: string) => {
+    const label = APPROVAL_NODE_TYPE_LABELS[type as ApprovalNodeType];
+    return label ?? type;
   };
 
-  const getNodeTypeLabel = (type: ApprovalNodeType) => {
-    const labels = {
-      [ApprovalNodeType.SINGLE]: '单人审批',
-      [ApprovalNodeType.MULTIPLE]: '多人审批',
-      [ApprovalNodeType.SEQUENTIAL]: '顺序审批'
+  const getBillTypeLabel = (billType: number) => {
+    const labels: Record<number, string> = {
+      0: '费用报销',
+      1: '营销活动',
+      2: '采购申请',
+      3: '请假申请',
+      4: '合同审批',
+      5: '产品发布'
+    };
+    return labels[billType] || `类型${billType}`;
+  };
+
+  const getDocumentTypeLabel = (type: DocumentType) => {
+    const labels: Record<DocumentType, string> = {
+      [DocumentType.EXPENSE_REIMBURSEMENT]: '费用报销',
+      [DocumentType.BUDGET_APPLICATION]: '预算申请',
+      [DocumentType.PAYMENT_REQUEST]: '付款申请',
+      [DocumentType.INVOICE_APPROVAL]: '发票审批',
+      [DocumentType.LEAVE_REQUEST]: '请假申请',
+      [DocumentType.RECRUITMENT]: '招聘申请',
+      [DocumentType.PROMOTION]: '晋升申请',
+      [DocumentType.SALARY_ADJUSTMENT]: '资调整',
+      [DocumentType.PURCHASE_REQUEST]: '采购申请',
+      [DocumentType.CONTRACT_APPROVAL]: '合同审批',
+      [DocumentType.VENDOR_APPROVAL]: '供应商审批',
+      [DocumentType.MARKETING_CAMPAIGN]: '营销活动',
+      [DocumentType.PROMOTION_ACTIVITY]: '促销活动',
+      [DocumentType.CONTENT_APPROVAL]: '内容审批',
+      [DocumentType.SYSTEM_CONFIG]: '系统配置',
+      [DocumentType.USER_PERMISSION]: '用户权限',
+      [DocumentType.DATA_EXPORT]: '数据导出'
     };
     return labels[type] || type;
   };
 
   const getDocumentStatusLabel = (status: DocumentStatus) => {
-    const labels = {
+    const labels: Record<DocumentStatus, string> = {
       [DocumentStatus.DRAFT]: '草稿',
       [DocumentStatus.SUBMITTED]: '已提交',
       [DocumentStatus.REVIEWING]: '审核中',
@@ -584,8 +396,20 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
       [DocumentStatus.COMPLETED]: '已完成',
       [DocumentStatus.ARCHIVED]: '已归档'
     };
-    return labels[status] || status;
+    return labels[status] || `状态${status}`;
   };
+
+  // 获取所有状态枚举值（仅数字值，避免双向映射问题）
+  const documentStatusList = [
+    DocumentStatus.DRAFT,
+    DocumentStatus.SUBMITTED,
+    DocumentStatus.REVIEWING,
+    DocumentStatus.APPROVED,
+    DocumentStatus.REJECTED,
+    DocumentStatus.CANCELLED,
+    DocumentStatus.COMPLETED,
+    DocumentStatus.ARCHIVED
+  ];
 
   return (
     <div className="p-6 space-y-6">
@@ -617,17 +441,18 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
                 </div>
                 <div>
                   <Label htmlFor="type-filter">单据类型</Label>
-                  <Select value={filterDocumentType} onValueChange={(value: any) => setFilterDocumentType(value)}>
+                  <Select value={String(filterBillType)} onValueChange={(value: any) => setFilterBillType(value === 'all' ? 'all' : Number(value))}>
                     <SelectTrigger className="w-40">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">全部类型</SelectItem>
-                      {Object.values(DocumentType).map(type => (
-                        <SelectItem key={type} value={type}>
-                          {getDocumentTypeLabel(type)}
-                        </SelectItem>
-                      ))}
+                      <SelectItem value="0">费用报销</SelectItem>
+                      <SelectItem value="1">营销活动</SelectItem>
+                      <SelectItem value="2">采购申请</SelectItem>
+                      <SelectItem value="3">请假申请</SelectItem>
+                      <SelectItem value="4">合同审批</SelectItem>
+                      <SelectItem value="5">产品发布</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -643,33 +468,81 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
             </Button>
           </div>
 
+          {/* 错误提示 */}
+          {error && (
+            <Card className="border-red-200 bg-red-50">
+              <CardContent className="pt-6">
+                <div className="flex items-center gap-2 text-red-800">
+                  <AlertCircle className="h-5 w-5" />
+                  <span>{error}</span>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* 加载状态 */}
+          {loading && (
+            <Card>
+              <CardContent className="pt-6 text-center">
+                <Loader2 className="h-8 w-8 mx-auto animate-spin text-primary" />
+                <p className="mt-4 text-muted-foreground">加载中...</p>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* 分页信息 */}
+          {!loading && !error && workflows.length > 0 && (
+            <div className="flex items-center justify-between">
+              <div className="text-sm text-muted-foreground">
+                共 {total} 条记录
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">
+                  第 {currentPage} / {Math.ceil(total / pageSize)} 页
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={currentPage === 1 || loading}
+                  onClick={() => setCurrentPage(p => p - 1)}
+                >
+                  上一页
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={currentPage >= Math.ceil(total / pageSize) || loading}
+                  onClick={() => setCurrentPage(p => p + 1)}
+                >
+                  下一页
+                </Button>
+              </div>
+            </div>
+          )}
+
           {/* 工作流列表 */}
-          <div className="grid gap-4">
-            {filteredWorkflows.map((workflow) => (
+          {!loading && !error && (
+            <div className="grid gap-4">
+              {workflows.map((workflow) => (
               <Card key={workflow.id} className="hover:shadow-md transition-shadow">
                 <CardHeader>
                   <div className="flex justify-between items-start">
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
-                        <CardTitle className="text-lg">{workflow.name}</CardTitle>
-                        <Badge variant={workflow.isActive ? "default" : "secondary"}>
-                          {workflow.isActive ? '启用' : '禁用'}
+                        <CardTitle className="text-lg">{workflow.processName}</CardTitle>
+                        <Badge variant={workflow.status === 1 ? "default" : "secondary"}>
+                          {workflow.status === 1 ? '启用' : '禁用'}
                         </Badge>
-                        <Badge variant="outline">v{workflow.version}</Badge>
                       </div>
                       <p className="text-sm text-muted-foreground">{workflow.description}</p>
                       <div className="flex items-center gap-4 text-sm text-muted-foreground">
                         <div className="flex items-center gap-1">
                           <FileText className="h-4 w-4" />
-                          {getDocumentTypeLabel(workflow.documentType)}
+                          {getBillTypeLabel(workflow.billType)}
                         </div>
                         <div className="flex items-center gap-1">
                           <Users className="h-4 w-4" />
                           {workflow.nodes.length} 个节点
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Clock className="h-4 w-4" />
-                          更新于 {workflow.updatedAt.toLocaleDateString()}
                         </div>
                       </div>
                     </div>
@@ -685,10 +558,17 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => handleToggleWorkflowStatus(workflow.id)}
-                        title={workflow.isActive ? "禁用流程" : "启用流程"}
+                        onClick={() => handleToggleWorkflowStatus(workflow)}
+                        title={workflow.status === 1 ? "禁用流程" : "启用流程"}
+                        disabled={statusUpdatingId === workflow.id}
                       >
-                        {workflow.isActive ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                        {statusUpdatingId === workflow.id ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : workflow.status === 1 ? (
+                          <Pause className="h-4 w-4" />
+                        ) : (
+                          <Play className="h-4 w-4" />
+                        )}
                       </Button>
                       <Button
                         variant="ghost"
@@ -715,7 +595,7 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
                           <AlertDialogHeader>
                             <AlertDialogTitle>确认删除</AlertDialogTitle>
                             <AlertDialogDescription>
-                              确定要删除审批流程 "{workflow.name}" 吗？此操作不可撤销。
+                              确���要删除审批流程 "{workflow.processName}" 吗？此操作不可撤销。
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
@@ -732,36 +612,36 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
                 <CardContent>
                   <div className="space-y-3">
                     <div className="text-sm font-medium">审批节点：</div>
-                    <div className="flex gap-2 flex-wrap">
+                    <div className="flex items-center gap-2 flex-wrap">
                       {workflow.nodes.map((node, index) => (
-                        <div key={node.id} className="flex items-center gap-2">
-                          <Badge variant="outline" className="flex items-center gap-1">
-                            <span>{index + 1}</span>
-                            <span>{node.name}</span>
-                            <span className="text-xs">({getNodeTypeLabel(node.type)})</span>
+                        <React.Fragment key={node.id}>
+                          <Badge variant="outline" className="text-sm">
+                            {index + 1} {node.nodeName} ({getNodeTypeLabel(node.nodeType)})
                           </Badge>
                           {index < workflow.nodes.length - 1 && (
                             <span className="text-muted-foreground">→</span>
                           )}
-                        </div>
+                        </React.Fragment>
                       ))}
                     </div>
                   </div>
                 </CardContent>
               </Card>
             ))}
-          </div>
 
-          {filteredWorkflows.length === 0 && (
-            <Card>
-              <CardContent className="pt-6 text-center text-muted-foreground">
-                <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>暂无符合条件的审批流程</p>
-                <Button onClick={handleCreateWorkflow} className="mt-4">
-                  创建第一个审批流程
-                </Button>
-              </CardContent>
-            </Card>
+            {/* 空状态 */}
+            {workflows.length === 0 && (
+              <Card>
+                <CardContent className="pt-6 text-center text-muted-foreground">
+                  <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p>暂无符合条件的审批流程</p>
+                  <Button onClick={handleCreateWorkflow} className="mt-4">
+                    创建第一个审批流程
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+          </div>
           )}
 
       {/* 创建流程对话框 */}
@@ -780,26 +660,27 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
                   <Label htmlFor="workflow-name">流程名称 *</Label>
                   <Input
                     id="workflow-name"
-                    value={newWorkflow.name}
-                    onChange={(e) => setNewWorkflow(prev => ({ ...prev, name: e.target.value }))}
+                    value={newWorkflow.processName}
+                    onChange={(e) => setNewWorkflow(prev => ({ ...prev, processName: e.target.value }))}
                     placeholder="请输入流程名称"
                   />
                 </div>
                 <div>
                   <Label htmlFor="document-type">单据类型 *</Label>
-                  <Select 
-                    value={newWorkflow.documentType} 
-                    onValueChange={(value: DocumentType) => setNewWorkflow(prev => ({ ...prev, documentType: value }))}
+                  <Select
+                    value={String(newWorkflow.billType)}
+                    onValueChange={(value: string) => setNewWorkflow(prev => ({ ...prev, billType: Number(value) }))}
                   >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {Object.values(DocumentType).map(type => (
-                        <SelectItem key={type} value={type}>
-                          {getDocumentTypeLabel(type)}
-                        </SelectItem>
-                      ))}
+                      <SelectItem value="0">费用报销</SelectItem>
+                      <SelectItem value="1">营销活动</SelectItem>
+                      <SelectItem value="2">采购申请</SelectItem>
+                      <SelectItem value="3">请假申请</SelectItem>
+                      <SelectItem value="4">合同审批</SelectItem>
+                      <SelectItem value="5">产品发布</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -817,8 +698,8 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
                 <input
                   type="checkbox"
                   id="workflow-active"
-                  checked={newWorkflow.isActive}
-                  onChange={(e) => setNewWorkflow(prev => ({ ...prev, isActive: e.target.checked }))}
+                  checked={newWorkflow.status === 1}
+                  onChange={(e) => setNewWorkflow(prev => ({ ...prev, status: e.target.checked ? 1 : 0 }))}
                 />
                 <Label htmlFor="workflow-active">启用此流程</Label>
               </div>
@@ -838,8 +719,8 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
                         <div className="space-y-2">
                           <div className="flex items-center gap-2">
                             <Badge variant="outline">节点 {index + 1}</Badge>
-                            <span className="font-medium">{node.name}</span>
-                            <Badge variant="secondary">{getNodeTypeLabel(node.type)}</Badge>
+                            <span className="font-medium">{node.nodeName}</span>
+                            <Badge variant="secondary">{getNodeTypeLabel(node.nodeType)}</Badge>
                           </div>
                           {node.description && (
                             <p className="text-sm text-muted-foreground">{node.description}</p>
@@ -847,12 +728,12 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
                           <div className="flex items-center gap-4 text-sm text-muted-foreground">
                             <span>审批人：{node.approvers.length} 人</span>
                             <span>时限：{node.timeLimit} 小时</span>
-                            {node.isRequired && <Badge variant="destructive" className="text-xs">必须</Badge>}
+                            {node.required && <Badge variant="destructive" className="text-xs">必须</Badge>}
                           </div>
                           <div className="flex flex-wrap gap-1">
                             {node.approvers.map((approver: any) => (
-                              <Badge key={approver.userId || approver.id} variant="outline" className="text-xs">
-                                {approver.userName || approver.name} ({approver.userRole || approver.role})
+                              <Badge key={approver.userId} variant="outline" className="text-xs">
+                                {approver.userName} ({approver.roleName})
                               </Badge>
                             ))}
                           </div>
@@ -879,24 +760,26 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
                       <Label htmlFor="node-name">节点名称</Label>
                       <Input
                         id="node-name"
-                        value={currentNode.name}
-                        onChange={(e) => setCurrentNode(prev => ({ ...prev, name: e.target.value }))}
+                        value={currentNode.nodeName}
+                        onChange={(e) => setCurrentNode(prev => ({ ...prev, nodeName: e.target.value }))}
                         placeholder={`审批节点 ${newWorkflow.nodes.length + 1}`}
                       />
                     </div>
                     <div>
                       <Label htmlFor="node-type">审批类型</Label>
-                      <Select 
-                        value={currentNode.type} 
-                        onValueChange={(value: ApprovalNodeType) => setCurrentNode(prev => ({ ...prev, type: value }))}
+                      <Select
+                        value={currentNode.nodeType}
+                        onValueChange={(value) => setCurrentNode(prev => ({ ...prev, nodeType: value as ApprovalNodeType }))}
                       >
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value={ApprovalNodeType.SINGLE}>单人审批</SelectItem>
-                          <SelectItem value={ApprovalNodeType.MULTIPLE}>多人审批（全部同意）</SelectItem>
-                          <SelectItem value={ApprovalNodeType.SEQUENTIAL}>顺序审批</SelectItem>
+                          {APPROVAL_NODE_TYPE_OPTIONS.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                     </div>
@@ -927,8 +810,8 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
                       <input
                         type="checkbox"
                         id="node-required"
-                        checked={currentNode.isRequired}
-                        onChange={(e) => setCurrentNode(prev => ({ ...prev, isRequired: e.target.checked }))}
+                        checked={currentNode.required}
+                        onChange={(e) => setCurrentNode(prev => ({ ...prev, required: e.target.checked }))}
                       />
                       <Label htmlFor="node-required">必须审批</Label>
                     </div>
@@ -948,7 +831,7 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            {Object.values(DocumentStatus).map(status => (
+                            {documentStatusList.map(status => (
                               <SelectItem key={status} value={status}>
                                 {getDocumentStatusLabel(status)}
                               </SelectItem>
@@ -966,7 +849,7 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            {Object.values(DocumentStatus).map(status => (
+                            {documentStatusList.map(status => (
                               <SelectItem key={status} value={status}>
                                 {getDocumentStatusLabel(status)}
                               </SelectItem>
@@ -984,7 +867,7 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            {Object.values(DocumentStatus).map(status => (
+                            {documentStatusList.map(status => (
                               <SelectItem key={status} value={status}>
                                 {getDocumentStatusLabel(status)}
                               </SelectItem>
@@ -1001,21 +884,21 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
                     <div className="mt-2 space-y-2">
                       <div className="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto">
                         {availableUsers.map(user => (
-                          <div key={user.id} className="flex items-center space-x-2 p-2 border rounded">
+                          <div key={user.userId} className="flex items-center space-x-2 p-2 border rounded">
                             <input
                               type="checkbox"
-                              checked={currentNode.approvers.some(a => a.id === user.id)}
+                              checked={currentNode.approvers.some(a => a.userId === user.userId)}
                               onChange={(e) => {
                                 if (e.target.checked) {
                                   handleAddApprover(user);
                                 } else {
-                                  handleRemoveApprover(user.id);
+                                  handleRemoveApprover(user.userId);
                                 }
                               }}
                             />
                             <div className="flex-1">
-                              <div className="text-sm font-medium">{user.name}</div>
-                              <div className="text-xs text-muted-foreground">{user.role} - {user.department}</div>
+                              <div className="text-sm font-medium">{user.userName}</div>
+                              <div className="text-xs text-muted-foreground">{user.roleName}</div>
                             </div>
                           </div>
                         ))}
@@ -1026,10 +909,10 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
                           <Label className="text-sm">已选择的审批人员：</Label>
                           <div className="flex flex-wrap gap-1 mt-1">
                             {currentNode.approvers.map((approver: any) => (
-                              <Badge key={approver.userId || approver.id} variant="secondary" className="text-xs">
-                                {approver.userName || approver.name}
+                              <Badge key={approver.userId} variant="secondary" className="text-xs">
+                                {approver.userName}
                                 <button
-                                  onClick={() => handleRemoveApprover(approver.id)}
+                                  onClick={() => handleRemoveApprover(approver.userId)}
                                   className="ml-1 hover:text-red-500"
                                 >
                                   ×
@@ -1044,7 +927,7 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
 
                   <Button 
                     onClick={handleAddNode}
-                    disabled={!currentNode.name.trim() || currentNode.approvers.length === 0}
+                    disabled={!currentNode.nodeName.trim() || currentNode.approvers.length === 0}
                     className="w-full"
                   >
                     <Plus className="h-4 w-4 mr-2" />
@@ -1061,7 +944,7 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
               </Button>
               <Button 
                 onClick={handleSaveWorkflow}
-                disabled={!newWorkflow.name.trim() || newWorkflow.nodes.length === 0}
+                disabled={!newWorkflow.processName.trim() || newWorkflow.nodes.length === 0}
               >
                 创建流程
               </Button>
@@ -1086,26 +969,27 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
                   <Label htmlFor="edit-workflow-name">流程名称 *</Label>
                   <Input
                     id="edit-workflow-name"
-                    value={newWorkflow.name}
-                    onChange={(e) => setNewWorkflow(prev => ({ ...prev, name: e.target.value }))}
+                    value={newWorkflow.processName}
+                    onChange={(e) => setNewWorkflow(prev => ({ ...prev, processName: e.target.value }))}
                     placeholder="请输入流程名称"
                   />
                 </div>
                 <div>
                   <Label htmlFor="edit-document-type">单据类型 *</Label>
-                  <Select 
-                    value={newWorkflow.documentType} 
-                    onValueChange={(value: DocumentType) => setNewWorkflow(prev => ({ ...prev, documentType: value }))}
+                  <Select
+                    value={String(newWorkflow.billType)}
+                    onValueChange={(value: string) => setNewWorkflow(prev => ({ ...prev, billType: Number(value) }))}
                   >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {Object.values(DocumentType).map(type => (
-                        <SelectItem key={type} value={type}>
-                          {getDocumentTypeLabel(type)}
-                        </SelectItem>
-                      ))}
+                      <SelectItem value="0">费用报销</SelectItem>
+                      <SelectItem value="1">营销活动</SelectItem>
+                      <SelectItem value="2">采购申请</SelectItem>
+                      <SelectItem value="3">请假申请</SelectItem>
+                      <SelectItem value="4">合同审批</SelectItem>
+                      <SelectItem value="5">产品发布</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -1123,8 +1007,8 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
                 <input
                   type="checkbox"
                   id="edit-workflow-active"
-                  checked={newWorkflow.isActive}
-                  onChange={(e) => setNewWorkflow(prev => ({ ...prev, isActive: e.target.checked }))}
+                  checked={newWorkflow.status === 1}
+                  onChange={(e) => setNewWorkflow(prev => ({ ...prev, status: e.target.checked ? 1 : 0 }))}
                 />
                 <Label htmlFor="edit-workflow-active">启用此流程</Label>
               </div>
@@ -1144,8 +1028,8 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
                         <div className="space-y-2">
                           <div className="flex items-center gap-2">
                             <Badge variant="outline">节点 {index + 1}</Badge>
-                            <span className="font-medium">{node.name}</span>
-                            <Badge variant="secondary">{getNodeTypeLabel(node.type)}</Badge>
+                            <span className="font-medium">{node.nodeName}</span>
+                            <Badge variant="secondary">{getNodeTypeLabel(node.nodeType)}</Badge>
                           </div>
                           {node.description && (
                             <p className="text-sm text-muted-foreground">{node.description}</p>
@@ -1153,12 +1037,12 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
                           <div className="flex items-center gap-4 text-sm text-muted-foreground">
                             <span>审批人：{node.approvers.length} 人</span>
                             <span>时限：{node.timeLimit} 小时</span>
-                            {node.isRequired && <Badge variant="destructive" className="text-xs">必须</Badge>}
+                            {node.required && <Badge variant="destructive" className="text-xs">必须</Badge>}
                           </div>
                           <div className="flex flex-wrap gap-1">
                             {node.approvers.map((approver: any) => (
-                              <Badge key={approver.userId || approver.id} variant="outline" className="text-xs">
-                                {approver.userName || approver.name} ({approver.userRole || approver.role})
+                              <Badge key={approver.userId} variant="outline" className="text-xs">
+                                {approver.userName} ({approver.roleName})
                               </Badge>
                             ))}
                           </div>
@@ -1185,24 +1069,26 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
                       <Label htmlFor="edit-node-name">节点名称</Label>
                       <Input
                         id="edit-node-name"
-                        value={currentNode.name}
-                        onChange={(e) => setCurrentNode(prev => ({ ...prev, name: e.target.value }))}
+                        value={currentNode.nodeName}
+                        onChange={(e) => setCurrentNode(prev => ({ ...prev, nodeName: e.target.value }))}
                         placeholder={`审批节点 ${newWorkflow.nodes.length + 1}`}
                       />
                     </div>
                     <div>
                       <Label htmlFor="edit-node-type">审批类型</Label>
-                      <Select 
-                        value={currentNode.type} 
-                        onValueChange={(value: ApprovalNodeType) => setCurrentNode(prev => ({ ...prev, type: value }))}
+                      <Select
+                        value={currentNode.nodeType}
+                        onValueChange={(value) => setCurrentNode(prev => ({ ...prev, nodeType: value as ApprovalNodeType }))}
                       >
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value={ApprovalNodeType.SINGLE}>单人审批</SelectItem>
-                          <SelectItem value={ApprovalNodeType.MULTIPLE}>多人审批（全部同意）</SelectItem>
-                          <SelectItem value={ApprovalNodeType.SEQUENTIAL}>顺序审批</SelectItem>
+                          {APPROVAL_NODE_TYPE_OPTIONS.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                     </div>
@@ -1246,21 +1132,21 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
                     <div className="mt-2 space-y-2">
                       <div className="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto">
                         {availableUsers.map(user => (
-                          <div key={user.id} className="flex items-center space-x-2 p-2 border rounded">
+                          <div key={user.userId} className="flex items-center space-x-2 p-2 border rounded">
                             <input
                               type="checkbox"
-                              checked={currentNode.approvers.some(a => a.id === user.id)}
+                              checked={currentNode.approvers.some(a => a.userId === user.userId)}
                               onChange={(e) => {
                                 if (e.target.checked) {
                                   handleAddApprover(user);
                                 } else {
-                                  handleRemoveApprover(user.id);
+                                  handleRemoveApprover(user.userId);
                                 }
                               }}
                             />
                             <div className="flex-1">
-                              <div className="text-sm font-medium">{user.name}</div>
-                              <div className="text-xs text-muted-foreground">{user.role} - {user.department}</div>
+                              <div className="text-sm font-medium">{user.userName}</div>
+                              <div className="text-xs text-muted-foreground">{user.roleName}</div>
                             </div>
                           </div>
                         ))}
@@ -1271,10 +1157,10 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
                           <Label className="text-sm">已选择的审批人员：</Label>
                           <div className="flex flex-wrap gap-1 mt-1">
                             {currentNode.approvers.map((approver: any) => (
-                              <Badge key={approver.userId || approver.id} variant="secondary" className="text-xs">
-                                {approver.userName || approver.name}
+                              <Badge key={approver.userId} variant="secondary" className="text-xs">
+                                {approver.userName}
                                 <button
-                                  onClick={() => handleRemoveApprover(approver.id)}
+                                  onClick={() => handleRemoveApprover(approver.userId)}
                                   className="ml-1 hover:text-red-500"
                                 >
                                   ×
@@ -1289,7 +1175,7 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
 
                   <Button 
                     onClick={handleAddNode}
-                    disabled={!currentNode.name.trim() || currentNode.approvers.length === 0}
+                    disabled={!currentNode.nodeName.trim() || currentNode.approvers.length === 0}
                     className="w-full"
                   >
                     <Plus className="h-4 w-4 mr-2" />
@@ -1306,7 +1192,7 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
               </Button>
               <Button 
                 onClick={handleSaveWorkflow}
-                disabled={!newWorkflow.name.trim() || newWorkflow.nodes.length === 0}
+                disabled={!newWorkflow.processName.trim() || newWorkflow.nodes.length === 0}
               >
                 保存修改
               </Button>
@@ -1329,16 +1215,16 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label className="text-sm font-medium text-muted-foreground">流程名称</Label>
-                  <p className="text-sm">{selectedWorkflow?.name}</p>
+                  <p className="text-sm">{selectedWorkflow?.processName}</p>
                 </div>
                 <div>
                   <Label className="text-sm font-medium text-muted-foreground">单据类型</Label>
-                  <p className="text-sm">{selectedWorkflow && getDocumentTypeLabel(selectedWorkflow.documentType)}</p>
+                  <p className="text-sm">{selectedWorkflow && getBillTypeLabel(selectedWorkflow.billType)}</p>
                 </div>
                 <div>
                   <Label className="text-sm font-medium text-muted-foreground">流程状态</Label>
-                  <Badge variant={selectedWorkflow?.isActive ? "default" : "secondary"}>
-                    {selectedWorkflow?.isActive ? "启用" : "禁用"}
+                  <Badge variant={selectedWorkflow?.status === 1 ? "default" : "secondary"}>
+                    {selectedWorkflow?.status === 1 ? "启用" : "禁用"}
                   </Badge>
                 </div>
                 <div>
@@ -1396,9 +1282,9 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
                               {/* 节点信息 */}
                               <div className="flex-1 space-y-3">
                                 <div className="flex items-center gap-2">
-                                  <h4 className="font-semibold">{node.name}</h4>
-                                  <Badge variant="secondary">{getNodeTypeLabel(node.type)}</Badge>
-                                  {node.isRequired && <Badge variant="destructive" className="text-xs">必须</Badge>}
+                                  <h4 className="font-semibold">{node.nodeName}</h4>
+                                  <Badge variant="secondary">{getNodeTypeLabel(node.nodeType)}</Badge>
+                                  {node.required && <Badge variant="destructive" className="text-xs">必须</Badge>}
                                 </div>
                                 
                                 {node.description && (
@@ -1421,14 +1307,14 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
                                   <Label className="text-xs font-medium text-muted-foreground">审批人员</Label>
                                   <div className="mt-1 grid grid-cols-2 gap-2">
                                     {node.approvers.map((approver: any) => (
-                                      <div key={approver.userId || approver.id} className="flex items-center gap-2 p-2 bg-muted rounded">
+                                      <div key={approver.userId} className="flex items-center gap-2 p-2 bg-muted rounded">
                                         <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-medium">
-                                          {(approver.userName || approver.name || '?').charAt(0)}
+                                          {(approver.userName || '?').charAt(0)}
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                          <p className="text-sm font-medium truncate">{approver.userName || approver.name}</p>
+                                          <p className="text-sm font-medium truncate">{approver.userName}</p>
                                           <p className="text-xs text-muted-foreground truncate">
-                                            {approver.userRole || approver.role} - {approver.userDepartment || approver.department}
+                                            {approver.roleName}
                                           </p>
                                         </div>
                                       </div>

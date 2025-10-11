@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -39,35 +39,100 @@ interface WorkflowDiagramProps {
 }
 
 interface NodeDetailDialogProps {
-  node: ApprovalNode | null;
+  node: NormalizedApprovalNode | null;
   isOpen: boolean;
   onClose: () => void;
 }
 
-// 获取节点类型标签
-const getNodeTypeLabel = (type: ApprovalNodeType): string => {
-  switch (type) {
-    case ApprovalNodeType.SINGLE:
-      return '单人审批';
-    case ApprovalNodeType.MULTIPLE:
-      return '多人审批';
-    case ApprovalNodeType.ANY:
-      return '任一审批';
-    case ApprovalNodeType.SEQUENTIAL:
-      return '顺序审批';
-    default:
-      return '未知类型';
-  }
+const APPROVAL_NODE_TYPE_VALUES: ApprovalNodeType[] = [
+  ApprovalNodeType.SINGLE,
+  ApprovalNodeType.MULTIPLE,
+  ApprovalNodeType.ANY_ONE,
+  ApprovalNodeType.SEQUENTIAL
+];
+
+const APPROVAL_NODE_TYPE_LABELS: Record<ApprovalNodeType, string> = {
+  [ApprovalNodeType.SINGLE]: '单人审批',
+  [ApprovalNodeType.MULTIPLE]: '多人审批（全部同意）',
+  [ApprovalNodeType.ANY_ONE]: '多人审批（任意一人即可）',
+  [ApprovalNodeType.SEQUENTIAL]: '顺序审批'
 };
 
-// 获取节点类型图标
+const normalizeNodeType = (type: unknown): ApprovalNodeType =>
+  APPROVAL_NODE_TYPE_VALUES.includes(type as ApprovalNodeType)
+    ? (type as ApprovalNodeType)
+    : ApprovalNodeType.SINGLE;
+
+const normalizeNumber = (value: unknown): number => {
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return value;
+  }
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : 0;
+};
+
+const normalizeBoolean = (value: unknown): boolean => {
+  if (typeof value === 'boolean') {
+    return value;
+  }
+  if (typeof value === 'number') {
+    return value !== 0;
+  }
+  if (typeof value === 'string') {
+    return ['true', '1', 'yes', 'y'].includes(value.toLowerCase());
+  }
+  return false;
+};
+
+interface NormalizedApprovalNode {
+  id: string;
+  type: ApprovalNodeType;
+  name: string;
+  description: string;
+  approvers: any[];
+  timeLimit: number;
+  isRequired: boolean;
+  conditions: any[];
+  original: ApprovalNode;
+}
+
+const normalizeNode = (node: ApprovalNode, index: number): NormalizedApprovalNode => {
+  const rawType = (node as any).nodeType ?? (node as any).type;
+  const name = (node as any).nodeName ?? (node as any).name ?? `节点${index + 1}`;
+  const description = (node as any).description ?? (node as any).nodeDescription ?? '';
+  const approvers = Array.isArray((node as any).approvers) ? (node as any).approvers : [];
+  const timeLimit = normalizeNumber(
+    (node as any).timeLimit ?? (node as any).timeoutHours ?? (node as any).timeout ?? 0
+  );
+  const isRequired = normalizeBoolean(
+    (node as any).required ?? (node as any).isRequired ?? false
+  );
+  const conditions = Array.isArray((node as any).conditions) ? (node as any).conditions : [];
+  const idValue = (node as any).id ?? (node as any).nodeId ?? index;
+
+  return {
+    id: String(idValue),
+    type: normalizeNodeType(rawType),
+    name,
+    description,
+    approvers,
+    timeLimit,
+    isRequired,
+    conditions,
+    original: node
+  };
+};
+
+const getNodeTypeLabel = (type: ApprovalNodeType): string =>
+  APPROVAL_NODE_TYPE_LABELS[type] ?? '未知类型';
+
 const getNodeTypeIcon = (type: ApprovalNodeType) => {
   switch (type) {
     case ApprovalNodeType.SINGLE:
       return <User className="h-4 w-4" />;
     case ApprovalNodeType.MULTIPLE:
       return <Users className="h-4 w-4" />;
-    case ApprovalNodeType.ANY:
+    case ApprovalNodeType.ANY_ONE:
       return <CheckCircle className="h-4 w-4" />;
     case ApprovalNodeType.SEQUENTIAL:
       return <Settings className="h-4 w-4" />;
@@ -76,14 +141,13 @@ const getNodeTypeIcon = (type: ApprovalNodeType) => {
   }
 };
 
-// 获取节点类型颜色
 const getNodeTypeColor = (type: ApprovalNodeType): string => {
   switch (type) {
     case ApprovalNodeType.SINGLE:
       return 'bg-blue-500 hover:bg-blue-600';
     case ApprovalNodeType.MULTIPLE:
       return 'bg-green-500 hover:bg-green-600';
-    case ApprovalNodeType.ANY:
+    case ApprovalNodeType.ANY_ONE:
       return 'bg-orange-500 hover:bg-orange-600';
     case ApprovalNodeType.SEQUENTIAL:
       return 'bg-purple-500 hover:bg-purple-600';
@@ -182,7 +246,7 @@ const NodeDetailDialog: React.FC<NodeDetailDialogProps> = ({ node, isOpen, onClo
 
 // 流程图节点组件
 const WorkflowNode: React.FC<{
-  node: ApprovalNode;
+  node: NormalizedApprovalNode;
   index: number;
   isHighlighted?: boolean;
   isHovered?: boolean;
@@ -346,24 +410,28 @@ export const WorkflowDiagram: React.FC<WorkflowDiagramProps> = ({
   onNodeClick,
   onNodeHover
 }) => {
-  const [selectedNode, setSelectedNode] = useState<ApprovalNode | null>(null);
+  const normalizedNodes = useMemo(
+    () => (workflow.nodes ?? []).map((node, index) => normalizeNode(node, index)),
+    [workflow.nodes]
+  );
+  const [selectedNode, setSelectedNode] = useState<NormalizedApprovalNode | null>(null);
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
   const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
   const [activeConnectionIndex, setActiveConnectionIndex] = useState<number | null>(null);
 
-  const handleNodeClick = (node: ApprovalNode) => {
+  const handleNodeClick = (node: NormalizedApprovalNode) => {
     setSelectedNode(node);
     setIsDetailDialogOpen(true);
-    onNodeClick?.(node);
+    onNodeClick?.(node.original);
   };
 
-  const handleNodeHover = (node: ApprovalNode | null) => {
-    setHoveredNodeId(node?.id || null);
-    onNodeHover?.(node);
-    
+  const handleNodeHover = (node: NormalizedApprovalNode | null) => {
+    setHoveredNodeId(node?.id ?? null);
+    onNodeHover?.(node?.original ?? null);
+
     if (node) {
-      const nodeIndex = workflow.nodes.findIndex(n => n.id === node.id);
-      setActiveConnectionIndex(nodeIndex);
+      const nodeIndex = normalizedNodes.findIndex(item => item.id === node.id);
+      setActiveConnectionIndex(nodeIndex !== -1 ? nodeIndex : null);
     } else {
       setActiveConnectionIndex(null);
     }
@@ -374,7 +442,7 @@ export const WorkflowDiagram: React.FC<WorkflowDiagramProps> = ({
     setSelectedNode(null);
   };
 
-  if (!workflow.nodes || workflow.nodes.length === 0) {
+  if (!normalizedNodes.length) {
     return (
       <Card className={`p-8 text-center ${className}`}>
         <div className="text-muted-foreground">
@@ -385,6 +453,11 @@ export const WorkflowDiagram: React.FC<WorkflowDiagramProps> = ({
       </Card>
     );
   }
+
+  const normalizedHighlightedId =
+    highlightedNodeId !== undefined && highlightedNodeId !== null
+      ? String(highlightedNodeId)
+      : null;
 
   return (
     <div className={`space-y-4 ${className}`}>
@@ -398,17 +471,17 @@ export const WorkflowDiagram: React.FC<WorkflowDiagramProps> = ({
 
       {/* 流程节点 */}
       <div className="flex flex-col items-center space-y-0">
-        {workflow.nodes.map((node, index) => (
+        {normalizedNodes.map((node, index) => (
           <React.Fragment key={node.id}>
             {index > 0 && (
-              <ConnectionLine 
+              <ConnectionLine
                 isActive={activeConnectionIndex !== null && index <= activeConnectionIndex}
               />
             )}
             <WorkflowNode
               node={node}
               index={index}
-              isHighlighted={highlightedNodeId === node.id}
+              isHighlighted={normalizedHighlightedId === node.id}
               isHovered={hoveredNodeId === node.id}
               onClick={() => interactive && handleNodeClick(node)}
               onMouseEnter={() => interactive && handleNodeHover(node)}
@@ -420,8 +493,8 @@ export const WorkflowDiagram: React.FC<WorkflowDiagramProps> = ({
 
       {/* 流程图尾部 */}
       <div className="text-center">
-        <ConnectionLine 
-          isActive={activeConnectionIndex !== null && activeConnectionIndex >= workflow.nodes.length - 1}
+        <ConnectionLine
+          isActive={activeConnectionIndex !== null && activeConnectionIndex >= normalizedNodes.length - 1}
         />
         <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-full text-sm font-medium animate-fade-in">
           <CheckCircle className="h-4 w-4" />
