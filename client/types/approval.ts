@@ -99,7 +99,7 @@ export interface ApprovalNode {
 
 // 审批流程配置
 export interface ApprovalWorkflow {
-  id: number;
+  id: string;
   processName: string;
   description: string;
   billType: number;

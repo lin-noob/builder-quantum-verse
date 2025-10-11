@@ -150,7 +150,7 @@ class ApprovalService {
    * 更新审批流程
    */
   async updateWorkflow(
-    id: number,
+    id: string,
     workflow: Partial<ApprovalWorkflow>,
   ): Promise<ApiResponse<ApprovalWorkflow>> {
     try {
@@ -178,10 +178,16 @@ class ApprovalService {
    */
   async deleteWorkflow(id: string): Promise<ApiResponse<boolean>> {
     try {
-      const response = await fetch(`${this.baseUrl}/workflows/${id}`, {
-        method: "DELETE",
+      const formData = new FormData();
+      formData.append("id", id);
+      await request.delete(`${this.baseUrl}/${id}`, {
+        data: formData,
       });
-      return await response.json();
+      return {
+        success: true,
+        data: false,
+        message: "删除审批流程失败",
+      };
     } catch (error) {
       console.error("删除审批流程失败:", error);
       return {
