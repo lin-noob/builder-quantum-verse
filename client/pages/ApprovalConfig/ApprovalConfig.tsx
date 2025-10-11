@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -14,6 +14,7 @@ import { WorkflowDiagram } from './WorkflowDiagram';
 import { approvalService } from '@/services/approvalService';
 import { useAuthStore } from '@/stores/authStore';
 import { request } from '@/lib/request';
+import ApproverSelector, { ApproverOption } from './components/ApproverSelector';
 
 const APPROVAL_NODE_TYPE_VALUES: ApprovalNodeType[] = [
   ApprovalNodeType.SINGLE,
@@ -36,6 +37,34 @@ const APPROVAL_NODE_TYPE_OPTIONS = APPROVAL_NODE_TYPE_VALUES.map((value) => ({
 
 const normalizeNodeType = (type?: string | null): ApprovalNodeType =>
   APPROVAL_NODE_TYPE_VALUES.includes(type as ApprovalNodeType) ? (type as ApprovalNodeType) : ApprovalNodeType.SINGLE;
+
+const mapToApproverOption = (input: any): ApproverOption | null => {
+  if (!input) {
+    return null;
+  }
+
+  const rawId = input.userId ?? input.id;
+  if (rawId === undefined || rawId === null) {
+    return null;
+  }
+
+  const userId = Number(rawId);
+  if (!Number.isFinite(userId)) {
+    return null;
+  }
+
+  const userName = input.userName ?? input.name ?? input.account;
+  if (!userName) {
+    return null;
+  }
+
+  return {
+    userId,
+    userName,
+    roleName: input.roleName ?? input.role ?? input.role_name ?? undefined,
+    deptName: input.deptName ?? input.department ?? input.dept ?? undefined
+  };
+};
 
 interface ApprovalConfigProps {}
 
@@ -67,6 +96,9 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
     billType: 0,
     companyId: user?.companyid || '',
     status: 1,
+    triggerStatus: DocumentStatus.DRAFT,
+    approvedStatus: DocumentStatus.APPROVED,
+    rejectedStatus: DocumentStatus.REJECTED,
     nodes: [] as any[]
   });
 
@@ -76,13 +108,10 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
     description: '',
     nodeType: ApprovalNodeType.SINGLE,
     approverType: 0,
-    approvers: [] as any[],
+    approvers: [] as ApproverOption[],
     timeLimit: 24,
     required: true
   });
-
-  // 可选的审批人员（从成员管理接口获取）
-  const [availableUsers, setAvailableUsers] = useState<any[]>([]);
 
   // 加载审批流程列表
   const loadWorkflows = async () => {
@@ -113,35 +142,34 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
   };
 
   // 加载可选的审批人员
-  const loadAvailableUsers = async () => {
-    try {
+  const fetchApproverPage = useCallback(
+    async ({ page, limit, keyword }: { page: number; limit: number; keyword?: string }) => {
       const response = await request.post("/admin/api/v1/users/list", {
-        page: 1,
-        limit: 100,
+        page,
+        limit,
+        searchKeywords: keyword?.trim() ? keyword.trim() : undefined,
       });
 
-      if (response.data && response.data.data && response.data.data.records) {
-        const users = response.data.data.records.map((member: any) => ({
-          userId: member.id,
-          userName: member.name,
-          roleName: member.roleName
-        }));
-        setAvailableUsers(users);
-      }
-    } catch (err) {
-      console.error('加载审批人员列表失败:', err);
-    }
-  };
+      const data = response?.data?.data;
+      const records: any[] = Array.isArray(data?.records) ? data.records : [];
+      const total = typeof data?.total === 'number' ? data.total : records.length;
+
+      const users = records
+        .map(mapToApproverOption)
+        .filter((user): user is ApproverOption => user !== null);
+
+      return {
+        users,
+        total,
+      };
+    },
+    []
+  );
 
   // 初次加载和筛选条件变化时重新加载
   useEffect(() => {
     loadWorkflows();
   }, [currentPage, pageSize, searchTerm, filterStatus, filterBillType]);
-
-  // 初次加载审批人员列表
-  useEffect(() => {
-    loadAvailableUsers();
-  }, []);
 
   const handleCreateWorkflow = () => {
     setNewWorkflow({
@@ -150,6 +178,9 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
       billType: 0,
       companyId: user?.companyid || '',
       status: 1,
+      triggerStatus: DocumentStatus.DRAFT,
+      approvedStatus: DocumentStatus.APPROVED,
+      rejectedStatus: DocumentStatus.REJECTED,
       nodes: []
     });
     setIsCreateDialogOpen(true);
@@ -172,10 +203,15 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
         nodeType: normalizeNodeType(node.nodeType),
         sortOrder: node.sortOrder || 0,
         approverType: node.approverType || 0,
-        approvers: node.approvers || [],
+        approvers: (node.approvers || [])
+          .map(mapToApproverOption)
+          .filter((approver): approver is ApproverOption => approver !== null),
         timeLimit: node.timeLimit || 24,
         required: node.required !== undefined ? node.required : true
-      }))
+      })),
+      triggerStatus: workflow.triggerStatus,
+      approvedStatus: workflow.approvedStatus,
+      rejectedStatus: workflow.rejectedStatus
     });
     setIsEditDialogOpen(true);
   };
@@ -255,14 +291,17 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
           nodeType: node.nodeType,
           sortOrder: index + 1,
           approverType: node.approverType,
-          approvers: node.approvers.map((approver: any) => ({
+          approvers: node.approvers.map((approver: ApproverOption) => ({
             userId: approver.userId,
             userName: approver.userName,
             roleName: approver.roleName
           })),
           timeLimit: node.timeLimit,
           required: node.required
-        }))
+        })),
+        triggerStatus: newWorkflow.triggerStatus,
+        approvedStatus: newWorkflow.approvedStatus,
+        rejectedStatus: newWorkflow.rejectedStatus
       };
 
       let response;
@@ -285,7 +324,6 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
         setError(response.message || '保存失败');
       }
     } catch (err) {
-      console.error('保存审批���程失败:', err);
       setError(err instanceof Error ? err.message : '保存失败');
     } finally {
       setLoading(false);
@@ -310,13 +348,13 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
       nodes: [...prev.nodes, newNode]
     }));
 
-    // 重置当前节点
+    // 重置��前节点
     setCurrentNode({
       nodeName: '',
       description: '',
       nodeType: ApprovalNodeType.SINGLE,
       approverType: 0,
-      approvers: [],
+      approvers: [] as ApproverOption[],
       timeLimit: 24,
       required: true
     });
@@ -329,19 +367,10 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
     }));
   };
 
-  const handleAddApprover = (user: any) => {
-    if (!currentNode.approvers.find(a => a.userId === user.userId)) {
-      setCurrentNode(prev => ({
-        ...prev,
-        approvers: [...prev.approvers, user]
-      }));
-    }
-  };
-
-  const handleRemoveApprover = (userId: number) => {
+  const handleApproversChange = (approvers: ApproverOption[]) => {
     setCurrentNode(prev => ({
       ...prev,
-      approvers: prev.approvers.filter(a => a.userId !== userId)
+      approvers
     }));
   };
 
@@ -399,7 +428,7 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
     return labels[status] || `状态${status}`;
   };
 
-  // 获取所有状态枚举值（仅数字值，避免双向映射问题）
+  // 获取所有状态枚举���（仅数字值，���免双向映射问题）
   const documentStatusList = [
     DocumentStatus.DRAFT,
     DocumentStatus.SUBMITTED,
@@ -578,13 +607,13 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
                       >
                         <Edit className="h-4 w-4" />
                       </Button>
-                      <Button
+                      {/* <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => handleCopyWorkflow(workflow)}
                       >
                         <Copy className="h-4 w-4" />
-                      </Button>
+                      </Button> */}
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
                           <Button variant="ghost" size="sm">
@@ -595,7 +624,7 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
                           <AlertDialogHeader>
                             <AlertDialogTitle>确认删除</AlertDialogTitle>
                             <AlertDialogDescription>
-                              确���要删除审批流程 "{workflow.processName}" 吗？此操作不可撤销。
+                              确定要删除审批流程 "{workflow.processName}" 吗？此操作不可撤销��
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
@@ -702,6 +731,67 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
                   onChange={(e) => setNewWorkflow(prev => ({ ...prev, status: e.target.checked ? 1 : 0 }))}
                 />
                 <Label htmlFor="workflow-active">启用此流程</Label>
+              </div>
+
+              {/* 流程状态流转配置 */}
+              <div className="space-y-4 pt-4 border-t">
+                <h4 className="text-sm font-semibold">流程状态配置</h4>
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <Label htmlFor="workflow-trigger-status">触发状态</Label>
+                    <Select
+                      value={String(newWorkflow.triggerStatus)}
+                      onValueChange={(value) => setNewWorkflow(prev => ({ ...prev, triggerStatus: Number(value) as DocumentStatus }))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {documentStatusList.map(status => (
+                          <SelectItem key={status} value={String(status)}>
+                            {getDocumentStatusLabel(status)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="workflow-approved-status">通过后状态</Label>
+                    <Select
+                      value={String(newWorkflow.approvedStatus)}
+                      onValueChange={(value) => setNewWorkflow(prev => ({ ...prev, approvedStatus: Number(value) as DocumentStatus }))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {documentStatusList.map(status => (
+                          <SelectItem key={status} value={String(status)}>
+                            {getDocumentStatusLabel(status)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="workflow-rejected-status">拒绝后状态</Label>
+                    <Select
+                      value={String(newWorkflow.rejectedStatus)}
+                      onValueChange={(value) => setNewWorkflow(prev => ({ ...prev, rejectedStatus: Number(value) as DocumentStatus }))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {documentStatusList.map(status => (
+                          <SelectItem key={status} value={String(status)}>
+                            {getDocumentStatusLabel(status)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -817,111 +907,15 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
                     </div>
                   </div>
 
-                  {/* 状态流转配置 */}
-                  <div className="space-y-4">
-                    <Label className="text-sm font-medium">状态流转配置</Label>
-                    <div className="grid grid-cols-3 gap-4">
-                      <div>
-                        <Label htmlFor="trigger-status">触发状态</Label>
-                        <Select 
-                          value={currentNode.triggerStatus} 
-                          onValueChange={(value: DocumentStatus) => setCurrentNode(prev => ({ ...prev, triggerStatus: value }))}
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {documentStatusList.map(status => (
-                              <SelectItem key={status} value={status}>
-                                {getDocumentStatusLabel(status)}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div>
-                        <Label htmlFor="approve-status">通过后状态</Label>
-                        <Select 
-                          value={currentNode.approveToStatus} 
-                          onValueChange={(value: DocumentStatus) => setCurrentNode(prev => ({ ...prev, approveToStatus: value }))}
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {documentStatusList.map(status => (
-                              <SelectItem key={status} value={status}>
-                                {getDocumentStatusLabel(status)}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div>
-                        <Label htmlFor="reject-status">拒绝后状态</Label>
-                        <Select 
-                          value={currentNode.rejectToStatus} 
-                          onValueChange={(value: DocumentStatus) => setCurrentNode(prev => ({ ...prev, rejectToStatus: value }))}
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {documentStatusList.map(status => (
-                              <SelectItem key={status} value={status}>
-                                {getDocumentStatusLabel(status)}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                  </div>
-
                   {/* 审批人员选择 */}
                   <div>
                     <Label>选择审批人员</Label>
-                    <div className="mt-2 space-y-2">
-                      <div className="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto">
-                        {availableUsers.map(user => (
-                          <div key={user.userId} className="flex items-center space-x-2 p-2 border rounded">
-                            <input
-                              type="checkbox"
-                              checked={currentNode.approvers.some(a => a.userId === user.userId)}
-                              onChange={(e) => {
-                                if (e.target.checked) {
-                                  handleAddApprover(user);
-                                } else {
-                                  handleRemoveApprover(user.userId);
-                                }
-                              }}
-                            />
-                            <div className="flex-1">
-                              <div className="text-sm font-medium">{user.userName}</div>
-                              <div className="text-xs text-muted-foreground">{user.roleName}</div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                      
-                      {currentNode.approvers.length > 0 && (
-                        <div className="mt-2">
-                          <Label className="text-sm">已选择的审批人员：</Label>
-                          <div className="flex flex-wrap gap-1 mt-1">
-                            {currentNode.approvers.map((approver: any) => (
-                              <Badge key={approver.userId} variant="secondary" className="text-xs">
-                                {approver.userName}
-                                <button
-                                  onClick={() => handleRemoveApprover(approver.userId)}
-                                  className="ml-1 hover:text-red-500"
-                                >
-                                  ×
-                                </button>
-                              </Badge>
-                            ))}
-                          </div>
-                        </div>
-                      )}
+                    <div className="mt-2">
+                      <ApproverSelector
+                        value={currentNode.approvers}
+                        onChange={handleApproversChange}
+                        fetchOptions={fetchApproverPage}
+                      />
                     </div>
                   </div>
 
@@ -1014,7 +1008,69 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
               </div>
             </div>
 
-            {/* 审批节点配置 */}
+
+              {/* 流程状态流转配置 */}
+              <div className="space-y-4 pt-4 border-t">
+                <h4 className="text-sm font-semibold">流程状态配置</h4>
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <Label htmlFor="workflow-trigger-status">触发状态</Label>
+                    <Select
+                      value={String(newWorkflow.triggerStatus)}
+                      onValueChange={(value) => setNewWorkflow(prev => ({ ...prev, triggerStatus: Number(value) as DocumentStatus }))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {documentStatusList.map(status => (
+                          <SelectItem key={status} value={String(status)}>
+                            {getDocumentStatusLabel(status)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="workflow-approved-status">通过后状态</Label>
+                    <Select
+                      value={String(newWorkflow.approvedStatus)}
+                      onValueChange={(value) => setNewWorkflow(prev => ({ ...prev, approvedStatus: Number(value) as DocumentStatus }))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {documentStatusList.map(status => (
+                          <SelectItem key={status} value={String(status)}>
+                            {getDocumentStatusLabel(status)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="workflow-rejected-status">拒绝后状态</Label>
+                    <Select
+                      value={String(newWorkflow.rejectedStatus)}
+                      onValueChange={(value) => setNewWorkflow(prev => ({ ...prev, rejectedStatus: Number(value) as DocumentStatus }))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {documentStatusList.map(status => (
+                          <SelectItem key={status} value={String(status)}>
+                            {getDocumentStatusLabel(status)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
+
+            {/* ���批节点配置 */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">审批节点配置</h3>
               
@@ -1129,47 +1185,12 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
                   {/* 审批人员选择 */}
                   <div>
                     <Label>选择审批人员</Label>
-                    <div className="mt-2 space-y-2">
-                      <div className="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto">
-                        {availableUsers.map(user => (
-                          <div key={user.userId} className="flex items-center space-x-2 p-2 border rounded">
-                            <input
-                              type="checkbox"
-                              checked={currentNode.approvers.some(a => a.userId === user.userId)}
-                              onChange={(e) => {
-                                if (e.target.checked) {
-                                  handleAddApprover(user);
-                                } else {
-                                  handleRemoveApprover(user.userId);
-                                }
-                              }}
-                            />
-                            <div className="flex-1">
-                              <div className="text-sm font-medium">{user.userName}</div>
-                              <div className="text-xs text-muted-foreground">{user.roleName}</div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                      
-                      {currentNode.approvers.length > 0 && (
-                        <div className="mt-2">
-                          <Label className="text-sm">已选择的审批人员：</Label>
-                          <div className="flex flex-wrap gap-1 mt-1">
-                            {currentNode.approvers.map((approver: any) => (
-                              <Badge key={approver.userId} variant="secondary" className="text-xs">
-                                {approver.userName}
-                                <button
-                                  onClick={() => handleRemoveApprover(approver.userId)}
-                                  className="ml-1 hover:text-red-500"
-                                >
-                                  ×
-                                </button>
-                              </Badge>
-                            ))}
-                          </div>
-                        </div>
-                      )}
+                    <div className="mt-2">
+                      <ApproverSelector
+                        value={currentNode.approvers}
+                        onChange={handleApproversChange}
+                        fetchOptions={fetchApproverPage}
+                      />
                     </div>
                   </div>
 
@@ -1344,15 +1365,15 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
                                   <div className="mt-1 grid grid-cols-3 gap-2 text-xs">
                                     <div className="p-2 bg-muted rounded">
                                       <p className="font-medium">触发状态</p>
-                                      <p className="text-muted-foreground">{getDocumentStatusLabel(node.triggerStatus || DocumentStatus.DRAFT)}</p>
+                                      <p className="text-muted-foreground">{getDocumentStatusLabel(selectedWorkflow.triggerStatus || DocumentStatus.DRAFT)}</p>
                                     </div>
                                     <div className="p-2 bg-muted rounded">
                                       <p className="font-medium">通过后状态</p>
-                                      <p className="text-muted-foreground">{getDocumentStatusLabel(node.approveToStatus || DocumentStatus.APPROVED)}</p>
+                                      <p className="text-muted-foreground">{getDocumentStatusLabel(selectedWorkflow.approvedStatus || DocumentStatus.APPROVED)}</p>
                                     </div>
                                     <div className="p-2 bg-muted rounded">
                                       <p className="font-medium">拒绝后状态</p>
-                                      <p className="text-muted-foreground">{getDocumentStatusLabel(node.rejectToStatus || DocumentStatus.REJECTED)}</p>
+                                      <p className="text-muted-foreground">{getDocumentStatusLabel(selectedWorkflow.rejectedStatus || DocumentStatus.REJECTED)}</p>
                                     </div>
                                   </div>
                                 </div>

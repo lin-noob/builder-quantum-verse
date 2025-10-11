@@ -106,6 +106,9 @@ export interface ApprovalWorkflow {
   companyId: string;
   status: number;
   nodes: ApprovalNode[];
+  triggerStatus: DocumentStatus;
+  approvedStatus: DocumentStatus;
+  rejectedStatus: DocumentStatus;
 }
 
 // 审批流程模板
