@@ -23,6 +23,7 @@ interface ApproverSelectorProps {
   disabled?: boolean;
   initialPageSize?: number;
   pageSizeOptions?: number[];
+  selectionMode?: "single" | "multiple";
 }
 
 const DEFAULT_PAGE_SIZES = [10, 20, 50];
@@ -35,6 +36,7 @@ const ApproverSelector: React.FC<ApproverSelectorProps> = ({
   disabled = false,
   initialPageSize = 10,
   pageSizeOptions = DEFAULT_PAGE_SIZES,
+  selectionMode = "multiple",
 }) => {
   const [open, setOpen] = useState(false);
   const [searchInput, setSearchInput] = useState('');
@@ -113,6 +115,8 @@ const ApproverSelector: React.FC<ApproverSelectorProps> = ({
   const toggleOption = (option: ApproverOption) => {
     if (selectedIds.has(option.userId)) {
       onChange(value.filter((item) => item.userId !== option.userId));
+    } else if (selectionMode === "single") {
+      onChange([option]);
     } else {
       onChange([...value, option]);
     }

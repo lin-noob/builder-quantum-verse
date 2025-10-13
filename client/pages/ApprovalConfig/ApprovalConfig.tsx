@@ -165,7 +165,7 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
   });
 
   // 加载审批流程列表
-  const loadWorkflows = async () => {
+  const loadWorkflows = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -195,7 +195,7 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage, pageSize, searchTerm, filterStatus, filterBillType]);
 
   // 加载可选的审批人员
   const fetchApproverPage = useCallback(
@@ -234,7 +234,22 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
   // 初次加载和筛选条件变化时重新加载
   useEffect(() => {
     loadWorkflows();
-  }, [currentPage, pageSize, searchTerm, filterStatus, filterBillType]);
+  }, [loadWorkflows]);
+
+  const handleSearchTermChange = (value: string) => {
+    setCurrentPage(1);
+    setSearchTerm(value);
+  };
+
+  const handleStatusFilterChange = (value: "all" | "active" | "inactive") => {
+    setCurrentPage(1);
+    setFilterStatus(value);
+  };
+
+  const handleBillTypeFilterChange = (value: string) => {
+    setCurrentPage(1);
+    setFilterBillType(value === "all" ? "all" : Number(value));
+  };
 
   const handleCreateWorkflow = () => {
     setNewWorkflow({
@@ -400,8 +415,13 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
         setIsEditDialogOpen(false);
         setSelectedWorkflow(null);
 
-        // 重新加载列表
-        await loadWorkflows();
+        if (selectedWorkflow) {
+          await loadWorkflows();
+        } else if (currentPage !== 1) {
+          setCurrentPage(1);
+        } else {
+          await loadWorkflows();
+        }
       } else {
         setError(response.message || "保存失败");
       }
@@ -451,10 +471,38 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
   };
 
   const handleApproversChange = (approvers: ApproverOption[]) => {
-    setCurrentNode((prev) => ({
-      ...prev,
-      approvers,
-    }));
+    setCurrentNode((prev) => {
+      if (prev.nodeType === ApprovalNodeType.SINGLE) {
+        const lastSelected =
+          approvers.length > 0 ? approvers[approvers.length - 1] : null;
+        return {
+          ...prev,
+          approvers: lastSelected ? [lastSelected] : [],
+        };
+      }
+      return {
+        ...prev,
+        approvers,
+      };
+    });
+  };
+
+  const handleNodeTypeChange = (value: ApprovalNodeType) => {
+    setCurrentNode((prev) => {
+      const shouldClear =
+        value === ApprovalNodeType.SINGLE && prev.approvers.length > 1;
+      const nextApprovers =
+        value === ApprovalNodeType.SINGLE
+          ? shouldClear
+            ? []
+            : prev.approvers.slice(0, 1)
+          : prev.approvers;
+      return {
+        ...prev,
+        nodeType: value,
+        approvers: nextApprovers,
+      };
+    });
   };
 
   const getNodeTypeLabel = (type: string) => {
@@ -535,14 +583,18 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
                 id="search"
                 placeholder="输入流程名称或描述..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => handleSearchTermChange(e.target.value)}
               />
             </div>
             <div>
               <Label htmlFor="status-filter">状态</Label>
               <Select
                 value={filterStatus}
-                onValueChange={(value: any) => setFilterStatus(value)}
+                onValueChange={(value) =>
+                  handleStatusFilterChange(
+                    value as "all" | "active" | "inactive",
+                  )
+                }
               >
                 <SelectTrigger className="w-32">
                   <SelectValue />
@@ -558,9 +610,7 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
               <Label htmlFor="type-filter">单据类型</Label>
               <Select
                 value={String(filterBillType)}
-                onValueChange={(value: any) =>
-                  setFilterBillType(value === "all" ? "all" : Number(value))
-                }
+                onValueChange={(value) => handleBillTypeFilterChange(value)}
               >
                 <SelectTrigger className="w-40">
                   <SelectValue />
@@ -1019,10 +1069,7 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
                       <Select
                         value={currentNode.nodeType}
                         onValueChange={(value) =>
-                          setCurrentNode((prev) => ({
-                            ...prev,
-                            nodeType: value as ApprovalNodeType,
-                          }))
+                          handleNodeTypeChange(value as ApprovalNodeType)
                         }
                       >
                         <SelectTrigger>
@@ -1094,6 +1141,11 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
                         value={currentNode.approvers}
                         onChange={handleApproversChange}
                         fetchOptions={fetchApproverPage}
+                        selectionMode={
+                          currentNode.nodeType === ApprovalNodeType.SINGLE
+                            ? "single"
+                            : "multiple"
+                        }
                       />
                     </div>
                   </div>
@@ -1374,10 +1426,7 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
                       <Select
                         value={currentNode.nodeType}
                         onValueChange={(value) =>
-                          setCurrentNode((prev) => ({
-                            ...prev,
-                            nodeType: value as ApprovalNodeType,
-                          }))
+                          handleNodeTypeChange(value as ApprovalNodeType)
                         }
                       >
                         <SelectTrigger>
@@ -1449,6 +1498,11 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
                         value={currentNode.approvers}
                         onChange={handleApproversChange}
                         fetchOptions={fetchApproverPage}
+                        selectionMode={
+                          currentNode.nodeType === ApprovalNodeType.SINGLE
+                            ? "single"
+                            : "multiple"
+                        }
                       />
                     </div>
                   </div>
@@ -1768,8 +1822,7 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
               </Button>
               <Button
                 onClick={() => {
-                  setIsDetailDialogOpen(false);
-                  setIsEditDialogOpen(true);
+                  handleEditWorkflow(selectedWorkflow);
                 }}
               >
                 编辑流程
