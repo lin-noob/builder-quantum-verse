@@ -30,7 +30,12 @@ export class LanguageService {
       const response = await request.get<{ data: LanguageApiResponse[] }>(
         "/api/admin/api/v1/auth/language",
       );
-      return response.data.data;
+      const list = response?.data?.data;
+      // 若返回数据无效或不是数组，使用默认语言列表作为后备
+      if (!Array.isArray(list) || list.length === 0) {
+        return this.getDefaultLanguages();
+      }
+      return list;
     } catch (error) {
       console.error("Failed to fetch languages from API:", error);
       // 如果API调用失败，返回默认语言列表
@@ -43,8 +48,9 @@ export class LanguageService {
    */
   private getDefaultLanguages(): LanguageApiResponse[] {
     return [
-      { code: "zh", name: "中文" },
-      { code: "en", name: "English" },
+      // 与 i18n 保持一致的语言代码格式
+      { code: "zh-CN", name: "中文" },
+      { code: "en-US", name: "English" },
       { code: "ja", name: "日本語" },
       { code: "ko", name: "한국어" },
     ];
@@ -57,6 +63,9 @@ export class LanguageService {
     // 预定义的额外信息映射
     const languageExtras: Record<string, { nativeName: string; flag: string }> =
       {
+        // 常用标准代码
+        "zh-CN": { nativeName: "中文", flag: "🇨🇳" },
+        "en-US": { nativeName: "English", flag: "🇺🇸" },
         zh: { nativeName: "中文", flag: "🇨🇳" },
         en: { nativeName: "English", flag: "🇺🇸" },
         ja: { nativeName: "日本語", flag: "🇯🇵" },
@@ -85,7 +94,7 @@ export class LanguageService {
       code: apiLanguage.code,
       name: apiLanguage.name,
       nativeName: extras.nativeName,
-      flag: "🌐",
+      flag: extras.flag,
     };
   }
 
