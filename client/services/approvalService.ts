@@ -73,7 +73,7 @@ class ApprovalService {
       const res = await request.get<any>(`${this.baseUrl}/page`, {
         currentpage: params?.currentPage || 1,
         pageSize: params?.pageSize || 10,
-        search: params?.search || "",
+        name: params?.search || "",
         ...(params?.billType !== undefined && { billType: params.billType }),
         ...(params?.status !== undefined && { status: params.status }),
       });
