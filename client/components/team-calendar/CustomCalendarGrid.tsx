@@ -1,12 +1,15 @@
 import React from 'react';
 import moment from 'moment';
+import type { CalendarEvent } from './EventFormDialog';
 
 interface CustomCalendarGridProps {
   currentDate: Date;
   onDateClick?: (date: Date) => void;
+  events?: CalendarEvent[];
+  onEventClick?: (event: CalendarEvent) => void;
 }
 
-export default function CustomCalendarGrid({ currentDate, onDateClick }: CustomCalendarGridProps) {
+export default function CustomCalendarGrid({ currentDate, onDateClick, events = [], onEventClick }: CustomCalendarGridProps) {
   // 获取当前月份的第一天和最后一天
   const startOfMonth = moment(currentDate).startOf('month');
   const endOfMonth = moment(currentDate).endOf('month');
@@ -95,9 +98,29 @@ export default function CustomCalendarGrid({ currentDate, onDateClick }: CustomC
                   )}
                 </div>
                 
-                {/* 事件内容区域 - 预留给未来的事件显示 */}
-                <div className="pt-8 px-1 pb-1 h-full overflow-hidden">
-                  {/* 这里可以添加事件显示 */}
+                {/* 事件内容区域 */}
+                <div className="pt-8 px-1 pb-1 h-full overflow-y-auto space-y-1">
+                  {events
+                    .filter(evt => moment(evt.start).isSame(date, 'day'))
+                    .map((evt) => (
+                      <div
+                        key={evt.id}
+                        className="text-[11px] leading-tight rounded px-1 py-0.5 truncate cursor-pointer border"
+                        style={{
+                          backgroundColor: (evt.color || '#93C5FD') + '20', // 低不透明背景
+                          color: '#1f2937',
+                          borderColor: evt.color || '#93C5FD'
+                        }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onEventClick?.(evt);
+                        }}
+                        title={`${evt.title} (${moment(evt.start).format('HH:mm')}-${moment(evt.end).format('HH:mm')})`}
+                      >
+                        <span className="font-medium">{evt.title}</span>
+                        <span className="ml-1 text-[10px] text-slate-600">{moment(evt.start).format('HH:mm')} - {moment(evt.end).format('HH:mm')}</span>
+                      </div>
+                    ))}
                 </div>
               </div>
             ))}

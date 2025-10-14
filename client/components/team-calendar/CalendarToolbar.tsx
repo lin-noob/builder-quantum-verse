@@ -78,8 +78,19 @@ export default function CalendarToolbar({
         </Button>
       </div>
       
-      {/* 右侧部分：今天按钮 + 视图切换器 */}
+      {/* 右侧部分：新建按钮 + 今天按钮 + 视图切换器 */}
       <div className="flex items-center space-x-3">
+        {/* 新建日程 */}
+        {onNewEvent && (
+          <Button
+            variant="default"
+            size="sm"
+            onClick={() => onNewEvent?.()}
+            className="px-3 py-1.5 text-sm"
+          >
+            新建
+          </Button>
+        )}
         {/* 今天按钮 - 简洁的柔和边框 */}
         <Button
           variant="outline"
