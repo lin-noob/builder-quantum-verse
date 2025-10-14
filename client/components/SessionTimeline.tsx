@@ -9,21 +9,34 @@ import {
 } from "@/lib/profile";
 
 // Event types mapping
-type EventType = 
-  | "PageView" 
-  | "PageLeave" 
-  | "ScrollDepth" 
+type EventType =
+  | "$pageview"
+  | "$pageleave"
+  | "$autocapture"
+  | "ScrollDepth"
   | "Click"
-  | "ViewProduct" 
-  | "AddToCart" 
-  | "RemoveFromCart" 
-  | "StartCheckout" 
+  | "ViewProduct"
+  | "AddToCart"
+  | "RemoveFromCart"
+  | "StartCheckout"
   | "CompletePurchase"
-  | "UserRegister" 
-  | "UserLogin" 
-  | "SubmitForm" 
-  | "Search" 
+  | "UserRegister"
+  | "UserLogin"
+  | "SubmitForm"
+  | "Search"
   | "PageDwellTime";
+
+// Element interface for PostHog $elements array
+interface PostHogElement {
+  tag_name?: string;
+  attr__id?: string;
+  attr__class?: string;
+  classes?: string[];
+  nth_child?: number;
+  nth_of_type?: number;
+  $el_text?: string;
+  attr__data_gtm_form_interact_id?: string;
+}
 
 // Parsed event data structure
 interface ParsedEventData {
@@ -49,6 +62,20 @@ interface ParsedEventData {
   productPrice?: number | string;
   productCurrency?: string;
   productBrand?: string;
+  // PostHog specific fields
+  $event_type?: string;
+  $browser_version?: number;
+  $timezone?: string;
+  $current_url?: string;
+  $referrer?: string;
+  $pathname?: string;
+  $elements?: PostHogElement[];
+  $elements_chain?: string;
+  cusEventType?: string;
+  $screen_width?: number;
+  $screen_height?: number;
+  $viewport_width?: number;
+  $viewport_height?: number;
 }
 export default function SessionTimeline({
   cdpUserId,
@@ -81,22 +108,34 @@ export default function SessionTimeline({
   const convertEventToData = (event: ApiEvent): ParsedEventData => {
     const properties = parseEventProperties(event.properties);
 
+    // 如果 eventName 是 $autocapture，则使用 properties 中的 $event_type
+    let eventType: EventType = event.eventName as EventType;
+    if (event.eventName === "$autocapture" && properties.$event_type) {
+      // 将 $event_type 映射到对应的事件类型
+      const eventTypeMapping: { [key: string]: EventType } = {
+        "click": "Click",
+        "submit": "SubmitForm",
+        "change": "Click", // 可以根据需要调整映射
+      };
+      eventType = eventTypeMapping[properties.$event_type] || (event.eventName as EventType);
+    }
+
     return {
       id: event.id,
       eventTime: event.gmtCreate,
-      eventType: event.eventName as EventType,
-      source: properties.source || "",
-      deviceType: properties.deviceType || "",
-      pageTitle: properties.pageTitle || "",
-      pageURL: properties.pageURL || "",
-      browser: properties.browser || "",
-      os: properties.os || "",
+      eventType: eventType,
+      source: properties.source || properties.$lib || "",
+      deviceType: properties.deviceType || properties.$device_type || "",
+      pageTitle: properties.pageTitle || document.title || "",
+      pageURL: properties.pageURL || properties.$current_url || "",
+      browser: properties.browser || properties.$browser || "",
+      os: properties.os || properties.$os || "",
       dwellTimeMs: properties.dwellTimeMs,
       maxScrollDepth: properties.maxScrollDepth,
       maxDepthPercent: properties.maxDepthPercent,
       elementTag: properties.elementTag,
       elementText: properties.elementText,
-      referrer: properties.referrer,
+      referrer: properties.referrer || properties.$referrer || "",
       // Product related fields for ViewProduct event
       productId: properties.productId,
       productName: properties.productName,
@@ -104,6 +143,20 @@ export default function SessionTimeline({
       productPrice: properties.productPrice,
       productCurrency: properties.productCurrency,
       productBrand: properties.productBrand,
+      // PostHog specific fields
+      $event_type: properties.$event_type,
+      $browser_version: properties.$browser_version,
+      $timezone: properties.$timezone,
+      $current_url: properties.$current_url,
+      $referrer: properties.$referrer,
+      $pathname: properties.$pathname,
+      $elements: properties.$elements,
+      $elements_chain: properties.$elements_chain,
+      cusEventType: properties.cusEventType,
+      $screen_width: properties.$screen_width,
+      $screen_height: properties.$screen_height,
+      $viewport_width: properties.$viewport_width,
+      $viewport_height: properties.$viewport_height,
     };
   };
 
@@ -161,15 +214,20 @@ export default function SessionTimeline({
     let displayName: string = eventType;
 
     switch (eventType) {
-      case "PageView":
+      case "$pageview":
         bgColor = "bg-blue-100";
         textColor = "text-blue-800";
         displayName = t("sessionTimeline.eventTypes.PageView");
         break;
-      case "PageLeave":
+      case "$pageleave":
         bgColor = "bg-orange-100";
         textColor = "text-orange-800";
         displayName = t("sessionTimeline.eventTypes.PageLeave");
+        break;
+      case "$autocapture":
+        bgColor = "bg-gray-100";
+        textColor = "text-gray-800";
+        displayName = "Autocapture";
         break;
       case "ScrollDepth":
         bgColor = "bg-success-light";
@@ -489,7 +547,110 @@ export default function SessionTimeline({
                   {t("sessionTimeline.modal.detailInfo")}
                 </h4>
                 <div className="space-y-3 text-sm">
-                  {selectedEvent.eventType === "PageLeave" &&
+                  {/* PostHog event type */}
+                  {selectedEvent.$event_type && (
+                    <div>
+                      <div className="text-xs text-slate-500">Event Type</div>
+                      <div className="font-medium text-slate-900">
+                        <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${
+                          selectedEvent.$event_type === 'click' ? 'bg-purple-100 text-purple-800' :
+                          selectedEvent.$event_type === 'submit' ? 'bg-amber-100 text-amber-800' :
+                          selectedEvent.$event_type === 'change' ? 'bg-blue-100 text-blue-800' :
+                          'bg-slate-100 text-slate-800'
+                        }`}>
+                          {selectedEvent.$event_type}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                  {/* Elements chain for click/submit events - 只显示第一条 */}
+                  {selectedEvent.$elements && selectedEvent.$elements.length > 0 && (
+                    <div>
+                      <div className="text-xs text-slate-500">Click/Submit Element</div>
+                      <div className="mt-2">
+                        {(() => {
+                          const element = selectedEvent.$elements[0];
+                          return (
+                            <div className="p-3 bg-slate-50 rounded border border-slate-200 text-xs">
+                              {element.tag_name && (
+                                <div className="mb-1">
+                                  <span className="text-slate-500">Tag:</span>{" "}
+                                  <span className="font-mono text-slate-900">&lt;{element.tag_name}&gt;</span>
+                                </div>
+                              )}
+                              {element.attr__id && (
+                                <div className="mb-1">
+                                  <span className="text-slate-500">ID:</span>{" "}
+                                  <span className="font-mono text-slate-900">{element.attr__id}</span>
+                                </div>
+                              )}
+                              {element.classes && element.classes.length > 0 && (
+                                <div className="mb-1">
+                                  <span className="text-slate-500">Classes:</span>{" "}
+                                  <span className="font-mono text-slate-900">{element.classes.join(', ')}</span>
+                                </div>
+                              )}
+                              {element.$el_text && (
+                                <div className="mb-1">
+                                  <span className="text-slate-500">Text:</span>{" "}
+                                  <span className="text-slate-900">{element.$el_text}</span>
+                                </div>
+                              )}
+                              {element.nth_child && (
+                                <div>
+                                  <span className="text-slate-500">Position:</span>{" "}
+                                  <span className="text-slate-900">nth-child({element.nth_child})</span>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })()}
+                      </div>
+                    </div>
+                  )}
+                  {/* Screen and Viewport info */}
+                  {(selectedEvent.$screen_width || selectedEvent.$viewport_width) && (
+                    <div className="grid grid-cols-2 gap-3">
+                      {selectedEvent.$screen_width && selectedEvent.$screen_height && (
+                        <div>
+                          <div className="text-xs text-slate-500">Screen Size</div>
+                          <div className="font-medium text-slate-900">
+                            {selectedEvent.$screen_width} × {selectedEvent.$screen_height}
+                          </div>
+                        </div>
+                      )}
+                      {selectedEvent.$viewport_width && selectedEvent.$viewport_height && (
+                        <div>
+                          <div className="text-xs text-slate-500">Viewport Size</div>
+                          <div className="font-medium text-slate-900">
+                            {selectedEvent.$viewport_width} × {selectedEvent.$viewport_height}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  {/* Browser and timezone */}
+                  {(selectedEvent.$browser_version || selectedEvent.$timezone) && (
+                    <div className="grid grid-cols-2 gap-3">
+                      {selectedEvent.$browser_version && (
+                        <div>
+                          <div className="text-xs text-slate-500">Browser Version</div>
+                          <div className="font-medium text-slate-900">
+                            {selectedEvent.browser} {selectedEvent.$browser_version}
+                          </div>
+                        </div>
+                      )}
+                      {selectedEvent.$timezone && (
+                        <div>
+                          <div className="text-xs text-slate-500">Timezone</div>
+                          <div className="font-medium text-slate-900">
+                            {selectedEvent.$timezone}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  {selectedEvent.eventType === "$pageleave" &&
                     selectedEvent.dwellTimeMs && (
                       <div>
                         <div className="text-xs text-slate-500">
@@ -500,7 +661,7 @@ export default function SessionTimeline({
                         </div>
                       </div>
                     )}
-                  {selectedEvent.eventType === "PageLeave" &&
+                  {selectedEvent.eventType === "$pageleave" &&
                     selectedEvent.maxScrollDepth && (
                       <div>
                         <div className="text-xs text-slate-500">
