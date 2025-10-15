@@ -90,6 +90,7 @@ export default function UserDetail() {
     return {
       // old UI-compatible fields
       userId: apiUser.userId ?? "",
+      distinctId: apiUser.distinctId ?? "",
       cdpId: String(apiUser.cdpUserId ?? cdpId ?? ""),
       name: apiUser.fullName,
       company: apiUser.companyName,
@@ -484,12 +485,12 @@ export default function UserDetail() {
 
                 {/* Access Timeline Tab - NOW WITH SESSION TIMELINE */}
                 <TabsContent value="timeline" className="space-y-6">
-                  <SessionTimeline cdpUserId={user.cdpId} sessionId={user.sessionId} />
+                  <SessionTimeline cdpUserId={user.cdpId} sessionId={user.distinctId} />
                 </TabsContent>
 
                 {/* Business Statistics Tab - NOW WITH ORDER HISTORY */}
                 <TabsContent value="statistics">
-                  <OrderHistory cdpUserId={user.cdpId} sessionId={user.sessionId} />
+                  <OrderHistory cdpUserId={user.cdpId} sessionId={user.distinctId} />
                 </TabsContent>
               </Tabs>
             </CardContent>

@@ -40,6 +40,7 @@ export interface ApiEventListResponse {
 
 export interface ApiUser {
   id?: string;
+  distinctId: string;
   userId: string;
   cdpUserId: number;
   fullName: string;

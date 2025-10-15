@@ -405,7 +405,7 @@ const { t } = useTranslation();
             <table className="w-full min-w-[800px]">
               <thead className="bg-gray-50 border-b">
                 <tr>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 min-w-92">
                     {t('userList.table.headers.user')}
                   </th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
@@ -487,7 +487,7 @@ const { t } = useTranslation();
                 ) : (
                   currentUsers.map((user) => (
                     <tr key={user.cdpId} className="hover:bg-gray-50">
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-4 w-24">
                         <div className="space-y-1">
                           <div className="font-mono text-sm text-gray-900">
                             {user.userId || user.id}

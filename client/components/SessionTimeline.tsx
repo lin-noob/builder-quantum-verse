@@ -126,7 +126,7 @@ export default function SessionTimeline({
       eventType: eventType,
       source: properties.source || properties.$lib || "",
       deviceType: properties.deviceType || properties.$device_type || "",
-      pageTitle: properties.pageTitle || document.title || "",
+      pageTitle: properties.title || "",
       pageURL: properties.pageURL || properties.$current_url || "",
       browser: properties.browser || properties.$browser || "",
       os: properties.os || properties.$os || "",
