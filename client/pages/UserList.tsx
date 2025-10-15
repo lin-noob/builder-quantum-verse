@@ -26,6 +26,7 @@ import { MockDataService } from "@/services/mockDataService";
 import { formatStartDate, formatEndDate } from "@/lib/utils";
 import { useRoleStore } from "@/stores/roleStore";
 import useProjectStore from "@/stores/projectStore";
+import { ApiUser } from "@/lib/profile";
 
 interface DateRange {
   start: Date | null;
@@ -37,29 +38,10 @@ interface SortConfig {
   direction: "asc" | "desc";
 }
 
-// API相关类型定义
-interface ApiUser {
-  id: string;
-  cdpUserId: number;
-  fullName: string;
-  contactInfo: string;
-  companyName: string;
-  signTime: string;
-  createGmt: string;
-  minBuyTime: string;
-  maxBuyTime: string;
-  maxOrderAmount: number;
-  totalOrders: number;
-  orderCount: number;
-  loginDate: string;
-  location: string;
-  shopid: string;
-  currencySymbol: string;
-}
-
 // 转换为UI需要的用户格式
 interface User {
   id: string;
+  userId:string;
   cdpId: string;
   name: string;
   company: string;
@@ -120,6 +102,7 @@ const { t } = useTranslation();
   const convertApiUserToUser = (apiUser: ApiUser): User => {
     return {
       id: apiUser.id || "",
+      userId: apiUser.userId || "",
       cdpId: apiUser.cdpUserId ? apiUser.cdpUserId.toString() : "",
       name: apiUser.fullName || "",
       company: apiUser.companyName || "",
@@ -253,20 +236,7 @@ const { t } = useTranslation();
         setTotalCount(0);
       }
     } catch (error) {
-      // 如果API失败，使用mock数据供开发测试使用
-      console.log("用户数据API失败，使用mock数据");
-      const mockParams = {
-        page: currentPage,
-        pageSize: itemsPerPage,
-        search: searchQuery.trim() || undefined,
-        sortField: sortConfig.field || undefined,
-        sortDirection: sortConfig.direction,
-      };
-
-      const mockResult = await MockDataService.getUsers(mockParams);
-      setUsers(mockResult.users);
-      setTotalCount(mockResult.total);
-      return;
+      return [];
     } finally {
       setLoading(false);
     }
@@ -520,7 +490,7 @@ const { t } = useTranslation();
                       <td className="px-6 py-4">
                         <div className="space-y-1">
                           <div className="font-mono text-sm text-gray-900">
-                            {user.cdpId || user.id}
+                            {user.userId || user.id}
                           </div>
                           <div className="text-sm text-gray-500">
                             {user.name || user.fullName || "N/A"} /{" "}
@@ -553,7 +523,7 @@ const { t } = useTranslation();
                       <td className="px-6 py-4">
                         {hasPermission("user.info") && (
                           <Link
-                            to={`/users1/${user.id}`}
+                            to={`/users1/${user.userId}`}
                             className="text-blue-600 hover:text-blue-800 text-sm font-medium"
                           >
                             {t('userList.table.actions.viewDetails')}

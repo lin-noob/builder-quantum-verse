@@ -1,6 +1,7 @@
 // 模拟数据服务，避免网络请求延迟
 export interface MockUser {
   id: string;
+  userId: string;
   cdpId: string;
   name: string;
   company: string;
@@ -15,41 +16,7 @@ export interface MockUser {
 
 // 生成模拟用户数据
 const generateMockUsers = (count: number): MockUser[] => {
-  const companies = [
-    "华为技术",
-    "腾讯科技",
-    "百度科技",
-    "阿里巴巴",
-    "小米科技",
-    "字节跳动",
-  ];
-  const names = ["刘涛", "张伟", "王芳", "李明", "赵敏", "陈涛"];
-
-  return Array.from({ length: count }, (_, index) => {
-    const now = new Date();
-    const randomDays = Math.floor(Math.random() * 365);
-    const registrationDate = new Date(
-      now.getTime() - randomDays * 24 * 60 * 60 * 1000,
-    );
-
-    return {
-      id: `user-${index + 1}`,
-      cdpId: `${Math.floor(Math.random() * 900000) + 100000}`,
-      name: names[index % names.length],
-      company: companies[index % companies.length],
-      contact: `user${index + 1}@${companies[index % companies.length].toLowerCase().replace(/[^\w]/g, "")}.com`,
-      firstVisitTime: registrationDate.toISOString(),
-      registrationTime: registrationDate.toISOString(),
-      firstPurchaseTime: new Date(
-        registrationDate.getTime() + Math.random() * 30 * 24 * 60 * 60 * 1000,
-      ).toISOString(),
-      lastActiveTime: new Date(
-        now.getTime() - Math.random() * 7 * 24 * 60 * 60 * 1000,
-      ).toISOString(),
-      totalSpent: Math.floor(Math.random() * 100000) + 1000,
-      currency: "¥",
-    };
-  });
+  return [];
 };
 
 export class MockDataService {
@@ -119,7 +86,7 @@ export class MockDataService {
 
   // 获取单个用户详情
   static async getUserById(id: string): Promise<MockUser | null> {
-    const user = this.users.find(u => u.id === id || u.cdpId === id);
+    const user = this.users.find((u) => u.id === id || u.cdpId === id);
     return user || null;
   }
 

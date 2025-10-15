@@ -89,6 +89,7 @@ export default function UserDetail() {
     if (!apiUser) return null;
     return {
       // old UI-compatible fields
+      userId: apiUser.userId ?? "",
       cdpId: String(apiUser.cdpUserId ?? cdpId ?? ""),
       name: apiUser.fullName,
       company: apiUser.companyName,
@@ -273,7 +274,7 @@ export default function UserDetail() {
                     <User className="h-4 w-4 text-gray-500" />
                     <span className="text-sm text-gray-600">CDP ID:</span>
                     <code className="text-sm font-mono bg-gray-100 px-2 py-1 rounded">
-                      {user.cdpId}
+                      {user.userId}
                     </code>
                     <button
                       onClick={handleCopyId}
