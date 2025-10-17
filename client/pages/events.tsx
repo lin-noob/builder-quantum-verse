@@ -1,37 +1,73 @@
 import { useState } from 'react';
-import { Incident, IncidentFilter } from '@shared/types';
+import { Incident } from '@shared/types';
 import { mockIncidents } from '@/data/mockData';
 import IncidentListItem from '@/components/incident/IncidentListItem';
 import IncidentDetails from '@/components/incident/IncidentDetails';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Search, Filter } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
-const filterLabels: Record<IncidentFilter, string> = {
+type PriorityFilter = 'all' | 'high' | 'medium' | 'low';
+type ProgressFilter = 'all' | 'pending_human' | 'in_progress' | 'automated' | 'resolved';
+type TypeFilter = 'all' | 'type_customer' | 'type_order' | 'type_product';
+
+const priorityFilterLabels: Record<PriorityFilter, string> = {
   all: '全部',
-  urgent: '紧急',
-  pending_human: '待人工处理',
-  ai_processed: 'AI已处理'
+  high: '高',
+  medium: '中',
+  low: '低',
 };
 
-const filterCounts = {
+const progressFilterLabels: Record<ProgressFilter, string> = {
+  all: '全部',
+  pending_human: '待处理',
+  in_progress: '处理中',
+  automated: 'AI全自动处理中',
+  resolved: '已完成',
+};
+
+const typeFilterLabels: Record<TypeFilter, string> = {
+  all: '全部类型',
+  type_customer: '客户相关',
+  type_order: '订单相关',
+  type_product: '商品相关',
+};
+
+// 保留底部状态栏使用的统计（与筛选UI无关）
+const statusFilterCounts = {
   all: mockIncidents.length,
   urgent: mockIncidents.filter(i => i.priority === 'high').length,
   pending_human: mockIncidents.filter(i => i.status === 'pending_human').length,
-  ai_processed: mockIncidents.filter(i => i.status === 'automated').length
+  in_progress: mockIncidents.filter(i => i.status === 'in_progress').length,
+  automated: mockIncidents.filter(i => i.status === 'automated').length,
+  resolved: mockIncidents.filter(i => i.status === 'resolved').length,
 };
+
+// 类型筛选不再显示计数
 
 export default function Index() {
   const [selectedIncident, setSelectedIncident] = useState<Incident | null>(mockIncidents[0]);
-  const [activeFilter, setActiveFilter] = useState<IncidentFilter>('all');
+  const [activePriorityFilter, setActivePriorityFilter] = useState<PriorityFilter>('all');
+  const [activeProgressFilter, setActiveProgressFilter] = useState<ProgressFilter>('all');
+  const [activeTypeFilter, setActiveTypeFilter] = useState<TypeFilter>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
   const filteredIncidents = mockIncidents.filter((incident) => {
-    // Apply filter
-    if (activeFilter === 'urgent' && incident.priority !== 'high') return false;
-    if (activeFilter === 'pending_human' && incident.status !== 'pending_human') return false;
-    if (activeFilter === 'ai_processed' && incident.status !== 'automated') return false;
+    // Apply priority filter
+    if (activePriorityFilter !== 'all' && incident.priority !== activePriorityFilter) return false;
+
+    // Apply progress filter
+    if (activeProgressFilter === 'pending_human' && incident.status !== 'pending_human') return false;
+    if (activeProgressFilter === 'in_progress' && incident.status !== 'in_progress') return false;
+    if (activeProgressFilter === 'automated' && incident.status !== 'automated') return false;
+    if (activeProgressFilter === 'resolved' && incident.status !== 'resolved') return false;
+
+    // Apply type filter
+    if (activeTypeFilter === 'type_customer' && !incident.involvedEntities.some(e => e.type === 'customer')) return false;
+    if (activeTypeFilter === 'type_order' && !incident.involvedEntities.some(e => e.type === 'order')) return false;
+    if (activeTypeFilter === 'type_product' && !incident.involvedEntities.some(e => e.type === 'product')) return false;
     
     // Apply search
     if (searchQuery && !incident.title.toLowerCase().includes(searchQuery.toLowerCase())) {
@@ -62,29 +98,61 @@ export default function Index() {
               />
             </div>
 
-            {/* Filters */}
-            <div className="flex flex-wrap gap-2">
-              {(Object.keys(filterLabels) as IncidentFilter[]).map((filter) => (
-                <Button
-                  key={filter}
-                  variant={activeFilter === filter ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setActiveFilter(filter)}
-                  className={`text-xs ${
-                    activeFilter === filter 
-                      ? 'bg-eip-accent hover:bg-eip-accent/90' 
-                      : 'hover:bg-slate-100 dark:hover:bg-slate-700'
-                  }`}
-                >
-                  {filterLabels[filter]}
-                  <Badge 
-                    variant="secondary" 
-                    className="ml-2 text-xs bg-white/20 text-inherit"
-                  >
-                    {filter === 'all' ? filteredIncidents.length : filterCounts[filter]}
-                  </Badge>
-                </Button>
-              ))}
+            {/* Filters: Dropdown Row */}
+            <div className="mb-2 grid grid-cols-2 gap-2">
+              <div>
+                <div className="text-xs text-slate-500 mb-1">状态筛选</div>
+                <Select value={activePriorityFilter} onValueChange={(v: PriorityFilter) => setActivePriorityFilter(v)}>
+                  <SelectTrigger className="h-8">
+                    <SelectValue placeholder="请选择" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">{priorityFilterLabels.all}</SelectItem>
+                    <SelectItem value="high">{priorityFilterLabels.high}</SelectItem>
+                    <SelectItem value="medium">{priorityFilterLabels.medium}</SelectItem>
+                    <SelectItem value="low">{priorityFilterLabels.low}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <div className="text-xs text-slate-500 mb-1">处理进度筛选</div>
+                <Select value={activeProgressFilter} onValueChange={(v: ProgressFilter) => setActiveProgressFilter(v)}>
+                  <SelectTrigger className="h-8">
+                    <SelectValue placeholder="请选择" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">{progressFilterLabels.all}</SelectItem>
+                    <SelectItem value="pending_human">{progressFilterLabels.pending_human}</SelectItem>
+                    <SelectItem value="in_progress">{progressFilterLabels.in_progress}</SelectItem>
+                    <SelectItem value="resolved">{progressFilterLabels.resolved}</SelectItem>
+                    <SelectItem value="automated">{progressFilterLabels.automated}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Filters: Type Row - Horizontal scroll chips */}
+            <div>
+              <div className="text-xs text-slate-500 mb-1">类型筛选</div>
+              <div className="overflow-x-auto whitespace-nowrap">
+                <div className="flex gap-2">
+                  {(['all','type_customer','type_order','type_product'] as TypeFilter[]).map((filter) => (
+                    <Button
+                      key={filter}
+                      variant={activeTypeFilter === filter ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setActiveTypeFilter(filter)}
+                      className={`text-xs ${
+                        activeTypeFilter === filter 
+                          ? 'bg-eip-accent hover:bg-eip-accent/90' 
+                          : 'hover:bg-slate-100 dark:hover:bg-slate-700'
+                      }`}
+                    >
+                      {typeFilterLabels[filter]}
+                    </Button>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
 
@@ -116,11 +184,11 @@ export default function Index() {
               <div className="flex items-center space-x-4">
                 <span className="flex items-center">
                   <div className="w-2 h-2 bg-eip-alert rounded-full mr-1"></div>
-                  高优先级: {filterCounts.urgent}
+                  高优先级: {statusFilterCounts.urgent}
                 </span>
                 <span className="flex items-center">
                   <div className="w-2 h-2 bg-eip-warning rounded-full mr-1"></div>
-                  待处理: {filterCounts.pending_human}
+                  待处理: {statusFilterCounts.pending_human}
                 </span>
               </div>
             </div>

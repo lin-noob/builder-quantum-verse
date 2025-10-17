@@ -1,5 +1,5 @@
 import { Incident } from '@shared/types';
-import { Clock } from 'lucide-react';
+import { Clock, Zap, AlertTriangle } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
 
@@ -15,21 +15,37 @@ const priorityColors = {
   low: 'border-l-slate-300 bg-slate-50'
 };
 
-const statusLabels = {
-  pending_human: '待人工处理',
-  in_progress: '处理中',
-  resolved: '已解决',
-  automated: 'AI已处理'
+// 优先级徽章颜色（沿用现有颜色映射）
+const priorityBadgeColors = {
+  high: 'bg-eip-alert text-eip-alert-foreground',
+  medium: 'bg-eip-warning text-eip-warning-foreground',
+  low: 'bg-slate-500 text-slate-50'
 };
 
-const statusColors = {
+const priorityLabels = {
+  high: '高',
+  medium: '中',
+  low: '低'
+};
+
+// 处理进度徽章文案（与详情页一致）
+const progressLabels = {
+  pending_human: '待处理',
+  in_progress: '处理中',
+  resolved: '已完成',
+  automated: 'AI全自动处理中'
+};
+
+const progressColors = {
   pending_human: 'bg-eip-alert text-eip-alert-foreground',
   in_progress: 'bg-eip-warning text-eip-warning-foreground',
   resolved: 'bg-eip-success text-eip-success-foreground',
-  automated: 'bg-eip-accent text-eip-accent-foreground'
+  automated: 'bg-eip-warning text-eip-warning-foreground'
 };
 
 export default function IncidentListItem({ incident, isSelected, onClick }: IncidentListItemProps) {
+  const hasPendingApproval = Array.isArray(incident.processingHistory)
+    && incident.processingHistory.some(a => a.id === 'act_approval_pending');
   return (
     <div
       className={`
@@ -43,26 +59,32 @@ export default function IncidentListItem({ incident, isSelected, onClick }: Inci
         <h3 className="font-semibold text-slate-900 text-sm truncate flex-1 mr-2">
           {incident.title}
         </h3>
-        <span className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${statusColors[incident.status]}`}>
-          {statusLabels[incident.status]}
-        </span>
-      </div>
-      
-      <div className="flex flex-wrap gap-1 mb-3">
-        {incident.involvedEntities.slice(0, 2).map((entity, index) => (
-          <span 
-            key={index}
-            className="text-xs px-2 py-1 bg-slate-200 text-slate-700 rounded-md"
-          >
-            {entity.value}
+        <div className="flex items-center gap-1 whitespace-nowrap">
+          {/* 优先级徽章 */}
+          <span className={`px-2 py-1 rounded-full text-xs font-medium ${priorityBadgeColors[incident.priority]}`}>
+            {priorityLabels[incident.priority]}
           </span>
-        ))}
-        {incident.involvedEntities.length > 2 && (
-          <span className="text-xs px-2 py-1 bg-slate-200 text-slate-700 rounded-md">
-            +{incident.involvedEntities.length - 2}
+          {/* 处理进度徽章（自动化时显示闪电） */}
+          <span className={`px-2 py-1 rounded-full text-xs font-medium inline-flex items-center ${progressColors[incident.status]}`}>
+            {progressLabels[incident.status]}
+            {incident.status === 'automated' && (
+              <Zap className="w-3 h-3 ml-1" />
+            )}
           </span>
-        )}
+          {/* 待审批标识（基于处理记录中的 act_approval_pending） */}
+          {hasPendingApproval && (
+            <span className="px-2 py-1 rounded-full text-xs font-medium inline-flex items-center bg-eip-warning text-eip-warning-foreground">
+              待审批
+              <AlertTriangle className="w-3 h-3 ml-1" />
+            </span>
+          )}
       </div>
+      </div>
+  
+      {/* 事件描述（替换原标签展示，过长省略）*/}
+      <p className="text-xs text-slate-700 mb-3 truncate">
+        {incident.description ? incident.description : '暂无描述'}
+      </p>
 
       <div className="flex items-center justify-between text-xs text-slate-500">
         <div className="flex items-center">

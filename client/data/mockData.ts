@@ -165,6 +165,12 @@ const mockActivities: Activity[] = [
     timestamp: new Date('2024-01-20T14:35:00'),
     description: '生成初步分析报告和建议响应计划',
     actor: 'AI'
+  },
+  {
+    id: 'act_approval_pending',
+    timestamp: new Date('2024-01-20T14:36:00'),
+    description: '发起审批流程：需审批通过或拒绝后继续处理',
+    actor: '系统'
   }
 ];
 
@@ -492,8 +498,60 @@ const mockTasks2: Task[] = allMockTasks.filter(task => task.parentIncidentId ===
 // Mock incidents
 export const mockIncidents: Incident[] = [
   {
+    id: 'inc_auto1',
+    title: 'AI全自动处理：订单异常自动纠正',
+    description: 'AI已自动识别并纠正订单异常，系统已通知客户并同步ERP记录。',
+    status: 'automated',
+    priority: 'medium',
+    timestamp: new Date('2024-01-20T15:55:00'),
+    involvedEntities: [
+      { type: 'order', value: 'ORD-2024-009999' },
+      { type: 'product', value: '电商订单系统' }
+    ],
+    aiAnalysis: {
+      confidence: 92,
+      summary: 'AI检测到订单状态与支付回执不一致，已全自动完成纠正并触发通知流程。无需人工介入，仅需后续监控。',
+      keyMetrics: [
+        { label: '纠正耗时', value: '3.2秒' },
+        { label: '影响订单数', value: '1单' },
+        { label: '人工参与', value: '0' },
+        { label: '系统一致性', value: '恢复正常' }
+      ]
+    },
+    suggestedResponsePlan: [
+      {
+        id: 'ra_auto1',
+        title: '复核日志与监控告警',
+        description: '自动化完成后，建议复核异常日志并设定后续监控阈值',
+        type: 'process'
+      }
+    ],
+    processingHistory: [
+      {
+        id: 'act_auto1',
+        timestamp: new Date('2024-01-20T15:55:00'),
+        description: 'AI识别订单状态异常，启动自愈流程',
+        actor: 'AI'
+      },
+      {
+        id: 'act_auto2',
+        timestamp: new Date('2024-01-20T15:55:02'),
+        description: '自动纠正订单状态并同步ERP',
+        actor: 'AI'
+      },
+      {
+        id: 'act_auto3',
+        timestamp: new Date('2024-01-20T15:55:03'),
+        description: '通知客户订单已修复，推送确认邮件',
+        actor: 'AI'
+      }
+    ],
+    assignedTasks: []
+  },
+  {
     id: 'inc1',
     title: '客户李先生订单异常取消事件',
+    description: '客户在支付成功后立即取消高价值订单，需调查原因',
     status: 'pending_human',
     priority: 'high',
     timestamp: new Date('2024-01-20T14:25:00'),
@@ -513,12 +571,38 @@ export const mockIncidents: Incident[] = [
       ]
     },
     suggestedResponsePlan: mockResponseActions,
-    processingHistory: mockActivities,
+    processingHistory: [
+      {
+        id: 'act_inc1_1',
+        timestamp: new Date('2024-01-20T14:30:00'),
+        description: 'AI检测到异常的订单取消模式',
+        actor: 'AI'
+      },
+      {
+        id: 'act_inc1_2',
+        timestamp: new Date('2024-01-20T14:32:00'),
+        description: '自动收集客户画像与订单上下文信息',
+        actor: 'AI'
+      },
+      {
+        id: 'act_inc1_3',
+        timestamp: new Date('2024-01-20T14:34:00'),
+        description: '客户成功经理人工核实订单取消原因',
+        actor: mockUsers[1]
+      },
+      {
+        id: 'act_approval_pending',
+        timestamp: new Date('2024-01-20T14:36:00'),
+        description: '发起审批流程：需审批通过或拒绝后继续处理',
+        actor: mockUsers[2]
+      }
+    ],
     assignedTasks: mockTasks
   },
   {
     id: 'inc2',
     title: '支付网关故障导致交易失败',
+    description: '第三方支付网关故障导致交易失败率显著上升',
     status: 'in_progress', 
     priority: 'high',
     timestamp: new Date('2024-01-20T13:10:00'),
@@ -537,12 +621,32 @@ export const mockIncidents: Incident[] = [
       ]
     },
     suggestedResponsePlan: mockResponseActions2, 
-    processingHistory: mockActivities2,
+    processingHistory: [
+      {
+        id: 'act_inc2_1',
+        timestamp: new Date('2024-01-20T13:15:00'),
+        description: '监控检测到支付成功率异常下降',
+        actor: 'AI'
+      },
+      {
+        id: 'act_inc2_2',
+        timestamp: new Date('2024-01-20T13:18:00'),
+        description: '技术支持确认第三方支付网关故障',
+        actor: mockUsers[2]
+      },
+      {
+        id: 'act_inc2_3',
+        timestamp: new Date('2024-01-20T13:20:00'),
+        description: '临时切换备用支付通道并监控效果',
+        actor: mockUsers[2]
+      }
+    ],
     assignedTasks: mockTasks2
   },
   {
     id: 'inc3',
     title: '新用户注册量异常增长',
+    description: '新用户注册量在短时间内异常增长，需要监控与评估',
     status: 'automated',
     priority: 'medium', 
     timestamp: new Date('2024-01-20T12:45:00'),
@@ -585,8 +689,34 @@ export const mockIncidents: Incident[] = [
     assignedTasks: []
   },
   {
+    id: 'inc_email4',
+    title: '邮件退信率过高',
+    description: '大规模退信提示存在无效邮箱，需要人工清理与策略修正',
+    status: 'pending_human',
+    priority: 'medium',
+    timestamp: new Date('2024-01-20T14:30:00'),
+    involvedEntities: [
+      { type: 'product', value: '营销邮件系统' },
+      { type: 'customer', value: '订阅用户' }
+    ],
+    aiAnalysis: {
+      confidence: 78,
+      summary: '邮件退信率显著高于正常水平，可能包含大量无效邮箱或域名限制。建议对邮件列表进行清理并调整发送策略。',
+      keyMetrics: [
+        { label: '退信率', value: '8.5%' },
+        { label: '正常退信率', value: '2.1%' },
+        { label: '无效邮箱数', value: '234' },
+        { label: '退信类型', value: '硬退信' }
+      ]
+    },
+    suggestedResponsePlan: mockEmailResponseActions3,
+    processingHistory: mockEmailActivities,
+    assignedTasks: allMockTasks.filter(task => task.parentIncidentId === 'inc_email4')
+  },
+  {
     id: 'inc4',
     title: '库存数据同步延迟',
+    description: '库存数据同步延迟影响部分商品的展示与购买决策',
     status: 'pending_human',
     priority: 'low',
     timestamp: new Date('2024-01-20T11:20:00'),
@@ -613,10 +743,16 @@ export const mockIncidents: Incident[] = [
     ],
     processingHistory: [
       {
-        id: 'act9',
+        id: 'act_inc4_1',
         timestamp: new Date('2024-01-20T11:20:00'),
         description: '检测到库存同步异常',
         actor: 'AI'
+      },
+      {
+        id: 'act_inc4_2',
+        timestamp: new Date('2024-01-20T11:30:00'),
+        description: '技术支持评估同步延迟影响范围',
+        actor: mockUsers[2]
       }
     ],
     assignedTasks: []
@@ -626,6 +762,7 @@ export const mockIncidents: Incident[] = [
   {
     id: 'inc_email1',
     title: '客户产品质量投诉邮件',
+    description: '客户投诉购买产品存在屏幕显示问题，情绪较强烈',
     status: 'pending_human',
     priority: 'high',
     timestamp: new Date('2024-01-20T15:40:00'),
@@ -645,12 +782,32 @@ export const mockIncidents: Incident[] = [
       ]
     },
     suggestedResponsePlan: mockEmailResponseActions,
-    processingHistory: mockEmailActivities,
+    processingHistory: [
+      {
+        id: 'act_email1_1',
+        timestamp: new Date('2024-01-20T15:45:00'),
+        description: 'AI检测到客户投诉邮件，自动标记为高优先级',
+        actor: 'AI'
+      },
+      {
+        id: 'act_email1_2',
+        timestamp: new Date('2024-01-20T15:48:00'),
+        description: '邮件专员人工审核投诉内容',
+        actor: emailSpecialist
+      },
+      {
+        id: 'act_email1_3',
+        timestamp: new Date('2024-01-20T15:52:00'),
+        description: '客服准备回复模板并安排回访',
+        actor: mockUsers[1]
+      }
+    ],
     assignedTasks: allMockTasks.filter(task => task.parentIncidentId === 'inc_email1')
   },
   {
     id: 'inc_email2',
     title: '邮件发送服务异常',
+    description: 'SMTP 连接超时导致邮件发送成功率显著下降',
     status: 'in_progress',
     priority: 'high',
     timestamp: new Date('2024-01-20T16:15:00'),
@@ -669,12 +826,32 @@ export const mockIncidents: Incident[] = [
       ]
     },
     suggestedResponsePlan: mockEmailResponseActions2,
-    processingHistory: mockEmailActivities2,
+    processingHistory: [
+      {
+        id: 'act_email2_1',
+        timestamp: new Date('2024-01-20T16:20:00'),
+        description: '监控系统检测到邮件发送失败率异常升高',
+        actor: 'AI'
+      },
+      {
+        id: 'act_email2_2',
+        timestamp: new Date('2024-01-20T16:22:00'),
+        description: '技术支持检查SMTP服务器状态',
+        actor: mockUsers[2]
+      },
+      {
+        id: 'act_email2_3',
+        timestamp: new Date('2024-01-20T16:28:00'),
+        description: '切换备用邮件服务器并重试发送',
+        actor: mockUsers[2]
+      }
+    ],
     assignedTasks: allMockTasks.filter(task => task.parentIncidentId === 'inc_email2')
   },
   {
     id: 'inc_email3',
     title: '邮件退订率异常增长',
+    description: '过去24小时退订率异常增长，需要优化频率与内容策略',
     status: 'pending_human',
     priority: 'medium',
     timestamp: new Date('2024-01-20T17:05:00'),
@@ -693,8 +870,116 @@ export const mockIncidents: Incident[] = [
       ]
     },
     suggestedResponsePlan: mockEmailResponseActions3,
-    processingHistory: mockEmailActivities3,
+    processingHistory: [
+      {
+        id: 'act_email3_1',
+        timestamp: new Date('2024-01-20T17:10:00'),
+        description: 'AI分析检测到邮件退订率异常增长',
+        actor: 'AI'
+      },
+      {
+        id: 'act_email3_2',
+        timestamp: new Date('2024-01-20T17:12:00'),
+        description: '邮件专员优化邮件内容与频率策略',
+        actor: emailSpecialist
+      },
+      {
+        id: 'act_email3_3',
+        timestamp: new Date('2024-01-20T17:15:00'),
+        description: '计划执行A/B测试验证新策略效果',
+        actor: emailSpecialist
+      }
+    ],
     assignedTasks: allMockTasks.filter(task => task.parentIncidentId === 'inc_email3')
+  }
+  ,
+  {
+    id: 'inc_email5',
+    title: '投诉邮件（新）',
+    description: '客户通过邮件投诉近期收到的营销内容不相关，需人工跟进',
+    status: 'pending_human',
+    priority: 'high',
+    timestamp: new Date('2024-01-20T15:50:00'),
+    involvedEntities: [
+      { type: 'customer', value: '赵先生' },
+      { type: 'product', value: '营销邮件系统' }
+    ],
+    aiAnalysis: {
+      confidence: 88,
+      summary: '客户对营销邮件内容表达强烈不满，建议人工沟通并调整内容策略。',
+      keyMetrics: [
+        { label: '投诉类型', value: '内容不相关' },
+        { label: '客户等级', value: '普通会员' },
+        { label: '情绪指数', value: '不满' },
+        { label: '紧急程度', value: '较高' }
+      ]
+    },
+    suggestedResponsePlan: mockEmailResponseActions,
+    processingHistory: [
+      {
+        id: 'act_email5_1',
+        timestamp: new Date('2024-01-20T15:50:00'),
+        description: 'AI识别投诉：内容不相关',
+        actor: 'AI'
+      },
+      {
+        id: 'act_email5_2',
+        timestamp: new Date('2024-01-20T15:53:00'),
+        description: '邮件专员重新分类客户兴趣标签',
+        actor: emailSpecialist
+      },
+      {
+        id: 'act_email5_3',
+        timestamp: new Date('2024-01-20T15:58:00'),
+        description: '客服准备电话跟进以安抚客户情绪',
+        actor: mockUsers[1]
+      }
+    ],
+    assignedTasks: allMockTasks.filter(task => task.parentIncidentId === 'inc_email5')
+  },
+  {
+    id: 'inc_email6',
+    title: 'SMTP失败告警',
+    description: '邮件服务在多个域名上出现SMTP连接失败，需要技术介入',
+    status: 'pending_human',
+    priority: 'high',
+    timestamp: new Date('2024-01-20T16:20:00'),
+    involvedEntities: [
+      { type: 'product', value: '邮件服务系统' },
+      { type: 'customer', value: '多名客户' }
+    ],
+    aiAnalysis: {
+      confidence: 93,
+      summary: '多域名出现SMTP连接失败，影响营销与系统通知邮件发送。',
+      keyMetrics: [
+        { label: '失败邮件数', value: '860封' },
+        { label: '主要错误', value: 'SMTP连接失败' },
+        { label: '受影响域名', value: 'gmail.com, outlook.com' },
+        { label: '当前可用性', value: '不稳定' }
+      ]
+    },
+    suggestedResponsePlan: mockEmailResponseActions2,
+    processingHistory: [
+      {
+        id: 'act_email6_1',
+        timestamp: new Date('2024-01-20T16:20:00'),
+        description: 'AI检测到SMTP连接失败',
+        actor: 'AI'
+      },
+      {
+        id: 'act_email6_2',
+        timestamp: new Date('2024-01-20T16:22:00'),
+        description: '技术支持定位受影响域名并记录',
+        actor: mockUsers[2]
+      },
+      {
+        id: 'act_email6_3',
+        timestamp: new Date('2024-01-20T16:26:00'),
+        description: '应用临时重试策略并监控发送成功率',
+        actor: mockUsers[2]
+      }
+    ],
+    assignedTasks: allMockTasks.filter(task => task.parentIncidentId === 'inc_email6')
   }
 ];
 
@@ -780,6 +1065,30 @@ export const mockEvents: Event[] = [
       normalRate: 2.1,
       invalidEmails: 234,
       bounceType: 'hard_bounce'
+    }
+  },
+  {
+    id: 'evt_email5',
+    type: 'email_complaint_received',
+    timestamp: new Date('2024-01-20T15:50:00'),
+    data: {
+      customerId: 'CUST-990',
+      customerEmail: 'zhaoys@example.com',
+      complaintType: 'content_irrelevant',
+      sentiment: 'negative',
+      subject: '营销邮件内容不相关投诉'
+    }
+  },
+  {
+    id: 'evt_email6',
+    type: 'email_delivery_failed',
+    timestamp: new Date('2024-01-20T16:20:00'),
+    data: {
+      campaignId: 'CAMP-2024-004',
+      failedCount: 860,
+      totalCount: 1800,
+      errorType: 'smtp_connection_failed',
+      affectedDomains: ['gmail.com', 'outlook.com']
     }
   }
 ];

@@ -22,6 +22,8 @@ export type Event = {
 export type Incident = {
   id: string;
   title: string;
+  /** 事件简要描述 */
+  description?: string;
   status: 'pending_human' | 'in_progress' | 'resolved' | 'automated';
   priority: 'high' | 'medium' | 'low';
   timestamp: Date;
@@ -93,7 +95,14 @@ export type Activity = {
 };
 
 // Helper types for filtering and UI state
-export type IncidentFilter = 'all' | 'urgent' | 'pending_human' | 'ai_processed';
+export type IncidentFilter =
+  | 'all'
+  | 'urgent'
+  | 'pending_human'
+  | 'ai_processed'
+  | 'type_customer'
+  | 'type_order'
+  | 'type_product';
 export type TaskView = 'list' | 'kanban';
 export type TaskGrouping = 'due_date' | 'incident';
 export type CalendarView = 'month' | 'week' | 'day';

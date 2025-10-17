@@ -870,7 +870,7 @@ export default function MyTasks() {
 
         {/* 主从布局容器（左4/右8） */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-0 border-y border-slate-200 dark:border-slate-800 py-4 my-4 md:py-6 md:my-6 mx-4 md:mx-6">
-          <div className="lg:col-span-4 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 space-y-4">
+          <div className="lg:col-span-4 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 p-4 space-y-4">
         {/* 列表视图（固定保留） */}
           <div>
             <div>
@@ -929,10 +929,10 @@ export default function MyTasks() {
               </div>
             </div>
             {/* 新建任务按钮：筛选条件下方另起一行 */}
-            <div className="mt-2">
+            <div className="mt-2 -mx-4">
               <Button variant="default" size="sm" onClick={openCreateTask}>新建任务</Button>
             </div>
-            <div>
+            <div className="py-3">
               {/* 事件风格的任务列表 */}
               <div className="flex-1 overflow-y-auto">
                 {filteredTasks.length === 0 ? (
