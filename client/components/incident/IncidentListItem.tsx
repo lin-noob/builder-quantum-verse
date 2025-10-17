@@ -44,8 +44,7 @@ const progressColors = {
 };
 
 export default function IncidentListItem({ incident, isSelected, onClick }: IncidentListItemProps) {
-  const hasPendingApproval = Array.isArray(incident.processingHistory)
-    && incident.processingHistory.some(a => a.id === 'act_approval_pending');
+  const hasPendingApproval = false;
   return (
     <div
       className={`
@@ -71,13 +70,8 @@ export default function IncidentListItem({ incident, isSelected, onClick }: Inci
               <Zap className="w-3 h-3 ml-1" />
             )}
           </span>
-          {/* 待审批标识（基于处理记录中的 act_approval_pending） */}
-          {hasPendingApproval && (
-            <span className="px-2 py-1 rounded-full text-xs font-medium inline-flex items-center bg-eip-warning text-eip-warning-foreground">
-              待审批
-              <AlertTriangle className="w-3 h-3 ml-1" />
-            </span>
-          )}
+          {/* 待审批标识移除 */}
+          {hasPendingApproval && null}
       </div>
       </div>
   

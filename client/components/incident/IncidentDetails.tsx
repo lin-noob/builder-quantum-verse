@@ -1004,9 +1004,11 @@ export default function IncidentDetails({ incident }: IncidentDetailsProps) {
 
             {isExecuted && (
               // Show generated tasks (多形态卡片)
-              generatedTasks.map((task) => (
-                <TaskCard key={task.id} task={task} />
-              ))
+              generatedTasks
+                .filter((task) => task.handlingType !== 'external_approval')
+                .map((task) => (
+                  <TaskCard key={task.id} task={task} />
+                ))
             )}
           </CardContent>
         </Card>
@@ -1151,7 +1153,14 @@ export default function IncidentDetails({ incident }: IncidentDetailsProps) {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {incident.processingHistory.map((activity, index) => (
+              {(incident.processingHistory || [])
+                .filter((activity: any) => {
+                  const id = activity?.id || '';
+                  const desc = activity?.description || '';
+                  // 过滤审批相关记录：以 act_approval_ 开头或描述包含“审批”
+                  return !(typeof id === 'string' && id.startsWith('act_approval_')) && !/审批/.test(String(desc));
+                })
+                .map((activity: any, index: number) => (
                 <div key={activity.id} className="flex items-start space-x-3">
                   <div className="flex-shrink-0 w-8 h-8 bg-eip-accent/10 rounded-full flex items-center justify-center">
                     {activity.actor === 'AI' ? (
