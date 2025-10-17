@@ -246,7 +246,7 @@ export default function IncidentDetails({ incident }: IncidentDetailsProps) {
   const rejectAction = (id: string) => {
     setActions(prev => prev.map(a => a.id === id ? { ...a, approvalStatus: 'rejected' } : a));
   };
-  const isActionLocked = (action: UIResponseAction) => (action.approvalStatus && action.approvalStatus !== 'approved') || !!action.paused;
+  const isActionLocked = (action: UIResponseAction) => !!action.paused;
 
   // 预览多形态任务卡片（未执行前用于展示不同type的形态）
   const previewTasks = useMemo(() => {
@@ -739,22 +739,7 @@ export default function IncidentDetails({ incident }: IncidentDetailsProps) {
                             待审批
                           </Badge>
                         )}
-                        {action.approvalStatus === 'approved' && (
-                          <Badge
-                            variant="outline"
-                            className="text-[10px] px-1 py-0.5 bg-eip-success text-eip-success-foreground border-eip-success"
-                          >
-                            已通过
-                          </Badge>
-                        )}
-                        {action.approvalStatus === 'rejected' && (
-                          <Badge
-                            variant="outline"
-                            className="text-[10px] px-1 py-0.5 bg-eip-alert text-eip-alert-foreground border-eip-alert"
-                          >
-                            已拒绝
-                          </Badge>
-                        )}
+                        {/* 审批状态徽章已移除 */}
                         {action.auto && (
                           <Badge variant="outline" className="text-[10px] px-1 py-0.5">AI自动处理</Badge>
                         )}
@@ -778,16 +763,7 @@ export default function IncidentDetails({ incident }: IncidentDetailsProps) {
                             </>
                           ) : (
                             <>
-                              {action.approvalStatus === 'required' && (
-                                <>
-                                  <Button size="sm" variant="ghost" className="h-7" onClick={() => approveAction(action.id)}>
-                                    <Check className="w-3 h-3 mr-1" /> 审批通过
-                                  </Button>
-                                  <Button size="sm" variant="ghost" className="h-7" onClick={() => rejectAction(action.id)}>
-                                    <AlertTriangle className="w-3 h-3 mr-1" /> 审批拒绝
-                                  </Button>
-                                </>
-                              )}
+                              {/* 审批操作按钮已移除 */}
                               {action.auto && !action.paused && (
                                 <Button size="sm" variant="ghost" className="h-7" onClick={() => pauseAction(action.id)} disabled={action.status === 'archived' || processingActionIds.has(action.id)}>
                                   <Pause className="w-3 h-3 mr-1" /> 暂停
@@ -801,7 +777,7 @@ export default function IncidentDetails({ incident }: IncidentDetailsProps) {
                               <Button size="sm" variant="ghost" className="h-7" onClick={() => handleExecuteAISuggestion(action.id)} disabled={action.status === 'archived' || processingActionIds.has(action.id) || isActionLocked(action)}>
                                 <Zap className="w-3 h-3 mr-1" /> 执行AI建议
                               </Button>
-                              <Button size="sm" variant="ghost" className="h-7" onClick={handleGoToLegacy} disabled={action.status === 'archived' || action.approvalStatus === 'rejected'}>
+                              <Button size="sm" variant="ghost" className="h-7" onClick={handleGoToLegacy} disabled={action.status === 'archived'}>
                                 <ExternalLink className="w-3 h-3 mr-1" /> 打开传统页面
                               </Button>
                               <DropdownMenu>
