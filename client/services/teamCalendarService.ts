@@ -124,11 +124,19 @@ class TeamCalendarService {
     throw new Error(response.data.msg || '更新日历事件失败');
   }
 
-  async getEventList(userId?: string): Promise<CalendarEventResponse[]> {
+  async getEventList(userId?: string, monthStr?: string): Promise<CalendarEventResponse[]> {
     try {
-      const url = userId
-        ? `/admin/api/v1/team/info?userId=${userId}`
-        : '/admin/api/v1/team/info';
+      // 构建查询参数
+      const params = new URLSearchParams();
+      if (userId) {
+        params.append('userId', userId);
+      }
+      if (monthStr) {
+        params.append('monthStr', monthStr);
+      }
+
+      const queryString = params.toString();
+      const url = `/admin/api/v1/team/info${queryString ? '?' + queryString : ''}`;
 
       const response = await request.get<{ code: string; data: CalendarEventApiResponse; msg: string }>(
         url

@@ -35,6 +35,7 @@ export default function TeamCalendar() {
   const [highlightedMember, setHighlightedMember] = useState<string>();
   const [showAISuggestions, setShowAISuggestions] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [currentMonthStr, setCurrentMonthStr] = useState<string>('');
   const [userEvents, setUserEvents] = useState<CalendarEvent[]>([]);
   const [eventDialogOpen, setEventDialogOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<CalendarEvent | null>(null);
@@ -44,7 +45,7 @@ export default function TeamCalendar() {
   const [loading, setLoading] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  // 第一步：初始化团队成员但默认不选中任何成员
+  // 第一步：初始化团队成员但默认不选中任何成员，同时设置当前月份
   useEffect(() => {
     const initializeMembers = async () => {
       const members = await getTeamMembers();
@@ -52,9 +53,29 @@ export default function TeamCalendar() {
       setSelectedMembers([]);
     };
     initializeMembers();
+    
+    // 初始化月份字符串
+    setCurrentMonthStr(getMonthStr(new Date()));
   }, []);
 
-  // 第二步：当成员ID准备好后，加载日程数据
+  // 生成月份字符串 (格式: YYYY-MM)
+  const getMonthStr = (date: Date): string => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    return `${year}-${month}`;
+  };
+
+  // 当日期或成员变化时，如果月份变化了则重新加载事件
+  useEffect(() => {
+    const newMonthStr = getMonthStr(currentDate);
+    
+    // 只有月份改变时才重新加载数据
+    if (newMonthStr !== currentMonthStr) {
+      setCurrentMonthStr(newMonthStr);
+    }
+  }, [currentDate]);
+
+  // 当月份或成员变化时，加载日程数据
   useEffect(() => {
     const loadEvents = async () => {
       setLoading(true);
@@ -62,7 +83,8 @@ export default function TeamCalendar() {
         // 如果没有选择任何成员，则查询所有成员（不传递userId参数或传递空值）
         // 如果选择了成员，则只查询这些成员的事件
         const userId = selectedMembers.length > 0 ? selectedMembers.join(",") : undefined;
-        const events = await teamCalendarService.getEventList(userId);
+        // 传递月份字符串给后端
+        const events = await teamCalendarService.getEventList(userId, currentMonthStr);
 
         const typeNumberToString: Record<number, "meeting" | "task" | "other"> =
           {
@@ -110,8 +132,11 @@ export default function TeamCalendar() {
       }
     };
 
-    loadEvents();
-  }, [selectedMembers]);
+    // 只在月份变化或成员变化时加载数据
+    if (currentMonthStr) {
+      loadEvents();
+    }
+  }, [currentMonthStr, selectedMembers]);
 
   // 转换任务为日历事件格式 (react-big-calendar 格式)
   const calendarEvents = useMemo(() => {
@@ -209,7 +234,8 @@ export default function TeamCalendar() {
       // 如果没有选择任何成员，则查询所有成员（不传递userId参数或传递空值）
       // 如果选择了成员，则只查询这些成员的事件
       const userId = selectedMembers.length > 0 ? selectedMembers.join(",") : undefined;
-      const events = await teamCalendarService.getEventList(userId);
+      // 传递月份字符串给后端
+      const events = await teamCalendarService.getEventList(userId, currentMonthStr);
 
       const typeNumberToString: Record<number, "meeting" | "task" | "other"> = {
         0: "meeting",
@@ -233,7 +259,6 @@ export default function TeamCalendar() {
         description: event.description,
         allDay: event.allDay,
         userId: event.userId,
-        userName: event.userName,
         type:
           event.type !== undefined ? typeNumberToString[event.type] : "meeting",
         priority:
@@ -250,7 +275,7 @@ export default function TeamCalendar() {
     } finally {
       setLoading(false);
     }
-  }, [selectedMembers]);
+  }, [selectedMembers, currentMonthStr]);
 
   // 处理保存（新建或编辑）
   const handleSaveEvent = useCallback(async () => {
