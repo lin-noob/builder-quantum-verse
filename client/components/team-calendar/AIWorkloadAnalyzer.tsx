@@ -1,9 +1,11 @@
+import { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Brain, TrendingUp, AlertTriangle, CheckCircle, Sparkles } from 'lucide-react';
 import { getWorkloadAnalysis, getTeamMembers } from '@/data/teamCalendarData';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
+import { TeamMember } from '@shared/types';
 
 interface AIWorkloadAnalyzerProps {
   onShowAISuggestions: () => void;
@@ -12,7 +14,11 @@ interface AIWorkloadAnalyzerProps {
 
 export default function AIWorkloadAnalyzer({ onShowAISuggestions, onHighlightMember }: AIWorkloadAnalyzerProps) {
   const workloadAnalysis = getWorkloadAnalysis();
-  const teamMembers = getTeamMembers();
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+
+  useEffect(() => {
+    getTeamMembers().then(setTeamMembers);
+  }, []);
 
   // 环形图数据
   const chartData = [

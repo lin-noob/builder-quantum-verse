@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Plus, ChevronDown } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ColorBy } from '@shared/types';
+import { ColorBy, TeamMember } from '@shared/types';
 import { getTeamMembers, colorConfigs } from '@/data/teamCalendarData';
 
 interface ViewFiltersProps {
@@ -13,6 +13,7 @@ interface ViewFiltersProps {
   onExternalToggle: (show: boolean) => void;
   colorBy: ColorBy;
   onColorByChange: (colorBy: ColorBy) => void;
+  refreshTrigger?: number;
 }
 
 export default function ViewFilters({
@@ -21,9 +22,14 @@ export default function ViewFilters({
   showExternal,
   onExternalToggle,
   colorBy,
-  onColorByChange
+  onColorByChange,
+  refreshTrigger
 }: ViewFiltersProps) {
-  const teamMembers = getTeamMembers();
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+
+  useEffect(() => {
+    getTeamMembers().then(setTeamMembers);
+  }, [refreshTrigger]);
   
   const colorByOptions = [
     { value: 'assignee' as ColorBy, label: '按负责人' },
@@ -38,7 +44,7 @@ export default function ViewFilters({
   return (
     <div className="space-y-6">
       {/* 添加日历 */}
-      <div>
+      {/* <div>
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-medium text-slate-900 dark:text-slate-100">
             添加日历
@@ -51,7 +57,7 @@ export default function ViewFilters({
             <Plus className="w-4 h-4 text-slate-400" />
           </Button>
         </div>
-      </div>
+      </div> */}
       
       {/* 我的日历 */}
       <div>
@@ -70,10 +76,10 @@ export default function ViewFilters({
                   onCheckedChange={() => onMemberToggle(member.id)}
                   className="flex-shrink-0"
                 />
-                <div 
+                {/* <div 
                   className="w-3 h-3 rounded-sm flex-shrink-0"
                   style={{ backgroundColor: getMemberColor(member.id) }}
-                />
+                /> */}
                 <span className="text-sm text-slate-700 dark:text-slate-300 flex-1">
                   {member.name}的日历
                 </span>
@@ -82,7 +88,7 @@ export default function ViewFilters({
           })}
           
           {/* 外部会议 */}
-          <div className="flex items-center space-x-3">
+          {/* <div className="flex items-center space-x-3">
             <Checkbox
               checked={showExternal}
               onCheckedChange={onExternalToggle}
@@ -92,12 +98,12 @@ export default function ViewFilters({
             <span className="text-sm text-slate-700 dark:text-slate-300 flex-1">
               外部会议
             </span>
-          </div>
+          </div> */}
         </div>
       </div>
       
       {/* 着色依据 */}
-      <div>
+      {/* <div>
         <h3 className="text-sm font-medium text-slate-900 dark:text-slate-100 mb-4">
           视图设置
         </h3>
@@ -121,7 +127,6 @@ export default function ViewFilters({
             </Select>
           </div>
           
-          {/* 颜色图例 */}
           <div className="mt-3">
             <div className="text-xs text-slate-600 dark:text-slate-400 mb-2">
               当前着色方案
@@ -179,7 +184,7 @@ export default function ViewFilters({
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }

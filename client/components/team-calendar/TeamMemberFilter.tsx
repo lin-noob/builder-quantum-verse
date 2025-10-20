@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Users, CheckCircle, AlertTriangle, TrendingDown } from 'lucide-react';
 import { TeamMember } from '@shared/types';
-import { getTeamMembers } from '@/data/teamCalendarData';
+import { teamCalendarService, TeamMemberData } from '@/services/teamCalendarService';
+import { useState, useEffect } from 'react';
 
 interface TeamMemberFilterProps {
   selectedMembers: string[];
@@ -13,12 +14,29 @@ interface TeamMemberFilterProps {
   highlightedMember?: string;
 }
 
-export default function TeamMemberFilter({ 
-  selectedMembers, 
-  onMemberToggle, 
-  highlightedMember 
+export default function TeamMemberFilter({
+  selectedMembers,
+  onMemberToggle,
+  highlightedMember
 }: TeamMemberFilterProps) {
-  const teamMembers = getTeamMembers();
+  const [teamMembers, setTeamMembers] = useState<TeamMemberData[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadTeamMembers = async () => {
+      setLoading(true);
+      try {
+        const members = await teamCalendarService.getTeamMemberList();
+        setTeamMembers(members);
+      } catch (error) {
+        console.error('Failed to load team members:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadTeamMembers();
+  }, []);
 
   const handleSelectAll = () => {
     if (selectedMembers.length === teamMembers.length) {
@@ -34,7 +52,7 @@ export default function TeamMemberFilter({
     }
   };
 
-  const getStatusIcon = (status: TeamMember['status']) => {
+  const getStatusIcon = (status: TeamMemberData['status']) => {
     switch (status) {
       case 'overloaded':
         return <AlertTriangle className="w-4 h-4 text-red-500" />;
@@ -47,7 +65,7 @@ export default function TeamMemberFilter({
     }
   };
 
-  const getStatusBadge = (status: TeamMember['status']) => {
+  const getStatusBadge = (status: TeamMemberData['status']) => {
     switch (status) {
       case 'overloaded':
         return <Badge variant="destructive" className="text-xs">过载</Badge>;
@@ -91,78 +109,88 @@ export default function TeamMemberFilter({
       </CardHeader>
       
       <CardContent className="space-y-4 max-h-80 overflow-y-auto">
-        {teamMembers.map(member => {
-          const isSelected = selectedMembers.includes(member.id);
-          const isHighlighted = highlightedMember === member.id;
-          
-          return (
-            <div
-              key={member.id}
-              className={`
-                flex items-center space-x-3 p-3 rounded-lg border transition-all duration-200
-                ${isHighlighted
-                  ? 'border-indigo-300 bg-indigo-50 dark:border-indigo-700 dark:bg-indigo-900/20 shadow-md'
-                  : 'border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/50'
-                }
-                ${!isSelected ? 'opacity-60' : ''}
-              `}
-            >
-              {/* 复选框 */}
-              <Checkbox
-                checked={isSelected}
-                onCheckedChange={() => onMemberToggle(member.id)}
-                className="flex-shrink-0"
-              />
+        {loading ? (
+          <div className="flex items-center justify-center py-8">
+            <div className="text-sm text-slate-500 dark:text-slate-400">加载中...</div>
+          </div>
+        ) : teamMembers.length === 0 ? (
+          <div className="flex items-center justify-center py-8">
+            <div className="text-sm text-slate-500 dark:text-slate-400">暂无团队成员</div>
+          </div>
+        ) : (
+          teamMembers.map(member => {
+            const isSelected = selectedMembers.includes(member.id);
+            const isHighlighted = highlightedMember === member.id;
 
-              {/* 用户头像 */}
-              <Avatar className="w-8 h-8 flex-shrink-0">
-                <AvatarImage src={member.avatarUrl} alt={member.name} />
-                <AvatarFallback className="text-xs bg-slate-200 dark:bg-slate-700">
-                  {member.name.charAt(0)}
-                </AvatarFallback>
-              </Avatar>
+            return (
+              <div
+                key={member.id}
+                className={`
+                  flex items-center space-x-3 p-3 rounded-lg border transition-all duration-200
+                  ${isHighlighted
+                    ? 'border-indigo-300 bg-indigo-50 dark:border-indigo-700 dark:bg-indigo-900/20 shadow-md'
+                    : 'border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/50'
+                  }
+                  ${!isSelected ? 'opacity-60' : ''}
+                `}
+              >
+                {/* 复选框 */}
+                <Checkbox
+                  checked={isSelected}
+                  onCheckedChange={() => onMemberToggle(member.id)}
+                  className="flex-shrink-0"
+                />
 
-              {/* 用户信息 */}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">
-                    {member.name}
-                  </span>
-                  {getStatusIcon(member.status)}
-                </div>
-                
-                <div className="text-xs text-slate-500 dark:text-slate-500 mb-1">
-                  {member.role}
-                </div>
-                
-                {/* 工作负载信息 */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <span className={`text-xs font-medium ${getWorkloadColor(member.workloadPercentage)}`}>
-                      {member.workloadPercentage}%
+                {/* 用户头像 */}
+                <Avatar className="w-8 h-8 flex-shrink-0">
+                  <AvatarImage src={member.avatarUrl} alt={member.name} />
+                  <AvatarFallback className="text-xs bg-slate-200 dark:bg-slate-700">
+                    {member.name.charAt(0)}
+                  </AvatarFallback>
+                </Avatar>
+
+                {/* 用户信息 */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">
+                      {member.name}
                     </span>
-                    {getStatusBadge(member.status)}
+                    {getStatusIcon(member.status)}
                   </div>
-                </div>
-                
-                {/* 工作负载进度条 */}
-                <div className="mt-2">
-                  <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-1.5">
-                    <div
-                      className={`
-                        h-1.5 rounded-full transition-all duration-300
-                        ${member.workloadPercentage >= 100 ? 'bg-red-400' :
-                          member.workloadPercentage >= 90 ? 'bg-amber-400' :
-                          member.workloadPercentage >= 70 ? 'bg-emerald-400' : 'bg-indigo-400'}
-                      `}
-                      style={{ width: `${Math.min(member.workloadPercentage, 100)}%` }}
-                    />
+
+                  <div className="text-xs text-slate-500 dark:text-slate-500 mb-1">
+                    {member.role}
+                  </div>
+
+                  {/* 工作负载信息 */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <span className={`text-xs font-medium ${getWorkloadColor(member.workloadPercentage)}`}>
+                        {member.workloadPercentage}%
+                      </span>
+                      {getStatusBadge(member.status)}
+                    </div>
+                  </div>
+
+                  {/* 工作负载进度条 */}
+                  <div className="mt-2">
+                    <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-1.5">
+                      <div
+                        className={`
+                          h-1.5 rounded-full transition-all duration-300
+                          ${member.workloadPercentage >= 100 ? 'bg-red-400' :
+                            member.workloadPercentage >= 90 ? 'bg-amber-400' :
+                            member.workloadPercentage >= 70 ? 'bg-emerald-400' : 'bg-indigo-400'}
+                        `}
+                        style={{ width: `${Math.min(member.workloadPercentage, 100)}%` }}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })
+        )}
       </CardContent>
 
       {/* 底部统计 */}

@@ -1,102 +1,138 @@
-import { useState, useMemo, useCallback } from 'react';
-import { Calendar, Views, View } from 'react-big-calendar';
-import { useTranslation } from 'react-i18next';
-import 'react-big-calendar/lib/css/react-big-calendar.css';
-import '@/styles/calendar.css';
-import { ColorBy, CalendarView } from '@shared/types';
+import { useState, useMemo, useCallback, useEffect } from "react";
+import { Calendar, View } from "react-big-calendar";
+import { useTranslation } from "react-i18next";
+import "react-big-calendar/lib/css/react-big-calendar.css";
+import "@/styles/calendar.css";
+import { ColorBy, CalendarView } from "@shared/types";
 import {
-  getTeamCalendarTasks,
   getTeamMembers,
   getAISuggestedTasks,
-  getTaskColor
-} from '@/data/teamCalendarData';
-import { localizer, calendarMessages, getCalendarLocale } from '@/utils/calendar-localization';
-import MiniMonthNavigator from '@/components/team-calendar/MiniMonthNavigator';
-import AIWorkloadAnalyzer from '@/components/team-calendar/AIWorkloadAnalyzer';
-import ViewFilters from '@/components/team-calendar/ViewFilters';
-import CalendarToolbar from '@/components/team-calendar/CalendarToolbar';
-import { toast } from 'sonner';
-import { Brain } from 'lucide-react';
-import EventFormDialog, { type CalendarEvent } from '@/components/team-calendar/EventFormDialog';
-import CustomCalendarGrid from '@/components/team-calendar/CustomCalendarGrid';
+  getTaskColor,
+} from "@/data/teamCalendarData";
+import { teamCalendarService } from "@/services/teamCalendarService";
+import {
+  localizer,
+  calendarMessages,
+  getCalendarLocale,
+} from "@/utils/calendar-localization";
+import MiniMonthNavigator from "@/components/team-calendar/MiniMonthNavigator";
+import AIWorkloadAnalyzer from "@/components/team-calendar/AIWorkloadAnalyzer";
+import ViewFilters from "@/components/team-calendar/ViewFilters";
+import CalendarToolbar from "@/components/team-calendar/CalendarToolbar";
+import { toast } from "sonner";
+import { Brain } from "lucide-react";
+import EventFormDialog, {
+  type CalendarEvent,
+} from "@/components/team-calendar/EventFormDialog";
+import CustomCalendarGrid from "@/components/team-calendar/CustomCalendarGrid";
 
 export default function TeamCalendar() {
   const { i18n } = useTranslation();
-  const [colorBy, setColorBy] = useState<ColorBy>('assignee');
-  const [calendarView, setCalendarView] = useState<CalendarView>('month');
-  const [selectedMembers, setSelectedMembers] = useState<string[]>(
-    getTeamMembers().map(m => m.id)
-  );
+  const [colorBy, setColorBy] = useState<ColorBy>("assignee");
+  const [calendarView, setCalendarView] = useState<CalendarView>("month");
+  const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
   const [showExternal, setShowExternal] = useState(true);
   const [highlightedMember, setHighlightedMember] = useState<string>();
   const [showAISuggestions, setShowAISuggestions] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date());
-  // 本地事件（新建/编辑维护）
   const [userEvents, setUserEvents] = useState<CalendarEvent[]>([]);
   const [eventDialogOpen, setEventDialogOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<CalendarEvent | null>(null);
-  const [dialogInitialDate, setDialogInitialDate] = useState<Date | undefined>(undefined);
+  const [dialogInitialDate, setDialogInitialDate] = useState<Date | undefined>(
+    undefined,
+  );
+  const [loading, setLoading] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  // 获取过滤后的任务
-  const filteredTasks = useMemo(() => {
-    const allTasks = getTeamCalendarTasks();
-    let tasks = allTasks.filter(task => selectedMembers.includes(task.assignee.id));
-    
-    // 如果不显示外部会议，过滤掉外部任务
-    if (!showExternal) {
-      tasks = tasks.filter(task => task.source !== 'external');
+  // 第一步：初始化团队成员并默认全选
+  useEffect(() => {
+    const initializeMembers = async () => {
+      const members = await getTeamMembers();
+      setSelectedMembers(members.map((m) => m.id));
+    };
+    initializeMembers();
+  }, []);
+
+  // 第二步：当成员ID准备好后，加载日程数据
+  useEffect(() => {
+    // 如果没有选中任何成员，清空日历数据
+    if (selectedMembers.length === 0) {
+      setUserEvents([]);
+      return;
     }
-    
-    return tasks;
-  }, [selectedMembers, showExternal]);
 
-  // 获取AI建议的任务
-  const aiSuggestedTasks = useMemo(() => {
-    if (!showAISuggestions) return [];
-    return getAISuggestedTasks();
-  }, [showAISuggestions]);
+    const loadEvents = async () => {
+      setLoading(true);
+      try {
+        const userId = selectedMembers.join(",");
+        const events = await teamCalendarService.getEventList(userId);
 
-  // 转换任务为日历事件格式
+        const typeNumberToString: Record<number, "meeting" | "task" | "other"> =
+          {
+            0: "meeting",
+            1: "task",
+            2: "other",
+          };
+
+        const priorityNumberToString: Record<
+          number,
+          "high" | "medium" | "low"
+        > = {
+          0: "high",
+          1: "medium",
+          2: "low",
+        };
+
+        const calendarEvents: CalendarEvent[] = events.map((event) => ({
+          id: event.id,
+          title: event.title,
+          start: new Date(event.startDate),
+          end: new Date(event.endDate),
+          color: event.color,
+          description: event.description,
+          allDay: event.allDay,
+          userId: event.userId,
+          userName: event.userName,
+          type:
+            event.type !== undefined
+              ? typeNumberToString[event.type]
+              : "meeting",
+          priority:
+            event.priority !== undefined
+              ? priorityNumberToString[event.priority]
+              : "medium",
+          reminderMinutes: event.reminderMinutes,
+        }));
+
+        setUserEvents(calendarEvents);
+      } catch (error) {
+        console.error("Failed to load events:", error);
+        toast.error("加载日程失败");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadEvents();
+  }, [selectedMembers]);
+
+  // 转换任务为日历事件格式 (react-big-calendar 格式)
   const calendarEvents = useMemo(() => {
-    // 将任务映射为简单事件以在网格显示
-    const regularEvents = filteredTasks
-      .filter(task => task.scheduledTime)
-      .map(task => ({
-        id: task.id,
-        title: task.title,
-        start: task.scheduledTime!.start,
-        end: task.scheduledTime!.end,
-        color: getTaskColor(task, colorBy)
-      }));
-
-    // 合并用户新建事件
-    return [...regularEvents, ...userEvents];
-
-    const aiSuggestionEvents = aiSuggestedTasks
-      .filter(task => task.scheduledTime)
-      .map(task => ({
-        id: `ai-${task.id}`,
-        title: `[AI] ${task.title}`,
-        start: task.scheduledTime!.start,
-        end: task.scheduledTime!.end,
-        resource: task,
-        isAISuggested: true,
-        style: {
-          backgroundColor: '#818cf8',
-          borderColor: '#6366f1',
-          opacity: 0.7,
-        }
-      }));
-
-    return [...regularEvents, ...aiSuggestionEvents];
-  }, [filteredTasks, aiSuggestedTasks, colorBy]);
+    return userEvents.map(event => ({
+      ...event,
+      title: event.title,
+      start: new Date(event.start),
+      end: new Date(event.end),
+      allDay: event.allDay || false,
+    }));
+  }, [userEvents]);
 
   // 处理成员筛选
   const handleMemberToggle = useCallback((memberId: string) => {
-    setSelectedMembers(prev => 
+    setSelectedMembers((prev) =>
       prev.includes(memberId)
-        ? prev.filter(id => id !== memberId)
-        : [...prev, memberId]
+        ? prev.filter((id) => id !== memberId)
+        : [...prev, memberId],
     );
   }, []);
 
@@ -112,7 +148,9 @@ export default function TeamCalendar() {
       <div className="flex items-center space-x-3">
         <Brain className="w-5 h-5 text-indigo-500" />
         <div>
-          <div className="font-medium">AI已为"客户数据分析报告"生成排班建议</div>
+          <div className="font-medium">
+            AI已为"客户数据分析报告"生成排班建议
+          </div>
           <div className="text-sm text-slate-600 mt-1">
             建议将过载任务重新分配给资源利用率较低的团队成员
           </div>
@@ -121,13 +159,13 @@ export default function TeamCalendar() {
       {
         duration: 10000,
         action: {
-          label: '采纳此排期',
+          label: "采纳此排期",
           onClick: () => {
-            toast.success('已采纳AI排期建议，任务已正式加入日程');
+            toast.success("已采纳AI排期建议，任务已正式加入日程");
             // 这里可以添加采纳逻辑
-          }
-        }
-      }
+          },
+        },
+      },
     );
   }, []);
 
@@ -139,13 +177,16 @@ export default function TeamCalendar() {
   }, []);
 
   // 处理迷你日历日期选择
-  const handleMiniCalendarSelect = useCallback((date: Date) => {
-    setCurrentDate(date);
-    // 切换到日视图以突出显示选中的日期
-    if (calendarView === 'month') {
-      setCalendarView('day');
-    }
-  }, [calendarView]);
+  const handleMiniCalendarSelect = useCallback(
+    (date: Date) => {
+      setCurrentDate(date);
+      // 切换到日视图以突出显示选中的日期
+      if (calendarView === "month") {
+        setCalendarView("day");
+      }
+    },
+    [calendarView],
+  );
 
   // 处理迷你日历月份变化
   const handleMiniCalendarMonthChange = useCallback((date: Date) => {
@@ -164,41 +205,99 @@ export default function TeamCalendar() {
     setEventDialogOpen(true);
   }, []);
 
+  // 重新加载事件数据
+  const reloadEvents = useCallback(async () => {
+    // 只有当成员ID存在时才加载
+    if (selectedMembers.length === 0) {
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const userId = selectedMembers.join(",");
+      const events = await teamCalendarService.getEventList(userId);
+
+      const typeNumberToString: Record<number, "meeting" | "task" | "other"> = {
+        0: "meeting",
+        1: "task",
+        2: "other",
+      };
+
+      const priorityNumberToString: Record<number, "high" | "medium" | "low"> =
+        {
+          0: "high",
+          1: "medium",
+          2: "low",
+        };
+
+      const calendarEvents: CalendarEvent[] = events.map((event) => ({
+        id: event.id,
+        title: event.title,
+        start: new Date(event.startDate),
+        end: new Date(event.endDate),
+        color: event.color,
+        description: event.description,
+        allDay: event.allDay,
+        userId: event.userId,
+        type:
+          event.type !== undefined ? typeNumberToString[event.type] : "meeting",
+        priority:
+          event.priority !== undefined
+            ? priorityNumberToString[event.priority]
+            : "medium",
+        reminderMinutes: event.reminderMinutes,
+      }));
+
+      setUserEvents(calendarEvents);
+    } catch (error) {
+      console.error("Failed to load events:", error);
+      toast.error("加载日程失败");
+    } finally {
+      setLoading(false);
+    }
+  }, [selectedMembers]);
+
   // 处理保存（新建或编辑）
-  const handleSaveEvent = useCallback((evt: CalendarEvent) => {
-    setUserEvents(prev => {
-      const exists = prev.some(e => e.id === evt.id);
-      if (exists) {
-        return prev.map(e => (e.id === evt.id ? evt : e));
-      }
-      return [...prev, evt];
-    });
-    toast.success(editingEvent ? '已更新日程' : '已创建日程');
-    setEditingEvent(null);
-  }, [editingEvent]);
+  const handleSaveEvent = useCallback(async () => {
+    // API 保存成功后，重新加载成员信息和日历数据
+    try {
+      // 触发刷新成员信息（工作负载可能发生变化）
+      setRefreshTrigger(prev => prev + 1);
+
+      // 重新加载日历数据
+      await reloadEvents();
+    } catch (error) {
+      console.error("Failed to reload data:", error);
+    } finally {
+      setEditingEvent(null);
+    }
+  }, [reloadEvents]);
 
   // 暂时移除react-big-calendar相关的事件处理函数
   // 使用自定义日历网格组件替代
 
   return (
-      <div className="h-full flex bg-slate-50 dark:bg-slate-900">
-        {/* 左侧混合控制面板 */}
-        <div className="w-80 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 overflow-y-auto">
-          <div className="p-6 space-y-8">
-            {/* 迷你月份导航器 */}
+    <div className="h-full flex bg-slate-50 dark:bg-slate-900">
+      {/* 左侧混合控制面板 */}
+      <div className="w-80 bg-gradient-to-b from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 border-r border-slate-200/50 dark:border-slate-700/50 overflow-y-auto shadow-sm">
+        <div className="p-5 space-y-6">
+          {/* 迷你月份导航器 */}
+          <div className="bg-slate-100/40 dark:bg-slate-700/40 rounded-xl p-4 backdrop-blur-sm">
             <MiniMonthNavigator
               currentDate={currentDate}
               onDateSelect={handleMiniCalendarSelect}
               onMonthChange={handleMiniCalendarMonthChange}
             />
+          </div>
 
-            {/* AI工作负载分析 */}
-            <AIWorkloadAnalyzer
-              onShowAISuggestions={handleShowAISuggestions}
-              onHighlightMember={handleHighlightMember}
-            />
+          {/* AI工作负载分析 */}
+          {/* <AIWorkloadAnalyzer
+            onShowAISuggestions={handleShowAISuggestions}
+            onHighlightMember={handleHighlightMember}
+          /> */}
 
-            {/* 视图筛选 */}
+          {/* 视图筛选 */}
+          <div className="bg-slate-100/40 dark:bg-slate-700/40 rounded-xl p-4 backdrop-blur-sm">
             <ViewFilters
               selectedMembers={selectedMembers}
               onMemberToggle={handleMemberToggle}
@@ -206,58 +305,86 @@ export default function TeamCalendar() {
               onExternalToggle={handleExternalToggle}
               colorBy={colorBy}
               onColorByChange={setColorBy}
+              refreshTrigger={refreshTrigger}
             />
           </div>
         </div>
+      </div>
 
-        {/* 右侧主日历区域 */}
-        <div className="flex-1 flex flex-col">
-          {/* 日历工具栏 */}
-          <CalendarToolbar
-            currentDate={currentDate}
-            calendarView={calendarView}
-            onDateChange={setCurrentDate}
-            onViewChange={setCalendarView}
-            onTodayClick={handleTodayClick}
-            onNewEvent={handleNewEvent}
-          />
+      {/* 右侧主日历区域 */}
+      <div className="flex-1 flex flex-col">
+        {/* 日历工具栏 */}
+        <CalendarToolbar
+          currentDate={currentDate}
+          calendarView={calendarView}
+          onDateChange={setCurrentDate}
+          onViewChange={setCalendarView}
+          onTodayClick={handleTodayClick}
+          onNewEvent={handleNewEvent}
+        />
 
-          {/* 主日历区域 */}
-          <div className="flex-1 p-6">
-            <CustomCalendarGrid
-              currentDate={currentDate}
+        {/* 主日历区域 */}
+        <div className="flex-1 p-4">
+          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200/50 dark:border-slate-700/50 overflow-hidden h-full">
+            <Calendar
+              localizer={localizer}
               events={calendarEvents}
-              onEventClick={(evt) => {
-                setEditingEvent(evt);
+              startAccessor="start"
+              endAccessor="end"
+              allDayAccessor="allDay"
+              view={calendarView as View}
+              onView={(view: View) => setCalendarView(view as CalendarView)}
+              date={currentDate}
+              onNavigate={(newDate) => setCurrentDate(newDate)}
+              onSelectEvent={(event: any) => {
+                setEditingEvent(event);
                 setDialogInitialDate(undefined);
                 setEventDialogOpen(true);
               }}
-              onDateClick={(date) => {
-                setCurrentDate(date);
-                // 如果点击日期，可以切换到日视图
-                if (calendarView === 'month') {
-                  setCalendarView('day');
-                }
-                // 打开新建对话框并带上日期
+              onSelectSlot={(slotInfo) => {
+                setCurrentDate(slotInfo.start as Date);
+                // 保持当前视图，不自动切换到日视图
                 setEditingEvent(null);
-                setDialogInitialDate(date);
+                setDialogInitialDate(slotInfo.start as Date);
                 setEventDialogOpen(true);
               }}
+              selectable={true}
+              eventPropGetter={(event) => ({
+                style: {
+                  backgroundColor: event.color || '#6366f1', // 使用 indigo-500 颜色
+                  borderRadius: '8px',
+                  border: 'none',
+                  color: 'white',
+                  padding: '4px 6px',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  boxShadow: '0 2px 6px rgba(99, 102, 241, 0.15)',
+                  margin: '3px',
+                  fontSize: '0.75rem',
+                  fontWeight: '500',
+                  transition: 'all 0.2s ease',
+                }
+              })}
+              messages={calendarMessages}
+              culture={getCalendarLocale(i18n.language)}
+              toolbar={false} // 禁用内置工具栏，使用自定义的
+              className="h-full"
             />
           </div>
         </div>
-
-        {/* 事件新建/编辑对话框 */}
-        <EventFormDialog
-          open={eventDialogOpen}
-          onOpenChange={(open) => {
-            setEventDialogOpen(open);
-            if (!open) setEditingEvent(null);
-          }}
-          initialEvent={editingEvent}
-          initialDate={dialogInitialDate}
-          onSave={handleSaveEvent}
-        />
       </div>
+
+      {/* 事件新建/编辑对话框 */}
+      <EventFormDialog
+        open={eventDialogOpen}
+        onOpenChange={(open) => {
+          setEventDialogOpen(open);
+          if (!open) setEditingEvent(null);
+        }}
+        initialEvent={editingEvent}
+        initialDate={dialogInitialDate}
+        onSave={handleSaveEvent}
+      />
+    </div>
   );
 }
