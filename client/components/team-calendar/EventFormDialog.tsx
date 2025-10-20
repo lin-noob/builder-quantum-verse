@@ -89,44 +89,14 @@ export default function EventFormDialog({
     setDescription(initialEvent?.description || "");
     setAllDay(!!initialEvent?.allDay);
 
-    // 为编辑情况预加载团队成员信息，以便正确显示用户名
-    const loadUserInfo = async () => {
-      if (initialEvent?.userId) {
-        try {
-          const userId = typeof initialEvent.userId === "string"
-            ? parseInt(initialEvent.userId)
-            : initialEvent.userId;
-          
-          // 尝试获取完整用户信息
-          const teamMembers = await teamCalendarService.fetchTeamMembers();
-          const user = teamMembers.find(member => 
-            member.userId === userId
-          );
-          
-          setSelectedUsers([
-            {
-              userId: userId,
-              userName: user ? user.userName : initialEvent.userName || "",
-            },
-          ]);
-        } catch (error) {
-          // 如果获取失败，使用原有的用户信息
-          setSelectedUsers([
-            {
-              userId: typeof initialEvent.userId === "string"
-                ? parseInt(initialEvent.userId)
-                : initialEvent.userId,
-              userName: initialEvent.userName || "",
-            },
-          ]);
-          console.error("Failed to load user info:", error);
-        }
-      } else {
-        setSelectedUsers([]);
-      }
-    };
-
-    loadUserInfo();
+    if (initialEvent?.userId) {
+      setSelectedUsers([
+        {
+          userId: Number(initialEvent.userId),
+          userName: initialEvent.userName,
+        },
+      ]);
+    }
 
     setTypeVal(initialEvent?.type || "meeting");
     setPriority(initialEvent?.priority || "medium");
@@ -165,8 +135,15 @@ export default function EventFormDialog({
     setSaving(true);
 
     try {
-      const userId =
-        selectedUsers.length > 0 ? selectedUsers[0].userId : undefined;
+      // 确保 userId 正确处理为字符串或数字类型
+      let userId;
+      if (selectedUsers.length > 0) {
+        const selectedUserId = selectedUsers[0].userId;
+        userId = selectedUserId;
+      } else {
+        userId = undefined;
+      }
+
       const reminderMinutes = reminderStr ? Number(reminderStr) : undefined;
 
       const typeMap: Record<"meeting" | "task" | "other", number> = {
@@ -189,7 +166,7 @@ export default function EventFormDialog({
         type: typeMap[typeVal],
         priority: priorityMap[priority],
         reminderMinutes,
-        userId,
+        userId: String(userId),
         startDate: formatDateTime(start),
         endDate: formatDateTime(end),
       };
@@ -220,7 +197,7 @@ export default function EventFormDialog({
         };
 
       onOpenChange(false);
-      onSave()
+      onSave();
     } catch (error) {
       console.error("Failed to save event:", error);
       toast.error(error instanceof Error ? error.message : "保存失败，请重试");
@@ -236,7 +213,10 @@ export default function EventFormDialog({
       direction="right"
       modal={false}
     >
-      <DrawerContent side="right" className="w-[720px] overflow-y-auto rounded-tl-xl rounded-bl-xl shadow-2xl border-0">
+      <DrawerContent
+        side="right"
+        className="w-[720px] overflow-y-auto rounded-tl-xl rounded-bl-xl shadow-2xl border-0"
+      >
         <DrawerHeader>
           <DrawerTitle>{initialEvent ? "编辑日程" : "新建日程"}</DrawerTitle>
         </DrawerHeader>

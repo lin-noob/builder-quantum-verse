@@ -44,27 +44,24 @@ export default function TeamCalendar() {
   const [loading, setLoading] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  // 第一步：初始化团队成员并默认全选
+  // 第一步：初始化团队成员但默认不选中任何成员
   useEffect(() => {
     const initializeMembers = async () => {
       const members = await getTeamMembers();
-      setSelectedMembers(members.map((m) => m.id));
+      // 默认不选中任何成员
+      setSelectedMembers([]);
     };
     initializeMembers();
   }, []);
 
   // 第二步：当成员ID准备好后，加载日程数据
   useEffect(() => {
-    // 如果没有选中任何成员，清空日历数据
-    if (selectedMembers.length === 0) {
-      setUserEvents([]);
-      return;
-    }
-
     const loadEvents = async () => {
       setLoading(true);
       try {
-        const userId = selectedMembers.join(",");
+        // 如果没有选择任何成员，则查询所有成员（不传递userId参数或传递空值）
+        // 如果选择了成员，则只查询这些成员的事件
+        const userId = selectedMembers.length > 0 ? selectedMembers.join(",") : undefined;
         const events = await teamCalendarService.getEventList(userId);
 
         const typeNumberToString: Record<number, "meeting" | "task" | "other"> =
@@ -207,14 +204,11 @@ export default function TeamCalendar() {
 
   // 重新加载事件数据
   const reloadEvents = useCallback(async () => {
-    // 只有当成员ID存在时才加载
-    if (selectedMembers.length === 0) {
-      return;
-    }
-
     setLoading(true);
     try {
-      const userId = selectedMembers.join(",");
+      // 如果没有选择任何成员，则查询所有成员（不传递userId参数或传递空值）
+      // 如果选择了成员，则只查询这些成员的事件
+      const userId = selectedMembers.length > 0 ? selectedMembers.join(",") : undefined;
       const events = await teamCalendarService.getEventList(userId);
 
       const typeNumberToString: Record<number, "meeting" | "task" | "other"> = {
@@ -239,6 +233,7 @@ export default function TeamCalendar() {
         description: event.description,
         allDay: event.allDay,
         userId: event.userId,
+        userName: event.userName,
         type:
           event.type !== undefined ? typeNumberToString[event.type] : "meeting",
         priority:
@@ -339,6 +334,7 @@ export default function TeamCalendar() {
               onSelectEvent={(event: any) => {
                 setEditingEvent(event);
                 setDialogInitialDate(undefined);
+                debugger
                 setEventDialogOpen(true);
               }}
               onSelectSlot={(slotInfo) => {
