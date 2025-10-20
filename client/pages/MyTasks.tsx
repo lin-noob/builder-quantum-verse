@@ -3,6 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerFooter } from '@/components/ui/drawer';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -12,7 +13,7 @@ import { Progress } from '@/components/ui/progress';
 import { Checkbox } from '@/components/ui/checkbox';
 import { 
   CheckCircle, XCircle, Eye, Clock, AlertTriangle, Package, Search, Filter, 
-  User, Users, DollarSign, FileText, Download, PieChart, ListTodo, Trello, Kanban, 
+  User, Users, DollarSign, FileText, Download, PieChart, ListTodo, 
   ArrowUpRight, ArrowDownRight, Star, StarHalf, Bookmark, BookmarkCheck, 
   Layers, Timer, Briefcase, Paperclip, MessageSquare, Trash2, Edit, MoreHorizontal,
   ChevronRight, ChevronDown, Zap, Brain, Target, Sparkles, GripVertical, Move
@@ -20,6 +21,19 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 // 增强的任务接口
+interface TaskTodo {
+  id: string;
+  title: string;
+  done: boolean;
+  // 右侧待办清单的要素字段（可选）
+  dueDate?: string;            // 截止日期
+  estimatedTime?: string;      // 预计耗时
+  category?: string;           // 分类
+  tags?: string[];             // 标签
+  status?: 'pending' | 'in_progress' | 'completed' | 'delayed'; // 状态
+  belongsTo?: string;          // 所属任务/项目要素
+}
+
 interface EnhancedTask {
   id: string;
   title: string;
@@ -41,6 +55,7 @@ interface EnhancedTask {
   category?: 'personal' | 'team' | 'project';
   starred?: boolean;
   column?: 'todo' | 'in_progress' | 'review' | 'done';
+  todos?: TaskTodo[];
 }
 
 // 增强的模拟任务数据
@@ -64,7 +79,12 @@ const mockTasks: EnhancedTask[] = [
     attachments: 2,
     comments: 3,
     category: 'team',
-    column: 'todo'
+    column: 'todo',
+    todos: [
+      { id: 't1-1', title: '确认采购清单', done: true, dueDate: '2024-01-11', estimatedTime: '20min', category: '采购', tags: ['清单'], status: 'completed', belongsTo: '项目A · 采购' },
+      { id: 't1-2', title: '比价并选择供应商', done: false, dueDate: '2024-01-12', estimatedTime: '45min', category: '采购', tags: ['比价','供应商'], status: 'in_progress', belongsTo: '项目A · 采购' },
+      { id: 't1-3', title: '提交审批流程', done: false, dueDate: '2024-01-13', estimatedTime: '15min', category: '审批', tags: ['流程'], status: 'pending', belongsTo: '项目A · 审批' }
+    ]
   },
   {
     id: '2',
@@ -85,7 +105,12 @@ const mockTasks: EnhancedTask[] = [
     comments: 8,
     category: 'project',
     starred: true,
-    column: 'in_progress'
+    column: 'in_progress',
+    todos: [
+      { id: 't2-1', title: '收集部门预算', done: true, dueDate: '2024-01-10', estimatedTime: '1h', category: '预算', tags: ['部门'], status: 'completed', belongsTo: 'Q1预算 · 收集' },
+      { id: 't2-2', title: '审核核心项目资金', done: false, dueDate: '2024-01-11', estimatedTime: '1.5h', category: '审核', tags: ['项目','资金'], status: 'in_progress', belongsTo: 'Q1预算 · 审核' },
+      { id: 't2-3', title: '形成审核意见', done: false, dueDate: '2024-01-12', estimatedTime: '40min', category: '输出', tags: ['意见'], status: 'pending', belongsTo: 'Q1预算 · 输出' }
+    ]
   },
   {
     id: '3',
@@ -221,7 +246,12 @@ const mockTasks: EnhancedTask[] = [
     comments: 15,
     category: 'project',
     starred: true,
-    column: 'in_progress'
+    column: 'in_progress',
+    todos: [
+      { id: 't9-1', title: '确定发布场地', done: true },
+      { id: 't9-2', title: '邀请嘉宾与媒体', done: false },
+      { id: 't9-3', title: '准备物料与流程', done: false }
+    ]
   },
   {
     id: '10',
@@ -285,11 +315,27 @@ const mockTasks: EnhancedTask[] = [
 export default function MyTasks() {
   const [tasks, setTasks] = useState<EnhancedTask[]>(mockTasks);
   const [selectedTask, setSelectedTask] = useState<EnhancedTask | null>(null);
-  const [activeView, setActiveView] = useState<'list' | 'board'>('board');
+// 仅保留列表视图，不再需要视图切换状态
   const [activeTab, setActiveTab] = useState('all');
   const [progress, setProgress] = useState(0);
   const [draggedTask, setDraggedTask] = useState<string | null>(null);
   const [dragOverColumn, setDragOverColumn] = useState<string | null>(null);
+  const [newTodoTitle, setNewTodoTitle] = useState('');
+  const [newTodoDueDate, setNewTodoDueDate] = useState('');
+  const [newTodoEstimatedTime, setNewTodoEstimatedTime] = useState('');
+  const [taskTodosDraft, setTaskTodosDraft] = useState<TaskTodo[]>([]);
+
+  const addDraftTodoRow = () => {
+    setTaskTodosDraft(prev => [...prev, { id: `${Date.now()}-${Math.random().toString(36).slice(2,8)}`, title: '', done: false }]);
+  };
+
+  const updateDraftTodo = (id: string, field: keyof TaskTodo, value: any) => {
+    setTaskTodosDraft(prev => prev.map(t => t.id === id ? { ...t, [field]: value } : t));
+  };
+
+  const removeDraftTodo = (id: string) => {
+    setTaskTodosDraft(prev => prev.filter(t => t.id !== id));
+  };
   
   // 拖拽引用
   const dragTaskRef = useRef<HTMLDivElement>(null);
@@ -307,6 +353,86 @@ export default function MyTasks() {
     category: 'all',
     column: 'all'
   });
+  
+  // 新建/编辑任务对话框状态
+  const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
+  const [isEditingTask, setIsEditingTask] = useState(false);
+  const [taskForm, setTaskForm] = useState<Partial<EnhancedTask>>({
+    title: '',
+    description: '',
+    type: 'procurement',
+    priority: 'medium',
+    status: 'pending',
+    dueDate: new Date().toISOString().slice(0, 10),
+    department: '行政部',
+    submittedBy: '当前用户',
+    submittedDate: new Date().toISOString().slice(0, 10),
+    tags: [],
+  });
+  
+  const openCreateTask = () => {
+    setIsEditingTask(false);
+    setTaskForm({
+      title: '',
+      description: '',
+      type: 'procurement',
+      priority: 'medium',
+      status: 'pending',
+      dueDate: new Date().toISOString().slice(0, 10),
+      department: '行政部',
+      submittedBy: '当前用户',
+      submittedDate: new Date().toISOString().slice(0, 10),
+      tags: [],
+    });
+    setTaskTodosDraft([{ id: `${Date.now()}-${Math.random().toString(36).slice(2,8)}`, title: '', done: false }]);
+    setIsTaskModalOpen(true);
+  };
+  
+  const openEditTask = () => {
+    if (!selectedTask) return;
+    setIsEditingTask(true);
+    setTaskForm({ ...selectedTask });
+    setTaskTodosDraft(selectedTask.todos ? selectedTask.todos.map(t => ({ ...t })) : []);
+    setIsTaskModalOpen(true);
+  };
+  
+  const saveTask = () => {
+    const cleanedTodos = (taskTodosDraft || []).filter(t => t.title && t.title.trim());
+    if (isEditingTask && selectedTask) {
+      const updated: EnhancedTask = {
+        ...selectedTask,
+        ...taskForm,
+        tags: taskForm.tags || [],
+        todos: cleanedTodos,
+        progress: computeProgressFromTodos(cleanedTodos, selectedTask.progress)
+      } as EnhancedTask;
+      setTasks(prev => prev.map(t => t.id === selectedTask.id ? updated : t));
+      setSelectedTask(updated);
+    } else {
+      const newId = String(Math.max(0, ...tasks.map(t => parseInt(t.id))) + 1);
+      const newTask: EnhancedTask = {
+        id: newId,
+        title: taskForm.title || '未命名任务',
+        description: taskForm.description || '',
+        type: (taskForm.type as any) || 'procurement',
+        priority: (taskForm.priority as any) || 'medium',
+        status: (taskForm.status as any) || 'pending',
+        dueDate: taskForm.dueDate || new Date().toISOString().slice(0, 10),
+        submittedBy: taskForm.submittedBy || '当前用户',
+        submittedDate: taskForm.submittedDate || new Date().toISOString().slice(0, 10),
+        department: taskForm.department || '行政部',
+        tags: taskForm.tags || [],
+        todos: cleanedTodos,
+        progress: computeProgressFromTodos(cleanedTodos, 0),
+        category: 'team',
+        column: 'todo',
+      };
+      setTasks(prev => [newTask, ...prev]);
+      setSelectedTask(newTask);
+    }
+    setIsTaskModalOpen(false);
+    setTaskTodosDraft([]);
+  };
   
   // 模拟进度条动画
   useEffect(() => {
@@ -407,6 +533,42 @@ export default function MyTasks() {
     setTasks(prev => prev.filter(task => task.id !== taskId));
   };
 
+  // 计算基于待办的任务进度
+  const computeProgressFromTodos = (todos: TaskTodo[], fallback?: number) => {
+    if (!todos || todos.length === 0) return fallback ?? 0;
+    const doneCount = todos.filter(t => t.done).length;
+    return Math.round((doneCount / todos.length) * 100);
+  };
+
+  // 添加待办
+  const addTodo = (taskId: string, title: string, dueDate?: string, estimatedTime?: string) => {
+    const todo: TaskTodo = { id: `${Date.now()}-${Math.random().toString(36).slice(2,8)}`, title, done: false, dueDate, estimatedTime };
+    setTasks(prev => prev.map(task => {
+      if (task.id !== taskId) return task;
+      const todos = [...(task.todos || []), todo];
+      return { ...task, todos, progress: computeProgressFromTodos(todos, task.progress) };
+    }));
+    setSelectedTask(prev => {
+      if (!prev || prev.id !== taskId) return prev;
+      const todos = [...(prev.todos || []), todo];
+      return { ...prev, todos, progress: computeProgressFromTodos(todos, prev.progress) };
+    });
+  };
+
+  // 勾选/取消待办
+  const toggleTodo = (taskId: string, todoId: string, done?: boolean) => {
+    setTasks(prev => prev.map(task => {
+      if (task.id !== taskId) return task;
+      const todos = (task.todos || []).map(t => t.id === todoId ? { ...t, done: done ?? !t.done } : t);
+      return { ...task, todos, progress: computeProgressFromTodos(todos, task.progress) };
+    }));
+    setSelectedTask(prev => {
+      if (!prev || prev.id !== taskId) return prev;
+      const todos = (prev.todos || []).map(t => t.id === todoId ? { ...t, done: done ?? !t.done } : t);
+      return { ...prev, todos, progress: computeProgressFromTodos(todos, prev.progress) };
+    });
+  };
+
   // 获取唯一的部门列表
   const departments = Array.from(new Set(tasks.map(task => task.department)));
   
@@ -498,6 +660,18 @@ export default function MyTasks() {
     
     return true;
   });
+
+  // 默认选中列表中的第一个任务；当筛选变化导致当前选中不在列表中时，重置为首项
+  useEffect(() => {
+    if (filteredTasks.length === 0) {
+      if (selectedTask) setSelectedTask(null);
+      return;
+    }
+    const exists = selectedTask && filteredTasks.some(t => t.id === (selectedTask as EnhancedTask).id);
+    if (!exists) {
+      setSelectedTask(filteredTasks[0]);
+    }
+  }, [filteredTasks]);
   
   // 按列分组任务（用于看板视图）
   const tasksByColumn = {
@@ -595,15 +769,16 @@ export default function MyTasks() {
   };
 
   return (
-    <div className="h-full overflow-auto bg-slate-50 dark:bg-slate-900">
-      <div className="max-w-[1600px] mx-auto p-6 space-y-6">
+    <div className="h-full overflow-auto bg-white dark:bg-slate-900">
+      <div className="w-full p-0 space-y-0">
         {/* 页面主标题与副标题已移除；视图切换器将放置在任务概览下方 */}
         
         {/* 统计信息和进度 */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card className="col-span-3">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg flex items-center justify-between">
+          <div className="col-span-1 md:col-span-4">
+            <div className="rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 mx-4 md:mx-6 my-4 md:my-6 p-4 md:p-5">
+            <div className="pb-2">
+              <div className="text-lg flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Target className="w-5 h-5 text-blue-600" />
                   任务概览
@@ -611,12 +786,12 @@ export default function MyTasks() {
                 <Badge variant="outline" className="text-sm">
                   {filteredTasks.length} 项任务
                 </Badge>
-              </CardTitle>
-              <CardDescription>
+              </div>
+              <div className="text-sm text-slate-500 dark:text-slate-400">
                 当前任务完成进度
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
+              </div>
+            </div>
+            <div className="pt-3">
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -681,194 +856,176 @@ export default function MyTasks() {
                   </div>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+            </div>
+          </div>
           
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <PieChart className="w-5 h-5 text-blue-600" />
-                任务分布
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-                      <span className="text-sm">个人任务</span>
-                    </div>
-                    <span className="text-sm font-medium">{tasksByCategory.personal.length}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full bg-purple-500"></div>
-                      <span className="text-sm">团队任务</span>
-                    </div>
-                    <span className="text-sm font-medium">{tasksByCategory.team.length}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full bg-amber-500"></div>
-                      <span className="text-sm">项目任务</span>
-                    </div>
-                    <span className="text-sm font-medium">{tasksByCategory.project.length}</span>
-                  </div>
-                </div>
-                
-                <div className="pt-2">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm font-medium">紧急任务</span>
-                    <span className="text-sm text-red-600 font-medium">
-                      {tasksByPriority.urgent.length}
-                    </span>
-                  </div>
-                  <Progress value={(tasksByPriority.urgent.length / filteredTasks.length) * 100} className="h-1 bg-red-100" indicatorClassName="bg-red-600" />
-                </div>
-                
-                <div className="pt-2">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm font-medium">高优先级</span>
-                    <span className="text-sm text-orange-600 font-medium">
-                      {tasksByPriority.high.length}
-                    </span>
-                  </div>
-                  <Progress value={(tasksByPriority.high.length / filteredTasks.length) * 100} className="h-1 bg-orange-100" indicatorClassName="bg-orange-600" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
         </div>
         
-        {/* 视图切换：放在任务概览的下方 */}
-        <div className="flex items-center justify-end">
-          <div className="flex items-center space-x-2">
-            <Button 
-              variant={activeView === 'list' ? 'default' : 'outline'} 
-              size="sm"
-              onClick={() => setActiveView('list')}
-              className="flex items-center gap-1"
-            >
-              <ListTodo className="w-4 h-4" />
-              列表
-            </Button>
-            <Button 
-              variant={activeView === 'board' ? 'default' : 'outline'} 
-              size="sm"
-              onClick={() => setActiveView('board')}
-              className="flex items-center gap-1"
-            >
-              <Kanban className="w-4 h-4" />
-              看板
-            </Button>
-          </div>
-        </div>
+        {/* 视图固定为列表视图，移除切换按钮 */}
 
-        {/* 标签页和操作按钮 */}
-        <div className="flex items-center justify-between">
-          <Tabs defaultValue="all" className="w-full" onValueChange={setActiveTab}>
-            <div className="flex items-center justify-between mb-2">
-              <TabsList>
-                <TabsTrigger value="all" className="flex items-center gap-1">
-                  <Layers className="w-4 h-4" />
-                  全部
-                </TabsTrigger>
-                <TabsTrigger value="starred" className="flex items-center gap-1">
-                  <Star className="w-4 h-4" />
-                  星标
-                </TabsTrigger>
-                <TabsTrigger value="personal" className="flex items-center gap-1">
-                  <User className="w-4 h-4" />
-                  个人
-                </TabsTrigger>
-                <TabsTrigger value="team" className="flex items-center gap-1">
-                  <Users className="w-4 h-4" />
-                  团队
-                </TabsTrigger>
-                <TabsTrigger value="project" className="flex items-center gap-1">
-                  <Briefcase className="w-4 h-4" />
-                  项目
-                </TabsTrigger>
-                <TabsTrigger value="urgent" className="flex items-center gap-1">
-                  <AlertTriangle className="w-4 h-4" />
-                  紧急
-                </TabsTrigger>
-                <TabsTrigger value="completed" className="flex items-center gap-1">
-                  <CheckCircle className="w-4 h-4" />
-                  已完成
-                </TabsTrigger>
-              </TabsList>
-              
-              <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" className="flex items-center gap-1">
-                  <Filter className="w-4 h-4" />
-                  筛选
-                </Button>
+        
+        
+        
+
+        {/* 主从布局容器（左4/右8） */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-0 border-y border-slate-200 dark:border-slate-800 py-4 my-4 md:py-6 md:my-6 mx-4 md:mx-6">
+          <div className="lg:col-span-4 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 p-4 space-y-4">
+        {/* 列表视图（固定保留） */}
+          <div>
+            <div>
+              {/** 列表头部文案已移除 */}
+              <div className="flex flex-col md:flex-row gap-3 items-end">
+                <div className="w-full md:w-40">
+                  <Select value={filters.status} onValueChange={(value) => setFilters(prev => ({ ...prev, status: value }))}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="状态" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">全部状态</SelectItem>
+                      <SelectItem value="pending">待处理</SelectItem>
+                      <SelectItem value="in_progress">进行中</SelectItem>
+                      <SelectItem value="in_review">审核中</SelectItem>
+                      <SelectItem value="completed">已完成</SelectItem>
+                      <SelectItem value="approved">已批准</SelectItem>
+                      <SelectItem value="rejected">已驳回</SelectItem>
+                      <SelectItem value="draft">草稿</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="w-full md:w-40">
+                  <Select value={filters.type} onValueChange={(value) => setFilters(prev => ({ ...prev, type: value }))}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="类型" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">全部类型</SelectItem>
+                      <SelectItem value="procurement">采购</SelectItem>
+                      <SelectItem value="review">审核</SelectItem>
+                      <SelectItem value="approval">审批</SelectItem>
+                      <SelectItem value="analysis">分析</SelectItem>
+                      <SelectItem value="finance">财务</SelectItem>
+                      <SelectItem value="hr">人事</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="w-full md:w-40">
+                  <Select value={filters.priority} onValueChange={(value) => setFilters(prev => ({ ...prev, priority: value }))}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="优先级" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">全部优先级</SelectItem>
+                      <SelectItem value="urgent">紧急</SelectItem>
+                      <SelectItem value="high">高</SelectItem>
+                      <SelectItem value="medium">中</SelectItem>
+                      <SelectItem value="low">低</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" onClick={() => setFilters(prev => ({ ...prev, search: '', status: 'all', type: 'all', priority: 'all' }))}>重置</Button>
+                </div>
               </div>
             </div>
-            
-            <TabsContent value="all" className="mt-0">
-              {/* 筛选器会在这里显示 */}
-            </TabsContent>
-          </Tabs>
-        </div>
-        
-        {/* 筛选面板 - 可折叠 */}
-        <Card>
-          <CardHeader className="py-3">
-            <CardTitle className="text-lg flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Filter className="w-5 h-5 text-blue-600" />
-                高级筛选
+            {/* 新建任务按钮：筛选条件下方另起一行 */}
+            <div className="mt-2 -mx-4">
+              <Button variant="default" size="sm" onClick={openCreateTask}>新建任务</Button>
+            </div>
+            <div className="py-3">
+              {/* 事件风格的任务列表 */}
+              <div className="flex-1 overflow-y-auto">
+                {filteredTasks.length === 0 ? (
+                  <div className="flex items-center justify-center h-32 text-slate-500 dark:text-slate-400">
+                    <div className="text-center">
+                      <Filter className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                      <p className="text-sm">没有找到匹配的任务</p>
+                    </div>
+                  </div>
+                ) : (
+                  filteredTasks.map((task) => {
+                    const isSelected = selectedTask?.id === task.id;
+                    const priorityClass =
+                      task.priority === 'urgent'
+                        ? 'border-l-eip-alert bg-eip-alert/5'
+                        : task.priority === 'high'
+                        ? 'border-l-eip-warning bg-eip-warning/5'
+                        : task.priority === 'medium'
+                        ? 'border-l-slate-300 bg-slate-50'
+                        : 'border-l-slate-200 bg-slate-50';
+
+                    return (
+                      <div
+                        key={task.id}
+                        className={`border-l-4 p-4 cursor-pointer transition-all duration-200 border-b border-slate-200 ${priorityClass} ${isSelected ? 'bg-eip-accent/10 shadow-md' : 'hover:bg-slate-100/50'}`}
+                        onClick={() => setSelectedTask(task)}
+                      >
+                        <div className="flex justify-between items-start mb-2">
+                          <div className="flex items-center gap-2">
+                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800">
+                              {getTaskIcon(task.type)}
+                            </span>
+                            <h3 className="font-semibold text-slate-900 text-sm truncate">
+                              {task.title}
+                            </h3>
+                          </div>
+                          <Badge className={getStatusColor(task.status)}>
+                            {getStatusName(task.status)}
+                          </Badge>
+                        </div>
+
+                        <div className="flex items-center justify-between text-xs text-slate-500">
+                          <div>截止 {task.dueDate}</div>
+                          <div className="flex items-center gap-2">
+                            <Badge className={getPriorityColor(task.priority)} variant="secondary">
+                              {getPriorityName(task.priority)}
+                            </Badge>
+                            {task.tags && task.tags.length > 0 && (
+                              <span className="hidden sm:inline">标签：{task.tags.slice(0,2).join('、')}{task.tags.length > 2 ? ` +${task.tags.length-2}` : ''}</span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
               </div>
-              <Button variant="ghost" size="sm">
-                <ChevronDown className="w-4 h-4" />
-              </Button>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="py-2">
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
-              {/* 搜索框 */}
-              <div className="lg:col-span-2">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <Input
-                    placeholder="搜索任务..."
-                    value={filters.search}
-                    onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
-                    className="pl-10"
-                  />
+              {/* 状态条 */}
+              <div className="p-3 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900">
+                <div className="flex justify-between items-center text-xs text-slate-500 dark:text-slate-400">
+                  <span>显示 {filteredTasks.length} 个任务</span>
+                  <div className="flex items-center space-x-4">
+                    <span className="flex items-center">
+                      <div className="w-2 h-2 bg-eip-alert rounded-full mr-1"></div>
+                      紧急: {filteredTasks.filter(t => t.priority === 'urgent').length}
+                    </span>
+                    <span className="flex items-center">
+                      <div className="w-2 h-2 bg-eip-warning rounded-full mr-1"></div>
+                      进行中: {filteredTasks.filter(t => t.status === 'in_progress').length}
+                    </span>
+                  </div>
                 </div>
               </div>
+            </div>
+          </div>
 
-              {/* 状态筛选 */}
+        {/* 任务新建/编辑抽屉 */}
+        <Drawer open={isTaskModalOpen} onOpenChange={setIsTaskModalOpen} direction="right">
+          <DrawerContent side="right" className="w-[860px]">
+            <DrawerHeader>
+              <DrawerTitle>{isEditingTask ? '编辑任务' : '新建任务'}</DrawerTitle>
+            </DrawerHeader>
+            <div className="p-4 space-y-4">
               <div>
-                <Select value={filters.status} onValueChange={(value) => setFilters(prev => ({ ...prev, status: value }))}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="状态" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">全部状态</SelectItem>
-                    <SelectItem value="pending">待处理</SelectItem>
-                    <SelectItem value="in_progress">进行中</SelectItem>
-                    <SelectItem value="in_review">审核中</SelectItem>
-                    <SelectItem value="completed">已完成</SelectItem>
-                    <SelectItem value="approved">已批准</SelectItem>
-                    <SelectItem value="rejected">已驳回</SelectItem>
-                    <SelectItem value="draft">草稿</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Input placeholder="任务标题" value={taskForm.title || ''} onChange={(e) => setTaskForm(prev => ({ ...prev, title: e.target.value }))} />
               </div>
-
-              {/* 类型筛选 */}
               <div>
-                <Select value={filters.type} onValueChange={(value) => setFilters(prev => ({ ...prev, type: value }))}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="类型" />
-                  </SelectTrigger>
+                <Textarea placeholder="任务描述" value={taskForm.description || ''} onChange={(e) => setTaskForm(prev => ({ ...prev, description: e.target.value }))} />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <Select value={taskForm.type as any} onValueChange={(v) => setTaskForm(prev => ({ ...prev, type: v as any }))}>
+                  <SelectTrigger><SelectValue placeholder="类型" /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">全部类型</SelectItem>
                     <SelectItem value="procurement">采购</SelectItem>
                     <SelectItem value="review">审核</SelectItem>
                     <SelectItem value="approval">审批</SelectItem>
@@ -877,188 +1034,74 @@ export default function MyTasks() {
                     <SelectItem value="hr">人事</SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
-
-              {/* 优先级筛选 */}
-              <div>
-                <Select value={filters.priority} onValueChange={(value) => setFilters(prev => ({ ...prev, priority: value }))}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="优先级" />
-                  </SelectTrigger>
+                <Select value={taskForm.priority as any} onValueChange={(v) => setTaskForm(prev => ({ ...prev, priority: v as any }))}>
+                  <SelectTrigger><SelectValue placeholder="优先级" /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">全部优先级</SelectItem>
                     <SelectItem value="urgent">紧急</SelectItem>
                     <SelectItem value="high">高</SelectItem>
                     <SelectItem value="medium">中</SelectItem>
                     <SelectItem value="low">低</SelectItem>
                   </SelectContent>
                 </Select>
+                <Select value={taskForm.status as any} onValueChange={(v) => setTaskForm(prev => ({ ...prev, status: v as any }))}>
+                  <SelectTrigger><SelectValue placeholder="状态" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pending">待处理</SelectItem>
+                    <SelectItem value="in_progress">进行中</SelectItem>
+                    <SelectItem value="in_review">审核中</SelectItem>
+                    <SelectItem value="approved">已批准</SelectItem>
+                    <SelectItem value="rejected">已驳回</SelectItem>
+                    <SelectItem value="completed">已完成</SelectItem>
+                    <SelectItem value="draft">草稿</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Input type="date" value={taskForm.dueDate || ''} onChange={(e) => setTaskForm(prev => ({ ...prev, dueDate: e.target.value }))} />
+                <Input placeholder="部门" value={taskForm.department || ''} onChange={(e) => setTaskForm(prev => ({ ...prev, department: e.target.value }))} />
+                <Input placeholder="负责人" value={taskForm.assignee || ''} onChange={(e) => setTaskForm(prev => ({ ...prev, assignee: e.target.value }))} />
+                <Input placeholder="标签（逗号分隔）" value={(taskForm.tags || []).join(',')} onChange={(e) => setTaskForm(prev => ({ ...prev, tags: e.target.value.split(',').map(s => s.trim()).filter(Boolean) }))} />
               </div>
-
-              {/* 清除筛选按钮 */}
               <div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full"
-                  onClick={() => setFilters({
-                    status: 'all',
-                    type: 'all',
-                    priority: 'all',
-                    department: 'all',
-                    assignee: 'all',
-                    search: '',
-                    dateRange: 'all',
-                    category: 'all',
-                    column: 'all'
-                  })}
-                >
-                  清除筛选
-                </Button>
+                <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">初始待办</h3>
+                <div className="space-y-2">
+                  {taskTodosDraft.length === 0 && (
+                    <div className="text-xs text-slate-500">暂无待办，点击下方按钮添加</div>
+                  )}
+                  {taskTodosDraft.map(todo => (
+                    <div key={todo.id} className="flex gap-2 items-center">
+                      <Input
+                        placeholder="待办标题"
+                        value={todo.title}
+                        onChange={(e) => updateDraftTodo(todo.id, 'title', e.target.value)}
+                        className="flex-1"
+                      />
+                      <Input
+                        type="date"
+                        value={todo.dueDate || ''}
+                        onChange={(e) => updateDraftTodo(todo.id, 'dueDate', e.target.value)}
+                        className="w-40"
+                      />
+                      <Input
+                        placeholder="预计耗时"
+                        value={todo.estimatedTime || ''}
+                        onChange={(e) => updateDraftTodo(todo.id, 'estimatedTime', e.target.value)}
+                        className="w-28"
+                      />
+                      <Button variant="outline" size="sm" onClick={() => removeDraftTodo(todo.id)}>删除</Button>
+                    </div>
+                  ))}
+                  <Button variant="secondary" size="sm" onClick={addDraftTodoRow}>添加一项</Button>
+                </div>
               </div>
             </div>
-          </CardContent>
-        </Card>
-
-        {/* 列表视图 */}
-        {activeView === 'list' && (
-          <Card>
-            <CardHeader>
-              <CardTitle>任务列表</CardTitle>
-              <CardDescription>按筛选条件展示所有任务</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>标题</TableHead>
-                    <TableHead>类型</TableHead>
-                    <TableHead>优先级</TableHead>
-                    <TableHead>状态</TableHead>
-                    <TableHead>截止日期</TableHead>
-                    <TableHead>部门</TableHead>
-                    <TableHead>负责人</TableHead>
-                    <TableHead>进度</TableHead>
-                    <TableHead>附件/评论</TableHead>
-                    <TableHead className="text-right">操作</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredTasks.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={10} className="text-center text-slate-500">
-                        暂无符合条件的任务
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    filteredTasks.map((task) => (
-                      <TableRow key={task.id}>
-                        <TableCell className="font-medium">
-                          <div className="flex items-center gap-2">
-                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800">
-                              {getTaskIcon(task.type)}
-                            </span>
-                            <span>{task.title}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell>{getTaskTypeName(task.type)}</TableCell>
-                        <TableCell>
-                          {task.priority === 'urgent' && (
-                            <Badge className="bg-red-500 text-white">紧急</Badge>
-                          )}
-                          {task.priority === 'high' && (
-                            <Badge className="bg-orange-500 text-white">高</Badge>
-                          )}
-                          {task.priority === 'medium' && (
-                            <Badge className="bg-yellow-500 text-white">中</Badge>
-                          )}
-                          {task.priority === 'low' && (
-                            <Badge className="bg-green-500 text-white">低</Badge>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          {task.status === 'pending' && (
-                            <Badge className="bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300">待处理</Badge>
-                          )}
-                          {task.status === 'in_review' && (
-                            <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300">审核中</Badge>
-                          )}
-                          {task.status === 'approved' && (
-                            <Badge className="bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300">已批准</Badge>
-                          )}
-                          {task.status === 'rejected' && (
-                            <Badge className="bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300">已驳回</Badge>
-                          )}
-                          {task.status === 'in_progress' && (
-                            <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300">进行中</Badge>
-                          )}
-                          {task.status === 'completed' && (
-                            <Badge className="bg-slate-200 text-slate-800 dark:bg-slate-700 dark:text-slate-200">已完成</Badge>
-                          )}
-                        </TableCell>
-                        <TableCell>{task.dueDate}</TableCell>
-                        <TableCell>{task.department}</TableCell>
-                        <TableCell>{task.assignee || '-'}</TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs">{task.progress ?? 0}%</span>
-                            <Progress value={task.progress ?? 0} className="h-2 w-24" />
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-3 text-slate-600">
-                            <span className="flex items-center text-xs">
-                              <Paperclip className="w-3 h-3 mr-1" />
-                              {task.attachments ?? 0}
-                            </span>
-                            <span className="flex items-center text-xs">
-                              <MessageSquare className="w-3 h-3 mr-1" />
-                              {task.comments ?? 0}
-                            </span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex justify-end gap-2">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => setSelectedTask(task)}
-                              className="flex items-center gap-1"
-                            >
-                              <Eye className="h-4 w-4" />
-                              详情
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleApprove(task.id)}
-                              className="flex items-center gap-1"
-                            >
-                              <CheckCircle className="h-4 w-4" />
-                              审批通过
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleReject(task.id)}
-                              className="flex items-center gap-1"
-                            >
-                              <XCircle className="h-4 w-4" />
-                              审批拒绝
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        )}
+            <DrawerFooter>
+              <Button variant="outline" onClick={() => setIsTaskModalOpen(false)}>取消</Button>
+              <Button onClick={saveTask}>保存</Button>
+            </DrawerFooter>
+          </DrawerContent>
+        </Drawer>
 
         {/* 看板视图 */}
-        {activeView === 'board' && (
+        {false && (
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
             {/* 待处理列 */}
             <div 
@@ -1078,14 +1121,15 @@ export default function MyTasks() {
               </div>
               <div className="p-3 space-y-3 max-h-[calc(100vh-320px)] overflow-y-auto">
                 {tasksByColumn.todo.map((task) => (
-                  <Card 
+                  <div 
                     key={task.id} 
                     className="cursor-pointer hover:shadow-md transition-shadow"
                     draggable
                     onDragStart={(e) => handleDragStart(e, task.id)}
                     onDragEnd={handleDragEnd}
+                    onClick={() => setSelectedTask(task)}
                   >
-                    <CardContent className="p-3">
+                    <div className="p-3">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
                           <GripVertical className="h-4 w-4 text-slate-400 cursor-grab" />
@@ -1136,8 +1180,8 @@ export default function MyTasks() {
                           )}
                         </div>
                       </div>
-                    </CardContent>
-                  </Card>
+                    </div>
+                  </div>
                 ))}
                 
                 {tasksByColumn.todo.length === 0 && (
@@ -1168,14 +1212,15 @@ export default function MyTasks() {
               </div>
               <div className="p-3 space-y-3 max-h-[calc(100vh-320px)] overflow-y-auto">
                 {tasksByColumn.in_progress.map((task) => (
-                  <Card 
+                  <div 
                     key={task.id} 
                     className="cursor-pointer hover:shadow-md transition-shadow"
                     draggable
                     onDragStart={(e) => handleDragStart(e, task.id)}
                     onDragEnd={handleDragEnd}
+                    onClick={() => setSelectedTask(task)}
                   >
-                    <CardContent className="p-3">
+                    <div className="p-3">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
                           <GripVertical className="h-4 w-4 text-slate-400 cursor-grab" />
@@ -1226,8 +1271,8 @@ export default function MyTasks() {
                           )}
                         </div>
                       </div>
-                    </CardContent>
-                  </Card>
+                    </div>
+                  </div>
                 ))}
                 
                 {tasksByColumn.in_progress.length === 0 && (
@@ -1258,14 +1303,15 @@ export default function MyTasks() {
               </div>
               <div className="p-3 space-y-3 max-h-[calc(100vh-320px)] overflow-y-auto">
                 {tasksByColumn.review.map((task) => (
-                  <Card 
+                  <div 
                     key={task.id} 
                     className="cursor-pointer hover:shadow-md transition-shadow"
                     draggable
                     onDragStart={(e) => handleDragStart(e, task.id)}
                     onDragEnd={handleDragEnd}
+                    onClick={() => setSelectedTask(task)}
                   >
-                    <CardContent className="p-3">
+                    <div className="p-3">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
                           <GripVertical className="h-4 w-4 text-slate-400 cursor-grab" />
@@ -1316,8 +1362,8 @@ export default function MyTasks() {
                           )}
                         </div>
                       </div>
-                    </CardContent>
-                  </Card>
+                    </div>
+                  </div>
                 ))}
                 
                 {tasksByColumn.review.length === 0 && (
@@ -1348,14 +1394,15 @@ export default function MyTasks() {
               </div>
               <div className="p-3 space-y-3 max-h-[calc(100vh-320px)] overflow-y-auto">
                 {tasksByColumn.done.map((task) => (
-                  <Card 
+                  <div 
                     key={task.id} 
                     className="cursor-pointer hover:shadow-md transition-shadow opacity-80"
                     draggable
                     onDragStart={(e) => handleDragStart(e, task.id)}
                     onDragEnd={handleDragEnd}
+                    onClick={() => setSelectedTask(task)}
                   >
-                    <CardContent className="p-3">
+                    <div className="p-3">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
                           <GripVertical className="h-4 w-4 text-slate-400 cursor-grab" />
@@ -1406,8 +1453,8 @@ export default function MyTasks() {
                           )}
                         </div>
                       </div>
-                    </CardContent>
-                  </Card>
+                    </div>
+                  </div>
                 ))}
                 
                 {tasksByColumn.done.length === 0 && (
@@ -1423,7 +1470,7 @@ export default function MyTasks() {
         )}
         
         {/* 任务详情对话框 */}
-        <Dialog>
+        {false && (<Dialog>
           <DialogContent className="max-w-3xl">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2 text-xl">
@@ -1646,90 +1693,176 @@ export default function MyTasks() {
             <Button>保存更改</Button>
           </DialogFooter>
           </DialogContent>
-        </Dialog>
-        {/* 动态任务详情对话框（基于 selectedTask 打开） */}
-        <Dialog open={!!selectedTask} onOpenChange={(open) => { if (!open) setSelectedTask(null); }}>
-          <DialogContent className="max-w-3xl">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2 text-xl">
-                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800">
-                  {selectedTask ? getTaskIcon(selectedTask.type) : null}
+        </Dialog>)}
+          </div>
+          {/* 右侧详情与待办面板 */}
+          <div className="lg:col-span-8 bg-white dark:bg-slate-900 p-6 space-y-6">
+            <div className="sticky top-4">
+              <div className="border-b border-slate-200 dark:border-slate-700 pb-3 mb-3">
+                <div className="flex items-center gap-2 text-xl font-bold">
+                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800">
+                    {selectedTask ? getTaskIcon(selectedTask.type) : null}
+                  </div>
+                  {selectedTask ? selectedTask.title : '任务详情'}
                 </div>
-                {selectedTask?.title ?? '任务详情'}
-              </DialogTitle>
-            </DialogHeader>
-            {selectedTask && (
-              <div className="grid grid-cols-3 gap-6">
-                <div className="col-span-2 space-y-6">
-                  <div>
-                    <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">描述</h3>
-                    <p className="text-slate-900 dark:text-slate-100">{selectedTask.description}</p>
+                {!selectedTask && (
+                  <p className="text-sm text-slate-500 dark:text-slate-400">选择左侧任务以查看详情</p>
+                )}
+                {selectedTask && (
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    <Badge className={getStatusColor(selectedTask.status)}>{getStatusName(selectedTask.status)}</Badge>
+                    <Badge className={getPriorityColor(selectedTask.priority)} variant="secondary">{getPriorityName(selectedTask.priority)}</Badge>
+                    <span className="text-xs text-slate-500 dark:text-slate-400">截止 {selectedTask.dueDate}</span>
                   </div>
-                  {typeof selectedTask.progress === 'number' && (
-                    <div>
-                      <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">进度</h3>
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-sm">当前进度</span>
-                        <span className="text-sm font-medium">{selectedTask.progress}%</span>
-                      </div>
-                      <Progress value={selectedTask.progress} className="h-2 mb-4" />
-                    </div>
-                  )}
-                  <div>
-                    <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">评论</h3>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">暂无评论示例。</p>
-                  </div>
-                </div>
-                <div className="space-y-6">
-                  <div>
-                    <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">任务信息</h3>
-                    <div className="space-y-3">
-                      <div>
-                        <span className="text-xs text-slate-500 block">状态</span>
-                        <Badge className={getStatusColor(selectedTask.status)}>{getStatusName(selectedTask.status)}</Badge>
-                      </div>
-                      <div>
-                        <span className="text-xs text-slate-500 block">优先级</span>
-                        <Badge className={getPriorityColor(selectedTask.priority)} variant="secondary">{getPriorityName(selectedTask.priority)}</Badge>
-                      </div>
-                      <div>
-                        <span className="text-xs text-slate-500 block">截止日期</span>
-                        <span className="text-sm font-medium">{selectedTask.dueDate}</span>
-                      </div>
-                      <div>
-                        <span className="text-xs text-slate-500 block">创建人</span>
-                        <span className="text-sm">{selectedTask.submittedBy}</span>
-                      </div>
-                      <div>
-                        <span className="text-xs text-slate-500 block">部门</span>
-                        <span className="text-sm">{selectedTask.department}</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">操作</h3>
-                    <div className="space-y-2">
-                      <Button className="w-full justify-start" variant="outline" size="sm" onClick={() => handleApprove(selectedTask.id)}>
-                        <CheckCircle className="w-4 h-4 mr-2" />
-                        批准任务
-                      </Button>
-                      <Button className="w-full justify-start" variant="outline" size="sm" onClick={() => handleReject(selectedTask.id)}>
-                        <XCircle className="w-4 h-4 mr-2" />
-                        驳回任务
-                      </Button>
-                      <Button className="w-full justify-start" variant="outline" size="sm" onClick={() => setSelectedTask(null)}>
-                        关闭详情
-                      </Button>
-                    </div>
-                  </div>
-                </div>
+                )}
               </div>
-            )}
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setSelectedTask(null)}>关闭</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+              <div className="p-3">
+                {selectedTask ? (
+                  <div className="space-y-4">
+                    <div>
+                      <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">描述</h3>
+                      <p className="text-slate-900 dark:text-slate-100 text-sm leading-6">{selectedTask.description}</p>
+                    </div>
+                    {typeof selectedTask.progress === 'number' && (
+                      <div>
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-xs text-slate-500 dark:text-slate-400">进度</span>
+                          <span className="text-xs font-medium">{selectedTask.progress}%</span>
+                        </div>
+                        <Progress value={selectedTask.progress} className="h-2" />
+                      </div>
+                    )}
+
+                    <div>
+                      <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">基本信息</h3>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Badge className={getStatusColor(selectedTask.status)}>{getStatusName(selectedTask.status)}</Badge>
+                        <Badge className={getPriorityColor(selectedTask.priority)} variant="secondary">{getPriorityName(selectedTask.priority)}</Badge>
+                        <span className="text-xs text-slate-500 dark:text-slate-400">截止 {selectedTask.dueDate}</span>
+                        <span className="text-xs text-slate-500 dark:text-slate-400">创建人 {selectedTask.submittedBy}</span>
+                      </div>
+                    </div>
+
+                    <div>
+                      <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-2 flex items-center gap-2">
+                        <ListTodo className="h-4 w-4 text-slate-400" />
+                        待办清单
+                      </h3>
+                      {selectedTask.todos && selectedTask.todos.length > 0 ? (
+                        <div className="space-y-2">
+                          {selectedTask.todos.map((todo) => (
+                            <div
+                              key={todo.id}
+                              className={`rounded-md border p-3 ${todo.done ? 'bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800'}`}
+                            >
+                              <div className="flex items-start gap-3">
+                                <Checkbox
+                                  checked={todo.done}
+                                  onCheckedChange={(checked) => toggleTodo(selectedTask.id, todo.id, !!checked)}
+                                  className="mt-0.5"
+                                />
+                                <div className="flex-1">
+                                  <div className="flex items-center justify-between">
+                                    <span className={`text-sm font-medium ${todo.done ? 'line-through text-slate-400' : 'text-slate-900 dark:text-slate-100'}`}>{todo.title}</span>
+                                    {todo.status && (
+                                      <Badge className={`${todo.status === 'completed' ? 'bg-green-100 text-green-800' : todo.status === 'in_progress' ? 'bg-yellow-100 text-yellow-800' : todo.status === 'delayed' ? 'bg-red-100 text-red-800' : 'bg-slate-200 text-slate-800'}`}>{todo.status === 'completed' ? '已完成' : todo.status === 'in_progress' ? '进行中' : todo.status === 'delayed' ? '延期' : '未开始'}</Badge>
+                                    )}
+                                  </div>
+                                  <div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-slate-500">
+                                    <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {todo.dueDate || '—'}</span>
+                                    <span className="flex items-center gap-1"><Timer className="h-3 w-3" /> {todo.estimatedTime || '—'}</span>
+                                    {todo.belongsTo && (
+                                      <span className="flex items-center gap-1"><Layers className="h-3 w-3" /> {todo.belongsTo}</span>
+                                    )}
+                                    {todo.tags && todo.tags.length > 0 && (
+                                      <span className="flex items-center gap-1">
+                                        {todo.tags.slice(0, 3).map((tag) => (
+                                          <Badge key={tag} variant="outline" className="text-[10px] px-1 py-0">{tag}</Badge>
+                                        ))}
+                                        {todo.tags.length > 3 && (
+                                          <span className="text-[10px]">+{todo.tags.length - 3}</span>
+                                        )}
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-xs text-slate-500">暂无待办，添加一些小步骤帮助推进任务</p>
+                      )}
+
+                      <div className="mt-2 flex gap-2">
+                        <Input
+                          placeholder="添加待办..."
+                          value={newTodoTitle}
+                          onChange={(e) => setNewTodoTitle(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' && selectedTask && newTodoTitle.trim()) {
+                              addTodo(selectedTask.id, newTodoTitle.trim(), newTodoDueDate || undefined, newTodoEstimatedTime || undefined);
+                              setNewTodoTitle('');
+                              setNewTodoDueDate('');
+                              setNewTodoEstimatedTime('');
+                            }
+                          }}
+                        />
+                        <Input
+                          type="date"
+                          placeholder="截止"
+                          value={newTodoDueDate}
+                          onChange={(e) => setNewTodoDueDate(e.target.value)}
+                          className="w-36"
+                        />
+                        <Input
+                          placeholder="预计耗时"
+                          value={newTodoEstimatedTime}
+                          onChange={(e) => setNewTodoEstimatedTime(e.target.value)}
+                          className="w-28"
+                        />
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          onClick={() => {
+                            if (selectedTask && newTodoTitle.trim()) {
+                              addTodo(selectedTask.id, newTodoTitle.trim(), newTodoDueDate || undefined, newTodoEstimatedTime || undefined);
+                              setNewTodoTitle('');
+                              setNewTodoDueDate('');
+                              setNewTodoEstimatedTime('');
+                            }
+                          }}
+                        >
+                          添加
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-sm text-slate-500">暂无选择</div>
+                )}
+              </div>
+              {selectedTask && (
+                <div className="sticky bottom-0 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 p-3 -mx-3 -mb-3 flex gap-2">
+                  <Button className="flex items-center gap-1" size="sm" onClick={openEditTask}>
+                    <Edit className="h-4 w-4" />
+                    编辑任务
+                  </Button>
+                  <Button className="flex items-center gap-1" variant="outline" size="sm" onClick={() => handleApprove(selectedTask.id)}>
+                    <CheckCircle className="h-4 w-4" />
+                    审批通过
+                  </Button>
+                  <Button className="flex items-center gap-1" variant="outline" size="sm" onClick={() => handleReject(selectedTask.id)}>
+                    <XCircle className="h-4 w-4" />
+                    审批拒绝
+                  </Button>
+                  {/** 已移除关闭详情按钮 */}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+        {/* 旧的 selectedTask 弹窗详情已移除，改为右侧详情面板展示 */}
       </div>
     </div>
   );

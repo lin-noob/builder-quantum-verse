@@ -17,6 +17,8 @@ import ViewFilters from '@/components/team-calendar/ViewFilters';
 import CalendarToolbar from '@/components/team-calendar/CalendarToolbar';
 import { toast } from 'sonner';
 import { Brain } from 'lucide-react';
+import EventFormDialog, { type CalendarEvent } from '@/components/team-calendar/EventFormDialog';
+import CustomCalendarGrid from '@/components/team-calendar/CustomCalendarGrid';
 
 export default function TeamCalendar() {
   const { i18n } = useTranslation();
@@ -29,6 +31,11 @@ export default function TeamCalendar() {
   const [highlightedMember, setHighlightedMember] = useState<string>();
   const [showAISuggestions, setShowAISuggestions] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date());
+  // 本地事件（新建/编辑维护）
+  const [userEvents, setUserEvents] = useState<CalendarEvent[]>([]);
+  const [eventDialogOpen, setEventDialogOpen] = useState(false);
+  const [editingEvent, setEditingEvent] = useState<CalendarEvent | null>(null);
+  const [dialogInitialDate, setDialogInitialDate] = useState<Date | undefined>(undefined);
 
   // 获取过滤后的任务
   const filteredTasks = useMemo(() => {
@@ -51,6 +58,7 @@ export default function TeamCalendar() {
 
   // 转换任务为日历事件格式
   const calendarEvents = useMemo(() => {
+    // 将任务映射为简单事件以在网格显示
     const regularEvents = filteredTasks
       .filter(task => task.scheduledTime)
       .map(task => ({
@@ -58,12 +66,11 @@ export default function TeamCalendar() {
         title: task.title,
         start: task.scheduledTime!.start,
         end: task.scheduledTime!.end,
-        resource: task,
-        style: {
-          backgroundColor: getTaskColor(task, colorBy),
-          borderColor: getTaskColor(task, colorBy),
-        }
+        color: getTaskColor(task, colorBy)
       }));
+
+    // 合并用户新建事件
+    return [...regularEvents, ...userEvents];
 
     const aiSuggestionEvents = aiSuggestedTasks
       .filter(task => task.scheduledTime)
@@ -152,35 +159,26 @@ export default function TeamCalendar() {
 
   // 处理新建事件
   const handleNewEvent = useCallback(() => {
-    toast.info('新建日程功能开发中...');
+    setEditingEvent(null);
+    setDialogInitialDate(currentDate);
+    setEventDialogOpen(true);
   }, []);
 
-  // 处理事件选择
-  const handleEventSelect = useCallback((event: any) => {
-    console.log('Selected event:', event);
-    // 这里可以添加事件详情显示逻辑
-  }, []);
+  // 处理保存（新建或编辑）
+  const handleSaveEvent = useCallback((evt: CalendarEvent) => {
+    setUserEvents(prev => {
+      const exists = prev.some(e => e.id === evt.id);
+      if (exists) {
+        return prev.map(e => (e.id === evt.id ? evt : e));
+      }
+      return [...prev, evt];
+    });
+    toast.success(editingEvent ? '已更新日程' : '已创建日程');
+    setEditingEvent(null);
+  }, [editingEvent]);
 
-  // 处理时间段选择（用于创建新事件）
-  const handleSelectSlot = useCallback((slotInfo: any) => {
-    console.log('Selected slot:', slotInfo);
-    // 这里可以添加新建事件的逻辑
-  }, []);
-
-  // 处理视图变化
-  const handleViewChange = useCallback((view: View) => {
-    const viewMap: Record<View, CalendarView> = {
-      month: 'month',
-      week: 'week',
-      day: 'day',
-      agenda: 'month', // fallback
-    };
-    setCalendarView(viewMap[view] || 'month');
-  }, []);
-
-  // 获取当前语言和本地化配置
-  const currentLocale = getCalendarLocale(i18n.language);
-  const messages = calendarMessages[currentLocale] || calendarMessages['zh-CN'];
+  // 暂时移除react-big-calendar相关的事件处理函数
+  // 使用自定义日历网格组件替代
 
   return (
       <div className="h-full flex bg-slate-50 dark:bg-slate-900">
@@ -226,41 +224,40 @@ export default function TeamCalendar() {
 
           {/* 主日历区域 */}
           <div className="flex-1 p-6">
-            <div className="h-full bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
-              <Calendar
-                localizer={localizer}
-                events={calendarEvents}
-                startAccessor="start"
-                endAccessor="end"
-                culture={currentLocale}
-                messages={messages}
-                date={currentDate}
-                onNavigate={setCurrentDate}
-                view={calendarView === 'month' ? Views.MONTH : calendarView === 'week' ? Views.WEEK : Views.DAY}
-                onView={handleViewChange}
-                onSelectEvent={handleEventSelect}
-                onSelectSlot={handleSelectSlot}
-                selectable
-                popup
-                showMultiDayTimes
-                step={30}
-                timeslots={2}
-                style={{ height: 'calc(100vh - 200px)' }}
-                eventPropGetter={(event) => ({
-                  style: event.style || {},
-                })}
-                dayPropGetter={(date) => ({
-                  style: {
-                    backgroundColor: 'transparent',
-                  },
-                })}
-                components={{
-                  toolbar: () => null, // 使用自定义工具栏
-                }}
-              />
-            </div>
+            <CustomCalendarGrid
+              currentDate={currentDate}
+              events={calendarEvents}
+              onEventClick={(evt) => {
+                setEditingEvent(evt);
+                setDialogInitialDate(undefined);
+                setEventDialogOpen(true);
+              }}
+              onDateClick={(date) => {
+                setCurrentDate(date);
+                // 如果点击日期，可以切换到日视图
+                if (calendarView === 'month') {
+                  setCalendarView('day');
+                }
+                // 打开新建对话框并带上日期
+                setEditingEvent(null);
+                setDialogInitialDate(date);
+                setEventDialogOpen(true);
+              }}
+            />
           </div>
         </div>
+
+        {/* 事件新建/编辑对话框 */}
+        <EventFormDialog
+          open={eventDialogOpen}
+          onOpenChange={(open) => {
+            setEventDialogOpen(open);
+            if (!open) setEditingEvent(null);
+          }}
+          initialEvent={editingEvent}
+          initialDate={dialogInitialDate}
+          onSave={handleSaveEvent}
+        />
       </div>
   );
 }

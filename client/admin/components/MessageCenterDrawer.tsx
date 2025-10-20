@@ -86,6 +86,7 @@ export default function MessageCenterDrawer({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedMessages, setSelectedMessages] = useState<string[]>([]);
+  const [activeMessage, setActiveMessage] = useState<any | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -194,9 +195,16 @@ export default function MessageCenterDrawer({
     });
   };
 
+  // 同步详情引用到最新列表项
+  useEffect(() => {
+    if (!activeMessage) return;
+    const updated = messages.find(m => m.id === activeMessage.id);
+    if (updated) setActiveMessage(updated);
+  }, [messages]);
+
   return (
-    <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent className="h-[90vh] max-h-[90vh] flex flex-col">
+    <Drawer open={open} onOpenChange={onOpenChange} direction="right">
+      <DrawerContent side="right" className="flex h-full w-[960px] max-w-[100vw] flex-col">
         <div className="flex items-center justify-between p-4 border-b">
           <DrawerHeader className="p-0">
             <DrawerTitle>消息中心</DrawerTitle>
@@ -256,42 +264,129 @@ export default function MessageCenterDrawer({
             </div>
           </div>
 
-          {/* 批量操作区域 */}
-          {selectedMessages.length > 0 && (
-            <div className="flex items-center gap-2 p-3 bg-muted">
-              <span className="text-sm text-muted-foreground">
-                已选择 {selectedMessages.length} 条消息
-              </span>
-              <Separator orientation="vertical" className="h-4" />
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => markMultipleAsRead()}
-              >
-                <Check className="h-4 w-4 mr-2" />
-                标记为已读
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={deleteMultipleMessages}
-              >
-                <Trash2 className="h-4 w-4 mr-2" />
-                删除
-              </Button>
-            </div>
-          )}
+          {/* 单栏父子结构列表：折叠展开详情 */}
+          <div className="flex-1 overflow-hidden flex flex-col">
+            {selectedMessages.length > 0 && (
+              <div className="flex items-center gap-2 p-3 bg-muted">
+                <span className="text-sm text-muted-foreground">已选择 {selectedMessages.length} 条消息</span>
+                <Separator orientation="vertical" className="h-4" />
+                <Button variant="outline" size="sm" onClick={() => markMultipleAsRead()}>
+                  <Check className="h-4 w-4 mr-2" /> 标记为已读
+                </Button>
+                <Button variant="outline" size="sm" onClick={deleteMultipleMessages}>
+                  <Trash2 className="h-4 w-4 mr-2" /> 删除
+                </Button>
+              </div>
+            )}
 
-          {/* 消息列表 */}
-          <div className="flex-1 overflow-auto">
-            {loading ? (
-              <div className="flex items-center justify-center h-full">
-                <div className="text-center">
-                  <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-2" />
-                  <p className="text-muted-foreground">加载中...</p>
+            <div className="flex-1 overflow-auto">
+              {loading ? (
+                <div className="flex items-center justify-center h-full">
+                  <div className="text-center">
+                    <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-2" />
+                    <p className="text-muted-foreground">加载中...</p>
+                  </div>
+                </div>
+              ) : error ? (
+                <div className="flex items-center justify-center h-full">
+                  <div className="text-center">
+                    <AlertCircle className="h-8 w-8 text-red-500 mx-auto mb-2" />
+                    <p className="text-red-500">{error}</p>
+                    <Button variant="outline" size="sm" className="mt-2" onClick={fetchMessages}>重新加载</Button>
+                  </div>
+                </div>
+              ) : messages.length === 0 ? (
+                <div className="flex items-center justify-center h-full">
+                  <div className="text-center">
+                    <Bell className="h-12 w-12 text-muted-foreground mx-auto mb-2" />
+                    <h3 className="text-lg font-medium mb-1">暂无消息</h3>
+                    <p className="text-muted-foreground">您当前没有未读消息</p>
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <div className="px-4 py-2 flex items-center text-xs text-muted-foreground">
+                    <Checkbox checked={selectedMessages.length === messages.length && messages.length > 0} onCheckedChange={toggleSelectAll} />
+                    <span className="ml-2">全选</span>
+                  </div>
+                  {/* 使用 Accordion 作为父子折叠结构 */}
+                  <div className="divide-y">
+                    {messages.map((message) => {
+                      const typeInfo = messageTypeMap[message.type as MessageType] || messageTypeMap[MessageType.NOTIFICATION];
+                      const statusInfo = messageStatusMap[message.status as MessageStatus] || messageStatusMap[MessageStatus.UNREAD];
+                      const isActive = activeMessage?.id === message.id;
+
+                      return (
+                        <div key={message.id} className={cn("p-4", isActive ? "bg-muted/40" : message.status === MessageStatus.UNREAD ? "bg-muted/30" : "")}> 
+                          {/* 触发区域 */}
+                          <button
+                            className="w-full text-left"
+                            onClick={() => {
+                              setActiveMessage(isActive ? null : message);
+                            }}
+                          >
+                            <div className="flex items-start gap-3">
+                              <Checkbox
+                                checked={selectedMessages.includes(message.id)}
+                                onCheckedChange={() => toggleMessageSelection(message.id)}
+                                onClick={(e) => e.stopPropagation()}
+                              />
+                              <div className="flex-1">
+                                <div className="flex items-center justify-between">
+                                  <div className="font-medium truncate pr-4">{message.title}</div>
+                                  <div className="flex items-center gap-2 flex-shrink-0">
+                                    <Badge variant="secondary" className={typeInfo.color}>{typeInfo.label}</Badge>
+                                    <Badge variant="outline" className={statusInfo.color}>{statusInfo.label}</Badge>
+                                    <span className="text-xs text-muted-foreground">{formatDate(message.createdAt)}</span>
+                                    {message.status === MessageStatus.UNREAD && (
+                                      <Button
+                                        variant="outline"
+                                        size="icon"
+                                        className="h-6 w-6 text-muted-foreground hover:text-foreground"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          markAsRead(message.id);
+                                        }}
+                                      >
+                                        <Check className="h-3 w-3" />
+                                        <span className="sr-only">标记为已读</span>
+                                      </Button>
+                                    )}
+                                  </div>
+                                </div>
+                                <div className="text-sm text-muted-foreground mt-1 line-clamp-2">{message.content}</div>
+                              </div>
+                            </div>
+                          </button>
+
+                          {/* 详情区域 */}
+                          {isActive && (
+                            <div className="mt-3 pl-8 space-y-3">
+                              <Separator />
+                              {/* 详情文本：仅展示内容，无按钮 */}
+                              <div className="prose prose-sm max-w-none">
+                                <p className="text-sm leading-6 whitespace-pre-wrap">{message.content}</p>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {messages.length > 0 && (
+              <div className="p-4 border-t flex items-center justify-between">
+                <div className="text-sm text-muted-foreground">共 {total} 条消息</div>
+                <div className="flex items-center gap-2">
+                  <Button variant="outline" size="sm" onClick={() => setCurrentPage(Math.max(1, currentPage - 1))} disabled={currentPage === 1}>上一页</Button>
+                  <span className="text-sm">第 {currentPage} 页，共 {Math.ceil(total / pageSize)} 页</span>
+                  <Button variant="outline" size="sm" onClick={() => setCurrentPage(Math.min(Math.ceil(total / pageSize), currentPage + 1))} disabled={currentPage === Math.ceil(total / pageSize)}>下一页</Button>
                 </div>
               </div>
-            ) : error ? (
+            ) ? (
               <div className="flex items-center justify-center h-full">
                 <div className="text-center">
                   <AlertCircle className="h-8 w-8 text-red-500 mx-auto mb-2" />

@@ -68,6 +68,16 @@ const TemplateManagement = React.lazy(
 const ApprovalConfig = React.lazy(
   () => import("../pages/ApprovalConfig/ApprovalConfig"),
 );
+// 新增审批中心与监控、统计页面
+const ApprovalCenter = React.lazy(
+  () => import("@/pages/Approval/ApprovalCenter"),
+);
+const ApprovalMonitor = React.lazy(
+  () => import("@/pages/Approval/ApprovalMonitor"),
+);
+const ApprovalStatistics = React.lazy(
+  () => import("@/pages/Approval/ApprovalStatistics"),
+);
 
 // LazyRoute 包装组件
 const LazyRoute: React.FC<{
@@ -359,6 +369,38 @@ export const staticRoutes: RouteObject[] = [
       <Layout>
         <LazyRoute>
           <LegacyAppPlaceholder />
+        </LazyRoute>
+      </Layout>
+    ),
+  },
+
+  // 审批管理路由
+  {
+    path: "/approval",
+    element: (
+      <Layout>
+        <LazyRoute>
+          <ApprovalCenter />
+        </LazyRoute>
+      </Layout>
+    ),
+  },
+  {
+    path: "/approval/monitor",
+    element: (
+      <Layout>
+        <LazyRoute>
+          <ApprovalMonitor />
+        </LazyRoute>
+      </Layout>
+    ),
+  },
+  {
+    path: "/approval/statistics",
+    element: (
+      <Layout>
+        <LazyRoute>
+          <ApprovalStatistics />
         </LazyRoute>
       </Layout>
     ),
