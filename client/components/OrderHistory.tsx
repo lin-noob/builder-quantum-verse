@@ -90,15 +90,15 @@ export default function OrderHistory({
   };
 
   // Get status text based on status code
-  const getStatusText = (status: number): string => {
+  const getStatusText = (status: string): string => {
     switch (status) {
-      case 0:
+      case 'unconfirmed':
         return t("orderHistory.status.unconfirmed");
-      case 1:
+      case 'confirmed':
         return t("orderHistory.status.confirmed");
-      case 2:
+      case 'completed':
         return t("orderHistory.status.completed");
-      case 3:
+      case 'cancelled':
         return t("orderHistory.status.cancelled");
       default:
         return t("orderHistory.status.unknown");
