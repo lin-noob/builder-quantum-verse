@@ -24,7 +24,8 @@ type EventType =
   | "UserLogin"
   | "SubmitForm"
   | "Search"
-  | "PageDwellTime";
+  | "PageDwellTime"
+  | "Change";
 
 // Element interface for PostHog $elements array
 interface PostHogElement {
@@ -113,11 +114,13 @@ export default function SessionTimeline({
     if (event.eventName === "$autocapture" && properties.$event_type) {
       // 将 $event_type 映射到对应的事件类型
       const eventTypeMapping: { [key: string]: EventType } = {
-        "click": "Click",
-        "submit": "SubmitForm",
-        "change": "Click", // 可以根据需要调整映射
+        click: "Click",
+        submit: "SubmitForm",
+        change: "Change",
       };
-      eventType = eventTypeMapping[properties.$event_type] || (event.eventName as EventType);
+      eventType =
+        eventTypeMapping[properties.$event_type] ||
+        (event.eventName as EventType);
     }
 
     return {
@@ -288,6 +291,10 @@ export default function SessionTimeline({
         bgColor = "bg-teal-100";
         textColor = "text-teal-800";
         displayName = t("sessionTimeline.eventTypes.PageDwellTime");
+      case "Change":
+        bgColor = "bg-blue-100";
+        textColor = "text-blue-800";
+        displayName = t("sessionTimeline.eventTypes.Change");
         break;
     }
 
@@ -353,7 +360,11 @@ export default function SessionTimeline({
             {t("sessionTimeline.title")}
           </h3>
           <div className="text-sm text-slate-500">
-            {t("sessionTimeline.recordsInfo", { total: eventData.total, start: startItem, end: endItem })}
+            {t("sessionTimeline.recordsInfo", {
+              total: eventData.total,
+              start: startItem,
+              end: endItem,
+            })}
           </div>
         </div>
 
@@ -362,12 +373,24 @@ export default function SessionTimeline({
           <table className="w-full text-sm text-left">
             <thead className="bg-slate-50 text-slate-500">
               <tr>
-                <th className="p-3 font-medium">{t("sessionTimeline.table.eventTime")}</th>
-                <th className="p-3 font-medium">{t("sessionTimeline.table.source")}</th>
-                <th className="p-3 font-medium">{t("sessionTimeline.table.deviceType")}</th>
-                <th className="p-3 font-medium">{t("sessionTimeline.table.eventType")}</th>
-                <th className="p-3 font-medium">{t("sessionTimeline.table.pageUrl")}</th>
-                <th className="p-3 font-medium">{t("sessionTimeline.table.pageTitle")}</th>
+                <th className="p-3 font-medium">
+                  {t("sessionTimeline.table.eventTime")}
+                </th>
+                <th className="p-3 font-medium">
+                  {t("sessionTimeline.table.source")}
+                </th>
+                <th className="p-3 font-medium">
+                  {t("sessionTimeline.table.deviceType")}
+                </th>
+                <th className="p-3 font-medium">
+                  {t("sessionTimeline.table.eventType")}
+                </th>
+                <th className="p-3 font-medium">
+                  {t("sessionTimeline.table.pageUrl")}
+                </th>
+                <th className="p-3 font-medium">
+                  {t("sessionTimeline.table.pageTitle")}
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200">
@@ -404,7 +427,10 @@ export default function SessionTimeline({
         {totalPages > 1 && (
           <div className="flex items-center justify-between mt-4">
             <div className="text-sm text-slate-500">
-              {t("sessionTimeline.pagination.page", { current: currentPage, total: totalPages })}
+              {t("sessionTimeline.pagination.page", {
+                current: currentPage,
+                total: totalPages,
+              })}
             </div>
             <div className="flex items-center space-x-2">
               <Button
@@ -444,7 +470,9 @@ export default function SessionTimeline({
           <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col">
             {/* 弹窗头部 */}
             <div className="flex justify-between items-center p-4 border-b border-slate-200">
-              <h3 className="text-lg font-semibold text-slate-900">{t("sessionTimeline.modal.title")}</h3>
+              <h3 className="text-lg font-semibold text-slate-900">
+                {t("sessionTimeline.modal.title")}
+              </h3>
               <button
                 onClick={closeModal}
                 className="text-slate-400 hover:text-slate-600"
@@ -474,37 +502,49 @@ export default function SessionTimeline({
                 </h4>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm p-4 bg-slate-50 rounded-lg">
                   <div>
-                    <div className="text-xs text-slate-500">{t("sessionTimeline.modal.fields.eventTime")}</div>
+                    <div className="text-xs text-slate-500">
+                      {t("sessionTimeline.modal.fields.eventTime")}
+                    </div>
                     <div className="font-medium text-slate-900">
                       {selectedEvent.eventTime}
                     </div>
                   </div>
                   <div>
-                    <div className="text-xs text-slate-500">{t("sessionTimeline.modal.fields.eventType")}</div>
+                    <div className="text-xs text-slate-500">
+                      {t("sessionTimeline.modal.fields.eventType")}
+                    </div>
                     <div className="font-medium text-slate-900">
                       {getEventTypeBadge(selectedEvent.eventType)}
                     </div>
                   </div>
                   <div>
-                    <div className="text-xs text-slate-500">{t("sessionTimeline.modal.fields.source")}</div>
+                    <div className="text-xs text-slate-500">
+                      {t("sessionTimeline.modal.fields.source")}
+                    </div>
                     <div className="font-medium text-slate-900">
                       {selectedEvent.source}
                     </div>
                   </div>
                   <div>
-                    <div className="text-xs text-slate-500">{t("sessionTimeline.modal.fields.deviceType")}</div>
+                    <div className="text-xs text-slate-500">
+                      {t("sessionTimeline.modal.fields.deviceType")}
+                    </div>
                     <div className="font-medium text-slate-900">
                       {selectedEvent.deviceType}
                     </div>
                   </div>
                   <div>
-                    <div className="text-xs text-slate-500">{t("sessionTimeline.modal.fields.browser")}</div>
+                    <div className="text-xs text-slate-500">
+                      {t("sessionTimeline.modal.fields.browser")}
+                    </div>
                     <div className="font-medium text-slate-900">
                       {selectedEvent.browser || "N/A"}
                     </div>
                   </div>
                   <div>
-                    <div className="text-xs text-slate-500">{t("sessionTimeline.modal.fields.os")}</div>
+                    <div className="text-xs text-slate-500">
+                      {t("sessionTimeline.modal.fields.os")}
+                    </div>
                     <div className="font-medium text-slate-900">
                       {selectedEvent.os || "N/A"}
                     </div>
@@ -519,20 +559,26 @@ export default function SessionTimeline({
                 </h4>
                 <div className="space-y-3 text-sm">
                   <div>
-                    <div className="text-xs text-slate-500">{t("sessionTimeline.modal.fields.pageTitle")}</div>
+                    <div className="text-xs text-slate-500">
+                      {t("sessionTimeline.modal.fields.pageTitle")}
+                    </div>
                     <div className="font-medium text-slate-900">
                       {selectedEvent.pageTitle}
                     </div>
                   </div>
                   <div>
-                    <div className="text-xs text-slate-500">{t("sessionTimeline.modal.fields.pageUrl")}</div>
+                    <div className="text-xs text-slate-500">
+                      {t("sessionTimeline.modal.fields.pageUrl")}
+                    </div>
                     <div className="font-medium text-slate-900 break-all">
                       {selectedEvent.pageURL}
                     </div>
                   </div>
                   {selectedEvent.referrer && (
                     <div>
-                      <div className="text-xs text-slate-500">{t("sessionTimeline.modal.fields.referrer")}</div>
+                      <div className="text-xs text-slate-500">
+                        {t("sessionTimeline.modal.fields.referrer")}
+                      </div>
                       <div className="font-medium text-slate-900 break-all">
                         {selectedEvent.referrer}
                       </div>
@@ -552,91 +598,129 @@ export default function SessionTimeline({
                     <div>
                       <div className="text-xs text-slate-500">Event Type</div>
                       <div className="font-medium text-slate-900">
-                        <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${
-                          selectedEvent.$event_type === 'click' ? 'bg-purple-100 text-purple-800' :
-                          selectedEvent.$event_type === 'submit' ? 'bg-amber-100 text-amber-800' :
-                          selectedEvent.$event_type === 'change' ? 'bg-blue-100 text-blue-800' :
-                          'bg-slate-100 text-slate-800'
-                        }`}>
+                        <span
+                          className={`px-2 py-0.5 text-xs font-medium rounded-full ${
+                            selectedEvent.$event_type === "click"
+                              ? "bg-purple-100 text-purple-800"
+                              : selectedEvent.$event_type === "submit"
+                                ? "bg-amber-100 text-amber-800"
+                                : selectedEvent.$event_type === "change"
+                                  ? "bg-blue-100 text-blue-800"
+                                  : "bg-slate-100 text-slate-800"
+                          }`}
+                        >
                           {selectedEvent.$event_type}
                         </span>
                       </div>
                     </div>
                   )}
                   {/* Elements chain for click/submit events - 只显示第一条 */}
-                  {selectedEvent.$elements && selectedEvent.$elements.length > 0 && (
-                    <div>
-                      <div className="text-xs text-slate-500">Click/Submit Element</div>
-                      <div className="mt-2">
-                        {(() => {
-                          const element = selectedEvent.$elements[0];
-                          return (
-                            <div className="p-3 bg-slate-50 rounded border border-slate-200 text-xs">
-                              {element.tag_name && (
-                                <div className="mb-1">
-                                  <span className="text-slate-500">Tag:</span>{" "}
-                                  <span className="font-mono text-slate-900">&lt;{element.tag_name}&gt;</span>
-                                </div>
-                              )}
-                              {element.attr__id && (
-                                <div className="mb-1">
-                                  <span className="text-slate-500">ID:</span>{" "}
-                                  <span className="font-mono text-slate-900">{element.attr__id}</span>
-                                </div>
-                              )}
-                              {element.classes && element.classes.length > 0 && (
-                                <div className="mb-1">
-                                  <span className="text-slate-500">Classes:</span>{" "}
-                                  <span className="font-mono text-slate-900">{element.classes.join(', ')}</span>
-                                </div>
-                              )}
-                              {element.$el_text && (
-                                <div className="mb-1">
-                                  <span className="text-slate-500">Text:</span>{" "}
-                                  <span className="text-slate-900">{element.$el_text}</span>
-                                </div>
-                              )}
-                              {element.nth_child && (
-                                <div>
-                                  <span className="text-slate-500">Position:</span>{" "}
-                                  <span className="text-slate-900">nth-child({element.nth_child})</span>
-                                </div>
-                              )}
-                            </div>
-                          );
-                        })()}
+                  {selectedEvent.$elements &&
+                    selectedEvent.$elements.length > 0 && (
+                      <div>
+                        <div className="text-xs text-slate-500">
+                          Click/Submit Element
+                        </div>
+                        <div className="mt-2">
+                          {(() => {
+                            const element = selectedEvent.$elements[0];
+                            return (
+                              <div className="p-3 bg-slate-50 rounded border border-slate-200 text-xs">
+                                {element.tag_name && (
+                                  <div className="mb-1">
+                                    <span className="text-slate-500">Tag:</span>{" "}
+                                    <span className="font-mono text-slate-900">
+                                      &lt;{element.tag_name}&gt;
+                                    </span>
+                                  </div>
+                                )}
+                                {element.attr__id && (
+                                  <div className="mb-1">
+                                    <span className="text-slate-500">ID:</span>{" "}
+                                    <span className="font-mono text-slate-900">
+                                      {element.attr__id}
+                                    </span>
+                                  </div>
+                                )}
+                                {element.classes &&
+                                  element.classes.length > 0 && (
+                                    <div className="mb-1">
+                                      <span className="text-slate-500">
+                                        Classes:
+                                      </span>{" "}
+                                      <span className="font-mono text-slate-900">
+                                        {element.classes.join(", ")}
+                                      </span>
+                                    </div>
+                                  )}
+                                {element.$el_text && (
+                                  <div className="mb-1">
+                                    <span className="text-slate-500">
+                                      Text:
+                                    </span>{" "}
+                                    <span className="text-slate-900">
+                                      {element.$el_text}
+                                    </span>
+                                  </div>
+                                )}
+                                {element.nth_child && (
+                                  <div>
+                                    <span className="text-slate-500">
+                                      Position:
+                                    </span>{" "}
+                                    <span className="text-slate-900">
+                                      nth-child({element.nth_child})
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })()}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
                   {/* Screen and Viewport info */}
-                  {(selectedEvent.$screen_width || selectedEvent.$viewport_width) && (
+                  {(selectedEvent.$screen_width ||
+                    selectedEvent.$viewport_width) && (
                     <div className="grid grid-cols-2 gap-3">
-                      {selectedEvent.$screen_width && selectedEvent.$screen_height && (
-                        <div>
-                          <div className="text-xs text-slate-500">Screen Size</div>
-                          <div className="font-medium text-slate-900">
-                            {selectedEvent.$screen_width} × {selectedEvent.$screen_height}
+                      {selectedEvent.$screen_width &&
+                        selectedEvent.$screen_height && (
+                          <div>
+                            <div className="text-xs text-slate-500">
+                              Screen Size
+                            </div>
+                            <div className="font-medium text-slate-900">
+                              {selectedEvent.$screen_width} ×{" "}
+                              {selectedEvent.$screen_height}
+                            </div>
                           </div>
-                        </div>
-                      )}
-                      {selectedEvent.$viewport_width && selectedEvent.$viewport_height && (
-                        <div>
-                          <div className="text-xs text-slate-500">Viewport Size</div>
-                          <div className="font-medium text-slate-900">
-                            {selectedEvent.$viewport_width} × {selectedEvent.$viewport_height}
+                        )}
+                      {selectedEvent.$viewport_width &&
+                        selectedEvent.$viewport_height && (
+                          <div>
+                            <div className="text-xs text-slate-500">
+                              Viewport Size
+                            </div>
+                            <div className="font-medium text-slate-900">
+                              {selectedEvent.$viewport_width} ×{" "}
+                              {selectedEvent.$viewport_height}
+                            </div>
                           </div>
-                        </div>
-                      )}
+                        )}
                     </div>
                   )}
                   {/* Browser and timezone */}
-                  {(selectedEvent.$browser_version || selectedEvent.$timezone) && (
+                  {(selectedEvent.$browser_version ||
+                    selectedEvent.$timezone) && (
                     <div className="grid grid-cols-2 gap-3">
                       {selectedEvent.$browser_version && (
                         <div>
-                          <div className="text-xs text-slate-500">Browser Version</div>
+                          <div className="text-xs text-slate-500">
+                            Browser Version
+                          </div>
                           <div className="font-medium text-slate-900">
-                            {selectedEvent.browser} {selectedEvent.$browser_version}
+                            {selectedEvent.browser}{" "}
+                            {selectedEvent.$browser_version}
                           </div>
                         </div>
                       )}
@@ -675,7 +759,9 @@ export default function SessionTimeline({
                   {selectedEvent.eventType === "ScrollDepth" &&
                     selectedEvent.maxDepthPercent && (
                       <div>
-                        <div className="text-xs text-slate-500">{t("sessionTimeline.modal.fields.scrollDepth")}</div>
+                        <div className="text-xs text-slate-500">
+                          {t("sessionTimeline.modal.fields.scrollDepth")}
+                        </div>
                         <div className="font-medium text-slate-900">
                           {selectedEvent.maxDepthPercent}%
                         </div>
@@ -749,13 +835,15 @@ export default function SessionTimeline({
                           </div>
                         </div>
                       )}
-                      {(selectedEvent.productPrice || selectedEvent.productPrice === 0) && (
+                      {(selectedEvent.productPrice ||
+                        selectedEvent.productPrice === 0) && (
                         <div>
                           <div className="text-xs text-slate-500">
                             {t("sessionTimeline.modal.fields.productPrice")}
                           </div>
                           <div className="font-medium text-slate-900">
-                            {selectedEvent.productCurrency || '¥'}{selectedEvent.productPrice}
+                            {selectedEvent.productCurrency || "¥"}
+                            {selectedEvent.productPrice}
                           </div>
                         </div>
                       )}
