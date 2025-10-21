@@ -97,9 +97,7 @@ const typeFilterLabels: Record<TypeFilter, string> = {
 
 export default function Index() {
   const [incidents, setIncidents] = useState<Incident[]>(mockIncidents);
-  const [selectedIncident, setSelectedIncident] = useState<Incident | null>(
-    mockIncidents[0],
-  );
+  const [selectedIncident, setSelectedIncident] = useState<Incident | null>([]);
   const [activePriorityFilter, setActivePriorityFilter] =
     useState<PriorityFilter>("all");
   const [activeProgressFilter, setActiveProgressFilter] =
