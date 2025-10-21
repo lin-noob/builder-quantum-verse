@@ -24,6 +24,17 @@ import ApproverSelector, {
 } from "@/pages/ApprovalConfig/components/ApproverSelector";
 import { teamCalendarService } from "@/services/teamCalendarService";
 import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { request } from "@/lib/request";
 
 export interface CalendarEvent {
   id: string;
@@ -96,6 +107,8 @@ export default function EventFormDialog({
           userName: initialEvent.userName,
         },
       ]);
+    }else {
+      setSelectedUsers([])
     }
 
     setTypeVal(initialEvent?.type || "meeting");
@@ -206,6 +219,35 @@ export default function EventFormDialog({
     }
   };
 
+  // Delete functionality
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  const handleDelete = async () => {
+    if (!initialEvent?.id) return;
+
+    setIsDeleting(true);
+    try {
+      const formData = new FormData();
+      formData.append('ids', initialEvent.id)
+      const response = await request.post('/admin/api/v1/team/delete', formData);
+
+      if (response.status === 200) {
+        toast.success("日程删除成功");
+        onOpenChange(false); // Close the dialog
+        onSave(); // Trigger refresh
+      } else {
+        throw new Error('删除失败');
+      }
+    } catch (error) {
+      console.error('Failed to delete event:', error);
+      toast.error(error instanceof Error ? error.message : '删除失败，请重试');
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteConfirm(false);
+    }
+  };
+
   return (
     <Drawer
       open={open}
@@ -215,7 +257,7 @@ export default function EventFormDialog({
     >
       <DrawerContent
         side="right"
-        className="w-[720px] overflow-y-auto rounded-tl-xl rounded-bl-xl shadow-2xl border-0"
+        className="w-[720px] overflow-y-auto rounded-tl-xl rounded-bl-xl shadow-2xl border-0 overflow-hidden"
       >
         <DrawerHeader>
           <DrawerTitle>{initialEvent ? "编辑日程" : "新建日程"}</DrawerTitle>
@@ -350,13 +392,46 @@ export default function EventFormDialog({
         </div>
 
         <DrawerFooter>
-          <Button onClick={handleSave} disabled={saving}>
-            {saving ? "保存中..." : "保存"}
-          </Button>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            取消
-          </Button>
+          {initialEvent?.id && (
+            <Button 
+              variant="destructive" 
+              onClick={() => setShowDeleteConfirm(true)}
+              disabled={saving || isDeleting}
+              className="mt-2"
+            >
+              {isDeleting ? "删除中..." : "删除日程"}
+            </Button>
+          )}
+          <div className="flex w-full gap-2">
+            <Button onClick={handleSave} disabled={saving} className="flex-1">
+              {saving ? "保存中..." : initialEvent ? "保存修改" : "创建日程"}
+            </Button>
+            <Button variant="outline" onClick={() => onOpenChange(false)} className="flex-1">
+              取消
+            </Button>
+          </div>
         </DrawerFooter>
+
+        {/* Delete Confirmation Dialog */}
+        <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>删除日程</AlertDialogTitle>
+              <AlertDialogDescription>
+                您确定要删除「{initialEvent?.title}」这个日程吗？此操作不可撤销。
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>取消</AlertDialogCancel>
+              <AlertDialogAction 
+                onClick={handleDelete}
+                disabled={isDeleting}
+              >
+                {isDeleting ? '删除中...' : '删除'}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </DrawerContent>
     </Drawer>
   );

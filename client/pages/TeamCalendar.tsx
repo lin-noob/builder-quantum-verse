@@ -25,6 +25,7 @@ import EventFormDialog, {
   type CalendarEvent,
 } from "@/components/team-calendar/EventFormDialog";
 import CustomCalendarGrid from "@/components/team-calendar/CustomCalendarGrid";
+import { CustomCalendarEvent } from "@/components/team-calendar/CustomCalendarEvent";
 
 export default function TeamCalendar() {
   const { i18n } = useTranslation();
@@ -52,7 +53,7 @@ export default function TeamCalendar() {
       // 默认不选中任何成员
       setSelectedMembers([]);
     };
-    initializeMembers();
+    // initializeMembers();
     
     // 初始化月份字符串
     setCurrentMonthStr(getMonthStr(new Date()));
@@ -259,6 +260,7 @@ export default function TeamCalendar() {
         description: event.description,
         allDay: event.allDay,
         userId: event.userId,
+        userName: event.userName,
         type:
           event.type !== undefined ? typeNumberToString[event.type] : "meeting",
         priority:
@@ -359,7 +361,6 @@ export default function TeamCalendar() {
               onSelectEvent={(event: any) => {
                 setEditingEvent(event);
                 setDialogInitialDate(undefined);
-                debugger
                 setEventDialogOpen(true);
               }}
               onSelectSlot={(slotInfo) => {
@@ -370,22 +371,23 @@ export default function TeamCalendar() {
                 setEventDialogOpen(true);
               }}
               selectable={true}
-              eventPropGetter={(event) => ({
-                style: {
-                  backgroundColor: event.color || '#6366f1', // 使用 indigo-500 颜色
-                  borderRadius: '8px',
-                  border: 'none',
-                  color: 'white',
-                  padding: '4px 6px',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  boxShadow: '0 2px 6px rgba(99, 102, 241, 0.15)',
-                  margin: '3px',
-                  fontSize: '0.75rem',
-                  fontWeight: '500',
-                  transition: 'all 0.2s ease',
-                }
-              })}
+              components={{
+                event: (props) => (
+                  <CustomCalendarEvent
+                    event={props.event}
+                    title={props.title}
+                    style={props.style}
+                    reloadEvents={reloadEvents}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      // Open the edit dialog for this event
+                      setEditingEvent(props.event);
+                      setDialogInitialDate(undefined);
+                      setEventDialogOpen(true);
+                    }}
+                  />
+                )
+              }}
               messages={calendarMessages}
               culture={getCalendarLocale(i18n.language)}
               toolbar={false} // 禁用内置工具栏，使用自定义的
