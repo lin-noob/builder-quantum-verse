@@ -33,23 +33,33 @@ const progressLabels = {
   pending_human: '待处理',
   in_progress: '处理中',
   resolved: '已完成',
-  automated: 'AI全自动处理中'
+  automated: 'AI全自动处理中',
+  open: '开启'
 };
 
 const progressColors = {
   pending_human: 'bg-eip-alert text-eip-alert-foreground',
   in_progress: 'bg-eip-warning text-eip-warning-foreground',
   resolved: 'bg-eip-success text-eip-success-foreground',
-  automated: 'bg-eip-warning text-eip-warning-foreground'
+  automated: 'bg-eip-warning text-eip-warning-foreground',
+  open: 'bg-slate-500 text-slate-50'
 };
 
 export default function IncidentListItem({ incident, isSelected, onClick }: IncidentListItemProps) {
   const hasPendingApproval = false;
+  
+  // Type-safe access to object properties
+  const priorityColor = priorityColors[incident.priority] || priorityColors.low;
+  const selectedPriorityBadgeColor = priorityBadgeColors[incident.priority] || priorityBadgeColors.low;
+  const priorityLabel = priorityLabels[incident.priority] || priorityLabels.low;
+  const progressLabel = progressLabels[incident.status] || '未知状态';
+  const selectedProgressColor = progressColors[incident.status] || progressColors.pending_human;
+
   return (
     <div
       className={`
         border-l-4 p-4 cursor-pointer transition-all duration-200 border-b border-slate-200
-        ${priorityColors[incident.priority]}
+        ${priorityColor}
         ${isSelected ? 'bg-eip-accent/10 shadow-md' : 'hover:bg-slate-100/50'}
       `}
       onClick={onClick}
@@ -60,12 +70,12 @@ export default function IncidentListItem({ incident, isSelected, onClick }: Inci
         </h3>
         <div className="flex items-center gap-1 whitespace-nowrap">
           {/* 优先级徽章 */}
-          <span className={`px-2 py-1 rounded-full text-xs font-medium ${priorityBadgeColors[incident.priority]}`}>
-            {priorityLabels[incident.priority]}
+          <span className={`px-2 py-1 rounded-full text-xs font-medium ${selectedPriorityBadgeColor}`}>
+            {priorityLabel}
           </span>
           {/* 处理进度徽章（自动化时显示闪电） */}
-          <span className={`px-2 py-1 rounded-full text-xs font-medium inline-flex items-center ${progressColors[incident.status]}`}>
-            {progressLabels[incident.status]}
+          <span className={`px-2 py-1 rounded-full text-xs font-medium inline-flex items-center ${selectedProgressColor}`}>
+            {progressLabel}
             {incident.status === 'automated' && (
               <Zap className="w-3 h-3 ml-1" />
             )}
@@ -83,9 +93,9 @@ export default function IncidentListItem({ incident, isSelected, onClick }: Inci
       <div className="flex items-center justify-between text-xs text-slate-500">
         <div className="flex items-center">
           <Clock className="w-3 h-3 mr-1" />
-          {formatDistanceToNow(incident.timestamp, { addSuffix: true, locale: zhCN })}
+          {incident.gmtCreate}
         </div>
-        <div className="flex items-center">
+        {/* <div className="flex items-center">
           <span className="mr-2">置信度: {incident.aiAnalysis.confidence}%</span>
           <div className="w-8 h-1 bg-slate-200 rounded-full overflow-hidden">
             <div 
@@ -93,7 +103,7 @@ export default function IncidentListItem({ incident, isSelected, onClick }: Inci
               style={{ width: `${incident.aiAnalysis.confidence}%` }}
             />
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );

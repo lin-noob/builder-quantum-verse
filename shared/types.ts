@@ -21,17 +21,17 @@ export type Event = {
 // AI分析后形成的"案例"
 export type Incident = {
   id: string;
-  title: string;
+  title?: string; // 对应 eventName
   /** 事件简要描述 */
   description?: string;
-  status: 'pending_human' | 'in_progress' | 'resolved' | 'automated';
+  status: 'pending_human' | 'in_progress' | 'resolved' | 'automated' | 'open';
   priority: 'high' | 'medium' | 'low';
   timestamp: Date;
-  involvedEntities: {
+  involvedEntities?: {
     type: 'customer' | 'product' | 'order';
     value: string;
   }[];
-  aiAnalysis: {
+  aiAnalysis?: {
     confidence: number; // 0-100
     summary: string;
     keyMetrics: {
@@ -39,9 +39,31 @@ export type Incident = {
       value: string;
     }[];
   };
-  suggestedResponsePlan: ResponseAction[];
-  processingHistory: Activity[];
-  assignedTasks: Task[];
+  suggestedResponsePlan?: ResponseAction[];
+  processingHistory?: Activity[];
+  assignedTasks?: Task[];
+
+  // 后端接口返回的字段
+  gmtCreate?: string;
+  gmtModified?: string;
+  eventId?: string;
+  originalEventId?: string;
+  eventType?: string;
+  complaintType?: string;
+  source?: string;
+  customerEmail?: string;
+  orderId?: string;
+  emotion?: string;
+  emotionScore?: number | null;
+  eventTime?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  handledBy?: string | null;
+  remark?: string | null;
+  tags?: string | null;
+  extendData?: string | null;
+  companyId?: string;
+  eventName?: string;
 };
 
 // 建议的响应动作
