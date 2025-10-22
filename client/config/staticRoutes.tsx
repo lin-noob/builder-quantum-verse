@@ -70,7 +70,7 @@ const ApprovalConfig = React.lazy(
 );
 // 新增审批中心与监控、统计页面
 const ApprovalCenter = React.lazy(
-  () => import("@/pages/Approval/ApprovalCenter"),
+  () => import("@/pages/Approval/ApprovalList"),
 );
 const ApprovalMonitor = React.lazy(
   () => import("@/pages/Approval/ApprovalMonitor"),
