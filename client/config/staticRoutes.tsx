@@ -42,6 +42,7 @@ const UserDetailsAnalytics = React.lazy(
   () => import("@/admin/pages/UserDetailsAnalytics"),
 );
 const UserDetail_New = React.lazy(() => import("@/pages/UserDetail_New"));
+const UserList = React.lazy(() => import("@/pages/UserList"));
 const ScenarioConfig = React.lazy(
   () => import("@/pages/AIMarketing/ScenarioConfig"),
 );
@@ -54,6 +55,7 @@ const HelpDocumentI18nManager = React.lazy(
 );
 
 const Events = React.lazy(() => import("@/pages/events"));
+
 const Tasks = React.lazy(() => import("@/pages/MyTasks"));
 const Calendar = React.lazy(() => import("@/pages/TeamCalendar"));
 const EmailManualProcessing = React.lazy(() => import("@/pages/EmailManualProcessing"));
@@ -207,6 +209,26 @@ export const staticRoutes: RouteObject[] = [
     ),
   },
   {
+    path: "/users",
+    element: (
+      <Layout>
+        <LazyRoute>
+          <UserList />
+        </LazyRoute>
+      </Layout>
+    ),
+  },
+  {
+    path: "/users/:cdpId",
+    element: (
+      <Layout>
+        <LazyRoute>
+          <UserDetail_New />
+        </LazyRoute>
+      </Layout>
+    ),
+  },
+  {
     path: "/ai-marketing/scenarios/:scenarioId",
     element: (
       <Layout>
@@ -333,6 +355,7 @@ export const staticRoutes: RouteObject[] = [
       </Layout>
     ),
   },
+
   {
     path: "/tasks",
     element: (

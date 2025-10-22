@@ -207,7 +207,7 @@ export default function OrderHistory({
   if (loading) {
     return (
       <div className="bg-white p-6 rounded-lg shadow-sm">
-        <h3 className="text-lg font-semibold text-slate-900 mb-4">{t("orderHistory.title")}</h3>
+        
         <div className="flex items-center justify-center py-8">
           <div className="text-slate-500">{t("orderHistory.loading")}</div>
         </div>
@@ -218,7 +218,7 @@ export default function OrderHistory({
   if (!eventData || eventData.records.length === 0) {
     return (
       <div className="bg-white p-6 rounded-lg shadow-sm">
-        <h3 className="text-lg font-semibold text-slate-900 mb-4">{t("orderHistory.title")}</h3>
+        
         <div className="flex items-center justify-center py-8">
           <div className="text-slate-500">{t("orderHistory.noData")}</div>
         </div>
@@ -230,12 +230,7 @@ export default function OrderHistory({
     <>
       {/* Order History Component */}
       <div className="bg-white p-6 rounded-lg shadow-sm font-[Inter]">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-semibold text-slate-900">{t("orderHistory.title")}</h3>
-          <div className="text-sm text-slate-500">
-            {t("orderHistory.recordsInfo", { total: eventData.total, start: startItem, end: endItem })}
-          </div>
-        </div>
+
 
         {/* Order List Table */}
         <div className="overflow-x-auto">
@@ -283,11 +278,14 @@ export default function OrderHistory({
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-between mt-4">
+          <div className="flex items-center justify-between mt-4 border-t pt-4">
             <div className="text-sm text-slate-500">
-              {t("orderHistory.pagination.page", { current: currentPage, total: totalPages })}
+              {t("orderHistory.recordsInfo", { total: eventData.total, start: startItem, end: endItem })}
             </div>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center gap-3">
+              <div className="text-sm text-slate-500">
+                {t("orderHistory.pagination.page", { current: currentPage, total: totalPages })}
+              </div>
               <Button
                 variant="outline"
                 size="sm"

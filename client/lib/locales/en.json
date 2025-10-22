@@ -503,5 +503,57 @@
         "confirm": "Delete"
       }
     }
+  },
+  "sessionTimeline": {
+    "loading": "Loading...",
+    "noData": "No data available",
+    "searchPlaceholder": "Search URL/Title/Element Text",
+    "filters": {
+      "allEvents": "All Events",
+      "allSources": "All Sources",
+      "allDevices": "All Devices",
+      "keyEventsOnly": "Key Events Only",
+      "startTime": "Start Time",
+      "endTime": "End Time",
+      "search": "Search",
+      "reset": "Reset"
+    },
+    "eventTypes": {
+      "$pageview": "Page View",
+      "$pageleave": "Page Leave",
+      "$autocapture": "Auto Capture",
+      "ScrollDepth": "Scroll Depth",
+      "Click": "Click",
+      "ViewProduct": "View Product",
+      "AddToCart": "Add to Cart",
+      "RemoveFromCart": "Remove from Cart",
+      "StartCheckout": "Start Checkout",
+      "CompletePurchase": "Complete Purchase",
+      "UserRegister": "User Register",
+      "UserLogin": "User Login",
+      "SubmitForm": "Submit Form",
+      "Search": "Search",
+      "PageDwellTime": "Page Dwell Time",
+      "Change": "Change"
+    },
+    "details": {
+      "source": "Source",
+      "device": "Device",
+      "dwellTime": "Dwell",
+      "scrollDepth": "Scroll",
+      "repeatVisit": "Repeat Visit",
+      "times": "times",
+      "element": "Element"
+    },
+    "recordsInfo": "Total {{total}} records, showing {{start}}-{{end}}",
+    "pagination": {
+      "page": "Page {{current}} of {{total}}",
+      "previous": "Previous",
+      "next": "Next"
+    },
+    "modal": {
+      "title": "Event Details",
+      "basicInfo": "Basic Information"
+    }
   }
 }
