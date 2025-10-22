@@ -137,17 +137,7 @@ const formatCNY = (amount?: number) => {
 
 // 基于时间或实体信息匹配原始事件
 const findRelatedEvent = (incident: Incident | null): Event | null => {
-  if (!incident) return null;
-  // 优先用时间精确匹配
-  const byTime = mockEvents.find(e => e.timestamp.getTime() === incident.timestamp.getTime());
-  if (byTime) return byTime;
-  // 次选用订单号匹配
-  const orderEntity = incident.involvedEntities.find(en => en.type === 'order');
-  if (orderEntity) {
-    const byOrder = mockEvents.find(e => (e.data as any)?.orderId === orderEntity.value);
-    if (byOrder) return byOrder;
-  }
-  return null;
+  return incident;
 };
 
 export default function IncidentDetails({ incident }: IncidentDetailsProps) {
