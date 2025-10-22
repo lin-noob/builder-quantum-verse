@@ -96,7 +96,7 @@ const typeFilterLabels: Record<TypeFilter, string> = {
 // 类型筛选不再显示计数
 
 export default function Index() {
-  const [incidents, setIncidents] = useState<Incident[]>(mockIncidents);
+  const [incidents, setIncidents] = useState<Incident[]>([]);
   const [selectedIncident, setSelectedIncident] = useState<Incident | null>([]);
   const [activePriorityFilter, setActivePriorityFilter] =
     useState<PriorityFilter>("all");
