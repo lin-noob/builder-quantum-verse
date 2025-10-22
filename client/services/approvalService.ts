@@ -1,14 +1,15 @@
-import { 
-  ApprovalWorkflow, 
-  ApprovalTemplate, 
-  ApprovalInstance, 
-  ApprovalHistory, 
+import {
+  ApprovalWorkflow,
+  ApprovalTemplate,
+  ApprovalInstance,
+  ApprovalHistory,
   ApprovalStatistics,
   DocumentType,
   ApprovalNode,
   ApprovalCondition,
-  ApprovalUser
-} from '@/types/approval';
+  ApprovalUser,
+} from "@/types/approval";
+import { request } from "@/lib/request";
 
 // API响应类型
 interface ApiResponse<T> {
@@ -28,12 +29,11 @@ interface PaginatedResponse<T> {
 
 // 查询参数类型
 interface WorkflowQueryParams {
-  page?: number;
+  currentPage?: number;
   pageSize?: number;
   search?: string;
-  documentType?: DocumentType;
-  status?: 'active' | 'inactive' | 'draft';
-  category?: string;
+  billType?: number;
+  status?: number;
 }
 
 interface TemplateQueryParams {
@@ -49,7 +49,7 @@ interface InstanceQueryParams {
   page?: number;
   pageSize?: number;
   search?: string;
-  status?: 'pending' | 'approved' | 'rejected' | 'cancelled';
+  status?: "pending" | "approved" | "rejected" | "cancelled";
   submitterId?: string;
   approverId?: string;
   documentType?: DocumentType;
@@ -59,24 +59,46 @@ interface InstanceQueryParams {
 
 // 审批流程管理服务
 class ApprovalService {
-  private baseUrl = '/api/approval';
+  private baseUrl = "/admin/api/v1/process";
 
   // ==================== 审批流程管理 ====================
-  
+
   /**
-   * 获取审批流程列表
+   * 获取审批流程列表（分页）
    */
-  async getWorkflows(params?: WorkflowQueryParams): Promise<ApiResponse<PaginatedResponse<ApprovalWorkflow>>> {
+  async getWorkflows(
+    params?: WorkflowQueryParams,
+  ): Promise<ApiResponse<PaginatedResponse<ApprovalWorkflow>>> {
     try {
-      const queryString = new URLSearchParams(params as any).toString();
-      const response = await fetch(`${this.baseUrl}/workflows?${queryString}`);
-      return await response.json();
+      const res = await request.get<any>(`${this.baseUrl}/page`, {
+        currentpage: params?.currentPage || 1,
+        pageSize: params?.pageSize || 10,
+        name: params?.search || "",
+        ...(params?.billType !== undefined && { billType: params.billType }),
+        ...(params?.status !== undefined && { status: params.status }),
+      });
+      const response = res.data.data;
+      console.log(response);
+
+      return {
+        success: true,
+        data: {
+          items: response.records || [],
+          total: response.total || 0,
+          page: params?.currentPage || 1,
+          pageSize: params?.pageSize || 10,
+          totalPages: Math.ceil(
+            (response.total || 0) / (params?.pageSize || 10),
+          ),
+        },
+      };
     } catch (error) {
-      console.error('获取审批流程列表失败:', error);
+      console.error("获取审批流程列表失败:", error);
       return {
         success: false,
         data: { items: [], total: 0, page: 1, pageSize: 10, totalPages: 0 },
-        message: '获取审批流程列表失败'
+        message:
+          error instanceof Error ? error.message : "获取审批流程列表失败",
       };
     }
   }
@@ -89,11 +111,11 @@ class ApprovalService {
       const response = await fetch(`${this.baseUrl}/workflows/${id}`);
       return await response.json();
     } catch (error) {
-      console.error('获取审批流程详情失败:', error);
+      console.error("获取审批流程详情失败:", error);
       return {
         success: false,
         data: {} as ApprovalWorkflow,
-        message: '获取审批流程详情失败'
+        message: "获取审批流程详情失败",
       };
     }
   }
@@ -101,22 +123,25 @@ class ApprovalService {
   /**
    * 创建审批流程
    */
-  async createWorkflow(workflow: Omit<ApprovalWorkflow, 'id' | 'createdAt' | 'updatedAt' | 'createdBy'>): Promise<ApiResponse<ApprovalWorkflow>> {
+  async createWorkflow(
+    workflow: Omit<ApprovalWorkflow, "id">,
+  ): Promise<ApiResponse<ApprovalWorkflow>> {
     try {
-      const response = await fetch(`${this.baseUrl}/workflows`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(workflow),
-      });
-      return await response.json();
+      const res = await request.post<ApprovalWorkflow>(
+        `${this.baseUrl}/save`,
+        workflow,
+      );
+      const response = res.data;
+      return {
+        success: true,
+        data: response,
+      };
     } catch (error) {
-      console.error('创建审批流程失败:', error);
+      console.error("创建审批流程失败:", error);
       return {
         success: false,
         data: {} as ApprovalWorkflow,
-        message: '创建审批流程失败'
+        message: error instanceof Error ? error.message : "创建审批流程失败",
       };
     }
   }
@@ -124,22 +149,26 @@ class ApprovalService {
   /**
    * 更新审批流程
    */
-  async updateWorkflow(id: string, workflow: Partial<ApprovalWorkflow>): Promise<ApiResponse<ApprovalWorkflow>> {
+  async updateWorkflow(
+    id: string,
+    workflow: Partial<ApprovalWorkflow>,
+  ): Promise<ApiResponse<ApprovalWorkflow>> {
     try {
-      const response = await fetch(`${this.baseUrl}/workflows/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(workflow),
+      const res = await request.post<ApprovalWorkflow>(`${this.baseUrl}/save`, {
+        ...workflow,
+        id,
       });
-      return await response.json();
+      const response = res.data;
+      return {
+        success: true,
+        data: response,
+      };
     } catch (error) {
-      console.error('更新审批流程失败:', error);
+      console.error("更新审批流程失败:", error);
       return {
         success: false,
         data: {} as ApprovalWorkflow,
-        message: '更新审批流程失败'
+        message: error instanceof Error ? error.message : "更新审批流程失败",
       };
     }
   }
@@ -149,16 +178,22 @@ class ApprovalService {
    */
   async deleteWorkflow(id: string): Promise<ApiResponse<boolean>> {
     try {
-      const response = await fetch(`${this.baseUrl}/workflows/${id}`, {
-        method: 'DELETE',
+      const formData = new FormData();
+      formData.append("id", id);
+      await request.delete(`${this.baseUrl}/${id}`, {
+        data: formData,
       });
-      return await response.json();
+      return {
+        success: true,
+        data: false,
+        message: "删除审批流程失败",
+      };
     } catch (error) {
-      console.error('删除审批流程失败:', error);
+      console.error("删除审批流程失败:", error);
       return {
         success: false,
         data: false,
-        message: '删除审批流程失败'
+        message: "删除审批流程失败",
       };
     }
   }
@@ -166,22 +201,41 @@ class ApprovalService {
   /**
    * 启用/禁用审批流程
    */
-  async toggleWorkflowStatus(id: string, isActive: boolean): Promise<ApiResponse<ApprovalWorkflow>> {
+  async toggleWorkflowStatus(
+    id: string | number,
+    status: number | boolean,
+  ): Promise<ApiResponse<ApprovalWorkflow>> {
     try {
-      const response = await fetch(`${this.baseUrl}/workflows/${id}/toggle`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ isActive }),
-      });
-      return await response.json();
+      const formData = new FormData();
+      formData.append("id", String(id));
+      formData.append(
+        "status",
+        typeof status === "boolean" ? (status ? "1" : "0") : String(status),
+      );
+
+      const response = await request.post<any>(
+        `${this.baseUrl}/${id}/status`,
+        formData,
+      );
+      const payload = response.data ?? {};
+      const successFlag =
+        typeof payload?.success === "boolean" ? payload.success : true;
+      const message =
+        payload?.message || payload?.msg || response.statusText || "";
+      const data = (payload?.data ?? payload) as ApprovalWorkflow;
+
+      return {
+        success: successFlag,
+        data,
+        message,
+      };
     } catch (error) {
-      console.error('切换审批流程状态失败:', error);
+      console.error("切换审批流程状态失败:", error);
       return {
         success: false,
         data: {} as ApprovalWorkflow,
-        message: '切换审批流程状态失败'
+        message:
+          error instanceof Error ? error.message : "切换审批流程状态失败",
       };
     }
   }
@@ -189,22 +243,25 @@ class ApprovalService {
   /**
    * 复制审批流程
    */
-  async cloneWorkflow(id: string, name?: string): Promise<ApiResponse<ApprovalWorkflow>> {
+  async cloneWorkflow(
+    id: string,
+    name?: string,
+  ): Promise<ApiResponse<ApprovalWorkflow>> {
     try {
       const response = await fetch(`${this.baseUrl}/workflows/${id}/clone`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ name }),
       });
       return await response.json();
     } catch (error) {
-      console.error('复制审批流程失败:', error);
+      console.error("复制审批流程失败:", error);
       return {
         success: false,
         data: {} as ApprovalWorkflow,
-        message: '复制审批流程失败'
+        message: "复制审批流程失败",
       };
     }
   }
@@ -214,17 +271,19 @@ class ApprovalService {
   /**
    * 获取审批模板列表
    */
-  async getTemplates(params?: TemplateQueryParams): Promise<ApiResponse<PaginatedResponse<ApprovalTemplate>>> {
+  async getTemplates(
+    params?: TemplateQueryParams,
+  ): Promise<ApiResponse<PaginatedResponse<ApprovalTemplate>>> {
     try {
       const queryString = new URLSearchParams(params as any).toString();
       const response = await fetch(`${this.baseUrl}/templates?${queryString}`);
       return await response.json();
     } catch (error) {
-      console.error('获取审批模板列表失败:', error);
+      console.error("获取审批模板列表失败:", error);
       return {
         success: false,
         data: { items: [], total: 0, page: 1, pageSize: 10, totalPages: 0 },
-        message: '获取审批模板列表失败'
+        message: "获取审批模板列表失败",
       };
     }
   }
@@ -237,11 +296,11 @@ class ApprovalService {
       const response = await fetch(`${this.baseUrl}/templates/${id}`);
       return await response.json();
     } catch (error) {
-      console.error('获取审批模板详情失败:', error);
+      console.error("获取审批模板详情失败:", error);
       return {
         success: false,
         data: {} as ApprovalTemplate,
-        message: '获取审批模板详情失败'
+        message: "获取审批模板详情失败",
       };
     }
   }
@@ -249,22 +308,27 @@ class ApprovalService {
   /**
    * 创建审批模板
    */
-  async createTemplate(template: Omit<ApprovalTemplate, 'id' | 'createdAt' | 'updatedAt' | 'createdBy' | 'usageCount'>): Promise<ApiResponse<ApprovalTemplate>> {
+  async createTemplate(
+    template: Omit<
+      ApprovalTemplate,
+      "id" | "createdAt" | "updatedAt" | "createdBy" | "usageCount"
+    >,
+  ): Promise<ApiResponse<ApprovalTemplate>> {
     try {
       const response = await fetch(`${this.baseUrl}/templates`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(template),
       });
       return await response.json();
     } catch (error) {
-      console.error('创建审批模板失败:', error);
+      console.error("创建审批模板失败:", error);
       return {
         success: false,
         data: {} as ApprovalTemplate,
-        message: '创建审批模板失败'
+        message: "创建审批模板失败",
       };
     }
   }
@@ -272,22 +336,25 @@ class ApprovalService {
   /**
    * 更新审批模板
    */
-  async updateTemplate(id: string, template: Partial<ApprovalTemplate>): Promise<ApiResponse<ApprovalTemplate>> {
+  async updateTemplate(
+    id: string,
+    template: Partial<ApprovalTemplate>,
+  ): Promise<ApiResponse<ApprovalTemplate>> {
     try {
       const response = await fetch(`${this.baseUrl}/templates/${id}`, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(template),
       });
       return await response.json();
     } catch (error) {
-      console.error('更新审批模板失败:', error);
+      console.error("更新审批模板失败:", error);
       return {
         success: false,
         data: {} as ApprovalTemplate,
-        message: '更新审批模板失败'
+        message: "更新审批模板失败",
       };
     }
   }
@@ -298,15 +365,15 @@ class ApprovalService {
   async deleteTemplate(id: string): Promise<ApiResponse<boolean>> {
     try {
       const response = await fetch(`${this.baseUrl}/templates/${id}`, {
-        method: 'DELETE',
+        method: "DELETE",
       });
       return await response.json();
     } catch (error) {
-      console.error('删除审批模板失败:', error);
+      console.error("删除审批模板失败:", error);
       return {
         success: false,
         data: false,
-        message: '删除审批模板失败'
+        message: "删除审批模板失败",
       };
     }
   }
@@ -314,22 +381,28 @@ class ApprovalService {
   /**
    * 设置默认模板
    */
-  async setDefaultTemplate(id: string, documentType: DocumentType): Promise<ApiResponse<boolean>> {
+  async setDefaultTemplate(
+    id: string,
+    documentType: DocumentType,
+  ): Promise<ApiResponse<boolean>> {
     try {
-      const response = await fetch(`${this.baseUrl}/templates/${id}/set-default`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await fetch(
+        `${this.baseUrl}/templates/${id}/set-default`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ documentType }),
         },
-        body: JSON.stringify({ documentType }),
-      });
+      );
       return await response.json();
     } catch (error) {
-      console.error('设置默认模板失败:', error);
+      console.error("设置默认模板失败:", error);
       return {
         success: false,
         data: false,
-        message: '设置默认模板失败'
+        message: "设置默认模板失败",
       };
     }
   }
@@ -337,22 +410,24 @@ class ApprovalService {
   /**
    * 导入审批模板
    */
-  async importTemplate(templateData: string): Promise<ApiResponse<ApprovalTemplate>> {
+  async importTemplate(
+    templateData: string,
+  ): Promise<ApiResponse<ApprovalTemplate>> {
     try {
       const response = await fetch(`${this.baseUrl}/templates/import`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ templateData }),
       });
       return await response.json();
     } catch (error) {
-      console.error('导入审批模板失败:', error);
+      console.error("导入审批模板失败:", error);
       return {
         success: false,
         data: {} as ApprovalTemplate,
-        message: '导入审批模板失败'
+        message: "导入审批模板失败",
       };
     }
   }
@@ -365,11 +440,11 @@ class ApprovalService {
       const response = await fetch(`${this.baseUrl}/templates/${id}/export`);
       return await response.json();
     } catch (error) {
-      console.error('导出审批模板失败:', error);
+      console.error("导出审批模板失败:", error);
       return {
         success: false,
-        data: '',
-        message: '导出审批模板失败'
+        data: "",
+        message: "导出审批模板失败",
       };
     }
   }
@@ -379,17 +454,19 @@ class ApprovalService {
   /**
    * 获取审批实例列表
    */
-  async getInstances(params?: InstanceQueryParams): Promise<ApiResponse<PaginatedResponse<ApprovalInstance>>> {
+  async getInstances(
+    params?: InstanceQueryParams,
+  ): Promise<ApiResponse<PaginatedResponse<ApprovalInstance>>> {
     try {
       const queryString = new URLSearchParams(params as any).toString();
       const response = await fetch(`${this.baseUrl}/instances?${queryString}`);
       return await response.json();
     } catch (error) {
-      console.error('获取审批实例列表失败:', error);
+      console.error("获取审批实例列表失败:", error);
       return {
         success: false,
         data: { items: [], total: 0, page: 1, pageSize: 10, totalPages: 0 },
-        message: '获取审批实例列表失败'
+        message: "获取审批实例列表失败",
       };
     }
   }
@@ -402,11 +479,11 @@ class ApprovalService {
       const response = await fetch(`${this.baseUrl}/instances/${id}`);
       return await response.json();
     } catch (error) {
-      console.error('获取审批实例详情失败:', error);
+      console.error("获取审批实例详情失败:", error);
       return {
         success: false,
         data: {} as ApprovalInstance,
-        message: '获取审批实例详情失败'
+        message: "获取审批实例详情失败",
       };
     }
   }
@@ -422,19 +499,19 @@ class ApprovalService {
   }): Promise<ApiResponse<ApprovalInstance>> {
     try {
       const response = await fetch(`${this.baseUrl}/instances`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
       });
       return await response.json();
     } catch (error) {
-      console.error('提交审批申请失败:', error);
+      console.error("提交审批申请失败:", error);
       return {
         success: false,
         data: {} as ApprovalInstance,
-        message: '提交审批申请失败'
+        message: "提交审批申请失败",
       };
     }
   }
@@ -442,22 +519,29 @@ class ApprovalService {
   /**
    * 审批通过
    */
-  async approveInstance(instanceId: string, nodeId: string, comment?: string): Promise<ApiResponse<ApprovalInstance>> {
+  async approveInstance(
+    instanceId: string,
+    nodeId: string,
+    comment?: string,
+  ): Promise<ApiResponse<ApprovalInstance>> {
     try {
-      const response = await fetch(`${this.baseUrl}/instances/${instanceId}/approve`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await fetch(
+        `${this.baseUrl}/instances/${instanceId}/approve`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ nodeId, comment }),
         },
-        body: JSON.stringify({ nodeId, comment }),
-      });
+      );
       return await response.json();
     } catch (error) {
-      console.error('审批通过失败:', error);
+      console.error("审批通过失败:", error);
       return {
         success: false,
         data: {} as ApprovalInstance,
-        message: '审批通过失败'
+        message: "审批通过失败",
       };
     }
   }
@@ -465,22 +549,29 @@ class ApprovalService {
   /**
    * 审批拒绝
    */
-  async rejectInstance(instanceId: string, nodeId: string, comment: string): Promise<ApiResponse<ApprovalInstance>> {
+  async rejectInstance(
+    instanceId: string,
+    nodeId: string,
+    comment: string,
+  ): Promise<ApiResponse<ApprovalInstance>> {
     try {
-      const response = await fetch(`${this.baseUrl}/instances/${instanceId}/reject`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await fetch(
+        `${this.baseUrl}/instances/${instanceId}/reject`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ nodeId, comment }),
         },
-        body: JSON.stringify({ nodeId, comment }),
-      });
+      );
       return await response.json();
     } catch (error) {
-      console.error('审批拒绝失败:', error);
+      console.error("审批拒绝失败:", error);
       return {
         success: false,
         data: {} as ApprovalInstance,
-        message: '审批拒绝失败'
+        message: "审批拒绝失败",
       };
     }
   }
@@ -488,22 +579,28 @@ class ApprovalService {
   /**
    * 撤回审批
    */
-  async withdrawInstance(instanceId: string, reason?: string): Promise<ApiResponse<ApprovalInstance>> {
+  async withdrawInstance(
+    instanceId: string,
+    reason?: string,
+  ): Promise<ApiResponse<ApprovalInstance>> {
     try {
-      const response = await fetch(`${this.baseUrl}/instances/${instanceId}/withdraw`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await fetch(
+        `${this.baseUrl}/instances/${instanceId}/withdraw`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ reason }),
         },
-        body: JSON.stringify({ reason }),
-      });
+      );
       return await response.json();
     } catch (error) {
-      console.error('撤回审批失败:', error);
+      console.error("撤回审批失败:", error);
       return {
         success: false,
         data: {} as ApprovalInstance,
-        message: '撤回审批失败'
+        message: "撤回审批失败",
       };
     }
   }
@@ -511,22 +608,30 @@ class ApprovalService {
   /**
    * 转交审批
    */
-  async delegateInstance(instanceId: string, nodeId: string, targetUserId: string, comment?: string): Promise<ApiResponse<ApprovalInstance>> {
+  async delegateInstance(
+    instanceId: string,
+    nodeId: string,
+    targetUserId: string,
+    comment?: string,
+  ): Promise<ApiResponse<ApprovalInstance>> {
     try {
-      const response = await fetch(`${this.baseUrl}/instances/${instanceId}/delegate`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await fetch(
+        `${this.baseUrl}/instances/${instanceId}/delegate`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ nodeId, targetUserId, comment }),
         },
-        body: JSON.stringify({ nodeId, targetUserId, comment }),
-      });
+      );
       return await response.json();
     } catch (error) {
-      console.error('转交审批失败:', error);
+      console.error("转交审批失败:", error);
       return {
         success: false,
         data: {} as ApprovalInstance,
-        message: '转交审批失败'
+        message: "转交审批失败",
       };
     }
   }
@@ -536,16 +641,20 @@ class ApprovalService {
   /**
    * 获取审批历史
    */
-  async getApprovalHistory(instanceId: string): Promise<ApiResponse<ApprovalHistory[]>> {
+  async getApprovalHistory(
+    instanceId: string,
+  ): Promise<ApiResponse<ApprovalHistory[]>> {
     try {
-      const response = await fetch(`${this.baseUrl}/instances/${instanceId}/history`);
+      const response = await fetch(
+        `${this.baseUrl}/instances/${instanceId}/history`,
+      );
       return await response.json();
     } catch (error) {
-      console.error('获取审批历史失败:', error);
+      console.error("获取审批历史失败:", error);
       return {
         success: false,
         data: [],
-        message: '获取审批历史失败'
+        message: "获取审批历史失败",
       };
     }
   }
@@ -564,11 +673,11 @@ class ApprovalService {
       const response = await fetch(`${this.baseUrl}/statistics?${queryString}`);
       return await response.json();
     } catch (error) {
-      console.error('获取审批统计失败:', error);
+      console.error("获取审批统计失败:", error);
       return {
         success: false,
         data: {} as ApprovalStatistics,
-        message: '获取审批统计失败'
+        message: "获取审批统计失败",
       };
     }
   }
@@ -586,11 +695,11 @@ class ApprovalService {
       const response = await fetch(`${this.baseUrl}/my-pending?${queryString}`);
       return await response.json();
     } catch (error) {
-      console.error('获取待办审批失败:', error);
+      console.error("获取待办审批失败:", error);
       return {
         success: false,
         data: { items: [], total: 0, page: 1, pageSize: 10, totalPages: 0 },
-        message: '获取待办审批失败'
+        message: "获取待办审批失败",
       };
     }
   }
@@ -601,19 +710,21 @@ class ApprovalService {
   async getMySubmittedApprovals(params?: {
     page?: number;
     pageSize?: number;
-    status?: 'pending' | 'approved' | 'rejected' | 'cancelled';
+    status?: "pending" | "approved" | "rejected" | "cancelled";
     documentType?: DocumentType;
   }): Promise<ApiResponse<PaginatedResponse<ApprovalInstance>>> {
     try {
       const queryString = new URLSearchParams(params as any).toString();
-      const response = await fetch(`${this.baseUrl}/my-submitted?${queryString}`);
+      const response = await fetch(
+        `${this.baseUrl}/my-submitted?${queryString}`,
+      );
       return await response.json();
     } catch (error) {
-      console.error('获取我的申请失败:', error);
+      console.error("获取我的申请失败:", error);
       return {
         success: false,
         data: { items: [], total: 0, page: 1, pageSize: 10, totalPages: 0 },
-        message: '获取我的申请失败'
+        message: "获取我的申请失败",
       };
     }
   }
@@ -633,11 +744,11 @@ class ApprovalService {
       const response = await fetch(`${this.baseUrl}/approvers?${queryString}`);
       return await response.json();
     } catch (error) {
-      console.error('获取审批人列表失败:', error);
+      console.error("获取审批人列表失败:", error);
       return {
         success: false,
         data: [],
-        message: '获取审批人列表失败'
+        message: "获取审批人列表失败",
       };
     }
   }
@@ -645,16 +756,18 @@ class ApprovalService {
   /**
    * 获取部门列表
    */
-  async getDepartments(): Promise<ApiResponse<{ id: string; name: string; parentId?: string }[]>> {
+  async getDepartments(): Promise<
+    ApiResponse<{ id: string; name: string; parentId?: string }[]>
+  > {
     try {
       const response = await fetch(`${this.baseUrl}/departments`);
       return await response.json();
     } catch (error) {
-      console.error('获取部门列表失败:', error);
+      console.error("获取部门列表失败:", error);
       return {
         success: false,
         data: [],
-        message: '获取部门列表失败'
+        message: "获取部门列表失败",
       };
     }
   }
@@ -662,16 +775,18 @@ class ApprovalService {
   /**
    * 获取角色列表
    */
-  async getRoles(): Promise<ApiResponse<{ id: string; name: string; description?: string }[]>> {
+  async getRoles(): Promise<
+    ApiResponse<{ id: string; name: string; description?: string }[]>
+  > {
     try {
       const response = await fetch(`${this.baseUrl}/roles`);
       return await response.json();
     } catch (error) {
-      console.error('获取角色列表失败:', error);
+      console.error("获取角色列��失败:", error);
       return {
         success: false,
         data: [],
-        message: '获取角色列表失败'
+        message: "获取角色列表失败",
       };
     }
   }
@@ -681,22 +796,24 @@ class ApprovalService {
   /**
    * 验证审批流程配置
    */
-  async validateWorkflow(workflow: Partial<ApprovalWorkflow>): Promise<ApiResponse<{ isValid: boolean; errors: string[] }>> {
+  async validateWorkflow(
+    workflow: Partial<ApprovalWorkflow>,
+  ): Promise<ApiResponse<{ isValid: boolean; errors: string[] }>> {
     try {
       const response = await fetch(`${this.baseUrl}/workflows/validate`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(workflow),
       });
       return await response.json();
     } catch (error) {
-      console.error('验证审批流程失败:', error);
+      console.error("验证审批流程失败:", error);
       return {
         success: false,
-        data: { isValid: false, errors: ['验证失败'] },
-        message: '验证审批流程失败'
+        data: { isValid: false, errors: ["验证失败"] },
+        message: "验证审批流程失败",
       };
     }
   }
@@ -704,26 +821,34 @@ class ApprovalService {
   /**
    * 测试审批流程
    */
-  async testWorkflow(workflowId: string, testData: Record<string, any>): Promise<ApiResponse<{ 
-    path: string[]; 
-    estimatedTime: number; 
-    approvers: ApprovalUser[] 
-  }>> {
+  async testWorkflow(
+    workflowId: string,
+    testData: Record<string, any>,
+  ): Promise<
+    ApiResponse<{
+      path: string[];
+      estimatedTime: number;
+      approvers: ApprovalUser[];
+    }>
+  > {
     try {
-      const response = await fetch(`${this.baseUrl}/workflows/${workflowId}/test`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await fetch(
+        `${this.baseUrl}/workflows/${workflowId}/test`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(testData),
         },
-        body: JSON.stringify(testData),
-      });
+      );
       return await response.json();
     } catch (error) {
-      console.error('测试审批流程失败:', error);
+      console.error("测试审批流程失败:", error);
       return {
         success: false,
         data: { path: [], estimatedTime: 0, approvers: [] },
-        message: '测试审批流程失败'
+        message: "测试审批流程失败",
       };
     }
   }

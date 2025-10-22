@@ -1,204 +1,432 @@
-import { useState } from 'react';
-import { Incident } from '@shared/types';
-import { mockIncidents } from '@/data/mockData';
-import IncidentListItem from '@/components/incident/IncidentListItem';
-import IncidentDetails from '@/components/incident/IncidentDetails';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, Filter } from 'lucide-react';
-import { Input } from '@/components/ui/input';
+import { useState, useEffect } from "react";
+import { Incident } from "@shared/types";
+import { mockIncidents } from "@/data/mockData";
+import IncidentListItem from "@/components/incident/IncidentListItem";
+import IncidentDetails from "@/components/incident/IncidentDetails";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Search, Filter } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { request } from "@/lib/request";
+import { getEventDetails } from "@/services/incidentService";
 
-type PriorityFilter = 'all' | 'high' | 'medium' | 'low';
-type ProgressFilter = 'all' | 'pending_human' | 'in_progress' | 'automated' | 'resolved';
-type TypeFilter = 'all' | 'type_customer' | 'type_order' | 'type_product';
+type PriorityFilter = "all" | "high" | "medium" | "low";
+type ProgressFilter =
+  | "all"
+  | "pending_human"
+  | "in_progress"
+  | "automated"
+  | "resolved";
+type TypeFilter = "all" | "type_customer" | "type_order" | "type_product";
+
+// 后端数据映射函数
+const mapPriority = (priority: string): "low" | "medium" | "high" => {
+  switch (priority) {
+    case "1":
+      return "low";
+    case "2":
+      return "medium";
+    case "3":
+      return "high";
+    default:
+      return "medium";
+  }
+};
+
+const mapStatus = (
+  status: string,
+): "pending_human" | "in_progress" | "resolved" | "automated" => {
+  switch (status) {
+    case "1":
+      return "pending_human";
+    case "2":
+      return "in_progress";
+    case "3":
+      return "resolved";
+    case "4":
+      return "automated";
+    default:
+      return "pending_human";
+  }
+};
+
+// 添加事件类型映射函数
+const getEventTypeValue = (typeFilter: TypeFilter): string | undefined => {
+  switch (typeFilter) {
+    case "type_customer":
+      return "1"; // 客户相关
+    case "type_order":
+      return "2"; // 订单相关
+    case "type_product":
+      return "3"; // 商品相关
+    default:
+      return undefined; // 全部类型
+  }
+};
 
 const priorityFilterLabels: Record<PriorityFilter, string> = {
-  all: '全部',
-  high: '高',
-  medium: '中',
-  low: '低',
+  all: "全部",
+  high: "高",
+  medium: "中",
+  low: "低",
 };
 
 const progressFilterLabels: Record<ProgressFilter, string> = {
-  all: '全部',
-  pending_human: '待处理',
-  in_progress: '处理中',
-  automated: 'AI全自动处理中',
-  resolved: '已完成',
+  all: "全部",
+  pending_human: "待处理",
+  in_progress: "处理中",
+  automated: "AI全自动处理中",
+  resolved: "已完成",
 };
 
 const typeFilterLabels: Record<TypeFilter, string> = {
-  all: '全部类型',
-  type_customer: '客户相关',
-  type_order: '订单相关',
-  type_product: '商品相关',
-};
-
-// 保留底部状态栏使用的统计（与筛选UI无关）
-const statusFilterCounts = {
-  all: mockIncidents.length,
-  urgent: mockIncidents.filter(i => i.priority === 'high').length,
-  pending_human: mockIncidents.filter(i => i.status === 'pending_human').length,
-  in_progress: mockIncidents.filter(i => i.status === 'in_progress').length,
-  automated: mockIncidents.filter(i => i.status === 'automated').length,
-  resolved: mockIncidents.filter(i => i.status === 'resolved').length,
+  all: "全部类型",
+  type_customer: "客户相关",
+  type_order: "订单相关",
+  type_product: "商品相关",
 };
 
 // 类型筛选不再显示计数
 
 export default function Index() {
-  const [selectedIncident, setSelectedIncident] = useState<Incident | null>(mockIncidents[0]);
-  const [activePriorityFilter, setActivePriorityFilter] = useState<PriorityFilter>('all');
-  const [activeProgressFilter, setActiveProgressFilter] = useState<ProgressFilter>('all');
-  const [activeTypeFilter, setActiveTypeFilter] = useState<TypeFilter>('all');
-  const [searchQuery, setSearchQuery] = useState('');
-
-  const filteredIncidents = mockIncidents.filter((incident) => {
-    // Apply priority filter
-    if (activePriorityFilter !== 'all' && incident.priority !== activePriorityFilter) return false;
-
-    // Apply progress filter
-    if (activeProgressFilter === 'pending_human' && incident.status !== 'pending_human') return false;
-    if (activeProgressFilter === 'in_progress' && incident.status !== 'in_progress') return false;
-    if (activeProgressFilter === 'automated' && incident.status !== 'automated') return false;
-    if (activeProgressFilter === 'resolved' && incident.status !== 'resolved') return false;
-
-    // Apply type filter
-    if (activeTypeFilter === 'type_customer' && !incident.involvedEntities.some(e => e.type === 'customer')) return false;
-    if (activeTypeFilter === 'type_order' && !incident.involvedEntities.some(e => e.type === 'order')) return false;
-    if (activeTypeFilter === 'type_product' && !incident.involvedEntities.some(e => e.type === 'product')) return false;
-    
-    // Apply search
-    if (searchQuery && !incident.title.toLowerCase().includes(searchQuery.toLowerCase())) {
-      return false;
-    }
-    
-    return true;
+  const [incidents, setIncidents] = useState<Incident[]>(mockIncidents);
+  const [selectedIncident, setSelectedIncident] = useState<Incident | null>([]);
+  const [activePriorityFilter, setActivePriorityFilter] =
+    useState<PriorityFilter>("all");
+  const [activeProgressFilter, setActiveProgressFilter] =
+    useState<ProgressFilter>("all");
+  const [activeTypeFilter, setActiveTypeFilter] = useState<TypeFilter>("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [fetchingDetailId, setFetchingDetailId] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [total, setTotal] = useState(0);
+  const [countData, setCountData] = useState({
+    highCount: 0,
+    pendingCount: 0,
   });
 
+  const fetchEventPage = async (page: number = 1, size: number = 10) => {
+    try {
+      // 将前端筛选值转换为后端参数
+      const priorityParam =
+        activePriorityFilter === "all"
+          ? undefined
+          : activePriorityFilter === "high"
+            ? "3"
+            : activePriorityFilter === "medium"
+              ? "2"
+              : "1";
+
+      const statusParam =
+        activeProgressFilter === "all"
+          ? undefined
+          : activeProgressFilter === "pending_human"
+            ? "1"
+            : activeProgressFilter === "in_progress"
+              ? "2"
+              : activeProgressFilter === "resolved"
+                ? "3"
+                : "4";
+
+      const eventTypeParam = getEventTypeValue(activeTypeFilter);
+
+      const params: Record<string, any> = {
+        currentpage: page,
+        pageSize: size,
+        priority: priorityParam,
+        status: statusParam,
+        eventType: eventTypeParam,
+        searchKeywords: searchQuery || undefined,
+      };
+
+      // 过滤掉 undefined 值
+      const filteredParams = Object.fromEntries(
+        Object.entries(params).filter(([_, value]) => value !== undefined),
+      );
+
+      const res = await request.get("/admin/api/v1/event/page", filteredParams);
+      const countData = await request.get(
+        "/admin/api/v1/event/count",
+        filteredParams,
+      );
+      setCountData(countData.data.data);
+      const response = res.data;
+      if (response.data) {
+        // 将接口数据转换为 Incident 类型
+        const apiIncidents: Incident[] = Array.isArray(response.data.records)
+          ? response.data.records.map((item: any) => ({
+              // 后端字段
+              ...item,
+              id: item.id,
+              title: item.eventName,
+              description: item.description,
+              status: mapStatus(item.status),
+              priority: mapPriority(item.priority),
+              timestamp: new Date(item.eventTime || item.gmtCreate),
+            }))
+          : [];
+
+        setIncidents(apiIncidents);
+        setTotal(response.data.total || 0);
+
+        if (apiIncidents.length > 0) {
+          // Fetch detailed data for the first incident
+          if (fetchingDetailId !== apiIncidents[0].id) {
+            setFetchingDetailId(apiIncidents[0].id);
+            getEventDetails(apiIncidents[0].id)
+              .then((detailedIncident) => {
+                setSelectedIncident(detailedIncident);
+              })
+              .catch((error) => {
+                console.error("Failed to fetch first incident details:", error);
+                // Fallback to basic incident data
+                setSelectedIncident(apiIncidents[0]);
+              })
+              .finally(() => {
+                setFetchingDetailId(null);
+              });
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Failed to fetch events:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchEventPage(currentPage, pageSize);
+  }, [
+    currentPage,
+    pageSize,
+    activePriorityFilter,
+    activeProgressFilter,
+    activeTypeFilter,
+    searchQuery,
+  ]);
+
   return (
-      <div className="flex h-full">
-        {/* Event Stream (Left Column) */}
-        <div className="w-96 border-r border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 flex flex-col">
-          {/* Header */}
-          <div className="p-4 border-b border-slate-200 dark:border-slate-700">
-            <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">
-              实时事件流
-            </h2>
-            
-            {/* Search */}
-            <div className="relative mb-4">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
-              <Input
-                placeholder="搜索事件..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
+    <div className="flex h-full">
+      {/* Event Stream (Left Column) */}
+      <div className="w-96 border-r border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 flex flex-col">
+        {/* Header */}
+        <div className="p-4 border-b border-slate-200 dark:border-slate-700">
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">
+            实时事件流
+          </h2>
 
-            {/* Filters: Dropdown Row */}
-            <div className="mb-2 grid grid-cols-2 gap-2">
-              <div>
-                <div className="text-xs text-slate-500 mb-1">状态筛选</div>
-                <Select value={activePriorityFilter} onValueChange={(v: PriorityFilter) => setActivePriorityFilter(v)}>
-                  <SelectTrigger className="h-8">
-                    <SelectValue placeholder="请选择" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">{priorityFilterLabels.all}</SelectItem>
-                    <SelectItem value="high">{priorityFilterLabels.high}</SelectItem>
-                    <SelectItem value="medium">{priorityFilterLabels.medium}</SelectItem>
-                    <SelectItem value="low">{priorityFilterLabels.low}</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <div className="text-xs text-slate-500 mb-1">处理进度筛选</div>
-                <Select value={activeProgressFilter} onValueChange={(v: ProgressFilter) => setActiveProgressFilter(v)}>
-                  <SelectTrigger className="h-8">
-                    <SelectValue placeholder="请选择" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">{progressFilterLabels.all}</SelectItem>
-                    <SelectItem value="pending_human">{progressFilterLabels.pending_human}</SelectItem>
-                    <SelectItem value="in_progress">{progressFilterLabels.in_progress}</SelectItem>
-                    <SelectItem value="resolved">{progressFilterLabels.resolved}</SelectItem>
-                    <SelectItem value="automated">{progressFilterLabels.automated}</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
+          {/* Search */}
+          <div className="relative mb-4">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
+            <Input
+              placeholder="搜索事件..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+          </div>
 
-            {/* Filters: Type Row - Horizontal scroll chips */}
+          {/* Filters: Dropdown Row */}
+          <div className="mb-2 grid grid-cols-2 gap-2">
             <div>
-              <div className="text-xs text-slate-500 mb-1">类型筛选</div>
-              <div className="overflow-x-auto whitespace-nowrap">
-                <div className="flex gap-2">
-                  {(['all','type_customer','type_order','type_product'] as TypeFilter[]).map((filter) => (
-                    <Button
-                      key={filter}
-                      variant={activeTypeFilter === filter ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setActiveTypeFilter(filter)}
-                      className={`text-xs ${
-                        activeTypeFilter === filter 
-                          ? 'bg-eip-accent hover:bg-eip-accent/90' 
-                          : 'hover:bg-slate-100 dark:hover:bg-slate-700'
-                      }`}
-                    >
-                      {typeFilterLabels[filter]}
-                    </Button>
-                  ))}
-                </div>
-              </div>
+              <div className="text-xs text-slate-500 mb-1">优先级筛选</div>
+              <Select
+                value={activePriorityFilter}
+                onValueChange={(v: PriorityFilter) =>
+                  setActivePriorityFilter(v)
+                }
+              >
+                <SelectTrigger className="h-8">
+                  <SelectValue placeholder="请选择" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">
+                    {priorityFilterLabels.all}
+                  </SelectItem>
+                  <SelectItem value="high">
+                    {priorityFilterLabels.high}
+                  </SelectItem>
+                  <SelectItem value="medium">
+                    {priorityFilterLabels.medium}
+                  </SelectItem>
+                  <SelectItem value="low">
+                    {priorityFilterLabels.low}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <div className="text-xs text-slate-500 mb-1">处理进度筛选</div>
+              <Select
+                value={activeProgressFilter}
+                onValueChange={(v: ProgressFilter) =>
+                  setActiveProgressFilter(v)
+                }
+              >
+                <SelectTrigger className="h-8">
+                  <SelectValue placeholder="请选择" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">
+                    {progressFilterLabels.all}
+                  </SelectItem>
+                  <SelectItem value="pending_human">
+                    {progressFilterLabels.pending_human}
+                  </SelectItem>
+                  <SelectItem value="in_progress">
+                    {progressFilterLabels.in_progress}
+                  </SelectItem>
+                  <SelectItem value="resolved">
+                    {progressFilterLabels.resolved}
+                  </SelectItem>
+                  <SelectItem value="automated">
+                    {progressFilterLabels.automated}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
-          {/* Incident List */}
-          <div className="flex-1 overflow-y-auto">
-            {filteredIncidents.length === 0 ? (
-              <div className="flex items-center justify-center h-32 text-slate-500 dark:text-slate-400">
-                <div className="text-center">
-                  <Filter className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                  <p className="text-sm">没有找到匹配的事件</p>
-                </div>
-              </div>
-            ) : (
-              filteredIncidents.map((incident) => (
-                <IncidentListItem
-                  key={incident.id}
-                  incident={incident}
-                  isSelected={selectedIncident?.id === incident.id}
-                  onClick={() => setSelectedIncident(incident)}
-                />
-              ))
-            )}
-          </div>
-
-          {/* Status Bar */}
-          <div className="p-3 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900">
-            <div className="flex justify-between items-center text-xs text-slate-500 dark:text-slate-400">
-              <span>显示 {filteredIncidents.length} 个事件</span>
-              <div className="flex items-center space-x-4">
-                <span className="flex items-center">
-                  <div className="w-2 h-2 bg-eip-alert rounded-full mr-1"></div>
-                  高优先级: {statusFilterCounts.urgent}
-                </span>
-                <span className="flex items-center">
-                  <div className="w-2 h-2 bg-eip-warning rounded-full mr-1"></div>
-                  待处理: {statusFilterCounts.pending_human}
-                </span>
+          {/* Filters: Type Row - Horizontal scroll chips */}
+          <div>
+            <div className="text-xs text-slate-500 mb-1">类型筛选</div>
+            <div className="overflow-x-auto whitespace-nowrap">
+              <div className="flex gap-2">
+                {(
+                  [
+                    "all",
+                    "type_customer",
+                    "type_order",
+                    "type_product",
+                  ] as TypeFilter[]
+                ).map((filter) => (
+                  <Button
+                    key={filter}
+                    variant={
+                      activeTypeFilter === filter ? "default" : "outline"
+                    }
+                    size="sm"
+                    onClick={() => setActiveTypeFilter(filter)}
+                    className={`text-xs ${
+                      activeTypeFilter === filter
+                        ? "bg-eip-accent hover:bg-eip-accent/90"
+                        : "hover:bg-slate-100 dark:hover:bg-slate-700"
+                    }`}
+                  >
+                    {typeFilterLabels[filter]}
+                  </Button>
+                ))}
               </div>
             </div>
           </div>
         </div>
 
-        {/* Incident Details & Response Workstation (Right Column) */}
-        <div className="flex-1">
-          <IncidentDetails incident={selectedIncident} />
+        {/* Pagination Controls - after type filter */}
+        <div className="p-3 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+          <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+            <span>共 {total} 个事件</span>
+            <div className="flex items-center space-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage <= 1}
+                className="h-7 px-3"
+              >
+                上一页
+              </Button>
+              <span className="text-slate-700 dark:text-slate-300">
+                {currentPage} / {total > 0 ? Math.ceil(total / pageSize) : 1}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  setCurrentPage((p) =>
+                    Math.min(p + 1, Math.ceil(total / pageSize)),
+                  )
+                }
+                disabled={
+                  currentPage >= Math.ceil(total / pageSize) || total === 0
+                }
+                className="h-7 px-3"
+              >
+                下一页
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Incident List */}
+        <div className="flex-1 overflow-y-auto">
+          {incidents.length === 0 ? (
+            <div className="flex items-center justify-center h-32 text-slate-500 dark:text-slate-400">
+              <div className="text-center">
+                <Filter className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                <p className="text-sm">没有找到匹配的事件</p>
+              </div>
+            </div>
+          ) : (
+            incidents.map((incident) => (
+              <IncidentListItem
+                key={incident.id}
+                incident={incident}
+                isSelected={selectedIncident?.id === incident.id}
+                onClick={async () => {
+                  // Only fetch detailed data if not already fetching for this incident
+                  if (fetchingDetailId !== incident.id) {
+                    setFetchingDetailId(incident.id);
+                    try {
+                      const detailedIncident = await getEventDetails(
+                        incident.id,
+                      );
+                      setSelectedIncident(detailedIncident);
+                    } catch (error) {
+                      console.error(
+                        `Failed to fetch incident details for ID ${incident.id}:`,
+                        error,
+                      );
+                      // Fallback to the basic incident data if detailed fetch fails
+                      setSelectedIncident(incident);
+                    } finally {
+                      setFetchingDetailId(null);
+                    }
+                  }
+                }}
+              />
+            ))
+          )}
+        </div>
+
+        {/* Status Bar */}
+        <div className="p-3 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900">
+          <div className="flex justify-between items-center text-xs text-slate-500 dark:text-slate-400">
+            <span>显示 {incidents.length} 个事件</span>
+            <div className="flex items-center space-x-4">
+              <span className="flex items-center">
+                <div className="w-2 h-2 bg-eip-alert rounded-full mr-1"></div>
+                高优先级: {countData.highCount}
+              </span>
+              <span className="flex items-center">
+                <div className="w-2 h-2 bg-eip-warning rounded-full mr-1"></div>
+                待处理: {countData.pendingCount}
+              </span>
+            </div>
+          </div>
         </div>
       </div>
+
+      {/* Incident Details & Response Workstation (Right Column) */}
+      <div className="flex-1">
+        <IncidentDetails incident={selectedIncident} />
+      </div>
+    </div>
   );
 }

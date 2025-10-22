@@ -1,0 +1,14 @@
+{
+  "projectList": {
+    "loading": "加载项目列表中...",
+    "title": "项目管理",
+    "subtitle": "管理和查看所有项目信息",
+    "filterTitle": "项目筛选",
+    "searchLabel": "搜索项目",
+    "searchPlaceholder": "按项目名称搜索...",
+    "createdAt": "创建于 {{date}}",
+    "sdkIntegration": "SDK集成",
+    "notFoundTitle": "未找到项目",
+    "notFoundDesc": "没有匹配当前筛选条件的项目。"
+  }
+}

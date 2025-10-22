@@ -26,6 +26,7 @@ import { MockDataService } from "@/services/mockDataService";
 import { formatStartDate, formatEndDate } from "@/lib/utils";
 import { useRoleStore } from "@/stores/roleStore";
 import useProjectStore from "@/stores/projectStore";
+import { ApiUser } from "@/lib/profile";
 
 interface DateRange {
   start: Date | null;
@@ -37,29 +38,10 @@ interface SortConfig {
   direction: "asc" | "desc";
 }
 
-// API相关类型定义
-interface ApiUser {
-  id: string;
-  cdpUserId: number;
-  fullName: string;
-  contactInfo: string;
-  companyName: string;
-  signTime: string;
-  createGmt: string;
-  minBuyTime: string;
-  maxBuyTime: string;
-  maxOrderAmount: number;
-  totalOrders: number;
-  orderCount: number;
-  loginDate: string;
-  location: string;
-  shopid: string;
-  currencySymbol: string;
-}
-
 // 转换为UI需要的用户格式
 interface User {
   id: string;
+  userId:string;
   cdpId: string;
   name: string;
   company: string;
@@ -70,6 +52,12 @@ interface User {
   lastActiveTime: string;
   totalSpent: number;
   currency: string;
+  // 5+2扩展指标
+  ltv90Days?: number;
+  sessions30d?: number;
+  pageviews30d?: number;
+  aov30d?: number;
+  bounceRate?: number; // 0..1
 }
 
 interface OrderSummaryDto {
@@ -110,16 +98,34 @@ const { t } = useTranslation();
   const [totalCount, setTotalCount] = useState(0);
   const itemsPerPage = 10;
 
+  // 5+2 指标筛选条件（范围）
+  const [metricFilters, setMetricFilters] = useState({
+    ltv90Min: "",
+    ltv90Max: "",
+    sessionsMin: "",
+    sessionsMax: "",
+    pageviewsMin: "",
+    pageviewsMax: "",
+    aovMin: "",
+    aovMax: "",
+    bounceMin: "", // 百分比 0-100
+    bounceMax: "", // 百分比 0-100
+  });
+
   // 权限检查
-  const { hasPermission } = useRoleStore();
+  const { hasPermission, permissions } = useRoleStore();
 
   // 项目状态检查
   const { currentProject } = useProjectStore();
+
+  // 调试日志
+  
 
   // 转换API用户数据为UI格式
   const convertApiUserToUser = (apiUser: ApiUser): User => {
     return {
       id: apiUser.id || "",
+      userId: apiUser.userId || "",
       cdpId: apiUser.cdpUserId ? apiUser.cdpUserId.toString() : "",
       name: apiUser.fullName || "",
       company: apiUser.companyName || "",
@@ -130,6 +136,12 @@ const { t } = useTranslation();
       lastActiveTime: apiUser.loginDate || "",
       totalSpent: apiUser.totalOrders || 0,
       currency: apiUser.currencySymbol || "",
+      // 5+2扩展指标
+      ltv90Days: apiUser.ltv90Days,
+      sessions30d: apiUser.sessions30d,
+      pageviews30d: apiUser.pageviews30d,
+      aov30d: apiUser.aov30d,
+      bounceRate: apiUser.bounceRate,
     };
   };
 
@@ -162,6 +174,17 @@ const { t } = useTranslation();
         return "login_date";
       case "totalSpent":
         return "total_orders";
+      // 扩展指标的后端排序映射（若后端不支持，将回退默认）
+      case "ltv90Days":
+        return "ltv_90_days";
+      case "sessions30d":
+        return "sessions_30d";
+      case "pageviews30d":
+        return "pageviews_30d";
+      case "aov30d":
+        return "aov_30d";
+      case "bounceRate":
+        return "bounce_rate";
       default:
         return "create_gmt";
     }
@@ -171,24 +194,41 @@ const { t } = useTranslation();
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
+      const parseNum = (v: string) => (v.trim() === "" ? undefined : Number(v));
+      const parsePct = (v: string) => {
+        if (v.trim() === "") return undefined;
+        const n = Number(v);
+        if (isNaN(n)) return undefined;
+        return Math.max(0, Math.min(100, n)) / 100; // 转为 0..1
+      };
+
+      const mockParams = {
+        page: currentPage,
+        pageSize: itemsPerPage,
+        search: searchQuery.trim() || undefined,
+        sortField: sortConfig.field || undefined,
+        sortDirection: sortConfig.direction,
+        filters: {
+          ltv90Min: parseNum(metricFilters.ltv90Min),
+          ltv90Max: parseNum(metricFilters.ltv90Max),
+          sessionsMin: parseNum(metricFilters.sessionsMin),
+          sessionsMax: parseNum(metricFilters.sessionsMax),
+          pageviewsMin: parseNum(metricFilters.pageviewsMin),
+          pageviewsMax: parseNum(metricFilters.pageviewsMax),
+          aovMin: parseNum(metricFilters.aovMin),
+          aovMax: parseNum(metricFilters.aovMax),
+          bounceMin: parsePct(metricFilters.bounceMin),
+          bounceMax: parsePct(metricFilters.bounceMax),
+        },
+      };
+
       // 检查 currentProject 是否存在或 id 是否为空
-      if (!currentProject || !currentProject.id) {
-        console.log("No current project or empty project id, using mock data for users");
-
-        // 使用 mock 数据
-        const mockParams = {
-          page: currentPage,
-          pageSize: itemsPerPage,
-          search: searchQuery.trim() || undefined,
-          sortField: sortConfig.field || undefined,
-          sortDirection: sortConfig.direction,
-        };
-
-        const mockResult = await MockDataService.getUsers(mockParams);
-        setUsers(mockResult.users);
+      // if (!currentProject || !currentProject.id) {
+        const mockResult = await MockDataService.getApiUsers(mockParams);
+        setUsers(mockResult.users.map(convertApiUserToUser));
         setTotalCount(mockResult.total);
         return;
-      }
+      // }
 
       // 有项目时调用真实API
       const requestBody: OrderSummaryDto = {
@@ -218,6 +258,28 @@ const { t } = useTranslation();
         requestBody.order = sortConfig.direction;
       }
 
+      // 扩展指标筛选通过 paramother 传递（后端可忽略，前端将使用）
+      const paramother: Record<string, string> = {};
+      const addIfPresent = (key: string, val?: number) => {
+        if (val !== undefined && !isNaN(val)) paramother[key] = String(val);
+      };
+      addIfPresent("ltv90DaysMin", parseNum(metricFilters.ltv90Min));
+      addIfPresent("ltv90DaysMax", parseNum(metricFilters.ltv90Max));
+      addIfPresent("sessions30dMin", parseNum(metricFilters.sessionsMin));
+      addIfPresent("sessions30dMax", parseNum(metricFilters.sessionsMax));
+      addIfPresent("pageviews30dMin", parseNum(metricFilters.pageviewsMin));
+      addIfPresent("pageviews30dMax", parseNum(metricFilters.pageviewsMax));
+      addIfPresent("aov30dMin", parseNum(metricFilters.aovMin));
+      addIfPresent("aov30dMax", parseNum(metricFilters.aovMax));
+      // 百分比转 0..1
+      const bMin = parsePct(metricFilters.bounceMin);
+      const bMax = parsePct(metricFilters.bounceMax);
+      if (bMin !== undefined) paramother["bounceRateMin"] = String(bMin);
+      if (bMax !== undefined) paramother["bounceRateMax"] = String(bMax);
+      if (Object.keys(paramother).length > 0) {
+        requestBody.paramother = paramother;
+      }
+
       // 使用通用request方法明确指定POST，添加快速超时
       const response = await request.request<{
         code: string;
@@ -230,55 +292,46 @@ const { t } = useTranslation();
         headers: {
           "Content-Type": "application/json",
         },
-        timeout: 3000, // 3秒快速超时
+        timeout: 3000,
       });
 
       const records = response.data.data.records || [];
-      // 不管成功失败都显示原始响应，让用户能看到完整信息
-      if (records) {
-        // 即使响应码不是200也尝试处理数据
-        const apiUsers = records;
-        if (Array.isArray(apiUsers)) {
-          const convertedUsers = apiUsers.map(convertApiUserToUser);
-          setUsers(convertedUsers);
-          setTotalCount(response.data.data.total || 0);
+      if (Array.isArray(records) && records.length > 0) {
+        const convertedUsers = records.map(convertApiUserToUser);
+        setUsers(convertedUsers);
+        setTotalCount(response.data.data.total || 0);
+      } else {
+        console.warn("API返回空数据或格式异常，尝试使用演示数据");
+        if (MockDataService.shouldUseMockData()) {
+          const mockResult = await MockDataService.getApiUsers(mockParams);
+          setUsers(mockResult.users.map(convertApiUserToUser));
+          setTotalCount(mockResult.total);
         } else {
-          console.log("数据格式异常，data不是数组:", apiUsers);
           setUsers([]);
           setTotalCount(0);
         }
-      } else {
-        console.log("响应中没有data字段");
-        setUsers([]);
-        setTotalCount(0);
       }
-    } catch (error) {
-      // 如果API失败，使用mock数据供开发测试使用
-      console.log("用户数据API失败，使用mock数据");
-      const mockParams = {
-        page: currentPage,
-        pageSize: itemsPerPage,
-        search: searchQuery.trim() || undefined,
-        sortField: sortConfig.field || undefined,
-        sortDirection: sortConfig.direction,
-      };
-
-      const mockResult = await MockDataService.getUsers(mockParams);
-      setUsers(mockResult.users);
-      setTotalCount(mockResult.total);
-      return;
+    } catch (error: any) {
+      console.error("Failed to fetch users:", error);
+      const isTimeout = String(error?.message || "").includes("timeout");
+      const message = isTimeout ? t("common.requestTimeout") : t("common.requestFailed");
+      toast({ title: t("userList.fetchFailed"), description: message, variant: "destructive" });
+      // 演示模式兜底
+      if (MockDataService.shouldUseMockData()) {
+        const mockResult = await MockDataService.getApiUsers({
+          page: currentPage,
+          pageSize: itemsPerPage,
+          search: searchQuery.trim() || undefined,
+          sortField: sortConfig.field || undefined,
+          sortDirection: sortConfig.direction,
+        });
+        setUsers(mockResult.users.map(convertApiUserToUser));
+        setTotalCount(mockResult.total);
+      }
     } finally {
       setLoading(false);
     }
-  }, [
-    currentPage,
-    itemsPerPage,
-    searchQuery,
-    dateRange,
-    selectedTimeField,
-    sortConfig,
-    currentProject,
-  ]);
+  }, [currentPage, itemsPerPage, searchQuery, sortConfig, dateRange, selectedTimeField, metricFilters, currentProject]);
 
   // 初始化和依赖更新时获取数据
   useEffect(() => {
@@ -338,6 +391,18 @@ const { t } = useTranslation();
     setDateRange({ start: null, end: null });
     setSortConfig({ field: null, direction: "asc" });
     setCurrentPage(1);
+    setMetricFilters({
+      ltv90Min: "",
+      ltv90Max: "",
+      sessionsMin: "",
+      sessionsMax: "",
+      pageviewsMin: "",
+      pageviewsMax: "",
+      aovMin: "",
+      aovMax: "",
+      bounceMin: "",
+      bounceMax: "",
+    });
   };
 
   // 手动刷新数据
@@ -399,33 +464,52 @@ const { t } = useTranslation();
 
             {/* Advanced Date Range Picker */}
             <div className="md:w-1/4">
-              <AdvancedDateRangePicker
-                value={dateRange}
-                onChange={handleDateRangeChange}
-                onPresetChange={() => {}}
-              />
+              <AdvancedDateRangePicker onChange={handleDateRangeChange} />
             </div>
+          </div>
 
-            {/* Action Buttons */}
-            <div className="flex items-end gap-2">
-              <Button
-                onClick={handleSearch}
-                className="flex items-center gap-2 h-10"
-                disabled={loading}
-              >
-                <Search className="h-4 w-4" />
-                {t('userList.search.button')}
-              </Button>
-              <Button
-                variant="outline"
-                size="default"
-                onClick={handleReset}
-                className="flex items-center gap-2 h-10"
-              >
-                <RotateCcw className="h-4 w-4" />
-                {t('userList.search.reset')}
-              </Button>
+          {/* Metric Filters */}
+          <div className="flex flex-wrap items-end gap-4 mt-4">
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-gray-600">90天LTV</span>
+              <Input placeholder={'最小值'} value={metricFilters.ltv90Min}
+                onChange={(e) => setMetricFilters((f) => ({ ...f, ltv90Min: e.target.value }))} className="w-20" />
+              <Input placeholder={'最大值'} value={metricFilters.ltv90Max}
+                onChange={(e) => setMetricFilters((f) => ({ ...f, ltv90Max: e.target.value }))} className="w-20" />
             </div>
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-gray-600">近30天会话</span>
+              <Input placeholder={'最小值'} value={metricFilters.sessionsMin}
+                onChange={(e) => setMetricFilters((f) => ({ ...f, sessionsMin: e.target.value }))} className="w-20" />
+              <Input placeholder={'最大值'} value={metricFilters.sessionsMax}
+                onChange={(e) => setMetricFilters((f) => ({ ...f, sessionsMax: e.target.value }))} className="w-20" />
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-gray-600">近30天页面浏览</span>
+              <Input placeholder={'最小值'} value={metricFilters.pageviewsMin}
+                onChange={(e) => setMetricFilters((f) => ({ ...f, pageviewsMin: e.target.value }))} className="w-20" />
+              <Input placeholder={'最大值'} value={metricFilters.pageviewsMax}
+                onChange={(e) => setMetricFilters((f) => ({ ...f, pageviewsMax: e.target.value }))} className="w-20" />
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-gray-600">近30天AOV</span>
+              <Input placeholder={'最小值'} value={metricFilters.aovMin}
+                onChange={(e) => setMetricFilters((f) => ({ ...f, aovMin: e.target.value }))} className="w-20" />
+              <Input placeholder={'最大值'} value={metricFilters.aovMax}
+                onChange={(e) => setMetricFilters((f) => ({ ...f, aovMax: e.target.value }))} className="w-20" />
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-gray-600">跳出率(%)</span>
+              <Input placeholder={'最小值'} value={metricFilters.bounceMin}
+                onChange={(e) => setMetricFilters((f) => ({ ...f, bounceMin: e.target.value }))} className="w-20" />
+              <Input placeholder={'最大值'} value={metricFilters.bounceMax}
+                onChange={(e) => setMetricFilters((f) => ({ ...f, bounceMax: e.target.value }))} className="w-20" />
+            </div>
+          </div>
+
+          <div className="mt-4 flex items-center gap-2">
+            <Button variant="default" size="sm" onClick={handleSearch}>搜索</Button>
+            <Button variant="outline" size="sm" onClick={handleReset}><RotateCcw className="h-4 w-4 mr-1" />重置</Button>
           </div>
         </Card>
 
@@ -435,14 +519,14 @@ const { t } = useTranslation();
             <table className="w-full min-w-[800px]">
               <thead className="bg-gray-50 border-b">
                 <tr>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                  <th className="px-6 py-4 text-left text-xs text-gray-900 min-w-92">
                     {t('userList.table.headers.user')}
                   </th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                  <th className="px-6 py-4 text-left text-xs text-gray-900">
                     {t('userList.table.headers.contact')}
                   </th>
                   <th
-                    className="px-6 py-4 text-left text-sm font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100"
+                    className="px-6 py-4 text-left text-xs text-gray-900 cursor-pointer select-none hover:bg-gray-100"
                     onClick={() => handleSort("firstVisitTime")}
                   >
                     <div className="flex items-center gap-2">
@@ -451,7 +535,7 @@ const { t } = useTranslation();
                     </div>
                   </th>
                   <th
-                    className="px-6 py-4 text-left text-sm font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100"
+                    className="px-6 py-4 text-left text-xs text-gray-900 cursor-pointer select-none hover:bg-gray-100"
                     onClick={() => handleSort("registrationTime")}
                   >
                     <div className="flex items-center gap-2">
@@ -460,7 +544,7 @@ const { t } = useTranslation();
                     </div>
                   </th>
                   <th
-                    className="px-6 py-4 text-left text-sm font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100"
+                    className="px-6 py-4 text-left text-xs text-gray-900 cursor-pointer select-none hover:bg-gray-100"
                     onClick={() => handleSort("firstPurchaseTime")}
                   >
                     <div className="flex items-center gap-2">
@@ -469,7 +553,7 @@ const { t } = useTranslation();
                     </div>
                   </th>
                   <th
-                    className="px-6 py-4 text-left text-sm font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100"
+                    className="px-6 py-4 text-left text-xs text-gray-900 cursor-pointer select-none hover:bg-gray-100"
                     onClick={() => handleSort("lastActiveTime")}
                   >
                     <div className="flex items-center gap-2">
@@ -480,7 +564,7 @@ const { t } = useTranslation();
 
                   {hasPermission("user.amountspent") && (
                     <th
-                      className="px-6 py-4 text-left text-sm font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100"
+                      className="px-6 py-4 text-left text-xs text-gray-900 cursor-pointer select-none hover:bg-gray-100"
                       onClick={() => handleSort("totalSpent")}
                     >
                       <div className="flex items-center gap-2">
@@ -489,16 +573,29 @@ const { t } = useTranslation();
                       </div>
                     </th>
                   )}
-
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
-                    {t('userList.table.headers.actions')}
+                  {/* 5+2扩展列 */}
+                  <th className="px-6 py-4 text-left text-xs text-gray-900 cursor-pointer select-none hover:bg-gray-100" onClick={() => handleSort("ltv90Days")}>
+                    <div className="flex items-center gap-2">90天LTV{getSortIcon("ltv90Days")}</div>
                   </th>
+                  <th className="px-6 py-4 text-left text-xs text-gray-900 cursor-pointer select-none hover:bg-gray-100" onClick={() => handleSort("sessions30d")}>
+                    <div className="flex items-center gap-2">近30天会话{getSortIcon("sessions30d")}</div>
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs text-gray-900 cursor-pointer select-none hover:bg-gray-100" onClick={() => handleSort("pageviews30d")}>
+                    <div className="flex items-center gap-2">近30天页面浏览{getSortIcon("pageviews30d")}</div>
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs text-gray-900 cursor-pointer select-none hover:bg-gray-100" onClick={() => handleSort("aov30d")}>
+                    <div className="flex items-center gap-2">近30天AOV{getSortIcon("aov30d")}</div>
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs text-gray-900 cursor-pointer select-none hover:bg-gray-100" onClick={() => handleSort("bounceRate")}>
+                    <div className="flex items-center gap-2">跳出率{getSortIcon("bounceRate")}</div>
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs text-gray-900">{t('userList.table.headers.actions')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {loading ? (
                   <tr>
-                    <td colSpan={8} className="px-6 py-8 text-center">
+                    <td colSpan={hasPermission("user.amountspent") ? 13 : 12} className="px-6 py-8 text-center">
                       <div className="flex items-center justify-center gap-2">
                         <RefreshCw className="h-4 w-4 animate-spin" />
                         <span>{t('userList.table.states.loading')}</span>
@@ -508,7 +605,7 @@ const { t } = useTranslation();
                 ) : currentUsers.length === 0 ? (
                   <tr>
                     <td
-                      colSpan={8}
+                      colSpan={hasPermission("user.amountspent") ? 13 : 12}
                       className="px-6 py-8 text-center text-gray-500"
                     >
                       {t('userList.table.states.noData')}
@@ -517,10 +614,10 @@ const { t } = useTranslation();
                 ) : (
                   currentUsers.map((user) => (
                     <tr key={user.cdpId} className="hover:bg-gray-50">
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-4 w-24">
                         <div className="space-y-1">
                           <div className="font-mono text-sm text-gray-900">
-                            {user.cdpId || user.id}
+                            {user.userId || user.id}
                           </div>
                           <div className="text-sm text-gray-500">
                             {user.name || user.fullName || "N/A"} /{" "}
@@ -545,15 +642,20 @@ const { t } = useTranslation();
                       </td>
 
                       {hasPermission("user.amountspent") && (
-                        <td className="px-6 py-4 text-sm font-semibold text-gray-900">
+                        <td className="px-6 py-4 text-sm text-gray-900">
                           {formatCurrency(user.totalSpent || 0, user.currency)}
                         </td>
                       )}
-
+                      {/* 5+2扩展列渲染 */}
+                      <td className="px-6 py-4 text-sm text-gray-900">{user.ltv90Days != null ? formatCurrency(user.ltv90Days, user.currency) : "-"}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{user.sessions30d ?? "-"}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{user.pageviews30d ?? "-"}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{user.aov30d != null ? formatCurrency(user.aov30d, user.currency) : "-"}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{user.bounceRate != null ? `${Math.round((user.bounceRate || 0) * 100)}%` : "-"}</td>
                       <td className="px-6 py-4">
                         {hasPermission("user.info") && (
                           <Link
-                            to={`/users1/${user.id}`}
+                            to={`/users1/${user.userId}`}
                             className="text-blue-600 hover:text-blue-800 text-sm font-medium"
                           >
                             {t('userList.table.actions.viewDetails')}

@@ -48,7 +48,7 @@ import useProjectStore from "@/stores/projectStore";
 import { CreateProjectDialog } from "./CreateProjectDialog";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import MessageCenterDrawer from "@/admin/components/MessageCenterDrawer";
-import { mockMessageCenterService as messageCenterService } from "@/admin/services/mockMessageCenterService";
+import { messageCenterService } from "@/admin/services/messageCenterService";
 
 interface LayoutProps {
   children: ReactNode;
@@ -207,25 +207,6 @@ export default function Layout({ children }: LayoutProps) {
       return;
     }
 
-    // 组件路径到固定路由的规范化映射，避免后端菜单配置路径不一致导致误导航
-    const COMPONENT_ROUTE_MAP: Record<string, string> = {
-      "/client/pages/EmailManualProcessing.tsx": "/email-manual-processing",
-      "@/pages/EmailManualProcessing.tsx": "/email-manual-processing",
-      "@/pages/EmailManualProcessing": "/email-manual-processing",
-      "client/pages/EmailManualProcessing.tsx": "/email-manual-processing",
-      "client/pages/EmailManualProcessing": "/email-manual-processing",
-    };
-
-    const normalizePathByComponent = (component?: string, fallbackPath?: string) => {
-      if (!component) return fallbackPath || "/";
-      // 直接命中全量表
-      if (COMPONENT_ROUTE_MAP[component]) return COMPONENT_ROUTE_MAP[component];
-      // 容错：按文件名匹配
-      const fileName = component.split(/[\\/]/).pop()?.replace(/\.tsx?$/i, "");
-      if (fileName === "EmailManualProcessing") return "/email-manual-processing";
-      return fallbackPath || "/";
-    };
-
     const buildDynamic = (menus: ClientMenuApiItem[]): MenuItem[] => {
       const result: MenuItem[] = [];
 
@@ -235,10 +216,8 @@ export default function Layout({ children }: LayoutProps) {
         const label = (m.meta?.title as string) || m.name || m.path;
         if (!label) return;
 
-        const hasChildren = !!(m.children && m.children.length > 0);
-
-        // 只要有 children，就作为二级菜单目录处理，避免误点击父级跳转到错误页面
-        if (hasChildren) {
+        // 如果没有 component 但有 children，则作为二级菜单处理
+        if (!m.component && m.children && m.children.length > 0) {
           const subItems: MenuItem[] = [];
           m.children.forEach((child) => {
             if (!child.hidden && child.path) {
@@ -272,19 +251,20 @@ export default function Layout({ children }: LayoutProps) {
             });
           }
         }
-        // 普通菜单项（无 children）
+        // 普通菜单项（有 component 或没有 children）
         else if (m.path) {
-          // 如果 component 对应已知页面且有规范路由，则强制使用规范路由
-          const normalizedPath = normalizePathByComponent(m.component, m.path);
           result.push({
             id: `dyn-${m.path}`,
             label,
-            path: normalizedPath,
+            path: m.path,
             icon: getIconByName(m.meta?.icon),
           });
         }
 
-        // children 已在上方处理为目录模式，这里无需再次递归添加
+        // 如果有 component 且有 children，也处理子菜单（深层嵌套）
+        if (m.component && m.children && m.children.length > 0) {
+          m.children.forEach((child) => add(child, level + 1));
+        }
       };
 
       menus.forEach((menu) => add(menu));
@@ -938,7 +918,7 @@ export default function Layout({ children }: LayoutProps) {
               <Bell className="h-5 w-5" />
               {unreadCount > 0 && (
                 <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center text-[10px]">
-                  {unreadCount > 9 ? "9+" : unreadCount}
+                  {unreadCount > 99 ? "99+" : unreadCount}
                 </span>
               )}
             </div>

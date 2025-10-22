@@ -1,4 +1,5 @@
 import { Task, TeamMember, WorkloadAnalysis, ColorBy } from '@shared/types';
+import { teamCalendarService } from '@/services/teamCalendarService';
 
 // 扩展的团队成员数据
 export const teamMembers: TeamMember[] = [
@@ -6,7 +7,7 @@ export const teamMembers: TeamMember[] = [
     id: '1',
     name: '张明',
     avatarUrl: '',
-    role: 'Senior Analyst', 
+    role: 'Senior Analyst',
     capacity: 100,
     currentLoad: 110,
     workloadPercentage: 110,
@@ -773,53 +774,70 @@ export const aiSuggestedTasks: Task[] = [
   }
 ];
 
-// 颜色配置 - 使用柔和、低饱和度的颜色
+// 颜色配置 - 使用现代化、低饱和度的颜色
 export const colorConfigs = {
   assignee: {
-    [teamMembers[0].id]: '#A5B4FC', // 张明 - 柔和靛蓝
-    [teamMembers[1].id]: '#FCA5A5', // 李小红 - 柔和玫瑰
-    [teamMembers[2].id]: '#93C5FD', // 王大伟 - 柔和蓝色
-    [teamMembers[3].id]: '#86EFAC', // 赵志华 - 柔和绿色
-    [teamMembers[4].id]: '#FCD34D'  // 刘晓燕 - 柔和琥珀
+    [teamMembers[0].id]: '#818cf8', // 张明 - 现代靛蓝
+    [teamMembers[1].id]: '#f472b6', // 李小红 - 现代玫瑰
+    [teamMembers[2].id]: '#3b82f6', // 王大伟 - 现代蓝色
+    [teamMembers[3].id]: '#10b981', // 赵志华 - 现代绿色
+    [teamMembers[4].id]: '#f59e0b'  // 刘晓燕 - 现代琥珀
   },
   incident_priority: {
-    high: '#FCA5A5',   // 柔和红色
-    medium: '#FCD34D', // 柔和琥珀
-    low: '#9CA3AF'     // 柔和灰色
+    high: '#ef4444',   // 现代红色
+    medium: '#f59e0b', // 现代琥珀
+    low: '#94a3b8'     // 现代灰色
   },
   task_type: {
-    call: '#93C5FD',     // 柔和蓝色
-    email: '#86EFAC',    // 柔和绿色
-    report: '#A5B4FC',   // 柔和靛蓝
-    generic: '#9CA3AF'   // 柔和灰色
+    call: '#3b82f6',     // 现代蓝色
+    email: '#10b981',    // 现代绿色
+    report: '#8b5cf6',   // 现代紫色
+    generic: '#94a3b8'   // 现代灰色
   }
 };
 
 // 深色边框颜色配置（用于事件左边框）
 export const borderColorConfigs = {
   assignee: {
-    [teamMembers[0].id]: '#6366F1', // 张明 - 靛蓝
-    [teamMembers[1].id]: '#F43F5E', // 李小红 - 玫瑰
-    [teamMembers[2].id]: '#3B82F6', // 王大伟 - 蓝色
-    [teamMembers[3].id]: '#10B981', // 赵志华 - 绿色
-    [teamMembers[4].id]: '#F59E0B'  // 刘晓燕 - 琥珀
+    [teamMembers[0].id]: '#4f46e5', // 张明 - 深靛蓝
+    [teamMembers[1].id]: '#ec4899', // 李小红 - 深玫瑰
+    [teamMembers[2].id]: '#2563eb', // 王大伟 - 深蓝色
+    [teamMembers[3].id]: '#059669', // 赵志华 - 深绿色
+    [teamMembers[4].id]: '#d97706'  // 刘晓燕 - 深琥珀
   },
   incident_priority: {
-    high: '#EF4444',   // 红色
-    medium: '#F59E0B', // 琥珀
-    low: '#6B7280'     // 灰色
+    high: '#dc2626',   // 深红色
+    medium: '#d97706', // 深琥珀
+    low: '#475569'     // 深灰色
   },
   task_type: {
-    call: '#3B82F6',     // 蓝色
-    email: '#10B981',    // 绿色
-    report: '#6366F1',   // 靛蓝
-    generic: '#6B7280'   // 灰色
+    call: '#2563eb',     // 深蓝色
+    email: '#059669',    // 深绿色
+    report: '#7c3aed',   // 深紫色
+    generic: '#475569'   // 深灰色
   }
 };
 
 // 获取团队日程数据的函数
 export const getTeamCalendarTasks = () => teamCalendarTasks;
-export const getTeamMembers = () => teamMembers;
+export const getTeamMembers = async (): Promise<TeamMember[]> => {
+  try {
+    const members = await teamCalendarService.getTeamMemberList();
+    return members.map(member => ({
+      id: member.id,
+      name: member.name,
+      avatarUrl: member.avatarUrl || '',
+      role: member.role,
+      capacity: member.capacity || 100,
+      currentLoad: member.currentLoad || 0,
+      workloadPercentage: member.workloadPercentage,
+      status: member.status
+    }));
+  } catch (error) {
+    console.error('Failed to fetch team members:', error);
+    return teamMembers;
+  }
+};
 export const getWorkloadAnalysis = () => workloadAnalysis;
 export const getAISuggestedTasks = () => aiSuggestedTasks;
 

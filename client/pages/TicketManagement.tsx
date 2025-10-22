@@ -33,7 +33,7 @@ import {
   getStatusLabel,
   getPriorityLabel,
   getTypeLabel
-} from '@/shared/ticketData';
+} from '@shared/ticketData';
 import { useToast } from '@/hooks/use-toast';
 
 export default function TicketManagement() {

@@ -3,7 +3,7 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 
 const serverurl = "https://www.sellernxt.com/api";
-// const serverurl = 'http://192.168.1.128:8099';
+//const serverurl = 'http://192.168.1.128:8099';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({

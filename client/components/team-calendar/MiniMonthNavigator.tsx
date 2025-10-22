@@ -1,6 +1,9 @@
 import { useState, useCallback } from 'react';
 import { ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useTranslation } from 'react-i18next';
+import { format } from 'date-fns';
+import { zhCN, enUS } from 'date-fns/locale';
 
 interface MiniMonthNavigatorProps {
   currentDate: Date;
@@ -8,12 +11,21 @@ interface MiniMonthNavigatorProps {
   onMonthChange: (date: Date) => void;
 }
 
-export default function MiniMonthNavigator({ 
-  currentDate, 
-  onDateSelect, 
-  onMonthChange 
+export default function MiniMonthNavigator({
+  currentDate,
+  onDateSelect,
+  onMonthChange
 }: MiniMonthNavigatorProps) {
+  const { i18n } = useTranslation();
   const [displayDate, setDisplayDate] = useState(currentDate);
+
+  // 获取当前语言的 locale
+  const locale = i18n.language.startsWith('en') ? enUS : zhCN;
+
+  // 获取星期标题
+  const weekDays = i18n.language.startsWith('en')
+    ? ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+    : ['日', '一', '二', '三', '四', '五', '六'];
   
   // 获取月份的所有日期
   const getDaysInMonth = useCallback((date: Date) => {
@@ -56,8 +68,7 @@ export default function MiniMonthNavigator({
   }, [currentDate]);
   
   const days = getDaysInMonth(displayDate);
-  const weekDays = ['日', '一', '二', '三', '四', '五', '六'];
-  const monthYear = `${displayDate.getFullYear()}年${displayDate.getMonth() + 1}月`;
+  const monthYear = format(displayDate, i18n.language.startsWith('en') ? 'MMMM yyyy' : 'yyyy年M月', { locale });
   
   const handlePrevMonth = () => {
     const newDate = new Date(displayDate);

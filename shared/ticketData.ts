@@ -316,10 +316,3 @@ export const getPriorityLabel = (priority: TicketPriority): string => {
 export const getTypeLabel = (type: TicketType): string => {
   return TICKET_TYPE_CONFIG[type].label;
 };
-
-// 计算Ticket的平均评估分数
-export const getAverageEvaluationScore = (evaluations: TicketEvaluation[]): number | undefined => {
-  if (evaluations.length === 0) return undefined;
-  const sum = evaluations.reduce((acc, eval) => acc + eval.score, 0);
-  return Math.round(sum / evaluations.length);
-};

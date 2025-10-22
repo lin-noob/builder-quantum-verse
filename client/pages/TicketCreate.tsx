@@ -19,7 +19,7 @@ import {
   TicketType,
   TICKET_PRIORITY_CONFIG,
   TICKET_TYPE_CONFIG
-} from '@/shared/ticketData';
+} from '../../shared/ticketData';
 import AICopilot from '@/components/ai/AICopilot';
 import { useToast } from '@/hooks/use-toast';
 

@@ -233,7 +233,7 @@ const MenuManagementComponent: React.FC = () => {
     useState<Permission | null>(null);
   const [permissionForm, setPermissionForm] = useState({
     name: "",
-    type: "1", // 默认为页面功能权限
+    type: "2", // 默认为页面功能权限
     urlPerm: "",
     btnPerm: "",
     // URL拼接的三个部分
@@ -335,7 +335,7 @@ const MenuManagementComponent: React.FC = () => {
     setEditingPermission(null);
     setPermissionForm({
       name: "",
-      type: "1", // 默认为页面功能权限
+      type: "2", // 默认为页面功能权限
       urlPerm: "",
       btnPerm: "",
       microService: "",
@@ -389,7 +389,7 @@ const MenuManagementComponent: React.FC = () => {
 
       setPermissionForm({
         name: permissionDetail.name || "",
-        type: String(permissionDetail.type) || "1",
+        type: String(permissionDetail.type) || "2",
         urlPerm: permissionDetail.urlPerm || "",
         btnPerm: permissionDetail.btnPerm || "",
         microService,

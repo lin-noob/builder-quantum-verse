@@ -48,14 +48,14 @@ export enum ApprovalConditionType {
 
 // 单据状态枚举
 export enum DocumentStatus {
-  DRAFT = 'draft',             // 草稿
-  SUBMITTED = 'submitted',     // 已提交
-  REVIEWING = 'reviewing',     // 审核中
-  APPROVED = 'approved',       // 已通过
-  REJECTED = 'rejected',       // 已拒绝
-  CANCELLED = 'cancelled',     // 已取消
-  COMPLETED = 'completed',     // 已完成
-  ARCHIVED = 'archived',       // 已归档
+  DRAFT = 0,        // 草稿
+  SUBMITTED = 1,    // 已提交
+  REVIEWING = 2,    // 审核中
+  APPROVED = 3,     // 已通过
+  REJECTED = 4,     // 已拒绝
+  CANCELLED = 5,    // 已取消
+  COMPLETED = 6,    // 已完成
+  ARCHIVED = 7,     // 已归档
 }
 
 // 状态流转配置
@@ -79,46 +79,36 @@ export interface ApprovalCondition {
 
 // 审批人配置
 export interface ApprovalUser {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-  department: string;
-  isRequired: boolean;     // 是否必须审批
+  userId: number;
+  userName: string;
+  roleName: string;
 }
 
 // 审批节点
 export interface ApprovalNode {
-  id: string;
-  name: string;
+  id: number;
+  nodeName: string;
   description: string;
-  type: ApprovalNodeType;
-  order: number;           // 节点顺序
-  conditions: ApprovalCondition[]; // 触发条件
-  approvers: ApprovalUser[];       // 审批人列表
-  timeoutHours: number;    // 超时时间（小时）
-  autoApprove: boolean;    // 超时是否自动通过
-  isActive: boolean;       // 是否启用
-  statusTransitions: StatusTransition[]; // 状态流转配置
-  triggerStatus: DocumentStatus;   // 触发此节点的单据状态
-  approveTransition: StatusTransition; // 审批通过时的状态流转
-  rejectTransition: StatusTransition;  // 审批拒绝时的状态流转
-  createdAt: string;
-  updatedAt: string;
+  nodeType: string;
+  sortOrder: number;           // 节点顺序
+  approverType: number;        // 审批人类型
+  approvers: ApprovalUser[];   // 审批人列表
+  timeLimit: number;           // 超时时间
+  required: boolean;           // 是否必须审批
 }
 
 // 审批流程配置
 export interface ApprovalWorkflow {
   id: string;
-  name: string;
+  processName: string;
   description: string;
-  documentType: DocumentType;
-  isActive: boolean;
+  billType: number;
+  companyId: string;
+  status: number;
   nodes: ApprovalNode[];
-  createdBy: string;
-  createdAt: string;
-  updatedAt: string;
-  version: number;         // 版本号
+  triggerStatus: DocumentStatus;
+  approvedStatus: DocumentStatus;
+  rejectedStatus: DocumentStatus;
 }
 
 // 审批流程模板
