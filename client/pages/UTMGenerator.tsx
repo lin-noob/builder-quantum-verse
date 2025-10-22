@@ -483,7 +483,7 @@ export default function UTMGenerator() {
           <div className="flex items-center justify-between">
             <CardTitle>历史记录</CardTitle>
             <div className="flex items-center gap-2">
-              <Input placeholder="搜索标题/URL/来源/媒介/活动" className="w-64" value={searchText} onChange={(e) => setSearchText(e.target.value)} />
+              <Input placeholder="搜索URL/来源/媒介/活动" className="w-64" value={searchText} onChange={(e) => setSearchText(e.target.value)} />
               <div className="flex items-center gap-1 text-sm">
                 <span>筛选:</span>
                 <Button variant={showArchived===null?"default":"outline"} size="sm" onClick={() => setShowArchived(null)}>全部</Button>
