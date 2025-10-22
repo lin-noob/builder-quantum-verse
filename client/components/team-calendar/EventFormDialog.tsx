@@ -103,12 +103,12 @@ export default function EventFormDialog({
     if (initialEvent?.userId) {
       setSelectedUsers([
         {
-          userId: Number(initialEvent.userId),
+          userId: initialEvent.userId,
           userName: initialEvent.userName,
         },
       ]);
-    }else {
-      setSelectedUsers([])
+    } else {
+      setSelectedUsers([]);
     }
 
     setTypeVal(initialEvent?.type || "meeting");
@@ -145,8 +145,6 @@ export default function EventFormDialog({
       return;
     }
 
-    setSaving(true);
-
     try {
       // 确保 userId 正确处理为字符串或数字类型
       let userId;
@@ -157,6 +155,12 @@ export default function EventFormDialog({
         userId = undefined;
       }
 
+      if (!userId) {
+        toast.error("请选择负责人");
+        return;
+      }
+
+      setSaving(true);
       const reminderMinutes = reminderStr ? Number(reminderStr) : undefined;
 
       const typeMap: Record<"meeting" | "task" | "other", number> = {
@@ -229,19 +233,22 @@ export default function EventFormDialog({
     setIsDeleting(true);
     try {
       const formData = new FormData();
-      formData.append('ids', initialEvent.id)
-      const response = await request.post('/admin/api/v1/team/delete', formData);
+      formData.append("ids", initialEvent.id);
+      const response = await request.post(
+        "/admin/api/v1/team/delete",
+        formData,
+      );
 
       if (response.status === 200) {
         toast.success("日程删除成功");
         onOpenChange(false); // Close the dialog
         onSave(); // Trigger refresh
       } else {
-        throw new Error('删除失败');
+        throw new Error("删除失败");
       }
     } catch (error) {
-      console.error('Failed to delete event:', error);
-      toast.error(error instanceof Error ? error.message : '删除失败，请重试');
+      console.error("Failed to delete event:", error);
+      toast.error(error instanceof Error ? error.message : "删除失败，请重试");
     } finally {
       setIsDeleting(false);
       setShowDeleteConfirm(false);
@@ -393,8 +400,8 @@ export default function EventFormDialog({
 
         <DrawerFooter>
           {initialEvent?.id && (
-            <Button 
-              variant="destructive" 
+            <Button
+              variant="destructive"
               onClick={() => setShowDeleteConfirm(true)}
               disabled={saving || isDeleting}
               className="mt-2"
@@ -406,28 +413,33 @@ export default function EventFormDialog({
             <Button onClick={handleSave} disabled={saving} className="flex-1">
               {saving ? "保存中..." : initialEvent ? "保存修改" : "创建日程"}
             </Button>
-            <Button variant="outline" onClick={() => onOpenChange(false)} className="flex-1">
+            <Button
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              className="flex-1"
+            >
               取消
             </Button>
           </div>
         </DrawerFooter>
 
         {/* Delete Confirmation Dialog */}
-        <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+        <AlertDialog
+          open={showDeleteConfirm}
+          onOpenChange={setShowDeleteConfirm}
+        >
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>删除日程</AlertDialogTitle>
               <AlertDialogDescription>
-                您确定要删除「{initialEvent?.title}」这个日程吗？此操作不可撤销。
+                您确定要删除「{initialEvent?.title}
+                」这个日程吗？此操作不可撤销。
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>取消</AlertDialogCancel>
-              <AlertDialogAction 
-                onClick={handleDelete}
-                disabled={isDeleting}
-              >
-                {isDeleting ? '删除中...' : '删除'}
+              <AlertDialogAction onClick={handleDelete} disabled={isDeleting}>
+                {isDeleting ? "删除中..." : "删除"}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
