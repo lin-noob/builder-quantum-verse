@@ -1,4 +1,6 @@
 import { request } from "@/lib/request";
+import { MockDataService } from "@/services/mockDataService";
+import useProjectStore from "@/stores/projectStore";
 
 // Keep this aligned with the API user shape used in list API
 export interface ApiLabel {
@@ -60,6 +62,15 @@ export interface ApiUser {
   sessionId: string;
   labelList?: ApiLabel[]; // backend field name
   eventList?: ApiEventListResponse; // Add eventList field
+  // 新增用于总览展示的字段（可选，后端缺失时由演示模式提供）
+  firstVisitSource?: string;
+  firstVisitMedium?: string;
+  ltv90Days?: number;
+  // 5+2扩展指标（演示或未来后端扩展）
+  sessions30d?: number;
+  pageviews30d?: number;
+  aov30d?: number;
+  bounceRate?: number; // 0..1
 }
 
 interface ApiEnvelope<T> {
@@ -78,16 +89,28 @@ export async function getProfileView(id: string): Promise<ApiUser | null> {
       { timeout: 5000 }
     );
 
-    // response is ApiResponse<ApiEnvelope<ApiUser>> per our request helper
     const envelope = response as unknown as ApiEnvelope<ApiUser> | any;
     if (envelope && envelope.data) {
-      return envelope.data.data as ApiUser;
+      const data = envelope.data.data as ApiUser;
+      if (data) return data;
     }
 
-    // Fallback if backend returns raw object
-    return (response as any)?.data ?? null;
+    const raw = (response as any)?.data ?? null;
+    if (raw) return raw as ApiUser;
+
+    // 如果无数据，尝试演示模式回退
+    if (MockDataService.shouldUseMockData()) {
+      const demo = await MockDataService.getApiUserById(id);
+      if (demo) return demo;
+    }
+
+    return null;
   } catch (error) {
     console.error("Failed to fetch profile view:", error);
+    if (MockDataService.shouldUseMockData()) {
+      const demo = await MockDataService.getApiUserById(id);
+      if (demo) return demo;
+    }
     return null;
   }
 }
@@ -98,8 +121,16 @@ export async function getUserEventList(
   sessionId: string,
   page: number = 1,
   size: number = 10,
-  eventType: number = 0, // 0 for order data, 1 for behavior data
+  eventType: number = 0, // 0 for order data, 1/2 for behavior data
 ): Promise<ApiEventListResponse | null> {
+  const { currentProject } = useProjectStore.getState();
+  const noProjectSelected = !currentProject || !currentProject.id;
+
+  // 未选择项目时，直接使用模拟数据，保证演示可用
+  if (noProjectSelected) {
+    return await MockDataService.getMockEventList(userId, sessionId, page, size, eventType);
+  }
+
   try {
     const requestBody = {
       currentpage: page,
@@ -117,13 +148,46 @@ export async function getUserEventList(
     const envelope = response as unknown as
       | ApiEnvelope<ApiEventListResponse>
       | any;
+
+    // 优先解析标准包裹结构
     if (envelope && envelope.data) {
-      return envelope.data.data as ApiEventListResponse;
+      const data = envelope.data.data as ApiEventListResponse;
+      if (data && Array.isArray(data.records) && data.records.length > 0) {
+        return data;
+      }
+      // 后端返回空记录时，在演示模式下回退到模拟数据
+      if (MockDataService.shouldUseMockData()) {
+        return await MockDataService.getMockEventList(userId, sessionId, page, size, eventType);
+      }
+      // 非演示模式返回原始空数据
+      if (data) return data;
     }
 
-    return (response as any)?.data ?? null;
+    // 解析非标准结构
+    const raw = (response as any)?.data ?? null;
+    if (raw) {
+      const rawData = raw as ApiEventListResponse;
+      if (rawData && Array.isArray(rawData.records) && rawData.records.length > 0) {
+        return rawData;
+      }
+      if (MockDataService.shouldUseMockData()) {
+        return await MockDataService.getMockEventList(userId, sessionId, page, size, eventType);
+      }
+      return rawData;
+    }
+
+    // 无数据时，演示模式回退到模拟事件
+    if (MockDataService.shouldUseMockData()) {
+      return await MockDataService.getMockEventList(userId, sessionId, page, size, eventType);
+    }
+
+    return null;
   } catch (error) {
     console.error("Failed to fetch user event list:", error);
+    // 发生错误时，若未选择项目或处于演示模式，则使用模拟数据
+    if (noProjectSelected || MockDataService.shouldUseMockData()) {
+      return await MockDataService.getMockEventList(userId, sessionId, page, size, eventType);
+    }
     return null;
   }
 }
@@ -169,8 +233,7 @@ export async function deleteProfileLabel(id: string): Promise<boolean> {
       },
     );
     const data = res.data;
-    if (data && (data.code === "201" || data.code === "200"))
-      return true;
+    if (data && (data.code === "201" || data.code === "200")) return true;
     if ((res as any)?.success) return true;
     throw new Error((data && data.msg) || "删除标签失败");
   } catch (error) {

@@ -422,5 +422,57 @@
   "results": {
     "ecommerceSubtitle": "电商营销解决方案带来的实际业务提升",
     "contentSubtitle": "真实品牌数据验证，全面提升内容营销效果和品牌影响力"
+  },
+  "sessionTimeline": {
+    "loading": "加载中...",
+    "noData": "暂无数据",
+    "searchPlaceholder": "搜索 URL/标题/元素文本",
+    "filters": {
+      "allEvents": "全部事件",
+      "allSources": "全部来源",
+      "allDevices": "全部设备",
+      "keyEventsOnly": "仅关键事件",
+      "startTime": "开始时间",
+      "endTime": "结束时间",
+      "search": "搜索",
+      "reset": "重置"
+    },
+    "eventTypes": {
+      "$pageview": "页面浏览",
+      "$pageleave": "页面离开",
+      "$autocapture": "自动捕获",
+      "ScrollDepth": "滚动深度",
+      "Click": "点击",
+      "ViewProduct": "查看商品",
+      "AddToCart": "加入购物车",
+      "RemoveFromCart": "移出购物车",
+      "StartCheckout": "开始结账",
+      "CompletePurchase": "完成购买",
+      "UserRegister": "用户注册",
+      "UserLogin": "用户登录",
+      "SubmitForm": "提交表单",
+      "Search": "搜索",
+      "PageDwellTime": "页面停留",
+      "Change": "内容变更"
+    },
+    "details": {
+      "source": "来源",
+      "device": "设备",
+      "dwellTime": "停留",
+      "scrollDepth": "滚动",
+      "repeatVisit": "重复访问",
+      "times": "次",
+      "element": "元素"
+    },
+    "recordsInfo": "共 {{total}} 条记录，显示第 {{start}}-{{end}} 条",
+    "pagination": {
+      "page": "第 {{current}} 页，共 {{total}} 页",
+      "previous": "上一页",
+      "next": "下一页"
+    },
+    "modal": {
+      "title": "事件详情",
+      "basicInfo": "基本信息"
+    }
   }
 }
