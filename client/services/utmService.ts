@@ -44,7 +44,7 @@ export const utmService = {
    */
   getUTMList: async (params: UTMQueryParams = {}): Promise<UTMListResponse> => {
     const queryParams: Record<string, any> = {
-      current: params.page || 1,
+      currentpage: params.page || 1,
       pageSize: params.size || 10,
     };
 
