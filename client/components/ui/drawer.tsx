@@ -33,7 +33,7 @@ const DrawerOverlay = React.forwardRef<
 DrawerOverlay.displayName = DrawerPrimitive.Overlay.displayName;
 
 type DrawerContentProps = React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Content> & {
-  side?: "bottom" | "right";
+  side?: "bottom" | "right" | "left";
 };
 
 const DrawerContent = React.forwardRef<
@@ -46,8 +46,10 @@ const DrawerContent = React.forwardRef<
       ref={ref}
       className={cn(
         side === "bottom"
-          ? "fixed inset-x-0 bottom-0 z-50 mt-24 flex h-auto flex-col rounded-t-[10px] border bg-background"
-          : "fixed inset-y-0 right-0 z-50 flex h-full w-[960px] max-w-[100vw] flex-col border-l bg-background",
+          ? "fixed inset-x-0 bottom-0 z-50 mt-24 flex h-auto flex-col rounded-t-[10px] border bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:slide-in-from-bottom data-[state=closed]:slide-out-to-bottom"
+          : side === "left"
+            ? "fixed inset-y-0 left-0 z-50 flex h-full w-[960px] max-w-[100vw] flex-col border-r bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:slide-in-from-left data-[state=closed]:slide-out-to-left"
+            : "fixed inset-y-0 right-0 z-50 flex h-full w-[960px] max-w-[100vw] flex-col border-l bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:slide-in-from-right data-[state=closed]:slide-out-to-right",
         className,
       )}
       {...props}

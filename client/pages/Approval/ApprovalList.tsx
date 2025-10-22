@@ -1,12 +1,12 @@
 import React, { useMemo, useState } from 'react';
-import { Search, CheckCircle, XCircle } from 'lucide-react';
+import { Search, CheckCircle, XCircle, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerFooter } from '@/components/ui/drawer';
 import { Pagination, PaginationContent, PaginationItem, PaginationPrevious, PaginationNext, PaginationLink } from '@/components/ui/pagination';
 import { 
   AlertDialog,
@@ -163,21 +163,10 @@ const ApprovalList: React.FC = () => {
   const gotoPage = (p: number) => setPage(Math.max(1, Math.min(totalPages, p)));
 
   return (
-    <div className="min-h-full bg-gray-50">
-      <div className="p-6 max-w-7xl mx-auto space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">审批列表</h1>
-            <p className="text-muted-foreground">支持筛选、搜索、排序、分页、详情与行内操作</p>
-          </div>
-        </div>
-
+    <div className="p-6 space-y-6 bg-gray-50 min-h-full">
+      <div className="space-y-6">
         <Card>
-          <CardHeader className="pb-3">
-            <CardTitle>筛选与搜索</CardTitle>
-            <CardDescription>仅使用虚拟数据，不发起后端请求</CardDescription>
-          </CardHeader>
-          <CardContent className="grid gap-3 md:grid-cols-5">
+          <CardContent className="grid gap-3 md:grid-cols-5 px-6 pt-3 pb-4">
             <div className="md:col-span-2">
               <div className="relative">
                 <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -222,23 +211,14 @@ const ApprovalList: React.FC = () => {
                 </SelectContent>
               </Select>
             </div>
+            <div className="md:col-span-5 flex justify-end gap-2 pt-1">
+              <Button variant="default" onClick={() => setPage(1)}>搜索</Button>
+              <Button variant="outline" onClick={() => { setQuery(''); setStatusFilter('all'); setTypeFilter('all'); setSortKey('createdAt'); setSortOrder('desc'); setPage(1); toast({ title: '重置完成', description: '筛选条件已重置' }); }}>重置</Button>
+            </div>
           </CardContent>
         </Card>
 
-        <div className="grid gap-3 md:grid-cols-4">
-          <Card>
-            <CardContent className="pt-6"><div className="text-sm text-muted-foreground">总数</div><div className="text-2xl font-bold">{counts.total}</div></CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-6"><div className="text-sm text-muted-foreground">待审批</div><div className="text-2xl font-bold text-yellow-600">{counts.pending}</div></CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-6"><div className="text-sm text-muted-foreground">已通过</div><div className="text-2xl font-bold text-green-600">{counts.approved}</div></CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-6"><div className="text-sm text-muted-foreground">已拒绝</div><div className="text-2xl font-bold text-red-600">{counts.rejected}</div></CardContent>
-          </Card>
-        </div>
+
 
         <Card>
           <CardHeader>
@@ -353,94 +333,223 @@ const ApprovalList: React.FC = () => {
           </CardContent>
         </Card>
 
-        {/* 详情弹窗 */}
-        <Dialog open={detailOpen} onOpenChange={setDetailOpen}>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>审批详情</DialogTitle>
-            </DialogHeader>
+        {/* 详情抽屉 */}
+        <Drawer open={detailOpen} onOpenChange={setDetailOpen} direction="right">
+          <DrawerContent side="right" className="w-[720px]">
+            <DrawerHeader>
+              <DrawerTitle>审批详情</DrawerTitle>
+            </DrawerHeader>
             {selected && (
-              <div className="space-y-4">
-                <div className="space-y-1">
+              <div className="space-y-6 px-4 pb-4">
+                {/* 标题 */}
+                <div className="space-y-2">
                   <div className="text-sm text-muted-foreground">标题</div>
                   <div className="font-medium">{selected.title}</div>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <div className="text-sm text-muted-foreground">单号</div>
-                    <div><code className="text-xs">{selected.documentId}</code></div>
-                  </div>
-                  <div>
-                    <div className="text-sm text-muted-foreground">类型</div>
-                    <div>{DOC_LABEL[selected.documentType]}</div>
-                  </div>
-                  <div>
-                    <div className="text-sm text-muted-foreground">流程</div>
-                    <div>{selected.workflowName}</div>
-                  </div>
-                  <div>
-                    <div className="text-sm text-muted-foreground">当前节点</div>
-                    <div>{selected.currentNodeName}</div>
-                  </div>
-                  <div>
-                    <div className="text-sm text-muted-foreground">提交人</div>
-                    <div>{selected.submitter?.name || '-'}</div>
-                  </div>
-                  <div>
-                    <div className="text-sm text-muted-foreground">状态</div>
-                    <div><Badge className={STATUS_CLASS[selected.status]}>{STATUS_LABEL[selected.status]}</Badge></div>
+
+                {/* 基本信息 */}
+                <div className="space-y-2">
+                  <div className="text-sm font-medium">基本信息</div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <div className="text-sm text-muted-foreground">单号</div>
+                      <div><code className="text-xs">{selected.documentId}</code></div>
+                    </div>
+                    <div>
+                      <div className="text-sm text-muted-foreground">类型</div>
+                      <div>{DOC_LABEL[selected.documentType]}</div>
+                    </div>
+                    <div>
+                      <div className="text-sm text-muted-foreground">流程</div>
+                      <div>{selected.workflowName}</div>
+                    </div>
+                    <div>
+                      <div className="text-sm text-muted-foreground">当前节点</div>
+                      <div>{selected.currentNodeName}</div>
+                    </div>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <div className="text-sm text-muted-foreground">创建时间</div>
-                    <div>{fmt(selected.createdAt)}</div>
-                  </div>
-                  <div>
-                    <div className="text-sm text-muted-foreground">更新时间</div>
-                    <div>{fmt(selected.updatedAt)}</div>
+
+                {/* 提交与审批 */}
+                <div className="space-y-2">
+                  <div className="text-sm font-medium">提交与审批</div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <div className="text-sm text-muted-foreground">提交人</div>
+                      <div>{selected.submitter?.name || '-'}</div>
+                    </div>
+                    <div>
+                      <div className="text-sm text-muted-foreground">当前审批人</div>
+                      <div>{selected.currentApprover?.name || '-'}</div>
+                    </div>
+                    <div>
+                      <div className="text-sm text-muted-foreground">发起时间</div>
+                      <div>{fmt(selected.createdAt)}</div>
+                    </div>
+                    <div>
+                      <div className="text-sm text-muted-foreground">更新时间</div>
+                      <div>{fmt(selected.updatedAt)}</div>
+                    </div>
+                    <div>
+                      <div className="text-sm text-muted-foreground">审批状态</div>
+                      <div><Badge className={STATUS_CLASS[selected.status]}>{STATUS_LABEL[selected.status]}</Badge></div>
+                    </div>
                   </div>
                 </div>
-                <div className="flex justify-end gap-2 pt-2">
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button size="sm" disabled={!canOperate(selected)} className="text-white bg-green-600 hover:bg-green-700">
-                        <CheckCircle className="h-4 w-4 mr-1" /> 通过
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>确认通过该审批？</AlertDialogTitle>
-                        <AlertDialogDescription>通过后将不可撤销，请确认信息无误。</AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>取消</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => handleApprove(selected)}>确认</AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button size="sm" disabled={!canOperate(selected)} variant="destructive">
-                        <XCircle className="h-4 w-4 mr-1" /> 拒绝
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>确认拒绝该审批？</AlertDialogTitle>
-                        <AlertDialogDescription>拒绝后将通知提交人，状态不可直接恢复。</AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>取消</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => handleReject(selected)}>确认</AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
+
+                {/* 业务字段 */}
+                <div className="space-y-2">
+                  <div className="text-sm font-medium">业务字段</div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <div className="text-sm text-muted-foreground">金额</div>
+                      <div>-</div>
+                    </div>
+                    <div>
+                      <div className="text-sm text-muted-foreground">税率</div>
+                      <div>-</div>
+                    </div>
+                    <div>
+                      <div className="text-sm text-muted-foreground">发票号</div>
+                      <div>-</div>
+                    </div>
+                    <div>
+                      <div className="text-sm text-muted-foreground">供应商</div>
+                      <div>-</div>
+                    </div>
+                    <div>
+                      <div className="text-sm text-muted-foreground">预算编码</div>
+                      <div>-</div>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="text-xs text-muted-foreground">费用明细条目</div>
+                    <div className="text-sm text-muted-foreground">暂无明细</div>
+                  </div>
+                </div>
+
+                {/* SLA与时效 */}
+                <div className="space-y-2">
+                  <div className="text-sm font-medium">SLA与时效</div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <div className="text-sm text-muted-foreground">审批时长</div>
+                      <div>-</div>
+                    </div>
+                    <div>
+                      <div className="text-sm text-muted-foreground">逾期标记</div>
+                      <div>-</div>
+                    </div>
+                    <div>
+                      <div className="text-sm text-muted-foreground">截止时间</div>
+                      <div>-</div>
+                    </div>
+                    <div>
+                      <div className="text-sm text-muted-foreground">剩余时间</div>
+                      <div>-</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 关联信息 */}
+                <div className="space-y-2">
+                  <div className="text-sm font-medium">关联信息</div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <div className="text-sm text-muted-foreground">关联单据</div>
+                      <div>-</div>
+                    </div>
+                    <div>
+                      <div className="text-sm text-muted-foreground">附件</div>
+                      <div>-</div>
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-muted-foreground">备注/补充说明</div>
+                    <div>{selected.remark || '-'}</div>
+                  </div>
+                </div>
+
+                {/* 流程追踪 */}
+                <div className="space-y-2">
+                  <div className="text-sm font-medium">流程追踪</div>
+                  <div className="space-y-3">
+                    {[
+                      { node: '提交申请', actor: selected.submitter?.name || '-', result: '已提交', time: fmt(selected.createdAt) },
+                      { node: selected.currentNodeName || '当前节点', actor: selected.currentApprover?.name || '-', result: STATUS_LABEL[selected.status], time: fmt(selected.updatedAt) },
+                    ].map((st, idx) => (
+                      <div key={idx} className="flex items-start gap-3">
+                        <Clock className="h-4 w-4 mt-0.5 text-muted-foreground" />
+                        <div className="flex-1">
+                          <div className="text-sm font-medium">{st.node} · {st.actor}</div>
+                          <div className="text-xs text-muted-foreground">{st.result} · {st.time}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 审计与历史 */}
+                <div className="space-y-2">
+                  <div className="text-sm font-medium">审计与历史</div>
+                  <div className="space-y-2">
+                    {[
+                      { action: '创建单据', actor: selected.submitter?.name || '-', time: fmt(selected.createdAt) },
+                      { action: '查看详情', actor: '系统', time: fmt(selected.updatedAt) },
+                    ].map((log, idx) => (
+                      <div key={idx} className="flex items-start gap-3">
+                        <Clock className="h-4 w-4 mt-0.5 text-muted-foreground" />
+                        <div className="flex-1">
+                          <div className="text-sm font-medium">{log.action}</div>
+                          <div className="text-xs text-muted-foreground">{log.actor} · {log.time}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             )}
-          </DialogContent>
-        </Dialog>
+
+            <DrawerFooter className="border-t">
+              <div className="flex justify-end gap-2">
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button size="sm" disabled={!selected || !canOperate(selected)} className="text-white bg-green-600 hover:bg-green-700">
+                      <CheckCircle className="h-4 w-4 mr-1" /> 通过
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>确认通过该审批？</AlertDialogTitle>
+                      <AlertDialogDescription>通过后将不可撤销，请确认信息无误。</AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>取消</AlertDialogCancel>
+                      <AlertDialogAction onClick={() => selected && handleApprove(selected)}>确认</AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button size="sm" disabled={!selected || !canOperate(selected)} variant="destructive">
+                      <XCircle className="h-4 w-4 mr-1" /> 拒绝
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>确认拒绝该审批？</AlertDialogTitle>
+                      <AlertDialogDescription>拒绝后将通知提交人，状态不可直接恢复。</AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>取消</AlertDialogCancel>
+                      <AlertDialogAction onClick={() => selected && handleReject(selected)}>确认</AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
+            </DrawerFooter>
+          </DrawerContent>
+        </Drawer>
       </div>
     </div>
   );
