@@ -381,6 +381,8 @@ export default function TeamCalendar() {
                     onClick={(e) => {
                       e.stopPropagation();
                       // Open the edit dialog for this event
+                      debugger
+                      
                       setEditingEvent(props.event);
                       setDialogInitialDate(undefined);
                       setEventDialogOpen(true);
