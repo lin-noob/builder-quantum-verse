@@ -483,7 +483,7 @@ export default function UTMGenerator() {
           <div className="flex items-center justify-between">
             <CardTitle>历史记录</CardTitle>
             <div className="flex items-center gap-2">
-              <Input placeholder="搜索URL/来源/媒介/活动" className="w-64" value={searchText} onChange={(e) => setSearchText(e.target.value)} />
+              <Input placeholder="搜索URL/来源/媒介/活动" className="w-64" value={searchText} onChange={(e) => { setSearchText(e.target.value); setCurrentPage(1); }} />
               <div className="flex items-center gap-1 text-sm">
                 <span>筛选:</span>
                 <Button variant={showArchived===null?"default":"outline"} size="sm" onClick={() => setShowArchived(null)}>全部</Button>
@@ -523,7 +523,35 @@ export default function UTMGenerator() {
                 ) : (
                   history.map(h => (
                     <TableRow key={h.id}>
-                      <TableCell className="px-6 py-4 text-xs break-all">{h.targetUrl}</TableCell>
+                      <TableCell className="px-6 py-4 text-xs break-all">
+                        {(() => {
+                          let params = `utm_source=${h.utmSource}&utm_medium=${h.utmMedium}&utm_campaign=${h.utmCampaign}`;
+                          if (h.utmTerm) params += `&utm_term=${h.utmTerm}`;
+                          if (h.utmContent) params += `&utm_content=${h.utmContent}`;
+                          
+                          // Handle extraParams that might be a JSON string from backend
+                          if (h.extraParams) {
+                            let extraParamsArray: ExtraParam[] = [];
+                            if (typeof h.extraParams === 'string') {
+                              try {
+                                extraParamsArray = JSON.parse(h.extraParams);
+                              } catch {
+                                extraParamsArray = []; // fallback to empty array
+                              }
+                            } else {
+                              extraParamsArray = h.extraParams;
+                            }
+                            
+                            if (extraParamsArray && extraParamsArray.length > 0) {
+                              extraParamsArray.forEach(param => {
+                                if (param.key) params += `&${param.key}=${param.value || ''}`;
+                              });
+                            }
+                          }
+                          
+                          return mergeQuery(h.targetUrl, params);
+                        })()}
+                      </TableCell>
                       <TableCell className="px-6 py-4">{h.utmSource}</TableCell>
                       <TableCell className="px-6 py-4">{h.utmMedium}</TableCell>
                       <TableCell className="px-6 py-4">{h.utmCampaign}</TableCell>
