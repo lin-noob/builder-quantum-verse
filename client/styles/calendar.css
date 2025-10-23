@@ -64,15 +64,30 @@
 
 /* 事件样式 */
 .rbc-event {
-  @apply bg-indigo-500 border-indigo-600 text-white rounded px-2 py-1 text-xs font-medium shadow-sm;
+  padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  overflow: visible !important;
 }
 
 .rbc-event:hover {
-  @apply bg-indigo-600 border-indigo-700;
+  background: transparent !important;
 }
 
 .rbc-event.rbc-selected {
-  @apply bg-indigo-700 border-indigo-800;
+  background: transparent !important;
+}
+
+/* 周视图和日视图的事件内容 */
+.rbc-event-content {
+  padding: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* 周视图和日视图的事件标签 */
+.rbc-event-label {
+  display: none !important;
 }
 
 /* AI 建议事件样式 */
