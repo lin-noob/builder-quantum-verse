@@ -650,8 +650,17 @@ export default function SessionTimeline({
                             setSelectedEvent(event);
                           }}
                         >
-                          <div className="flex items-center gap-2">
-                            {getEventTypeBadge(event.eventType)}
+                          <div className="flex flex-row justify-between">
+                            <div className="flex items-center gap-2">
+                              {getEventTypeBadge(event.eventType)}
+                            </div>
+                            {event.eventType === "Click" && (
+                              <div className="text-xs text-slate-600 mt-1">
+                                {event.$elements && event.$elements.length > 0 && event.$elements[0].$el_text
+                                  ? event.$elements[0].$el_text
+                                  : ""}
+                              </div>
+                            )}
                           </div>
                         </div>
                       ))}
