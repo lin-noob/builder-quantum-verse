@@ -433,12 +433,12 @@ export default function SessionTimeline({
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2 mb-2">
+                      {/* <div className="flex items-center gap-2 mb-2">
                         {getEventTypeBadge(eventData.eventType)}
                         <div className="text-sm text-slate-700 truncate max-w-md">
                           {eventData.pageURL}
                         </div>
-                      </div>
+                      </div> */}
 
                       <div className="mt-1">
                         <div className="text-sm text-slate-900 font-medium">
@@ -513,7 +513,7 @@ export default function SessionTimeline({
             }
           }}
         >
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-6xl max-h-[90vh] flex flex-col">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-6xl h-[90vh] flex flex-col">
             {/* 弹窗头部 */}
             <div className="flex justify-between items-center p-4 border-b border-slate-200">
               <h3 className="text-lg font-semibold text-slate-900">
