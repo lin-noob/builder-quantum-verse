@@ -662,19 +662,19 @@ export default function SessionTimeline({
                 {/* 右侧 - 事件详情 */}
                 <div className="flex-1 overflow-y-auto p-6">
                   {/* 事件基本信息 */}
-                  <div className="mb-6">
+                  {/* <div className="mb-6">
                     <h4 className="text-sm font-medium text-slate-900 mb-3">
                       {t("sessionTimeline.modal.basicInfo")}
                     </h4>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm  bg-slate-50 rounded-lg">
-                      {/* <div>
+                      <div>
                         <div className="text-xs text-slate-500">
                           {t("sessionTimeline.modal.fields.eventTime")}
                         </div>
                         <div className="font-medium text-slate-900">
                           {selectedEvent.eventTime}
                         </div>
-                      </div> */}
+                      </div>
                       <div>
                         <div className="text-xs text-slate-500">
                           {t("sessionTimeline.modal.fields.eventType")}
@@ -692,7 +692,7 @@ export default function SessionTimeline({
                         </div>
                       </div>
                     </div>
-                  </div>
+                  </div> */}
 
                   {/* 页面信息 */}
                   <div className="mb-6">
