@@ -433,12 +433,12 @@ export default function SessionTimeline({
                         </div>
                       </div>
 
-                      {/* <div className="flex items-center gap-2 mb-2">
-                        {getEventTypeBadge(eventData.eventType)}
+                      <div className="flex items-center gap-2 mb-2">
+                        {/* {getEventTypeBadge(eventData.eventType)} */}
                         <div className="text-sm text-slate-700 truncate max-w-md">
                           {eventData.pageURL}
                         </div>
-                      </div> */}
+                      </div>
 
                       <div className="mt-1">
                         <div className="text-sm text-slate-900 font-medium">
