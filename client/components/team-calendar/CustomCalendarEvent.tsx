@@ -8,20 +8,37 @@ interface CustomCalendarEventProps {
   onClick?: (e: React.MouseEvent) => void;
 }
 
-export const CustomCalendarEvent = ({ 
-  event, 
-  title, 
+export const CustomCalendarEvent = ({
+  event,
+  title,
   reloadEvents,
   style, // Receive the original style from the calendar component
   onClick
 }: CustomCalendarEventProps) => {
+  // Use the event's custom color if available
+  const customStyle: React.CSSProperties = {
+    backgroundColor: event.color || '#3b82f6',
+    borderLeft: `4px solid ${event.color || '#3b82f6'}`,
+    color: '#ffffff',
+    padding: '4px 8px',
+    borderRadius: '4px',
+    overflow: 'hidden',
+    fontSize: '0.75rem',
+    fontWeight: 500,
+    width: '100%',
+    height: '100%',
+    display: 'flex',
+    alignItems: 'center',
+    boxSizing: 'border-box',
+  };
+
   return (
     <div
-      style={style} // Preserve original calendar event styles
+      style={customStyle}
       className="cursor-pointer"
       onClick={onClick}
     >
-      <div className="truncate">
+      <div className="truncate w-full">
         {title}
       </div>
     </div>
