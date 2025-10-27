@@ -208,6 +208,63 @@ export default function UserDetail() {
   // 新增：用于总览指标计算的事件数据
   const [behaviorEvents, setBehaviorEvents] = useState<ApiEvent[]>([]);
   const [orderEvents, setOrderEvents] = useState<ApiEvent[]>([]);
+  // 新增：首访字段折叠/展开状态
+  const [showAllFirstVisitFields, setShowAllFirstVisitFields] = useState(false);
+
+  // 渠道类型判断逻辑
+  const getChannelType = useMemo(() => {
+    const source = apiUser?.firstVisitSource || user?.firstVisitSource || "";
+    const medium = apiUser?.firstVisitMedium || user?.firstVisitMedium || "";
+    const hasUtmParams = Boolean(source || medium);
+    const hasPaidParams = Boolean(
+      apiUser?.gclid || apiUser?.fbclid || apiUser?.msclkid || 
+      apiUser?.ttclid || apiUser?.twclid || apiUser?.dclid ||
+      medium?.includes('cpc') || medium?.includes('ppc') || medium?.includes('paid')
+    );
+    
+    if (hasPaidParams || medium?.includes('cpc') || medium?.includes('ppc') || medium?.includes('paid')) {
+      return { type: "付费广告", color: "bg-red-100 text-red-800" };
+    } else if (source?.includes('google') || source?.includes('bing') || source?.includes('baidu') || medium?.includes('organic')) {
+      return { type: "自然搜索", color: "bg-green-100 text-green-800" };
+    } else if (!hasUtmParams && !apiUser?.firstReferrer) {
+      return { type: "直接访问", color: "bg-blue-100 text-blue-800" };
+    } else {
+      return { type: "其他渠道", color: "bg-gray-100 text-gray-800" };
+    }
+  }, [apiUser, user]);
+
+  // 新增：首访字段定义（按需求给定顺序与提示文案）
+  const firstVisitFieldDefs = useMemo(() => {
+    const gbraidWbraid = [apiUser?.gbraid, apiUser?.wbraid].filter(Boolean).join(" / ");
+    return [
+      { key: "referrer", label: "Referrer", hint: "HTTP 引用来源，标识用户是从哪个网页链接点击进入当前页面的完整 URL", value: apiUser?.firstReferrer || "" },
+      { key: "utm_source", label: "utm_source", hint: "流量来源，标识用户是从哪个网站或平台来的（如 google、facebook、newsletter）", value: apiUser?.firstVisitSource || user?.firstVisitSource || "" },
+      { key: "utm_medium", label: "utm_medium", hint: "流量媒介，标识用户是通过什么方式来的（如 cpc、email、social）", value: apiUser?.firstVisitMedium || user?.firstVisitMedium || "" },
+      { key: "utm_campaign", label: "utm_campaign", hint: "营销活动名称，标识具体的推广活动（如 summer_sale、product_launch）", value: apiUser?.firstVisitCampaign || "" },
+      { key: "utm_content", label: "utm_content", hint: "广告内容标识，用于区分同一活动中不同版本或位置的广告（如 banner_a、link_b）", value: apiUser?.firstVisitContent || "" },
+      { key: "utm_term", label: "utm_term", hint: "关键词，主要用于付费搜索广告，标识用户搜索的关键词（如 running+shoes）", value: apiUser?.firstVisitTerm || "" },
+      { key: "gclid", label: "gclid", hint: "Google Ads 自动标记参数，用于追踪 Google 广告点击", value: apiUser?.gclid || "" },
+      { key: "gad_source", label: "gad_source", hint: "Google 广告平台的来源标识符", value: apiUser?.gad_source || "" },
+      { key: "gclsrc", label: "gclsrc", hint: "Google 广告来源标识符，用于标识广告来源", value: apiUser?.gclsrc || "" },
+      { key: "gbraid/wbraid", label: "gbraid/wbraid", hint: "Google 隐私保护型广告点击标识符，用于替代 gclid（iOS 14 之后）", value: gbraidWbraid || "" },
+      { key: "token", label: "token", hint: "内部系统生成的唯一标识符，用于追踪或验证用户行为或会话", value: apiUser?.token || "" },
+      { key: "title", label: "title", hint: "页面或活动的标题，用于标识当前页面或活动名称", value: apiUser?.title || "" },
+      { key: "fbclid", label: "fbclid", hint: "Facebook 广告点击标识符，用于追踪 Facebook 广告点击", value: apiUser?.fbclid || "" },
+      { key: "msclkid", label: "msclkid", hint: "Microsoft Advertising（Bing）广告点击标识符", value: apiUser?.msclkid || "" },
+      { key: "ttclid", label: "ttclid", hint: "TikTok 广告点击标识符，用于追踪 TikTok 广告点击", value: apiUser?.ttclid || "" },
+      { key: "twclid", label: "twclid", hint: "Twitter 广告点击标识符，用于追踪 Twitter 广告点击", value: apiUser?.twclid || "" },
+      { key: "qclid", label: "qclid", hint: "可能是某个广告平台的点击标识符，非标准字段", value: apiUser?.qclid || "" },
+      { key: "dclid", label: "dclid", hint: "DoubleClick 广告点击标识符，用于追踪 DoubleClick 广告点击", value: apiUser?.dclid || "" },
+      { key: "rdt_cid", label: "rdt_cid", hint: "Reddit 广告点击标识符，用于追踪 Reddit 广告点击", value: apiUser?.rdt_cid || "" },
+      { key: "irclid", label: "irclid", hint: "Impact Radius 广告点击标识符，用于追踪 Impact Radius 广告点击", value: apiUser?.irclid || "" },
+      { key: "li_fat_id", label: "li_fat_id", hint: "LinkedIn 广告点击标识符，用于追踪 LinkedIn 广告点击", value: apiUser?.li_fat_id || "" },
+      { key: "mc_cid", label: "mc_cid", hint: "Mailchimp 活动 ID，用于追踪 Mailchimp 邮件活动", value: apiUser?.mc_cid || "" },
+      { key: "sccid", label: "sccid", hint: "Snapchat 广告点击标识符，用于追踪 Snapchat 广告点击", value: apiUser?.sccid || "" },
+      { key: "igshid", label: "igshid", hint: "Instagram 分享或广告点击标识符，用于追踪 Instagram 相关行为", value: apiUser?.igshid || "" },
+      { key: "_kx", label: "_kx", hint: "可能是某个内部系统或第三方工具的标识符，非标准字段", value: apiUser?._kx || "" },
+      { key: "epik", label: "epik", hint: "可能是某个广告平台或内部系统的标识符，非标准字段", value: apiUser?.epik || "" },
+    ];
+  }, [apiUser, user]);
 
   // 拉取近200条行为事件与订单事件用于总览指标计算
   useEffect(() => {
@@ -585,7 +642,17 @@ export default function UserDetail() {
                       {/* 90天内首访表格 */}
                       <div className="mb-6">
                         <hr className="border-gray-200 mb-4" />
-                        <h3 className="text-sm font-semibold text-gray-900 mb-3">90天内首访</h3>
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-2">
+                            <h3 className="text-sm font-semibold text-gray-900">90天内首访</h3>
+                            <Badge className={`text-xs ${getChannelType.color}`}>
+                              {getChannelType.type}
+                            </Badge>
+                          </div>
+                          <Button variant="outline" size="sm" onClick={() => setShowAllFirstVisitFields(v => !v)}>
+                            {showAllFirstVisitFields ? "收起" : "展开全部"}
+                          </Button>
+                        </div>
                         <div className="bg-white border border-gray-200 rounded-lg overflow-visible">
                           <div className="overflow-x-auto">
                             <table className="min-w-full table-fixed">
@@ -596,133 +663,42 @@ export default function UserDetail() {
                                 <col className="w-1/4" />
                               </colgroup>
                               <tbody className="divide-y divide-gray-200">
-                                <tr>
-                                  <td className="px-4 py-3 text-sm text-gray-900 bg-gray-50">
-                                    <div className="flex items-center gap-1">
-                                      <span>归因渠道类型</span>
-                                      <TooltipIcon text="根据UTM参数和Referrer自动识别的流量渠道分类，包括付费广告、自然搜索、直接访问等" />
-                                    </div>
-                                  </td>
-                                  <td className="px-4 py-3 text-sm text-gray-900">
-                                    {(() => {
-                                      const source = user.firstVisitSource || "";
-                                      const medium = user.firstVisitMedium || "";
-                                      const referrer = user.firstReferrer || "";
-                                      
-                                      // 付费广告识别
-                                      if (/cpc|ppc|paid|ads|sem|banner|email|social-paid/i.test(medium) || 
-                                          /google-ads|baidu-sem|facebook-ads/i.test(source)) {
-                                        return "付费广告";
-                                      }
-                                      
-                                      // 自然搜索识别
-                                      if ((/google\.com|baidu\.com|bing\.com|sogou\.com|360\.cn|yahoo\.com/i.test(referrer) ||
-                                           /baidu|google|bing|sogou|yahoo|search/i.test(source)) &&
-                                          !/cpc|ppc|paid|ads|sem/i.test(medium)) {
-                                        return "自然搜索";
-                                      }
-                                      
-                                      // 直接访问识别
-                                      if ((!referrer || referrer.includes(window.location.hostname)) && 
-                                          !source && !medium) {
-                                        return "直接访问";
-                                      }
-                                      
-                                      // 其他渠道
-                                      return source || medium ? "其他渠道" : "直接访问";
-                                    })()}
-                                  </td>
-                                  <td className="px-4 py-3 text-sm text-gray-900 bg-gray-50">
-                                    <div className="flex items-center gap-1">
-                                      <span>具体来源平台</span>
-                                      <TooltipIcon text="识别出的具体流量来源平台，如Google、百度、微信、抖音等" />
-                                    </div>
-                                  </td>
-                                  <td className="px-4 py-3 text-sm text-gray-900">
-                                    {(() => {
-                                      const source = user.firstVisitSource || "";
-                                      const referrer = user.firstReferrer || "";
-                                      
-                                      if (/google/i.test(source) || /google\.com/i.test(referrer)) return "Google";
-                                      if (/baidu/i.test(source) || /baidu\.com/i.test(referrer)) return "百度";
-                                      if (/bing/i.test(source) || /bing\.com/i.test(referrer)) return "Bing";
-                                      if (/facebook/i.test(source)) return "Facebook";
-                                      if (/wechat|weixin/i.test(source)) return "微信";
-                                      if (/douyin|tiktok/i.test(source)) return "抖音";
-                                      
-                                      try {
-                                        return source || (referrer ? new URL(referrer).hostname : "-");
-                                      } catch {
-                                        return source || referrer || "-";
-                                      }
-                                    })()}
-                                  </td>
-                                </tr>
-                                <tr>
-                                  <td className="px-4 py-3 text-sm text-gray-900 bg-gray-50">
-                                    <div className="flex items-center gap-1">
-                                      <span>首访UTM来源</span>
-                                      <TooltipIcon text="用户首次访问时URL中的utm_source参数值，标识流量来源" />
-                                    </div>
-                                  </td>
-                                  <td className="px-4 py-3 text-sm text-gray-900">{user.firstVisitSource || "-"}</td>
-                                  <td className="px-4 py-3 text-sm text-gray-900 bg-gray-50">
-                                    <div className="flex items-center gap-1">
-                                      <span>首访UTM媒介</span>
-                                      <TooltipIcon text="用户首次访问时URL中的utm_medium参数值，标识流量媒介类型" />
-                                    </div>
-                                  </td>
-                                  <td className="px-4 py-3 text-sm text-gray-900">{user.firstVisitMedium || "-"}</td>
-                                </tr>
-                                <tr>
-                                  <td className="px-4 py-3 text-sm text-gray-900 bg-gray-50">
-                                    <div className="flex items-center gap-1">
-                                      <span>首访Referrer</span>
-                                      <TooltipIcon text="用户首次访问时的来源页面URL，即从哪个网站跳转过来的" />
-                                    </div>
-                                  </td>
-                                  <td className="px-4 py-3 text-sm text-gray-900">
-                                    {user.firstReferrer ? (
-                                      <span title={user.firstReferrer} className="truncate block">
-                                        {(() => {
-                                          try {
-                                            return new URL(user.firstReferrer).hostname;
-                                          } catch {
-                                            return user.firstReferrer;
-                                          }
-                                        })()}
-                                      </span>
-                                    ) : "-"}
-                                  </td>
-                                  <td className="px-4 py-3 text-sm text-gray-900 bg-gray-50">
-                                    <div className="flex items-center gap-1">
-                                      <span>搜索关键词</span>
-                                      <TooltipIcon text="用户通过搜索引擎搜索时使用的关键词（如果可获取）" />
-                                    </div>
-                                  </td>
-                                  <td className="px-4 py-3 text-sm text-gray-900">{user.searchKeywords || "-"}</td>
-                                </tr>
-                                <tr>
-                                  <td className="px-4 py-3 text-sm text-gray-900 bg-gray-50">
-                                    <div className="flex items-center gap-1">
-                                      <span>是否付费流量</span>
-                                      <TooltipIcon text="根据UTM参数自动判断是否为付费推广流量，如CPC、SEM等" />
-                                    </div>
-                                  </td>
-                                  <td className="px-4 py-3 text-sm text-gray-900">
-                                    {/cpc|ppc|paid|ads|sem|banner|email|social-paid/i.test(user.firstVisitMedium || "") ||
-                                     /google-ads|baidu-sem|facebook-ads/i.test(user.firstVisitSource || "") ? "是" : "否"}
-                                  </td>
-                                  <td className="px-4 py-3 text-sm text-gray-900 bg-gray-50">
-                                    <div className="flex items-center gap-1">
-                                      <span>归因锁定状态</span>
-                                      <TooltipIcon text="表示当前用户的归因渠道是否被锁定。锁定后，后续来源不会覆盖上一次归因渠道。" />
-                                    </div>
-                                  </td>
-                                  <td className="px-4 py-3 text-sm text-gray-900">
-                                    {user.firstVisitTime ? "已锁定" : "未锁定"}
-                                  </td>
-                                </tr>
+                                {(() => {
+                                  const fields = showAllFirstVisitFields ? firstVisitFieldDefs : firstVisitFieldDefs.slice(0, 8);
+                                  const rows = [];
+                                  for (let i = 0; i < fields.length; i += 2) {
+                                    const field1 = fields[i];
+                                    const field2 = fields[i + 1];
+                                    rows.push(
+                                      <tr key={`row-${i}`}>
+                                        <td className="px-4 py-3 text-sm text-gray-900 bg-gray-50">
+                                          <div className="flex items-center gap-1">
+                                            <span>{field1.label}</span>
+                                            <TooltipIcon text={field1.hint} />
+                                          </div>
+                                        </td>
+                                        <td className="px-4 py-3 text-sm text-gray-900">{field1.value || "-"}</td>
+                                        {field2 ? (
+                                          <>
+                                            <td className="px-4 py-3 text-sm text-gray-900 bg-gray-50">
+                                              <div className="flex items-center gap-1">
+                                                <span>{field2.label}</span>
+                                                <TooltipIcon text={field2.hint} />
+                                              </div>
+                                            </td>
+                                            <td className="px-4 py-3 text-sm text-gray-900">{field2.value || "-"}</td>
+                                          </>
+                                        ) : (
+                                          <>
+                                            <td className="px-4 py-3 text-sm text-gray-900 bg-gray-50"></td>
+                                            <td className="px-4 py-3 text-sm text-gray-900"></td>
+                                          </>
+                                        )}
+                                      </tr>
+                                    );
+                                  }
+                                  return rows;
+                                })()}
                               </tbody>
                             </table>
                           </div>

@@ -63,8 +63,33 @@ export interface ApiUser {
   labelList?: ApiLabel[]; // backend field name
   eventList?: ApiEventListResponse; // Add eventList field
   // 新增用于总览展示的字段（可选，后端缺失时由演示模式提供）
+  firstReferrer?: string;
   firstVisitSource?: string;
   firstVisitMedium?: string;
+  firstVisitCampaign?: string;
+  firstVisitContent?: string;
+  firstVisitTerm?: string;
+  gclid?: string;
+  gad_source?: string;
+  gclsrc?: string;
+  gbraid?: string;
+  wbraid?: string;
+  token?: string;
+  title?: string;
+  fbclid?: string;
+  msclkid?: string;
+  ttclid?: string;
+  twclid?: string;
+  qclid?: string;
+  dclid?: string;
+  rdt_cid?: string;
+  irclid?: string;
+  li_fat_id?: string;
+  mc_cid?: string;
+  sccid?: string;
+  igshid?: string;
+  _kx?: string;
+  epik?: string;
   ltv90Days?: number;
   // 5+2扩展指标（演示或未来后端扩展）
   sessions30d?: number;
@@ -127,9 +152,7 @@ export async function getUserEventList(
   const noProjectSelected = !currentProject || !currentProject.id;
 
   // 未选择项目时，直接使用模拟数据，保证演示可用
-  if (noProjectSelected) {
     return await MockDataService.getMockEventList(userId, sessionId, page, size, eventType);
-  }
 
   try {
     const requestBody = {

@@ -572,7 +572,8 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
   ];
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-6 bg-gray-50 min-h-full">
+      <div className="max-w-7xl mx-auto space-y-6">
       {/* 搜索和过滤 */}
       <Card>
         <CardContent className="pt-6">
@@ -1831,6 +1832,7 @@ const ApprovalConfig: React.FC<ApprovalConfigProps> = () => {
           </div>
         </DialogContent>
       </Dialog>
+      </div>
     </div>
   );
 };
