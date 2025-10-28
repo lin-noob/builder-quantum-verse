@@ -41,7 +41,7 @@ interface SortConfig {
 // 转换为UI需要的用户格式
 interface User {
   id: string;
-  userId:string;
+  userId: string;
   cdpId: string;
   name: string;
   company: string;
@@ -52,6 +52,12 @@ interface User {
   lastActiveTime: string;
   totalSpent: number;
   currency: string;
+  // 5+2扩展指标
+  ltv90Days?: number;
+  sessions30d?: number;
+  pageviews30d?: number;
+  aov30d?: number;
+  bounceRate?: number; // 0..1
 }
 
 interface OrderSummaryDto {
@@ -75,7 +81,7 @@ interface ApiResponse {
 }
 
 export default function UserList() {
-const { t } = useTranslation();
+  const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTimeField, setSelectedTimeField] = useState("lastActiveTime");
   const [dateRange, setDateRange] = useState<DateRange>({
@@ -92,11 +98,27 @@ const { t } = useTranslation();
   const [totalCount, setTotalCount] = useState(0);
   const itemsPerPage = 10;
 
+  // 5+2 指标筛选条件（范围）
+  const [metricFilters, setMetricFilters] = useState({
+    ltv90Min: "",
+    ltv90Max: "",
+    sessionsMin: "",
+    sessionsMax: "",
+    pageviewsMin: "",
+    pageviewsMax: "",
+    aovMin: "",
+    aovMax: "",
+    bounceMin: "", // 百分比 0-100
+    bounceMax: "", // 百分比 0-100
+  });
+
   // 权限检查
-  const { hasPermission } = useRoleStore();
+  const { hasPermission, permissions } = useRoleStore();
 
   // 项目状态检查
   const { currentProject } = useProjectStore();
+
+  // 调试日志
 
   // 转换API用户数据为UI格式
   const convertApiUserToUser = (apiUser: ApiUser): User => {
@@ -113,6 +135,12 @@ const { t } = useTranslation();
       lastActiveTime: apiUser.loginDate || "",
       totalSpent: apiUser.totalOrders || 0,
       currency: apiUser.currencySymbol || "",
+      // 5+2扩展指标
+      ltv90Days: apiUser.ltv90Days,
+      sessions30d: apiUser.sessions30d,
+      pageviews30d: apiUser.pageviews30d,
+      aov30d: apiUser.aov30d,
+      bounceRate: apiUser.bounceRate,
     };
   };
 
@@ -145,6 +173,17 @@ const { t } = useTranslation();
         return "login_date";
       case "totalSpent":
         return "total_orders";
+      // 扩展指标的后端排序映射（若后端不支持，将回退默认）
+      case "ltv90Days":
+        return "ltv_90_days";
+      case "sessions30d":
+        return "sessions_30d";
+      case "pageviews30d":
+        return "pageviews_30d";
+      case "aov30d":
+        return "aov_30d";
+      case "bounceRate":
+        return "bounce_rate";
       default:
         return "create_gmt";
     }
@@ -154,19 +193,39 @@ const { t } = useTranslation();
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
-      // 检查 currentProject 是否存在或 id 是否为空
+      const parseNum = (v: string) => (v.trim() === "" ? undefined : Number(v));
+      const parsePct = (v: string) => {
+        if (v.trim() === "") return undefined;
+        const n = Number(v);
+        if (isNaN(n)) return undefined;
+        return Math.max(0, Math.min(100, n)) / 100; // 转为 0..1
+      };
       if (!currentProject || !currentProject.id) {
-        console.log("No current project or empty project id, using mock data for users");
-
-        // 使用 mock 数据
+        console.log(
+          "No current project or empty project id, using mock data for users",
+        );
         const mockParams = {
           page: currentPage,
           pageSize: itemsPerPage,
           search: searchQuery.trim() || undefined,
           sortField: sortConfig.field || undefined,
           sortDirection: sortConfig.direction,
+          filters: {
+            ltv90Min: parseNum(metricFilters.ltv90Min),
+            ltv90Max: parseNum(metricFilters.ltv90Max),
+            sessionsMin: parseNum(metricFilters.sessionsMin),
+            sessionsMax: parseNum(metricFilters.sessionsMax),
+            pageviewsMin: parseNum(metricFilters.pageviewsMin),
+            pageviewsMax: parseNum(metricFilters.pageviewsMax),
+            aovMin: parseNum(metricFilters.aovMin),
+            aovMax: parseNum(metricFilters.aovMax),
+            bounceMin: parsePct(metricFilters.bounceMin),
+            bounceMax: parsePct(metricFilters.bounceMax),
+          },
         };
 
+        // 检查 currentProject 是否存在或 id 是否为空
+        // if (!currentProject || !currentProject.id) {
         const mockResult = await MockDataService.getUsers(mockParams);
         setUsers(mockResult.users);
         setTotalCount(mockResult.total);
@@ -201,6 +260,28 @@ const { t } = useTranslation();
         requestBody.order = sortConfig.direction;
       }
 
+      // 扩展指标筛选通过 paramother 传递（后端可忽略，前端将使用）
+      const paramother: Record<string, string> = {};
+      const addIfPresent = (key: string, val?: number) => {
+        if (val !== undefined && !isNaN(val)) paramother[key] = String(val);
+      };
+      addIfPresent("ltv90DaysMin", parseNum(metricFilters.ltv90Min));
+      addIfPresent("ltv90DaysMax", parseNum(metricFilters.ltv90Max));
+      addIfPresent("sessions30dMin", parseNum(metricFilters.sessionsMin));
+      addIfPresent("sessions30dMax", parseNum(metricFilters.sessionsMax));
+      addIfPresent("pageviews30dMin", parseNum(metricFilters.pageviewsMin));
+      addIfPresent("pageviews30dMax", parseNum(metricFilters.pageviewsMax));
+      addIfPresent("aov30dMin", parseNum(metricFilters.aovMin));
+      addIfPresent("aov30dMax", parseNum(metricFilters.aovMax));
+      // 百分比转 0..1
+      const bMin = parsePct(metricFilters.bounceMin);
+      const bMax = parsePct(metricFilters.bounceMax);
+      if (bMin !== undefined) paramother["bounceRateMin"] = String(bMin);
+      if (bMax !== undefined) paramother["bounceRateMax"] = String(bMax);
+      if (Object.keys(paramother).length > 0) {
+        requestBody.paramother = paramother;
+      }
+
       // 使用通用request方法明确指定POST，添加快速超时
       const response = await request.request<{
         code: string;
@@ -213,11 +294,10 @@ const { t } = useTranslation();
         headers: {
           "Content-Type": "application/json",
         },
-        timeout: 3000, // 3秒快速超时
+        timeout: 3000,
       });
 
       const records = response.data.data.records || [];
-      // 不管成功失败都显示原始响应，让用户能看到完整信息
       if (records) {
         // 即使响应码不是200也尝试处理数据
         const apiUsers = records;
@@ -235,7 +315,7 @@ const { t } = useTranslation();
         setUsers([]);
         setTotalCount(0);
       }
-    } catch (error) {
+    } catch (error: any) {
       return [];
     } finally {
       setLoading(false);
@@ -244,9 +324,10 @@ const { t } = useTranslation();
     currentPage,
     itemsPerPage,
     searchQuery,
+    sortConfig,
     dateRange,
     selectedTimeField,
-    sortConfig,
+    metricFilters,
     currentProject,
   ]);
 
@@ -308,6 +389,18 @@ const { t } = useTranslation();
     setDateRange({ start: null, end: null });
     setSortConfig({ field: null, direction: "asc" });
     setCurrentPage(1);
+    setMetricFilters({
+      ltv90Min: "",
+      ltv90Max: "",
+      sessionsMin: "",
+      sessionsMax: "",
+      pageviewsMin: "",
+      pageviewsMax: "",
+      aovMin: "",
+      aovMax: "",
+      bounceMin: "",
+      bounceMax: "",
+    });
   };
 
   // 手动刷新数据
@@ -336,7 +429,7 @@ const { t } = useTranslation();
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <Input
-                placeholder={t('userList.search.placeholder')}
+                placeholder={t("userList.search.placeholder")}
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value);
@@ -359,43 +452,147 @@ const { t } = useTranslation();
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="firstVisitTime">{t('userList.timeFields.firstVisitTime')}</SelectItem>
-                  <SelectItem value="registrationTime">{t('userList.timeFields.registrationTime')}</SelectItem>
-                  <SelectItem value="firstPurchaseTime">{t('userList.timeFields.firstPurchaseTime')}</SelectItem>
-                  <SelectItem value="lastActiveTime">{t('userList.timeFields.lastActiveTime')}</SelectItem>
+                  <SelectItem value="firstVisitTime">
+                    {t("userList.timeFields.firstVisitTime")}
+                  </SelectItem>
+                  <SelectItem value="registrationTime">
+                    {t("userList.timeFields.registrationTime")}
+                  </SelectItem>
+                  <SelectItem value="firstPurchaseTime">
+                    {t("userList.timeFields.firstPurchaseTime")}
+                  </SelectItem>
+                  <SelectItem value="lastActiveTime">
+                    {t("userList.timeFields.lastActiveTime")}
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             {/* Advanced Date Range Picker */}
             <div className="md:w-1/4">
-              <AdvancedDateRangePicker
-                value={dateRange}
-                onChange={handleDateRangeChange}
-                onPresetChange={() => {}}
+              <AdvancedDateRangePicker value={dateRange} onPresetChange={() => {}} onChange={handleDateRangeChange} />
+            </div>
+          </div>
+
+          {/* Metric Filters */}
+          <div className="flex flex-wrap items-end gap-4 mt-4">
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-gray-600">90天LTV</span>
+              <Input
+                placeholder={"最小值"}
+                value={metricFilters.ltv90Min}
+                onChange={(e) =>
+                  setMetricFilters((f) => ({ ...f, ltv90Min: e.target.value }))
+                }
+                className="w-20"
+              />
+              <Input
+                placeholder={"最大值"}
+                value={metricFilters.ltv90Max}
+                onChange={(e) =>
+                  setMetricFilters((f) => ({ ...f, ltv90Max: e.target.value }))
+                }
+                className="w-20"
               />
             </div>
-
-            {/* Action Buttons */}
-            <div className="flex items-end gap-2">
-              <Button
-                onClick={handleSearch}
-                className="flex items-center gap-2 h-10"
-                disabled={loading}
-              >
-                <Search className="h-4 w-4" />
-                {t('userList.search.button')}
-              </Button>
-              <Button
-                variant="outline"
-                size="default"
-                onClick={handleReset}
-                className="flex items-center gap-2 h-10"
-              >
-                <RotateCcw className="h-4 w-4" />
-                {t('userList.search.reset')}
-              </Button>
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-gray-600">近30天会话</span>
+              <Input
+                placeholder={"最小值"}
+                value={metricFilters.sessionsMin}
+                onChange={(e) =>
+                  setMetricFilters((f) => ({
+                    ...f,
+                    sessionsMin: e.target.value,
+                  }))
+                }
+                className="w-20"
+              />
+              <Input
+                placeholder={"最大值"}
+                value={metricFilters.sessionsMax}
+                onChange={(e) =>
+                  setMetricFilters((f) => ({
+                    ...f,
+                    sessionsMax: e.target.value,
+                  }))
+                }
+                className="w-20"
+              />
             </div>
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-gray-600">近30天页面浏览</span>
+              <Input
+                placeholder={"最小值"}
+                value={metricFilters.pageviewsMin}
+                onChange={(e) =>
+                  setMetricFilters((f) => ({
+                    ...f,
+                    pageviewsMin: e.target.value,
+                  }))
+                }
+                className="w-20"
+              />
+              <Input
+                placeholder={"最大值"}
+                value={metricFilters.pageviewsMax}
+                onChange={(e) =>
+                  setMetricFilters((f) => ({
+                    ...f,
+                    pageviewsMax: e.target.value,
+                  }))
+                }
+                className="w-20"
+              />
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-gray-600">近30天AOV</span>
+              <Input
+                placeholder={"最小值"}
+                value={metricFilters.aovMin}
+                onChange={(e) =>
+                  setMetricFilters((f) => ({ ...f, aovMin: e.target.value }))
+                }
+                className="w-20"
+              />
+              <Input
+                placeholder={"最大值"}
+                value={metricFilters.aovMax}
+                onChange={(e) =>
+                  setMetricFilters((f) => ({ ...f, aovMax: e.target.value }))
+                }
+                className="w-20"
+              />
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-gray-600">跳出率(%)</span>
+              <Input
+                placeholder={"最小值"}
+                value={metricFilters.bounceMin}
+                onChange={(e) =>
+                  setMetricFilters((f) => ({ ...f, bounceMin: e.target.value }))
+                }
+                className="w-20"
+              />
+              <Input
+                placeholder={"最大值"}
+                value={metricFilters.bounceMax}
+                onChange={(e) =>
+                  setMetricFilters((f) => ({ ...f, bounceMax: e.target.value }))
+                }
+                className="w-20"
+              />
+            </div>
+          </div>
+
+          <div className="mt-4 flex items-center gap-2">
+            <Button variant="default" size="sm" onClick={handleSearch}>
+              搜索
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleReset}>
+              <RotateCcw className="h-4 w-4 mr-1" />
+              重置
+            </Button>
           </div>
         </Card>
 
@@ -405,83 +602,126 @@ const { t } = useTranslation();
             <table className="w-full min-w-[800px]">
               <thead className="bg-gray-50 border-b">
                 <tr>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 min-w-92">
-                    {t('userList.table.headers.user')}
+                  <th className="px-6 py-4 text-left text-xs text-gray-900 min-w-92">
+                    {t("userList.table.headers.user")}
                   </th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
-                    {t('userList.table.headers.contact')}
+                  <th className="px-6 py-4 text-left text-xs text-gray-900">
+                    {t("userList.table.headers.contact")}
                   </th>
                   <th
-                    className="px-6 py-4 text-left text-sm font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100"
+                    className="px-6 py-4 text-left text-xs text-gray-900 cursor-pointer select-none hover:bg-gray-100"
                     onClick={() => handleSort("firstVisitTime")}
                   >
                     <div className="flex items-center gap-2">
-                      {t('userList.table.headers.firstVisit')}
+                      {t("userList.table.headers.firstVisit")}
                       {getSortIcon("firstVisitTime")}
                     </div>
                   </th>
                   <th
-                    className="px-6 py-4 text-left text-sm font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100"
+                    className="px-6 py-4 text-left text-xs text-gray-900 cursor-pointer select-none hover:bg-gray-100"
                     onClick={() => handleSort("registrationTime")}
                   >
                     <div className="flex items-center gap-2">
-                      {t('userList.table.headers.registrationTime')}
+                      {t("userList.table.headers.registrationTime")}
                       {getSortIcon("registrationTime")}
                     </div>
                   </th>
                   <th
-                    className="px-6 py-4 text-left text-sm font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100"
+                    className="px-6 py-4 text-left text-xs text-gray-900 cursor-pointer select-none hover:bg-gray-100"
                     onClick={() => handleSort("firstPurchaseTime")}
                   >
                     <div className="flex items-center gap-2">
-                      {t('userList.table.headers.firstPurchase')}
+                      {t("userList.table.headers.firstPurchase")}
                       {getSortIcon("firstPurchaseTime")}
                     </div>
                   </th>
                   <th
-                    className="px-6 py-4 text-left text-sm font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100"
+                    className="px-6 py-4 text-left text-xs text-gray-900 cursor-pointer select-none hover:bg-gray-100"
                     onClick={() => handleSort("lastActiveTime")}
                   >
                     <div className="flex items-center gap-2">
-                      {t('userList.table.headers.lastActive')}
+                      {t("userList.table.headers.lastActive")}
                       {getSortIcon("lastActiveTime")}
                     </div>
                   </th>
 
                   {hasPermission("user.amountspent") && (
                     <th
-                      className="px-6 py-4 text-left text-sm font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100"
+                      className="px-6 py-4 text-left text-xs text-gray-900 cursor-pointer select-none hover:bg-gray-100"
                       onClick={() => handleSort("totalSpent")}
                     >
                       <div className="flex items-center gap-2">
-                        {t('userList.table.headers.totalSpent')}
+                        {t("userList.table.headers.totalSpent")}
                         {getSortIcon("totalSpent")}
                       </div>
                     </th>
                   )}
-
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
-                    {t('userList.table.headers.actions')}
+                  {/* 5+2扩展列 */}
+                  <th
+                    className="px-6 py-4 text-left text-xs text-gray-900 cursor-pointer select-none hover:bg-gray-100"
+                    onClick={() => handleSort("ltv90Days")}
+                  >
+                    <div className="flex items-center gap-2">
+                      90天LTV{getSortIcon("ltv90Days")}
+                    </div>
+                  </th>
+                  <th
+                    className="px-6 py-4 text-left text-xs text-gray-900 cursor-pointer select-none hover:bg-gray-100"
+                    onClick={() => handleSort("sessions30d")}
+                  >
+                    <div className="flex items-center gap-2">
+                      近30天会话{getSortIcon("sessions30d")}
+                    </div>
+                  </th>
+                  <th
+                    className="px-6 py-4 text-left text-xs text-gray-900 cursor-pointer select-none hover:bg-gray-100"
+                    onClick={() => handleSort("pageviews30d")}
+                  >
+                    <div className="flex items-center gap-2">
+                      近30天页面浏览{getSortIcon("pageviews30d")}
+                    </div>
+                  </th>
+                  <th
+                    className="px-6 py-4 text-left text-xs text-gray-900 cursor-pointer select-none hover:bg-gray-100"
+                    onClick={() => handleSort("aov30d")}
+                  >
+                    <div className="flex items-center gap-2">
+                      近30天AOV{getSortIcon("aov30d")}
+                    </div>
+                  </th>
+                  <th
+                    className="px-6 py-4 text-left text-xs text-gray-900 cursor-pointer select-none hover:bg-gray-100"
+                    onClick={() => handleSort("bounceRate")}
+                  >
+                    <div className="flex items-center gap-2">
+                      跳出率{getSortIcon("bounceRate")}
+                    </div>
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs text-gray-900">
+                    {t("userList.table.headers.actions")}
                   </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {loading ? (
                   <tr>
-                    <td colSpan={8} className="px-6 py-8 text-center">
+                    <td
+                      colSpan={hasPermission("user.amountspent") ? 13 : 12}
+                      className="px-6 py-8 text-center"
+                    >
                       <div className="flex items-center justify-center gap-2">
                         <RefreshCw className="h-4 w-4 animate-spin" />
-                        <span>{t('userList.table.states.loading')}</span>
+                        <span>{t("userList.table.states.loading")}</span>
                       </div>
                     </td>
                   </tr>
                 ) : currentUsers.length === 0 ? (
                   <tr>
                     <td
-                      colSpan={8}
+                      colSpan={hasPermission("user.amountspent") ? 13 : 12}
                       className="px-6 py-8 text-center text-gray-500"
                     >
-                      {t('userList.table.states.noData')}
+                      {t("userList.table.states.noData")}
                     </td>
                   </tr>
                 ) : (
@@ -515,18 +755,39 @@ const { t } = useTranslation();
                       </td>
 
                       {hasPermission("user.amountspent") && (
-                        <td className="px-6 py-4 text-sm font-semibold text-gray-900">
+                        <td className="px-6 py-4 text-sm text-gray-900">
                           {formatCurrency(user.totalSpent || 0, user.currency)}
                         </td>
                       )}
-
+                      {/* 5+2扩展列渲染 */}
+                      <td className="px-6 py-4 text-sm text-gray-900">
+                        {user.ltv90Days != null
+                          ? formatCurrency(user.ltv90Days, user.currency)
+                          : "-"}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900">
+                        {user.sessions30d ?? "-"}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900">
+                        {user.pageviews30d ?? "-"}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900">
+                        {user.aov30d != null
+                          ? formatCurrency(user.aov30d, user.currency)
+                          : "-"}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900">
+                        {user.bounceRate != null
+                          ? `${Math.round((user.bounceRate || 0) * 100)}%`
+                          : "-"}
+                      </td>
                       <td className="px-6 py-4">
                         {hasPermission("user.info") && (
                           <Link
                             to={`/users1/${user.userId}`}
                             className="text-blue-600 hover:text-blue-800 text-sm font-medium"
                           >
-                            {t('userList.table.actions.viewDetails')}
+                            {t("userList.table.actions.viewDetails")}
                           </Link>
                         )}
                       </td>
@@ -540,8 +801,10 @@ const { t } = useTranslation();
           {/* Pagination */}
           <div className="px-6 py-4 border-t bg-gray-50 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="text-sm text-gray-700 order-2 sm:order-1">
-              {t('userList.pagination.showing')} {startIndex + 1} {t('userList.pagination.to')} {Math.min(endIndex, totalCount)}{" "}
-              {t('userList.pagination.of')} {totalCount} {t('userList.pagination.total')}
+              {t("userList.pagination.showing")} {startIndex + 1}{" "}
+              {t("userList.pagination.to")} {Math.min(endIndex, totalCount)}{" "}
+              {t("userList.pagination.of")} {totalCount}{" "}
+              {t("userList.pagination.total")}
             </div>
             <div className="flex items-center gap-2 order-1 sm:order-2">
               <Button
@@ -550,7 +813,7 @@ const { t } = useTranslation();
                 onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
                 disabled={currentPage === 1 || loading}
               >
-                {t('userList.pagination.previous')}
+                {t("userList.pagination.previous")}
               </Button>
               <Button
                 variant="outline"
@@ -560,7 +823,7 @@ const { t } = useTranslation();
                 }
                 disabled={currentPage >= totalPages || loading}
               >
-                {t('userList.pagination.next')}
+                {t("userList.pagination.next")}
               </Button>
             </div>
           </div>
