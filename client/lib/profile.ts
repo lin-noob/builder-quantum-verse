@@ -87,6 +87,8 @@ interface UserProfile {
   utm_term?: string;
   wbraid?: string;
   _kx?: string;
+
+  firstVisitSource?:string
 }
 
 interface ApiEnvelope<T> {
@@ -136,6 +138,7 @@ export async function getProfileView(id: string): Promise<ApiUser | null> {
       data.utm_term = properties?.utm_term;
       data.wbraid = properties?.wbraid;
       data._kx = properties?._kx;
+      data.firstReferrer = properties?.$referring_domain
       return data as ApiUser;
     }
 
