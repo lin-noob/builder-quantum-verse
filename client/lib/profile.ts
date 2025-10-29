@@ -89,6 +89,7 @@ interface UserProfile {
   _kx?: string;
 
   firstVisitSource?:string
+  firstReferrer?: string
 }
 
 interface ApiEnvelope<T> {
