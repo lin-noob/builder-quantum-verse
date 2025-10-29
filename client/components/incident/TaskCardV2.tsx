@@ -52,7 +52,7 @@ export default function TaskCardV2({ task, onComplete }: TaskCardV2Props) {
       <div className="flex items-start justify-between">
         <div className="flex-1">
           <h4 className="font-medium text-slate-900 dark:text-slate-100 mb-2">{task.title}</h4>
-          <Badge variant="outline" className="text-xs">��捷方式 · {task.externalSystem} 系统</Badge>
+          <Badge variant="outline" className="text-xs">快捷方式 · {task.externalSystem} 系统</Badge>
         </div>
       </div>
       <div className="mt-3 flex justify-end">
