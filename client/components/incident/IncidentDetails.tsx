@@ -246,7 +246,7 @@ const buildUIActions = (incident: Incident | null): UIResponseAction[] => {
         title: item.actionTitle?.trim() || fallbackTitle,
         description: item.description ?? "",
         type,
-        aiSuggestion: item.aiSuggestion?.trim(),
+        aiSuggestion: item.aiSuggestion?.trim() ?? aiSuggestionSteps(type),
         startAt,
         dueAt,
         attachments: normalizeAttachments(item.attachments),
@@ -298,28 +298,28 @@ type UIResponseAction = ResponseAction & {
 };
 
 // 根据动作类型扩展AI��议的辅助步骤（用于强调AI建议为主信息）
-const aiSuggestionSteps = (type: ResponseAction["type"]): string[] => {
+const aiSuggestionSteps = (type: ResponseAction["type"]): string => {
   switch (type) {
     case "communication":
-      return [
-        "联系客户与相关方，说明影响范围与当前进展",
-        "提供预计解决时间与负责人联系方式，约定下一次同步",
-        "记录要点与后续跟进计划，更新沟通日志",
-      ];
+      return `
+        联系客户与相关方，说明影响范围与当前进展,<br />
+        提供预计解决时间与负责人联系方式，约定下一次同步,<br />
+        记录要点与后续跟进计划，更新沟通日志<br />
+      `;
     case "process":
-      return [
-        "隔离影响范围并触发回滚/修复流程",
-        "记录审计日志并通知值班/相关团队",
-        "创建工单并跟踪节点进度，按SLA提醒",
-      ];
+      return `
+        隔离影响范围并触发回滚/修复流程,<br />
+        记录审计日志并通知值班/相关团队,<br />
+        创建工单并跟踪节点进度，按SLA提醒<br />
+      `;
     case "data_enrichment":
-      return [
-        "补充关键字段，关联客户/订单/产品，完善上下文",
-        "校验数据一致性并生成异常报告",
-        "同步到分析系统支持后续决策",
-      ];
+      return `
+        补充关键字段，关联客户/订单/产品，完善上下文,<br />
+        校验数据一致性并生成异常报告,<br />
+        同步到分析系统支持后续决策<br />
+      `;
     default:
-      return ["按既定策略执行自动化建议，保留审计记录"];
+      return "按既定策略执行自动化建议，保留审计记录";
   }
 };
 // 根据动作类型生成默认AI建议文案
@@ -328,7 +328,7 @@ const defaultAISuggestion = (type: ResponseAction["type"], title?: string) => {
     case "communication":
       return `向相关方发送状态更新，包含��键实体与预计处理时间${title ? `（${title}）` : ""}。`;
     case "process":
-      return `触发��准化处理流程：隔离影响范围、记录审计日志并通知值班人员${title ? `（${title}）` : ""}。`;
+      return `触发标准化处理流程：隔离影响范围、记录审计日志并通知值班人员${title ? `（${title}）` : ""}。`;
     case "data_enrichment":
       return `补充数据：关联客户、订单与产品信息，完善上下文用于后续分析${title ? `（${title}）` : ""}。`;
     default:
@@ -364,6 +364,7 @@ export default function IncidentDetails({
   const [selectedUsers, setSelectedUsers] = useState<ApproverOption[]>([]);
   const [isExecuted, setIsExecuted] = useState(false);
   const [generatedTasks, setGeneratedTasks] = useState<Task[]>([]);
+  const [recordList, setRecordList] = useState(incident.recordList ?? []);
   const [showAutomationHint, setShowAutomationHint] = useState<boolean>(() => {
     return (
       typeof window !== "undefined" &&
@@ -393,6 +394,7 @@ export default function IncidentDetails({
     try {
       const refreshedIncident = await getEventDetails(incident.id);
       setActions(buildUIActions(refreshedIncident));
+      setRecordList(refreshedIncident.recordList ?? []);
       setCompletedActionIds(new Set());
       setProcessingActionIds(new Set());
       setExpandedActionIds(new Set());
@@ -475,6 +477,7 @@ export default function IncidentDetails({
   // 切换案例时重置本地状态
   useEffect(() => {
     setActions(buildUIActions(incident));
+    setRecordList(incident.recordList ?? []);
     setCompletedActionIds(new Set());
     setProcessingActionIds(new Set());
     setExpandedActionIds(new Set());
@@ -608,7 +611,7 @@ export default function IncidentDetails({
     });
 
     // Show success notification
-    alert(
+    toast(
       `已成功创建 ${newTasks.length} 个任务并分配给团队成员！已在“建议响应动作”区域展示。`,
     );
   };
@@ -759,7 +762,7 @@ export default function IncidentDetails({
       setSelectedUsers([]);
     } catch (error: any) {
       console.error("Error saving response action:", error);
-      alert(`保存响应动作失败: ${error?.message || "未知错误"}`);
+      toast(`保存响应动作失败: ${error?.message || "未知错误"}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -1335,10 +1338,11 @@ export default function IncidentDetails({
                           <Brain className="w-3 h-3 mr-1" /> AI建议
                         </div>
                         <div
+                          dangerouslySetInnerHTML={{
+                            __html: action.aiSuggestion,
+                          }}
                           className={`text-sm leading-relaxed ${action.status !== "archived" && !processingActionIds.has(action.id) && completedActionIds.has(action.id) ? "line-through" : ""}`}
-                        >
-                          {action.aiSuggestion}
-                        </div>
+                        ></div>
                       </div>
                     )}
                     {/* 次要信息：摘要行（时长、负责人）与“更多信息”切换（展开时隐藏摘要） */}
@@ -1528,11 +1532,11 @@ export default function IncidentDetails({
               </div>
             )}
 
-            {isExecuted &&
+            {/* {isExecuted &&
               // Show generated tasks (多形态卡片)
               generatedTasks
                 .filter((task) => task.handlingType !== "external_approval")
-                .map((task) => <TaskCard key={task.id} task={task} />)}
+                .map((task) => <TaskCard key={task.id} task={task} />)} */}
           </CardContent>
         </Card>
 
@@ -1755,11 +1759,11 @@ export default function IncidentDetails({
                   </div>
                 ),
               )} */}
-              {(incident.recordList || []).map(
-                (activity: any, index: number) => (
+              {(recordList || []).map((activity: any) => {
+                return (
                   <div key={activity.id} className="flex items-start space-x-3">
                     <div className="flex-shrink-0 w-8 h-8 bg-eip-accent/10 rounded-full flex items-center justify-center">
-                      {activity.actor === "AI" ? (
+                      {activity.operationUserName === "AI" ? (
                         <Brain className="w-4 h-4 text-eip-accent" />
                       ) : (
                         <UserIcon className="w-4 h-4 text-eip-accent" />
@@ -1769,13 +1773,17 @@ export default function IncidentDetails({
                       <p className="text-sm text-slate-900 dark:text-slate-100">
                         {activity.operationContent}
                       </p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 flex items-center flex-wrap">
+                        <span>{activity.operationUserName}</span>
+                        <span className="mx-1">•</span>
+                        <span>{activity.operationName}</span>
+                        <span className="mx-1">•</span>
                         {activity.gmtCreate}
                       </p>
                     </div>
                   </div>
-                ),
-              )}
+                );
+              })}
             </div>
           </CardContent>
         </Card>
