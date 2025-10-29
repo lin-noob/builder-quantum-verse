@@ -364,6 +364,7 @@ export default function IncidentDetails({
   const [selectedUsers, setSelectedUsers] = useState<ApproverOption[]>([]);
   const [isExecuted, setIsExecuted] = useState(false);
   const [generatedTasks, setGeneratedTasks] = useState<Task[]>([]);
+  const [recordList, setRecordList] = useState(incident.recordList ?? []);
   const [showAutomationHint, setShowAutomationHint] = useState<boolean>(() => {
     return (
       typeof window !== "undefined" &&
@@ -393,6 +394,7 @@ export default function IncidentDetails({
     try {
       const refreshedIncident = await getEventDetails(incident.id);
       setActions(buildUIActions(refreshedIncident));
+      setRecordList(refreshedIncident.recordList ?? []);
       setCompletedActionIds(new Set());
       setProcessingActionIds(new Set());
       setExpandedActionIds(new Set());
@@ -475,6 +477,7 @@ export default function IncidentDetails({
   // 切换案例时重置本地状态
   useEffect(() => {
     setActions(buildUIActions(incident));
+    setRecordList(incident.recordList ?? []);
     setCompletedActionIds(new Set());
     setProcessingActionIds(new Set());
     setExpandedActionIds(new Set());
@@ -1756,11 +1759,11 @@ export default function IncidentDetails({
                   </div>
                 ),
               )} */}
-              {(incident.recordList || []).map(
-                (activity: any, index: number) => (
+              {(recordList || []).map((activity: any) => {
+                return (
                   <div key={activity.id} className="flex items-start space-x-3">
                     <div className="flex-shrink-0 w-8 h-8 bg-eip-accent/10 rounded-full flex items-center justify-center">
-                      {activity.actor === "AI" ? (
+                      {activity.operationUserName === "AI" ? (
                         <Brain className="w-4 h-4 text-eip-accent" />
                       ) : (
                         <UserIcon className="w-4 h-4 text-eip-accent" />
@@ -1770,13 +1773,17 @@ export default function IncidentDetails({
                       <p className="text-sm text-slate-900 dark:text-slate-100">
                         {activity.operationContent}
                       </p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 flex items-center flex-wrap">
+                        <span>{activity.operationUserName}</span>
+                        <span className="mx-1">•</span>
+                        <span>{activity.operationName}</span>
+                        <span className="mx-1">•</span>
                         {activity.gmtCreate}
                       </p>
                     </div>
                   </div>
-                ),
-              )}
+                );
+              })}
             </div>
           </CardContent>
         </Card>
