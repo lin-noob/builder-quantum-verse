@@ -18,17 +18,41 @@ export type Event = {
   data: object;
 };
 
+export type IncidentAction = {
+  id?: string;
+  actionTitle?: string;
+  actionType?: string;
+  aiSuggestion?: string | null;
+  attachments?: string[] | string | null;
+  description?: string | null;
+  startTime?: string | null;
+  endTime?: string | null;
+  eventCenterId?: string | null;
+  gmtCreate?: string | null;
+  gmtModified?: string | null;
+  responsibleId?: string | null;
+  responsiblePerson?: string | null;
+  approvalStatus?: string | null;
+  status?: number | null;
+  auto?: boolean | null;
+  paused?: boolean | null;
+};
+
+export const statusLabel = [
+
+];
+
 // AI分析后形成的"案例"
 export type Incident = {
   id: string;
   title?: string; // 对应 eventName
   /** 事件简要描述 */
   description?: string;
-  status: 'pending_human' | 'in_progress' | 'resolved' | 'automated' | 'open';
-  priority: 'high' | 'medium' | 'low';
+  status: "pending_human" | "in_progress" | "resolved" | "automated" | "open";
+  priority: "high" | "medium" | "low";
   timestamp: Date;
   involvedEntities?: {
-    type: 'customer' | 'product' | 'order';
+    type: "customer" | "product" | "order";
     value: string;
   }[];
   aiAnalysis?: {
@@ -40,7 +64,9 @@ export type Incident = {
     }[];
   };
   suggestedResponsePlan?: ResponseAction[];
+  actionList?: IncidentAction[];
   processingHistory?: Activity[];
+  recordList?: any;
   assignedTasks?: Task[];
 
   // 后端接口返回的字段
@@ -48,7 +74,7 @@ export type Incident = {
   gmtModified?: string;
   eventId?: string;
   originalEventId?: string;
-  eventType?: string;
+  eventType?: number;
   complaintType?: string;
   source?: string;
   customerEmail?: string;
@@ -71,14 +97,14 @@ export type ResponseAction = {
   id: string;
   title: string;
   description: string;
-  type: 'communication' | 'process' | 'data_enrichment';
+  type: "communication" | "process" | "data_enrichment";
 };
 
 // 具体的、可追踪的任务
 export type Task = {
   id: string;
   title: string;
-  status: 'pending' | 'completed';
+  status: "pending" | "completed";
   assignee: User;
   parentIncidentId: string;
   dueDate?: Date;
@@ -87,8 +113,8 @@ export type Task = {
     end: Date;
   };
   // AI工作台增强字段
-  type?: 'email' | 'call' | 'generic'; // 任务类型，决定显示哪个AI助手按钮（保持向后兼容）
-  group?: 'focus' | 'urgent' | 'batchable' | 'routine'; // AI智能分组
+  type?: "email" | "call" | "generic"; // 任务类型，决定显示哪个AI助手按钮（保持向后兼容）
+  group?: "focus" | "urgent" | "batchable" | "routine"; // AI智能分组
   context?: {
     incidentTitle: string;
     customerName: string;
@@ -96,16 +122,16 @@ export type Task = {
   dueDateDisplay?: string; // 显示友好的截止时间，如"今天下午 5:00"
 
   // AI指挥中心增强字段
-  source?: 'EIP' | 'external'; // 任务来源，用于区分内部任务和外部会议
-  parentIncidentPriority?: 'high' | 'medium' | 'low'; // 继承自父案例的优先级
-  taskType?: 'call' | 'email' | 'report' | 'generic'; // 任务的具体类型
+  source?: "EIP" | "external"; // 任务来源，用于区分内部任务和外部会议
+  parentIncidentPriority?: "high" | "medium" | "low"; // 继承自父案例的优先级
+  taskType?: "call" | "email" | "report" | "generic"; // 任务的具体类型
   workloadPoints?: number; // 工作负载点数，用于计算团队容量
 
   // 外部系统协同相关（新增）
-  handlingType?: 'internal' | 'external_link' | 'external_approval'; // 任务处理形态
-  externalSystem?: 'ERP' | 'OA' | 'CRM'; // 外部系统名称
+  handlingType?: "internal" | "external_link" | "external_approval"; // 任务处理形态
+  externalSystem?: "ERP" | "OA" | "CRM"; // 外部系统名称
   externalUrl?: string; // 外部系统深链接
-  externalStatus?: 'pending_sync' | 'completed' | 'rejected'; // 外部同步状态
+  externalStatus?: "pending_sync" | "completed" | "rejected"; // 外部同步状态
 };
 
 // 处理历史中的一个活动记录
@@ -113,26 +139,26 @@ export type Activity = {
   id: string;
   timestamp: Date;
   description: string;
-  actor: 'AI' | User;
+  actor: "AI" | User;
 };
 
 // Helper types for filtering and UI state
 export type IncidentFilter =
-  | 'all'
-  | 'urgent'
-  | 'pending_human'
-  | 'ai_processed'
-  | 'type_customer'
-  | 'type_order'
-  | 'type_product';
-export type TaskView = 'list' | 'kanban';
-export type TaskGrouping = 'due_date' | 'incident';
-export type CalendarView = 'month' | 'week' | 'day';
+  | "all"
+  | "urgent"
+  | "pending_human"
+  | "ai_processed"
+  | "type_customer"
+  | "type_order"
+  | "type_product";
+export type TaskView = "list" | "kanban";
+export type TaskGrouping = "due_date" | "incident";
+export type CalendarView = "month" | "week" | "day";
 
 // AI指挥中心相关类型
-export type ColorBy = 'assignee' | 'incident_priority' | 'task_type';
+export type ColorBy = "assignee" | "incident_priority" | "task_type";
 
-export type WorkloadStatus = 'healthy' | 'overloaded' | 'underutilized';
+export type WorkloadStatus = "healthy" | "overloaded" | "underutilized";
 
 export type TeamMember = User & {
   workloadPercentage: number;
