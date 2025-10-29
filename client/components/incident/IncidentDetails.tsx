@@ -137,7 +137,17 @@ const formatCNY = (amount?: number) => {
 
 // 基于时间或实体信息匹配原始事件
 const findRelatedEvent = (incident: Incident | null): Event | null => {
-  return incident;
+  if (!incident) return null;
+  // 优先用时间精确匹配
+  const byTime = mockEvents.find(e => e.timestamp.getTime() === incident.timestamp.getTime());
+  if (byTime) return byTime;
+  // 次选用订单号匹配
+  const orderEntity = incident.involvedEntities.find(en => en.type === 'order');
+  if (orderEntity) {
+    const byOrder = mockEvents.find(e => (e.data as any)?.orderId === orderEntity.value);
+    if (byOrder) return byOrder;
+  }
+  return null;
 };
 
 export default function IncidentDetails({ incident }: IncidentDetailsProps) {
@@ -592,7 +602,10 @@ export default function IncidentDetails({ incident }: IncidentDetailsProps) {
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-[11px] text-slate-700 dark:text-slate-300">
                   <div className="inline-flex items-center gap-1">
                     <Clock className="w-3 h-3" />
-                    {incident.createdAt}
+                    {new Date(incident.timestamp).toLocaleString()}
+                    <span className="text-slate-500 ml-1">
+                      ({formatDistanceToNow(incident.timestamp, { addSuffix: true, locale: zhCN })})
+                    </span>
                   </div>
                   <div className="inline-flex items-center gap-1">
                     <Hash className="w-3 h-3" />
@@ -633,7 +646,7 @@ export default function IncidentDetails({ incident }: IncidentDetailsProps) {
         </div>
 
         {/* AI Analysis */}
-        {/* <Card className="border-eip-accent/20 bg-gradient-to-br from-eip-accent/5 to-eip-accent/10">
+        <Card className="border-eip-accent/20 bg-gradient-to-br from-eip-accent/5 to-eip-accent/10">
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center text-sm font-semibold">
               <Brain className="w-4 h-4 mr-2 text-eip-accent" />
@@ -661,9 +674,320 @@ export default function IncidentDetails({ incident }: IncidentDetailsProps) {
               ))}
             </div>
           </CardContent>
-        </Card> */}
+        </Card>
 
         {/* Suggested Response Plan / Generated Tasks */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center text-sm font-semibold">
+              <TrendingUp className="w-4 h-4 mr-2 text-eip-accent" />
+              建议响应动作
+              {isExecuted && (
+                <Badge variant="outline" className="ml-2 bg-eip-success/10 text-eip-success border-eip-success">
+                  已执行AI建议
+                </Badge>
+              )}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {/* CRUD工具栏（左侧对齐，位于标题文案下方；AI全自动处理中隐藏）*/}
+            {incident.status !== 'automated' && (
+              <div className="flex items-center justify-start gap-2">
+                <Button
+                  size="sm"
+                  className="bg-eip-accent hover:bg-eip-accent/90"
+                  onClick={handleExecuteAISuggestions}
+                  disabled={isExecuted || actions.every(a => a.status === 'archived')}
+                >
+                  <Zap className="w-3 h-3 mr-1" /> 一键执行AI建议
+                </Button>
+                <Button size="sm" variant="outline" onClick={openCreateAction}>
+                  <Plus className="w-3 h-3 mr-1" /> 新增动作
+                </Button>
+              </div>
+            )}
+
+            {/* 动作列表（查/改/删/完成标记，AI建议执行与传统界面入口）*/}
+            <div className="space-y-3">
+              {actions.map((action) => (
+                <div key={action.id} className={`rounded-md border p-0 overflow-hidden 
+                  ${action.status === 'archived'
+                    ? 'opacity-70 bg-slate-100 border-slate-300'
+                    : processingActionIds.has(action.id)
+                      ? 'bg-indigo-50 dark:bg-indigo-900/20 border-indigo-200 dark:border-indigo-400'
+                      : completedActionIds.has(action.id)
+                        ? 'bg-eip-success/5 border-eip-success/50'
+                        : 'bg-white/50 dark:bg-slate-700/50'}`}>
+                  <div className="min-w-0">
+                    {/* 卡片头部：标题/类型/状态 + 操作图标 */}
+                    <div className="px-3 py-2 flex items-center justify-between gap-3 border-b bg-slate-50 dark:bg-slate-800/40">
+                      <div className="min-w-0 flex items-center gap-2">
+                        <span className={`truncate text-sm font-semibold ${completedActionIds.has(action.id) ? 'line-through text-slate-500' : action.status === 'archived' ? 'text-slate-500' : 'text-slate-900 dark:text-slate-100'}`}>{action.title}</span>
+                        <Badge variant="outline" className="text-[10px] px-1 py-0.5">{actionTypeLabels[action.type]}</Badge>
+                        {action.status === 'archived' ? (
+                          <span className="text-[10px] text-slate-600 flex items-center"><Archive className="w-3 h-3 mr-1" /> 已归档</span>
+                        ) : processingActionIds.has(action.id) ? (
+                          <span className="text-[10px] text-indigo-600 flex items-center"><Loader2 className="w-3 h-3 mr-1 animate-spin" /> 处理中</span>
+                        ) : completedActionIds.has(action.id) ? (
+                          <span className="text-[10px] text-eip-success flex items-center"><Check className="w-3 h-3 mr-1" /> 已完成</span>
+                        ) : null}
+                        {action.approvalStatus === 'required' && (
+                          <Badge
+                            variant="outline"
+                            className="text-[10px] px-1 py-0.5 bg-eip-warning text-eip-warning-foreground border-eip-warning"
+                          >
+                            待审批
+                          </Badge>
+                        )}
+                        {/* 审批状态徽章已移除 */}
+                        {action.auto && (
+                          <Badge variant="outline" className="text-[10px] px-1 py-0.5">AI自动处理</Badge>
+                        )}
+                        {action.paused && (
+                          <Badge variant="outline" className="text-[10px] px-1 py-0.5 flex items-center"><Pause className="w-3 h-3 mr-1" /> 已暂停</Badge>
+                        )}
+                      </div>
+                      {incident.status !== 'automated' && (
+                        <div className="flex items-center gap-1 shrink-0">
+                          {incident.id === 'inc2' && action.id === 'ra4' ? (
+                            <>
+                              {action.paused ? (
+                                <Button size="sm" variant="ghost" className="h-7" onClick={() => resumeAction(action.id)}>
+                                  恢复
+                                </Button>
+                              ) : (
+                                <Button size="sm" variant="ghost" className="h-7" onClick={() => pauseAction(action.id)} disabled={action.status === 'archived' || processingActionIds.has(action.id)}>
+                                  <Pause className="w-3 h-3 mr-1" /> 暂停
+                                </Button>
+                              )}
+                            </>
+                          ) : (
+                            <>
+                              {/* 审批操作按钮已移除 */}
+                              {action.auto && !action.paused && (
+                                <Button size="sm" variant="ghost" className="h-7" onClick={() => pauseAction(action.id)} disabled={action.status === 'archived' || processingActionIds.has(action.id)}>
+                                  <Pause className="w-3 h-3 mr-1" /> 暂停
+                                </Button>
+                              )}
+                              {action.auto && action.paused && (
+                                <Button size="sm" variant="ghost" className="h-7" onClick={() => resumeAction(action.id)} disabled={action.status === 'archived' || processingActionIds.has(action.id)}>
+                                  恢复
+                                </Button>
+                              )}
+                              <Button size="sm" variant="ghost" className="h-7" onClick={() => handleExecuteAISuggestion(action.id)} disabled={action.status === 'archived' || processingActionIds.has(action.id) || isActionLocked(action)}>
+                                <Zap className="w-3 h-3 mr-1" /> 执行AI建议
+                              </Button>
+                              <Button size="sm" variant="ghost" className="h-7" onClick={handleGoToLegacy} disabled={action.status === 'archived'}>
+                                <ExternalLink className="w-3 h-3 mr-1" /> 打开传统页面
+                              </Button>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="ghost" size="icon" className="h-7 w-7">
+                                    <MoreVertical className="w-3 h-3" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" className="w-40">
+                                  <DropdownMenuItem onClick={() => openEditAction(action.id)} disabled={action.status === 'archived' || processingActionIds.has(action.id) || isActionLocked(action)}>
+                                    <Edit3 className="w-3 h-3 mr-2" /> 编辑
+                                  </DropdownMenuItem>
+                                  {action.status === 'archived' ? (
+                                    <DropdownMenuItem onClick={() => toggleArchive(action.id)} disabled={isActionLocked(action)}>
+                                      <ArchiveRestore className="w-3 h-3 mr-2" /> 取消归档
+                                    </DropdownMenuItem>
+                                  ) : (
+                                    <DropdownMenuItem onClick={() => toggleArchive(action.id)} disabled={processingActionIds.has(action.id) || isActionLocked(action)}>
+                                      <Archive className="w-3 h-3 mr-2" /> 归档
+                                    </DropdownMenuItem>
+                                  )}
+                                  <DropdownMenuItem onClick={() => toggleCompleted(action.id)} disabled={action.status === 'archived' || processingActionIds.has(action.id) || isActionLocked(action)}>
+                                    <Check className="w-3 h-3 mr-2" /> {completedActionIds.has(action.id) ? '取消完成' : '标记完成'}
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </>
+                          )}
+                        </div>
+                      )}
+                      {incident.status === 'automated' && action.auto && (
+                        <div className="flex items-center gap-1 shrink-0">
+                          {action.paused ? (
+                            <Button size="sm" variant="ghost" className="h-7" onClick={() => resumeAction(action.id)}>
+                              恢复
+                            </Button>
+                          ) : (
+                            <Button size="sm" variant="ghost" className="h-7" onClick={() => pauseAction(action.id)}>
+                              <Pause className="w-3 h-3 mr-1" /> 暂停
+                            </Button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    {/* 已移除旧的描述文本展示，统一采用新的AI建议样式块 */}
+                    {action.aiSuggestion && (
+                      <div
+                        className={`px-3 py-3 border-b ${
+                          completedActionIds.has(action.id) || action.status === 'archived'
+                            ? 'bg-slate-50 text-slate-600'
+                            : 'bg-eip-accent/5 text-slate-900 dark:text-slate-100'
+                        }`}
+                        aria-label="AI建议文案"
+                      >
+                        <div className="flex items-center text-xs font-medium uppercase tracking-wide mb-1">
+                          <Brain className="w-3 h-3 mr-1" /> AI建议
+                        </div>
+                        <div className={`text-sm leading-relaxed ${action.status !== 'archived' && !processingActionIds.has(action.id) && completedActionIds.has(action.id) ? 'line-through' : ''}`}>
+                          {action.aiSuggestion}
+                        </div>
+                        <ul className="mt-2 list-disc pl-5 text-xs text-slate-700 dark:text-slate-300">
+                          {aiSuggestionSteps(action.type).map((s, idx) => (
+                            <li key={idx} className="leading-relaxed">{s}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {/* 次要信息：摘要行（时长、负责人）与“更多信息”切换（展开时隐藏摘要） */}
+                    <div className="px-3 py-2 flex items-center justify-between text-[11px]">
+                      {expandedActionIds.has(action.id) ? (
+                        <div />
+                      ) : (
+                        <div className="flex items-center gap-3 text-slate-600">
+                          <span className="inline-flex items-center gap-1">
+                            <Clock className="w-3 h-3" />
+                            {(() => {
+                              const start = action.startAt ? action.startAt : addHours(new Date(), -2).toISOString();
+                              const end = action.dueAt ? action.dueAt : addHours(new Date(), 4).toISOString();
+                              return formatDuration(start, end);
+                            })()}
+                          </span>
+                          <span className="inline-flex items-center gap-1">
+                            <User className="w-3 h-3" />
+                            {action.assigneeId
+                              ? (mockUsers.find(u => u.id === action.assigneeId)?.name || '-')
+                              : ((getAssigneeForAction(action)?.name) || (mockUsers[0]?.name) || '-')}
+                          </span>
+                        </div>
+                      )}
+                      <Button variant="ghost" size="sm" className="h-7 px-2" onClick={() => toggleExpanded(action.id)}>
+                        {expandedActionIds.has(action.id) ? (
+                          <span className="inline-flex items-center">收起详情 <ChevronUp className="w-3 h-3 ml-1" /></span>
+                        ) : (
+                          <span className="inline-flex items-center">更多信息 <ChevronDown className="w-3 h-3 ml-1" /></span>
+                        )}
+                      </Button>
+                    </div>
+                    {/* 详细字段：时间（合并开始/截止，缺失时生成虚拟数据）、时长、附件、负责人（默认折叠） */}
+                    {expandedActionIds.has(action.id) && (
+                      <div className="px-3 py-2 grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
+                      {/* 时间（缺失时以当前时间生成区间） */}
+                      <div className="flex items-center gap-2">
+                        <Calendar className="w-3 h-3 text-slate-500" />
+                        <div className="flex-1">
+                          <div className="text-slate-500">时间</div>
+                          <div className="text-slate-900 dark:text-slate-100">
+                            {(() => {
+                              const start = action.startAt ? new Date(action.startAt) : addHours(new Date(), -2);
+                              const end = action.dueAt ? new Date(action.dueAt) : addHours(start, 6);
+                              if (action.startAt && action.dueAt) {
+                                return `${start.toLocaleString()} - ${end.toLocaleString()}`;
+                              }
+                              if (action.startAt && !action.dueAt) {
+                                return `${start.toLocaleString()} - ${end.toLocaleString()}`;
+                              }
+                              if (!action.startAt && action.dueAt) {
+                                const begin = addHours(end, -6);
+                                return `${begin.toLocaleString()} - ${end.toLocaleString()}`;
+                              }
+                              return `${start.toLocaleString()} - ${end.toLocaleString()}`;
+                            })()}
+                          </div>
+                        </div>
+                      </div>
+                      {/* 时长（根据真实或虚拟时间计算） */}
+                      <div className="flex items-center gap-2">
+                        <Clock className="w-3 h-3 text-slate-500" />
+                        <div className="flex-1">
+                          <div className="text-slate-500">时长</div>
+                          <div className="text-slate-900 dark:text-slate-100">
+                            {(() => {
+                              const start = action.startAt ? action.startAt : addHours(new Date(), -2).toISOString();
+                              const end = action.dueAt ? action.dueAt : addHours(new Date(), 4).toISOString();
+                              return formatDuration(start, end);
+                            })()}
+                          </div>
+                        </div>
+                      </div>
+                      {/* 负责人（缺失时自动根据动作类型选择合适成员） */}
+                      <div className="flex items-center gap-2">
+                        <User className="w-3 h-3 text-slate-500" />
+                        <div className="flex-1">
+                          <div className="text-slate-500">负责人</div>
+                          <div className="text-slate-900 dark:text-slate-100">
+                            {action.assigneeId
+                              ? (mockUsers.find(u => u.id === action.assigneeId)?.name || '-')
+                              : ((getAssigneeForAction(action)?.name) || (mockUsers[0]?.name) || '-')}
+                          </div>
+                        </div>
+                      </div>
+                      {/* 附件（缺失时生成示例附件） */}
+                      <div className="sm:col-span-3 flex items-start gap-2">
+                        <Paperclip className="w-3 h-3 text-slate-500 mt-0.5" />
+                        <div className="flex-1">
+                          <div className="text-slate-500">附件</div>
+                          <div className="flex flex-wrap gap-2 mt-1">
+                            {(action.attachments && action.attachments.length > 0)
+                              ? (
+                                action.attachments.map((att, idx) => (
+                                  <Badge key={idx} variant="outline" className="text-[10px]">
+                                    {att}
+                                  </Badge>
+                                ))
+                              ) : (
+                                [
+                                  action.type === 'communication' ? '沟通记录.pdf' : '处理方案.docx',
+                                  '截图.png'
+                                ].map((att, idx) => (
+                                  <Badge key={idx} variant="outline" className="text-[10px]">
+                                    {att}
+                                  </Badge>
+                                ))
+                              )}
+                          </div>
+                        </div>
+                      </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+              {actions.length === 0 && (
+                <div className="text-xs text-slate-500">暂无响应动作，可点击“新增动作”创建。</div>
+              )}
+            </div>
+
+            {/* 学习成果提示条 */}
+            {!isExecuted && showAutomationHint && (
+              <div className="rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800 flex items-start">
+                <span className="mr-2">💡</span>
+                <div className="flex-1">
+                  AI自动化建议：我注意到，对于此类事件，您的团队已连续3次采取了相同的、成功的手动处理流程。我已将该流程学习并固化为新的标准建议。该流程有95%的概率可以被完全自动化，是否授权？
+                </div>
+                <div className="ml-3 flex-shrink-0 space-x-2">
+                  <Button size="sm" className="bg-eip-accent hover:bg-eip-accent/90">授权自动处理</Button>
+                  <Button size="sm" variant="outline" onClick={() => setShowAutomationHint(false)}>暂不授权</Button>
+                </div>
+              </div>
+            )}
+
+            {isExecuted && (
+              // Show generated tasks (多形态卡片)
+              generatedTasks
+                .filter((task) => task.handlingType !== 'external_approval')
+                .map((task) => (
+                  <TaskCard key={task.id} task={task} />
+                ))
+            )}
+          </CardContent>
+        </Card>
 
         {/* 创建/编辑动作弹窗 */}
         <Dialog open={isActionDialogOpen} onOpenChange={setIsActionDialogOpen}>
@@ -796,9 +1120,54 @@ export default function IncidentDetails({ incident }: IncidentDetailsProps) {
         </Dialog>
 
         {/* 操作记录 */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center text-sm font-semibold">
+              <Clock className="w-4 h-4 mr-2 text-eip-accent" />
+              操作记录
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {(incident.processingHistory || [])
+                .filter((activity: any) => {
+                  const id = activity?.id || '';
+                  const desc = activity?.description || '';
+                  // 过滤审批相关记录：以 act_approval_ 开头或描述包含“审批”
+                  return !(typeof id === 'string' && id.startsWith('act_approval_')) && !/审批/.test(String(desc));
+                })
+                .map((activity: any, index: number) => (
+                <div key={activity.id} className="flex items-start space-x-3">
+                  <div className="flex-shrink-0 w-8 h-8 bg-eip-accent/10 rounded-full flex items-center justify-center">
+                    {activity.actor === 'AI' ? (
+                      <Brain className="w-4 h-4 text-eip-accent" />
+                    ) : (
+                      <User className="w-4 h-4 text-eip-accent" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-slate-900 dark:text-slate-100">
+                      {activity.description}
+                    </p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                      {formatDistanceToNow(activity.timestamp, { addSuffix: true, locale: zhCN })}
+                      {activity.actor !== 'AI' && ` • ${typeof activity.actor === 'string' ? activity.actor : activity.actor.name}`}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Action Buttons 已移除，根据需求删除底部操作区 */}
       </div>
     </div>
   );
 }
-
+  const pauseAction = (id: string) => {
+    setActions(prev => prev.map(a => a.id === id ? { ...a, paused: true } : a));
+  };
+  const resumeAction = (id: string) => {
+    setActions(prev => prev.map(a => a.id === id ? { ...a, paused: false } : a));
+  };
