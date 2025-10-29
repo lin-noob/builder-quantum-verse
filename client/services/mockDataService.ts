@@ -59,6 +59,165 @@ const generateMockUsers = (count: number): MockUser[] => {
   return users;
 };
 
+// 生成符合现实情况的90天内首访数据
+const generateFirstVisitData = (index: number) => {
+  // 根据索引确定渠道类型，确保覆盖所有类型
+  const channelType = index % 5;
+  
+  // 基础数据结构
+  const baseData = {
+    firstReferrer: "",
+    firstVisitSource: "",
+    firstVisitMedium: "",
+    firstVisitCampaign: "",
+    firstVisitContent: "",
+    firstVisitTerm: "",
+    gclid: "",
+    gad_source: "",
+    gclsrc: "",
+    gbraid: "",
+    wbraid: "",
+    token: "",
+    title: "",
+    fbclid: "",
+    msclkid: "",
+    ttclid: "",
+    twclid: "",
+    qclid: "",
+    dclid: "",
+    rdt_cid: "",
+    irclid: "",
+    li_fat_id: "",
+    mc_cid: "",
+    sccid: "",
+    igshid: "",
+    _kx: "",
+    epik: "",
+  };
+
+  switch (channelType) {
+    case 0: // 付费广告 - Click ID 自动追踪
+      const clickIdTypes = [
+        { gclid: `gclid_${index}_${Date.now().toString(36)}`, gad_source: "1" }, // Google Ads
+        { fbclid: `fbclid_${index}_${Date.now().toString(36)}` }, // Facebook Ads
+        { msclkid: `msclkid_${index}_${Date.now().toString(36)}` }, // Microsoft Ads
+        { ttclid: `ttclid_${index}_${Date.now().toString(36)}` }, // TikTok Ads
+        { gbraid: `gbraid_${index}_${Date.now().toString(36)}` }, // Google iOS 14+
+      ];
+      const clickIdData = clickIdTypes[index % clickIdTypes.length];
+      return {
+        ...baseData,
+        ...clickIdData,
+        firstReferrer: "https://www.google.com/",
+        title: "产品推广活动",
+      };
+
+    case 1: // 付费广告 - UTM 标记
+      const paidCampaigns = [
+        {
+          firstVisitSource: "google",
+          firstVisitMedium: "cpc",
+          firstVisitCampaign: "summer_sale_2024",
+          firstVisitContent: "text_ad_01",
+          firstVisitTerm: "运动鞋+优惠",
+          firstReferrer: "https://www.google.com/search?q=运动鞋优惠",
+        },
+        {
+          firstVisitSource: "baidu",
+          firstVisitMedium: "ppc",
+          firstVisitCampaign: "brand_awareness",
+          firstVisitContent: "banner_large",
+          firstVisitTerm: "品牌+官网",
+          firstReferrer: "https://www.baidu.com/s?wd=品牌官网",
+        },
+        {
+          firstVisitSource: "facebook",
+          firstVisitMedium: "paid",
+          firstVisitCampaign: "retargeting_q4",
+          firstVisitContent: "carousel_ad",
+          firstReferrer: "https://www.facebook.com/",
+        },
+        {
+          firstVisitSource: "tiktok",
+          firstVisitMedium: "display",
+          firstVisitCampaign: "video_promotion",
+          firstVisitContent: "video_ad_15s",
+          firstReferrer: "https://www.tiktok.com/",
+        },
+      ];
+      const paidData = paidCampaigns[index % paidCampaigns.length];
+      return { ...baseData, ...paidData };
+
+    case 2: // 自然搜索
+      const organicSources = [
+        {
+          firstReferrer: "https://www.google.com/search?q=最佳运动装备推荐",
+          firstVisitSource: "google",
+          firstVisitMedium: "organic",
+        },
+        {
+          firstReferrer: "https://www.baidu.com/s?wd=户外用品购买指南",
+          firstVisitSource: "baidu",
+          firstVisitMedium: "organic",
+        },
+        {
+          firstReferrer: "https://www.bing.com/search?q=专业运动器材",
+          firstVisitSource: "bing",
+          firstVisitMedium: "organic",
+        },
+        {
+          firstReferrer: "https://search.yahoo.com/search?p=运动健身装备",
+          firstVisitSource: "yahoo",
+          firstVisitMedium: "organic",
+        },
+      ];
+      const organicData = organicSources[index % organicSources.length];
+      return { ...baseData, ...organicData };
+
+    case 3: // 其他渠道 - UTM 标记
+      const otherChannels = [
+        {
+          firstVisitSource: "newsletter",
+          firstVisitMedium: "email",
+          firstVisitCampaign: "weekly_digest_2024",
+          firstVisitContent: "product_spotlight",
+          firstReferrer: "https://mail.qq.com/",
+        },
+        {
+          firstVisitSource: "wechat",
+          firstVisitMedium: "social",
+          firstVisitCampaign: "influencer_collab",
+          firstVisitContent: "story_post",
+          firstReferrer: "https://mp.weixin.qq.com/",
+        },
+        {
+          firstVisitSource: "zhihu",
+          firstVisitMedium: "referral",
+          firstVisitCampaign: "content_marketing",
+          firstVisitContent: "article_link",
+          firstReferrer: "https://www.zhihu.com/question/12345678",
+        },
+        {
+          firstVisitSource: "xiaohongshu",
+          firstVisitMedium: "social",
+          firstVisitCampaign: "ugc_campaign",
+          firstVisitContent: "user_review",
+          firstReferrer: "https://www.xiaohongshu.com/explore/",
+        },
+      ];
+      const otherData = otherChannels[index % otherChannels.length];
+      return { ...baseData, ...otherData };
+
+    case 4: // 直接访问
+    default:
+      return {
+        ...baseData,
+        firstReferrer: "", // 空 referrer 表示直接访问
+        title: "首页访问",
+      };
+  }
+};
+
 // 将 MockUser 转换为 ApiUser（用于页面展示）
 export const convertMockUserToApiUser = (mock: MockUser, index = 0): ApiUser => {
   const toCurrencySymbol = (cur: string) => {
@@ -76,9 +235,6 @@ export const convertMockUserToApiUser = (mock: MockUser, index = 0): ApiUser => 
     }
   };
 
-  const sources = ["自然搜索", "付费广告", "社交媒体", "直接访问", "外部推荐"];
-  const mediums = ["SEO", "SEM", "微信", "抖音", "邮件营销"];
-
   const now = new Date();
   const daysSinceFirst = Math.max(1, Math.floor((now.getTime() - new Date(mock.firstVisitTime).getTime()) / 86400000));
   // 90天LTV的演示估算：基于总消费的比例，随索引稳定变化
@@ -92,6 +248,9 @@ export const convertMockUserToApiUser = (mock: MockUser, index = 0): ApiUser => 
   const aov30d = Math.max(80, Math.floor((mock.totalSpent * 0.18) / Math.max(1, (index % 3) + 1))); // 粗略估算
   const bounceRates = [0.22, 0.35, 0.18, 0.5, 0.42, 0.28, 0.31];
   const bounceRate = bounceRates[index % bounceRates.length];
+
+  // 生成90天内首访数据
+  const firstVisitData = generateFirstVisitData(index);
 
   return {
     id: mock.id,
@@ -117,9 +276,8 @@ export const convertMockUserToApiUser = (mock: MockUser, index = 0): ApiUser => 
       { id: `label-1-${mock.id}`, labelName: "活跃用户" } as ApiLabel,
       { id: `label-2-${mock.id}`, labelName: "高价值客户" } as ApiLabel,
     ],
-    // 新增用于总览展示的字段
-    firstVisitSource: sources[index % sources.length],
-    firstVisitMedium: mediums[index % mediums.length],
+    // 90天内首访数据
+    ...firstVisitData,
     ltv90Days,
     // 5+2扩展指标
     sessions30d,

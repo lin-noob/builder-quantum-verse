@@ -1,10 +1,11 @@
 import { ResponseAction, mockResponseActions } from './responseActionsData';
+import { mockResponseActions as extendedMockResponseActions } from '../client/data/mockData';
 
 // Simulate API delay
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-// In-memory storage for demo purposes
-let actionsStore = [...mockResponseActions];
+// In-memory storage for demo purposes - using extended mock data
+let actionsStore = [...extendedMockResponseActions];
 
 export interface CreateResponseActionRequest {
   actionName: string;

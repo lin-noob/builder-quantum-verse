@@ -115,86 +115,64 @@ export default function Index() {
 
   const fetchEventPage = async (page: number = 1, size: number = 10) => {
     try {
-      // 将前端筛选值转换为后端参数
-      const priorityParam =
-        activePriorityFilter === "all"
-          ? undefined
-          : activePriorityFilter === "high"
-            ? "3"
-            : activePriorityFilter === "medium"
-              ? "2"
-              : "1";
+      // 使用模拟数据进行筛选
+      let filteredIncidents = [...mockIncidents];
 
-      const statusParam =
-        activeProgressFilter === "all"
-          ? undefined
-          : activeProgressFilter === "pending_human"
-            ? "1"
-            : activeProgressFilter === "in_progress"
-              ? "2"
-              : activeProgressFilter === "resolved"
-                ? "3"
-                : "4";
+      // 应用优先级筛选
+      if (activePriorityFilter !== "all") {
+        filteredIncidents = filteredIncidents.filter(
+          incident => incident.priority === activePriorityFilter
+        );
+      }
 
-      const eventTypeParam = getEventTypeValue(activeTypeFilter);
+      // 应用状态筛选
+      if (activeProgressFilter !== "all") {
+        filteredIncidents = filteredIncidents.filter(
+          incident => incident.status === activeProgressFilter
+        );
+      }
 
-      const params: Record<string, any> = {
-        currentpage: page,
-        pageSize: size,
-        priority: priorityParam,
-        status: statusParam,
-        eventType: eventTypeParam,
-        searchKeywords: searchQuery || undefined,
-      };
-
-      // 过滤掉 undefined 值
-      const filteredParams = Object.fromEntries(
-        Object.entries(params).filter(([_, value]) => value !== undefined),
-      );
-
-      const res = await request.get("/admin/api/v1/event/page", filteredParams);
-      const countData = await request.get(
-        "/admin/api/v1/event/count",
-        filteredParams,
-      );
-      setCountData(countData.data.data);
-      const response = res.data;
-      if (response.data) {
-        // 将接口数据转换为 Incident 类型
-        const apiIncidents: Incident[] = Array.isArray(response.data.records)
-          ? response.data.records.map((item: any) => ({
-              // 后端字段
-              ...item,
-              id: item.id,
-              title: item.eventName,
-              description: item.description,
-              status: mapStatus(item.status),
-              priority: mapPriority(item.priority),
-              timestamp: new Date(item.eventTime || item.gmtCreate),
-            }))
-          : [];
-
-        setIncidents(apiIncidents);
-        setTotal(response.data.total || 0);
-
-        if (apiIncidents.length > 0) {
-          // Fetch detailed data for the first incident
-          if (fetchingDetailId !== apiIncidents[0].id) {
-            setFetchingDetailId(apiIncidents[0].id);
-            getEventDetails(apiIncidents[0].id)
-              .then((detailedIncident) => {
-                setSelectedIncident(detailedIncident);
-              })
-              .catch((error) => {
-                console.error("Failed to fetch first incident details:", error);
-                // Fallback to basic incident data
-                setSelectedIncident(apiIncidents[0]);
-              })
-              .finally(() => {
-                setFetchingDetailId(null);
-              });
-          }
+      // 应用类型筛选
+      if (activeTypeFilter !== "all") {
+        const typeKeywords = {
+          type_customer: ["客户", "用户", "会员"],
+          type_order: ["订单", "交易", "支付"],
+          type_product: ["商品", "库存", "产品"]
+        };
+        
+        if (typeKeywords[activeTypeFilter]) {
+          filteredIncidents = filteredIncidents.filter(incident =>
+            typeKeywords[activeTypeFilter].some(keyword =>
+              incident.title.includes(keyword) || incident.description.includes(keyword)
+            )
+          );
         }
+      }
+
+      // 应用搜索筛选
+      if (searchQuery) {
+        filteredIncidents = filteredIncidents.filter(incident =>
+          incident.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          incident.description.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+      }
+
+      // 计算统计数据
+      const highCount = mockIncidents.filter(incident => incident.priority === "high").length;
+      const pendingCount = mockIncidents.filter(incident => incident.status === "pending_human").length;
+      setCountData({ highCount, pendingCount });
+
+      // 分页处理
+      const startIndex = (page - 1) * size;
+      const endIndex = startIndex + size;
+      const paginatedIncidents = filteredIncidents.slice(startIndex, endIndex);
+
+      setIncidents(paginatedIncidents);
+      setTotal(filteredIncidents.length);
+
+      // 选择第一个事件作为详情显示
+      if (paginatedIncidents.length > 0 && !selectedIncident) {
+        setSelectedIncident(paginatedIncidents[0]);
       }
     } catch (error) {
       console.error("Failed to fetch events:", error);

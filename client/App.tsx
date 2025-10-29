@@ -209,7 +209,7 @@ export default function App() {
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
+        <TooltipProvider delayDuration={300}>
           <I18nextProvider i18n={i18n}>
             <ContactModalProvider>
               <AppContent />

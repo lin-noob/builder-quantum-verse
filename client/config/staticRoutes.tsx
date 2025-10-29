@@ -12,6 +12,7 @@ import ContentSolution from "@/pages/solutions/ContentSolution";
 import FinancialSolution from "@/pages/solutions/FinancialSolution";
 import EnterpriseSolution from "@/pages/solutions/EnterpriseSolution";
 import AdminProfile from "@/admin/pages/AdminProfile";
+import RulesPage from "@/pages/RulesPage";
 
 // 帮助中心页面组件
 const HelpCenter = React.lazy(() => import("@/pages/HelpCenter/HelpCenter"));
@@ -113,6 +114,16 @@ export const staticRoutes: RouteObject[] = [
     element: <MarketingHome />,
   },
   // 帮助中心路由
+  {
+    path: "/rules",
+    element: (
+      <Layout>
+        <LazyRoute>
+          <RulesPage />
+        </LazyRoute>
+      </Layout>
+    ),
+  },
   {
     path: "/marketing/help",
     element: (

@@ -3,7 +3,7 @@ import { useMemo, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import TaskCard from './TaskCard';
 import { mockUsers, mockEvents } from '@/data/mockData';
-import { Brain, Zap, Edit3, Calendar, User, TrendingUp, Clock, Check, Plus, MoreVertical, ExternalLink, Paperclip, Archive, ArchiveRestore, ChevronDown, ChevronUp, Loader2, Hash, CreditCard, ShoppingCart, Mail, AlertTriangle, Pause } from 'lucide-react';
+import { Brain, Zap, Edit3, Calendar, User, TrendingUp, Clock, Check, Plus, MoreVertical, ExternalLink, Paperclip, Archive, ArchiveRestore, ChevronDown, ChevronUp, Loader2, Hash, CreditCard, ShoppingCart, Mail, AlertTriangle, Pause, CheckSquare, Activity, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -669,6 +669,97 @@ export default function IncidentDetails({ incident }: IncidentDetailsProps) {
         </Card> */}
 
         {/* Suggested Response Plan / Generated Tasks */}
+        {previewTasks.length > 0 && (
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center text-sm font-semibold">
+                <CheckSquare className="w-4 h-4 mr-2 text-eip-accent" />
+                建议任务
+                <Badge variant="outline" className="ml-auto text-xs">
+                  {previewTasks.length} 项
+                </Badge>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {previewTasks.map((task) => (
+                <TaskCard
+                  key={task.id}
+                  task={task}
+                  onComplete={() => {
+                    // 任务完成逻辑
+                    console.log('Task completed:', task.id);
+                  }}
+                />
+              ))}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Response Actions */}
+        {actions.length > 0 && (
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center text-sm font-semibold">
+                <Activity className="w-4 h-4 mr-2 text-eip-accent" />
+                响应动作
+                <Badge variant="outline" className="ml-auto text-xs">
+                  {actions.filter(a => a.status === 'active').length} 活跃
+                </Badge>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {actions.filter(a => a.status === 'active').map((action) => (
+                <div key={action.id} className="border rounded-lg p-4 space-y-2">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <h4 className="font-medium text-slate-900 dark:text-slate-100">
+                        {action.title}
+                      </h4>
+                      <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                        {action.description}
+                      </p>
+                    </div>
+                    <Badge variant="outline" className="text-xs">
+                      {actionTypeLabels[action.type]}
+                    </Badge>
+                  </div>
+                  
+                  <div className="flex items-center gap-4 text-xs text-slate-500 dark:text-slate-400">
+                    {action.assigneeId && (
+                      <div className="flex items-center gap-1">
+                        <User className="w-3 h-3" />
+                        {mockUsers.find(u => u.id === action.assigneeId)?.name || '未知用户'}
+                      </div>
+                    )}
+                    {action.dueAt && (
+                      <div className="flex items-center gap-1">
+                        <Clock className="w-3 h-3" />
+                        截止: {new Date(action.dueAt).toLocaleString()}
+                      </div>
+                    )}
+                    <div className="flex items-center gap-1">
+                      <AlertCircle className="w-3 h-3" />
+                      状态: {completedActionIds.has(action.id) ? '已完成' : processingActionIds.has(action.id) ? '处理中' : '待处理'}
+                    </div>
+                  </div>
+
+                  {action.attachments && action.attachments.length > 0 && (
+                    <div className="mt-2">
+                      <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">附件:</div>
+                      <div className="flex flex-wrap gap-1">
+                        {action.attachments.map((attachment, idx) => (
+                          <Badge key={idx} variant="secondary" className="text-xs">
+                            {attachment}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        )}
 
         {/* 创建/编辑动作弹窗 */}
         <Dialog open={isActionDialogOpen} onOpenChange={setIsActionDialogOpen}>

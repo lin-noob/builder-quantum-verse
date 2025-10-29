@@ -488,12 +488,298 @@ export const allMockTasks: Task[] = [
     parentIncidentId: 'inc_email1',
     dueDate: new Date('2024-01-20T16:00:00'),
     type: 'email'
+  },
+
+  // 为新增事件创建对应的任务
+  // 安全漏洞事件任务
+  {
+    id: 'task_security1',
+    title: '紧急修复SQL注入漏洞',
+    status: 'in_progress',
+    assignee: mockUsers[2], // 王大伟
+    parentIncidentId: 'inc_security1',
+    dueDate: new Date('2024-01-21T18:00:00'),
+    scheduledTime: {
+      start: new Date('2024-01-21T16:00:00'),
+      end: new Date('2024-01-21T18:00:00')
+    }
+  },
+  {
+    id: 'task_security2',
+    title: '安全评估报告',
+    status: 'pending',
+    assignee: mockUsers[0], // 张明
+    parentIncidentId: 'inc_security1',
+    dueDate: new Date('2024-01-22T12:00:00')
+  },
+
+  // 系统性能事件任务
+  {
+    id: 'task_performance1',
+    title: '数据库性能优化',
+    status: 'pending',
+    assignee: mockUsers[2], // 王大伟
+    parentIncidentId: 'inc_performance1',
+    dueDate: new Date('2024-01-21T20:00:00'),
+    scheduledTime: {
+      start: new Date('2024-01-21T19:00:00'),
+      end: new Date('2024-01-21T21:00:00')
+    }
+  },
+  {
+    id: 'task_performance2',
+    title: '服务器资源监控',
+    status: 'pending',
+    assignee: mockUsers[0], // 张明
+    parentIncidentId: 'inc_performance1',
+    dueDate: new Date('2024-01-22T10:00:00')
+  },
+
+  // 库存管理事件任务
+  {
+    id: 'task_inventory1',
+    title: '紧急补货联系供应商',
+    status: 'completed',
+    assignee: mockUsers[1], // 李小红
+    parentIncidentId: 'inc_inventory1',
+    dueDate: new Date('2024-01-21T14:00:00')
+  },
+  {
+    id: 'task_inventory2',
+    title: '客户缺货通知',
+    status: 'pending',
+    assignee: mockUsers[1], // 李小红
+    parentIncidentId: 'inc_inventory1',
+    dueDate: new Date('2024-01-21T16:00:00')
+  },
+
+  // 客户流失事件任务
+  {
+    id: 'task_churn1',
+    title: 'VIP客户挽留电话',
+    status: 'pending',
+    assignee: mockUsers[1], // 李小红
+    parentIncidentId: 'inc_churn1',
+    dueDate: new Date('2024-01-21T17:00:00'),
+    scheduledTime: {
+      start: new Date('2024-01-21T16:30:00'),
+      end: new Date('2024-01-21T17:30:00')
+    }
+  },
+  {
+    id: 'task_churn2',
+    title: '个性化优惠方案制定',
+    status: 'pending',
+    assignee: mockUsers[0], // 张明
+    parentIncidentId: 'inc_churn1',
+    dueDate: new Date('2024-01-22T11:00:00')
+  },
+
+  // 欺诈检测事件任务
+  {
+    id: 'task_fraud1',
+    title: '可疑交易调查',
+    status: 'in_progress',
+    assignee: mockUsers[2], // 王大伟
+    parentIncidentId: 'inc_fraud1',
+    dueDate: new Date('2024-01-21T15:00:00'),
+    scheduledTime: {
+      start: new Date('2024-01-21T14:00:00'),
+      end: new Date('2024-01-21T16:00:00')
+    }
+  },
+  {
+    id: 'task_fraud2',
+    title: '客户身份验证',
+    status: 'pending',
+    assignee: mockUsers[1], // 李小红
+    parentIncidentId: 'inc_fraud1',
+    dueDate: new Date('2024-01-21T18:00:00')
+  },
+
+  // API限流事件任务
+  {
+    id: 'task_api1',
+    title: '合作伙伴沟通说明',
+    status: 'pending',
+    assignee: mockUsers[1], // 李小红
+    parentIncidentId: 'inc_api1',
+    dueDate: new Date('2024-01-21T19:00:00')
+  },
+  {
+    id: 'task_api2',
+    title: 'API限流策略评估',
+    status: 'pending',
+    assignee: mockUsers[2], // 王大伟
+    parentIncidentId: 'inc_api1',
+    dueDate: new Date('2024-01-22T14:00:00')
+  },
+
+  // 数据质量事件任务
+  {
+    id: 'task_data1',
+    title: '数据清洗脚本执行',
+    status: 'completed',
+    assignee: mockUsers[2], // 王大伟
+    parentIncidentId: 'inc_data1',
+    dueDate: new Date('2024-01-21T13:00:00')
+  },
+  {
+    id: 'task_data2',
+    title: '数据质量报告',
+    status: 'pending',
+    assignee: mockUsers[0], // 张明
+    parentIncidentId: 'inc_data1',
+    dueDate: new Date('2024-01-22T15:00:00')
+  },
+
+  // 营销活动事件任务
+  {
+    id: 'task_marketing1',
+    title: '广告创意重新设计',
+    status: 'pending',
+    assignee: emailSpecialist, // 陈小雅
+    parentIncidentId: 'inc_marketing1',
+    dueDate: new Date('2024-01-22T16:00:00'),
+    scheduledTime: {
+      start: new Date('2024-01-22T14:00:00'),
+      end: new Date('2024-01-22T17:00:00')
+    }
+  },
+  {
+    id: 'task_marketing2',
+    title: '目标受众分析',
+    status: 'pending',
+    assignee: mockUsers[0], // 张明
+    parentIncidentId: 'inc_marketing1',
+    dueDate: new Date('2024-01-23T10:00:00')
+  },
+
+  // 服务器资源事件任务
+  {
+    id: 'task_server1',
+    title: '内存清理和优化',
+    status: 'in_progress',
+    assignee: mockUsers[2], // 王大伟
+    parentIncidentId: 'inc_server1',
+    dueDate: new Date('2024-01-21T16:00:00'),
+    scheduledTime: {
+      start: new Date('2024-01-21T15:30:00'),
+      end: new Date('2024-01-21T16:30:00')
+    }
+  },
+  {
+    id: 'task_server2',
+    title: '服务器扩容申请',
+    status: 'pending',
+    assignee: mockUsers[0], // 张明
+    parentIncidentId: 'inc_server1',
+    dueDate: new Date('2024-01-22T12:00:00')
+  },
+
+  // 邮件垃圾投诉事件任务
+  {
+    id: 'task_spam1',
+    title: '邮件内容审核优化',
+    status: 'pending',
+    assignee: emailSpecialist, // 陈小雅
+    parentIncidentId: 'inc_email_spam1',
+    dueDate: new Date('2024-01-21T17:00:00'),
+    scheduledTime: {
+      start: new Date('2024-01-21T16:00:00'),
+      end: new Date('2024-01-21T18:00:00')
+    }
+  },
+  {
+    id: 'task_spam2',
+    title: '发送信誉修复',
+    status: 'pending',
+    assignee: mockUsers[2], // 王大伟
+    parentIncidentId: 'inc_email_spam1',
+    dueDate: new Date('2024-01-22T13:00:00')
+  },
+
+  // 邮件参与度事件任务
+  {
+    id: 'task_engagement1',
+    title: '新客户邮件策略制定',
+    status: 'pending',
+    assignee: emailSpecialist, // 陈小雅
+    parentIncidentId: 'inc_email_engagement1',
+    dueDate: new Date('2024-01-22T11:00:00'),
+    scheduledTime: {
+      start: new Date('2024-01-22T09:00:00'),
+      end: new Date('2024-01-22T12:00:00')
+    }
+  },
+  {
+    id: 'task_engagement2',
+    title: '用户行为数据分析',
+    status: 'pending',
+    assignee: mockUsers[0], // 张明
+    parentIncidentId: 'inc_email_engagement1',
+    dueDate: new Date('2024-01-23T14:00:00')
+  },
+
+  // AI增强任务
+  {
+    id: 'task_ai1',
+    title: 'AI客户挽留策略执行',
+    status: 'pending',
+    assignee: mockUsers[1], // 李小红
+    parentIncidentId: 'inc_ai_enhanced1',
+    dueDate: new Date('2024-01-21T20:00:00'),
+    aiInsights: {
+      confidence: 85,
+      expectedOutcome: '客户挽留成功率提升40%',
+      riskFactors: ['客户价值高', '流失风险大'],
+      recommendations: [
+        '立即安排VIP客服联系',
+        '提供专属优惠方案',
+        '分析客户偏好调整服务'
+      ]
+    }
+  },
+  {
+    id: 'task_ai2',
+    title: 'AI欺诈检测模型优化',
+    status: 'in_progress',
+    assignee: mockUsers[2], // 王大伟
+    parentIncidentId: 'inc_ai_enhanced2',
+    dueDate: new Date('2024-01-22T16:00:00'),
+    aiInsights: {
+      confidence: 96,
+      expectedOutcome: '欺诈损失减少90%',
+      riskFactors: ['异地登录', '高额交易', '频繁操作'],
+      recommendations: [
+        '立即冻结可疑交易',
+        '要求多重身份验证',
+        '更新风控模型参数'
+      ]
+    }
+  },
+  {
+    id: 'task_ai3',
+    title: 'AI营销策略自动优化',
+    status: 'pending',
+    assignee: emailSpecialist, // 陈小雅
+    parentIncidentId: 'inc_ai_enhanced3',
+    dueDate: new Date('2024-01-23T15:00:00'),
+    aiInsights: {
+      confidence: 78,
+      expectedOutcome: '营销ROI提升60%',
+      riskFactors: ['点击率低', '转化率差'],
+      recommendations: [
+        '重新定位目标受众',
+        '优化广告创意内容',
+        '调整投放时间策略'
+      ]
+    }
   }
 ];
 
 // Tasks for specific incidents (kept for backward compatibility)
-const mockTasks: Task[] = allMockTasks.filter(task => task.parentIncidentId === 'inc1');
-const mockTasks2: Task[] = allMockTasks.filter(task => task.parentIncidentId === 'inc2');
+// mockTasks and mockTasks2 are exported at the end of the file
 
 // Mock incidents
 export const mockIncidents: Incident[] = [
@@ -597,7 +883,7 @@ export const mockIncidents: Incident[] = [
         actor: mockUsers[2]
       }
     ],
-    assignedTasks: mockTasks
+    assignedTasks: allMockTasks.filter(task => task.parentIncidentId === 'inc1')
   },
   {
     id: 'inc2',
@@ -641,7 +927,7 @@ export const mockIncidents: Incident[] = [
         actor: mockUsers[2]
       }
     ],
-    assignedTasks: mockTasks2
+    assignedTasks: allMockTasks.filter(task => task.parentIncidentId === 'inc2')
   },
   {
     id: 'inc3',
@@ -786,13 +1072,13 @@ export const mockIncidents: Incident[] = [
       {
         id: 'act_email1_1',
         timestamp: new Date('2024-01-20T15:45:00'),
-        description: 'AI检测到客户投诉邮件，自动标记为高优先级',
+        description: 'AI检测到客户投诉邮件，自动分类为高优先级',
         actor: 'AI'
       },
       {
         id: 'act_email1_2',
         timestamp: new Date('2024-01-20T15:48:00'),
-        description: '邮件专员人工审核投诉内容',
+        description: '邮件专员审核投诉内容',
         actor: emailSpecialist
       },
       {
@@ -806,18 +1092,18 @@ export const mockIncidents: Incident[] = [
   },
   {
     id: 'inc_email2',
-    title: '邮件发送服务异常',
-    description: 'SMTP 连接超时导致邮件发送成功率显著下降',
+    title: '邮件发送服务故障',
+    description: '邮件服务器SMTP连接超时，导致大量邮件发送失败',
     status: 'in_progress',
-    priority: 'high',
-    timestamp: new Date('2024-01-20T16:15:00'),
+    priority: 'critical',
+    timestamp: new Date('2024-01-20T16:20:00'),
     involvedEntities: [
-      { type: 'product', value: '邮件服务系统' },
-      { type: 'customer', value: '多名客户' }
+      { type: 'system', value: '邮件服务器' },
+      { type: 'campaign', value: 'CAMP-2024-001' }
     ],
     aiAnalysis: {
       confidence: 95,
-      summary: 'SMTP服务器出现连接超时问题，导致过去1小时内邮件发送成功率从99%下降至45%。影响营销邮件和系统通知邮件的正常发送。',
+      summary: 'SMTP服务器连接超时导致2,340封邮件中1,240封发送失败。发送成功率仅45%，需要立即修复。',
       keyMetrics: [
         { label: '影响邮件数', value: '2,340封' },
         { label: '发送成功率', value: '45%' },
@@ -891,204 +1177,496 @@ export const mockIncidents: Incident[] = [
       }
     ],
     assignedTasks: allMockTasks.filter(task => task.parentIncidentId === 'inc_email3')
-  }
-  ,
+  },
+  // 新增邮件垃圾投诉事件
   {
-    id: 'inc_email5',
-    title: '投诉邮件（新）',
-    description: '客户通过邮件投诉近期收到的营销内容不相关，需人工跟进',
+    id: 'inc_email_spam1',
+    title: '邮件垃圾投诉率上升',
+    description: '营销邮件被标记为垃圾邮件，影响发送信誉',
     status: 'pending_human',
-    priority: 'high',
-    timestamp: new Date('2024-01-20T15:50:00'),
+    priority: 'medium',
+    timestamp: new Date('2024-01-21T11:00:00'),
     involvedEntities: [
-      { type: 'customer', value: '赵先生' },
-      { type: 'product', value: '营销邮件系统' }
+      { type: 'campaign', value: 'CAMP-2024-005' },
+      { type: 'reputation', value: '发送信誉' }
     ],
     aiAnalysis: {
       confidence: 88,
-      summary: '客户对营销邮件内容表达强烈不满，建议人工沟通并调整内容策略。',
+      summary: '营销邮件垃圾投诉率达到0.25%，超过安全阈值0.1%。主要来自Yahoo和Hotmail用户。建议优化邮件内容和发送策略。',
       keyMetrics: [
-        { label: '投诉类型', value: '内容不相关' },
-        { label: '客户等级', value: '普通会员' },
-        { label: '情绪指数', value: '不满' },
-        { label: '紧急程度', value: '较高' }
+        { label: '垃圾投诉数', value: '25次' },
+        { label: '投诉率', value: '0.25%' },
+        { label: '安全阈值', value: '0.1%' },
+        { label: '风险等级', value: '中等' }
       ]
     },
-    suggestedResponsePlan: mockEmailResponseActions,
+    suggestedResponsePlan: [
+      {
+        id: 'ra_spam1',
+        title: '内容优化',
+        description: '优化邮件内容避免垃圾邮件特征',
+        type: 'process'
+      },
+      {
+        id: 'ra_spam2',
+        title: '发送策略调整',
+        description: '调整发送频率和目标用户群',
+        type: 'data_enrichment'
+      }
+    ],
     processingHistory: [
       {
-        id: 'act_email5_1',
-        timestamp: new Date('2024-01-20T15:50:00'),
-        description: 'AI识别投诉：内容不相关',
+        id: 'act_spam1_1',
+        timestamp: new Date('2024-01-21T11:00:00'),
+        description: 'AI检测到垃圾投诉率异常',
         actor: 'AI'
       },
       {
-        id: 'act_email5_2',
-        timestamp: new Date('2024-01-20T15:53:00'),
-        description: '邮件专员重新分类客户兴趣标签',
+        id: 'act_spam1_2',
+        timestamp: new Date('2024-01-21T11:05:00'),
+        description: '邮件专员分析投诉原因',
         actor: emailSpecialist
+      }
+    ],
+    assignedTasks: []
+  },
+  // 新增邮件参与度下降事件
+  {
+    id: 'inc_email_engagement1',
+    title: '新客户邮件参与度下降',
+    description: '新客户群体邮件打开率和点击率显著下降',
+    status: 'pending_human',
+    priority: 'medium',
+    timestamp: new Date('2024-01-21T12:30:00'),
+    involvedEntities: [
+      { type: 'segment', value: '新客户群体' },
+      { type: 'engagement', value: '参与度下降' }
+    ],
+    aiAnalysis: {
+      confidence: 83,
+      summary: '新客户邮件打开率从22%降至8.5%，点击率从4.5%降至1.2%。建议重新评估邮件内容和发送时机。',
+      keyMetrics: [
+        { label: '当前打开率', value: '8.5%' },
+        { label: '预期打开率', value: '22.0%' },
+        { label: '当前点击率', value: '1.2%' },
+        { label: '预期点击率', value: '4.5%' }
+      ]
+    },
+    suggestedResponsePlan: [
+      {
+        id: 'ra_engagement1',
+        title: '内容个性化',
+        description: '为新客户制定个性化邮件内容',
+        type: 'data_enrichment'
       },
       {
-        id: 'act_email5_3',
-        timestamp: new Date('2024-01-20T15:58:00'),
-        description: '客服准备电话跟进以安抚客户情绪',
+        id: 'ra_engagement2',
+        title: '发送时机优化',
+        description: '分析最佳发送时间并调整策略',
+        type: 'process'
+      }
+    ],
+    processingHistory: [
+      {
+        id: 'act_engagement1_1',
+        timestamp: new Date('2024-01-21T12:30:00'),
+        description: 'AI检测到参与度异常下降',
+        actor: 'AI'
+      },
+      {
+        id: 'act_engagement1_2',
+        timestamp: new Date('2024-01-21T12:35:00'),
+        description: '营销团队开始参与度分析',
         actor: mockUsers[1]
       }
     ],
-    assignedTasks: allMockTasks.filter(task => task.parentIncidentId === 'inc_email5')
-  },
-  {
-    id: 'inc_email6',
-    title: 'SMTP失败告警',
-    description: '邮件服务在多个域名上出现SMTP连接失败，需要技术介入',
-    status: 'pending_human',
-    priority: 'high',
-    timestamp: new Date('2024-01-20T16:20:00'),
-    involvedEntities: [
-      { type: 'product', value: '邮件服务系统' },
-      { type: 'customer', value: '多名客户' }
-    ],
-    aiAnalysis: {
-      confidence: 93,
-      summary: '多域名出现SMTP连接失败，影响营销与系统通知邮件发送。',
-      keyMetrics: [
-        { label: '失败邮件数', value: '860封' },
-        { label: '主要错误', value: 'SMTP连接失败' },
-        { label: '受影响域名', value: 'gmail.com, outlook.com' },
-        { label: '当前可用性', value: '不稳定' }
-      ]
-    },
-    suggestedResponsePlan: mockEmailResponseActions2,
-    processingHistory: [
-      {
-        id: 'act_email6_1',
-        timestamp: new Date('2024-01-20T16:20:00'),
-        description: 'AI检测到SMTP连接失败',
-        actor: 'AI'
-      },
-      {
-        id: 'act_email6_2',
-        timestamp: new Date('2024-01-20T16:22:00'),
-        description: '技术支持定位受影响域名并记录',
-        actor: mockUsers[2]
-      },
-      {
-        id: 'act_email6_3',
-        timestamp: new Date('2024-01-20T16:26:00'),
-        description: '应用临时重试策略并监控发送成功率',
-        actor: mockUsers[2]
-      }
-    ],
-    assignedTasks: allMockTasks.filter(task => task.parentIncidentId === 'inc_email6')
+    assignedTasks: []
   }
 ];
 
-// Mock events (raw events that get processed into incidents)
+const mockPerformanceResponseActions: ResponseAction[] = [
+  {
+    id: 'ra_perf1',
+    title: '服务器资源检查',
+    description: '检查CPU、内存使用情况并优化资源分配',
+    type: 'process'
+  },
+  {
+    id: 'ra_perf2',
+    title: '数据库连接优化',
+    description: '检查数据库连接池并优化查询性能',
+    type: 'process'
+  },
+  {
+    id: 'ra_perf3',
+    title: '缓存策略调整',
+    description: '优化缓存配置提升系统响应速度',
+    type: 'process'
+  }
+];
+
+// 新增库存管理响应动作
+const mockInventoryResponseActions: ResponseAction[] = [
+  {
+    id: 'ra_inv1',
+    title: '紧急补货申请',
+    description: '联系供应商申请紧急补货',
+    type: 'process'
+  },
+  {
+    id: 'ra_inv2',
+    title: '客户通知',
+    description: '主动通知客户预计到货时间',
+    type: 'communication'
+  },
+  {
+    id: 'ra_inv3',
+    title: '库存预警优化',
+    description: '调整库存预警阈值避免类似情况',
+    type: 'data_enrichment'
+  }
+];
+
+// 新增客户挽留响应动作
+const mockChurnResponseActions: ResponseAction[] = [
+  {
+    id: 'ra_churn1',
+    title: '专属客服联系',
+    description: '安排专属客服主动联系了解情况',
+    type: 'communication'
+  },
+  {
+    id: 'ra_churn2',
+    title: '个性化优惠',
+    description: '提供个性化优惠券和专属服务',
+    type: 'data_enrichment'
+  },
+  {
+    id: 'ra_churn3',
+    title: '产品推荐优化',
+    description: '基于客户历史优化产品推荐算法',
+    type: 'data_enrichment'
+  }
+];
+
+// 新增欺诈防控响应动作
+const mockFraudResponseActions: ResponseAction[] = [
+  {
+    id: 'ra_fraud1',
+    title: '交易冻结',
+    description: '立即冻结可疑交易并通知客户',
+    type: 'security'
+  },
+  {
+    id: 'ra_fraud2',
+    title: '身份验证',
+    description: '要求客户提供身份验证信息',
+    type: 'communication'
+  },
+  {
+    id: 'ra_fraud3',
+    title: '风控模型优化',
+    description: '基于新的欺诈模式优化风控算法',
+    type: 'data_enrichment'
+  }
+];
+
+// 新增API管理响应动作
+const mockAPIResponseActions: ResponseAction[] = [
+  {
+    id: 'ra_api1',
+    title: '合作伙伴沟通',
+    description: '联系合作伙伴说明限流原因',
+    type: 'communication'
+  },
+  {
+    id: 'ra_api2',
+    title: '限流策略调整',
+    description: '评估是否需要调整API限流策略',
+    type: 'process'
+  },
+  {
+    id: 'ra_api3',
+    title: 'API使用分析',
+    description: '分析API使用模式并提供优化建议',
+    type: 'data_enrichment'
+  }
+];
+
+// 新增数据质量响应动作
+const mockDataQualityResponseActions: ResponseAction[] = [
+  {
+    id: 'ra_data1',
+    title: '数据清洗',
+    description: '启动自动化数据清洗流程',
+    type: 'process'
+  },
+  {
+    id: 'ra_data2',
+    title: '数据补全',
+    description: '通过多渠道补全缺失的客户信息',
+    type: 'data_enrichment'
+  },
+  {
+    id: 'ra_data3',
+    title: '数据质量监控',
+    description: '建立数据质量实时监控机制',
+    type: 'process'
+  }
+];
+
+// 新增营销优化响应动作
+const mockMarketingResponseActions: ResponseAction[] = [
+  {
+    id: 'ra_marketing1',
+    title: '创意优化',
+    description: '重新设计广告创意和文案',
+    type: 'process'
+  },
+  {
+    id: 'ra_marketing2',
+    title: '受众调整',
+    description: '分析并调整目标受众定位',
+    type: 'data_enrichment'
+  },
+  {
+    id: 'ra_marketing3',
+    title: 'A/B测试',
+    description: '设计A/B测试验证新策略效果',
+    type: 'process'
+  }
+];
+
+// 新增服务器运维响应动作
+const mockServerResponseActions: ResponseAction[] = [
+  {
+    id: 'ra_server1',
+    title: '内存释放',
+    description: '清理无用进程释放内存',
+    type: 'process'
+  },
+  {
+    id: 'ra_server2',
+    title: '服务器扩容',
+    description: '申请增加服务器内存容量',
+    type: 'process'
+  },
+  {
+    id: 'ra_server3',
+    title: '监控告警优化',
+    description: '优化服务器监控告警策略',
+    type: 'process'
+  }
+];
+
+// 新增邮件垃圾投诉响应动作
+const mockSpamResponseActions: ResponseAction[] = [
+  {
+    id: 'ra_spam1',
+    title: '内容优化',
+    description: '优化邮件内容避免垃圾邮件特征',
+    type: 'process'
+  },
+  {
+    id: 'ra_spam2',
+    title: '发送策略调整',
+    description: '调整发送频率和目标用户群',
+    type: 'data_enrichment'
+  },
+  {
+    id: 'ra_spam3',
+    title: '发送信誉修复',
+    description: '采取措施修复邮件发送信誉',
+    type: 'process'
+  }
+];
+
+// 新增邮件参与度优化响应动作
+const mockEngagementResponseActions: ResponseAction[] = [
+  {
+    id: 'ra_engagement1',
+    title: '内容个性化',
+    description: '为新客户制定个性化邮件内容',
+    type: 'data_enrichment'
+  },
+  {
+    id: 'ra_engagement2',
+    title: '发送时机优化',
+    description: '分析最佳发送时间并调整策略',
+    type: 'process'
+  },
+  {
+    id: 'ra_engagement3',
+    title: '用户行为分析',
+    description: '深入分析用户行为模式优化邮件策略',
+    type: 'data_enrichment'
+  }
+];
+
+// AI建议增强版响应动作（包含详细的AI分析和建议）
+const mockAIEnhancedResponseActions: ResponseAction[] = [
+  {
+    id: 'ra_ai1',
+    title: 'AI智能客户挽留',
+    description: 'AI分析客户行为模式，制定个性化挽留策略，预测成功率85%',
+    type: 'ai_enhanced',
+    aiInsights: {
+      confidence: 85,
+      expectedOutcome: '客户挽留成功率提升40%',
+      riskFactors: ['客户价值高', '流失风险大'],
+      recommendations: [
+        '立即安排VIP客服联系',
+        '提供专属优惠方案',
+        '分析客户偏好调整服务'
+      ]
+    }
+  },
+  {
+    id: 'ra_ai2',
+    title: 'AI智能欺诈检测',
+    description: 'AI实时分析交易模式，自动识别欺诈风险并采取防护措施',
+    type: 'ai_enhanced',
+    aiInsights: {
+      confidence: 96,
+      expectedOutcome: '欺诈损失减少90%',
+      riskFactors: ['异地登录', '高额交易', '频繁操作'],
+      recommendations: [
+        '立即冻结可疑交易',
+        '要求多重身份验证',
+        '更新风控模型参数'
+      ]
+    }
+  },
+  {
+    id: 'ra_ai3',
+    title: 'AI智能营销优化',
+    description: 'AI分析营销数据，自动优化投放策略和创意内容',
+    type: 'ai_enhanced',
+    aiInsights: {
+      confidence: 78,
+      expectedOutcome: '营销ROI提升60%',
+      riskFactors: ['点击率低', '转化率差'],
+      recommendations: [
+        '重新定位目标受众',
+        '优化广告创意内容',
+        '调整投放时间策略'
+      ]
+    }
+  },
+  {
+    id: 'ra_ai4',
+    title: 'AI智能库存管理',
+    description: 'AI预测需求趋势，自动调整库存策略避免缺货',
+    type: 'ai_enhanced',
+    aiInsights: {
+      confidence: 92,
+      expectedOutcome: '库存周转率提升30%',
+      riskFactors: ['热销商品', '供应链延迟'],
+      recommendations: [
+        '紧急联系供应商补货',
+        '调整库存预警阈值',
+        '优化需求预测模型'
+      ]
+    }
+  },
+  {
+    id: 'ra_ai5',
+    title: 'AI智能性能优化',
+    description: 'AI监控系统性能，自动识别瓶颈并提供优化建议',
+    type: 'ai_enhanced',
+    aiInsights: {
+      confidence: 89,
+      expectedOutcome: '系统响应速度提升50%',
+      riskFactors: ['内存不足', '数据库慢查询'],
+      recommendations: [
+        '立即释放内存资源',
+        '优化数据库查询',
+        '增加服务器容量'
+      ]
+    }
+  }
+];
+
+// 事件模拟数据
 export const mockEvents: Event[] = [
   {
-    id: 'evt1',
-    type: 'order_cancelled',
-    timestamp: new Date('2024-01-20T14:25:00'),
-    data: {
-      orderId: 'ORD-2024-001237',
-      customerId: 'CUST-456',
-      amount: 12999,
-      reason: 'user_requested'
-    }
-  },
-  {
-    id: 'evt2', 
-    type: 'payment_failed',
-    timestamp: new Date('2024-01-20T13:10:00'),
-    data: {
-      transactionId: 'TXN-789',
-      amount: 299,
-      errorCode: 'GATEWAY_TIMEOUT'
-    }
-  },
-  {
-    id: 'evt3',
-    type: 'user_registered',
-    timestamp: new Date('2024-01-20T12:45:00'),
-    data: {
-      userId: 'USER-1001',
-      source: 'organic',
-      deviceType: 'mobile'
-    }
-  },
-
-  // 邮件相关原始事件
-  {
-    id: 'evt_email1',
-    type: 'email_complaint_received',
-    timestamp: new Date('2024-01-20T15:40:00'),
-    data: {
-      customerId: 'CUST-789',
-      customerEmail: 'wangms@example.com',
-      orderId: 'ORD-2024-001456',
-      complaintType: 'product_quality',
-      sentiment: 'very_negative',
-      subject: '智能手机屏幕显示异常投诉'
-    }
-  },
-  {
-    id: 'evt_email2',
-    type: 'email_delivery_failed',
-    timestamp: new Date('2024-01-20T16:15:00'),
-    data: {
-      campaignId: 'CAMP-2024-001',
-      failedCount: 1240,
-      totalCount: 2340,
-      errorType: 'smtp_timeout',
-      affectedDomains: ['gmail.com', 'qq.com', '163.com']
-    }
-  },
-  {
-    id: 'evt_email3',
-    type: 'email_unsubscribe_spike',
-    timestamp: new Date('2024-01-20T17:05:00'),
-    data: {
-      campaignId: 'CAMP-2024-002',
-      unsubscribeCount: 456,
-      normalRate: 0.5,
-      currentRate: 1.4,
-      primaryReason: 'frequency_too_high'
-    }
-  },
-  {
-    id: 'evt_email4',
-    type: 'email_bounce_rate_high',
+    id: 'event1',
+    type: 'customer_complaint',
     timestamp: new Date('2024-01-20T14:30:00'),
     data: {
-      campaignId: 'CAMP-2024-003',
-      bounceRate: 8.5,
-      normalRate: 2.1,
-      invalidEmails: 234,
-      bounceType: 'hard_bounce'
+      customerEmail: 'customer@example.com',
+      orderId: 'ORD-12345',
+      complaintType: 'product_quality',
+      description: '产品质量问题投诉'
     }
   },
   {
-    id: 'evt_email5',
-    type: 'email_complaint_received',
-    timestamp: new Date('2024-01-20T15:50:00'),
+    id: 'event2',
+    type: 'payment_failure',
+    timestamp: new Date('2024-01-20T13:15:00'),
     data: {
-      customerId: 'CUST-990',
-      customerEmail: 'zhaoys@example.com',
-      complaintType: 'content_irrelevant',
-      sentiment: 'negative',
-      subject: '营销邮件内容不相关投诉'
+      paymentId: 'PAY-67890',
+      amount: 299.99,
+      errorCode: 'GATEWAY_TIMEOUT',
+      description: '支付网关超时'
     }
   },
   {
-    id: 'evt_email6',
-    type: 'email_delivery_failed',
-    timestamp: new Date('2024-01-20T16:20:00'),
+    id: 'event3',
+    type: 'system_performance',
+    timestamp: new Date('2024-01-20T12:45:00'),
     data: {
-      campaignId: 'CAMP-2024-004',
-      failedCount: 860,
-      totalCount: 1800,
-      errorType: 'smtp_connection_failed',
-      affectedDomains: ['gmail.com', 'outlook.com']
+      serverName: 'web-server-01',
+      cpuUsage: 95,
+      memoryUsage: 88,
+      responseTime: 3500,
+      description: '系统性能异常'
+    }
+  },
+  {
+    id: 'event4',
+    type: 'inventory_shortage',
+    timestamp: new Date('2024-01-20T11:20:00'),
+    data: {
+      productId: 'PROD-001',
+      currentStock: 2,
+      threshold: 10,
+      description: '库存不足预警'
+    }
+  },
+  {
+    id: 'event5',
+    type: 'email_spam_complaint',
+    timestamp: new Date('2024-01-21T11:00:00'),
+    data: {
+      campaignId: 'CAMP-2024-005',
+      complaintRate: 0.25,
+      threshold: 0.1,
+      description: '邮件垃圾投诉率上升'
     }
   }
 ];
+
+// 扩展的响应动作数据
+export const extendedMockResponseActions: ResponseAction[] = [
+  ...mockResponseActions,
+  ...mockResponseActions2,
+  ...mockEmailResponseActions,
+  ...mockEmailResponseActions2,
+  ...mockEmailResponseActions3,
+  ...mockPerformanceResponseActions,
+  ...mockInventoryResponseActions,
+  ...mockChurnResponseActions,
+  ...mockFraudResponseActions,
+  ...mockAPIResponseActions,
+  ...mockDataQualityResponseActions,
+  ...mockMarketingResponseActions,
+  ...mockServerResponseActions,
+  ...mockSpamResponseActions,
+  ...mockEngagementResponseActions,
+  ...mockAIEnhancedResponseActions
+];
+
+// 任务数据导出
+export const mockTasks = allMockTasks.filter(task => task.parentIncidentId === 'inc1');
+export const mockTasks2 = allMockTasks.filter(task => task.parentIncidentId === 'inc2');
