@@ -38,7 +38,7 @@ export interface ApiEventListResponse {
   pages: number;
 }
 
-export interface ApiUser {
+export interface ApiUser extends UserProfile {
   id?: string;
   distinctId: string;
   userId: string;
@@ -62,6 +62,35 @@ export interface ApiUser {
   eventList?: ApiEventListResponse; // Add eventList field
 }
 
+interface UserProfile {
+  dclid?: string;
+  epik?: string;
+  fbclid?: string;
+  gad_source?: string;
+  gbraid?: string;
+  gclid?: string;
+  gclsrc?: string;
+  igshid?: string;
+  irclid?: string;
+  li_fat_id?: string;
+  mc_cid?: string;
+  msclkid?: string;
+  qclid?: string;
+  rdt_cid?: string;
+  sccid?: string;
+  ttclid?: string;
+  twclid?: string;
+  utm_campaign?: string;
+  utm_content?: string;
+  utm_medium?: string;
+  utm_source?: string;
+  utm_term?: string;
+  wbraid?: string;
+  _kx?: string;
+
+  firstVisitSource?:string
+}
+
 interface ApiEnvelope<T> {
   code: string;
   data: T;
@@ -75,13 +104,42 @@ export async function getProfileView(id: string): Promise<ApiUser | null> {
     const response = await request.get<ApiEnvelope<ApiUser>>(
       `/quote/api/v1/profile/view/${encodeURIComponent(id)}`,
       undefined,
-      { timeout: 5000 }
+      { timeout: 5000 },
     );
 
     // response is ApiResponse<ApiEnvelope<ApiUser>> per our request helper
     const envelope = response as unknown as ApiEnvelope<ApiUser> | any;
     if (envelope && envelope.data) {
-      return envelope.data.data as ApiUser;
+      const data = envelope.data.data;
+      const userProfile = data?.userProfile;
+      const properties = userProfile?.properties ? JSON.parse(userProfile.properties) : null;
+
+      data.dclid = properties?.dclid;
+      data.epik = properties?.epik;
+      data.fbclid = properties?.fbclid;
+      data.gad_source = properties?.gad_source;
+      data.gbraid = properties?.gbraid;
+      data.gclid = properties?.gclid;
+      data.gclsrc = properties?.gclsrc;
+      data.igshid = properties?.igshid;
+      data.irclid = properties?.irclid;
+      data.li_fat_id = properties?.li_fat_id;
+      data.mc_cid = properties?.mc_cid;
+      data.msclkid = properties?.msclkid;
+      data.qclid = properties?.qclid;
+      data.rdt_cid = properties?.rdt_cid;
+      data.sccid = properties?.sccid;
+      data.ttclid = properties?.ttclid;
+      data.twclid = properties?.twclid;
+      data.utm_campaign = properties?.utm_campaign;
+      data.utm_content = properties?.utm_content;
+      data.utm_medium = properties?.utm_medium;
+      data.utm_source = properties?.utm_source;
+      data.utm_term = properties?.utm_term;
+      data.wbraid = properties?.wbraid;
+      data._kx = properties?._kx;
+      data.firstReferrer = properties?.$referring_domain
+      return data as ApiUser;
     }
 
     // Fallback if backend returns raw object
@@ -113,7 +171,7 @@ export async function getUserEventList(
       "/quote/api/v1/profile/order/list",
       requestBody,
     );
-    
+
     const envelope = response as unknown as
       | ApiEnvelope<ApiEventListResponse>
       | any;
@@ -144,13 +202,12 @@ export async function addProfileLabel(
       payload,
       {
         headers: { "Content-Type": "application/json" },
-        timeout: 5000
+        timeout: 5000,
       },
     );
     console.log(res);
     const data = res.data;
-    if (data && (data.code === "201" || data.code === "200"))
-      return true;
+    if (data && (data.code === "201" || data.code === "200")) return true;
     if ((res as any)?.success) return true;
     throw new Error((data && data.msg) || "添加标签失败");
   } catch (error) {
@@ -165,12 +222,11 @@ export async function deleteProfileLabel(id: string): Promise<boolean> {
       { id },
       {
         headers: { "Content-Type": "application/json" },
-        timeout: 5000
+        timeout: 5000,
       },
     );
     const data = res.data;
-    if (data && (data.code === "201" || data.code === "200"))
-      return true;
+    if (data && (data.code === "201" || data.code === "200")) return true;
     if ((res as any)?.success) return true;
     throw new Error((data && data.msg) || "删除标签失败");
   } catch (error) {
