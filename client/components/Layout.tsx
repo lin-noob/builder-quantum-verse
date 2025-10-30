@@ -705,7 +705,7 @@ export default function Layout({ children }: LayoutProps) {
         </div>
 
         {/* Navigation Menu */}
-        <nav className="flex-1 px-2 py-6">
+        <nav className="flex-1 px-2 py-6 overflow-auto">
           <ul className="space-y-2">
             {menuItems.map((item) => {
               const isActive =
