@@ -18,6 +18,7 @@ export interface TextAliasCondition {
 export interface SelectorCondition {
   selector?: string; // CSS selector if stable
   attributes?: Record<string, string>; // e.g. { "data-role": "login-button" }
+  attributesRaw?: string; // Raw input string for attributes
 }
 
 export interface Preconditions {
@@ -49,6 +50,7 @@ export interface EventRule {
   dedup?: DedupStrategy;
   createdAt: string;
   updatedAt: string;
+  backendId?: number; // Backend database ID for API calls
 }
 
 export interface RawEventSample {

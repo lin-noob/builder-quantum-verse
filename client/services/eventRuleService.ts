@@ -3,19 +3,6 @@ import { EventRule } from "@shared/eventRuleTypes";
 const STORAGE_KEY = "event_rules";
 
 export const eventRuleService = {
-  list(): EventRule[] {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return [];
-      const parsed = JSON.parse(raw) as EventRule[];
-      return Array.isArray(parsed) ? parsed : [];
-    } catch {
-      return [];
-    }
-  },
-  saveAll(rules: EventRule[]) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(rules));
-  },
   create(rule: Omit<EventRule, "id" | "createdAt" | "updatedAt">): EventRule {
     const now = new Date().toISOString();
     const newRule: EventRule = {
@@ -28,25 +15,6 @@ export const eventRuleService = {
     rules.push(newRule);
     this.saveAll(rules);
     return newRule;
-  },
-  update(id: string, patch: Partial<EventRule>): EventRule | null {
-    const rules = this.list();
-    const idx = rules.findIndex((r) => r.id === id);
-    if (idx === -1) return null;
-    const updated: EventRule = {
-      ...rules[idx],
-      ...patch,
-      updatedAt: new Date().toISOString(),
-    };
-    rules[idx] = updated;
-    this.saveAll(rules);
-    return updated;
-  },
-  remove(id: string): boolean {
-    const rules = this.list();
-    const next = rules.filter((r) => r.id !== id);
-    this.saveAll(next);
-    return next.length !== rules.length;
   },
   reorder(ids: string[]): void {
     const rules = this.list();

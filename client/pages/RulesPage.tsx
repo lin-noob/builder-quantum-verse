@@ -43,14 +43,16 @@ import {
   RawEventType,
   summarizeRule,
 } from "@shared/eventRuleTypes";
+import { ruleService, CreateRuleRequest } from "@/services/ruleService";
+import { useToast } from "@/hooks/use-toast";
 
 const eventLabels: Record<string, string> = {
-  AddToCart: "AddToCart",
-  RemoveFromCart: "RemoveFromCart",
-  StartCheckout: "StartCheckout",
-  CompletePurchase: "CompletePurchase",
-  UserRegister: "UserRegister",
-  UserLogin: "UserLogin",
+  AddToCart: "加购商品",
+  RemoveFromCart: "移除商品",
+  StartCheckout: "开始结算",
+  CompletePurchase: "完成订单",
+  UserRegister: "注册",
+  UserLogin: "登录",
 };
 
 const rawTypeLabels: Record<RawEventType, string> = {
@@ -70,13 +72,127 @@ const RulesPage = () => {
   const [showInlineAddEvent, setShowInlineAddEvent] = useState(false);
   const [selectOpen, setSelectOpen] = useState(false);
   const [draggedRule, setDraggedRule] = useState<string | null>(null);
+  const { toast } = useToast();
 
-  const reload = () => setRules(eventRuleService.list());
+  /**
+   * Load rules from backend API
+   * 从后端API加载规则列表
+   */
+  const loadRulesFromBackend = async () => {
+    try {
+      const backendRules = await ruleService.getRules();
+      const convertedRules = backendRules.map(convertFromBackendRule);
+
+      // Update state
+      setRules(convertedRules);
+
+      return convertedRules;
+    } catch (error) {
+      console.error("Failed to load rules from backend:", error);
+      return [];
+    }
+  };
+
+  /**
+   * Convert frontend EventRule to backend API format
+   * 将前端EventRule格式转换为后端API格式
+   */
+  const convertToBackendRule = (rule: EventRule): CreateRuleRequest => {
+    // Join titleAlias (text aliases) with commas
+    const titleAlias = rule.conditions.text?.aliases?.filter(Boolean).join(",") || "";
+
+    // Join titleContains (pageTitleIncludes) with commas
+    const titleContains = rule.conditions.pageTitleIncludes?.filter(Boolean).join(",") || "";
+
+    // Convert selector attributes to string format (key=value,key=value)
+    const attributes = rule.conditions.selector?.attributesRaw ??"";
+
+    return {
+      ruleName: rule.name,
+      eventType: rule.conditions.eventType,
+      targetEvent: rule.targetEvent,
+      selector: rule.conditions.selector?.selector || "",
+      attributes: attributes,
+      titleAlias: titleAlias,
+      titleContains: titleContains,
+      titleMatchMode: rule.conditions.text?.matchMode || "contains",
+      urlMatchType: rule.scope.type,
+      urlMatchValue: rule.scope.value,
+      dedupStrategy: rule.dedup?.oncePerSession ? "session" : "window",
+      dedupWindow: rule.dedup?.windowSeconds || 0,
+      enableFlag: rule.enabled,
+      sortOrder: rule.priority,
+    };
+  };
+
+  /**
+   * Convert backend rule to frontend EventRule format
+   * 将后端规则格式转换为前端EventRule格式
+   */
+  const convertFromBackendRule = (backendRule: any): EventRule => {
+    // Split titleAlias (comma-separated) into array
+    const aliases = backendRule.titleAlias
+      ? backendRule.titleAlias.split(",").map((s: string) => s.trim()).filter(Boolean)
+      : [];
+
+    // Split titleContains (comma-separated) into array
+    const pageTitleIncludes = backendRule.titleContains
+      ? backendRule.titleContains.split(",").map((s: string) => s.trim()).filter(Boolean)
+      : [];
+
+    // Parse attributes string (key=value,key=value) into object
+    const attributes: Record<string, string> = {};
+    if (backendRule.attributes) {
+      const kvPairs = backendRule.attributes.split(",").map((s: string) => s.trim()).filter(Boolean);
+      kvPairs.forEach((kv: string) => {
+        const parts = kv.split("=");
+        if (parts.length >= 2) {
+          const k = parts[0].trim();
+          const v = parts.slice(1).join("=").trim();
+          if (k && v) attributes[k] = v;
+        }
+      });
+    }
+
+    return {
+      id: `rule_${backendRule.id}`,
+      backendId: backendRule.id,
+      name: backendRule.ruleName || "",
+      targetEvent: backendRule.targetEvent || "Login",
+      scope: {
+        type: (backendRule.urlMatchType || "prefix") as "prefix" | "regex",
+        value: backendRule.urlMatchValue || "/",
+      },
+      conditions: {
+        eventType: (backendRule.eventType || "click") as RawEventType,
+        text: aliases.length > 0 ? {
+          aliases: aliases,
+          matchMode: (backendRule.titleMatchMode || "contains") as any,
+        } : undefined,
+        selector: (backendRule.selector || Object.keys(attributes).length > 0) ? {
+          selector: backendRule.selector || undefined,
+          attributes: Object.keys(attributes).length > 0 ? attributes : undefined,
+          attributesRaw: backendRule.attributes || undefined,
+        } : undefined,
+        pageTitleIncludes: pageTitleIncludes.length > 0 ? pageTitleIncludes : undefined,
+      },
+      enabled: backendRule.enableFlag !== false,
+      priority: backendRule.sortOrder || 0,
+      dedup: {
+        windowSeconds: backendRule.dedupWindow || 0,
+        oncePerSession: backendRule.dedupStrategy === "session",
+      },
+      createdAt: backendRule.gmtCreate || new Date().toISOString(),
+      updatedAt: backendRule.gmtModified || new Date().toISOString(),
+    };
+  };
 
   useEffect(() => {
-    reload();
-    // 确保有多个模拟规则数据
-    const existing = eventRuleService.list();
+    // Load rules from backend on component mount
+    loadRulesFromBackend();
+
+    // MOCK DATA DISABLED - Now loading from backend
+    /* const existing = eventRuleService.list();
     if (existing.length === 0) {
       // 创建多个模拟规则
       const mockRules = [
@@ -126,13 +242,13 @@ const RulesPage = () => {
           dedup: { windowSeconds: 30, oncePerSession: false },
         },
         {
-          name: "购物车添加规则",
+          name: "购物车添���规则",
           targetEvent: "OrderSuccess" as NamedEvent,
           scope: { type: "prefix" as const, value: "/cart" },
           conditions: {
             eventType: "click" as const,
             text: {
-              aliases: ["添加", "Add to cart", "加入购物车"],
+              aliases: ["添加", "Add to cart", "��入购物车"],
               matchMode: "contains" as const,
             },
           },
@@ -161,46 +277,14 @@ const RulesPage = () => {
         eventRuleService.create(rule as any);
       });
       reload();
-    }
+    } */
   }, []);
-
-  // Load custom named events from localStorage
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem("custom_named_events");
-      if (raw) {
-        const arr = JSON.parse(raw);
-        if (Array.isArray(arr)) {
-          setCustomEvents(arr.filter((x: any) => typeof x === "string"));
-        }
-      }
-    } catch {}
-  }, []);
-
-  const handleCreateFromTemplate = () => {
-    // Append templates if not exists
-    const existing = eventRuleService.list();
-    const existsIds = new Set(existing.map((r) => r.id));
-    const toCreate = starterTemplates
-      .filter((t) => !existsIds.has(t.id))
-      .map((t) => ({
-        name: t.name,
-        targetEvent: t.targetEvent,
-        scope: t.scope,
-        conditions: t.conditions,
-        enabled: t.enabled,
-        priority: t.priority,
-        dedup: t.dedup,
-      }));
-    toCreate.forEach((tpl) => eventRuleService.create(tpl as any));
-    reload();
-  };
 
   const handleCreate = () => {
     setEditingRule({
       id: "",
-      name: "新建事件规则",
-      targetEvent: "Login",
+      name: "",
+      targetEvent: "UserLogin",
       scope: { type: "prefix", value: "/" },
       conditions: {
         eventType: "click",
@@ -220,27 +304,80 @@ const RulesPage = () => {
     setOpenEditor(true);
   };
 
-  const handleDelete = (rule: EventRule) => {
-    eventRuleService.remove(rule.id);
-    reload();
+  const handleDelete = async (rule: EventRule) => {
+    try {
+      // Delete from backend if it has a backend ID
+      if (rule.backendId) {
+        await ruleService.deleteRule(rule.backendId);
+      }
+
+      toast({
+        title: "成功",
+        description: "规则删除成功",
+      });
+
+      loadRulesFromBackend();
+    } catch (error) {
+      console.error("Failed to delete rule:", error);
+      toast({
+        title: "错误",
+        description: error instanceof Error ? error.message : "删除规则失败",
+        variant: "destructive",
+      });
+    }
   };
 
-  const saveRule = () => {
+  const saveRule = async () => {
     if (!editingRule) return;
-    if (!editingRule.name.trim()) return;
-    if (editingRule.id) {
-      eventRuleService.update(editingRule.id, editingRule);
-    } else {
-      const { id, createdAt, updatedAt, ...rest } = editingRule;
-      eventRuleService.create(rest as any);
+    if (!editingRule.name.trim()) {
+      toast({
+        title: "错误",
+        description: "规则名称不能为空",
+        variant: "destructive",
+      });
+      return;
     }
-    setOpenEditor(false);
-    setEditingRule(null);
-    // 重置下拉框相关状态
-    setShowInlineAddEvent(false);
-    setNewEventName("");
-    setSelectOpen(false);
-    reload();
+
+    try {
+      // Convert to backend format
+      const backendRule = convertToBackendRule(editingRule);
+
+      let savedRule: any;
+      let updatedEditingRule = { ...editingRule };
+
+      // Check if this is an update or create operation
+      if (editingRule.backendId) {
+        // Update existing rule
+        await ruleService.updateRule(editingRule.backendId, backendRule);
+        toast({
+          title: "成功",
+          description: "规则更新成功",
+        });
+      } else {
+        // Create new rule
+        await ruleService.createRule(backendRule);
+        toast({
+          title: "成功",
+          description: "规则创建成功",
+        });
+      }
+
+      // Also save to local storage for UI consistency
+      setOpenEditor(false);
+      setEditingRule(null);
+      // 重置下拉框相关状态
+      setShowInlineAddEvent(false);
+      setNewEventName("");
+      setSelectOpen(false);
+      loadRulesFromBackend();
+    } catch (error) {
+      console.error("Failed to save rule:", error);
+      toast({
+        title: "错误",
+        description: error instanceof Error ? error.message : "保存规则失败",
+        variant: "destructive",
+      });
+    }
   };
 
   const updateEditing = (patch: Partial<EventRule>) => {
@@ -261,7 +398,7 @@ const RulesPage = () => {
     setShowAddEvent(false);
     setShowInlineAddEvent(false);
     setNewEventName("");
-    // 保持下拉框打开状态，不调用 setSelectOpen(false)
+    // 保持下拉框打开状态��不调用 setSelectOpen(false)
   };
 
   const cancelAddEvent = () => {
@@ -303,24 +440,48 @@ const RulesPage = () => {
     e.preventDefault();
   };
 
-  const handleDrop = (
+  const handleDrop = async (
     e: React.DragEvent<HTMLDivElement>,
     targetIndex: number,
   ) => {
+    console.log(targetIndex);
     e.preventDefault();
     const draggedRuleId = e.dataTransfer.getData("text/plain");
 
     if (draggedRuleId && draggedRule) {
       const draggedIndex = rules.findIndex((rule) => rule.id === draggedRuleId);
       if (draggedIndex !== -1 && draggedIndex !== targetIndex) {
-        // 重新排序规则
-        const newRules = [...rules];
-        const [draggedItem] = newRules.splice(draggedIndex, 1);
-        newRules.splice(targetIndex, 0, draggedItem);
-        setRules(newRules);
+        const sourceRule = rules[draggedIndex];
+        const targetRule = rules[targetIndex];
 
-        // 这里可以调用API保存新的排序
-        // eventRuleService.updateOrder(newRules.map(r => r.id));
+        // Check if both rules have backend IDs
+        if (sourceRule.backendId && targetRule.backendId) {
+          try {
+            // Call backend API to move the rule
+            await ruleService.moveRule(sourceRule.backendId, targetRule.backendId);
+
+            toast({
+              title: "成功",
+              description: "规则顺序已更新",
+            });
+          } catch (error) {
+            console.error("Failed to move rule:", error);
+            toast({
+              title: "错误",
+              description: error instanceof Error ? error.message : "移动规则失败",
+              variant: "destructive",
+            });
+            setDraggedRule(null);
+            return;
+          }
+        }
+
+        // Update local state
+        // const newRules = [...rules];
+        // const [draggedItem] = newRules.splice(draggedIndex, 1);
+        // newRules.splice(targetIndex, 0, draggedItem);
+        // setRules(newRules);
+        loadRulesFromBackend()
       }
     }
 
@@ -525,7 +686,7 @@ const RulesPage = () => {
                             value={editingRule.targetEvent}
                             open={selectOpen}
                             onOpenChange={(open) => {
-                              // 如果正在显示内联添加事件，不允许关闭下拉框
+                              // 如果正在显示内联添加事件，不允��关闭下拉框
                               if (!open && showInlineAddEvent) {
                                 return;
                               }
@@ -556,7 +717,7 @@ const RulesPage = () => {
                                   {ev}
                                 </SelectItem>
                               ))}
-                              {!showInlineAddEvent && (
+                              {/* {!showInlineAddEvent && (
                                 <SelectItem
                                   value="__add_new__"
                                   className="text-blue-600 font-medium"
@@ -566,8 +727,8 @@ const RulesPage = () => {
                                     新增事件
                                   </div>
                                 </SelectItem>
-                              )}
-                              {showInlineAddEvent && (
+                              )} */}
+                              {/* {showInlineAddEvent && (
                                 <div className="p-2 border-t">
                                   <div className="flex items-center gap-2">
                                     <Input
@@ -604,7 +765,7 @@ const RulesPage = () => {
                                     </Button>
                                   </div>
                                 </div>
-                              )}
+                              )} */}
                             </SelectContent>
                           </Select>
                         </div>
@@ -631,7 +792,7 @@ const RulesPage = () => {
                                 side="top"
                                 className="max-w-xs bg-gray-900 text-white border-gray-700"
                               >
-                                限定规则生效的URL匹配方式：前缀匹配（简单高效）或正则匹配（适用于复杂路径）。
+                                限定规则生效的URL匹���方式：前缀匹配（简单高效）或正则匹配（适用于复杂路径）。
                               </TooltipContent>
                             </Tooltip>
                           </div>
@@ -727,7 +888,7 @@ const RulesPage = () => {
                                 side="top"
                                 className="max-w-xs bg-gray-900 text-white border-gray-700"
                               >
-                                匹配页面标题中包含特定文字的页面。当用户访问的页面标题包含指定关键词时，触发事件规则。例如：设置"登录"，当用户访问标题包含"登录"的页面时匹配。
+                                匹配页面标题中包含特定文字的页面。当用户访问的页面标题包含指定关键词时，触发事件规则。例如：设置"登录"，当用户访问标题包含"登录"的页面��匹配。
                               </TooltipContent>
                             </Tooltip>
                           </div>
@@ -814,7 +975,7 @@ const RulesPage = () => {
                                   side="top"
                                   className="max-w-xs bg-gray-900 text-white border-gray-700"
                                 >
-                                  定义文本别名的匹配方式。等于：完全匹配；包含：部分匹配（默认）；前缀：以指定文本开头；后缀：以指定文本结尾。
+                                  ��义文本别名的匹配方式。等于：��全匹配；包含：部分匹配（默认）；前缀：以指定文本开头；后缀：以指定文本结尾。
                                 </TooltipContent>
                               </Tooltip>
                             </div>
@@ -904,20 +1065,29 @@ const RulesPage = () => {
                           </div>
                           <Input
                             placeholder="data-role=login,data-id=btn1"
-                            value={Object.entries(
-                              editingRule.conditions.selector?.attributes || {},
-                            )
-                              .map(([k, v]) => `${k}=${v}`)
-                              .join(",")}
+                            value={
+                              editingRule.conditions.selector?.attributesRaw !== undefined
+                                ? editingRule.conditions.selector.attributesRaw
+                                : Object.entries(
+                                    editingRule.conditions.selector?.attributes || {},
+                                  )
+                                    .map(([k, v]) => `${k}=${v}`)
+                                    .join(",")
+                            }
                             onChange={(e) => {
-                              const kvs = e.target.value
+                              const rawValue = e.target.value;
+                              const kvs = rawValue
                                 .split(",")
                                 .map((s) => s.trim())
                                 .filter(Boolean);
                               const attrs: Record<string, string> = {};
                               kvs.forEach((kv) => {
-                                const [k, v] = kv.split("=");
-                                if (k && v) attrs[k] = v;
+                                const parts = kv.split("=");
+                                if (parts.length >= 2) {
+                                  const k = parts[0].trim();
+                                  const v = parts.slice(1).join("=").trim();
+                                  if (k && v) attrs[k] = v;
+                                }
                               });
                               updateEditing({
                                 conditions: {
@@ -925,6 +1095,7 @@ const RulesPage = () => {
                                   selector: {
                                     ...(editingRule.conditions.selector || {}),
                                     attributes: attrs,
+                                    attributesRaw: rawValue,
                                   },
                                 },
                               });
