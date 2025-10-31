@@ -192,7 +192,8 @@ export default function UserDetail() {
       tags: [],
       sessions: [],
       orders: [],
-      sessionId: apiUser.sessionId
+      sessionId: apiUser.sessionId,
+      userEngagement: apiUser.userEngagement
     } as any;
   }, [apiUser, cdpId]);
 
@@ -323,23 +324,23 @@ export default function UserDetail() {
   }, [apiUser, user]);
 
   // 拉取近200条行为事件与订单事件用于总览指标计算
-  useEffect(() => {
-    const loadMetrics = async () => {
-      if (!user?.cdpId) return;
-      try {
-        // 始终使用 Mock 事件列表
-        const beh = await MockDataService.getMockEventList(String(user.cdpId), String(user.distinctId), 1, 200, 2);
-        const ord = await MockDataService.getMockEventList(String(user.cdpId), String(user.distinctId), 1, 200, 1);
-        setBehaviorEvents(Array.isArray(beh?.records) ? beh!.records : []);
-        setOrderEvents(Array.isArray(ord?.records) ? ord!.records : []);
-      } catch (e) {
-        console.warn("Failed to load overview metrics events (mock):", e);
-        setBehaviorEvents([]);
-        setOrderEvents([]);
-      }
-    };
-    loadMetrics();
-  }, [user?.cdpId, user?.distinctId]);
+  // useEffect(() => {
+  //   const loadMetrics = async () => {
+  //     if (!user?.cdpId) return;
+  //     try {
+  //       // 始终使用 Mock 事件列表
+  //       const beh = await MockDataService.getMockEventList(String(user.cdpId), String(user.distinctId), 1, 200, 2);
+  //       const ord = await MockDataService.getMockEventList(String(user.cdpId), String(user.distinctId), 1, 200, 1);
+  //       setBehaviorEvents(Array.isArray(beh?.records) ? beh!.records : []);
+  //       setOrderEvents(Array.isArray(ord?.records) ? ord!.records : []);
+  //     } catch (e) {
+  //       console.warn("Failed to load overview metrics events (mock):", e);
+  //       setBehaviorEvents([]);
+  //       setOrderEvents([]);
+  //     }
+  //   };
+  //   loadMetrics();
+  // }, [user?.cdpId, user?.distinctId]);
 
   // 计算近7天/30天相关指标（粗略）
   const now = new Date();
@@ -787,21 +788,21 @@ export default function UserDetail() {
                               <tbody className="divide-y divide-gray-200">
                                 <tr>
                                   <td className="px-4 py-3 text-sm text-gray-900 bg-gray-50">近30天会话次数<TooltipIcon text="最近30天内的总会话数" /></td>
-                                  <td className="px-4 py-3 text-sm text-gray-900">{user.sessions30d ?? 0}</td>
-                                  <td className="px-4 py-3 text-sm text-gray-900 bg-gray-50">跳出率<TooltipIcon tip="只浏览一个页面就离开的会话占比" /></td>
-                                  <td className="px-4 py-3 text-sm text-gray-900">{user.bounceRate ?? 0}%</td>
+                                  <td className="px-4 py-3 text-sm text-gray-900">{user?.userEngagement?.sessionCount30d ?? 0}</td>
+                                  <td className="px-4 py-3 text-sm text-gray-900 bg-gray-50">跳出率<TooltipIcon text="只浏览一个页面就离开的会话占比" /></td>
+                                  <td className="px-4 py-3 text-sm text-gray-900">{user?.userEngagement?.bounceRate30d ?? 0}%</td>
                                 </tr>
                                 <tr>
                                   <td className="px-4 py-3 text-sm text-gray-900 bg-gray-50">近7天事件数<TooltipIcon text="最近7天内的总事件数" /></td>
-                                  <td className="px-4 py-3 text-sm text-gray-900">{user.eventsCount7d ?? 0}</td>
+                                  <td className="px-4 py-3 text-sm text-gray-900">{user?.userEngagement?.eventCount7d ?? 0}</td>
                                   <td className="px-4 py-3 text-sm text-gray-900 bg-gray-50">页面浏览量<TooltipIcon text="累计浏览的页面总数" /></td>
-                                  <td className="px-4 py-3 text-sm text-gray-900">{user.pageViews ?? 0}</td>
+                                  <td className="px-4 py-3 text-sm text-gray-900">{user?.userEngagement?.pageView30dTotal ?? 0}</td>
                                 </tr>
                                 <tr>
                                   <td className="px-4 py-3 text-sm text-gray-900 bg-gray-50">近30天事件数<TooltipIcon text="最近30天内的总事件数" /></td>
-                                  <td className="px-4 py-3 text-sm text-gray-900">{user.eventsCount30d ?? 0}</td>
+                                  <td className="px-4 py-3 text-sm text-gray-900">{user?.userEngagement?.eventCount30d ?? 0}</td>
                                   <td className="px-4 py-3 text-sm text-gray-900 bg-gray-50">近30天页面浏览<TooltipIcon text="最近30天内浏览的页面总数" /></td>
-                                  <td className="px-4 py-3 text-sm text-gray-900">{user.pageviews30d ?? 0}</td>
+                                  <td className="px-4 py-3 text-sm text-gray-900">{user?.userEngagement?.pageView30d ?? 0}</td>
                                 </tr>
                               </tbody>
                             </table>

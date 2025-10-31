@@ -8,25 +8,7 @@ import {
   type ApiEventListResponse,
 } from "@/lib/profile";
 import { request } from "@/lib/request";
-
-// Event types mapping
-type EventType =
-  | "$pageview"
-  | "$pageleave"
-  | "$autocapture"
-  | "ScrollDepth"
-  | "Click"
-  | "ViewProduct"
-  | "AddToCart"
-  | "RemoveFromCart"
-  | "StartCheckout"
-  | "CompletePurchase"
-  | "UserRegister"
-  | "UserLogin"
-  | "SubmitForm"
-  | "Search"
-  | "PageDwellTime"
-  | "Change";
+import { EventType } from "@shared/eventRuleTypes";
 
 // Element interface for PostHog $elements array
 interface PostHogElement {
@@ -505,7 +487,7 @@ export default function SessionTimeline({
       {/* 事件详情弹窗 */}
       {isModalOpen && selectedEvent && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center"
+          className="fixed inset-0 z-50 flex items-center justify-center !mt-0"
           style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
           onClick={(e) => {
             if (e.target === e.currentTarget) {

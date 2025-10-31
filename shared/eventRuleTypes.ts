@@ -5,6 +5,24 @@ export type NamedEvent = ("Login" | "Signup" | "OrderSuccess") | (string & {});
 
 export type RawEventType = "click" | "form_submit" | "pageview" | "custom";
 
+export type EventType =
+  | "$pageview"
+  | "$pageleave"
+  | "$autocapture"
+  | "ScrollDepth"
+  | "Click"
+  | "ViewProduct"
+  | "AddToCart"
+  | "RemoveFromCart"
+  | "StartCheckout"
+  | "CompletePurchase"
+  | "UserRegister"
+  | "UserLogin"
+  | "SubmitForm"
+  | "Search"
+  | "PageDwellTime"
+  | "Change";
+
 export interface UrlScope {
   type: "prefix" | "regex";
   value: string; // e.g. "/auth" or "/checkout/success" or regex pattern
@@ -27,7 +45,7 @@ export interface Preconditions {
 }
 
 export interface EventRuleConditions {
-  eventType: RawEventType; // click / form_submit / pageview
+  eventType: EventType; // click / form_submit / pageview
   text?: TextAliasCondition;
   selector?: SelectorCondition;
   pageTitleIncludes?: string[]; // optional page title hints

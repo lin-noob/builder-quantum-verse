@@ -39,6 +39,7 @@ import {
 } from "@/services/eventRuleService";
 import {
   EventRule,
+  EventType,
   NamedEvent,
   RawEventType,
   summarizeRule,
@@ -47,19 +48,19 @@ import { ruleService, CreateRuleRequest } from "@/services/ruleService";
 import { useToast } from "@/hooks/use-toast";
 
 const eventLabels: Record<string, string> = {
+  UserRegister: "注册",
+  UserLogin: "登录",
+  ViewProduct: "浏览商品",
   AddToCart: "加购商品",
   RemoveFromCart: "移除商品",
   StartCheckout: "开始结算",
   CompletePurchase: "完成订单",
-  UserRegister: "注册",
-  UserLogin: "登录",
 };
 
-const rawTypeLabels: Record<RawEventType, string> = {
-  click: "点击",
-  form_submit: "表单提交",
-  pageview: "页面浏览",
-  custom: "自定义",
+const rawTypeLabels: Partial<Record<EventType, string>> = {
+  Click: "点击",
+  SubmitForm: "表单提交",
+  $pageview: "页面浏览",
 };
 
 const RulesPage = () => {
@@ -99,13 +100,15 @@ const RulesPage = () => {
    */
   const convertToBackendRule = (rule: EventRule): CreateRuleRequest => {
     // Join titleAlias (text aliases) with commas
-    const titleAlias = rule.conditions.text?.aliases?.filter(Boolean).join(",") || "";
+    const titleAlias =
+      rule.conditions.text?.aliases?.filter(Boolean).join(",") || "";
 
     // Join titleContains (pageTitleIncludes) with commas
-    const titleContains = rule.conditions.pageTitleIncludes?.filter(Boolean).join(",") || "";
+    const titleContains =
+      rule.conditions.pageTitleIncludes?.filter(Boolean).join(",") || "";
 
     // Convert selector attributes to string format (key=value,key=value)
-    const attributes = rule.conditions.selector?.attributesRaw ??"";
+    const attributes = rule.conditions.selector?.attributesRaw ?? "";
 
     return {
       ruleName: rule.name,
@@ -132,18 +135,27 @@ const RulesPage = () => {
   const convertFromBackendRule = (backendRule: any): EventRule => {
     // Split titleAlias (comma-separated) into array
     const aliases = backendRule.titleAlias
-      ? backendRule.titleAlias.split(",").map((s: string) => s.trim()).filter(Boolean)
+      ? backendRule.titleAlias
+          .split(",")
+          .map((s: string) => s.trim())
+          .filter(Boolean)
       : [];
 
     // Split titleContains (comma-separated) into array
     const pageTitleIncludes = backendRule.titleContains
-      ? backendRule.titleContains.split(",").map((s: string) => s.trim()).filter(Boolean)
+      ? backendRule.titleContains
+          .split(",")
+          .map((s: string) => s.trim())
+          .filter(Boolean)
       : [];
 
     // Parse attributes string (key=value,key=value) into object
     const attributes: Record<string, string> = {};
     if (backendRule.attributes) {
-      const kvPairs = backendRule.attributes.split(",").map((s: string) => s.trim()).filter(Boolean);
+      const kvPairs = backendRule.attributes
+        .split(",")
+        .map((s: string) => s.trim())
+        .filter(Boolean);
       kvPairs.forEach((kv: string) => {
         const parts = kv.split("=");
         if (parts.length >= 2) {
@@ -164,17 +176,25 @@ const RulesPage = () => {
         value: backendRule.urlMatchValue || "/",
       },
       conditions: {
-        eventType: (backendRule.eventType || "click") as RawEventType,
-        text: aliases.length > 0 ? {
-          aliases: aliases,
-          matchMode: (backendRule.titleMatchMode || "contains") as any,
-        } : undefined,
-        selector: (backendRule.selector || Object.keys(attributes).length > 0) ? {
-          selector: backendRule.selector || undefined,
-          attributes: Object.keys(attributes).length > 0 ? attributes : undefined,
-          attributesRaw: backendRule.attributes || undefined,
-        } : undefined,
-        pageTitleIncludes: pageTitleIncludes.length > 0 ? pageTitleIncludes : undefined,
+        eventType: backendRule.eventType || "Click",
+        text:
+          aliases.length > 0
+            ? {
+                aliases: aliases,
+                matchMode: (backendRule.titleMatchMode || "contains") as any,
+              }
+            : undefined,
+        selector:
+          backendRule.selector || Object.keys(attributes).length > 0
+            ? {
+                selector: backendRule.selector || undefined,
+                attributes:
+                  Object.keys(attributes).length > 0 ? attributes : undefined,
+                attributesRaw: backendRule.attributes || undefined,
+              }
+            : undefined,
+        pageTitleIncludes:
+          pageTitleIncludes.length > 0 ? pageTitleIncludes : undefined,
       },
       enabled: backendRule.enableFlag !== false,
       priority: backendRule.sortOrder || 0,
@@ -287,7 +307,7 @@ const RulesPage = () => {
       targetEvent: "UserLogin",
       scope: { type: "prefix", value: "/" },
       conditions: {
-        eventType: "click",
+        eventType: "Click",
         text: { aliases: [], matchMode: "contains" },
       },
       enabled: true,
@@ -337,6 +357,28 @@ const RulesPage = () => {
       });
       return;
     }
+
+    // Validate at least one identification condition is filled
+    const hasTextAliases = editingRule.conditions.text?.aliases?.some(
+      (alias) => alias.trim() !== ""
+    );
+    const hasTitleIncludes = editingRule.conditions.pageTitleIncludes?.some(
+      (title) => title.trim() !== ""
+    );
+    const hasSelector = editingRule.conditions.selector?.selector?.trim();
+    const hasAttributes =
+      editingRule.conditions.selector?.attributesRaw?.trim() ||
+      (editingRule.conditions.selector?.attributes &&
+        Object.keys(editingRule.conditions.selector.attributes).length > 0);
+
+    // if (!hasTextAliases && !hasTitleIncludes && !hasSelector && !hasAttributes) {
+    //   toast({
+    //     title: "错误",
+    //     description: "必须至少填写一个识别条件（文本别名、标题包含、选择器或属性）",
+    //     variant: "destructive",
+    //   });
+    //   return;
+    // }
 
     try {
       // Convert to backend format
@@ -398,7 +440,7 @@ const RulesPage = () => {
     setShowAddEvent(false);
     setShowInlineAddEvent(false);
     setNewEventName("");
-    // 保持下拉框打开状态��不调用 setSelectOpen(false)
+    // 保持下拉框打开状态不调用 setSelectOpen(false)
   };
 
   const cancelAddEvent = () => {
@@ -458,7 +500,10 @@ const RulesPage = () => {
         if (sourceRule.backendId && targetRule.backendId) {
           try {
             // Call backend API to move the rule
-            await ruleService.moveRule(sourceRule.backendId, targetRule.backendId);
+            await ruleService.moveRule(
+              sourceRule.backendId,
+              targetRule.backendId,
+            );
 
             toast({
               title: "成功",
@@ -468,7 +513,8 @@ const RulesPage = () => {
             console.error("Failed to move rule:", error);
             toast({
               title: "错误",
-              description: error instanceof Error ? error.message : "移动规则失败",
+              description:
+                error instanceof Error ? error.message : "移动规则失败",
               variant: "destructive",
             });
             setDraggedRule(null);
@@ -481,7 +527,7 @@ const RulesPage = () => {
         // const [draggedItem] = newRules.splice(draggedIndex, 1);
         // newRules.splice(targetIndex, 0, draggedItem);
         // setRules(newRules);
-        loadRulesFromBackend()
+        loadRulesFromBackend();
       }
     }
 
@@ -792,7 +838,7 @@ const RulesPage = () => {
                                 side="top"
                                 className="max-w-xs bg-gray-900 text-white border-gray-700"
                               >
-                                限定规则生效的URL匹���方式：前缀匹配（简单高效）或正则匹配（适用于复杂路径）。
+                                限定规则生效的URL匹配方式：前缀匹配（简单高效）或正则匹配（适用于复杂路径）。
                               </TooltipContent>
                             </Tooltip>
                           </div>
@@ -860,7 +906,7 @@ const RulesPage = () => {
                               updateEditing({
                                 conditions: {
                                   ...editingRule.conditions,
-                                  eventType: v as RawEventType,
+                                  eventType: v as EventType,
                                 },
                               })
                             }
@@ -975,7 +1021,7 @@ const RulesPage = () => {
                                   side="top"
                                   className="max-w-xs bg-gray-900 text-white border-gray-700"
                                 >
-                                  ��义文本别名的匹配方式。等于：��全匹配；包含：部分匹配（默认）；前缀：以指定文本开头；后缀：以指定文本结尾。
+                                  文本别名的匹配方式。等于：全匹配；包含：部分匹配（默认）；
                                 </TooltipContent>
                               </Tooltip>
                             </div>
@@ -1004,10 +1050,10 @@ const RulesPage = () => {
                               <SelectContent>
                                 <SelectItem value="equals">等于</SelectItem>
                                 <SelectItem value="contains">包含</SelectItem>
-                                <SelectItem value="starts_with">
+                                {/* <SelectItem value="starts_with">
                                   前缀
                                 </SelectItem>
-                                <SelectItem value="ends_with">后缀</SelectItem>
+                                <SelectItem value="ends_with">后缀</SelectItem> */}
                               </SelectContent>
                             </Select>
                           </div>
@@ -1066,10 +1112,12 @@ const RulesPage = () => {
                           <Input
                             placeholder="data-role=login,data-id=btn1"
                             value={
-                              editingRule.conditions.selector?.attributesRaw !== undefined
+                              editingRule.conditions.selector?.attributesRaw !==
+                              undefined
                                 ? editingRule.conditions.selector.attributesRaw
                                 : Object.entries(
-                                    editingRule.conditions.selector?.attributes || {},
+                                    editingRule.conditions.selector
+                                      ?.attributes || {},
                                   )
                                     .map(([k, v]) => `${k}=${v}`)
                                     .join(",")

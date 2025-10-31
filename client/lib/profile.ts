@@ -60,6 +60,14 @@ export interface ApiUser extends UserProfile {
   sessionId: string;
   labelList?: ApiLabel[]; // backend field name
   eventList?: ApiEventListResponse; // Add eventList field
+  userEngagement?:{
+    bounceRate30d: number;
+    eventCount7d: number;
+    eventCount30d: number;
+    pageView30d: number;
+    pageView30dTotal: number;
+    sessionCount30d: number;
+  }
 }
 
 interface UserProfile {
