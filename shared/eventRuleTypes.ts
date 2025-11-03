@@ -21,7 +21,8 @@ export type EventType =
   | "SubmitForm"
   | "Search"
   | "PageDwellTime"
-  | "Change";
+  | "Change"
+  | "Submit";
 
 export interface UrlScope {
   type: "prefix" | "regex";

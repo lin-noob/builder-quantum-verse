@@ -62,7 +62,7 @@ const RulesPage = () => {
 
   const rawTypeLabels: Partial<Record<EventType, string>> = {
     Click: t("sessionTimeline.eventTypes.Click"),
-    SubmitForm: t("sessionTimeline.eventTypes.SubmitForm"),
+    Submit: t("sessionTimeline.eventTypes.SubmitForm"),
     $pageview: t("sessionTimeline.eventTypes.PageView"),
   };
   const [rules, setRules] = useState<EventRule[]>([]);
