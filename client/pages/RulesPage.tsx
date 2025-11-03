@@ -46,24 +46,25 @@ import {
 } from "@shared/eventRuleTypes";
 import { ruleService, CreateRuleRequest } from "@/services/ruleService";
 import { useToast } from "@/hooks/use-toast";
-
-const eventLabels: Record<string, string> = {
-  UserRegister: "注册",
-  UserLogin: "登录",
-  ViewProduct: "浏览商品",
-  AddToCart: "加购商品",
-  RemoveFromCart: "移除商品",
-  StartCheckout: "开始结算",
-  CompletePurchase: "完成订单",
-};
-
-const rawTypeLabels: Partial<Record<EventType, string>> = {
-  Click: "点击",
-  SubmitForm: "表单提交",
-  $pageview: "页面浏览",
-};
+import { useTranslation } from "react-i18next";
 
 const RulesPage = () => {
+  const { t } = useTranslation();
+  const eventLabels: Record<string, string> = {
+    UserRegister: t("sessionTimeline.eventTypes.UserRegister"),
+    UserLogin: t("sessionTimeline.eventTypes.UserLogin"),
+    ViewProduct: t("sessionTimeline.eventTypes.ViewProduct"),
+    AddToCart: t("sessionTimeline.eventTypes.AddToCart"),
+    RemoveFromCart: t("sessionTimeline.eventTypes.RemoveFromCart"),
+    StartCheckout: t("sessionTimeline.eventTypes.StartCheckout"),
+    CompletePurchase: t("sessionTimeline.eventTypes.CompletePurchase"),
+  };
+
+  const rawTypeLabels: Partial<Record<EventType, string>> = {
+    Click: t("sessionTimeline.eventTypes.Click"),
+    SubmitForm: t("sessionTimeline.eventTypes.SubmitForm"),
+    $pageview: t("sessionTimeline.eventTypes.PageView"),
+  };
   const [rules, setRules] = useState<EventRule[]>([]);
   const [openEditor, setOpenEditor] = useState(false);
   const [editingRule, setEditingRule] = useState<EventRule | null>(null);
@@ -360,10 +361,10 @@ const RulesPage = () => {
 
     // Validate at least one identification condition is filled
     const hasTextAliases = editingRule.conditions.text?.aliases?.some(
-      (alias) => alias.trim() !== ""
+      (alias) => alias.trim() !== "",
     );
     const hasTitleIncludes = editingRule.conditions.pageTitleIncludes?.some(
-      (title) => title.trim() !== ""
+      (title) => title.trim() !== "",
     );
     const hasSelector = editingRule.conditions.selector?.selector?.trim();
     const hasAttributes =
