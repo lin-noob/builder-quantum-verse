@@ -683,7 +683,7 @@ const RulesPage = () => {
         <CardContent className="space-y-3 pt-4">
           {rules.length === 0 ? (
             <div className="text-sm text-muted-foreground">
-              ���无规则，点击"新建规则"开始。
+              暂无规则，点击"新建规则"开始。
             </div>
           ) : (
             rules.map((rule, idx) => (
@@ -982,9 +982,10 @@ const RulesPage = () => {
                             </SelectContent>
                           </Select>
                         </div>
+
                         <div className="space-y-2">
                           <Label>启用</Label>
-                          <div className="flex items-center h-10">
+                          <div className="flex items-center h-10 !mt-0">
                             <Switch
                               checked={editingRule.enabled}
                               onCheckedChange={(v) =>
@@ -992,6 +993,41 @@ const RulesPage = () => {
                               }
                             />
                           </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-base">识别条件</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="sm:col-span-2 space-y-2">
+                          <Label>事件类型</Label>
+                          <Select
+                            value={editingRule.conditions.eventType}
+                            onValueChange={(v) =>
+                              updateEditing({
+                                conditions: {
+                                  ...editingRule.conditions,
+                                  eventType: v as EventType,
+                                },
+                              })
+                            }
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="选择��件类型" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {Object.keys(rawTypeLabels).map((k) => (
+                                <SelectItem key={k} value={k}>
+                                  {rawTypeLabels[k as RawEventType]}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </div>
 
                         <div className="space-y-2">
@@ -1026,6 +1062,7 @@ const RulesPage = () => {
                             </SelectContent>
                           </Select>
                         </div>
+
                         <div className="space-y-2">
                           <div className="flex items-center gap-1">
                             <Label>URL范围值</Label>
@@ -1055,41 +1092,7 @@ const RulesPage = () => {
                             }
                           />
                         </div>
-                      </div>
-                    </CardContent>
-                  </Card>
 
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-base">识别条件</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label>事件类型</Label>
-                          <Select
-                            value={editingRule.conditions.eventType}
-                            onValueChange={(v) =>
-                              updateEditing({
-                                conditions: {
-                                  ...editingRule.conditions,
-                                  eventType: v as EventType,
-                                },
-                              })
-                            }
-                          >
-                            <SelectTrigger>
-                              <SelectValue placeholder="选择事件类型" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {Object.keys(rawTypeLabels).map((k) => (
-                                <SelectItem key={k} value={k}>
-                                  {rawTypeLabels[k as RawEventType]}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
                         <div className="space-y-2 sm:col-span-2">
                           <div className="flex items-center gap-2">
                             <Label>标题包含</Label>
