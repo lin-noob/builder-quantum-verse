@@ -46,6 +46,7 @@ import {
   summarizeRule,
 } from "@shared/eventRuleTypes";
 import { ruleService, CreateRuleRequest } from "@/services/ruleService";
+import { ruleTypeService } from "@/services/ruleTypeService";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 
@@ -70,6 +71,7 @@ const RulesPage = () => {
   const [openEditor, setOpenEditor] = useState(false);
   const [editingRule, setEditingRule] = useState<EventRule | null>(null);
   const [customEvents, setCustomEvents] = useState<string[]>([]);
+  const [ruleTypes, setRuleTypes] = useState<Map<string, string>>(new Map()); // eventName -> id mapping
   const [showAddEvent, setShowAddEvent] = useState(false);
   const [newEventName, setNewEventName] = useState("");
   const [showInlineAddEvent, setShowInlineAddEvent] = useState(false);
@@ -172,7 +174,7 @@ const RulesPage = () => {
       id: `rule_${backendRule.id}`,
       backendId: backendRule.id,
       name: backendRule.ruleName || "",
-      targetEvent: backendRule.targetEvent || "Login",
+      targetEvent: backendRule.targetEvent || "",
       scope: {
         type: (backendRule.urlMatchType || "prefix") as "prefix" | "regex",
         value: backendRule.urlMatchValue || "/",
@@ -209,19 +211,32 @@ const RulesPage = () => {
     };
   };
 
+  /**
+   * Load custom events from backend API
+   */
+  const loadCustomEvents = async () => {
+    try {
+      const types = await ruleTypeService.list();
+      const eventNames = types.map(rt => rt.eventName);
+      const typeMap = new Map(types.map(rt => [rt.eventName, rt.id]));
+
+      setCustomEvents(eventNames);
+      setRuleTypes(typeMap);
+    } catch (error) {
+      console.error("Failed to load custom events from backend:", error);
+      toast({
+        title: "加载失败",
+        description: "加载自定义事件失败",
+        variant: "destructive",
+      });
+    }
+  };
+
   useEffect(() => {
     // Load rules from backend on component mount
     loadRulesFromBackend();
-
-    // Load custom events from localStorage
-    try {
-      // const stored = localStorage.getItem("custom_named_events");
-      // if (stored) {
-      //   setCustomEvents(JSON.parse(stored));
-      // }
-    } catch (error) {
-      console.error("Failed to load custom events from localStorage:", error);
-    }
+    // Load custom events from backend
+    loadCustomEvents();
 
     // MOCK DATA DISABLED - Now loading from backend
     /* const existing = eventRuleService.list();
@@ -370,6 +385,15 @@ const RulesPage = () => {
       return;
     }
 
+    if (!editingRule.targetEvent.trim()) {
+      toast({
+        title: "错误",
+        description: "请选择目标事件",
+        variant: "destructive",
+      });
+      return;
+    }
+
     // Validate at least one identification condition is filled
     const hasTextAliases = editingRule.conditions.text?.aliases?.some(
       (alias) => alias.trim() !== "",
@@ -438,17 +462,44 @@ const RulesPage = () => {
     setEditingRule((prev) => (prev ? { ...prev, ...patch } : prev));
   };
 
-  const addCustomEvent = () => {
+  const addCustomEvent = async () => {
     const name = newEventName.trim();
     if (!name) return;
-    setCustomEvents((prev) => {
-      const next = prev.includes(name) ? prev : [...prev, name];
-      try {
-        // localStorage.setItem("custom_named_events", JSON.stringify(next));
-      } catch {}
-      return next;
-    });
-    updateEditing({ targetEvent: name as NamedEvent });
+
+    // 检查是否已存在
+    if (customEvents.includes(name)) {
+      toast({
+        title: "事件已存在",
+        description: `事件 "${name}" 已经存在`,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      // 调用后端API创建
+      await ruleTypeService.create(name);
+
+      // 重新加载列表
+      await loadCustomEvents();
+
+      // 更新编辑中的规则
+      updateEditing({ targetEvent: name as NamedEvent });
+
+      toast({
+        title: "创建成功",
+        description: `自定义事件 "${name}" 创建成功`,
+      });
+    } catch (error) {
+      console.error("Failed to create custom event:", error);
+      toast({
+        title: "创建失败",
+        description: "创建自定义事件失败，请稍后重试",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setShowAddEvent(false);
     setShowInlineAddEvent(false);
     setNewEventName("");
@@ -459,7 +510,7 @@ const RulesPage = () => {
     setShowAddEvent(false);
     setShowInlineAddEvent(false);
     setNewEventName("");
-    // 保持下拉框打开状态，不调用 setSelectOpen(false)
+    // 保持下拉框打���状态，不调用 setSelectOpen(false)
   };
 
   // 拖拽处理函数
@@ -632,7 +683,7 @@ const RulesPage = () => {
         <CardContent className="space-y-3 pt-4">
           {rules.length === 0 ? (
             <div className="text-sm text-muted-foreground">
-              暂无规则，点击"新建规则"开始。
+              ���无规则，点击"新建规则"开始。
             </div>
           ) : (
             rules.map((rule, idx) => (
@@ -736,7 +787,7 @@ const RulesPage = () => {
                                 side="top"
                                 className="max-w-xs bg-gray-900 text-white border-gray-700"
                               >
-                                规则匹配成功后产出的业务事件名称，用于报表与自动化策略触发；可选择内置或自定义事件。
+                                规则匹配成功后产出的业务事件名称，用于报表与自���化策略触发；可选择内置或自定义事件。
                               </TooltipContent>
                             </Tooltip>
                           </div>
@@ -749,7 +800,7 @@ const RulesPage = () => {
                                 return;
                               }
                               setSelectOpen(open);
-                              // 关闭时重置新增状态
+                              // 关���时重置新增状态
                               if (!open) {
                                 setShowInlineAddEvent(false);
                                 setNewEventName("");
@@ -780,7 +831,7 @@ const RulesPage = () => {
                             <SelectContent
                               className="max-h-[300px]"
                               onKeyDown={(e) => {
-                                // 当显示内联输入框时，禁用键盘导航
+                                // 当显示内联输入框时，禁用键��导航
                                 if (showInlineAddEvent) {
                                   e.stopPropagation();
                                 }
@@ -799,19 +850,43 @@ const RulesPage = () => {
                                     </SelectItem>
                                     <button
                                       className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 p-1.5 bg-destructive/20 hover:bg-destructive hover:scale-110 rounded-md z-10"
-                                      onClick={(e) => {
+                                      onClick={async (e) => {
                                         e.preventDefault();
                                         e.stopPropagation();
-                                        setCustomEvents((prev) => {
-                                          const next = prev.filter((item) => item !== ev);
-                                          try {
-                                            localStorage.setItem("custom_named_events", JSON.stringify(next));
-                                          } catch {}
-                                          return next;
-                                        });
-                                        // 如果删除的是当前选中的事件，清空选择
-                                        if (editingRule?.targetEvent === ev) {
-                                          updateEditing({ targetEvent: "UserLogin" as NamedEvent });
+
+                                        const eventId = ruleTypes.get(ev);
+                                        if (!eventId) {
+                                          toast({
+                                            title: "删除失败",
+                                            description: "无法找到该事件的ID",
+                                            variant: "destructive",
+                                          });
+                                          return;
+                                        }
+
+                                        try {
+                                          // 调用后端API删除
+                                          await ruleTypeService.delete(eventId);
+
+                                          // 重新加载列表
+                                          await loadCustomEvents();
+
+                                          // 如果删除的是当前选中的事件，清空选择
+                                          if (editingRule?.targetEvent === ev) {
+                                            updateEditing({ targetEvent: "" as NamedEvent });
+                                          }
+
+                                          toast({
+                                            title: "删除成功",
+                                            description: `自定义事件 "${ev}" 已删除`,
+                                          });
+                                        } catch (error) {
+                                          console.error("Failed to delete custom event:", error);
+                                          toast({
+                                            title: "删除失败",
+                                            description: "删除自定义事件失败，请稍后重试",
+                                            variant: "destructive",
+                                          });
                                         }
                                       }}
                                     >
@@ -1070,7 +1145,7 @@ const RulesPage = () => {
                               side="top"
                               className="max-w-xs bg-gray-900 text-white border-gray-700"
                             >
-                              定义多个文本关键词，用于匹配页面中的文本内容。识别页面中包含特定文本的元素（如按钮文字、链接文字等）。例如：设置["提交",
+                              定义多个文本关键词，用于匹配��面中的文本内容。识别页面中包含特定文本的元���（如按钮文字、链接文字等）。例如：设置["提交",
                               "Submit", "Send"]，匹配包含这些文字的元素。
                             </TooltipContent>
                           </Tooltip>
@@ -1145,7 +1220,7 @@ const RulesPage = () => {
                                 {/* <SelectItem value="starts_with">
                                   前缀
                                 </SelectItem>
-                                <SelectItem value="ends_with">后缀</SelectItem> */}
+                                <SelectItem value="ends_with">后��</SelectItem> */}
                               </SelectContent>
                             </Select>
                           </div>
@@ -1290,7 +1365,7 @@ const RulesPage = () => {
                               side="top"
                               className="max-w-xs bg-gray-900 text-white border-gray-700"
                             >
-                              开启后，在用户整个会话期间（从进入到离开网站），同一事件只会被记录一次。适用于登录、注册等只需记录一次的事件。
+                              开启后，在用户整个会话期间（从进入到离开网站），同一事件只会被记录一次。��用于登录、注册等只需记录一次的事件。
                             </TooltipContent>
                           </Tooltip>
                         </div>
