@@ -13,6 +13,7 @@ import FinancialSolution from "@/pages/solutions/FinancialSolution";
 import EnterpriseSolution from "@/pages/solutions/EnterpriseSolution";
 import AdminProfile from "@/admin/pages/AdminProfile";
 import RulesPage from "@/pages/RulesPage";
+const APIConnector = React.lazy(() => import("@/pages/APIConnector"));
 
 // 帮助中心页面组件
 const HelpCenter = React.lazy(() => import("@/pages/HelpCenter/HelpCenter"));
@@ -183,6 +184,18 @@ export const staticRoutes: RouteObject[] = [
       <Layout>
         <LazyRoute>
           <ProjectDetail />
+        </LazyRoute>
+      </Layout>
+    ),
+  },
+
+  // API连接器（独立站订单数据接入原型）
+  {
+    path: "/connectors/api",
+    element: (
+      <Layout>
+        <LazyRoute>
+          <APIConnector />
         </LazyRoute>
       </Layout>
     ),

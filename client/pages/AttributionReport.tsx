@@ -6,7 +6,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuCheckboxItem } from "@/components/ui/dropdown-menu";
 import AdvancedDateRangePicker from "@/components/AdvancedDateRangePicker";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Download, Search as SearchIcon, RotateCcw, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
+import { Download, Search as SearchIcon, RotateCcw, ArrowUp, ArrowDown, ArrowUpDown, Settings, GripVertical } from "lucide-react";
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -19,37 +19,44 @@ interface AttributionRow {
   source: string;
   medium: string;
   campaign: string;
+  sessions: number;
   visitors: number;
   registrations: number;
-  inquiries: number;
+  logins: number;
+  addToCart: number;
+  checkouts: number;
   orders: number;
+  purchases: number;
+  inquiries: number;
   orderAmount: number;
+  purchaseAmount: number;
 }
 
 const mockRows: AttributionRow[] = [
-  { id: "1", source: "Google", medium: "CPC", campaign: "Summer_Sale", visitors: 1200, registrations: 240, inquiries: 120, orders: 90, orderAmount: 36000 },
-  { id: "2", source: "Google", medium: "CPC", campaign: "Brand_Search", visitors: 800, registrations: 160, inquiries: 80, orders: 60, orderAmount: 19000 },
-  { id: "3", source: "Facebook", medium: "Ads", campaign: "Lookalike_2%", visitors: 1500, registrations: 200, inquiries: 110, orders: 75, orderAmount: 28000 },
-  { id: "4", source: "Email", medium: "EDM", campaign: "VIP_Drop", visitors: 900, registrations: 180, inquiries: 95, orders: 65, orderAmount: 19000 },
-  { id: "5", source: "Direct", medium: "None", campaign: "Homepage", visitors: 1600, registrations: 120, inquiries: 60, orders: 40, orderAmount: 15000 },
+  { id: "1", source: "Google", medium: "CPC", campaign: "Summer_Sale", sessions: 1800, visitors: 1200, registrations: 240, logins: 180, addToCart: 150, checkouts: 120, orders: 90, purchases: 85, inquiries: 120, orderAmount: 36000, purchaseAmount: 34000 },
+  { id: "2", source: "Google", medium: "CPC", campaign: "Brand_Search", sessions: 1200, visitors: 800, registrations: 160, logins: 120, addToCart: 100, checkouts: 80, orders: 60, purchases: 55, inquiries: 80, orderAmount: 19000, purchaseAmount: 17500 },
+  { id: "3", source: "Facebook", medium: "Ads", campaign: "Lookalike_2%", sessions: 2200, visitors: 1500, registrations: 200, logins: 150, addToCart: 180, checkouts: 140, orders: 75, purchases: 70, inquiries: 110, orderAmount: 28000, purchaseAmount: 26000 },
+  { id: "4", source: "Email", medium: "EDM", campaign: "VIP_Drop", sessions: 1300, visitors: 900, registrations: 180, logins: 160, addToCart: 130, checkouts: 110, orders: 65, purchases: 60, inquiries: 95, orderAmount: 19000, purchaseAmount: 18000 },
+  { id: "5", source: "Direct", medium: "None", campaign: "Homepage", sessions: 2400, visitors: 1600, registrations: 120, logins: 100, addToCart: 80, checkouts: 60, orders: 40, purchases: 35, inquiries: 60, orderAmount: 15000, purchaseAmount: 14000 },
 ];
 
 // 排序与列配置类型
-type SortKey = "source" | "medium" | "campaign" | "orderAmount" | "orderRate" | "registrationRate" | "inquiryRate" | "visitors" | "orders" | "registrations" | "inquiries";
-type ColKey = "source"|"medium"|"campaign"|"visitors"|"registrations"|"inquiries"|"orders"|"orderAmount"|"registrationRate"|"inquiryRate"|"orderRate";
+type SortKey = "source" | "medium" | "campaign" | "sessions" | "visitors" | "registrations" | "logins" | "addToCart" | "checkouts" | "orders" | "purchases" | "inquiries" | "registrationRate" | "loginRate" | "addToCartRate" | "checkoutRate" | "orderRate" | "purchaseRate" | "inquiryRate" | "conversionRate" | "orderAmount" | "purchaseAmount";
+type ColKey = "source"|"medium"|"campaign"|"sessions"|"visitors"|"registrations"|"logins"|"addToCart"|"checkouts"|"orders"|"purchases"|"inquiries"|"registrationRate"|"loginRate"|"addToCartRate"|"checkoutRate"|"orderRate"|"purchaseRate"|"inquiryRate"|"conversionRate"|"orderAmount"|"purchaseAmount";
 
 const columnsConfig: { key: ColKey; label: string }[] = [
   { key: "source", label: "Source" },
   { key: "medium", label: "Medium" },
   { key: "campaign", label: "Campaign" },
+  { key: "sessions", label: "会话数" },
   { key: "visitors", label: "总访客数" },
   { key: "registrations", label: "注册数" },
-  { key: "registrationRate", label: "注册率" },
-  { key: "inquiries", label: "询价数" },
-  { key: "inquiryRate", label: "询价率" },
+  { key: "logins", label: "登录数" },
+  { key: "addToCart", label: "加购数" },
+  { key: "checkouts", label: "结账数" },
   { key: "orders", label: "订单数" },
-  { key: "orderRate", label: "下单率" },
-  { key: "orderAmount", label: "订单金额" },
+  { key: "purchases", label: "购买数" },
+  { key: "inquiries", label: "询价数" },
 ];
 
 export default function AttributionReport() {
@@ -58,9 +65,9 @@ export default function AttributionReport() {
   // 多选筛选条件
   const [filters, setFilters] = useState<{ sources: string[]; mediums: string[]; campaigns: string[] }>({ sources: [], mediums: [], campaigns: [] });
   // 排序（主/次）
-  const [sortPrimary, setSortPrimary] = useState<SortKey>("orderAmount");
+  const [sortPrimary, setSortPrimary] = useState<SortKey>("orders");
   const [sortPrimaryDir, setSortPrimaryDir] = useState<"asc"|"desc">("desc");
-  const [sortSecondary, setSortSecondary] = useState<SortKey>("orderRate");
+  const [sortSecondary, setSortSecondary] = useState<SortKey>("registrations");
   const [sortSecondaryDir, setSortSecondaryDir] = useState<"asc"|"desc">("desc");
   // 分页
   const [pageSize, setPageSize] = useState<number>(10);
@@ -69,6 +76,23 @@ export default function AttributionReport() {
   const [exportColumns, setExportColumns] = useState<ColKey[]>(columnsConfig.map(c=>c.key));
   const [exportOpen, setExportOpen] = useState(false);
   const [exportScope, setExportScope] = useState<"current"|"all">("current");
+  
+  // 列配置弹窗状态
+  const [columnConfigOpen, setColumnConfigOpen] = useState(false);
+  const [visibleColumns, setVisibleColumns] = useState<ColKey[]>(() => {
+    // 从本地存储加载列配置
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('attribution-report-visible-columns');
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch {
+          // 如果解析失败，使用默认配置
+        }
+      }
+    }
+    return columnsConfig.map(c=>c.key);
+  });
 
   const sources = useMemo(() => Array.from(new Set(mockRows.map(r => r.source))), []);
   const mediums = useMemo(() => Array.from(new Set(mockRows.map(r => r.medium))), []);
@@ -93,8 +117,13 @@ export default function AttributionReport() {
   const withRates = useMemo(() => filteredRows.map(r => ({
     ...r,
     registrationRate: r.visitors ? r.registrations / r.visitors : 0,
-    inquiryRate: r.visitors ? r.inquiries / r.visitors : 0,
+    loginRate: r.visitors ? r.logins / r.visitors : 0,
+    addToCartRate: r.visitors ? r.addToCart / r.visitors : 0,
+    checkoutRate: r.visitors ? r.checkouts / r.visitors : 0,
     orderRate: r.visitors ? r.orders / r.visitors : 0,
+    purchaseRate: r.visitors ? r.purchases / r.visitors : 0,
+    inquiryRate: r.visitors ? r.inquiries / r.visitors : 0,
+    conversionRate: r.visitors ? (r.purchases || r.orders || r.registrations) / r.visitors : 0,
   })), [filteredRows]);
 
   // 表头点击排序（支持 Shift 追加二级排序）
@@ -149,12 +178,16 @@ export default function AttributionReport() {
   // 总计（当前筛选后的全量）
   const totals = useMemo(() => {
     return sortedRows.reduce((acc, r) => ({
+      sessions: acc.sessions + r.sessions,
       visitors: acc.visitors + r.visitors,
       registrations: acc.registrations + r.registrations,
-      inquiries: acc.inquiries + r.inquiries,
+      logins: acc.logins + r.logins,
+      addToCart: acc.addToCart + r.addToCart,
+      checkouts: acc.checkouts + r.checkouts,
       orders: acc.orders + r.orders,
-      orderAmount: acc.orderAmount + r.orderAmount,
-    }), { visitors: 0, registrations: 0, inquiries: 0, orders: 0, orderAmount: 0 });
+      purchases: acc.purchases + r.purchases,
+      inquiries: acc.inquiries + r.inquiries,
+    }), { sessions: 0, visitors: 0, registrations: 0, logins: 0, addToCart: 0, checkouts: 0, orders: 0, purchases: 0, inquiries: 0 });
   }, [sortedRows]);
 
   // 导出（弹窗配置：列与范围）
@@ -163,9 +196,6 @@ export default function AttributionReport() {
     const header = exportColumns.map(k => columnsConfig.find(c => c.key === k)!.label);
     const lines = rowsForExport.map(r => {
       const toCell = (key: ColKey) => {
-        if (key === "registrationRate") return `${((r as any).registrationRate * 100).toFixed(2)}%`;
-        if (key === "inquiryRate") return `${((r as any).inquiryRate * 100).toFixed(2)}%`;
-        if (key === "orderRate") return `${((r as any).orderRate * 100).toFixed(2)}%`;
         // @ts-ignore
         return r[key];
       };
@@ -179,20 +209,18 @@ export default function AttributionReport() {
     setExportOpen(false);
   };
 
-  // 搜索与重置
-  const handleSearch = () => {
-    setPage(1);
-  };
+  // 重置函数更新 - 重置列配置
   const handleReset = () => {
     setSearch("");
     setFilters({ sources: [], mediums: [], campaigns: [] });
     setPage(1);
-    setSortPrimary("orderAmount");
+    setSortPrimary("orders");
     setSortPrimaryDir("desc");
-    setSortSecondary("orderRate");
+    setSortSecondary("registrations");
     setSortSecondaryDir("desc");
     setExportColumns(columnsConfig.map(c=>c.key));
     setExportScope("current");
+    setVisibleColumns(columnsConfig.map(c=>c.key)); // 重置列配置
   };
 
   // UI 渲染
@@ -209,7 +237,7 @@ export default function AttributionReport() {
           placeholder="搜索来源/媒介/活动..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          onKeyPress={(e) => e.key === "Enter" && handleSearch()}
+          onKeyPress={(e) => e.key === "Enter" && setSearch(e.currentTarget.value)}
           className="pl-10"
         />
       </div>
@@ -277,7 +305,7 @@ export default function AttributionReport() {
       {/* 操作按钮 */}
 
       <div className="flex items-center gap-2 shrink-0">
-        <Button onClick={handleSearch} className="flex items-center gap-2 h-10">
+        <Button variant="outline" className="flex items-center gap-2 h-10 pointer-events-none opacity-60">
           <SearchIcon className="h-4 w-4" />
           搜索
         </Button>
@@ -343,6 +371,100 @@ export default function AttributionReport() {
             </div>
           </DialogContent>
         </Dialog>
+        
+        {/* 列配置弹窗 */}
+        <Dialog open={columnConfigOpen} onOpenChange={setColumnConfigOpen}>
+          <DialogTrigger asChild>
+            <Button variant="outline" className="flex items-center gap-2 h-10">
+              <Settings className="h-4 w-4" /> 列配置
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>列配置</DialogTitle>
+              <DialogDescription>选择要显示的列，拖动可调整顺序</DialogDescription>
+            </DialogHeader>
+            
+            <div className="space-y-4">
+              {/* 列选择区域 */}
+              <div className="space-y-3">
+                <Label className="text-sm font-medium">显示列</Label>
+                <div className="grid grid-cols-2 gap-3 max-h-64 overflow-y-auto">
+                  {columnsConfig.map((c) => (
+                    <div key={c.key} className="flex items-center space-x-2 p-2 rounded-md hover:bg-gray-50">
+                      <Checkbox
+                        id={`visible-${c.key}`}
+                        checked={visibleColumns.includes(c.key)}
+                        onCheckedChange={(checked) =>
+                          setVisibleColumns((prev) => checked ? [...prev, c.key] : prev.filter((k) => k !== c.key))
+                        }
+                      />
+                      <Label htmlFor={`visible-${c.key}`} className="cursor-pointer flex-1">
+                        {c.label}
+                      </Label>
+                      <GripVertical className="h-4 w-4 text-gray-400 cursor-move" />
+                    </div>
+                  ))}
+                </div>
+                <div className="flex gap-2">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => setVisibleColumns(columnsConfig.map(c => c.key))}
+                  >
+                    全选
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => setVisibleColumns([])}
+                  >
+                    清空
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => setVisibleColumns(['source', 'medium', 'campaign', 'visitors', 'orders', 'orderAmount'])}
+                  >
+                    重置默认
+                  </Button>
+                </div>
+              </div>
+              
+              {/* 预览区域 */}
+              <div className="space-y-3">
+                <Label className="text-sm font-medium">预览</Label>
+                <div className="border rounded-md p-3 bg-gray-50">
+                  <div className="text-sm text-gray-600">
+                    当前选择 {visibleColumns.length} 列：
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {visibleColumns.map(key => {
+                        const config = columnsConfig.find(c => c.key === key);
+                        return (
+                          <span key={key} className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs">
+                            {config?.label}
+                          </span>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setColumnConfigOpen(false)}>
+                取消
+              </Button>
+              <Button onClick={() => {
+                localStorage.setItem('attribution-report-visible-columns', JSON.stringify(visibleColumns));
+                setColumnConfigOpen(false);
+              }}>
+                确认
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
         </div>
       </Card>
@@ -354,134 +476,168 @@ export default function AttributionReport() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead
-                    className="sticky left-0 z-10 bg-background w-[160px] cursor-pointer select-none hover:bg-gray-100"
-                    onClick={(e)=>handleHeaderSort("source", (e as any).shiftKey)}
-                  >
-                    <div className="flex items-center gap-2">
-                      Source
-                      {getSortIcon("source")}
-                      {sortPrimary === "source" && <span className="text-xs text-gray-500">1</span>}
-                      {sortSecondary === "source" && <span className="text-xs text-gray-500">2</span>}
-                    </div>
-                  </TableHead>
-                  <TableHead
-                    className="sticky left-[160px] z-10 bg-background w-[160px] cursor-pointer select-none hover:bg-gray-100"
-                    onClick={(e)=>handleHeaderSort("medium", (e as any).shiftKey)}
-                  >
-                    <div className="flex items-center gap-2">
-                      Medium
-                      {getSortIcon("medium")}
-                      {sortPrimary === "medium" && <span className="text-xs text-gray-500">1</span>}
-                      {sortSecondary === "medium" && <span className="text-xs text-gray-500">2</span>}
-                    </div>
-                  </TableHead>
-                  <TableHead
-                    className="w-[200px] cursor-pointer select-none hover:bg-gray-100"
-                    onClick={(e)=>handleHeaderSort("campaign", (e as any).shiftKey)}
-                  >
-                    <div className="flex items-center gap-2">
-                      Campaign
-                      {getSortIcon("campaign")}
-                      {sortPrimary === "campaign" && <span className="text-xs text-gray-500">1</span>}
-                      {sortSecondary === "campaign" && <span className="text-xs text-gray-500">2</span>}
-                    </div>
-                  </TableHead>
-                  <TableHead className="cursor-pointer select-none hover:bg-gray-100" onClick={(e)=>handleHeaderSort("visitors", (e as any).shiftKey)}>
-                    <div className="flex items-center gap-2">
-                      总访客数
-                      {getSortIcon("visitors")}
-                      {sortPrimary === "visitors" && <span className="text-xs text-gray-500">1</span>}
-                      {sortSecondary === "visitors" && <span className="text-xs text-gray-500">2</span>}
-                    </div>
-                  </TableHead>
-                  <TableHead className="cursor-pointer select-none hover:bg-gray-100" onClick={(e)=>handleHeaderSort("registrations", (e as any).shiftKey)}>
-                    <div className="flex items-center gap-2">
-                      注册数
-                      {getSortIcon("registrations")}
-                      {sortPrimary === "registrations" && <span className="text-xs text-gray-500">1</span>}
-                      {sortSecondary === "registrations" && <span className="text-xs text-gray-500">2</span>}
-                    </div>
-                  </TableHead>
-                  <TableHead className="cursor-pointer select-none hover:bg-gray-100" onClick={(e)=>handleHeaderSort("registrationRate", (e as any).shiftKey)}>
-                    <div className="flex items-center gap-2">
-                      注册率
-                      {getSortIcon("registrationRate")}
-                      {sortPrimary === "registrationRate" && <span className="text-xs text-gray-500">1</span>}
-                      {sortSecondary === "registrationRate" && <span className="text-xs text-gray-500">2</span>}
-                    </div>
-                  </TableHead>
-                  <TableHead className="cursor-pointer select-none hover:bg-gray-100" onClick={(e)=>handleHeaderSort("inquiries", (e as any).shiftKey)}>
-                    <div className="flex items-center gap-2">
-                      询价数
-                      {getSortIcon("inquiries")}
-                      {sortPrimary === "inquiries" && <span className="text-xs text-gray-500">1</span>}
-                      {sortSecondary === "inquiries" && <span className="text-xs text-gray-500">2</span>}
-                    </div>
-                  </TableHead>
-                  <TableHead className="cursor-pointer select-none hover:bg-gray-100" onClick={(e)=>handleHeaderSort("inquiryRate", (e as any).shiftKey)}>
-                    <div className="flex items-center gap-2">
-                      询价率
-                      {getSortIcon("inquiryRate")}
-                      {sortPrimary === "inquiryRate" && <span className="text-xs text-gray-500">1</span>}
-                      {sortSecondary === "inquiryRate" && <span className="text-xs text-gray-500">2</span>}
-                    </div>
-                  </TableHead>
-                  <TableHead className="cursor-pointer select-none hover:bg-gray-100" onClick={(e)=>handleHeaderSort("orders", (e as any).shiftKey)}>
-                    <div className="flex items-center gap-2">
-                      订单数
-                      {getSortIcon("orders")}
-                      {sortPrimary === "orders" && <span className="text-xs text-gray-500">1</span>}
-                      {sortSecondary === "orders" && <span className="text-xs text-gray-500">2</span>}
-                    </div>
-                  </TableHead>
-                  <TableHead className="cursor-pointer select-none hover:bg-gray-100" onClick={(e)=>handleHeaderSort("orderRate", (e as any).shiftKey)}>
-                    <div className="flex items-center gap-2">
-                      下单率
-                      {getSortIcon("orderRate")}
-                      {sortPrimary === "orderRate" && <span className="text-xs text-gray-500">1</span>}
-                      {sortSecondary === "orderRate" && <span className="text-xs text-gray-500">2</span>}
-                    </div>
-                  </TableHead>
-                  <TableHead className="cursor-pointer select-none hover:bg-gray-100" onClick={(e)=>handleHeaderSort("orderAmount", (e as any).shiftKey)}>
-                    <div className="flex items-center gap-2">
-                      订单金额
-                      {getSortIcon("orderAmount")}
-                      {sortPrimary === "orderAmount" && <span className="text-xs text-gray-500">1</span>}
-                      {sortSecondary === "orderAmount" && <span className="text-xs text-gray-500">2</span>}
-                    </div>
-                  </TableHead>
+                  {visibleColumns.includes('source') && (
+                    <TableHead
+                      className="sticky left-0 z-10 bg-background w-[160px] cursor-pointer select-none hover:bg-gray-100"
+                      onClick={(e)=>handleHeaderSort("source", (e as any).shiftKey)}
+                    >
+                      <div className="flex items-center gap-2">
+                        Source
+                        {getSortIcon("source")}
+                        {sortPrimary === "source" && <span className="text-xs text-gray-500">1</span>}
+                        {sortSecondary === "source" && <span className="text-xs text-gray-500">2</span>}
+                      </div>
+                    </TableHead>
+                  )}
+                  {visibleColumns.includes('medium') && (
+                    <TableHead
+                      className="sticky left-[160px] z-10 bg-background w-[160px] cursor-pointer select-none hover:bg-gray-100"
+                      onClick={(e)=>handleHeaderSort("medium", (e as any).shiftKey)}
+                    >
+                      <div className="flex items-center gap-2">
+                        Medium
+                        {getSortIcon("medium")}
+                        {sortPrimary === "medium" && <span className="text-xs text-gray-500">1</span>}
+                        {sortSecondary === "medium" && <span className="text-xs text-gray-500">2</span>}
+                      </div>
+                    </TableHead>
+                  )}
+                  {visibleColumns.includes('campaign') && (
+                    <TableHead
+                      className="w-[200px] cursor-pointer select-none hover:bg-gray-100"
+                      onClick={(e)=>handleHeaderSort("campaign", (e as any).shiftKey)}
+                    >
+                      <div className="flex items-center gap-2">
+                        Campaign
+                        {getSortIcon("campaign")}
+                        {sortPrimary === "campaign" && <span className="text-xs text-gray-500">1</span>}
+                        {sortSecondary === "campaign" && <span className="text-xs text-gray-500">2</span>}
+                      </div>
+                    </TableHead>
+                  )}
+                  {visibleColumns.includes('sessions') && (
+                    <TableHead className="cursor-pointer select-none hover:bg-gray-100" onClick={(e)=>handleHeaderSort("sessions", (e as any).shiftKey)}>
+                      <div className="flex items-center gap-2">
+                        会话数
+                        {getSortIcon("sessions")}
+                        {sortPrimary === "sessions" && <span className="text-xs text-gray-500">1</span>}
+                        {sortSecondary === "sessions" && <span className="text-xs text-gray-500">2</span>}
+                      </div>
+                    </TableHead>
+                  )}
+                  {visibleColumns.includes('visitors') && (
+                    <TableHead className="cursor-pointer select-none hover:bg-gray-100" onClick={(e)=>handleHeaderSort("visitors", (e as any).shiftKey)}>
+                      <div className="flex items-center gap-2">
+                        总访客数
+                        {getSortIcon("visitors")}
+                        {sortPrimary === "visitors" && <span className="text-xs text-gray-500">1</span>}
+                        {sortSecondary === "visitors" && <span className="text-xs text-gray-500">2</span>}
+                      </div>
+                    </TableHead>
+                  )}
+                  {visibleColumns.includes('registrations') && (
+                    <TableHead className="cursor-pointer select-none hover:bg-gray-100" onClick={(e)=>handleHeaderSort("registrations", (e as any).shiftKey)}>
+                      <div className="flex items-center gap-2">
+                        注册数
+                        {getSortIcon("registrations")}
+                        {sortPrimary === "registrations" && <span className="text-xs text-gray-500">1</span>}
+                        {sortSecondary === "registrations" && <span className="text-xs text-gray-500">2</span>}
+                      </div>
+                    </TableHead>
+                  )}
+                  {visibleColumns.includes('logins') && (
+                    <TableHead className="cursor-pointer select-none hover:bg-gray-100" onClick={(e)=>handleHeaderSort("logins", (e as any).shiftKey)}>
+                      <div className="flex items-center gap-2">
+                        登录数
+                        {getSortIcon("logins")}
+                        {sortPrimary === "logins" && <span className="text-xs text-gray-500">1</span>}
+                        {sortSecondary === "logins" && <span className="text-xs text-gray-500">2</span>}
+                      </div>
+                    </TableHead>
+                  )}
+                  {visibleColumns.includes('addToCart') && (
+                    <TableHead className="cursor-pointer select-none hover:bg-gray-100" onClick={(e)=>handleHeaderSort("addToCart", (e as any).shiftKey)}>
+                      <div className="flex items-center gap-2">
+                        加购数
+                        {getSortIcon("addToCart")}
+                        {sortPrimary === "addToCart" && <span className="text-xs text-gray-500">1</span>}
+                        {sortSecondary === "addToCart" && <span className="text-xs text-gray-500">2</span>}
+                      </div>
+                    </TableHead>
+                  )}
+                  {visibleColumns.includes('checkouts') && (
+                    <TableHead className="cursor-pointer select-none hover:bg-gray-100" onClick={(e)=>handleHeaderSort("checkouts", (e as any).shiftKey)}>
+                      <div className="flex items-center gap-2">
+                        结账数
+                        {getSortIcon("checkouts")}
+                        {sortPrimary === "checkouts" && <span className="text-xs text-gray-500">1</span>}
+                        {sortSecondary === "checkouts" && <span className="text-xs text-gray-500">2</span>}
+                      </div>
+                    </TableHead>
+                  )}
+                  {visibleColumns.includes('orders') && (
+                    <TableHead className="cursor-pointer select-none hover:bg-gray-100" onClick={(e)=>handleHeaderSort("orders", (e as any).shiftKey)}>
+                      <div className="flex items-center gap-2">
+                        订单数
+                        {getSortIcon("orders")}
+                        {sortPrimary === "orders" && <span className="text-xs text-gray-500">1</span>}
+                        {sortSecondary === "orders" && <span className="text-xs text-gray-500">2</span>}
+                      </div>
+                    </TableHead>
+                  )}
+                  {visibleColumns.includes('purchases') && (
+                    <TableHead className="cursor-pointer select-none hover:bg-gray-100" onClick={(e)=>handleHeaderSort("purchases", (e as any).shiftKey)}>
+                      <div className="flex items-center gap-2">
+                        购买数
+                        {getSortIcon("purchases")}
+                        {sortPrimary === "purchases" && <span className="text-xs text-gray-500">1</span>}
+                        {sortSecondary === "purchases" && <span className="text-xs text-gray-500">2</span>}
+                      </div>
+                    </TableHead>
+                  )}
+                  {visibleColumns.includes('inquiries') && (
+                    <TableHead className="cursor-pointer select-none hover:bg-gray-100" onClick={(e)=>handleHeaderSort("inquiries", (e as any).shiftKey)}>
+                      <div className="flex items-center gap-2">
+                        询价数
+                        {getSortIcon("inquiries")}
+                        {sortPrimary === "inquiries" && <span className="text-xs text-gray-500">1</span>}
+                        {sortSecondary === "inquiries" && <span className="text-xs text-gray-500">2</span>}
+                      </div>
+                    </TableHead>
+                  )}
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {pagedRows.map(r => (
                   <TableRow key={r.id}>
-                    <TableCell className="sticky left-0 z-10 bg-background w-[160px]">{r.source}</TableCell>
-                    <TableCell className="sticky left-[160px] z-10 bg-background w-[160px]">{r.medium}</TableCell>
-                    <TableCell className="w-[200px]">{r.campaign}</TableCell>
-                    <TableCell>{r.visitors}</TableCell>
-                    <TableCell>{r.registrations}</TableCell>
-                    <TableCell>{(((r as any).registrationRate) * 100).toFixed(2)}%</TableCell>
-                    <TableCell>{r.inquiries}</TableCell>
-                    <TableCell>{(((r as any).inquiryRate) * 100).toFixed(2)}%</TableCell>
-                    <TableCell>{r.orders}</TableCell>
-                    <TableCell>{(((r as any).orderRate) * 100).toFixed(2)}%</TableCell>
-                    <TableCell>{r.orderAmount}</TableCell>
+                    {visibleColumns.includes('source') && <TableCell className="sticky left-0 z-10 bg-background w-[160px]">{r.source}</TableCell>}
+                    {visibleColumns.includes('medium') && <TableCell className="sticky left-[160px] z-10 bg-background w-[160px]">{r.medium}</TableCell>}
+                    {visibleColumns.includes('campaign') && <TableCell className="w-[200px]">{r.campaign}</TableCell>}
+                    {visibleColumns.includes('sessions') && <TableCell>{r.sessions}</TableCell>}
+                    {visibleColumns.includes('visitors') && <TableCell>{r.visitors}</TableCell>}
+                    {visibleColumns.includes('registrations') && <TableCell>{r.registrations}</TableCell>}
+                    {visibleColumns.includes('logins') && <TableCell>{r.logins}</TableCell>}
+                    {visibleColumns.includes('addToCart') && <TableCell>{r.addToCart}</TableCell>}
+                    {visibleColumns.includes('checkouts') && <TableCell>{r.checkouts}</TableCell>}
+                    {visibleColumns.includes('orders') && <TableCell>{r.orders}</TableCell>}
+                    {visibleColumns.includes('purchases') && <TableCell>{r.purchases}</TableCell>}
+                    {visibleColumns.includes('inquiries') && <TableCell>{r.inquiries}</TableCell>}
                   </TableRow>
                 ))}
                 {/* 总计行（不参与分页，展示当前筛选与排序后全量的总计） */}
                 <TableRow>
-                  <TableCell className="sticky left-0 z-10 bg-background w-[160px] font-medium">总计</TableCell>
-                  <TableCell className="sticky left-[160px] z-10 bg-background w-[160px]">—</TableCell>
-                  <TableCell className="w-[200px]">—</TableCell>
-                  <TableCell className="font-medium">{totals.visitors}</TableCell>
-                  <TableCell className="font-medium">{totals.registrations}</TableCell>
-                  <TableCell className="font-medium">{((totals.registrations / (totals.visitors || 1)) * 100).toFixed(2)}%</TableCell>
-                  <TableCell className="font-medium">{totals.inquiries}</TableCell>
-                  <TableCell className="font-medium">{((totals.inquiries / (totals.visitors || 1)) * 100).toFixed(2)}%</TableCell>
-                  <TableCell className="font-medium">{totals.orders}</TableCell>
-                  <TableCell className="font-medium">{((totals.orders / (totals.visitors || 1)) * 100).toFixed(2)}%</TableCell>
-                  <TableCell className="font-medium">{totals.orderAmount}</TableCell>
+                  {visibleColumns.includes('source') && <TableCell className="sticky left-0 z-10 bg-background w-[160px] font-medium">总计</TableCell>}
+                  {visibleColumns.includes('medium') && <TableCell className="sticky left-[160px] z-10 bg-background w-[160px]">—</TableCell>}
+                  {visibleColumns.includes('campaign') && <TableCell className="w-[200px]">—</TableCell>}
+                  {visibleColumns.includes('sessions') && <TableCell className="font-medium">{totals.sessions}</TableCell>}
+                  {visibleColumns.includes('visitors') && <TableCell className="font-medium">{totals.visitors}</TableCell>}
+                  {visibleColumns.includes('registrations') && <TableCell className="font-medium">{totals.registrations}</TableCell>}
+                  {visibleColumns.includes('logins') && <TableCell className="font-medium">{totals.logins}</TableCell>}
+                  {visibleColumns.includes('addToCart') && <TableCell className="font-medium">{totals.addToCart}</TableCell>}
+                  {visibleColumns.includes('checkouts') && <TableCell className="font-medium">{totals.checkouts}</TableCell>}
+                  {visibleColumns.includes('orders') && <TableCell className="font-medium">{totals.orders}</TableCell>}
+                  {visibleColumns.includes('purchases') && <TableCell className="font-medium">{totals.purchases}</TableCell>}
+                  {visibleColumns.includes('inquiries') && <TableCell className="font-medium">{totals.inquiries}</TableCell>}
                 </TableRow>
               </TableBody>
             </Table>

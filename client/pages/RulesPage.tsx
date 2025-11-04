@@ -8,7 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
 
-import { Plus, Edit, Trash2, CopyPlus, GripVertical, HelpCircle } from "lucide-react";
+import { Plus, Edit, Trash2, CopyPlus, GripVertical, HelpCircle, Search, RefreshCw } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { eventRuleService, starterTemplates } from "@/services/eventRuleService";
 import { EventRule, NamedEvent, RawEventType, summarizeRule } from "@shared/eventRuleTypes";
@@ -36,6 +36,10 @@ const RulesPage = () => {
   const [showInlineAddEvent, setShowInlineAddEvent] = useState(false);
   const [selectOpen, setSelectOpen] = useState(false);
   const [draggedRule, setDraggedRule] = useState<string | null>(null);
+  
+  // 筛选相关状态
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
 
   const reload = () => setRules(eventRuleService.list());
 
@@ -253,12 +257,19 @@ const RulesPage = () => {
     const draggedRuleId = e.dataTransfer.getData('text/plain');
     
     if (draggedRuleId && draggedRule) {
+      // 获取筛选后列表中的目标规则
+      const targetRule = filteredRules[targetIndex];
+      if (!targetRule) return;
+      
+      // 在原始规则数组中找到拖拽规则和目标规则的索引
       const draggedIndex = rules.findIndex(rule => rule.id === draggedRuleId);
-      if (draggedIndex !== -1 && draggedIndex !== targetIndex) {
+      const realTargetIndex = rules.findIndex(rule => rule.id === targetRule.id);
+      
+      if (draggedIndex !== -1 && realTargetIndex !== -1 && draggedIndex !== realTargetIndex) {
         // 重新排序规则
         const newRules = [...rules];
         const [draggedItem] = newRules.splice(draggedIndex, 1);
-        newRules.splice(targetIndex, 0, draggedItem);
+        newRules.splice(realTargetIndex, 0, draggedItem);
         setRules(newRules);
         
         // 这里可以调用API保存新的排序
@@ -341,8 +352,87 @@ const RulesPage = () => {
     });
   };
 
+  // 筛选逻辑
+  const filteredRules = useMemo(() => {
+    return rules.filter((rule) => {
+      const matchesSearch = 
+        rule.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        eventLabels[rule.targetEvent]?.toLowerCase().includes(searchTerm.toLowerCase());
+
+      const matchesStatus = 
+        statusFilter === "all" || 
+        (statusFilter === "enabled" && rule.enabled) ||
+        (statusFilter === "disabled" && !rule.enabled);
+
+      return matchesSearch && matchesStatus;
+    });
+  }, [rules, searchTerm, statusFilter]);
+
+  // 筛选处理函数
+  const handleSearch = () => {
+    // 搜索逻辑已在 useMemo 中实现，这里可以添加额外的搜索行为
+  };
+
+  const handleResetFilters = () => {
+    setSearchTerm("");
+    setStatusFilter("all");
+  };
+
   return (
     <div className="p-4 space-y-4">
+      {/* 筛选区域 */}
+      <Card className="p-6 bg-white shadow-sm">
+        <div className="flex flex-col md:flex-row gap-4 items-end">
+          {/* 搜索框 */}
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+            <Input
+              placeholder="搜索规则名称或目标事件..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+
+          {/* 状态筛选 */}
+          <div className="w-full md:w-48">
+            <Select
+              value={statusFilter}
+              onValueChange={setStatusFilter}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">所有状态</SelectItem>
+                <SelectItem value="enabled">启用</SelectItem>
+                <SelectItem value="disabled">禁用</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* 操作按钮 */}
+          <div className="flex gap-2">
+            <Button
+              variant="default"
+              onClick={handleSearch}
+              className="flex items-center gap-2"
+            >
+              <Search className="h-4 w-4" />
+              查询
+            </Button>
+            <Button
+              variant="outline"
+              onClick={handleResetFilters}
+              className="flex items-center gap-2"
+            >
+              <RefreshCw className="h-4 w-4" />
+              重置
+            </Button>
+          </div>
+        </div>
+      </Card>
+
       <div className="flex justify-start">
         <Button onClick={handleCreate}>
           <Plus className="h-4 w-4 mr-2" /> 新建规则
@@ -350,10 +440,12 @@ const RulesPage = () => {
       </div>
         <Card>
           <CardContent className="space-y-3 pt-4">
-          {rules.length === 0 ? (
-            <div className="text-sm text-muted-foreground">暂无规则，点击"新建规则"开始。</div>
+          {filteredRules.length === 0 ? (
+            <div className="text-sm text-muted-foreground">
+              {rules.length === 0 ? '暂无规则，点击"新建规则"开始。' : '没有符合筛选条件的规则。'}
+            </div>
           ) : (
-            rules.map((rule, idx) => (
+            filteredRules.map((rule, idx) => (
               <Card 
                 key={rule.id}
                 onDragOver={handleDragOver}
@@ -375,8 +467,11 @@ const RulesPage = () => {
                       <div className="font-medium">{rule.name}</div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Badge variant={rule.enabled ? "default" : "secondary"}>
+                      <Badge variant="outline">
                         {eventLabels[rule.targetEvent]}
+                      </Badge>
+                      <Badge variant={rule.enabled ? "default" : "secondary"}>
+                        {rule.enabled ? "启用" : "禁用"}
                       </Badge>
                       <Button variant="ghost" size="icon" onClick={() => handleEdit(rule)}>
                         <Edit className="h-4 w-4" />

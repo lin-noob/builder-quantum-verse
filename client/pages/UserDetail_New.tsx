@@ -779,20 +779,20 @@ export default function UserDetail() {
                                 <tr>
                                   <td className="px-4 py-3 text-sm text-gray-900 bg-gray-50">近30天会话次数<TooltipIcon text="最近30天内的总会话数" /></td>
                                   <td className="px-4 py-3 text-sm text-gray-900">{user.sessions30d ?? 0}</td>
-                                  <td className="px-4 py-3 text-sm text-gray-900 bg-gray-50">跳出率<TooltipIcon tip="只浏览一个页面就离开的会话占比" /></td>
-                                  <td className="px-4 py-3 text-sm text-gray-900">{user.bounceRate ?? 0}%</td>
-                                </tr>
-                                <tr>
-                                  <td className="px-4 py-3 text-sm text-gray-900 bg-gray-50">近7天事件数<TooltipIcon text="最近7天内的总事件数" /></td>
-                                  <td className="px-4 py-3 text-sm text-gray-900">{user.eventsCount7d ?? 0}</td>
                                   <td className="px-4 py-3 text-sm text-gray-900 bg-gray-50">页面浏览量<TooltipIcon text="累计浏览的页面总数" /></td>
                                   <td className="px-4 py-3 text-sm text-gray-900">{user.pageViews ?? 0}</td>
                                 </tr>
                                 <tr>
+                                  <td className="px-4 py-3 text-sm text-gray-900 bg-gray-50">近7天事件数<TooltipIcon text="最近7天内的总事件数" /></td>
+                                  <td className="px-4 py-3 text-sm text-gray-900">{user.eventsCount7d ?? 0}</td>
+                                  <td className="px-4 py-3 text-sm text-gray-900 bg-gray-50">平均会话时长<TooltipIcon text="所有会话的平均持续时间" /></td>
+                                  <td className="px-4 py-3 text-sm text-gray-900">{user.avgSessionDuration ?? 0}分钟</td>
+                                </tr>
+                                <tr>
                                   <td className="px-4 py-3 text-sm text-gray-900 bg-gray-50">近30天事件数<TooltipIcon text="最近30天内的总事件数" /></td>
                                   <td className="px-4 py-3 text-sm text-gray-900">{user.eventsCount30d ?? 0}</td>
-                                  <td className="px-4 py-3 text-sm text-gray-900 bg-gray-50">近30天页面浏览<TooltipIcon text="最近30天内浏览的页面总数" /></td>
-                                  <td className="px-4 py-3 text-sm text-gray-900">{user.pageviews30d ?? 0}</td>
+                                  <td className="px-4 py-3 text-sm text-gray-900 bg-gray-50">平均会话页面数<TooltipIcon text="每个会话平均浏览的页面数" /></td>
+                                  <td className="px-4 py-3 text-sm text-gray-900">{user.avgPagesPerSession ?? 0}</td>
                                 </tr>
                               </tbody>
                             </table>
