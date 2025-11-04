@@ -27,6 +27,7 @@ import {
   CopyPlus,
   GripVertical,
   HelpCircle,
+  Check,
 } from "lucide-react";
 import {
   Tooltip,
@@ -51,13 +52,13 @@ import { useTranslation } from "react-i18next";
 const RulesPage = () => {
   const { t } = useTranslation();
   const eventLabels: Record<string, string> = {
-    UserRegister: t("sessionTimeline.eventTypes.UserRegister"),
-    UserLogin: t("sessionTimeline.eventTypes.UserLogin"),
-    ViewProduct: t("sessionTimeline.eventTypes.ViewProduct"),
-    AddToCart: t("sessionTimeline.eventTypes.AddToCart"),
-    RemoveFromCart: t("sessionTimeline.eventTypes.RemoveFromCart"),
-    StartCheckout: t("sessionTimeline.eventTypes.StartCheckout"),
-    CompletePurchase: t("sessionTimeline.eventTypes.CompletePurchase"),
+    // UserRegister: t("sessionTimeline.eventTypes.UserRegister"),
+    // UserLogin: t("sessionTimeline.eventTypes.UserLogin"),
+    // ViewProduct: t("sessionTimeline.eventTypes.ViewProduct"),
+    // AddToCart: t("sessionTimeline.eventTypes.AddToCart"),
+    // RemoveFromCart: t("sessionTimeline.eventTypes.RemoveFromCart"),
+    // StartCheckout: t("sessionTimeline.eventTypes.StartCheckout"),
+    // CompletePurchase: t("sessionTimeline.eventTypes.CompletePurchase"),
   };
 
   const rawTypeLabels: Partial<Record<EventType, string>> = {
@@ -211,6 +212,16 @@ const RulesPage = () => {
   useEffect(() => {
     // Load rules from backend on component mount
     loadRulesFromBackend();
+
+    // Load custom events from localStorage
+    try {
+      // const stored = localStorage.getItem("custom_named_events");
+      // if (stored) {
+      //   setCustomEvents(JSON.parse(stored));
+      // }
+    } catch (error) {
+      console.error("Failed to load custom events from localStorage:", error);
+    }
 
     // MOCK DATA DISABLED - Now loading from backend
     /* const existing = eventRuleService.list();
@@ -433,7 +444,7 @@ const RulesPage = () => {
     setCustomEvents((prev) => {
       const next = prev.includes(name) ? prev : [...prev, name];
       try {
-        localStorage.setItem("custom_named_events", JSON.stringify(next));
+        // localStorage.setItem("custom_named_events", JSON.stringify(next));
       } catch {}
       return next;
     });
@@ -647,7 +658,7 @@ const RulesPage = () => {
                     </div>
                     <div className="flex items-center gap-2">
                       <Badge variant={rule.enabled ? "default" : "secondary"}>
-                        {eventLabels[rule.targetEvent]}
+                        {rule.targetEvent}
                       </Badge>
                       <Button
                         variant="ghost"
@@ -738,6 +749,11 @@ const RulesPage = () => {
                                 return;
                               }
                               setSelectOpen(open);
+                              // 关闭时重置新增状态
+                              if (!open) {
+                                setShowInlineAddEvent(false);
+                                setNewEventName("");
+                              }
                             }}
                             onValueChange={(v) => {
                               if (v === "__add_new__") {
@@ -750,33 +766,96 @@ const RulesPage = () => {
                               }
                             }}
                           >
-                            <SelectTrigger>
+                            <SelectTrigger
+                              onKeyDown={(e) => {
+                                // 当显示内联输入框时，禁用 Select 的键盘导航
+                                if (showInlineAddEvent && selectOpen) {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                }
+                              }}
+                            >
                               <SelectValue placeholder="选择事件" />
                             </SelectTrigger>
-                            <SelectContent>
-                              {Object.keys(eventLabels).map((k) => (
-                                <SelectItem key={k} value={k}>
-                                  {eventLabels[k]}
-                                </SelectItem>
-                              ))}
-                              {customEvents.map((ev) => (
-                                <SelectItem key={ev} value={ev}>
-                                  {ev}
-                                </SelectItem>
-                              ))}
-                              {/* {!showInlineAddEvent && (
-                                <SelectItem
-                                  value="__add_new__"
-                                  className="text-blue-600 font-medium"
-                                >
-                                  <div className="flex items-center gap-2">
-                                    <Plus className="h-4 w-4" />
-                                    新增事件
+                            <SelectContent
+                              className="max-h-[300px]"
+                              onKeyDown={(e) => {
+                                // 当显示内联输入框时，禁用键盘导航
+                                if (showInlineAddEvent) {
+                                  e.stopPropagation();
+                                }
+                              }}
+                            >
+                              <div className="max-h-[250px] overflow-y-auto">
+                                {Object.keys(eventLabels).map((k) => (
+                                  <SelectItem key={k} value={k}>
+                                    {eventLabels[k]}
+                                  </SelectItem>
+                                ))}
+                                {customEvents.map((ev) => (
+                                  <div key={ev} className="group relative">
+                                    <SelectItem value={ev} className="pr-10">
+                                      {ev}
+                                    </SelectItem>
+                                    <button
+                                      className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 p-1.5 bg-destructive/20 hover:bg-destructive hover:scale-110 rounded-md z-10"
+                                      onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        setCustomEvents((prev) => {
+                                          const next = prev.filter((item) => item !== ev);
+                                          try {
+                                            localStorage.setItem("custom_named_events", JSON.stringify(next));
+                                          } catch {}
+                                          return next;
+                                        });
+                                        // 如果删除的是当前选中的事件，清空选择
+                                        if (editingRule?.targetEvent === ev) {
+                                          updateEditing({ targetEvent: "UserLogin" as NamedEvent });
+                                        }
+                                      }}
+                                    >
+                                      <Trash2 className="h-4 w-4 text-destructive group-hover:text-white transition-colors" />
+                                    </button>
                                   </div>
-                                </SelectItem>
-                              )} */}
-                              {/* {showInlineAddEvent && (
-                                <div className="p-2 border-t">
+                                ))}
+                              </div>
+                              {!showInlineAddEvent && (
+                                <div
+                                  className="sticky bottom-0 bg-popover border-t mt-1"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                  }}
+                                >
+                                  <div
+                                    className="relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 px-2 text-sm outline-none hover:bg-accent hover:text-accent-foreground text-blue-600 font-medium"
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      setShowInlineAddEvent(true);
+                                      setNewEventName("");
+                                      setSelectOpen(true);
+                                    }}
+                                  >
+                                    <div className="flex items-center gap-2">
+                                      <Plus className="h-4 w-4" />
+                                      新增事件
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+                              {showInlineAddEvent && (
+                                <div
+                                  className="sticky bottom-0 bg-popover p-2 border-t mt-1"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                  }}
+                                  onKeyDown={(e) => {
+                                    e.stopPropagation();
+                                  }}
+                                >
                                   <div className="flex items-center gap-2">
                                     <Input
                                       className="h-8 flex-1"
@@ -786,6 +865,7 @@ const RulesPage = () => {
                                         setNewEventName(e.target.value)
                                       }
                                       onKeyDown={(e) => {
+                                        e.stopPropagation();
                                         if (e.key === "Enter") {
                                           e.preventDefault();
                                           addCustomEvent();
@@ -794,11 +874,18 @@ const RulesPage = () => {
                                           cancelAddEvent();
                                         }
                                       }}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                      }}
                                       autoFocus
                                     />
                                     <Button
                                       size="sm"
-                                      onClick={addCustomEvent}
+                                      onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        addCustomEvent();
+                                      }}
                                       disabled={!newEventName.trim()}
                                     >
                                       保存
@@ -806,13 +893,17 @@ const RulesPage = () => {
                                     <Button
                                       size="sm"
                                       variant="outline"
-                                      onClick={cancelAddEvent}
+                                      onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        cancelAddEvent();
+                                      }}
                                     >
                                       取消
                                     </Button>
                                   </div>
                                 </div>
-                              )} */}
+                              )}
                             </SelectContent>
                           </Select>
                         </div>

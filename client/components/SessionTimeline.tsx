@@ -202,7 +202,7 @@ export default function SessionTimeline({
       );
       // Set the selected event as the current one and all related events
       const currentEvent = convertEventToData(event);
-      
+
       setEventList(parsedEvents);
       setSelectedEventIndex(0); // Start with the first event
       setSelectedEventIndex(0);
@@ -232,87 +232,91 @@ export default function SessionTimeline({
     let textColor = "text-slate-800";
     let displayName: string = eventType;
 
-    switch (eventType) {
-      case "$pageview":
-        bgColor = "bg-blue-100";
-        textColor = "text-blue-800";
-        displayName = t("sessionTimeline.eventTypes.PageView");
-        break;
-      case "$pageleave":
-        bgColor = "bg-orange-100";
-        textColor = "text-orange-800";
-        displayName = t("sessionTimeline.eventTypes.PageLeave");
-        break;
-      case "$autocapture":
-        bgColor = "bg-gray-100";
-        textColor = "text-gray-800";
-        displayName = "Autocapture";
-        break;
-      case "ScrollDepth":
-        bgColor = "bg-success-light";
-        textColor = "text-success";
-        displayName = t("sessionTimeline.eventTypes.ScrollDepth");
-        break;
-      case "Click":
-        bgColor = "bg-purple-100";
-        textColor = "text-purple-800";
-        displayName = t("sessionTimeline.eventTypes.Click");
-        break;
-      case "ViewProduct":
-        bgColor = "bg-green-100";
-        textColor = "text-green-800";
-        displayName = t("sessionTimeline.eventTypes.ViewProduct");
-        break;
-      case "AddToCart":
-        bgColor = "bg-yellow-100";
-        textColor = "text-yellow-800";
-        displayName = t("sessionTimeline.eventTypes.AddToCart");
-        break;
-      case "RemoveFromCart":
-        bgColor = "bg-red-100";
-        textColor = "text-red-800";
-        displayName = t("sessionTimeline.eventTypes.RemoveFromCart");
-        break;
-      case "StartCheckout":
-        bgColor = "bg-indigo-100";
-        textColor = "text-indigo-800";
-        displayName = t("sessionTimeline.eventTypes.StartCheckout");
-        break;
-      case "CompletePurchase":
-        bgColor = "bg-emerald-100";
-        textColor = "text-emerald-800";
-        displayName = t("sessionTimeline.eventTypes.CompletePurchase");
-        break;
-      case "UserRegister":
-        bgColor = "bg-pink-100";
-        textColor = "text-pink-800";
-        displayName = t("sessionTimeline.eventTypes.UserRegister");
-        break;
-      case "UserLogin":
-        bgColor = "bg-cyan-100";
-        textColor = "text-cyan-800";
-        displayName = t("sessionTimeline.eventTypes.UserLogin");
-        break;
-      case "SubmitForm":
-        bgColor = "bg-amber-100";
-        textColor = "text-amber-800";
-        displayName = t("sessionTimeline.eventTypes.SubmitForm");
-        break;
-      case "Search":
-        bgColor = "bg-violet-100";
-        textColor = "text-violet-800";
-        displayName = t("sessionTimeline.eventTypes.Search");
-        break;
-      case "PageDwellTime":
-        bgColor = "bg-teal-100";
-        textColor = "text-teal-800";
-        displayName = t("sessionTimeline.eventTypes.PageDwellTime");
-      case "Change":
-        bgColor = "bg-blue-100";
-        textColor = "text-blue-800";
-        displayName = t("sessionTimeline.eventTypes.Change");
-        break;
-    }
+    bgColor = "bg-blue-100";
+    textColor = "text-blue-800";
+    displayName = eventType;
+
+    // switch (eventType) {
+    //   case "$pageview":
+    //     bgColor = "bg-blue-100";
+    //     textColor = "text-blue-800";
+    //     displayName = t("sessionTimeline.eventTypes.PageView");
+    //     break;
+    //   case "$pageleave":
+    //     bgColor = "bg-orange-100";
+    //     textColor = "text-orange-800";
+    //     displayName = t("sessionTimeline.eventTypes.PageLeave");
+    //     break;
+    //   case "$autocapture":
+    //     bgColor = "bg-gray-100";
+    //     textColor = "text-gray-800";
+    //     displayName = "Autocapture";
+    //     break;
+    //   case "ScrollDepth":
+    //     bgColor = "bg-success-light";
+    //     textColor = "text-success";
+    //     displayName = t("sessionTimeline.eventTypes.ScrollDepth");
+    //     break;
+    //   case "Click":
+    //     bgColor = "bg-purple-100";
+    //     textColor = "text-purple-800";
+    //     displayName = t("sessionTimeline.eventTypes.Click");
+    //     break;
+    //   case "ViewProduct":
+    //     bgColor = "bg-green-100";
+    //     textColor = "text-green-800";
+    //     displayName = t("sessionTimeline.eventTypes.ViewProduct");
+    //     break;
+    //   case "AddToCart":
+    //     bgColor = "bg-yellow-100";
+    //     textColor = "text-yellow-800";
+    //     displayName = t("sessionTimeline.eventTypes.AddToCart");
+    //     break;
+    //   case "RemoveFromCart":
+    //     bgColor = "bg-red-100";
+    //     textColor = "text-red-800";
+    //     displayName = t("sessionTimeline.eventTypes.RemoveFromCart");
+    //     break;
+    //   case "StartCheckout":
+    //     bgColor = "bg-indigo-100";
+    //     textColor = "text-indigo-800";
+    //     displayName = t("sessionTimeline.eventTypes.StartCheckout");
+    //     break;
+    //   case "CompletePurchase":
+    //     bgColor = "bg-emerald-100";
+    //     textColor = "text-emerald-800";
+    //     displayName = t("sessionTimeline.eventTypes.CompletePurchase");
+    //     break;
+    //   case "UserRegister":
+    //     bgColor = "bg-pink-100";
+    //     textColor = "text-pink-800";
+    //     displayName = t("sessionTimeline.eventTypes.UserRegister");
+    //     break;
+    //   case "UserLogin":
+    //     bgColor = "bg-cyan-100";
+    //     textColor = "text-cyan-800";
+    //     displayName = t("sessionTimeline.eventTypes.UserLogin");
+    //     break;
+    //   case "SubmitForm":
+    //     bgColor = "bg-amber-100";
+    //     textColor = "text-amber-800";
+    //     displayName = t("sessionTimeline.eventTypes.SubmitForm");
+    //     break;
+    //   case "Search":
+    //     bgColor = "bg-violet-100";
+    //     textColor = "text-violet-800";
+    //     displayName = t("sessionTimeline.eventTypes.Search");
+    //     break;
+    //   case "PageDwellTime":
+    //     bgColor = "bg-teal-100";
+    //     textColor = "text-teal-800";
+    //     displayName = t("sessionTimeline.eventTypes.PageDwellTime");
+    //   case "Change":
+    //     bgColor = "bg-blue-100";
+    //     textColor = "text-blue-800";
+    //     displayName = t("sessionTimeline.eventTypes.Change");
+    //     break;
+    // }
 
     return (
       <span
@@ -638,7 +642,9 @@ export default function SessionTimeline({
                             </div>
                             {event.eventType === "Click" && (
                               <div className="text-xs text-slate-600 mt-1">
-                                {event.$elements && event.$elements.length > 0 && event.$elements[0].$el_text
+                                {event.$elements &&
+                                event.$elements.length > 0 &&
+                                event.$elements[0].$el_text
                                   ? event.$elements[0].$el_text
                                   : ""}
                               </div>
