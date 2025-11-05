@@ -866,12 +866,10 @@ export default function UserDetail() {
   </TabsContent>
 
                     <TabsContent value="timeline" className="space-y-6">
-                      <div className="text-base font-semibold text-gray-900 mb-3">访问时间线</div>
                       <SessionTimeline cdpUserId={user.cdpId} sessionId={user.distinctId} />
                     </TabsContent>
 
                     <TabsContent value="statistics">
-                      <div className="text-base font-semibold text-gray-900 mb-3">{t("userDetail.tabs.businessStatistics", "业务统计")}</div>
                       <OrderHistory cdpUserId={user.cdpId} sessionId={user.distinctId} />
                     </TabsContent>
                 </CardContent>

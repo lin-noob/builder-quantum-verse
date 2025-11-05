@@ -455,9 +455,18 @@ export default function SessionTimeline({
   if (loading) {
     return (
       <div className="bg-white p-6 rounded-lg shadow-sm">
-        <h3 className="text-lg font-semibold text-slate-900 mb-4">
-          {t("sessionTimeline.title")}
-        </h3>
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-semibold text-slate-900">
+            {t("sessionTimeline.title")}
+          </h3>
+          <div className="text-sm text-slate-500">
+            {t("sessionTimeline.recordsInfo", {
+              total: eventData?.total ?? 0,
+              start: startItem,
+              end: endItem,
+            })}
+          </div>
+        </div>
         <div className="flex items-center justify-center py-8">
           <div className="text-slate-500">{t("sessionTimeline.loading")}</div>
         </div>
@@ -481,7 +490,7 @@ export default function SessionTimeline({
   return (
     <>
       {/* 行为事件列表 */}
-      <div className="bg-white rounded-lg shadow-sm font-[Inter] flex flex-col h-[calc(100vh-202px)]">
+      <div className="bg-white rounded-lg shadow-sm font-[Inter] flex flex-col h-[calc(100vh-160px)]">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-semibold text-slate-900">
             {t("sessionTimeline.title")}
