@@ -1,67 +1,54 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { DateTimePicker } from "@/components/ui/date-time-picker";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Search as SearchIcon,
+  Eye,
+  LogOut,
+  MousePointer,
+  ArrowDownToLine,
+  ShoppingCart,
+  MinusCircle,
+  CreditCard,
+  CheckCircle,
+  UserPlus,
+  LogIn,
+  Send,
+  Pencil,
+} from "lucide-react";
+import {
+  ApiSessionEvent,
   getUserEventList,
+  ParsedEventData,
+  SessionEvent,
   type ApiEvent,
   type ApiEventListResponse,
 } from "@/lib/profile";
 import { request } from "@/lib/request";
 import { EventType } from "@shared/eventRuleTypes";
+import { ruleTypeService, RuleType } from "@/services/ruleTypeService";
 
-// Element interface for PostHog $elements array
-interface PostHogElement {
-  tag_name?: string;
-  attr__id?: string;
-  attr__class?: string;
-  classes?: string[];
-  nth_child?: number;
-  nth_of_type?: number;
-  $el_text?: string;
-  attr__data_gtm_form_interact_id?: string;
-}
-
-// Parsed event data structure
-interface ParsedEventData {
+// Session interface
+interface Session {
   id: string;
-  eventTime: string;
-  eventType: EventType;
-  source: string;
-  deviceType: string;
-  pageTitle: string;
-  pageURL: string;
-  browser?: string;
-  os?: string;
-  dwellTimeMs?: number;
-  maxScrollDepth?: number;
-  maxDepthPercent?: number;
-  elementTag?: string;
-  elementText?: string;
-  referrer?: string;
-  // Product related fields for ViewProduct event
-  productId?: string;
-  productName?: string;
-  productCategory?: string;
-  productPrice?: number | string;
-  productCurrency?: string;
-  productBrand?: string;
-  // PostHog specific fields
-  $event_type?: string;
-  $browser_version?: number;
-  $timezone?: string;
-  $current_url?: string;
-  $referrer?: string;
-  $pathname?: string;
-  $elements?: PostHogElement[];
-  $elements_chain?: string;
-  cusEventType?: string;
-  $screen_width?: number;
-  $screen_height?: number;
-  $viewport_width?: number;
-  $viewport_height?: number;
-  gmtCreate?: string;
+  startTime: string; // timestamp
+  endTime: string; // timestamp
+  eventCount: number;
+  events: { ev: ApiEvent; parsed: ParsedEventData; repeatCount: number }[];
+  duration: number; // in minutes
 }
+
 export default function SessionTimeline({
   cdpUserId,
   sessionId,
@@ -72,6 +59,9 @@ export default function SessionTimeline({
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [eventData, setEventData] = useState<ApiEventListResponse | null>(null);
+  const [sessions, setSessions] = useState<SessionEvent[] | null>([]);
+  const [total, setTotal] = useState(0);
+
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedEvent, setSelectedEvent] = useState<ParsedEventData | null>(
     null,
@@ -80,6 +70,17 @@ export default function SessionTimeline({
   const [activeTab, setActiveTab] = useState("basic-info");
   const [eventList, setEventList] = useState<ParsedEventData[]>([]);
   const [selectedEventIndex, setSelectedEventIndex] = useState(0);
+  const [timeRange, setTimeRange] = useState<{ start?: Date; end?: Date }>({});
+  const [filterEventType, setFilterEventType] = useState<EventType | "all">(
+    "all",
+  );
+  const [filterSource, setFilterSource] = useState<string | "all">("all");
+  const [filterDevice, setFilterDevice] = useState<string | "all">("all");
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [ruleTypes, setRuleTypes] = useState<RuleType[]>([]);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const pageSize = 10;
 
   // Parse properties JSON string to extract event details
@@ -151,34 +152,128 @@ export default function SessionTimeline({
     };
   };
 
-  // Fetch event data
+  // Fetch event data - removed filter dependencies to prevent auto-triggering on filter changes
   const fetchEventData = useCallback(
-    async (page: number) => {
+    async (
+      page: number,
+      overrideFilters?: {
+        pageUrl?: string;
+        eventName?: string;
+        source?: string;
+        device?: string;
+        startDate?: Date;
+        endDate?: Date;
+      } | null,
+      appendMode: boolean = false,
+    ) => {
       if (!cdpUserId) return;
 
-      setLoading(true);
+      if (appendMode) {
+        setIsLoadingMore(true);
+      } else {
+        setLoading(true);
+      }
+
       try {
+        // Build filter object
+        const filters: {
+          pageUrl?: string;
+          eventName?: string;
+          source?: string;
+          device?: string;
+          startDate?: Date;
+          endDate?: Date;
+        } = {};
+
+        // Use override filters if provided (for reset), otherwise use current state
+        if (overrideFilters === null) {
+          // Reset mode - use empty filters
+        } else if (overrideFilters) {
+          // Use provided filters
+          Object.assign(filters, overrideFilters);
+        } else {
+          // Use current state filters - reading from state at call time
+          if (searchQuery) filters.pageUrl = searchQuery;
+          if (filterEventType !== "all") filters.eventName = filterEventType;
+          if (filterSource !== "all") filters.source = filterSource;
+          if (filterDevice !== "all") filters.device = filterDevice;
+          if (timeRange.start) filters.startDate = timeRange.start;
+          if (timeRange.end) filters.endDate = timeRange.end;
+        }
+
         const data = await getUserEventList(
           cdpUserId,
           sessionId,
           page,
           pageSize,
-          2,
-        ); // 2 for behavior data
+          2, // 2 for behavior data
+          filters,
+        );
+
         setEventData(data);
+        setTotal(data.total);
+
+        const newSessions = data.records.map((session) => ({
+          ...session,
+          eventList: (session?.eventList || []).map(convertEventToData),
+        }));
+
+        // Check if there are more pages
+        const totalPages = Math.ceil(data.total / pageSize);
+        setHasMore(page < totalPages);
+
+        // Append or replace sessions
+        if (appendMode) {
+          setSessions((prev) => [...prev, ...newSessions]);
+        } else {
+          setSessions(newSessions);
+        }
       } catch (error) {
         console.error("Failed to fetch event data:", error);
       } finally {
         setLoading(false);
+        setIsLoadingMore(false);
       }
     },
-    [cdpUserId, pageSize, sessionId],
+    [cdpUserId, pageSize, sessionId], // Removed filter dependencies
   );
 
-  // Load data on component mount and page change
+  // Load data on component mount only
   useEffect(() => {
-    fetchEventData(currentPage);
-  }, [fetchEventData, currentPage]);
+    if (cdpUserId) {
+      fetchEventData(1);
+    }
+  }, [cdpUserId, sessionId]); // Only trigger on mount or when user/session changes
+
+  // Fetch rule types on mount
+  useEffect(() => {
+    const fetchRuleTypes = async () => {
+      const types = await ruleTypeService.list();
+      setRuleTypes(types);
+    };
+    fetchRuleTypes();
+  }, []);
+
+  // Handle scroll event for infinite loading
+  const handleScroll = () => {
+    if (!scrollContainerRef.current || isLoadingMore || !hasMore) return;
+
+    const { scrollTop, scrollHeight, clientHeight } =
+      scrollContainerRef.current;
+    const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
+
+    // Load more when user is within 200px of bottom
+    if (distanceFromBottom < 200) {
+      const nextPage = currentPage + 1;
+      const totalPages = Math.ceil(total / pageSize);
+
+      if (nextPage <= totalPages) {
+        setCurrentPage(nextPage);
+        // Pass undefined to use current state filters, append mode = true
+        fetchEventData(nextPage, undefined, true);
+      }
+    }
+  };
 
   // Handle page change
   const handlePageChange = (newPage: number) => {
@@ -186,7 +281,7 @@ export default function SessionTimeline({
   };
 
   // Handle row click to show event details
-  const handleRowClick = async (event: ApiEvent) => {
+  const handleRowClick = async (event: ParsedEventData) => {
     // Call the API endpoint which returns an array of related events
     try {
       const response = await request.get(
@@ -200,8 +295,6 @@ export default function SessionTimeline({
       const parsedEvents = eventsArray.map((apiEvent) =>
         convertEventToData(apiEvent),
       );
-      // Set the selected event as the current one and all related events
-      const currentEvent = convertEventToData(event);
 
       setEventList(parsedEvents);
       setSelectedEventIndex(0); // Start with the first event
@@ -210,11 +303,6 @@ export default function SessionTimeline({
       setIsModalOpen(true);
     } catch (error) {
       console.error("Failed to call profile page view API:", error);
-
-      // Fallback: just show the clicked event if API call fails
-      const eventData = convertEventToData(event);
-      setSelectedEvent(eventData);
-      // setEventList([eventData]);
       setSelectedEventIndex(0);
       setIsModalOpen(true);
     }
@@ -226,8 +314,25 @@ export default function SessionTimeline({
     setSelectedEvent(null);
   };
 
-  // Get event type badge component
-  const getEventTypeBadge = (eventType: EventType) => {
+  // Format session duration
+  // 传���时间差（毫秒），返回格式化的时长字符串
+  const formatSessionDuration = (ms: number): string => {
+    // 把毫秒转成总分钟数（四舍五入更贴近现实）
+    const totalMinutes = Math.floor(ms / 1000 / 60);
+
+    if (totalMinutes < 60) {
+      return `${totalMinutes}分钟`;
+    }
+
+    const hours = Math.floor(totalMinutes / 60);
+    const remainingMinutes = totalMinutes % 60;
+
+    return remainingMinutes > 0
+      ? `${hours}小���${remainingMinutes}分钟`
+      : `${hours}小时`;
+  };
+
+  const getEventTypeBadge = (eventType: any) => {
     let bgColor = "bg-slate-100";
     let textColor = "text-slate-800";
     let displayName: string = eventType;
@@ -345,6 +450,8 @@ export default function SessionTimeline({
   const startItem = (currentPage - 1) * pageSize + 1;
   const endItem = Math.min(currentPage * pageSize, eventData?.total || 0);
 
+  // Prepare data for rendering
+
   if (loading) {
     return (
       <div className="bg-white p-6 rounded-lg shadow-sm">
@@ -358,105 +465,260 @@ export default function SessionTimeline({
     );
   }
 
-  if (!eventData || eventData.records.length === 0) {
-    return (
-      <div className="bg-white p-6 rounded-lg shadow-sm">
-        <h3 className="text-lg font-semibold text-slate-900 mb-4">
-          {t("sessionTimeline.title")}
-        </h3>
-        <div className="flex items-center justify-center py-8">
-          <div className="text-slate-500">{t("sessionTimeline.noData")}</div>
-        </div>
-      </div>
-    );
-  }
+  // if (!eventData || eventData.records.length === 0) {
+  //   return (
+  //     <div className="bg-white p-6 rounded-lg shadow-sm">
+  //       <h3 className="text-lg font-semibold text-slate-900 mb-4">
+  //         {t("sessionTimeline.title")}
+  //       </h3>
+  //       <div className="flex items-center justify-center py-8">
+  //         <div className="text-slate-500">{t("sessionTimeline.noData")}</div>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   return (
     <>
       {/* 行为事件列表 */}
-      <div className="bg-white p-6 rounded-lg shadow-sm font-[Inter]">
+      <div className="bg-white rounded-lg shadow-sm font-[Inter] flex flex-col h-[calc(100vh-202px)]">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-semibold text-slate-900">
             {t("sessionTimeline.title")}
           </h3>
           <div className="text-sm text-slate-500">
             {t("sessionTimeline.recordsInfo", {
-              total: eventData.total,
+              total: eventData?.total ?? 0,
               start: startItem,
               end: endItem,
             })}
           </div>
         </div>
 
-        {/* 时间线样式 */}
-        <div className="relative">
-          {/* Timeline line */}
-          <div className="absolute left-4 top-0 h-full w-0.5 bg-slate-200 -translate-x-1/2"></div>
+        {/* 查询区域 */}
+        <div className="grid grid-cols-1 md:grid-cols-6 gap-3 mb-6">
+          <div className="md:col-span-2">
+            <Input
+              type="text"
+              placeholder="搜索行为、页面或元素"
+              className="h-10"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          <div>
+            <Select
+              value={filterEventType}
+              onValueChange={(value) => setFilterEventType(value as any)}
+            >
+              <SelectTrigger className="h-10">
+                <SelectValue placeholder="全部事件" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">全部事件</SelectItem>
+                {ruleTypes.map((ruleType) => (
+                  <SelectItem key={ruleType.id} value={ruleType.eventName}>
+                    {ruleType.eventName}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Select
+              value={filterSource}
+              onValueChange={(value) => setFilterSource(value)}
+            >
+              <SelectTrigger className="h-10">
+                <SelectValue placeholder="全部来源" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">全部来源</SelectItem>
+                <SelectItem value="web">web</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
-          <div className="space-y-6 pl-8 relative">
-            {eventData.records.map((event, index) => {
-              const eventData = convertEventToData(event);
-              return (
-                <div
-                  key={event.id}
-                  className="relative bg-slate-50 rounded-lg border border-slate-200 p-4 hover:bg-slate-100 cursor-pointer transition-colors"
-                  onClick={() => handleRowClick(event)}
-                >
-                  {/* Timeline dot */}
-                  <div className="absolute left-0 top-4 w-3 h-3 rounded-full border-4 border-white bg-blue-500 -ml-1.5"></div>
-
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className="text-sm font-medium text-slate-900">
-                          {eventData.eventTime}
-                        </div>
-                        <div className="text-xs text-slate-500">
-                          {eventData.source}
-                        </div>
-                        <div className="text-xs text-slate-500">
-                          {eventData.deviceType}
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-2 mb-2">
-                        {/* {getEventTypeBadge(eventData.eventType)} */}
-                        <div className="text-sm text-slate-700 truncate max-w-md">
-                          {eventData.pageURL}
-                        </div>
-                      </div>
-
-                      <div className="mt-1">
-                        <div className="text-sm text-slate-900 font-medium">
-                          {eventData.pageTitle || "No Title"}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center">
-                      <svg
-                        className="w-5 h-5 text-slate-400"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M9 5l7 7-7 7"
-                        ></path>
-                      </svg>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+          <div>
+            <Select
+              value={filterDevice}
+              onValueChange={(value) => setFilterDevice(value)}
+            >
+              <SelectTrigger className="h-10">
+                <SelectValue placeholder="全部设备" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">全部设备</SelectItem>
+                <SelectItem value="Mobile">Mobile</SelectItem>
+                <SelectItem value="Desktop">Desktop</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
-        {/* Pagination */}
-        {totalPages > 1 && (
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-6">
+          <div>
+            <DateTimePicker
+              value={timeRange.start}
+              onChange={(date) => setTimeRange((r) => ({ ...r, start: date }))}
+              placeholder="选择起始时间"
+              className="h-10"
+            />
+          </div>
+          <div>
+            <DateTimePicker
+              value={timeRange.end}
+              onChange={(date) => setTimeRange((r) => ({ ...r, end: date }))}
+              placeholder="选择结束时间"
+              className="h-10"
+            />
+          </div>
+          <div className="flex items-end gap-2">
+            <Button
+              size="sm"
+              onClick={() => {
+                setCurrentPage(1);
+                setHasMore(true);
+                setSessions([]);
+                // Build filters from current state
+                const filters: any = {};
+                if (searchQuery) filters.pageUrl = searchQuery;
+                if (filterEventType !== "all")
+                  filters.eventName = filterEventType;
+                if (filterSource !== "all") filters.source = filterSource;
+                if (filterDevice !== "all") filters.device = filterDevice;
+                if (timeRange.start) filters.startDate = timeRange.start;
+                if (timeRange.end) filters.endDate = timeRange.end;
+                fetchEventData(1, filters, false);
+              }}
+            >
+              <SearchIcon className="h-4 w-4 mr-1" />
+              搜索
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={async () => {
+                setSearchQuery("");
+                setFilterEventType("all");
+                setFilterSource("all");
+                setFilterDevice("all");
+                setTimeRange({});
+                setCurrentPage(1);
+                setHasMore(true);
+                setSessions([]);
+
+                // Fetch data with cleared filters (null = clear all)
+                await fetchEventData(1, null, false);
+              }}
+            >
+              重置
+            </Button>
+          </div>
+        </div>
+
+        {/* 时间线样式 - 按会话分组 */}
+        <div
+          ref={scrollContainerRef}
+          onScroll={handleScroll}
+          className="relative flex-1 overflow-y-auto"
+        >
+          {sessions.map((session, sessionIndex) => (
+            <div key={sessionIndex} className="mb-4">
+              {/* Session Header */}
+              <div className="flex items-center gap-3 mb-4 p-3 bg-slate-50 rounded-lg border-l-4 border-blue-500">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+                  <span className="font-medium text-slate-900">
+                    会话 {sessionIndex + 1}
+                  </span>
+                </div>
+                <div className="text-sm text-slate-600">
+                  {new Date(session.startTime).toLocaleString("zh-CN")} -{" "}
+                  {new Date(session.endTime).toLocaleString("zh-CN")}
+                </div>
+                <div className="text-sm text-slate-500">
+                  时长:{" "}
+                  {formatSessionDuration(session.endTime - session.startTime)}
+                </div>
+                <div className="text-sm text-slate-500">
+                  {session.eventCount} 个事件
+                </div>
+              </div>
+
+              {/* Session Events */}
+              <div className="border-l-2 border-slate-200 pl-6 ml-6">
+                {session.eventList.map((item) => (
+                  <div
+                    key={item.id}
+                    className="group rounded-md p-3 hover:bg-slate-50 cursor-pointer relative"
+                    onClick={() => handleRowClick(item)}
+                  >
+                    <span className="absolute -left-3 top-4 w-3 h-3 rounded-full bg-slate-300 border-2 border-white"></span>
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-2">
+                        {getEventTypeBadge(item.eventType)}
+                        <span className="text-slate-900 font-medium">
+                          {item!.pageURL ||
+                            item.elementText ||
+                            item.pageURL ||
+                            ""}
+                        </span>
+                      </div>
+                      <div className="text-xs text-slate-500">
+                        {new Date(item.eventTime).toLocaleTimeString("zh-CN")}
+                      </div>
+                    </div>
+                    <div className="mt-1 text-sm text-slate-600">
+                      <div className="flex flex-wrap gap-3">
+                        <span className="text-xs">来源：{item.source}</span>
+                        <span className="text-xs">设备：{item.deviceType}</span>
+                        {/* <span className="text-xs">
+                          停留时长：{formatDwellTime(item.dwellTimeMs)}
+                        </span> */}
+                        {/* {repeatCount > 1 && (
+                          <span className="text-xs text-slate-400">
+                            重复访问：{repeatCount}次
+                          </span>
+                        )} */}
+                      </div>
+                      {/* {parsed.pageURL && (
+                        <div className="mt-1 text-xs text-slate-500 break-all">
+                          {parsed.pageURL}
+                        </div>
+                      )}
+                      {parsed.elementText && (
+                        <div className="mt-1 text-xs text-slate-500 break-all">
+                          元素：{parsed.elementText}
+                        </div>
+                      )} */}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+
+          {/* Loading more indicator */}
+          {isLoadingMore && (
+            <div className="flex items-center justify-center py-6">
+              <div className="flex items-center gap-2 text-slate-500">
+                <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                <span>加载更多数据...</span>
+              </div>
+            </div>
+          )}
+
+          {/* No more data indicator */}
+          {!hasMore && sessions.length > 0 && (
+            <div className="flex items-center justify-center py-6">
+              <div className="text-sm text-slate-400">已加载全部数据</div>
+            </div>
+          )}
+        </div>
+
+        {/* Pagination - Optional: can be hidden when using infinite scroll */}
+        {totalPages > 1 && false && (
           <div className="flex items-center justify-between mt-4">
             <div className="text-sm text-slate-500">
               {t("sessionTimeline.pagination.page", {

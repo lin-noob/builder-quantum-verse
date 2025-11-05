@@ -1,4 +1,5 @@
 import { request } from "@/lib/request";
+import { EventType } from "@shared/eventRuleTypes";
 
 // Keep this aligned with the API user shape used in list API
 export interface ApiLabel {
@@ -21,12 +22,80 @@ export interface ApiEvent {
   price: number;
   currency: string;
   eventType: number;
-  nullId: boolean;
+}
+
+// Element interface for PostHog $elements array
+export interface PostHogElement {
+  tag_name?: string;
+  attr__id?: string;
+  attr__class?: string;
+  classes?: string[];
+  nth_child?: number;
+  nth_of_type?: number;
+  $el_text?: string;
+  attr__data_gtm_form_interact_id?: string;
+}
+
+// Parsed event data structure
+export interface ParsedEventData {
+  id: string;
+  eventTime: string;
+  eventType: EventType;
+  source: string;
+  deviceType: string;
+  pageTitle: string;
+  pageURL: string;
+  browser?: string;
+  os?: string;
+  dwellTimeMs?: number;
+  maxScrollDepth?: number;
+  maxDepthPercent?: number;
+  elementTag?: string;
+  elementText?: string;
+  referrer?: string;
+  // Product related fields for ViewProduct event
+  productId?: string;
+  productName?: string;
+  productCategory?: string;
+  productPrice?: number | string;
+  productCurrency?: string;
+  productBrand?: string;
+  // PostHog specific fields
+  $event_type?: string;
+  $browser_version?: number;
+  $timezone?: string;
+  $current_url?: string;
+  $referrer?: string;
+  $pathname?: string;
+  $elements?: PostHogElement[];
+  $elements_chain?: string;
+  cusEventType?: string;
+  $screen_width?: number;
+  $screen_height?: number;
+  $viewport_width?: number;
+  $viewport_height?: number;
+  gmtCreate?: string;
+}
+
+export interface SessionEvent {
+  endTime: number;
+  eventCount: number;
+  startTime: number;
+  sessionId: string;
+  eventList: ParsedEventData[];
+}
+
+export interface ApiSessionEvent {
+  endTime: number;
+  eventCount: number;
+  startTime: number;
+  sessionId: string;
+  eventList: ApiEvent[];
 }
 
 // Event list response structure
 export interface ApiEventListResponse {
-  records: ApiEvent[];
+  records: ApiSessionEvent[];
   total: number;
   size: number;
   current: number;
@@ -60,14 +129,14 @@ export interface ApiUser extends UserProfile {
   sessionId: string;
   labelList?: ApiLabel[]; // backend field name
   eventList?: ApiEventListResponse; // Add eventList field
-  userEngagement?:{
+  userEngagement?: {
     bounceRate30d: number;
     eventCount7d: number;
     eventCount30d: number;
     pageView30d: number;
     pageView30dTotal: number;
     sessionCount30d: number;
-  }
+  };
 }
 
 interface UserProfile {
@@ -96,8 +165,8 @@ interface UserProfile {
   wbraid?: string;
   _kx?: string;
 
-  firstVisitSource?:string
-  firstReferrer?: string
+  firstVisitSource?: string;
+  firstReferrer?: string;
 }
 
 interface ApiEnvelope<T> {
@@ -121,7 +190,9 @@ export async function getProfileView(id: string): Promise<ApiUser | null> {
     if (envelope && envelope.data) {
       const data = envelope.data.data;
       const userProfile = data?.userProfile;
-      const properties = userProfile?.properties ? JSON.parse(userProfile.properties) : null;
+      const properties = userProfile?.properties
+        ? JSON.parse(userProfile.properties)
+        : null;
 
       data.dclid = properties?.dclid;
       data.epik = properties?.epik;
@@ -147,7 +218,7 @@ export async function getProfileView(id: string): Promise<ApiUser | null> {
       data.utm_term = properties?.utm_term;
       data.wbraid = properties?.wbraid;
       data._kx = properties?._kx;
-      data.firstReferrer = properties?.$referring_domain
+      data.firstReferrer = properties?.$referring_domain;
       return data as ApiUser;
     }
 
@@ -166,15 +237,33 @@ export async function getUserEventList(
   page: number = 1,
   size: number = 10,
   eventType: number = 0, // 0 for order data, 1 for behavior data
+  filters?: {
+    pageUrl?: string;
+    eventName?: string;
+    source?: string;
+    device?: string;
+    startDate?: Date;
+    endDate?: Date;
+  },
 ): Promise<ApiEventListResponse | null> {
   try {
-    const requestBody = {
+    const requestBody: any = {
       currentpage: page,
       eventType: eventType,
       pagesize: size,
       userId: userId,
       sessionId,
     };
+
+    // Add optional filters if provided
+    if (filters) {
+      if (filters.pageUrl) requestBody.pageUrl = filters.pageUrl;
+      if (filters.eventName) requestBody.eventName = filters.eventName;
+      if (filters.source) requestBody.source = filters.source;
+      if (filters.device) requestBody.device = filters.device;
+      if (filters.startDate) requestBody.startDate = filters.startDate.toISOString();
+      if (filters.endDate) requestBody.endDate = filters.endDate.toISOString();
+    }
 
     const response = await request.post<ApiEnvelope<ApiEventListResponse>>(
       "/quote/api/v1/profile/order/list",

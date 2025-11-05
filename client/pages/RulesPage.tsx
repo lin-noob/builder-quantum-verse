@@ -787,7 +787,7 @@ const RulesPage = () => {
                                 side="top"
                                 className="max-w-xs bg-gray-900 text-white border-gray-700"
                               >
-                                规则匹配成功后产出的业务事件名称，用于报表与自���化策略触发；可选择内置或自定义事件。
+                                规则匹配成功后产出的业务事件名称，用于报表与自动化策略触发；可选择内置或自定义事件。
                               </TooltipContent>
                             </Tooltip>
                           </div>
