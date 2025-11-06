@@ -155,7 +155,7 @@
     --sidebar-border: 230 17% 15%;
     --sidebar-ring: 259 94% 51%;
 
-        /* Intelligent Event Response Center Design System */
+    /* Intelligent Event Response Center Design System */
     --eip-primary: 215 28% 17%; /* Deep slate for primary elements */
     --eip-primary-foreground: 210 40% 98%;
     --eip-accent: 239 84% 67%; /* Purple/blue accent */
@@ -273,4 +273,32 @@
 p {
   margin: 0;
   padding: 0;
+}
+
+.ant-picker:focus-visible {
+  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2;
+}
+
+.ant-picker-focused,
+.ant-picker.ant-picker-focused {
+  @apply ring-2 ring-ring ring-offset-2;
+  outline: none !important;
+}
+
+/* Input styling */
+.ant-picker-input {
+  height: auto !important;
+  line-height: inherit !important;
+}
+
+.ant-picker-input > input {
+  @apply text-sm font-medium;
+  color: inherit !important;
+  height: auto !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
 }

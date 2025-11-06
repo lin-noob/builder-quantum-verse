@@ -4,8 +4,13 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
-import { I18nextProvider } from "react-i18next";
+import { I18nextProvider, useTranslation } from "react-i18next";
 import i18n from "./lib/i18n";
+import { ConfigProvider } from "antd";
+import zhCN from "antd/locale/zh_CN";
+import enUS from "antd/locale/en_US";
+import dayjs from "dayjs";
+import 'dayjs/locale/zh-cn';
 import Layout from "./components/Layout";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { usePageRequestManager } from "./hooks/useRequestManager";
@@ -78,8 +83,18 @@ const SmartRouteGuard: React.FC<{
     return <PageLoader message="正在加载菜单..." />;
   }
   
-  // 只有确认是无效路由时才重定向到默认页面
+  // 只有��认是无效路由时才重定向到默认页面
   return <Navigate to="/dashboard2" replace />;
+};
+
+// 获取 Ant Design 的 locale 配置
+const getAntdLocale = (language: string) => {
+  if (language.startsWith('zh')) {
+    dayjs.locale('zh-cn');
+    return zhCN;
+  }
+  dayjs.locale('en');
+  return enUS;
 };
 
 function AppContent() {
@@ -87,6 +102,7 @@ function AppContent() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const { setFilteredMenus } = useRoleStore();
   const [menus, setMenus] = useState<ClientMenuApiItem[] | null>(null);
+  const { i18n: i18nInstance } = useTranslation();
 
   // 登录完成后再获取并构建动态路由
   useEffect(() => {
@@ -149,7 +165,17 @@ function AppContent() {
   }, [menus]);
 
   return (
-    <>
+    <ConfigProvider
+      locale={getAntdLocale(i18nInstance.language)}
+      theme={{
+        components: {
+          DatePicker: {
+            borderRadius: 8, // rounded-md
+            activeBorderColor: "#d9d9d9",
+          },
+        },
+      }}
+    >
       <BrowserRouter>
         <Routes>
           {/* 认证路���（保留） */}
@@ -200,7 +226,7 @@ function AppContent() {
       <ContactFormModal open={isOpen} onOpenChange={closeModal} title={modalTitle} description={modalDescription} />
       <Toaster />
       <Sonner />
-    </>
+    </ConfigProvider>
   );
 }
 
