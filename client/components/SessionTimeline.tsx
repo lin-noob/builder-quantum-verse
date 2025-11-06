@@ -721,33 +721,36 @@ export default function SessionTimeline({
                     return (
                       <div
                         key={ev.id}
-                        className="group mb-4 rounded-md p-3 hover:bg-slate-50 cursor-pointer relative"
+                        className="group mb-3 rounded-lg border border-slate-200 bg-white p-3 hover:bg-slate-50 hover:border-blue-300 hover:shadow-sm cursor-pointer relative transition"
                         onClick={() => handleRowClick(ev)}
                       >
+                        {/* 时间线圆点 */}
                         <span className="absolute -left-3 top-4 w-3 h-3 rounded-full bg-slate-300 border-2 border-white"></span>
-                        <div className="flex items-start justify-between">
-                          <div className="flex items-center gap-2">
-                            {getEventTypeBadge(parsed.eventType)}
-                            <span className="text-slate-900 font-medium">{parsed.pageTitle || parsed.elementText || parsed.pageURL || ""}</span>
-                          </div>
-                          <div className="text-xs text-slate-500">{new Date(parsed.eventTime).toLocaleTimeString('zh-CN')}</div>
+
+                        {/* 顶部：时间 • 来源(web) • 设备(Desktop) */}
+                        <div className="text-xs text-slate-500">
+                          {new Date(parsed.eventTime).toLocaleString('zh-CN')}
+                          <span className="mx-1">•</span>
+                          来源(web)
+                          <span className="mx-1">•</span>
+                          设备(Desktop)
                         </div>
-                        <div className="mt-1 text-sm text-slate-600">
-                            <div className="flex flex-wrap gap-3">
-                              <span className="text-xs">来源：{parsed.source}</span>
-                              <span className="text-xs">设备：{parsed.deviceType}</span>
-                              <span className="text-xs">停留时长：{formatDwellTime(parsed.dwellTimeMs)}</span>
-                              {repeatCount > 1 && (
-                                <span className="text-xs text-slate-400">重复访问：{repeatCount}次</span>
-                              )}
-                            </div>
-                            {parsed.pageURL && (
-                              <div className="mt-1 text-xs text-slate-500 break-all">{parsed.pageURL}</div>
-                            )}
-                            {parsed.elementText && (
-                              <div className="mt-1 text-xs text-slate-500 break-all">元素：{parsed.elementText}</div>
-                            )}
+
+                        {/* 标题：页面标题 */}
+                        <div className="mt-1">
+                          <span className="text-slate-900 font-medium">
+                            {parsed.pageTitle || ""}
+                          </span>
+                        </div>
+
+                        {/* 链接：页面URL */}
+                        {parsed.pageURL && (
+                          <div className="mt-1 text-xs text-slate-600 break-all">
+                            {parsed.pageURL}
                           </div>
+                        )}
+
+                        {/* 移除其他附加信息，仅保留指定字段 */}
                       </div>
                     );
                   })}
@@ -795,61 +798,123 @@ export default function SessionTimeline({
               </button>
             </div>
             <div className="p-6 overflow-y-auto">
-              <div className="mb-6">
-                <h4 className="text-sm font-medium text-slate-900 mb-3">事件基本信息</h4>
-                <div className="grid grid-cols-2 gap-3 text-sm text-slate-700">
-                  <div>事件时间：{new Date(selectedEvent.eventTime).toLocaleString('zh-CN')}</div>
-                  <div className="flex items-center gap-2"><span>事件类型：</span>{getEventTypeBadge(selectedEvent.eventType)}</div>
-                  <div>来源：{selectedEvent.source || "-"}</div>
-                  <div>设备类型：{selectedEvent.deviceType || "-"}</div>
-                  <div>浏览器：{selectedEvent.browser || "-"}</div>
-                  <div>操作系统：{selectedEvent.os || "-"}</div>
+              {/* 顶部信息区：严格对齐截图字段 */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 text-sm text-slate-800">
+                <div>
+                  <div className="text-slate-500">设备类型</div>
+                  <div className="font-medium">{selectedEvent.deviceType || "-"}</div>
+                </div>
+                <div>
+                  <div className="text-slate-500">浏览器</div>
+                  <div className="font-medium">{selectedEvent.browser || "-"}</div>
+                </div>
+                <div>
+                  <div className="text-slate-500">来源</div>
+                  <div className="font-medium">{selectedEvent.source || "-"}</div>
+                </div>
+                <div>
+                  <div className="text-slate-500">操作系统</div>
+                  <div className="font-medium">{selectedEvent.os || "-"}</div>
+                </div>
+                <div>
+                  <div className="text-slate-500">Screen/Viewport</div>
+                  <div className="font-medium">{selectedEvent.$screen_width && selectedEvent.$screen_height ? `${selectedEvent.$screen_width} × ${selectedEvent.$screen_height}` : "-"}</div>
+                </div>
+                <div>
+                  <div className="text-slate-500">Viewport Size</div>
+                  <div className="font-medium">{selectedEvent.$viewport_width && selectedEvent.$viewport_height ? `${selectedEvent.$viewport_width} × ${selectedEvent.$viewport_height}` : "-"}</div>
+                </div>
+                <div>
+                  <div className="text-slate-500">Browser Version</div>
+                  <div className="font-medium">{selectedEvent.$browser_version ?? "-"}</div>
+                </div>
+                <div>
+                  <div className="text-slate-500">Timezone</div>
+                  <div className="font-medium">{selectedEvent.$timezone ?? "-"}</div>
+                </div>
+                <div>
+                  <div className="text-slate-500">Start Time</div>
+                  <div className="font-medium">{new Date(selectedEvent.eventTime).toLocaleString('zh-CN')}</div>
+                </div>
+                <div>
+                  <div className="text-slate-500">End Time</div>
+                  <div className="font-medium">{new Date(selectedEvent.eventTime).toLocaleString('zh-CN')}</div>
                 </div>
               </div>
-              <div className="mb-6">
-                <h4 className="text-sm font-medium text-slate-900 mb-3">页面信息</h4>
-                <div className="grid grid-cols-2 gap-3 text-sm text-slate-700">
-                  <div>页面标题：{selectedEvent.pageTitle || "-"}</div>
-                  <div className="col-span-2 break-all">页面URL：{selectedEvent.pageURL || "-"}</div>
-                  <div className="col-span-2 break-all">来源页面：{selectedEvent.referrer || selectedEvent.$referrer || "-"}</div>
-                </div>
-              </div>
-              <div className="mb-6">
-                <h4 className="text-sm font-medium text-slate-900 mb-3">事件详细信息</h4>
-                <div className="grid grid-cols-2 gap-3 text-sm text-slate-700">
-                  <div>Event Type：{selectedEvent.$event_type || selectedEvent.eventType}</div>
+
+              {/* 主体两列：左侧事件线 + 右侧详情 */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                {/* 左侧：事件线 */}
+                <div className="md:col-span-1">
+                  <div className="text-sm font-medium mb-2 text-slate-900">事件线</div>
                   {(() => {
-                    const el = Array.isArray(selectedEvent.$elements) && selectedEvent.$elements.length > 0 ? selectedEvent.$elements[0] : null;
-                    const tag = el?.tag_name || selectedEvent.elementTag;
-                    const nth = el?.nth_child ?? undefined;
+                    const selectedSession = sessions.find((s) => s.events.some((e) => e.ev.id === selectedEvent?.id));
+                    const items = selectedSession ? selectedSession.events : [];
                     return (
-                      <>
-                        <div className="col-span-2">
-                          Click/Submit Element：
-                          <span className="inline-block bg-slate-100 rounded px-2 py-0.5 ml-1 text-xs">{tag ? `<${tag}>` : "-"}</span>
-                        </div>
-                        <div>Position：{typeof nth === "number" ? `nth-child(${nth})` : "-"}</div>
-                        {selectedEvent.elementText && (
-                          <div className="col-span-2 break-all">元素文本：{selectedEvent.elementText}</div>
-                        )}
-                      </>
+                      <div className="space-y-2">
+                        {items.map((e) => {
+                          const label = e.parsed.$event_type ? e.parsed.$event_type : e.parsed.eventType;
+                          const isActive = e.ev.id === selectedEvent.id;
+                          const timeStr = new Date(e.parsed.eventTime).toLocaleString('zh-CN');
+                          return (
+                            <div
+                              key={e.ev.id}
+                              className={`px-3 py-2 rounded border ${isActive ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-slate-200 bg-white text-slate-700'} cursor-pointer`}
+                              onClick={() => setSelectedEvent(e.parsed)}
+                            >
+                              <div className="text-xs font-medium">{label}</div>
+                              <div className="text-[11px] text-slate-500 mt-0.5">
+                                {timeStr}
+                                {e.parsed.pageTitle ? <span> • {e.parsed.pageTitle}</span> : null}
+                                {e.parsed.pageURL ? (
+                                  <div className="break-all mt-0.5">{e.parsed.pageURL}</div>
+                                ) : null}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
                     );
                   })()}
                 </div>
-              </div>
-              <div>
-                <h4 className="text-sm font-medium text-slate-900 mb-3">环境信息</h4>
-                <div className="grid grid-cols-2 gap-3 text-sm text-slate-700">
-                  <div>
-                    Screen Size<br />
-                    <span className="text-slate-900">{selectedEvent.$screen_width && selectedEvent.$screen_height ? `${selectedEvent.$screen_width} × ${selectedEvent.$screen_height}` : "-"}</span>
+
+                {/* 右侧：页面信息 + 事件详细信息 */}
+                <div className="md:col-span-3">
+                  <div className="mb-6">
+                    <h4 className="text-sm font-medium text-slate-900 mb-3">页面信息</h4>
+                    <div className="grid grid-cols-2 gap-3 text-sm text-slate-700">
+                      <div>页面标题：{selectedEvent.pageTitle || "-"}</div>
+                      <div className="col-span-2 break-all">页面URL：{selectedEvent.pageURL || "-"}</div>
+                      <div className="col-span-2 break-all">来源页面：{selectedEvent.referrer || selectedEvent.$referrer || "-"}</div>
+                    </div>
                   </div>
+
                   <div>
-                    Viewport Size<br />
-                    <span className="text-slate-900">{selectedEvent.$viewport_width && selectedEvent.$viewport_height ? `${selectedEvent.$viewport_width} × ${selectedEvent.$viewport_height}` : "-"}</span>
+                    <h4 className="text-sm font-medium text-slate-900 mb-3">详情</h4>
+                    <div className="grid grid-cols-2 gap-3 text-sm text-slate-700">
+                      <div>Event Type：{selectedEvent.$event_type || selectedEvent.eventType}</div>
+                      {(() => {
+                        const el = Array.isArray(selectedEvent.$elements) && selectedEvent.$elements.length > 0 ? selectedEvent.$elements[0] : null;
+                        const tag = el?.tag_name || selectedEvent.elementTag;
+                        const nth = el?.nth_child ?? undefined;
+                        const classes = el?.classes && el.classes.length ? el.classes.join(', ') : undefined;
+                        return (
+                          <>
+                            <div className="col-span-2">
+                              Click/Submit Element：<span className="inline-block bg-slate-100 rounded px-2 py-0.5 ml-1 text-xs">{tag ? `<${tag}>` : "-"}</span>
+                            </div>
+                            {classes && (
+                              <div className="col-span-2 break-all">Classes：{classes}</div>
+                            )}
+                            <div>Position：{typeof nth === 'number' ? `nth-child(${nth})` : '-'}</div>
+                            {selectedEvent.elementText && (
+                              <div className="col-span-2 break-all">元素文本：{selectedEvent.elementText}</div>
+                            )}
+                          </>
+                        );
+                      })()}
+                    </div>
                   </div>
-                  <div>Browser Version<br /><span className="text-slate-900">{selectedEvent.$browser_version ?? "-"}</span></div>
-                  <div>Timezone<br /><span className="text-slate-900">{selectedEvent.$timezone ?? "-"}</span></div>
                 </div>
               </div>
             </div>
