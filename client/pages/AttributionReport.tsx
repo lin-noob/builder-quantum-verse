@@ -48,6 +48,7 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { request } from "@/lib/request";
 import { ruleTypeService } from "@/services/ruleTypeService";
+import { ruleService } from "@/services/ruleService";
 
 interface DateRange {
   start: Date | null;
@@ -70,6 +71,7 @@ interface AttributionRow {
   inquiries: number;
   orderAmount: number;
   purchaseAmount: number;
+  metrics?: any;
 }
 
 // 排序与列配置类型
@@ -137,7 +139,7 @@ export default function AttributionReport() {
     end: null,
   });
   const [columnsConfig, setColumnsConfig] = useState<
-    { key: ColKey; label: string; sortKey?: SortKey }[]
+    { key: any; label: string; sortKey?: SortKey }[]
   >([...fixedColumns]);
   const [loading, setLoading] = useState(true);
   // API获取的筛选选项
@@ -267,12 +269,23 @@ export default function AttributionReport() {
   // 导出（弹窗配置：列与范围）
   const exportCSV = async () => {
     try {
-      // 构建titlemap：key是字段名，value是表头显示名称
+      // 构建titlemap：按照visibleColumns的顺序，只包含exportColumns中选中的列
       const titlemap: Record<string, string> = {};
-      exportColumns.forEach((key) => {
-        const column = columnsConfig.find((c) => c.key === key);
-        if (column) {
-          titlemap[key] = column.label;
+
+      // 首先添���fixedColumns中的列
+      fixedColumns.forEach((col) => {
+        if (exportColumns.includes(col.key) && visibleColumns.includes(col.key)) {
+          titlemap[col.key] = col.label;
+        }
+      });
+
+      // 然后添加动态列，按照visibleColumns的顺序
+      visibleColumns.forEach((key) => {
+        if (exportColumns.includes(key) && !fixedColumns.some(f => f.key === key)) {
+          const column = columnsConfig.find((c) => c.key === key);
+          if (column) {
+            titlemap[key] = column.label;
+          }
         }
       });
 
@@ -343,14 +356,15 @@ export default function AttributionReport() {
         }
 
         // 获取规则类型��表用于动态列���置
-        const ruleTypes = await ruleTypeService.list();
+        const ruleTypes = await ruleService.getRules();
         console.log("Rule types:", ruleTypes);
 
         // 基于规则类型数据构建动态列配置
         const dynamicColumns = ruleTypes.map((ruleType) => ({
           key: ruleType.id,
-          label: ruleType.eventName,
-          sortKey: ruleType.id as SortKey,
+          label: ruleType.ruleName,
+          sortKey: String(ruleType.id),
+          mandatory:false
         }));
 
         // 合并固定列和动态列
@@ -405,7 +419,7 @@ export default function AttributionReport() {
     }
   };
 
-  // 搜索按钮点���事件
+  // 搜索按钮������事件
   const handleSearch = () => {
     setPage(1); // 重置到第一页
     fetchReportPage();
@@ -444,11 +458,12 @@ export default function AttributionReport() {
   }
 
   return (
-    <div className="p-6 space-y-6 bg-gray-50 min-h-full">
+    <div className=" overflow-hidden flex flex-col bg-gray-50">
+      <div className="flex-1 overflow-y-auto p-6 space-y-6">
       {/* 筛选区 - 样式参考用户画像 */}
       <Card className="p-6 mb-8 bg-white shadow-sm">
         <div className="flex flex-wrap items-center gap-3 md:gap-4">
-          {/* 搜索框 */}
+          {/* 搜���框 */}
           <div className="relative flex-1">
             <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <Input
@@ -484,7 +499,7 @@ export default function AttributionReport() {
                   setDateRange({ start: null, end: null });
                 }
               }}
-              placeholder={["开始日期", "结束日期"]}
+              placeholder={["开��日期", "结束日期"]}
               popupStyle={{
                 zIndex: 1050,
               }}
@@ -831,7 +846,7 @@ export default function AttributionReport() {
                   </Button>
                   <Button
                     onClick={() => {
-                      // 确保固定列始终保存在配置中
+                      // 确保固定列始终保存在���置中
                       const columnsToSave = [
                         ...new Set([
                           ...fixedColumns.map((c) => c.key),
@@ -856,21 +871,14 @@ export default function AttributionReport() {
 
       {/* 列表区 - 表头排序、分页在下方 */}
       <Card className="bg-white shadow-sm">
-        <div className="overflow-x-auto">
-          <div className="min-w-[1200px]">
-            <Table>
-              <TableHeader>
+        <div className="max-h-[620px] overflow-y-auto">
+          <div className="overflow-x-auto">
+            <div className="min-w-[1200px]">
+              <Table>
+                <TableHeader>
                 <TableRow>
                   {fixedColumns.map((col, index) => {
                     if (!visibleColumns.includes(col.key)) return null;
-
-                    // 计算sticky定位的left值
-                    let stickyClass = "";
-                    if (index === 0) {
-                      stickyClass = "sticky left-0 z-10 bg-background";
-                    } else if (index === 1) {
-                      stickyClass = "sticky left-[160px] z-10 bg-background";
-                    }
 
                     const width = index < 2 ? "w-[160px]" : "w-[200px]";
                     const sortKey = col.sortKey || col.key as SortKey;
@@ -878,7 +886,7 @@ export default function AttributionReport() {
                     return (
                       <TableHead
                         key={col.key}
-                        className={`${stickyClass} ${width} cursor-pointer select-none hover:bg-gray-100`}
+                        className={`${width} cursor-pointer select-none hover:bg-gray-100 whitespace-nowrap`}
                         onClick={() => handleHeaderSort(sortKey)}
                       >
                         <div className="flex items-center gap-2">
@@ -900,7 +908,7 @@ export default function AttributionReport() {
                       return (
                         <TableHead
                           key={col.key}
-                          className="cursor-pointer select-none hover:bg-gray-100"
+                          className="cursor-pointer select-none hover:bg-gray-100 whitespace-nowrap"
                           onClick={() => handleHeaderSort(sortKey)}
                         >
                           <div className="flex items-center gap-2">
@@ -917,19 +925,8 @@ export default function AttributionReport() {
                   <TableRow key={r.id}>
                     {fixedColumns.map((col, index) => {
                       if (!visibleColumns.includes(col.key)) return null;
-
-                      // 计算sticky定位的left值
-                      let stickyClass = "";
-                      if (index === 0) {
-                        stickyClass = "sticky left-0 z-10 bg-background";
-                      } else if (index === 1) {
-                        stickyClass = "sticky left-[160px] z-10 bg-background";
-                      }
-
-                      const width = index < 2 ? "w-[160px]" : "w-[200px]";
-
                       return (
-                        <TableCell key={col.key} className={`${stickyClass} ${width}`}>
+                        <TableCell key={col.key} className={`whitespace-nowrap`}>
                           {r[col.key as keyof AttributionRow]}
                         </TableCell>
                       );
@@ -943,9 +940,10 @@ export default function AttributionReport() {
                       )
                       .filter((col) => visibleColumns.includes(col.key))
                       .map((col) => (
-                        <TableCell key={col.key}>
+                        <TableCell key={col.key} className="whitespace-nowrap">
                           {/* 这里可以根据实际需要显示动态数据，目前显示占位符 */}
-                          —
+                          {/* {console.log(r.metrics, col.key)} */}
+                          { r?.metrics[col.key] || '-' }
                         </TableCell>
                       ))}
                   </TableRow>
@@ -979,7 +977,8 @@ export default function AttributionReport() {
                     ))}
                 </TableRow> */}
               </TableBody>
-            </Table>
+              </Table>
+            </div>
           </div>
         </div>
 
@@ -1006,7 +1005,7 @@ export default function AttributionReport() {
               }}
             >
               <SelectTrigger className="w-[110px]">
-                <SelectValue placeholder="页" />
+                <SelectValue placeholder="��" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="10">10</SelectItem>
@@ -1025,6 +1024,7 @@ export default function AttributionReport() {
           </div>
         </div>
       </Card>
+      </div>
     </div>
   );
 }
