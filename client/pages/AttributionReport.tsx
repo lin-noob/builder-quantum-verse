@@ -302,7 +302,7 @@ export default function AttributionReport() {
         pagesize: pageSize,
         currentpage: page,
         order: order,
-        sort: sort,
+        sortColumn: sort,
         checkAll: exportScope === "all",
         titlemap: titlemap,
       };
@@ -398,7 +398,7 @@ export default function AttributionReport() {
         pagesize: pageSize,
         currentpage: page,
         order: order,
-        sort: sort,
+        sortColumn: sort,
       };
 
       const response = await request.post(
