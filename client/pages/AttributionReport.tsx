@@ -154,6 +154,11 @@ export default function AttributionReport() {
     list: AttributionRow[];
     total: number;
   }>({ list: [], total: 0 });
+  // 报告统计数据
+  const [reportCount, setReportCount] = useState<{
+    totalvisitors: string;
+    totalsession: string;
+  }>({ totalvisitors: "", totalsession: "" });
   const [search, setSearch] = useState("");
   // 多选筛选条件
   const [filters, setFilters] = useState<{
@@ -176,25 +181,14 @@ export default function AttributionReport() {
 
   // 列配置弹窗状态
   const [columnConfigOpen, setColumnConfigOpen] = useState(false);
+  const [draggedColumn, setDraggedColumn] = useState<ColKey | null>(null);
   const [visibleColumns, setVisibleColumns] = useState<ColKey[]>(() => {
-    // 固定列必须显示
-    const mandatoryColumns = fixedColumns.map((c) => c.key);
-
-    // 从本地存储���载列配置
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("attribution-report-visible-columns");
-      if (saved) {
-        try {
-          const savedColumns = JSON.parse(saved);
-          // 确保�����定列始���包含在内
-          return [...new Set([...mandatoryColumns, ...savedColumns])];
-        } catch {
-          // 如果解析失败，使用���认配置
-        }
-      }
-    }
-    return [...mandatoryColumns];
+    // 默认列始终显示
+    const defaultColumns: ColKey[] = ['source', 'medium', 'campaign', 'totalSession', 'totalVisitors'];
+    return defaultColumns;
   });
+  // 存储 titleId 到 id 的映射
+  const [titleIdToIdMap, setTitleIdToIdMap] = useState<Map<string, string>>(new Map());
 
   // 使用 API 返��的筛选选项
   const sources = apiFilterOptions.sources;
@@ -332,6 +326,80 @@ export default function AttributionReport() {
     }
   };
 
+  // 重新加载列配����
+  const refetchColumns = async () => {
+    try {
+      // 获取规则类型列表
+      const ruleTypes = await ruleService.getRules();
+
+      // 基于规则类型数据构建动态列配置
+      const dynamicColumnsMap = new Map(
+        ruleTypes.map((ruleType) => [
+          ruleType.id,
+          {
+            key: ruleType.id,
+            label: ruleType.ruleName,
+            sortKey: String(ruleType.id),
+            mandatory: false
+          }
+        ])
+      );
+
+      // 从服务器加载列配置并获取排序
+      const savedListResponse = await request.post("/quote/api/v1/report/title/list");
+
+      let orderedDynamicColumns = [];
+      if (savedListResponse.data && savedListResponse.data.data && savedListResponse.data.data.length > 0) {
+        // 存储 titleId 到 id 的映射
+        const newTitleIdToIdMap = new Map<string, string>();
+        savedListResponse.data.data.forEach((item: any) => {
+          if (item.titleId && item.id) {
+            newTitleIdToIdMap.set(String(item.titleId), String(item.id));
+          }
+        });
+        setTitleIdToIdMap(newTitleIdToIdMap);
+
+        // 按照保存的顺序排列动态列
+        orderedDynamicColumns = savedListResponse.data.data
+          .map((item: any) => dynamicColumnsMap.get(item.titleId))
+          .filter((col: any) => col !== undefined);
+
+        // 添加任何新的规则类型（不在保存列表中的）
+        const savedIds = new Set(savedListResponse.data.data.map((item: any) => item.titleId));
+        const newColumns = ruleTypes
+          .filter(rule => !savedIds.has(rule.id))
+          .map(ruleType => ({
+            key: ruleType.id,
+            label: ruleType.ruleName,
+            sortKey: String(ruleType.id),
+            mandatory: false
+          }));
+        orderedDynamicColumns = [...orderedDynamicColumns, ...newColumns];
+      } else {
+        // 如果没有保存的配置，使用规则类型的原始顺序
+        orderedDynamicColumns = Array.from(dynamicColumnsMap.values());
+      }
+
+      // 合并固定列和动态列
+      const allColumns = [...fixedColumns, ...orderedDynamicColumns];
+      setColumnsConfig(allColumns);
+
+      // 设置可见列（基于checked字段）
+      const defaultColumns = ['source', 'medium', 'campaign', 'totalSession', 'totalVisitors'];
+      if (savedListResponse.data && savedListResponse.data.data && savedListResponse.data.data.length > 0) {
+        const checkedColumnIds = savedListResponse.data.data
+          .filter((item: any) => item.checked === true)
+          .map((item: any) => item.titleId);
+        const allVisibleColumns = [...new Set([...defaultColumns, ...checkedColumnIds])];
+        setVisibleColumns(allVisibleColumns);
+      } else {
+        setVisibleColumns(defaultColumns);
+      }
+    } catch (error) {
+      console.error("Error refetching columns:", error);
+    }
+  };
+
   // ��用报告列表API和规则类型列表API
   useEffect(() => {
     const fetchData = async () => {
@@ -355,22 +423,8 @@ export default function AttributionReport() {
           });
         }
 
-        // 获取规则类型��表用于动态列���置
-        const ruleTypes = await ruleService.getRules();
-        console.log("Rule types:", ruleTypes);
-
-        // 基于规则类型数据构建动态列配置
-        const dynamicColumns = ruleTypes.map((ruleType) => ({
-          key: ruleType.id,
-          label: ruleType.ruleName,
-          sortKey: String(ruleType.id),
-          mandatory:false
-        }));
-
-        // 合并固定列和动态列
-        const allColumns = [...fixedColumns, ...dynamicColumns];
-
-        setColumnsConfig(allColumns);
+        // 加载列配置
+        await refetchColumns();
       } catch (error) {
         console.error("Error fetching data:", error);
         // 如果API调用失败，使用默认配置
@@ -382,6 +436,85 @@ export default function AttributionReport() {
 
     fetchData();
   }, []);
+
+  // 保存列配置到服务器
+  const saveColumns = async () => {
+    try {
+      // 默认列不需要保存
+      const excludeColumns = ['source', 'medium', 'campaign', 'totalSession', 'totalVisitors'];
+      // 构建所有动态列的��存数据（包括选中和未选中的）
+      const columnsToSave = columnsConfig
+        .filter(col => !excludeColumns.includes(col.key))
+        .map(col => ({
+          titleId: col.key,
+          checked: visibleColumns.includes(col.key)
+        }));
+
+      await request.post("/quote/api/v1/report/title/save", columnsToSave);
+      console.log("Columns saved successfully");
+    } catch (error) {
+      console.error("Error saving columns:", error);
+    }
+  };
+
+  // 移动列位置
+  const moveColumn = async (sourceId: string, targetId: string) => {
+    try {
+      const formData = new FormData();
+      formData.append('sourceId', sourceId);
+      formData.append('targetId', targetId);
+      await request.post("/quote/api/v1/report/title/move", formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      console.log("Column moved successfully");
+    } catch (error) {
+      console.error("Error moving column:", error);
+    }
+  };
+
+  // 处理列拖���
+  const handleDragStart = (e: React.DragEvent, columnKey: ColKey) => {
+    setDraggedColumn(columnKey);
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+  };
+
+  const handleDrop = async (e: React.DragEvent, targetKey: ColKey) => {
+    e.preventDefault();
+    if (!draggedColumn || draggedColumn === targetKey) {
+      setDraggedColumn(null);
+      return;
+    }
+
+    // 重新排序列配置
+    const newColumnsConfig = [...columnsConfig];
+    const draggedIndex = newColumnsConfig.findIndex((c) => c.key === draggedColumn);
+    const targetIndex = newColumnsConfig.findIndex((c) => c.key === targetKey);
+
+    if (draggedIndex !== -1 && targetIndex !== -1) {
+      // 从映射中获取实际的 id
+      const sourceId = titleIdToIdMap.get(String(draggedColumn));
+      const targetId = titleIdToIdMap.get(String(targetKey));
+
+      if (sourceId && targetId) {
+        // 调用API保存列顺序（使用 id 而不是 titleId）
+        await moveColumn(sourceId, targetId);
+
+        // 重新查询接口并更新显示
+        await refetchColumns();
+      } else {
+        console.warn("Cannot move column: id not found in mapping");
+      }
+    }
+
+    setDraggedColumn(null);
+  };
 
   // 新增：调用报���分页数据API
   const fetchReportPage = async () => {
@@ -419,6 +552,41 @@ export default function AttributionReport() {
     }
   };
 
+  // 调用报告统计数据API
+  const fetchReportCount = async () => {
+    try {
+      const queryParams = {
+        keyword: search,
+        startDate: dateRange.start
+          ? dateRange.start.toISOString().split("T")[0]
+          : "",
+        endDate: dateRange.end ? dateRange.end.toISOString().split("T")[0] : "",
+        source: filters.sources.join(","),
+        medium: filters.mediums.join(","),
+        campaign: filters.campaigns.join(","),
+        pagesize: pageSize,
+        currentpage: page,
+        order: order,
+        sortColumn: sort,
+      };
+
+      const response = await request.post(
+        "/quote/api/v1/report/count",
+        queryParams,
+      );
+
+      // 保存统计数据
+      if (response.data && response.data.data) {
+        setReportCount({
+          totalvisitors: response.data.data.totalvisitors || "",
+          totalsession: response.data.data.totalsession || "",
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching report count:", error);
+    }
+  };
+
   // 搜索按钮������事件
   const handleSearch = () => {
     setPage(1); // 重置到第一页
@@ -429,6 +597,7 @@ export default function AttributionReport() {
   useEffect(() => {
     // if (loading) return; // 等待初始化完成
     fetchReportPage();
+    fetchReportCount();
   }, [dateRange, filters, page, pageSize, sort, order]);
 
   // 重置函数更新 - 重置列配置
@@ -742,7 +911,7 @@ export default function AttributionReport() {
                 </DialogHeader>
 
                 <div className="space-y-4">
-                  {/* 列选择区�� */}
+                  {/* 列选择区间 */}
                   <div className="space-y-3">
                     <Label className="text-sm font-medium">显示列</Label>
                     <div className="grid grid-cols-2 gap-3 max-h-64 overflow-y-auto">
@@ -753,7 +922,13 @@ export default function AttributionReport() {
                         return (
                           <div
                             key={c.key}
-                            className="flex items-center space-x-2 p-2 rounded-md hover:bg-gray-50"
+                            draggable
+                            onDragStart={(e) => handleDragStart(e, c.key)}
+                            onDragOver={handleDragOver}
+                            onDrop={(e) => handleDrop(e, c.key)}
+                            className={`flex items-center space-x-2 p-2 rounded-md hover:bg-gray-50 transition-colors ${
+                              draggedColumn === c.key ? "opacity-50 bg-blue-50" : ""
+                            }`}
                           >
                             <Checkbox
                               id={`visible-${c.key}`}
@@ -845,18 +1020,8 @@ export default function AttributionReport() {
                     取消
                   </Button>
                   <Button
-                    onClick={() => {
-                      // 确保固定列始终保存在���置中
-                      const columnsToSave = [
-                        ...new Set([
-                          ...fixedColumns.map((c) => c.key),
-                          ...visibleColumns,
-                        ]),
-                      ];
-                      localStorage.setItem(
-                        "attribution-report-visible-columns",
-                        JSON.stringify(columnsToSave),
-                      );
+                    onClick={async () => {
+                      await saveColumns();
                       setColumnConfigOpen(false);
                     }}
                   >
@@ -891,6 +1056,12 @@ export default function AttributionReport() {
                       >
                         <div className="flex items-center gap-2">
                           {col.label}
+                          {col.key === "totalSession" && reportCount.totalsession && (
+                            <span className="text-xs text-blue-600 font-normal">({reportCount.totalsession})</span>
+                          )}
+                          {col.key === "totalVisitors" && reportCount.totalvisitors && (
+                            <span className="text-xs text-blue-600 font-normal">({reportCount.totalvisitors})</span>
+                          )}
                           {getSortIcon(sortKey)}
                         </div>
                       </TableHead>
@@ -948,7 +1119,7 @@ export default function AttributionReport() {
                       ))}
                   </TableRow>
                 ))}
-                {/* 总计����（不参���分页，��示当前筛选与排序后全量的总计） */}
+                {/* 总计����（���参���分页，��示当前筛选与排序后全量的总计） */}
                 {/* <TableRow>
                   {visibleColumns.includes("source") && (
                     <TableCell className="sticky left-0 z-10 bg-background w-[160px] font-medium">
@@ -982,7 +1153,7 @@ export default function AttributionReport() {
           </div>
         </div>
 
-        {/* ��页 - 表格下��� */}
+        {/* ��页 - ���格下��� */}
         <div className="px-6 py-4 border-t bg-gray-50 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="text-sm text-gray-700 order-2 sm:order-1">
             正在显示 {(page - 1) * pageSize + 1} -{" "}
@@ -1005,7 +1176,7 @@ export default function AttributionReport() {
               }}
             >
               <SelectTrigger className="w-[110px]">
-                <SelectValue placeholder="��" />
+                <SelectValue placeholder="����" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="10">10</SelectItem>
