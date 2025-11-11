@@ -15,6 +15,7 @@ export interface ApiEvent {
   gmtModified: string;
   tenantId: string;
   eventName: string;
+  targetEvent: string;
   userId: string;
   timestamp: string;
   properties: string; // JSON string containing order details
@@ -41,6 +42,7 @@ export interface ParsedEventData {
   id: string;
   eventTime: string;
   eventType: EventType;
+  targetEvent: string;
   source: string;
   deviceType: string;
   pageTitle: string;

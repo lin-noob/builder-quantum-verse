@@ -115,6 +115,7 @@ export default function SessionTimeline({
       id: event.id,
       eventTime: event.gmtCreate,
       eventType: eventType,
+      targetEvent: event.targetEvent,
       source: properties.source || properties.$lib || "",
       deviceType: properties.deviceType || properties.$device_type || "",
       pageTitle: properties.title || "",
@@ -682,6 +683,11 @@ export default function SessionTimeline({
                       <div className="flex flex-wrap gap-3">
                         <span className="text-xs">来源：{item.source}</span>
                         <span className="text-xs">设备：{item.deviceType}</span>
+                        {item.targetEvent && (
+                          <span className="text-xs">
+                            事件类型：{item.targetEvent}
+                          </span>
+                        )}
                         {/* <span className="text-xs">
                           停留时长：{formatDwellTime(item.dwellTimeMs)}
                         </span> */}
@@ -911,7 +917,10 @@ export default function SessionTimeline({
                             <div className="flex items-center gap-2">
                               {getEventTypeBadge(event.eventType)}
                             </div>
-                            {event.eventType === "Click" && (
+                            <div className="text-xs text-slate-600 mt-1">
+                              {event.targetEvent ?? ""}
+                            </div>
+                            {/* {event.eventType === "Click" && (
                               <div className="text-xs text-slate-600 mt-1">
                                 {event.$elements &&
                                 event.$elements.length > 0 &&
@@ -919,7 +928,7 @@ export default function SessionTimeline({
                                   ? event.$elements[0].$el_text
                                   : ""}
                               </div>
-                            )}
+                            )} */}
                           </div>
                         </div>
                       ))}
