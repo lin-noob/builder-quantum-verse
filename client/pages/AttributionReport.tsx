@@ -503,7 +503,7 @@ export default function AttributionReport() {
       const targetId = titleIdToIdMap.get(String(targetKey));
 
       if (sourceId && targetId) {
-        // 调用API保存列顺序（使用 id 而不是 titleId）
+        // ��用API保存列顺序（使用 id 而不是 titleId）
         await moveColumn(sourceId, targetId);
 
         // 重新查询接口并更新显示
@@ -589,7 +589,7 @@ export default function AttributionReport() {
 
   // 搜索按钮������事件
   const handleSearch = () => {
-    setPage(1); // 重置到第一页
+    setPage(1); // 重���到第一页
     fetchReportPage();
   };
 
@@ -946,7 +946,8 @@ export default function AttributionReport() {
                             />
                             <Label
                               htmlFor={`visible-${c.key}`}
-                              className={`cursor-pointer flex-1 ${isMandatory ? "text-gray-500" : ""}`}
+                              className={`cursor-pointer flex-1 truncate ${isMandatory ? "text-gray-500" : ""}`}
+                              title={c.label}
                             >
                               {c.label} {isMandatory && "(必须)"}
                             </Label>
