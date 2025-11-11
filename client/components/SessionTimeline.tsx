@@ -329,7 +329,7 @@ export default function SessionTimeline({
     const remainingMinutes = totalMinutes % 60;
 
     return remainingMinutes > 0
-      ? `${hours}小���${remainingMinutes}分钟`
+      ? `${hours}小时${remainingMinutes}分钟`
       : `${hours}小时`;
   };
 
