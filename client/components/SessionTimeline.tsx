@@ -509,7 +509,7 @@ export default function SessionTimeline({
           <div className="md:col-span-2">
             <Input
               type="text"
-              placeholder="搜索行为、页面或元素"
+              placeholder="搜索页面"
               className="h-10"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
