@@ -871,13 +871,13 @@ export default function SessionTimeline({
                   <div>
                     <div className="text-xs text-slate-500">Start Time</div>
                     <div className="font-medium text-slate-900">
-                      {eventList[0]?.gmtCreate}
+                      {eventList[eventList.length - 1]?.gmtCreate}
                     </div>
                   </div>
                   <div>
                     <div className="text-xs text-slate-500">End Time</div>
                     <div className="font-medium text-slate-900">
-                      {eventList[eventList.length - 1]?.gmtCreate}
+                      {eventList[0]?.gmtCreate}
                     </div>
                   </div>
                 </div>
@@ -968,14 +968,14 @@ export default function SessionTimeline({
                       {t("sessionTimeline.modal.pageInfo")}
                     </h4>
                     <div className="space-y-3 text-sm">
-                      <div>
+                      {/* <div>
                         <div className="text-xs text-slate-500">
                           {t("sessionTimeline.modal.fields.pageTitle")}
                         </div>
                         <div className="font-medium text-slate-900">
                           {selectedEvent.pageTitle}
                         </div>
-                      </div>
+                      </div> */}
                       <div>
                         <div className="text-xs text-slate-500">
                           {t("sessionTimeline.modal.fields.pageUrl")}
