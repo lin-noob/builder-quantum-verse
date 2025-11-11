@@ -1093,7 +1093,7 @@ const RulesPage = () => {
                           />
                         </div>
 
-                        <div className="space-y-2 sm:col-span-2">
+                        {/* <div className="space-y-2 sm:col-span-2">
                           <div className="flex items-center gap-2">
                             <Label>标题包含</Label>
                             <Tooltip delayDuration={300}>
@@ -1134,7 +1134,7 @@ const RulesPage = () => {
                           >
                             添加标题
                           </Button>
-                        </div>
+                        </div> */}
                       </div>
 
                       <div className="space-y-2">
