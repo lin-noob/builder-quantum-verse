@@ -53,7 +53,37 @@ const HelpDocumentI18nManager = React.lazy(
   () => import("@/pages/Organization/HelpDocumentI18nManager"),
 );
 
+// 邮件营销页面（懒加载）
+const EmailCampaigns = React.lazy(
+  () => import("@/pages/AIMarketing/EmailCampaigns"),
+);
+const EmailCampaignEditor = React.lazy(
+  () => import("@/pages/AIMarketing/EmailCampaignEditor"),
+);
+const EmailAnalytics = React.lazy(
+  () => import("@/pages/AIMarketing/EmailAnalytics"),
+);
+const EmailMarketingMailbox = React.lazy(
+  () => import("@/pages/AIMarketing/EmailMarketingMailbox"),
+);
+const EmailCompose = React.lazy(
+  () => import("@/pages/AIMarketing/EmailCompose"),
+);
+const EmailComposePreview = React.lazy(
+  () => import("@/pages/AIMarketing/EmailComposePreview"),
+);
+const TemplateLibrary = React.lazy(
+  () => import("@/pages/AIMarketing/TemplateLibrary"),
+);
+const ContentBlockLibrary = React.lazy(
+  () => import("@/pages/AIMarketing/ContentBlockLibrary"),
+);
+const TemplateBuilder = React.lazy(
+  () => import("@/pages/AIMarketing/TemplateBuilder"),
+);
+
 const Events = React.lazy(() => import("@/pages/events"));
+const RulesPage = React.lazy(() => import("@/pages/RulesPage"));
 const Tasks = React.lazy(() => import("@/pages/MyTasks"));
 const Calendar = React.lazy(() => import("@/pages/TeamCalendar"));
 const EmailManualProcessing = React.lazy(() => import("@/pages/EmailManualProcessing"));
@@ -228,6 +258,128 @@ export const staticRoutes: RouteObject[] = [
     ),
   },
 
+  // 邮件营销核心页面路由
+  {
+    path: "/ai-marketing/email",
+    element: (
+      <Layout>
+        <LazyRoute>
+          <EmailMarketingMailbox />
+        </LazyRoute>
+      </Layout>
+    ),
+  },
+  {
+    path: "/ai-marketing/email/compose",
+    element: (
+      <Layout>
+        <LazyRoute>
+          <EmailCompose />
+        </LazyRoute>
+      </Layout>
+    ),
+  },
+  {
+    path: "/ai-marketing/email/compose/preview",
+    element: (
+      <Layout>
+        <LazyRoute>
+          <EmailComposePreview />
+        </LazyRoute>
+      </Layout>
+    ),
+  },
+  {
+    path: "/ai-marketing/template-library",
+    element: (
+      <Layout>
+        <LazyRoute>
+          <TemplateLibrary />
+        </LazyRoute>
+      </Layout>
+    ),
+  },
+  {
+    path: "/ai-marketing/template-builder",
+    element: (
+      <Layout>
+        <LazyRoute>
+          <TemplateBuilder />
+        </LazyRoute>
+      </Layout>
+    ),
+  },
+  {
+    path: "/ai-marketing/block-library",
+    element: (
+      <Layout>
+        <LazyRoute>
+          <ContentBlockLibrary />
+        </LazyRoute>
+      </Layout>
+    ),
+  },
+  {
+    path: "/ai-marketing/email/campaigns",
+    element: <Navigate to="/ai-marketing/email-campaigns" replace />,
+  },
+  // 统一到短横线路径（兼容新增）：/ai-marketing/email-campaigns
+  {
+    path: "/ai-marketing/email-campaigns",
+    element: (
+      <Layout>
+        <LazyRoute>
+          <EmailCampaigns />
+        </LazyRoute>
+      </Layout>
+    ),
+  },
+  {
+    path: "/ai-marketing/email/campaigns/new",
+    element: <Navigate to="/ai-marketing/email-campaigns/new" replace />,
+  },
+  // 统一到短横线路径（兼容新增）：/ai-marketing/email-campaigns/new
+  {
+    path: "/ai-marketing/email-campaigns/new",
+    element: (
+      <Layout>
+        <LazyRoute>
+          <EmailCampaignEditor />
+        </LazyRoute>
+      </Layout>
+    ),
+  },
+  {
+    path: "/ai-marketing/email/campaigns/:campaignId/edit",
+    element: <Navigate to="/ai-marketing/email-campaigns/:campaignId/edit" replace />,
+  },
+  // 统一到短横线路径（兼容新增）：/ai-marketing/email-campaigns/:campaignId/edit
+  {
+    path: "/ai-marketing/email-campaigns/:campaignId/edit",
+    element: (
+      <Layout>
+        <LazyRoute>
+          <EmailCampaignEditor />
+        </LazyRoute>
+      </Layout>
+    ),
+  },
+  {
+    path: "/ai-marketing/email/campaigns/:campaignId/analytics",
+    element: <Navigate to="/ai-marketing/email-campaigns/:campaignId/analytics" replace />,
+  },
+  // 统一到短横线路径（兼容新增）：/ai-marketing/email-campaigns/:campaignId/analytics
+  {
+    path: "/ai-marketing/email-campaigns/:campaignId/analytics",
+    element: (
+      <Layout>
+        <LazyRoute>
+          <EmailAnalytics />
+        </LazyRoute>
+      </Layout>
+    ),
+  },
+
   {
     path: "/features/ai-marketing",
     element: (
@@ -329,6 +481,16 @@ export const staticRoutes: RouteObject[] = [
       <Layout>
         <LazyRoute>
           <Events />
+        </LazyRoute>
+      </Layout>
+    ),
+  },
+  {
+    path: "/event-rules",
+    element: (
+      <Layout>
+        <LazyRoute>
+          <RulesPage />
         </LazyRoute>
       </Layout>
     ),
