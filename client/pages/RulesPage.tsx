@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -49,6 +50,8 @@ import { ruleService, CreateRuleRequest } from "@/services/ruleService";
 import { ruleTypeService } from "@/services/ruleTypeService";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 const RulesPage = () => {
   const { t } = useTranslation();
@@ -77,6 +80,8 @@ const RulesPage = () => {
   const [showInlineAddEvent, setShowInlineAddEvent] = useState(false);
   const [selectOpen, setSelectOpen] = useState(false);
   const [draggedRule, setDraggedRule] = useState<string | null>(null);
+  const [draggedOutcome, setDraggedOutcome] = useState<string | null>(null);
+  const [outcomeNewEventName, setOutcomeNewEventName] = useState("");
   const { toast } = useToast();
 
   /**
@@ -513,6 +518,151 @@ const RulesPage = () => {
     // 保持下拉框打���状态，不调用 setSelectOpen(false)
   };
 
+  // 结果事件（Outcome Marker）Tab：创建事件
+  const createOutcomeEvent = async () => {
+    const name = outcomeNewEventName.trim();
+    if (!name) {
+      toast({ title: "请输入事件名称", description: "请在输入框中填写结果事件名称", variant: "destructive" });
+      return;
+    }
+
+    if (customEvents.includes(name)) {
+      toast({
+        title: "事件已存在",
+        description: `事件 "${name}" 已经存在`,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      await ruleTypeService.create(name);
+      await loadCustomEvents();
+      setOutcomeNewEventName("");
+      toast({ title: "创建成功", description: `自定义事件 "${name}" 创建成功` });
+    } catch (error) {
+      console.error("Failed to create outcome event:", error);
+      toast({ title: "创建失败", description: "创建自定义事件失败，请稍后重试", variant: "destructive" });
+    }
+  };
+
+  // ----- 结果事件：抽屉 & 表单状态 -----
+  const [outcomeDrawerOpen, setOutcomeDrawerOpen] = useState(false);
+  const [editingOutcomeId, setEditingOutcomeId] = useState<string | null>(null);
+  const [formName, setFormName] = useState("");
+  const [formCode, setFormCode] = useState("");
+  const [formEnabled, setFormEnabled] = useState(true);
+  const [formRemark, setFormRemark] = useState("");
+  const [formErrorName, setFormErrorName] = useState<string | null>(null);
+  const [formErrorCode, setFormErrorCode] = useState<string | null>(null);
+  // 事件标识选项与细化标识管理
+  const baseCodeOptions = [
+    { value: "signup", label: "注册" },
+    { value: "login", label: "登录" },
+    { value: "inquiry", label: "询价" },
+    { value: "add_to_cart", label: "加购" },
+    { value: "place_order", label: "下单" },
+    { value: "checkout", label: "结账" },
+  ];
+  const [detailMap, setDetailMap] = useState<Record<string, string[]>>({});
+  const [detailInput, setDetailInput] = useState("");
+  const [selectedDetail, setSelectedDetail] = useState<string | null>(null);
+  const [editingDetailIndex, setEditingDetailIndex] = useState<number | null>(null);
+  const [detailEditValue, setDetailEditValue] = useState("");
+
+  const toCode = (s: string) => s
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "_")
+    .replace(/[^a-z0-9_]/g, "_");
+
+  const openCreateOutcomeDrawer = () => {
+    const seed = outcomeNewEventName.trim();
+    setEditingOutcomeId(null);
+    setFormName(seed);
+    setFormCode(seed ? toCode(seed) : "");
+    // 默认选择第一个事件标识
+    setFormCode(baseCodeOptions[0].value);
+    setFormEnabled(true);
+    setFormRemark("");
+    setFormErrorName(null);
+    setFormErrorCode(null);
+    setOutcomeDrawerOpen(true);
+  };
+
+  const openEditOutcomeDrawer = (eventName: string) => {
+    // 目前后端未提供编辑接口，这里仅预填名称，其它为占位
+    setEditingOutcomeId(ruleTypes.get(eventName) || null);
+    setFormName(eventName);
+    setFormCode(toCode(eventName));
+    setFormCode(baseCodeOptions[0].value);
+    setFormEnabled(true);
+    setFormRemark("");
+    setFormErrorName(null);
+    setFormErrorCode(null);
+    setOutcomeDrawerOpen(true);
+  };
+
+  const validateOutcomeForm = () => {
+    let valid = true;
+    // 名称：1–50字符，禁止仅空格
+    if (!formName.trim() || formName.trim().length < 1 || formName.trim().length > 50) {
+      setFormErrorName("事件名称需为1–50个字符，且不能仅空格");
+      valid = false;
+    } else {
+      setFormErrorName(null);
+    }
+    // 必须选择事件标识
+    if (!formCode) {
+      setFormErrorCode("请选择事件标识");
+      valid = false;
+    } else {
+      setFormErrorCode(null);
+    }
+    // 唯一性（当前后端仅返回 eventName，这里用名称做简化校验）
+    if (!editingOutcomeId && customEvents.includes(formName.trim())) {
+      toast({ title: "事件名称已存在", description: "重复名称允许但不推荐" });
+    }
+    return valid;
+  };
+
+  const saveOutcomeEvent = async () => {
+    if (!validateOutcomeForm()) return;
+    const name = formName.trim();
+    if (!editingOutcomeId) {
+      // 新建：调用现有 create 接口（当前仅支持 eventName）
+      try {
+        await ruleTypeService.create(name);
+        await loadCustomEvents();
+        toast({ title: "已保存结果事件", description: `已保存结果事件“${name}”` });
+        setOutcomeDrawerOpen(false);
+      } catch (error) {
+        toast({ title: "保存失败", description: "创建自定义事件失败，请稍后重试", variant: "destructive" });
+      }
+    } else {
+      // 编辑：后端暂不支持更新，这里仅展示文案
+      toast({ title: "暂未接通更新接口", description: "该记录编辑保存待后端接口提供" });
+      setOutcomeDrawerOpen(false);
+    }
+  };
+
+  // 结果事件（Outcome Marker）Tab：删除事件
+  const deleteOutcomeEvent = async (eventName: string) => {
+    const eventId = ruleTypes.get(eventName);
+    if (!eventId) {
+      toast({ title: "删除失败", description: "无法找到该事件的ID", variant: "destructive" });
+      return;
+    }
+    try {
+      await ruleTypeService.delete(eventId);
+      await loadCustomEvents();
+      toast({ title: "删除成功", description: `自定义事件 "${eventName}" 已删除` });
+    } catch (error) {
+      console.error("Failed to delete outcome event:", error);
+      toast({ title: "删除失败", description: "删除自定义事件失败，请稍后重试", variant: "destructive" });
+    }
+  };
+
   // 拖拽处理函数
   const handleDragStart = (
     e: React.DragEvent<HTMLDivElement>,
@@ -597,6 +747,54 @@ const RulesPage = () => {
     setDraggedRule(null);
   };
 
+  // 结果事件列表拖拽（前端排序）
+  const handleOutcomeDragStart = (
+    e: React.DragEvent<HTMLDivElement>,
+    eventName: string,
+  ) => {
+    setDraggedOutcome(eventName);
+    if (e.currentTarget) {
+      e.currentTarget.classList.add("opacity-50");
+    }
+    if (e.dataTransfer) {
+      e.dataTransfer.effectAllowed = "move";
+      e.dataTransfer.setData("text/plain", eventName);
+    }
+  };
+
+  const handleOutcomeDragEnd = (e: React.DragEvent<HTMLDivElement>) => {
+    setDraggedOutcome(null);
+    if (e.currentTarget) {
+      e.currentTarget.classList.remove("opacity-50");
+    }
+  };
+
+  const handleOutcomeDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+  };
+
+  const handleOutcomeDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+  };
+
+  const handleOutcomeDrop = (
+    e: React.DragEvent<HTMLDivElement>,
+    targetIndex: number,
+  ) => {
+    e.preventDefault();
+    const draggedName = e.dataTransfer.getData("text/plain");
+    if (draggedName && draggedOutcome) {
+      const draggedIndex = customEvents.findIndex((x) => x === draggedName);
+      if (draggedIndex !== -1 && draggedIndex !== targetIndex) {
+        const next = [...customEvents];
+        const [moved] = next.splice(draggedIndex, 1);
+        next.splice(targetIndex, 0, moved);
+        setCustomEvents(next);
+      }
+    }
+  };
+
   const updateTextAliases = (idx: number, value: string) => {
     if (!editingRule) return;
     const aliases = editingRule.conditions.text?.aliases || [];
@@ -674,91 +872,98 @@ const RulesPage = () => {
 
   return (
     <div className="p-4 space-y-4">
-      <div className="flex justify-start">
-        <Button onClick={handleCreate}>
-          <Plus className="h-4 w-4 mr-2" /> 新建规则
-        </Button>
-      </div>
-      <Card>
-        <CardContent className="space-y-3 pt-4">
-          {rules.length === 0 ? (
-            <div className="text-sm text-muted-foreground">
-              暂无规则，点击"新建规则"开始。
-            </div>
-          ) : (
-            rules.map((rule, idx) => (
-              <Card
-                key={idx}
-                onDragOver={handleDragOver}
-                onDragEnter={handleDragEnter}
-                onDrop={(e) => handleDrop(e, idx)}
-                className={`transition-opacity ${draggedRule === rule.id ? "opacity-50" : ""}`}
-              >
-                <CardContent className="py-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div
-                        draggable
-                        onDragStart={(e) => handleDragStart(e, rule.id)}
-                        onDragEnd={handleDragEnd}
-                        className="cursor-grab active:cursor-grabbing p-2 rounded hover:bg-gray-100"
-                      >
-                        <GripVertical className="h-4 w-4" />
-                      </div>
-                      <div className="font-medium">{rule.name}</div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant={rule.enabled ? "default" : "secondary"}>
-                        {rule.targetEvent}
-                      </Badge>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleEdit(rule)}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleDelete(rule)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))
-          )}
-        </CardContent>
-      </Card>
+      <Tabs defaultValue="ruleBuilder" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="ruleBuilder">事件规则</TabsTrigger>
+          <TabsTrigger value="outcomes">结果事件</TabsTrigger>
+        </TabsList>
 
-      {/* 编辑抽屉 */}
-      <Sheet
-        open={openEditor}
-        onOpenChange={(open) => {
-          setOpenEditor(open);
-          if (!open) {
-            // 关闭编辑器时重置所有状态
-            setShowInlineAddEvent(false);
-            setNewEventName("");
-            setSelectOpen(false);
-          }
-        }}
-      >
-        <SheetContent side="right" className="w-[720px] sm:w-[840px] p-0">
-          <div className="flex h-full flex-col">
-            <div className="flex-none p-6">
-              <SheetHeader>
-                <SheetTitle>
-                  {editingRule?.id ? "编辑规则" : "新建规则"}
-                </SheetTitle>
-              </SheetHeader>
-            </div>
-            <div className="flex-1 overflow-y-auto p-6">
-              {editingRule && (
-                <div className="space-y-6">
+        <TabsContent value="ruleBuilder" className="space-y-4">
+          <div className="flex justify-start">
+            <Button onClick={handleCreate}>
+              <Plus className="h-4 w-4 mr-2" /> 新建规则
+            </Button>
+          </div>
+          <Card>
+            <CardContent className="space-y-3 pt-4">
+              {rules.length === 0 ? (
+                <div className="text-sm text-muted-foreground">
+                  暂无规则，点击"新建规则"开始。
+                </div>
+              ) : (
+                rules.map((rule, idx) => (
+                  <Card
+                    key={idx}
+                    onDragOver={handleDragOver}
+                    onDragEnter={handleDragEnter}
+                    onDrop={(e) => handleDrop(e, idx)}
+                    className={`transition-opacity ${draggedRule === rule.id ? "opacity-50" : ""}`}
+                  >
+                    <CardContent className="py-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div
+                            draggable
+                            onDragStart={(e) => handleDragStart(e, rule.id)}
+                            onDragEnd={handleDragEnd}
+                            className="cursor-grab active:cursor-grabbing p-2 rounded hover:bg-gray-100"
+                          >
+                            <GripVertical className="h-4 w-4" />
+                          </div>
+                          <div className="font-medium">{rule.name}</div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge variant={rule.enabled ? "default" : "secondary"}>
+                            {rule.targetEvent}
+                          </Badge>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleEdit(rule)}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDelete(rule)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              )}
+            </CardContent>
+          </Card>
+
+          {/* 编辑抽屉 */}
+          <Sheet
+            open={openEditor}
+            onOpenChange={(open) => {
+              setOpenEditor(open);
+              if (!open) {
+                // 关闭编辑器时重置所有状态
+                setShowInlineAddEvent(false);
+                setNewEventName("");
+                setSelectOpen(false);
+              }
+            }}
+          >
+            <SheetContent side="right" className="w-[720px] sm:w-[840px] p-0">
+              <div className="flex h-full flex-col">
+                <div className="flex-none p-6">
+                  <SheetHeader>
+                    <SheetTitle>
+                      {editingRule?.id ? "编辑规则" : "新建规则"}
+                    </SheetTitle>
+                  </SheetHeader>
+                </div>
+                <div className="flex-1 overflow-y-auto p-6">
+                  {editingRule && (
+                    <div className="space-y-6">
                   {/* 基础信息卡片 */}
                   <Card>
                     <CardHeader>
@@ -1388,31 +1593,259 @@ const RulesPage = () => {
                       </div>
                     </CardContent>
                   </Card>
+                    </div>
+                  )}
+                </div>
+                <div className="flex-none p-6">
+                  <SheetFooter>
+                    <Button
+                      onClick={() => {
+                        setOpenEditor(false);
+                        setEditingRule(null);
+                        // 重置下拉框相关状态
+                        setShowInlineAddEvent(false);
+                        setNewEventName("");
+                        setSelectOpen(false);
+                      }}
+                    >
+                      取消
+                    </Button>
+                    <Button onClick={saveRule}>保存</Button>
+                  </SheetFooter>
+                </div>
+              </div>
+            </SheetContent>
+          </Sheet>
+        </TabsContent>
+
+        <TabsContent value="outcomes" className="space-y-4">
+          <div className="flex justify-start">
+            <Button onClick={openCreateOutcomeDrawer}>
+              <Plus className="h-4 w-4 mr-2" /> 新增事件
+            </Button>
+          </div>
+
+          <Card>
+            <CardContent className="space-y-3 pt-4">
+              {customEvents.length === 0 ? (
+                <div className="text-sm text-muted-foreground">暂无自定义结果事件。</div>
+              ) : (
+                <div className="space-y-2">
+                  {customEvents.map((ev) => (
+                    <Card
+                      key={ev}
+                      onDragOver={handleOutcomeDragOver}
+                      onDragEnter={handleOutcomeDragEnter}
+                      onDrop={(e) => handleOutcomeDrop(e, customEvents.findIndex((x) => x === ev))}
+                      className={`transition-opacity ${draggedOutcome === ev ? "opacity-50" : ""}`}
+                    >
+                      <CardContent className="py-3 flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div
+                            draggable
+                            onDragStart={(e) => handleOutcomeDragStart(e, ev)}
+                            onDragEnd={handleOutcomeDragEnd}
+                            className="cursor-grab active:cursor-grabbing p-2 rounded hover:bg-gray-100"
+                          >
+                            <GripVertical className="h-4 w-4" />
+                          </div>
+                          <div className="font-medium">{ev}</div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge>{toCode(ev)}</Badge>
+                          <Button variant="ghost" size="sm" onClick={() => openEditOutcomeDrawer(ev)}>
+                            <Edit className="h-4 w-4 mr-1" /> 编辑
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => deleteOutcomeEvent(ev)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
                 </div>
               )}
-            </div>
-            <div className="flex-none p-6">
-              <SheetFooter>
-                <Button
-                  onClick={() => {
-                    setOpenEditor(false);
-                    setEditingRule(null);
-                    // 重置下拉框相关状态
-                    setShowInlineAddEvent(false);
-                    setNewEventName("");
-                    setSelectOpen(false);
-                  }}
-                >
-                  取消
-                </Button>
-                <Button onClick={saveRule}>保存</Button>
-              </SheetFooter>
-            </div>
-          </div>
-        </SheetContent>
-      </Sheet>
+            </CardContent>
+          </Card>
+
+          {/* 结果事件抽屉（左侧） */}
+          <Sheet open={outcomeDrawerOpen} onOpenChange={setOutcomeDrawerOpen}>
+            <SheetContent side="right" className="w-[640px] max-w-[80vw] p-0">
+              <div className="flex h-full flex-col">
+                <div className="flex-none p-6">
+                  <SheetTitle>{editingOutcomeId ? "编辑结果事件" : "新建结果事件"}</SheetTitle>
+                  <p className="text-sm text-muted-foreground mt-2">
+                    标识占位示例：例如 signup_success、first_purchase_complete
+                  </p>
+                </div>
+
+                <div className="flex-1 overflow-y-auto p-6 space-y-4">
+                  {/* 基础信息卡片：规则名称、启用、备注 */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-base">基础信息</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                      <div className="grid grid-cols-4 gap-3 items-center">
+                        <Label className="col-span-1">规则名称</Label>
+                        <Input className="col-span-3" placeholder="例如 注册成功" value={formName} onChange={(e) => setFormName(e.target.value)} />
+                        {formErrorName && <div className="col-span-4 text-xs text-destructive">{formErrorName}</div>}
+                      </div>
+
+                      <div className="grid grid-cols-4 gap-3 items-center">
+                        <Label className="col-span-1">状态</Label>
+                        <div className="col-span-3">
+                          <RadioGroup value={formEnabled ? "enabled" : "disabled"} onValueChange={(v) => setFormEnabled(v === "enabled")} className="flex items-center gap-6">
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="enabled" id="enabled" />
+                              <Label htmlFor="enabled">启用</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="disabled" id="disabled" />
+                              <Label htmlFor="disabled">禁用</Label>
+                            </div>
+                          </RadioGroup>
+                          <p className="text-xs text-muted-foreground mt-2">禁用后，来自 SDK 的该结果事件上报将被拒绝。</p>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-4 gap-3 items-start">
+                        <Label className="col-span-1">备注</Label>
+                        <Textarea className="col-span-3" rows={4} placeholder="补充说明该结果事件的使用场景" value={formRemark} onChange={(e) => setFormRemark(e.target.value)} />
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* 识别信息卡片：事件标识、细化标识、SDK示例 */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-base">识别信息</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="grid grid-cols-4 gap-3 items-center">
+                        <Label className="col-span-1">事件标识（outcome_code）</Label>
+                        <Select value={formCode} onValueChange={(v) => { setFormCode(v); setSelectedDetail(null); }}>
+                          <SelectTrigger className="col-span-3">
+                            <SelectValue placeholder="请选择事件标识" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {baseCodeOptions.map(opt => (
+                              <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        {formErrorCode && <div className="col-span-4 text-xs text-destructive">{formErrorCode}</div>}
+                      </div>
+
+                      {/* 细化标识管理 */}
+                      <div className="space-y-2">
+                        <Label>细化标识</Label>
+                        <div className="text-xs text-muted-foreground">选择了一个事件标识后，可新增/删除/编辑细化标识，例如在“询价”下添加 pcb、pcbca quote、bom 等等。</div>
+                        <div className="flex gap-2">
+                          <Input className="flex-1" placeholder="例如 pcb 或 pcbca quote" value={detailInput} onChange={(e) => setDetailInput(e.target.value)} />
+                          <Button
+                            onClick={() => {
+                              const code = formCode;
+                              if (!code) return;
+                              const label = detailInput.trim();
+                              if (!label) return;
+                              setDetailMap((prev) => {
+                                const list = prev[code] ? [...prev[code]] : [];
+                                if (!list.includes(label)) list.push(label);
+                                return { ...prev, [code]: list };
+                              });
+                              setSelectedDetail(label);
+                              setDetailInput("");
+                            }}
+                          >
+                            <Plus className="h-4 w-4 mr-2" /> 新增
+                          </Button>
+                        </div>
+                        <div className="space-y-2">
+                          {(detailMap[formCode || ""] || []).length === 0 ? (
+                            <div className="text-sm text-muted-foreground">当前事件标识下暂无细化标识。</div>
+                          ) : (
+                            (detailMap[formCode || ""] || []).map((d, idx) => (
+                              <div key={`${d}-${idx}`} className="flex items-center justify-between rounded border p-2">
+                                {editingDetailIndex === idx ? (
+                                  <div className="flex-1 flex gap-2">
+                                    <Input value={detailEditValue} onChange={(e) => setDetailEditValue(e.target.value)} />
+                                    <Button variant="secondary" size="sm" onClick={() => {
+                                      const val = detailEditValue.trim();
+                                      if (!val) return;
+                                      setDetailMap((prev) => {
+                                        const list = [...(prev[formCode || ""] || [])];
+                                        list[idx] = val;
+                                        return { ...prev, [formCode || ""]: list };
+                                      });
+                                      setEditingDetailIndex(null);
+                                      setSelectedDetail(val);
+                                    }}>
+                                      <Check className="h-4 w-4 mr-1" /> 保存
+                                    </Button>
+                                  </div>
+                                ) : (
+                                  <div className="flex-1 cursor-pointer" onClick={() => setSelectedDetail(d)}>
+                                    <div className={`font-mono ${selectedDetail === d ? "text-primary" : ""}`}>{d}</div>
+                                  </div>
+                                )}
+                                {editingDetailIndex !== idx && (
+                                  <div className="flex items-center gap-2">
+                                    <Button variant="ghost" size="sm" onClick={() => { setEditingDetailIndex(idx); setDetailEditValue(d); }}>
+                                      <Edit className="h-4 w-4 mr-1" /> 编辑
+                                    </Button>
+                                    <Button variant="ghost" size="icon" onClick={() => {
+                                      setDetailMap((prev) => {
+                                        const list = (prev[formCode || ""] || []).filter((x) => x !== d);
+                                        return { ...prev, [formCode || ""]: list };
+                                      });
+                                      if (selectedDetail === d) setSelectedDetail(null);
+                                    }}>
+                                      <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                  </div>
+                                )}
+                              </div>
+                            ))
+                          )}
+                        </div>
+
+                        {/* SDK 代码展示 */}
+                        <div className="space-y-2">
+                          <Label>SDK 上报示例</Label>
+                          <pre className="bg-muted p-3 rounded text-xs overflow-auto">
+{`// 结果事件上报示例
+sdk.trackOutcome({
+  outcome_code: "${formCode || "<请选择事件标识>"}",
+  detail_code: "${selectedDetail || "<选择/新增细化标识>"}",
+  enabled: ${formEnabled ? "true" : "false"},
+});
+`}
+                          </pre>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <div className="flex-none p-6">
+                  <SheetFooter>
+                    <Button onClick={() => setOutcomeDrawerOpen(false)}>取消</Button>
+                    <Button onClick={saveOutcomeEvent}>保存</Button>
+                  </SheetFooter>
+                </div>
+              </div>
+            </SheetContent>
+          </Sheet>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
 
 export default RulesPage;
+                  {/* 细化标识管理 */}
