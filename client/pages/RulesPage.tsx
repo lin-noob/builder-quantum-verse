@@ -46,7 +46,7 @@ import {
   RawEventType,
   summarizeRule,
 } from "@shared/eventRuleTypes";
-import { ruleService, CreateRuleRequest } from "@/services/ruleService";
+import { ruleService, CreateRuleRequest, BackendRule } from "@/services/ruleService";
 import { ruleTypeService } from "@/services/ruleTypeService";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
@@ -75,6 +75,7 @@ const RulesPage = () => {
   const [editingRule, setEditingRule] = useState<EventRule | null>(null);
   const [customEvents, setCustomEvents] = useState<string[]>([]);
   const [ruleTypes, setRuleTypes] = useState<Map<string, string>>(new Map()); // eventName -> id mapping
+  const [resultEvents, setResultEvents] = useState<BackendRule[]>([]); // 结果事件列表
   const [showAddEvent, setShowAddEvent] = useState(false);
   const [newEventName, setNewEventName] = useState("");
   const [showInlineAddEvent, setShowInlineAddEvent] = useState(false);
@@ -105,7 +106,7 @@ const RulesPage = () => {
 
   /**
    * Convert frontend EventRule to backend API format
-   * 将前端EventRule格式转换为后端API格式
+   * 将EventRule格式转换为后端API格式
    */
   const convertToBackendRule = (rule: EventRule): CreateRuleRequest => {
     // Join titleAlias (text aliases) with commas
@@ -222,8 +223,8 @@ const RulesPage = () => {
   const loadCustomEvents = async () => {
     try {
       const types = await ruleTypeService.list();
-      const eventNames = types.map(rt => rt.eventName);
-      const typeMap = new Map(types.map(rt => [rt.eventName, rt.id]));
+      const eventNames = types.map((rt) => rt.eventName);
+      const typeMap = new Map(types.map((rt) => [rt.eventName, rt.id]));
 
       setCustomEvents(eventNames);
       setRuleTypes(typeMap);
@@ -237,99 +238,31 @@ const RulesPage = () => {
     }
   };
 
+  /**
+   * Load result events from backend API
+   * 从后端API加载结果事件列表
+   */
+  const loadResultEvents = async () => {
+    try {
+      const events = await ruleService.getRules(2);
+      setResultEvents(events);
+    } catch (error) {
+      console.error("Failed to load result events from backend:", error);
+      toast({
+        title: "加载失败",
+        description: "加载结果事件列表失败",
+        variant: "destructive",
+      });
+    }
+  };
+
   useEffect(() => {
     // Load rules from backend on component mount
     loadRulesFromBackend();
     // Load custom events from backend
     loadCustomEvents();
-
-    // MOCK DATA DISABLED - Now loading from backend
-    /* const existing = eventRuleService.list();
-    if (existing.length === 0) {
-      // 创建多个模拟规则
-      const mockRules = [
-        {
-          name: "用户登录规则",
-          targetEvent: "Login" as NamedEvent,
-          scope: { type: "prefix" as const, value: "/" },
-          conditions: {
-            eventType: "click" as const,
-            text: {
-              aliases: ["登录", "Sign in", "Log in"],
-              matchMode: "contains" as const,
-            },
-          },
-          enabled: true,
-          priority: 100,
-          dedup: { windowSeconds: 5, oncePerSession: false },
-        },
-        {
-          name: "用户注册规则",
-          targetEvent: "Signup" as NamedEvent,
-          scope: { type: "prefix" as const, value: "/" },
-          conditions: {
-            eventType: "click" as const,
-            text: {
-              aliases: ["注册", "Sign up", "Register"],
-              matchMode: "contains" as const,
-            },
-          },
-          enabled: true,
-          priority: 90,
-          dedup: { windowSeconds: 10, oncePerSession: true },
-        },
-        {
-          name: "订单成功规则",
-          targetEvent: "OrderSuccess" as NamedEvent,
-          scope: { type: "prefix" as const, value: "/order" },
-          conditions: {
-            eventType: "pageview" as const,
-            text: {
-              aliases: ["成功", "Success", "Complete"],
-              matchMode: "contains" as const,
-            },
-          },
-          enabled: true,
-          priority: 80,
-          dedup: { windowSeconds: 30, oncePerSession: false },
-        },
-        {
-          name: "购物车添���规则",
-          targetEvent: "OrderSuccess" as NamedEvent,
-          scope: { type: "prefix" as const, value: "/cart" },
-          conditions: {
-            eventType: "click" as const,
-            text: {
-              aliases: ["添加", "Add to cart", "��入购物车"],
-              matchMode: "contains" as const,
-            },
-          },
-          enabled: false,
-          priority: 70,
-          dedup: { windowSeconds: 3, oncePerSession: false },
-        },
-        {
-          name: "表单提交规则",
-          targetEvent: "Login" as NamedEvent,
-          scope: { type: "regex" as const, value: ".*\\/form.*" },
-          conditions: {
-            eventType: "form_submit" as const,
-            text: {
-              aliases: ["提交", "Submit", "Send"],
-              matchMode: "contains" as const,
-            },
-          },
-          enabled: true,
-          priority: 60,
-          dedup: { windowSeconds: 15, oncePerSession: true },
-        },
-      ];
-
-      mockRules.forEach((rule) => {
-        eventRuleService.create(rule as any);
-      });
-      reload();
-    } */
+    // Load result events from backend
+    loadResultEvents();
   }, []);
 
   const handleCreate = () => {
@@ -411,16 +344,6 @@ const RulesPage = () => {
       editingRule.conditions.selector?.attributesRaw?.trim() ||
       (editingRule.conditions.selector?.attributes &&
         Object.keys(editingRule.conditions.selector.attributes).length > 0);
-
-    // if (!hasTextAliases && !hasTitleIncludes && !hasSelector && !hasAttributes) {
-    //   toast({
-    //     title: "错误",
-    //     description: "必须至少填写一个识别条件（文本别名、标题包含、选择器或属性）",
-    //     variant: "destructive",
-    //   });
-    //   return;
-    // }
-
     try {
       // Convert to backend format
       const backendRule = convertToBackendRule(editingRule);
@@ -508,47 +431,18 @@ const RulesPage = () => {
     setShowAddEvent(false);
     setShowInlineAddEvent(false);
     setNewEventName("");
-    // 保持下拉框打开状态不调用 setSelectOpen(false)
   };
 
   const cancelAddEvent = () => {
     setShowAddEvent(false);
     setShowInlineAddEvent(false);
     setNewEventName("");
-    // 保持下拉框打���状态，不调用 setSelectOpen(false)
+    // 保持下拉框打开状态，不调用 setSelectOpen(false)
   };
 
-  // 结果事件（Outcome Marker）Tab：创建事件
-  const createOutcomeEvent = async () => {
-    const name = outcomeNewEventName.trim();
-    if (!name) {
-      toast({ title: "请输入事件名称", description: "请在输入框中填写结果事件名称", variant: "destructive" });
-      return;
-    }
-
-    if (customEvents.includes(name)) {
-      toast({
-        title: "事件已存在",
-        description: `事件 "${name}" 已经存在`,
-        variant: "destructive",
-      });
-      return;
-    }
-
-    try {
-      await ruleTypeService.create(name);
-      await loadCustomEvents();
-      setOutcomeNewEventName("");
-      toast({ title: "创建成功", description: `自定义事件 "${name}" 创建成功` });
-    } catch (error) {
-      console.error("Failed to create outcome event:", error);
-      toast({ title: "创建失败", description: "创建自定义事件失败，请稍后重试", variant: "destructive" });
-    }
-  };
-
-  // ----- 结果事件：抽屉 & 表单状态 -----
   const [outcomeDrawerOpen, setOutcomeDrawerOpen] = useState(false);
   const [editingOutcomeId, setEditingOutcomeId] = useState<string | null>(null);
+  const [editingOutcomeEvent, setEditingOutcomeEvent] = useState<any>(null); // 保存正在编辑的完整事件对象
   const [formName, setFormName] = useState("");
   const [formCode, setFormCode] = useState("");
   const [formEnabled, setFormEnabled] = useState(true);
@@ -557,31 +451,55 @@ const RulesPage = () => {
   const [formErrorCode, setFormErrorCode] = useState<string | null>(null);
   // 事件标识选项与细化标识管理
   const baseCodeOptions = [
-    { value: "signup", label: "注册" },
-    { value: "login", label: "登录" },
-    { value: "inquiry", label: "询价" },
-    { value: "add_to_cart", label: "加购" },
-    { value: "place_order", label: "下单" },
-    { value: "checkout", label: "结账" },
+    { value: "UserLogin", label: "登录" },
+    { value: "UserRegister", label: "注册" },
+    { value: "Quote", label: "询价" },
+    { value: "AddToCart", label: "加购" },
+    { value: "StartCheckout", label: "下单" },
+    { value: "CompletePurchase", label: "结算" },
   ];
-  const [detailMap, setDetailMap] = useState<Record<string, string[]>>({});
-  const [detailInput, setDetailInput] = useState("");
-  const [selectedDetail, setSelectedDetail] = useState<string | null>(null);
-  const [editingDetailIndex, setEditingDetailIndex] = useState<number | null>(null);
+
+  const baseCodeMap = {
+    UserLogin: "登录",
+    UserRegister: "注册",
+    Quote: "询价",
+    AddToCart: "加购",
+    StartCheckout: "下单",
+    CompletePurchase: "结算",
+  };
+
+  const toTrackMethodName = (eventCode: string) => {
+    if (!eventCode) return "";
+    return eventCode.charAt(0).toLowerCase() + eventCode.slice(1) + "Track";
+  };
+  const [detailMap, setDetailMap] = useState<
+    Record<string, Array<{ key: string; value: string }>>
+  >({});
+  const [detailKeyInput, setDetailKeyInput] = useState("");
+  const [detailValueInput, setDetailValueInput] = useState("");
+  const [selectedDetail, setSelectedDetail] = useState<{
+    key: string;
+    value: string;
+  } | null>(null);
+  const [editingDetailIndex, setEditingDetailIndex] = useState<number | null>(
+    null,
+  );
+  const [detailEditKey, setDetailEditKey] = useState("");
   const [detailEditValue, setDetailEditValue] = useState("");
 
-  const toCode = (s: string) => s
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g, "_")
-    .replace(/[^a-z0-9_]/g, "_");
+  const toCode = (s: string) =>
+    s
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, "_")
+      .replace(/[^a-z0-9_]/g, "_");
 
   const openCreateOutcomeDrawer = () => {
     const seed = outcomeNewEventName.trim();
     setEditingOutcomeId(null);
+    setEditingOutcomeEvent(null); // 清空编辑中的事件
     setFormName(seed);
     setFormCode(seed ? toCode(seed) : "");
-    // 默认选择第一个事件标识
     setFormCode(baseCodeOptions[0].value);
     setFormEnabled(true);
     setFormRemark("");
@@ -590,14 +508,39 @@ const RulesPage = () => {
     setOutcomeDrawerOpen(true);
   };
 
-  const openEditOutcomeDrawer = (eventName: string) => {
-    // 目前后端未提供编辑接口，这里仅预填名称，其它为占位
-    setEditingOutcomeId(ruleTypes.get(eventName) || null);
-    setFormName(eventName);
-    setFormCode(toCode(eventName));
-    setFormCode(baseCodeOptions[0].value);
-    setFormEnabled(true);
-    setFormRemark("");
+  const openEditOutcomeDrawer = (eventId: string) => {
+    // 从结果事件列表中查找对应的事件数据
+    const event = resultEvents.find((e) => e.id === eventId);
+    if (!event) {
+      toast({
+        title: "错误",
+        description: "未找到该结果事件",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // 保存完整的事件对象，编辑时会用到其他字段
+    setEditingOutcomeEvent(event);
+    setEditingOutcomeId(eventId);
+    setFormName(event.ruleName);
+    setFormCode(event.eventType); // eventIdentifier -> eventType
+    setFormEnabled(event.enableFlag);
+    setFormRemark(event.remark || "");
+
+    try {
+      const detailArray = event.attributes // detailIdentifier -> attributes
+        ? JSON.parse(event.attributes)
+        : [];
+      setDetailMap((prev) => ({
+        ...prev,
+        [event.eventType]: detailArray, // eventIdentifier -> eventType
+      }));
+    } catch (error) {
+      console.error("Failed to parse attributes:", error); // detailIdentifier -> attributes
+      setDetailMap((prev) => ({ ...prev, [event.eventType]: [] })); // eventIdentifier -> eventType
+    }
+
     setFormErrorName(null);
     setFormErrorCode(null);
     setOutcomeDrawerOpen(true);
@@ -605,8 +548,11 @@ const RulesPage = () => {
 
   const validateOutcomeForm = () => {
     let valid = true;
-    // 名称：1–50字符，禁止仅空格
-    if (!formName.trim() || formName.trim().length < 1 || formName.trim().length > 50) {
+    if (
+      !formName.trim() ||
+      formName.trim().length < 1 ||
+      formName.trim().length > 50
+    ) {
       setFormErrorName("事件名称需为1–50个字符，且不能仅空格");
       valid = false;
     } else {
@@ -619,10 +565,6 @@ const RulesPage = () => {
     } else {
       setFormErrorCode(null);
     }
-    // 唯一性（当前后端仅返回 eventName，这里用名称做简化校验）
-    if (!editingOutcomeId && customEvents.includes(formName.trim())) {
-      toast({ title: "事件名称已存在", description: "重复名称允许但不推荐" });
-    }
     return valid;
   };
 
@@ -630,36 +572,105 @@ const RulesPage = () => {
     if (!validateOutcomeForm()) return;
     const name = formName.trim();
     if (!editingOutcomeId) {
-      // 新建：调用现有 create 接口（当前仅支持 eventName）
+      // 新建：调用 ruleService.createRule 接口，传入 ruleType: 2
       try {
-        await ruleTypeService.create(name);
+        const detailIdentifierArray = detailMap[formCode || ""] || [];
+        const attributesStr =
+          detailIdentifierArray.length > 0
+            ? JSON.stringify(detailIdentifierArray)
+            : "";
+
+        // 字段映射：eventIdentifier -> eventType, detailIdentifier -> attributes
+        await ruleService.createRule({
+          ruleName: name,
+          eventType: formCode, // eventIdentifier -> eventType
+          targetEvent: name, // 结果事件的 targetEvent 设为与 eventType 相同
+          attributes: attributesStr, // detailIdentifier -> attributes
+          enableFlag: formEnabled,
+          remark: formRemark,
+          // 必填字段默认值（结果事件不需要这些字段，但接口要求）
+          urlMatchType: "prefix",
+          urlMatchValue: "/",
+          dedupWindow: 0,
+        }, 2); // ruleType: 2
+
         await loadCustomEvents();
-        toast({ title: "已保存结果事件", description: `已保存结果事件“${name}”` });
+        await loadResultEvents();
+        toast({
+          title: "已保存结果事件",
+          description: `已保存结果事件"${name}"`,
+        });
         setOutcomeDrawerOpen(false);
       } catch (error) {
-        toast({ title: "保存失败", description: "创建自定义事件失败，请稍后重试", variant: "destructive" });
+        console.error("Failed to create result event:", error);
+        toast({
+          title: "保存失败",
+          description:
+            error instanceof Error
+              ? error.message
+              : "创建结果事件失败，请稍后重试",
+          variant: "destructive",
+        });
       }
     } else {
-      // 编辑：后端暂不支持更新，这里仅展示文案
-      toast({ title: "暂未接通更新接口", description: "该记录编辑保存待后端接口提供" });
-      setOutcomeDrawerOpen(false);
+      const detailIdentifierArray = detailMap[formCode || ""] || [];
+      const attributesStr =
+        detailIdentifierArray.length > 0
+          ? JSON.stringify(detailIdentifierArray)
+          : "";
+
+      try {
+        // 字段映射：eventIdentifier -> eventType, detailIdentifier -> attributes
+        await ruleService.updateRule(Number(editingOutcomeId), {
+          ruleName: name,
+          eventType: formCode, // eventIdentifier -> eventType
+          targetEvent: name, // 结果事件的 targetEvent 设为与 eventType 相同
+          attributes: attributesStr, // detailIdentifier -> attributes
+          enableFlag: formEnabled,
+          remark: formRemark,
+          sortOrder: editingOutcomeEvent?.sortOrder, // 从列表数据中获取 sortOrder
+          // 必填字段默认值（结果事件不需要这些字段，但接口要求）
+          urlMatchType: "prefix",
+          urlMatchValue: "/",
+          dedupWindow: 0,
+        }, 2); // ruleType: 2
+
+        await loadCustomEvents();
+        await loadResultEvents();
+        toast({
+          title: "已更新结果事件",
+        });
+        setOutcomeDrawerOpen(false);
+      } catch (error) {
+        console.error("Failed to update result event:", error);
+        toast({
+          title: "更新失败",
+          description:
+            error instanceof Error
+              ? error.message
+              : "更新结果事件失败，请稍后重试",
+          variant: "destructive",
+        });
+      }
     }
   };
 
-  // 结果事件（Outcome Marker）Tab：删除事件
-  const deleteOutcomeEvent = async (eventName: string) => {
-    const eventId = ruleTypes.get(eventName);
-    if (!eventId) {
-      toast({ title: "删除失败", description: "无法找到该事件的ID", variant: "destructive" });
-      return;
-    }
+  // 删除结果事件
+  const deleteResultEvent = async (eventId: string) => {
     try {
-      await ruleTypeService.delete(eventId);
-      await loadCustomEvents();
-      toast({ title: "删除成功", description: `自定义事件 "${eventName}" 已删除` });
+      await ruleService.deleteRule(Number(eventId));
+      await loadResultEvents();
+      toast({ title: "删除成功", description: "结果事件已删除" });
     } catch (error) {
-      console.error("Failed to delete outcome event:", error);
-      toast({ title: "删除失败", description: "删除自定义事件失败，请稍后重试", variant: "destructive" });
+      console.error("Failed to delete result event:", error);
+      toast({
+        title: "删除失败",
+        description:
+          error instanceof Error
+            ? error.message
+            : "删除结果事件失败，请稍后重试",
+        variant: "destructive",
+      });
     }
   };
 
@@ -672,7 +683,6 @@ const RulesPage = () => {
     if (e.currentTarget) {
       e.currentTarget.classList.add("opacity-50");
     }
-    // 设置拖拽效果
     if (e.dataTransfer) {
       e.dataTransfer.effectAllowed = "move";
       e.dataTransfer.setData("text/plain", ruleId);
@@ -726,8 +736,6 @@ const RulesPage = () => {
             console.error("Failed to move rule:", error);
             toast({
               title: "错误",
-              description:
-                error instanceof Error ? error.message : "移动规则失败",
               variant: "destructive",
             });
             setDraggedRule(null);
@@ -747,18 +755,18 @@ const RulesPage = () => {
     setDraggedRule(null);
   };
 
-  // 结果事件列表拖拽（前端排序）
+  // 结果事件列表拖拽（调用后端排序）
   const handleOutcomeDragStart = (
     e: React.DragEvent<HTMLDivElement>,
-    eventName: string,
+    eventId: string,
   ) => {
-    setDraggedOutcome(eventName);
+    setDraggedOutcome(eventId);
     if (e.currentTarget) {
       e.currentTarget.classList.add("opacity-50");
     }
     if (e.dataTransfer) {
       e.dataTransfer.effectAllowed = "move";
-      e.dataTransfer.setData("text/plain", eventName);
+      e.dataTransfer.setData("text/plain", eventId);
     }
   };
 
@@ -778,21 +786,50 @@ const RulesPage = () => {
     e.preventDefault();
   };
 
-  const handleOutcomeDrop = (
+  const handleOutcomeDrop = async (
     e: React.DragEvent<HTMLDivElement>,
     targetIndex: number,
   ) => {
     e.preventDefault();
-    const draggedName = e.dataTransfer.getData("text/plain");
-    if (draggedName && draggedOutcome) {
-      const draggedIndex = customEvents.findIndex((x) => x === draggedName);
+    const draggedEventId = e.dataTransfer.getData("text/plain");
+
+    if (draggedEventId && draggedOutcome) {
+      const draggedIndex = resultEvents.findIndex(
+        (event) => event.id === draggedEventId,
+      );
       if (draggedIndex !== -1 && draggedIndex !== targetIndex) {
-        const next = [...customEvents];
-        const [moved] = next.splice(draggedIndex, 1);
-        next.splice(targetIndex, 0, moved);
-        setCustomEvents(next);
+        const sourceEvent = resultEvents[draggedIndex];
+        const targetEvent = resultEvents[targetIndex];
+
+        // Check if both events have IDs
+        if (sourceEvent.id && targetEvent.id) {
+          try {
+            // Call ruleService.moveRule to move the result event
+            await ruleService.moveRule(Number(sourceEvent.id), Number(targetEvent.id));
+
+            toast({
+              title: "成功",
+              description: "结果事件顺序已更新",
+            });
+
+            // Reload the list
+            await loadResultEvents();
+          } catch (error) {
+            console.error("Failed to move result event:", error);
+            toast({
+              title: "错误",
+              description:
+                error instanceof Error ? error.message : "移动结果事件失败",
+              variant: "destructive",
+            });
+            setDraggedOutcome(null);
+            return;
+          }
+        }
       }
     }
+
+    setDraggedOutcome(null);
   };
 
   const updateTextAliases = (idx: number, value: string) => {
@@ -913,7 +950,9 @@ const RulesPage = () => {
                           <div className="font-medium">{rule.name}</div>
                         </div>
                         <div className="flex items-center gap-2">
-                          <Badge variant={rule.enabled ? "default" : "secondary"}>
+                          <Badge
+                            variant={rule.enabled ? "default" : "secondary"}
+                          >
                             {rule.targetEvent}
                           </Badge>
                           <Button
@@ -964,430 +1003,356 @@ const RulesPage = () => {
                 <div className="flex-1 overflow-y-auto p-6">
                   {editingRule && (
                     <div className="space-y-6">
-                  {/* 基础信息卡片 */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-base">基础信息</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div className="sm:col-span-2 space-y-2">
-                          <Label>规则名称</Label>
-                          <Input
-                            value={editingRule.name}
-                            onChange={(e) =>
-                              updateEditing({ name: e.target.value })
-                            }
-                          />
-                        </div>
-
-                        <div className="space-y-2">
-                          <div className="flex items-center gap-1">
-                            <Label>目标事件</Label>
-                            <Tooltip delayDuration={300}>
-                              <TooltipTrigger asChild>
-                                <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
-                              </TooltipTrigger>
-                              <TooltipContent
-                                side="top"
-                                className="max-w-xs bg-gray-900 text-white border-gray-700"
-                              >
-                                规则匹配成功后产出的业务事件名称，用于报表与自动化策略触发；可选择内置或自定义事件。
-                              </TooltipContent>
-                            </Tooltip>
-                          </div>
-                          <Select
-                            value={editingRule.targetEvent}
-                            open={selectOpen}
-                            onOpenChange={(open) => {
-                              // 如果正在显示内联添加事件，不允��关闭下拉框
-                              if (!open && showInlineAddEvent) {
-                                return;
-                              }
-                              setSelectOpen(open);
-                              // 关���时重置新增状态
-                              if (!open) {
-                                setShowInlineAddEvent(false);
-                                setNewEventName("");
-                              }
-                            }}
-                            onValueChange={(v) => {
-                              if (v === "__add_new__") {
-                                setShowInlineAddEvent(true);
-                                setNewEventName("");
-                                setSelectOpen(true); // 保持下拉框打开
-                              } else {
-                                updateEditing({ targetEvent: v as NamedEvent });
-                                setSelectOpen(false); // 选择其他选项时关闭下拉框
-                              }
-                            }}
-                          >
-                            <SelectTrigger
-                              onKeyDown={(e) => {
-                                // 当显示内联输入框时，禁用 Select 的键盘导航
-                                if (showInlineAddEvent && selectOpen) {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                }
-                              }}
-                            >
-                              <SelectValue placeholder="选择事件" />
-                            </SelectTrigger>
-                            <SelectContent
-                              className="max-h-[300px]"
-                              onKeyDown={(e) => {
-                                // 当显示内联输入框时，禁用键��导航
-                                if (showInlineAddEvent) {
-                                  e.stopPropagation();
-                                }
-                              }}
-                            >
-                              <div className="max-h-[250px] overflow-y-auto">
-                                {Object.keys(eventLabels).map((k) => (
-                                  <SelectItem key={k} value={k}>
-                                    {eventLabels[k]}
-                                  </SelectItem>
-                                ))}
-                                {customEvents.map((ev) => (
-                                  <div key={ev} className="group relative">
-                                    <SelectItem value={ev} className="pr-10">
-                                      {ev}
-                                    </SelectItem>
-                                    <button
-                                      className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 p-1.5 bg-destructive/20 hover:bg-destructive hover:scale-110 rounded-md z-10"
-                                      onClick={async (e) => {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-
-                                        const eventId = ruleTypes.get(ev);
-                                        if (!eventId) {
-                                          toast({
-                                            title: "删除失败",
-                                            description: "无法找到该事件的ID",
-                                            variant: "destructive",
-                                          });
-                                          return;
-                                        }
-
-                                        try {
-                                          // 调用后端API删除
-                                          await ruleTypeService.delete(eventId);
-
-                                          // 重新加载列表
-                                          await loadCustomEvents();
-
-                                          // 如果删除的是当前选中的事件，清空选择
-                                          if (editingRule?.targetEvent === ev) {
-                                            updateEditing({ targetEvent: "" as NamedEvent });
-                                          }
-
-                                          toast({
-                                            title: "删除成功",
-                                            description: `自定义事件 "${ev}" 已删除`,
-                                          });
-                                        } catch (error) {
-                                          console.error("Failed to delete custom event:", error);
-                                          toast({
-                                            title: "删除失败",
-                                            description: "删除自定义事件失败，请稍后重试",
-                                            variant: "destructive",
-                                          });
-                                        }
-                                      }}
-                                    >
-                                      <Trash2 className="h-4 w-4 text-destructive group-hover:text-white transition-colors" />
-                                    </button>
-                                  </div>
-                                ))}
-                              </div>
-                              {!showInlineAddEvent && (
-                                <div
-                                  className="sticky bottom-0 bg-popover border-t mt-1"
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                  }}
-                                >
-                                  <div
-                                    className="relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 px-2 text-sm outline-none hover:bg-accent hover:text-accent-foreground text-blue-600 font-medium"
-                                    onClick={(e) => {
-                                      e.preventDefault();
-                                      e.stopPropagation();
-                                      setShowInlineAddEvent(true);
-                                      setNewEventName("");
-                                      setSelectOpen(true);
-                                    }}
-                                  >
-                                    <div className="flex items-center gap-2">
-                                      <Plus className="h-4 w-4" />
-                                      新增事件
-                                    </div>
-                                  </div>
-                                </div>
-                              )}
-                              {showInlineAddEvent && (
-                                <div
-                                  className="sticky bottom-0 bg-popover p-2 border-t mt-1"
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                  }}
-                                  onKeyDown={(e) => {
-                                    e.stopPropagation();
-                                  }}
-                                >
-                                  <div className="flex items-center gap-2">
-                                    <Input
-                                      className="h-8 flex-1"
-                                      placeholder="如 AddToCart"
-                                      value={newEventName}
-                                      onChange={(e) =>
-                                        setNewEventName(e.target.value)
-                                      }
-                                      onKeyDown={(e) => {
-                                        e.stopPropagation();
-                                        if (e.key === "Enter") {
-                                          e.preventDefault();
-                                          addCustomEvent();
-                                        } else if (e.key === "Escape") {
-                                          e.preventDefault();
-                                          cancelAddEvent();
-                                        }
-                                      }}
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                      }}
-                                      autoFocus
-                                    />
-                                    <Button
-                                      size="sm"
-                                      onClick={(e) => {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                        addCustomEvent();
-                                      }}
-                                      disabled={!newEventName.trim()}
-                                    >
-                                      保存
-                                    </Button>
-                                    <Button
-                                      size="sm"
-                                      variant="outline"
-                                      onClick={(e) => {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                        cancelAddEvent();
-                                      }}
-                                    >
-                                      取消
-                                    </Button>
-                                  </div>
-                                </div>
-                              )}
-                            </SelectContent>
-                          </Select>
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label>启用</Label>
-                          <div className="flex items-center h-10 !mt-0">
-                            <Switch
-                              checked={editingRule.enabled}
-                              onCheckedChange={(v) =>
-                                updateEditing({ enabled: v })
-                              }
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-base">识别条件</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div className="sm:col-span-2 space-y-2">
-                          <Label>事件类型</Label>
-                          <Select
-                            value={editingRule.conditions.eventType}
-                            onValueChange={(v) =>
-                              updateEditing({
-                                conditions: {
-                                  ...editingRule.conditions,
-                                  eventType: v as EventType,
-                                },
-                              })
-                            }
-                          >
-                            <SelectTrigger>
-                              <SelectValue placeholder="选择��件类型" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {Object.keys(rawTypeLabels).map((k) => (
-                                <SelectItem key={k} value={k}>
-                                  {rawTypeLabels[k as RawEventType]}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-
-                        <div className="space-y-2">
-                          <div className="flex items-center gap-1">
-                            <Label>URL范围类型</Label>
-                            <Tooltip delayDuration={300}>
-                              <TooltipTrigger asChild>
-                                <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
-                              </TooltipTrigger>
-                              <TooltipContent
-                                side="top"
-                                className="max-w-xs bg-gray-900 text-white border-gray-700"
-                              >
-                                限定规则生效的URL匹配方式：前缀匹配（简单高效）或正则匹配（适用于复杂路径）。
-                              </TooltipContent>
-                            </Tooltip>
-                          </div>
-                          <Select
-                            value={editingRule.scope.type}
-                            onValueChange={(v) =>
-                              updateEditing({
-                                scope: { ...editingRule.scope, type: v as any },
-                              })
-                            }
-                          >
-                            <SelectTrigger>
-                              <SelectValue placeholder="选择范围类型" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="prefix">前缀</SelectItem>
-                              <SelectItem value="regex">正则</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-
-                        <div className="space-y-2">
-                          <div className="flex items-center gap-1">
-                            <Label>URL范围值</Label>
-                            <Tooltip delayDuration={300}>
-                              <TooltipTrigger asChild>
-                                <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
-                              </TooltipTrigger>
-                              <TooltipContent
-                                side="top"
-                                className="max-w-xs bg-gray-900 text-white border-gray-700"
-                              >
-                                与范围类型配合使用的具体匹配值：如
-                                /auth、/order（前缀），或
-                                ^/checkout/(success|complete)$（正则）。
-                              </TooltipContent>
-                            </Tooltip>
-                          </div>
-                          <Input
-                            value={editingRule.scope.value}
-                            onChange={(e) =>
-                              updateEditing({
-                                scope: {
-                                  ...editingRule.scope,
-                                  value: e.target.value,
-                                },
-                              })
-                            }
-                          />
-                        </div>
-
-                        {/* <div className="space-y-2 sm:col-span-2">
-                          <div className="flex items-center gap-2">
-                            <Label>标题包含</Label>
-                            <Tooltip delayDuration={300}>
-                              <TooltipTrigger asChild>
-                                <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
-                              </TooltipTrigger>
-                              <TooltipContent
-                                side="top"
-                                className="max-w-xs bg-gray-900 text-white border-gray-700"
-                              >
-                                匹配页面标题中包含特定文字的页面。当用户访问的页面标题包含指定关键词时，触发事件规则。例如：设置"登录"，当用户访问标题包含"登录"的页面��匹配。
-                              </TooltipContent>
-                            </Tooltip>
-                          </div>
-                          {(editingRule.conditions.pageTitleIncludes || []).map(
-                            (v, idx) => (
-                              <div key={idx} className="flex gap-2 mb-2">
-                                <Input
-                                  value={v}
-                                  onChange={(e) =>
-                                    updateTitleIncludes(idx, e.target.value)
-                                  }
-                                />
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => removeTitleInclude(idx)}
-                                >
-                                  删除
-                                </Button>
-                              </div>
-                            ),
-                          )}
-                          <Button
-                            variant="secondary"
-                            size="sm"
-                            onClick={addTitleInclude}
-                          >
-                            添加标题
-                          </Button>
-                        </div> */}
-                      </div>
-
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2">
-                          <Label>文本别名</Label>
-                          <Tooltip delayDuration={300}>
-                            <TooltipTrigger asChild>
-                              <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
-                            </TooltipTrigger>
-                            <TooltipContent
-                              side="top"
-                              className="max-w-xs bg-gray-900 text-white border-gray-700"
-                            >
-                              定义多个文本关键词，用于匹配��面中的文本内容。识别页面中包含特定文本的元���（如按钮文字、链接文字等）。例如：设置["提交",
-                              "Submit", "Send"]，匹配包含这些文字的元素。
-                            </TooltipContent>
-                          </Tooltip>
-                        </div>
-                        {(editingRule.conditions.text?.aliases || []).map(
-                          (v, idx) => (
-                            <div key={idx} className="flex gap-2 mb-2">
+                      {/* 基础信息卡片 */}
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="text-base">基础信息</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="sm:col-span-2 space-y-2">
+                              <Label>规则名称</Label>
                               <Input
-                                value={v}
+                                value={editingRule.name}
                                 onChange={(e) =>
-                                  updateTextAliases(idx, e.target.value)
+                                  updateEditing({ name: e.target.value })
                                 }
                               />
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => removeAlias(idx)}
-                              >
-                                删除
-                              </Button>
                             </div>
-                          ),
-                        )}
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          onClick={addAlias}
-                        >
-                          添加别名
-                        </Button>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+
+                            <div className="space-y-2">
+                              <div className="flex items-center gap-1">
+                                <Label>目标事件</Label>
+                                <Tooltip delayDuration={300}>
+                                  <TooltipTrigger asChild>
+                                    <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                                  </TooltipTrigger>
+                                  <TooltipContent
+                                    side="top"
+                                    className="max-w-xs bg-gray-900 text-white border-gray-700"
+                                  >
+                                    规则匹配成功后产出业务事件名称，用于报表显示自动化策略触发；可选择内置或自定义事件。
+                                  </TooltipContent>
+                                </Tooltip>
+                              </div>
+                              <Select
+                                value={editingRule.targetEvent}
+                                open={selectOpen}
+                                onOpenChange={(open) => {
+                                  // 如果正在显示内联添加事件，不允许关闭下拉框
+                                  if (!open && showInlineAddEvent) {
+                                    return;
+                                  }
+                                  setSelectOpen(open);
+                                  if (!open) {
+                                    setShowInlineAddEvent(false);
+                                    setNewEventName("");
+                                  }
+                                }}
+                                onValueChange={(v) => {
+                                  if (v === "__add_new__") {
+                                    setShowInlineAddEvent(true);
+                                    setNewEventName("");
+                                    setSelectOpen(true); // 保持下拉框打开
+                                  } else {
+                                    updateEditing({
+                                      targetEvent: v as NamedEvent,
+                                    });
+                                    setSelectOpen(false); // 选择其他选项时关闭下拉框
+                                  }
+                                }}
+                              >
+                                <SelectTrigger
+                                  onKeyDown={(e) => {
+                                    if (showInlineAddEvent && selectOpen) {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                    }
+                                  }}
+                                >
+                                  <SelectValue placeholder="选择事件" />
+                                </SelectTrigger>
+                                <SelectContent
+                                  className="max-h-[300px]"
+                                  onKeyDown={(e) => {
+                                    // 当显示内联输入框时，禁用键盘导航
+                                    if (showInlineAddEvent) {
+                                      e.stopPropagation();
+                                    }
+                                  }}
+                                >
+                                  <div className="max-h-[250px] overflow-y-auto">
+                                    {Object.keys(eventLabels).map((k) => (
+                                      <SelectItem key={k} value={k}>
+                                        {eventLabels[k]}
+                                      </SelectItem>
+                                    ))}
+                                    {customEvents.map((ev) => (
+                                      <div key={ev} className="group relative">
+                                        <SelectItem
+                                          value={ev}
+                                          className="pr-10"
+                                        >
+                                          {ev}
+                                        </SelectItem>
+                                        <button
+                                          className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 p-1.5 bg-destructive/20 hover:bg-destructive hover:scale-110 rounded-md z-10"
+                                          onClick={async (e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+
+                                            const eventId = ruleTypes.get(ev);
+                                            if (!eventId) {
+                                              toast({
+                                                title: "删除失败",
+                                                variant: "destructive",
+                                              });
+                                              return;
+                                            }
+
+                                            try {
+                                              // 调用后端API删除
+                                              await ruleTypeService.delete(
+                                                eventId,
+                                              );
+
+                                              // 重新加载列表
+                                              await loadCustomEvents();
+
+                                              if (
+                                                editingRule?.targetEvent === ev
+                                              ) {
+                                                updateEditing({
+                                                  targetEvent: "" as NamedEvent,
+                                                });
+                                              }
+
+                                              toast({
+                                                title: "删除成功",
+                                                description: `自定义事件 "${ev}" 已删除`,
+                                              });
+                                            } catch (error) {
+                                              console.error(
+                                                "Failed to delete custom event:",
+                                                error,
+                                              );
+                                              toast({
+                                                title: "删除失败",
+                                                variant: "destructive",
+                                              });
+                                            }
+                                          }}
+                                        >
+                                          <Trash2 className="h-4 w-4 text-destructive group-hover:text-white transition-colors" />
+                                        </button>
+                                      </div>
+                                    ))}
+                                  </div>
+                                  {!showInlineAddEvent && (
+                                    <div
+                                      className="sticky bottom-0 bg-popover border-t mt-1"
+                                      onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                      }}
+                                    >
+                                      <div
+                                        className="relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 px-2 text-sm outline-none hover:bg-accent hover:text-accent-foreground text-blue-600 font-medium"
+                                        onClick={(e) => {
+                                          e.preventDefault();
+                                          e.stopPropagation();
+                                          setShowInlineAddEvent(true);
+                                          setNewEventName("");
+                                          setSelectOpen(true);
+                                        }}
+                                      >
+                                        <div className="flex items-center gap-2">
+                                          <Plus className="h-4 w-4" />
+                                          新增事件
+                                        </div>
+                                      </div>
+                                    </div>
+                                  )}
+                                  {showInlineAddEvent && (
+                                    <div
+                                      className="sticky bottom-0 bg-popover p-2 border-t mt-1"
+                                      onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                      }}
+                                      onKeyDown={(e) => {
+                                        e.stopPropagation();
+                                      }}
+                                    >
+                                      <div className="flex items-center gap-2">
+                                        <Input
+                                          className="h-8 flex-1"
+                                          placeholder="AddToCart"
+                                          value={newEventName}
+                                          onChange={(e) =>
+                                            setNewEventName(e.target.value)
+                                          }
+                                          onKeyDown={(e) => {
+                                            e.stopPropagation();
+                                            if (e.key === "Enter") {
+                                              e.preventDefault();
+                                              addCustomEvent();
+                                            } else if (e.key === "Escape") {
+                                              e.preventDefault();
+                                              cancelAddEvent();
+                                            }
+                                          }}
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                          }}
+                                          autoFocus
+                                        />
+                                        <Button
+                                          size="sm"
+                                          onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            addCustomEvent();
+                                          }}
+                                          disabled={!newEventName.trim()}
+                                        >
+                                          保存
+                                        </Button>
+                                        <Button
+                                          size="sm"
+                                          variant="outline"
+                                          onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            cancelAddEvent();
+                                          }}
+                                        >
+                                          取消
+                                        </Button>
+                                      </div>
+                                    </div>
+                                  )}
+                                </SelectContent>
+                              </Select>
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label>启用</Label>
+                              <div className="flex items-center h-10 !mt-0">
+                                <Switch
+                                  checked={editingRule.enabled}
+                                  onCheckedChange={(v) =>
+                                    updateEditing({ enabled: v })
+                                  }
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="text-base">识别条件</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="sm:col-span-2 space-y-2">
+                              <Label>事件类型</Label>
+                              <Select
+                                value={editingRule.conditions.eventType}
+                                onValueChange={(v) =>
+                                  updateEditing({
+                                    conditions: {
+                                      ...editingRule.conditions,
+                                      eventType: v as EventType,
+                                    },
+                                  })
+                                }
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder="选择事件类型" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {Object.keys(rawTypeLabels).map((k) => (
+                                    <SelectItem key={k} value={k}>
+                                      {rawTypeLabels[k as RawEventType]}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+
+                            <div className="space-y-2">
+                              <div className="flex items-center gap-1">
+                                <Label>URL范围类型</Label>
+                                <Tooltip delayDuration={300}>
+                                  <TooltipTrigger asChild>
+                                    <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                                  </TooltipTrigger>
+                                  <TooltipContent
+                                    side="top"
+                                    className="max-w-xs bg-gray-900 text-white border-gray-700"
+                                  >
+                                    限定规则生效的URL匹配方式：前缀匹配（简单）或正则匹配（适用于复杂路径）。
+                                  </TooltipContent>
+                                </Tooltip>
+                              </div>
+                              <Select
+                                value={editingRule.scope.type}
+                                onValueChange={(v) =>
+                                  updateEditing({
+                                    scope: {
+                                      ...editingRule.scope,
+                                      type: v as any,
+                                    },
+                                  })
+                                }
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder="选择范围类型" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="prefix">前缀</SelectItem>
+                                  <SelectItem value="regex">正则</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+
+                            <div className="space-y-2">
+                              <div className="flex items-center gap-1">
+                                <Label>URL范围值</Label>
+                                <Tooltip delayDuration={300}>
+                                  <TooltipTrigger asChild>
+                                    <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                                  </TooltipTrigger>
+                                  <TooltipContent
+                                    side="top"
+                                    className="max-w-xs bg-gray-900 text-white border-gray-700"
+                                  >
+                                    与范围类型配合使用的规则体匹配值：如
+                                    /auth、/order（前缀），或
+                                    ^/checkout/(success|complete)$（正则）。
+                                  </TooltipContent>
+                                </Tooltip>
+                              </div>
+                              <Input
+                                value={editingRule.scope.value}
+                                onChange={(e) =>
+                                  updateEditing({
+                                    scope: {
+                                      ...editingRule.scope,
+                                      value: e.target.value,
+                                    },
+                                  })
+                                }
+                              />
+                            </div>
+                          </div>
+
                           <div className="space-y-2">
                             <div className="flex items-center gap-2">
-                              <Label>匹配模式</Label>
+                              <Label>文本别名</Label>
                               <Tooltip delayDuration={300}>
                                 <TooltipTrigger asChild>
                                   <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
@@ -1396,203 +1361,252 @@ const RulesPage = () => {
                                   side="top"
                                   className="max-w-xs bg-gray-900 text-white border-gray-700"
                                 >
-                                  文本别名的匹配方式。等于：全匹配；包含：部分匹配（默认）；
+                                  定义多个文本关键词，用于匹配页面中的文本内容, 识别页面中包含特定文本的元素（如按钮文字、链接文字等）。例如：设置["提交",
+                                  "Submit", "Send"]，匹配包含这些文字的元素。
                                 </TooltipContent>
                               </Tooltip>
                             </div>
-                            <Select
-                              value={
-                                editingRule.conditions.text?.matchMode ||
-                                "contains"
-                              }
-                              onValueChange={(v) =>
-                                updateEditing({
-                                  conditions: {
-                                    ...editingRule.conditions,
-                                    text: {
-                                      aliases:
-                                        editingRule.conditions.text?.aliases ||
-                                        [],
-                                      matchMode: v as any,
+                            {(editingRule.conditions.text?.aliases || []).map(
+                              (v, idx) => (
+                                <div key={idx} className="flex gap-2 mb-2">
+                                  <Input
+                                    value={v}
+                                    onChange={(e) =>
+                                      updateTextAliases(idx, e.target.value)
+                                    }
+                                  />
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => removeAlias(idx)}
+                                  >
+                                    删除
+                                  </Button>
+                                </div>
+                              ),
+                            )}
+                            <Button
+                              variant="secondary"
+                              size="sm"
+                              onClick={addAlias}
+                            >
+                              添加别名
+                            </Button>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                              <div className="space-y-2">
+                                <div className="flex items-center gap-2">
+                                  <Label>匹配模式</Label>
+                                  <Tooltip delayDuration={300}>
+                                    <TooltipTrigger asChild>
+                                      <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                                    </TooltipTrigger>
+                                    <TooltipContent
+                                      side="top"
+                                      className="max-w-xs bg-gray-900 text-white border-gray-700"
+                                    >
+                                      文本别名的匹配方式。等于：全匹配；包含：部分匹配（默认）；
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </div>
+                                <Select
+                                  value={
+                                    editingRule.conditions.text?.matchMode ||
+                                    "contains"
+                                  }
+                                  onValueChange={(v) =>
+                                    updateEditing({
+                                      conditions: {
+                                        ...editingRule.conditions,
+                                        text: {
+                                          aliases:
+                                            editingRule.conditions.text
+                                              ?.aliases || [],
+                                          matchMode: v as any,
+                                        },
+                                      },
+                                    })
+                                  }
+                                >
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="选择匹配模式" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="equals">等于</SelectItem>
+                                    <SelectItem value="contains">
+                                      包含
+                                    </SelectItem>
+                                    {/* <SelectItem value="starts_with">
+                                  前缀
+                                </SelectItem>
+                                <SelectItem value="ends_with">后缀</SelectItem> */}
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="space-y-4">
+                            <div className="space-y-2">
+                              <div className="flex items-center gap-2">
+                                <Label>选择器</Label>
+                                <Tooltip delayDuration={300}>
+                                  <TooltipTrigger asChild>
+                                    <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                                  </TooltipTrigger>
+                                  <TooltipContent
+                                    side="top"
+                                    className="max-w-xs bg-gray-900 text-white border-gray-700"
+                                  >
+                                    使用CSS选择器精确定位页面元素。通过CSS选择器语法指定要监听的具体DOM元素。例如：#login-btn、.submit-button、button[type="submit"]。
+                                  </TooltipContent>
+                                </Tooltip>
+                              </div>
+                              <Input
+                                value={
+                                  editingRule.conditions.selector?.selector ||
+                                  ""
+                                }
+                                onChange={(e) =>
+                                  updateEditing({
+                                    conditions: {
+                                      ...editingRule.conditions,
+                                      selector: {
+                                        ...(editingRule.conditions.selector ||
+                                          {}),
+                                        selector: e.target.value,
+                                      },
                                     },
+                                  })
+                                }
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <div className="flex items-center gap-2">
+                                <Label>属性（键=值，逗号分隔）</Label>
+                                <Tooltip delayDuration={300}>
+                                  <TooltipTrigger asChild>
+                                    <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                                  </TooltipTrigger>
+                                  <TooltipContent
+                                    side="top"
+                                    className="max-w-xs bg-gray-900 text-white border-gray-700"
+                                  >
+                                    匹配具有特定属性值的HTML元素。格式：键=值，多个逗号分隔。进一步细化元素匹配条件。例如：data-role=login,data-id=btn1
+                                    匹配同时具有这两个属性的元素。
+                                  </TooltipContent>
+                                </Tooltip>
+                              </div>
+                              <Input
+                                placeholder="data-role=login,data-id=btn1"
+                                value={
+                                  editingRule.conditions.selector
+                                    ?.attributesRaw !== undefined
+                                    ? editingRule.conditions.selector
+                                        .attributesRaw
+                                    : Object.entries(
+                                        editingRule.conditions.selector
+                                          ?.attributes || {},
+                                      )
+                                        .map(([k, v]) => `${k}=${v}`)
+                                        .join(",")
+                                }
+                                onChange={(e) => {
+                                  const rawValue = e.target.value;
+                                  const kvs = rawValue
+                                    .split(",")
+                                    .map((s) => s.trim())
+                                    .filter(Boolean);
+                                  const attrs: Record<string, string> = {};
+                                  kvs.forEach((kv) => {
+                                    const parts = kv.split("=");
+                                    if (parts.length >= 2) {
+                                      const k = parts[0].trim();
+                                      const v = parts.slice(1).join("=").trim();
+                                      if (k && v) attrs[k] = v;
+                                    }
+                                  });
+                                  updateEditing({
+                                    conditions: {
+                                      ...editingRule.conditions,
+                                      selector: {
+                                        ...(editingRule.conditions.selector ||
+                                          {}),
+                                        attributes: attrs,
+                                        attributesRaw: rawValue,
+                                      },
+                                    },
+                                  });
+                                }}
+                              />
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="text-base">去重策略</CardTitle>
+                        </CardHeader>
+                        <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-1">
+                              <Label>去重窗口（秒）</Label>
+                              <Tooltip delayDuration={300}>
+                                <TooltipTrigger asChild>
+                                  <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                                </TooltipTrigger>
+                                <TooltipContent
+                                  side="top"
+                                  className="max-w-xs bg-gray-900 text-white border-gray-700"
+                                >
+                                  设置时间窗口内的去重机制。在指定时间内（如30秒）多次触发同一事件时，只记录第几次。可避免误操作或网络延迟导致的重复事件。
+                                </TooltipContent>
+                              </Tooltip>
+                            </div>
+                            <Input
+                              type="number"
+                              value={editingRule.dedup?.windowSeconds || 0}
+                              onChange={(e) =>
+                                updateEditing({
+                                  dedup: {
+                                    ...(editingRule.dedup || {}),
+                                    windowSeconds: Number(e.target.value),
                                   },
                                 })
                               }
-                            >
-                              <SelectTrigger>
-                                <SelectValue placeholder="选择匹配模式" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="equals">等于</SelectItem>
-                                <SelectItem value="contains">包含</SelectItem>
-                                {/* <SelectItem value="starts_with">
-                                  前缀
-                                </SelectItem>
-                                <SelectItem value="ends_with">后��</SelectItem> */}
-                              </SelectContent>
-                            </Select>
+                            />
                           </div>
-                        </div>
-                      </div>
-
-                      <div className="space-y-4">
-                        <div className="space-y-2">
-                          <div className="flex items-center gap-2">
-                            <Label>选择器</Label>
-                            <Tooltip delayDuration={300}>
-                              <TooltipTrigger asChild>
-                                <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
-                              </TooltipTrigger>
-                              <TooltipContent
-                                side="top"
-                                className="max-w-xs bg-gray-900 text-white border-gray-700"
-                              >
-                                使用CSS选择器精确定位页面元素。通过CSS选择器语法指定要监听的具体DOM元素。例如：#login-btn、.submit-button、button[type="submit"]。
-                              </TooltipContent>
-                            </Tooltip>
-                          </div>
-                          <Input
-                            value={
-                              editingRule.conditions.selector?.selector || ""
-                            }
-                            onChange={(e) =>
-                              updateEditing({
-                                conditions: {
-                                  ...editingRule.conditions,
-                                  selector: {
-                                    ...(editingRule.conditions.selector || {}),
-                                    selector: e.target.value,
-                                  },
-                                },
-                              })
-                            }
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <div className="flex items-center gap-2">
-                            <Label>属性（键=值，逗号分隔）</Label>
-                            <Tooltip delayDuration={300}>
-                              <TooltipTrigger asChild>
-                                <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
-                              </TooltipTrigger>
-                              <TooltipContent
-                                side="top"
-                                className="max-w-xs bg-gray-900 text-white border-gray-700"
-                              >
-                                匹配具有特定属性值的HTML元素。格式：键=值，多个用逗号分隔。进一步细化元素匹配条件。例如：data-role=login,data-id=btn1
-                                匹配同时具有这两个属性的元素。
-                              </TooltipContent>
-                            </Tooltip>
-                          </div>
-                          <Input
-                            placeholder="data-role=login,data-id=btn1"
-                            value={
-                              editingRule.conditions.selector?.attributesRaw !==
-                              undefined
-                                ? editingRule.conditions.selector.attributesRaw
-                                : Object.entries(
-                                    editingRule.conditions.selector
-                                      ?.attributes || {},
-                                  )
-                                    .map(([k, v]) => `${k}=${v}`)
-                                    .join(",")
-                            }
-                            onChange={(e) => {
-                              const rawValue = e.target.value;
-                              const kvs = rawValue
-                                .split(",")
-                                .map((s) => s.trim())
-                                .filter(Boolean);
-                              const attrs: Record<string, string> = {};
-                              kvs.forEach((kv) => {
-                                const parts = kv.split("=");
-                                if (parts.length >= 2) {
-                                  const k = parts[0].trim();
-                                  const v = parts.slice(1).join("=").trim();
-                                  if (k && v) attrs[k] = v;
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-1">
+                              <Label>会话唯一</Label>
+                              <Tooltip delayDuration={300}>
+                                <TooltipTrigger asChild>
+                                  <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                                </TooltipTrigger>
+                                <TooltipContent
+                                  side="top"
+                                  className="max-w-xs bg-gray-900 text-white border-gray-700"
+                                >
+                                  开启后，在用户整个会话期间（从进入到离开网站），同一事件只会被记录一次。适用于登录、注册等只需记录一次的事件。
+                                </TooltipContent>
+                              </Tooltip>
+                            </div>
+                            <div className="flex items-center h-10">
+                              <Switch
+                                checked={!!editingRule.dedup?.oncePerSession}
+                                onCheckedChange={(v) =>
+                                  updateEditing({
+                                    dedup: {
+                                      ...(editingRule.dedup || {}),
+                                      oncePerSession: v,
+                                    },
+                                  })
                                 }
-                              });
-                              updateEditing({
-                                conditions: {
-                                  ...editingRule.conditions,
-                                  selector: {
-                                    ...(editingRule.conditions.selector || {}),
-                                    attributes: attrs,
-                                    attributesRaw: rawValue,
-                                  },
-                                },
-                              });
-                            }}
-                          />
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-base">去重策略</CardTitle>
-                    </CardHeader>
-                    <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-1">
-                          <Label>去重窗口（秒）</Label>
-                          <Tooltip delayDuration={300}>
-                            <TooltipTrigger asChild>
-                              <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
-                            </TooltipTrigger>
-                            <TooltipContent
-                              side="top"
-                              className="max-w-xs bg-gray-900 text-white border-gray-700"
-                            >
-                              设置时间窗口内的去重机制。在指定时间内（如30秒）多次触发同一事件时，只记录第一次。可避免误操作或网络延迟导致的重复事件。
-                            </TooltipContent>
-                          </Tooltip>
-                        </div>
-                        <Input
-                          type="number"
-                          value={editingRule.dedup?.windowSeconds || 0}
-                          onChange={(e) =>
-                            updateEditing({
-                              dedup: {
-                                ...(editingRule.dedup || {}),
-                                windowSeconds: Number(e.target.value),
-                              },
-                            })
-                          }
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-1">
-                          <Label>会话唯一</Label>
-                          <Tooltip delayDuration={300}>
-                            <TooltipTrigger asChild>
-                              <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
-                            </TooltipTrigger>
-                            <TooltipContent
-                              side="top"
-                              className="max-w-xs bg-gray-900 text-white border-gray-700"
-                            >
-                              开启后，在用户整个会话期间（从进入到离开网站），同一事件只会被记录一次。��用于登录、注册等只需记录一次的事件。
-                            </TooltipContent>
-                          </Tooltip>
-                        </div>
-                        <div className="flex items-center h-10">
-                          <Switch
-                            checked={!!editingRule.dedup?.oncePerSession}
-                            onCheckedChange={(v) =>
-                              updateEditing({
-                                dedup: {
-                                  ...(editingRule.dedup || {}),
-                                  oncePerSession: v,
-                                },
-                              })
-                            }
-                          />
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                              />
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
                     </div>
                   )}
                 </div>
@@ -1602,7 +1616,6 @@ const RulesPage = () => {
                       onClick={() => {
                         setOpenEditor(false);
                         setEditingRule(null);
-                        // 重置下拉框相关状态
                         setShowInlineAddEvent(false);
                         setNewEventName("");
                         setSelectOpen(false);
@@ -1627,39 +1640,59 @@ const RulesPage = () => {
 
           <Card>
             <CardContent className="space-y-3 pt-4">
-              {customEvents.length === 0 ? (
-                <div className="text-sm text-muted-foreground">暂无自定义结果事件。</div>
+              {resultEvents.length === 0 ? (
+                <div className="text-sm text-muted-foreground">
+                  暂无自定义结果事件。
+                </div>
               ) : (
                 <div className="space-y-2">
-                  {customEvents.map((ev) => (
+                  {resultEvents.map((event, idx) => (
                     <Card
-                      key={ev}
+                      key={event.id}
                       onDragOver={handleOutcomeDragOver}
                       onDragEnter={handleOutcomeDragEnter}
-                      onDrop={(e) => handleOutcomeDrop(e, customEvents.findIndex((x) => x === ev))}
-                      className={`transition-opacity ${draggedOutcome === ev ? "opacity-50" : ""}`}
+                      onDrop={(e) => handleOutcomeDrop(e, idx)}
+                      className={`transition-opacity ${draggedOutcome === event.id ? "opacity-50" : ""}`}
                     >
                       <CardContent className="py-3 flex items-center justify-between">
                         <div className="flex items-center gap-3">
                           <div
                             draggable
-                            onDragStart={(e) => handleOutcomeDragStart(e, ev)}
+                            onDragStart={(e) =>
+                              handleOutcomeDragStart(e, event.id)
+                            }
                             onDragEnd={handleOutcomeDragEnd}
                             className="cursor-grab active:cursor-grabbing p-2 rounded hover:bg-gray-100"
                           >
                             <GripVertical className="h-4 w-4" />
                           </div>
-                          <div className="font-medium">{ev}</div>
+                          <div>
+                            <div className="font-medium">{event.ruleName}</div>
+                            <div className="text-xs text-muted-foreground">
+                              {event.remark}
+                            </div>
+                          </div>
                         </div>
                         <div className="flex items-center gap-2">
-                          <Badge>{toCode(ev)}</Badge>
-                          <Button variant="ghost" size="sm" onClick={() => openEditOutcomeDrawer(ev)}>
+                          <Badge
+                            variant={event.enableFlag ? "default" : "secondary"}
+                          >
+                            { baseCodeMap[event.eventType]}
+                          </Badge>
+                          <Badge variant="outline">
+                            {event.enableFlag ? "启用" : "禁用"}
+                          </Badge>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => openEditOutcomeDrawer(event.id)}
+                          >
                             <Edit className="h-4 w-4 mr-1" /> 编辑
                           </Button>
                           <Button
                             variant="ghost"
                             size="icon"
-                            onClick={() => deleteOutcomeEvent(ev)}
+                            onClick={() => deleteResultEvent(event.id)}
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
@@ -1672,34 +1705,47 @@ const RulesPage = () => {
             </CardContent>
           </Card>
 
-          {/* 结果事件抽屉（左侧） */}
           <Sheet open={outcomeDrawerOpen} onOpenChange={setOutcomeDrawerOpen}>
             <SheetContent side="right" className="w-[640px] max-w-[80vw] p-0">
               <div className="flex h-full flex-col">
                 <div className="flex-none p-6">
-                  <SheetTitle>{editingOutcomeId ? "编辑结果事件" : "新建结果事件"}</SheetTitle>
-                  <p className="text-sm text-muted-foreground mt-2">
-                    标识占位示例：例如 signup_success、first_purchase_complete
-                  </p>
+                  <SheetTitle>
+                    {editingOutcomeId ? "编辑结果事件" : "新建结果事件"}
+                  </SheetTitle>
                 </div>
 
                 <div className="flex-1 overflow-y-auto p-6 space-y-4">
                   {/* 基础信息卡片：规则名称、启用、备注 */}
-                    <Card>
-                      <CardHeader>
-                        <CardTitle className="text-base">基础信息</CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-4">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-base">基础信息</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
                       <div className="grid grid-cols-4 gap-3 items-center">
                         <Label className="col-span-1">规则名称</Label>
-                        <Input className="col-span-3" placeholder="例如 注册成功" value={formName} onChange={(e) => setFormName(e.target.value)} />
-                        {formErrorName && <div className="col-span-4 text-xs text-destructive">{formErrorName}</div>}
+                        <Input
+                          className="col-span-3"
+                          placeholder="例如 注册成功"
+                          value={formName}
+                          onChange={(e) => setFormName(e.target.value)}
+                        />
+                        {formErrorName && (
+                          <div className="col-span-4 text-xs text-destructive">
+                            {formErrorName}
+                          </div>
+                        )}
                       </div>
 
                       <div className="grid grid-cols-4 gap-3 items-center">
                         <Label className="col-span-1">状态</Label>
                         <div className="col-span-3">
-                          <RadioGroup value={formEnabled ? "enabled" : "disabled"} onValueChange={(v) => setFormEnabled(v === "enabled")} className="flex items-center gap-6">
+                          <RadioGroup
+                            value={formEnabled ? "enabled" : "disabled"}
+                            onValueChange={(v) =>
+                              setFormEnabled(v === "enabled")
+                            }
+                            className="flex items-center gap-6"
+                          >
                             <div className="flex items-center space-x-2">
                               <RadioGroupItem value="enabled" id="enabled" />
                               <Label htmlFor="enabled">启用</Label>
@@ -1709,57 +1755,99 @@ const RulesPage = () => {
                               <Label htmlFor="disabled">禁用</Label>
                             </div>
                           </RadioGroup>
-                          <p className="text-xs text-muted-foreground mt-2">禁用后，来自 SDK 的该结果事件上报将被拒绝。</p>
+                          <p className="text-xs text-muted-foreground mt-2">
+                            禁用后，来自 SDK 的该结果事件上报将被拒绝。
+                          </p>
                         </div>
                       </div>
 
                       <div className="grid grid-cols-4 gap-3 items-start">
                         <Label className="col-span-1">备注</Label>
-                        <Textarea className="col-span-3" rows={4} placeholder="补充说明该结果事件的使用场景" value={formRemark} onChange={(e) => setFormRemark(e.target.value)} />
+                        <Textarea
+                          className="col-span-3"
+                          rows={4}
+                          placeholder="补充说明该结果事件的使用场景"
+                          value={formRemark}
+                          onChange={(e) => setFormRemark(e.target.value)}
+                        />
                       </div>
                     </CardContent>
                   </Card>
 
-                  {/* 识别信息卡片：事件标识、细化标识、SDK示例 */}
                   <Card>
                     <CardHeader>
                       <CardTitle className="text-base">识别信息</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="grid grid-cols-4 gap-3 items-center">
-                        <Label className="col-span-1">事件标识（outcome_code）</Label>
-                        <Select value={formCode} onValueChange={(v) => { setFormCode(v); setSelectedDetail(null); }}>
+                        <Label className="col-span-1">事件标识</Label>
+                        <Select
+                          value={formCode}
+                          onValueChange={(v) => {
+                            setFormCode(v);
+                            setSelectedDetail(null);
+                          }}
+                        >
                           <SelectTrigger className="col-span-3">
                             <SelectValue placeholder="请选择事件标识" />
                           </SelectTrigger>
                           <SelectContent>
-                            {baseCodeOptions.map(opt => (
-                              <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                            {baseCodeOptions.map((opt) => (
+                              <SelectItem key={opt.value} value={opt.value}>
+                                {opt.label}
+                              </SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
-                        {formErrorCode && <div className="col-span-4 text-xs text-destructive">{formErrorCode}</div>}
+                        {formErrorCode && (
+                          <div className="col-span-4 text-xs text-destructive">
+                            {formErrorCode}
+                          </div>
+                        )}
                       </div>
 
                       {/* 细化标识管理 */}
                       <div className="space-y-2">
-                        <Label>细化标识</Label>
-                        <div className="text-xs text-muted-foreground">选择了一个事件标识后，可新增/删除/编辑细化标识，例如在“询价”下添加 pcb、pcbca quote、bom 等等。</div>
-                        <div className="flex gap-2">
-                          <Input className="flex-1" placeholder="例如 pcb 或 pcbca quote" value={detailInput} onChange={(e) => setDetailInput(e.target.value)} />
+                        <Label>细化标识（键值对）</Label>
+                        <div className="text-xs text-muted-foreground">
+                          选择了一个事件标识后，可新增/删除/编辑细化标识的键值对，例如"询价"下添加
+                          product_type=pcb、quote_type=standard 等。值可以为空。
+                        </div>
+                        <div className="grid grid-cols-12 gap-2">
+                          <Input
+                            className="col-span-5"
+                            placeholder="键，例如 product_type（必填）"
+                            value={detailKeyInput}
+                            onChange={(e) => setDetailKeyInput(e.target.value)}
+                          />
+                          <Input
+                            className="col-span-5"
+                            placeholder="值，例如 pcb（可选）"
+                            value={detailValueInput}
+                            onChange={(e) =>
+                              setDetailValueInput(e.target.value)
+                            }
+                          />
                           <Button
+                            className="col-span-2"
                             onClick={() => {
                               const code = formCode;
                               if (!code) return;
-                              const label = detailInput.trim();
-                              if (!label) return;
+                              const key = detailKeyInput.trim();
+                              const value = detailValueInput.trim();
+                              if (!key) return;
                               setDetailMap((prev) => {
                                 const list = prev[code] ? [...prev[code]] : [];
-                                if (!list.includes(label)) list.push(label);
+                                const exists = list.some(
+                                  (item) =>
+                                    item.key === key && item.value === value,
+                                );
+                                if (!exists) list.push({ key, value });
                                 return { ...prev, [code]: list };
                               });
-                              setSelectedDetail(label);
-                              setDetailInput("");
+                              setSelectedDetail({ key, value });
+                              setDetailKeyInput("");
+                              setDetailValueInput("");
                             }}
                           >
                             <Plus className="h-4 w-4 mr-2" /> 新增
@@ -1767,44 +1855,111 @@ const RulesPage = () => {
                         </div>
                         <div className="space-y-2">
                           {(detailMap[formCode || ""] || []).length === 0 ? (
-                            <div className="text-sm text-muted-foreground">当前事件标识下暂无细化标识。</div>
+                            <div className="text-sm text-muted-foreground">
+                              当前事件标识下暂无细化标识。
+                            </div>
                           ) : (
                             (detailMap[formCode || ""] || []).map((d, idx) => (
-                              <div key={`${d}-${idx}`} className="flex items-center justify-between rounded border p-2">
+                              <div
+                                key={`${d.key}-${d.value}-${idx}`}
+                                className="flex items-center justify-between rounded border p-2"
+                              >
                                 {editingDetailIndex === idx ? (
                                   <div className="flex-1 flex gap-2">
-                                    <Input value={detailEditValue} onChange={(e) => setDetailEditValue(e.target.value)} />
-                                    <Button variant="secondary" size="sm" onClick={() => {
-                                      const val = detailEditValue.trim();
-                                      if (!val) return;
-                                      setDetailMap((prev) => {
-                                        const list = [...(prev[formCode || ""] || [])];
-                                        list[idx] = val;
-                                        return { ...prev, [formCode || ""]: list };
-                                      });
-                                      setEditingDetailIndex(null);
-                                      setSelectedDetail(val);
-                                    }}>
+                                    <Input
+                                      placeholder="键"
+                                      value={detailEditKey}
+                                      onChange={(e) =>
+                                        setDetailEditKey(e.target.value)
+                                      }
+                                    />
+                                    <Input
+                                      placeholder="值"
+                                      value={detailEditValue}
+                                      onChange={(e) =>
+                                        setDetailEditValue(e.target.value)
+                                      }
+                                    />
+                                    <Button
+                                      variant="secondary"
+                                      size="sm"
+                                      onClick={() => {
+                                        const key = detailEditKey.trim();
+                                        const value = detailEditValue.trim();
+                                        if (!key) return;
+                                        setDetailMap((prev) => {
+                                          const list = [
+                                            ...(prev[formCode || ""] || []),
+                                          ];
+                                          list[idx] = { key, value };
+                                          return {
+                                            ...prev,
+                                            [formCode || ""]: list,
+                                          };
+                                        });
+                                        setEditingDetailIndex(null);
+                                        setSelectedDetail({ key, value });
+                                      }}
+                                    >
                                       <Check className="h-4 w-4 mr-1" /> 保存
                                     </Button>
                                   </div>
                                 ) : (
-                                  <div className="flex-1 cursor-pointer" onClick={() => setSelectedDetail(d)}>
-                                    <div className={`font-mono ${selectedDetail === d ? "text-primary" : ""}`}>{d}</div>
+                                  <div
+                                    className="flex-1 cursor-pointer"
+                                    onClick={() => setSelectedDetail(d)}
+                                  >
+                                    <div
+                                      className={`font-mono text-sm ${
+                                        selectedDetail?.key === d.key &&
+                                        selectedDetail?.value === d.value
+                                          ? "text-primary font-semibold"
+                                          : ""
+                                      }`}
+                                    >
+                                      <span className="text-blue-600">
+                                        {d.key}
+                                      </span>{" "}
+                                      ={" "}
+                                      <span className="text-green-600">
+                                        {d.value || '""'}
+                                      </span>
+                                    </div>
                                   </div>
                                 )}
                                 {editingDetailIndex !== idx && (
                                   <div className="flex items-center gap-2">
-                                    <Button variant="ghost" size="sm" onClick={() => { setEditingDetailIndex(idx); setDetailEditValue(d); }}>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => {
+                                        setEditingDetailIndex(idx);
+                                        setDetailEditKey(d.key);
+                                        setDetailEditValue(d.value);
+                                      }}
+                                    >
                                       <Edit className="h-4 w-4 mr-1" /> 编辑
                                     </Button>
-                                    <Button variant="ghost" size="icon" onClick={() => {
-                                      setDetailMap((prev) => {
-                                        const list = (prev[formCode || ""] || []).filter((x) => x !== d);
-                                        return { ...prev, [formCode || ""]: list };
-                                      });
-                                      if (selectedDetail === d) setSelectedDetail(null);
-                                    }}>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      onClick={() => {
+                                        setDetailMap((prev) => {
+                                          const list = (
+                                            prev[formCode || ""] || []
+                                          ).filter((_, i) => i !== idx);
+                                          return {
+                                            ...prev,
+                                            [formCode || ""]: list,
+                                          };
+                                        });
+                                        if (
+                                          selectedDetail?.key === d.key &&
+                                          selectedDetail?.value === d.value
+                                        )
+                                          setSelectedDetail(null);
+                                      }}
+                                    >
                                       <Trash2 className="h-4 w-4" />
                                     </Button>
                                   </div>
@@ -1817,12 +1972,17 @@ const RulesPage = () => {
                         {/* SDK 代码展示 */}
                         <div className="space-y-2">
                           <Label>SDK 上报示例</Label>
+                          <div className="text-xs text-muted-foreground mb-2">
+                            根据当前选择的事件标识和细化标识自动生成 SDK
+                            代码示例
+                          </div>
                           <pre className="bg-muted p-3 rounded text-xs overflow-auto">
-{`// 结果事件上报示例
-sdk.trackOutcome({
-  outcome_code: "${formCode || "<请选择事件标识>"}",
-  detail_code: "${selectedDetail || "<选择/新增细化标识>"}",
-  enabled: ${formEnabled ? "true" : "false"},
+                            {`// 引入 SDK 方法
+import { ${toTrackMethodName(formCode)} } from 'xd-post';
+
+// 结果事件上报示例
+${toTrackMethodName(formCode)}({
+${(detailMap[formCode || ""] || []).length > 0 ? (detailMap[formCode || ""] || []).map((d) => `  ${d.key}: "${d.value}",`).join("\n") + "\n" : "  // 添加细化标识后，会在此显示键值对\n"}  enabled: ${formEnabled ? "true" : "false"},
 });
 `}
                           </pre>
@@ -1834,7 +1994,9 @@ sdk.trackOutcome({
 
                 <div className="flex-none p-6">
                   <SheetFooter>
-                    <Button onClick={() => setOutcomeDrawerOpen(false)}>取消</Button>
+                    <Button onClick={() => setOutcomeDrawerOpen(false)}>
+                      取消
+                    </Button>
                     <Button onClick={saveOutcomeEvent}>保存</Button>
                   </SheetFooter>
                 </div>
@@ -1848,4 +2010,3 @@ sdk.trackOutcome({
 };
 
 export default RulesPage;
-                  {/* 细化标识管理 */}

@@ -77,6 +77,9 @@ export interface ParsedEventData {
   $viewport_width?: number;
   $viewport_height?: number;
   gmtCreate?: string;
+  // Matched attribute key and properties
+  matched_attribute_key?: Array<{ key: string; value: string }>;
+  properties?: any;
 }
 
 export interface SessionEvent {

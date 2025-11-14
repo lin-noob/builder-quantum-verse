@@ -111,6 +111,16 @@ export default function SessionTimeline({
         (event.eventName as EventType);
     }
 
+    // 解析 matched_attribute_key
+    let matchedAttributeKey: Array<{ key: string; value: string }> | undefined;
+    if (properties.matched_attribute_key) {
+      try {
+        matchedAttributeKey = JSON.parse(properties.matched_attribute_key);
+      } catch (error) {
+        console.error("Failed to parse matched_attribute_key:", error);
+      }
+    }
+
     return {
       id: event.id,
       eventTime: event.gmtCreate,
@@ -150,6 +160,9 @@ export default function SessionTimeline({
       $viewport_width: properties.$viewport_width,
       $viewport_height: properties.$viewport_height,
       gmtCreate: event.gmtCreate,
+      // Matched attribute key and properties
+      matched_attribute_key: matchedAttributeKey,
+      properties: properties,
     };
   };
 
@@ -1299,6 +1312,34 @@ export default function SessionTimeline({
                             </div>
                             <div className="font-medium text-slate-900">
                               {formatDwellTime(selectedEvent.dwellTimeMs)}
+                            </div>
+                          </div>
+                        )}
+
+                      {/* Matched Attribute Key - 显示匹配的属性字段 */}
+                      {selectedEvent.matched_attribute_key &&
+                        selectedEvent.matched_attribute_key.length > 0 && (
+                          <div>
+                            <div className="text-xs text-slate-500 mb-2">
+                              匹配属性
+                            </div>
+                            <div className="p-3 bg-slate-50 rounded border border-slate-200">
+                              {selectedEvent.matched_attribute_key.map(
+                                (attr, index) => (
+                                  <div
+                                    key={index}
+                                    className="mb-2 last:mb-0 text-sm"
+                                  >
+                                    <span className="text-slate-500">
+                                      {attr.key}:
+                                    </span>{" "}
+                                    <span className="font-medium text-slate-900">
+                                      {selectedEvent.properties?.[attr.key] ||
+                                        "N/A"}
+                                    </span>
+                                  </div>
+                                ),
+                              )}
                             </div>
                           </div>
                         )}

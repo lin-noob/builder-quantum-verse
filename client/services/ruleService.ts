@@ -23,6 +23,7 @@ export interface BackendRule {
   tenantId?: string;
   gmtCreate?: string;
   gmtModified?: string;
+  remark?: string; // For result events
 }
 
 /**
@@ -44,6 +45,7 @@ export interface CreateRuleRequest {
   dedupWindow: number;
   enableFlag: boolean;
   sortOrder?: number;
+  remark?: string; // For result events
 }
 
 /**
@@ -55,12 +57,13 @@ export const ruleService = {
    * Create a new rule
    * 创建新规则
    * @param rule - Rule data to create
+   * @param ruleType - Rule type (1: event rule, 2: result event)
    * @returns Created rule data
    */
-  async createRule(rule: CreateRuleRequest): Promise<BackendRule> {
+  async createRule(rule: CreateRuleRequest, ruleType: number = 1): Promise<BackendRule> {
     const response = await request.post<{ data: BackendRule }>(
       "/quote/api/v1/rule",
-      rule,
+      { ...rule, ruleType },
     );
     return response.data.data;
   },
@@ -68,11 +71,15 @@ export const ruleService = {
   /**
    * Get all rules
    * 获取所有规则
+   * @param ruleType - Rule type (1: event rule, 2: result event)
    * @returns List of rules
    */
-  async getRules(): Promise<BackendRule[]> {
+  async getRules(ruleType: number = 1): Promise<BackendRule[]> {
     const response = await request.get<{ data: BackendRule[] }>(
       "/quote/api/v1/rule/list",
+      {
+        ruleType,
+      },
     );
     return response.data.data || [];
   },
@@ -82,14 +89,20 @@ export const ruleService = {
    * 更新规则
    * @param id - Rule ID
    * @param rule - Rule data to update
+   * @param ruleType - Rule type (1: event rule, 2: result event)
    * @returns Updated rule data
    */
-  async updateRule(id: number, rule: Partial<CreateRuleRequest>): Promise<BackendRule> {
+  async updateRule(
+    id: number,
+    rule: Partial<CreateRuleRequest>,
+    ruleType: number = 1,
+  ): Promise<BackendRule> {
     const response = await request.put<{ data: BackendRule }>(
       "/quote/api/v1/rule",
       {
         id,
         ...rule,
+        ruleType,
       },
     );
     return response.data.data;
