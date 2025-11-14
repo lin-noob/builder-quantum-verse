@@ -38,6 +38,7 @@ import {
 import { request } from "@/lib/request";
 import { EventType } from "@shared/eventRuleTypes";
 import { ruleTypeService, RuleType } from "@/services/ruleTypeService";
+import { ruleService } from "@/services/ruleService";
 
 // Session interface
 interface Session {
@@ -263,6 +264,18 @@ export default function SessionTimeline({
   useEffect(() => {
     const fetchRuleTypes = async () => {
       const types = await ruleTypeService.list();
+      const data = await ruleService.getRules(2);
+
+      if (data) {
+        const cusTypes: RuleType[] = data.map((item) => ({
+          id: String(item.id),
+          eventName: item.ruleName,
+        }));
+        setRuleTypes((types || []).concat(cusTypes));
+        return;
+      }
+
+      debugger;
       setRuleTypes(types);
     };
     fetchRuleTypes();

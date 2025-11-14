@@ -74,7 +74,7 @@ export const ruleService = {
    * @param ruleType - Rule type (1: event rule, 2: result event)
    * @returns List of rules
    */
-  async getRules(ruleType: number = 1): Promise<BackendRule[]> {
+  async getRules(ruleType: number | string = 1): Promise<BackendRule[]> {
     const response = await request.get<{ data: BackendRule[] }>(
       "/quote/api/v1/rule/list",
       {

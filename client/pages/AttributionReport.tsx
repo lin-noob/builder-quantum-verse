@@ -330,7 +330,7 @@ export default function AttributionReport() {
   const refetchColumns = async () => {
     try {
       // 获取规则类型列表
-      const ruleTypes = await ruleService.getRules();
+      const ruleTypes = await ruleService.getRules('');
 
       // 基于规则类型数据构建动态列配置
       const dynamicColumnsMap = new Map(
