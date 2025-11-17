@@ -7,13 +7,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Sparkles, LayoutTemplate, Eye, Plus } from "lucide-react";
 
+type TemplateStatus = "draft" | "review" | "published" | "deprecated";
 type TemplateItem = {
   id: string;
   name: string;
   industry: string;
-  purpose: string; // 促销、邀请、上新等
-  highlights: string[]; // 交互区域摘要
-  preview: string; // 简要预览文案
+  purpose: string;
+  highlights: string[];
+  preview: string;
+  tags?: string[];
+  status?: TemplateStatus;
+  version?: string;
+  usedCount?: number;
 };
 
 const mockTemplates: TemplateItem[] = [
@@ -25,6 +30,10 @@ const mockTemplates: TemplateItem[] = [
     highlights: ["首屏CTA", "主打商品卡", "优惠提示"],
     preview:
       "您好，\n限时专属优惠：\n- 商品卡展示\n- CTA按钮立即购买\n",
+    tags: ["电商", "促销"],
+    status: "published",
+    version: "v3",
+    usedCount: 128,
   },
   {
     id: "tpl_event_invite",
@@ -34,6 +43,10 @@ const mockTemplates: TemplateItem[] = [
     highlights: ["报名CTA", "日程信息"],
     preview:
       "亲爱的用户，\n本周活动邀请，点击报名参与。\n【CTA】立即报名\n",
+    tags: ["活动", "邀请"],
+    status: "review",
+    version: "v1",
+    usedCount: 42,
   },
   {
     id: "tpl_product_launch",
@@ -42,6 +55,10 @@ const mockTemplates: TemplateItem[] = [
     purpose: "上新",
     highlights: ["新品亮点", "体验CTA"],
     preview: "新品上架，欢迎第一时间体验并反馈。\n【CTA】查看新品\n",
+    tags: ["新品"],
+    status: "draft",
+    version: "v0",
+    usedCount: 7,
   },
 ];
 
@@ -50,15 +67,19 @@ export default function TemplateLibrary() {
   const [search, setSearch] = useState("");
   const [industry, setIndustry] = useState<string>("all");
   const [purpose, setPurpose] = useState<string>("all");
+  const [status, setStatus] = useState<TemplateStatus | "all">("all");
+  const [tagQuery, setTagQuery] = useState<string>("");
 
   const filtered = useMemo(() => {
     return mockTemplates.filter((t) => {
-      const s = !search || t.name.includes(search);
+      const s = !search || t.name.includes(search) || t.preview.includes(search);
       const i = industry === "all" ? true : t.industry === industry;
       const p = purpose === "all" ? true : t.purpose === purpose;
-      return s && i && p;
+      const st = status === "all" ? true : (t.status || "draft") === status;
+      const tq = !tagQuery ? true : (t.tags || []).some((tg) => tg.toLowerCase().includes(tagQuery.toLowerCase()));
+      return s && i && p && st && tq;
     });
-  }, [search, industry, purpose]);
+  }, [search, industry, purpose, status, tagQuery]);
 
   const handleInsertToCompose = (tpl: TemplateItem) => {
     // 方案C：在模板构建器打开并预加载该模板
@@ -100,6 +121,24 @@ export default function TemplateLibrary() {
                 <SelectItem value="上新">上新</SelectItem>
               </SelectContent>
             </Select>
+            <Select value={status} onValueChange={(v) => setStatus(v as any)}>
+              <SelectTrigger className="w-40">
+                <SelectValue placeholder="状态" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">全部状态</SelectItem>
+                <SelectItem value="draft">草稿</SelectItem>
+                <SelectItem value="review">评审中</SelectItem>
+                <SelectItem value="published">已发布</SelectItem>
+                <SelectItem value="deprecated">已下线</SelectItem>
+              </SelectContent>
+            </Select>
+            <Input
+              value={tagQuery}
+              onChange={(e) => setTagQuery(e.target.value)}
+              placeholder="按标签筛选"
+              className="w-full sm:w-48"
+            />
           </div>
         </CardContent>
       </Card>
@@ -129,13 +168,21 @@ export default function TemplateLibrary() {
               <div className="flex flex-wrap gap-2">
                 <Badge variant="outline">行业：{tpl.industry}</Badge>
                 <Badge variant="outline">目的：{tpl.purpose}</Badge>
+                {tpl.version && <Badge variant="outline">版本：{tpl.version}</Badge>}
+                {tpl.status && <Badge variant="outline">状态：{tpl.status}</Badge>}
                 {tpl.highlights.map((h) => (
                   <Badge key={h} variant="secondary" className="capitalize">{h}</Badge>
+                ))}
+                {(tpl.tags || []).map((tg) => (
+                  <Badge key={tg} variant="secondary">{tg}</Badge>
                 ))}
               </div>
               <div className="text-xs text-muted-foreground whitespace-pre-line border rounded p-3">
                 {tpl.preview}
               </div>
+              {typeof tpl.usedCount === "number" && (
+                <div className="text-xs text-muted-foreground">使用次数：{tpl.usedCount}</div>
+              )}
               <div className="flex items-center gap-2">
                 <Button size="sm" variant="default" onClick={() => handleInsertToCompose(tpl)} className="gap-1">
                   <LayoutTemplate className="h-4 w-4" /> 在模板构建器打开
