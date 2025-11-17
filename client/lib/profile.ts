@@ -142,6 +142,8 @@ export interface ApiUser extends UserProfile {
     pageView30dTotal: number;
     sessionCount30d: number;
   };
+  sessionTotal: number;
+  pageViewTotal: number;
 }
 
 interface UserProfile {

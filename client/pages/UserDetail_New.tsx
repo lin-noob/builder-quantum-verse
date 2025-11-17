@@ -796,7 +796,7 @@ export default function UserDetail() {
                                   <td className="px-4 py-3 text-sm text-gray-900 bg-gray-50">近7天事件数<TooltipIcon text="最近7天内的总事件数" /></td>
                                   <td className="px-4 py-3 text-sm text-gray-900">{user?.userEngagement?.eventCount7d ?? 0}</td>
                                   <td className="px-4 py-3 text-sm text-gray-900 bg-gray-50">页面浏览量<TooltipIcon text="累计浏览的页面总数" /></td>
-                                  <td className="px-4 py-3 text-sm text-gray-900">{user?.userEngagement?.pageView30dTotal ?? 0}</td>
+                                  <td className="px-4 py-3 text-sm text-gray-900">{user?.userEngagement?.pageViewTotal ?? 0}</td>
                                 </tr>
                                 <tr>
                                   <td className="px-4 py-3 text-sm text-gray-900 bg-gray-50">近30天事件数<TooltipIcon text="最近30天内的总事件数" /></td>

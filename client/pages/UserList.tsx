@@ -137,8 +137,8 @@ export default function UserList() {
       currency: apiUser.currencySymbol || "",
       // 5+2扩展指标
       ltv90Days: apiUser.ltv90Days,
-      sessions30d: apiUser.sessions30d,
-      pageviews30d: apiUser.pageviews30d,
+      sessions30d: apiUser.sessionTotal,
+      pageviews30d: apiUser.pageViewTotal,
       aov30d: apiUser.aov30d,
       bounceRate: apiUser.bounceRate,
     };
@@ -198,7 +198,7 @@ export default function UserList() {
         if (v.trim() === "") return undefined;
         const n = Number(v);
         if (isNaN(n)) return undefined;
-        return Math.max(0, Math.min(100, n)) / 100; // 转为 0..1
+        return Math.max(0, Math.min(100, n)) / 100; // ���为 0..1
       };
       if (!currentProject || !currentProject.id) {
         console.log(
@@ -602,102 +602,111 @@ export default function UserList() {
             <table className="w-full min-w-[800px]">
               <thead className="bg-gray-50 border-b">
                 <tr>
-                  <th className="px-6 py-4 text-left text-xs text-gray-900 min-w-92">
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-900 min-w-[150px] whitespace-nowrap">
                     {t("userList.table.headers.user")}
                   </th>
-                  <th className="px-6 py-4 text-left text-xs text-gray-900">
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-900 min-w-[120px] whitespace-nowrap">
                     {t("userList.table.headers.contact")}
                   </th>
                   <th
-                    className="px-6 py-4 text-left text-xs text-gray-900 cursor-pointer select-none hover:bg-gray-100"
+                    className="px-4 py-3 text-left text-xs font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100 min-w-[110px]"
                     onClick={() => handleSort("firstVisitTime")}
                   >
-                    <div className="flex items-center gap-2">
-                      {t("userList.table.headers.firstVisit")}
+                    <div className="flex items-center gap-1 whitespace-nowrap">
+                      <span>{t("userList.table.headers.firstVisit")}</span>
                       {getSortIcon("firstVisitTime")}
                     </div>
                   </th>
                   <th
-                    className="px-6 py-4 text-left text-xs text-gray-900 cursor-pointer select-none hover:bg-gray-100"
+                    className="px-4 py-3 text-left text-xs font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100 min-w-[110px]"
                     onClick={() => handleSort("registrationTime")}
                   >
-                    <div className="flex items-center gap-2">
-                      {t("userList.table.headers.registrationTime")}
+                    <div className="flex items-center gap-1 whitespace-nowrap">
+                      <span>{t("userList.table.headers.registrationTime")}</span>
                       {getSortIcon("registrationTime")}
                     </div>
                   </th>
                   <th
-                    className="px-6 py-4 text-left text-xs text-gray-900 cursor-pointer select-none hover:bg-gray-100"
+                    className="px-4 py-3 text-left text-xs font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100 min-w-[110px]"
                     onClick={() => handleSort("firstPurchaseTime")}
                   >
-                    <div className="flex items-center gap-2">
-                      {t("userList.table.headers.firstPurchase")}
+                    <div className="flex items-center gap-1 whitespace-nowrap">
+                      <span>{t("userList.table.headers.firstPurchase")}</span>
                       {getSortIcon("firstPurchaseTime")}
                     </div>
                   </th>
                   <th
-                    className="px-6 py-4 text-left text-xs text-gray-900 cursor-pointer select-none hover:bg-gray-100"
+                    className="px-4 py-3 text-left text-xs font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100 min-w-[110px]"
                     onClick={() => handleSort("lastActiveTime")}
                   >
-                    <div className="flex items-center gap-2">
-                      {t("userList.table.headers.lastActive")}
+                    <div className="flex items-center gap-1 whitespace-nowrap">
+                      <span>{t("userList.table.headers.lastActive")}</span>
                       {getSortIcon("lastActiveTime")}
                     </div>
                   </th>
 
                   {hasPermission("user.amountspent") && (
                     <th
-                      className="px-6 py-4 text-left text-xs text-gray-900 cursor-pointer select-none hover:bg-gray-100"
+                      className="px-4 py-3 text-left text-xs font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100 min-w-[100px]"
                       onClick={() => handleSort("totalSpent")}
                     >
-                      <div className="flex items-center gap-2">
-                        {t("userList.table.headers.totalSpent")}
+                      <div className="flex items-center gap-1 whitespace-nowrap">
+                        <span>{t("userList.table.headers.totalSpent")}</span>
                         {getSortIcon("totalSpent")}
                       </div>
                     </th>
                   )}
                   {/* 5+2扩展列 */}
                   <th
-                    className="px-6 py-4 text-left text-xs text-gray-900 cursor-pointer select-none hover:bg-gray-100"
+                    className="px-4 py-3 text-left text-xs font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100 min-w-[90px]"
                     onClick={() => handleSort("ltv90Days")}
                   >
-                    <div className="flex items-center gap-2">
-                      90天LTV{getSortIcon("ltv90Days")}
+                    <div className="flex items-center gap-1 whitespace-nowrap">
+                      <span>90天</span>
+                      <span>LTV</span>
+                      {getSortIcon("ltv90Days")}
                     </div>
                   </th>
                   <th
-                    className="px-6 py-4 text-left text-xs text-gray-900 cursor-pointer select-none hover:bg-gray-100"
+                    className="px-4 py-3 text-left text-xs font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100 min-w-[90px]"
                     onClick={() => handleSort("sessions30d")}
                   >
-                    <div className="flex items-center gap-2">
-                      近30天会话{getSortIcon("sessions30d")}
+                    <div className="flex items-center gap-1 whitespace-nowrap">
+                      <span>近30天</span>
+                      <span>会话</span>
+                      {getSortIcon("sessions30d")}
                     </div>
                   </th>
                   <th
-                    className="px-6 py-4 text-left text-xs text-gray-900 cursor-pointer select-none hover:bg-gray-100"
+                    className="px-4 py-3 text-left text-xs font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100 min-w-[90px]"
                     onClick={() => handleSort("pageviews30d")}
                   >
-                    <div className="flex items-center gap-2">
-                      近30天页面浏览{getSortIcon("pageviews30d")}
+                    <div className="flex items-center gap-1 whitespace-nowrap">
+                      <span>近30天</span>
+                      <span>浏览</span>
+                      {getSortIcon("pageviews30d")}
                     </div>
                   </th>
                   <th
-                    className="px-6 py-4 text-left text-xs text-gray-900 cursor-pointer select-none hover:bg-gray-100"
+                    className="px-4 py-3 text-left text-xs font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100 min-w-[90px]"
                     onClick={() => handleSort("aov30d")}
                   >
-                    <div className="flex items-center gap-2">
-                      近30天AOV{getSortIcon("aov30d")}
+                    <div className="flex items-center gap-1 whitespace-nowrap">
+                      <span>近30天</span>
+                      <span>AOV</span>
+                      {getSortIcon("aov30d")}
                     </div>
                   </th>
                   <th
-                    className="px-6 py-4 text-left text-xs text-gray-900 cursor-pointer select-none hover:bg-gray-100"
+                    className="px-4 py-3 text-left text-xs font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100 min-w-[80px]"
                     onClick={() => handleSort("bounceRate")}
                   >
-                    <div className="flex items-center gap-2">
-                      跳出率{getSortIcon("bounceRate")}
+                    <div className="flex items-center gap-1 whitespace-nowrap">
+                      <span>跳出率</span>
+                      {getSortIcon("bounceRate")}
                     </div>
                   </th>
-                  <th className="px-6 py-4 text-left text-xs text-gray-900">
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-900 min-w-[80px] whitespace-nowrap">
                     {t("userList.table.headers.actions")}
                   </th>
                 </tr>
@@ -727,65 +736,67 @@ export default function UserList() {
                 ) : (
                   currentUsers.map((user) => (
                     <tr key={user.cdpId} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 w-24">
-                        <div className="space-y-1">
-                          <div className="font-mono text-sm text-gray-900">
+                      <td className="px-4 py-3">
+                        <div className="space-y-1 max-w-[150px]">
+                          <div className="font-mono text-xs text-gray-900 truncate">
                             {user.userId || user.id}
                           </div>
-                          <div className="text-sm text-gray-500">
-                            {user.name || user.fullName || "N/A"} /{" "}
+                          <div className="text-xs text-gray-500 truncate">
+                            {user.name || user.fullName || "N/A"}
+                          </div>
+                          <div className="text-xs text-gray-400 truncate">
                             {user.company || user.companyName || "N/A"}
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-900">
+                      <td className="px-4 py-3 text-xs text-gray-900 max-w-[120px] truncate">
                         {user.contact || user.contactInfo || "N/A"}
                       </td>
-                      <td className="px-6 py-4 text-xs text-gray-600">
+                      <td className="px-4 py-3 text-xs text-gray-600 whitespace-nowrap">
                         {formatDateTime(user.firstVisitTime || "")}
                       </td>
-                      <td className="px-6 py-4 text-xs text-gray-600">
+                      <td className="px-4 py-3 text-xs text-gray-600 whitespace-nowrap">
                         {formatDateTime(user.registrationTime || "")}
                       </td>
-                      <td className="px-6 py-4 text-xs text-gray-600">
+                      <td className="px-4 py-3 text-xs text-gray-600 whitespace-nowrap">
                         {formatDateTime(user.firstPurchaseTime || "")}
                       </td>
-                      <td className="px-6 py-4 text-xs text-gray-600">
+                      <td className="px-4 py-3 text-xs text-gray-600 whitespace-nowrap">
                         {formatDateTime(user.lastActiveTime || "")}
                       </td>
 
                       {hasPermission("user.amountspent") && (
-                        <td className="px-6 py-4 text-sm text-gray-900">
+                        <td className="px-4 py-3 text-xs text-gray-900 whitespace-nowrap">
                           {formatCurrency(user.totalSpent || 0, user.currency)}
                         </td>
                       )}
                       {/* 5+2扩展列渲染 */}
-                      <td className="px-6 py-4 text-sm text-gray-900">
+                      <td className="px-4 py-3 text-xs text-gray-900 whitespace-nowrap">
                         {user.ltv90Days != null
                           ? formatCurrency(user.ltv90Days, user.currency)
                           : "-"}
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-900">
+                      <td className="px-4 py-3 text-xs text-gray-900 text-center">
                         {user.sessions30d ?? "-"}
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-900">
+                      <td className="px-4 py-3 text-xs text-gray-900 text-center">
                         {user.pageviews30d ?? "-"}
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-900">
+                      <td className="px-4 py-3 text-xs text-gray-900 whitespace-nowrap">
                         {user.aov30d != null
                           ? formatCurrency(user.aov30d, user.currency)
                           : "-"}
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-900">
+                      <td className="px-4 py-3 text-xs text-gray-900 text-center">
                         {user.bounceRate != null
                           ? `${Math.round((user.bounceRate || 0) * 100)}%`
                           : "-"}
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-4 py-3">
                         {hasPermission("user.info") && (
                           <Link
                             to={`/users1/${user.userId}`}
-                            className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                            className="text-blue-600 hover:text-blue-800 text-xs font-medium whitespace-nowrap"
                           >
                             {t("userList.table.actions.viewDetails")}
                           </Link>
