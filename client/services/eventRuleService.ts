@@ -1,7 +1,5 @@
 import { EventRule } from "@shared/eventRuleTypes";
 
-const STORAGE_KEY = "event_rules";
-
 export const eventRuleService = {
   create(rule: Omit<EventRule, "id" | "createdAt" | "updatedAt">): EventRule {
     const now = new Date().toISOString();

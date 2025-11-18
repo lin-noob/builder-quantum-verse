@@ -7,8 +7,15 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import KPICard from "@/components/KPICard";
 import { useToast } from "@/hooks/use-toast";
+import EmailEditor from "@/components/EmailEditor";
 import {
   Plus,
   Trash2,
@@ -25,6 +32,21 @@ import {
   Brain,
   Clock,
   AlertTriangle,
+  Bold,
+  Italic,
+  Underline,
+  Link as LinkIcon,
+  Image,
+  Paperclip,
+  Smile,
+  MoreHorizontal,
+  List,
+  ListOrdered,
+  AlignLeft,
+  Type,
+  Undo,
+  Redo,
+  X,
 } from "lucide-react";
 
 type FolderKey =
@@ -135,7 +157,7 @@ const mockMails: MailItem[] = [
     status: "sending",
     recipients: 21000,
     updatedAt: "2025-11-03 08:45",
-    html: "<p>亲爱的会员，本季度福利已更新，欢迎查看。</p>",
+    html: "<p>亲爱的会员，本季度福利已更新，欢迎查看1233333333333333333333333333333333333333333333333333。</p>",
     aiScore: 65,
     bestSendWindow: "09:00–11:00",
     suggestions: ["主题突出具体福利亮点", "减少正文段落长度，使用项目符号"]
@@ -325,6 +347,12 @@ export default function EmailMarketingMailbox() {
   const [aiView, setAiView] = useState<"none" | "insights" | "predict" | "schedule">("none");
   const enableAI = true; // 前端演示：是否显示AI入口
 
+  // 回复弹框相关 state
+  const [replyDialogOpen, setReplyDialogOpen] = useState(false);
+  const [replySubject, setReplySubject] = useState("");
+  const [replyContent, setReplyContent] = useState("");
+  const [attachments, setAttachments] = useState<File[]>([]);
+
   // 收敛列表徽章到最多两项核心指标，优先级：高风险垃圾 > 预测打开 > 最佳时段 > 预测点击
   const renderBadges = (m: MailItem) => {
     const nodes: JSX.Element[] = [];
@@ -405,20 +433,62 @@ export default function EmailMarketingMailbox() {
   const handleReply = () => {
     if (!active) return;
     setComposeMode("reply");
+    setReplySubject(`Re: ${active.subject}`);
+    setReplyContent(`\n\n\n------- 原始邮件 -------\n发件人: ${active.from}\n主题: ${active.subject}\n\n${active.html?.replace(/<[^>]+>/g, '') || ''}`);
+    setReplyDialogOpen(true);
   };
 
   const handleReplyAll = () => {
     if (!active) return;
     setComposeMode("replyAll");
+    setReplySubject(`Re: ${active.subject}`);
+    setReplyContent(`\n\n\n------- 原始邮件 -------\n发件人: ${active.from}\n主题: ${active.subject}\n\n${active.html?.replace(/<[^>]+>/g, '') || ''}`);
+    setReplyDialogOpen(true);
   };
 
   const handleForward = () => {
     if (!active) return;
     setComposeMode("forward");
+    setReplySubject(`Fwd: ${active.subject}`);
+    setReplyContent(`\n\n\n------- 转发邮件 -------\n发件人: ${active.from}\n主题: ${active.subject}\n\n${active.html?.replace(/<[^>]+>/g, '') || ''}`);
+    setReplyDialogOpen(true);
+  };
+
+  const handleSendReply = () => {
+    if (!replySubject.trim() || !replyContent.trim()) {
+      toast({
+        title: "内容不完整",
+        description: "请填写主题和内容",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const attachmentInfo = attachments.length > 0
+      ? `，包含 ${attachments.length} 个附件`
+      : "";
+
+    toast({
+      title: composeMode === "forward" ? "转发成功" : "回复成功",
+      description: `邮件已${composeMode === "forward" ? "转发" : "发送"}${attachmentInfo}`,
+    });
+    setReplyDialogOpen(false);
+    setComposeMode("none");
+    setReplySubject("");
+    setReplyContent("");
+    setAttachments([]);
+  };
+
+  const handleCancelReply = () => {
+    setReplyDialogOpen(false);
+    setComposeMode("none");
+    setReplySubject("");
+    setReplyContent("");
+    setAttachments([]);
   };
 
   return (
-    <div className="p-6 space-y-4">
+    <div className="p-6 space-y-4 h-full flex flex-col">
       {/* 顶部工具栏 */}
       <Card>
         <CardContent className="pt-6 flex flex-wrap items-center gap-2">
@@ -485,11 +555,11 @@ export default function EmailMarketingMailbox() {
       </Card>
 
       {/* 三栏布局（合并为一个卡片，分割线区分，每栏有内边距）*/}
-      <Card>
-        <CardContent className="p-0">
-          <div className="flex flex-col md:flex-row items-stretch">
+      <Card className="flex-1">
+        <CardContent className="p-0 h-full">
+          <div className="flex flex-col md:flex-row items-stretch h-full">
             {/* 左侧文件夹（12%）*/}
-            <div className="md:basis-[12%] p-3">
+            <div className="md:basis-[18%] p-3">
               <div className="text-sm font-medium mb-2">liguoshuai@hzfro..</div>
               <div className="space-y-2">
             {(
@@ -529,7 +599,7 @@ export default function EmailMarketingMailbox() {
             </div>
 
             {/* 中间列表（13%）*/}
-            <div className="md:basis-[13%] p-3 md:border-l md:border-border">
+            <div className="md:basis-[18%] overflow-auto  p-3 md:border-l md:border-border">
               <div className="text-sm font-medium mb-2">{folder === "sent" ? "已发送" : folder === "drafts" ? "草稿" : "邮件列表"}</div>
               <div className="space-y-2">
                 {data.map((m) => {
@@ -578,7 +648,7 @@ export default function EmailMarketingMailbox() {
             </div>
 
             {/* 右侧预览区（75%）*/}
-            <div className="md:basis-[75%] p-3 md:border-l md:border-border">
+            <div className="md:basis-[60%] overflow-auto  p-3 md:border-l md:border-border">
               <div className="text-sm font-medium mb-2">预览</div>
               <div className="space-y-4">
               {!active && <div className="text-sm text-muted-foreground">请选择左侧列表中的一封邮件进行预览</div>}
@@ -674,22 +744,6 @@ export default function EmailMarketingMailbox() {
                   <div dangerouslySetInnerHTML={{ __html: active.html ?? "<p>无预览内容</p>" }} />
                 </div>
 
-                {composeMode !== "none" && (
-                  <div className="space-y-2">
-                    <div className="text-xs text-muted-foreground">
-                      {composeMode === "reply" && "回复"}
-                      {composeMode === "replyAll" && "回复全部"}
-                      {composeMode === "forward" && "转发"}
-                    </div>
-                    <Input placeholder="主题（自动带入）" defaultValue={`Re: ${active.subject}`} />
-                    <textarea className="w-full min-h-[160px] rounded border p-2" defaultValue={`\n\n> ${active.subject}\n`}></textarea>
-                    <div className="flex gap-2">
-                      <Button size="sm">发送测试</Button>
-                      <Button size="sm" variant="outline" onClick={() => setComposeMode("none")}>取消</Button>
-                    </div>
-                  </div>
-                )}
-
                 {/* 预览区底部操作按钮已按需求移除 */}
                 </div>
               )}
@@ -698,7 +752,71 @@ export default function EmailMarketingMailbox() {
           </div>
         </CardContent>
       </Card>
-      
+
+      {/* 回复弹框 */}
+      <Dialog open={replyDialogOpen} onOpenChange={setReplyDialogOpen}>
+        <DialogContent className="max-w-5xl max-h-[95vh] overflow-hidden flex flex-col p-0">
+          <DialogHeader className="px-6 pt-6 pb-4">
+            <DialogTitle>
+              {composeMode === "reply" && "回复邮件"}
+              {composeMode === "replyAll" && "回复全部"}
+              {composeMode === "forward" && "转发邮件"}
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="flex-1 overflow-y-auto space-y-3 px-6">
+            {/* 收件人信息 */}
+            <div className="space-y-1.5">
+              <div className="text-sm font-medium">收件人</div>
+              <Input
+                value={active?.from || ""}
+                disabled
+                className="bg-muted"
+              />
+            </div>
+
+            {/* 主题 */}
+            <div className="space-y-1.5">
+              <div className="text-sm font-medium">主题</div>
+              <Input
+                value={replySubject}
+                onChange={(e) => setReplySubject(e.target.value)}
+                placeholder="请输入邮件主题"
+              />
+            </div>
+
+            {/* 内容编辑器 */}
+            <div className="space-y-1.5">
+              <div className="text-sm font-medium">内容</div>
+              <EmailEditor
+                content={replyContent}
+                onContentChange={setReplyContent}
+                attachments={attachments}
+                onAttachmentsChange={setAttachments}
+                height="400px"
+                placeholder="请输入邮件内容..."
+              />
+            </div>
+          </div>
+
+          {/* 底部按钮 */}
+          <div className="flex justify-between items-center px-6 py-4 border-t bg-muted/30">
+            <div className="text-sm text-muted-foreground">
+              {attachments.length > 0 && `已选择 ${attachments.length} 个附件`}
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={handleCancelReply}>
+                取消
+              </Button>
+              <Button onClick={handleSendReply} className="gap-2">
+                <Send className="h-4 w-4" />
+                发送
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
     </div>
   );
 }

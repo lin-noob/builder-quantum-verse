@@ -4,12 +4,11 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Send, Save, Paperclip, UploadCloud, Settings, Bold, Italic, Underline, Plus, X, Sparkles, Brain, Wand2, Clock } from "lucide-react";
+import EmailEditor from "@/components/EmailEditor";
 
 export default function EmailCompose() {
   const { toast } = useToast();
@@ -20,13 +19,12 @@ export default function EmailCompose() {
   const [ccVisible, setCcVisible] = useState<boolean>(false);
   const [subject, setSubject] = useState<string>("");
   const [content, setContent] = useState<string>("");
-  const [fontSize, setFontSize] = useState<string>("11");
-  const [fontFamily, setFontFamily] = useState<string>("默认字体");
   const [aiOpen, setAiOpen] = useState<boolean>(false);
   const [aiMode, setAiMode] = useState<"suggest" | "rewrite" | "templates" | "summary">("suggest");
 
   const [toInput, setToInput] = useState<string>("");
   const [ccInput, setCcInput] = useState<string>("");
+  const [attachments, setAttachments] = useState<File[]>([]);
 
   // 内容块模型（阶段A：前端演示）
   type BlockItem = {
@@ -191,7 +189,9 @@ export default function EmailCompose() {
             <div className="flex items-center gap-2">
               <Button className="gap-2" onClick={handleSend}><Send className="h-4 w-4" /> 发送</Button>
               <Button variant="outline" className="gap-2" onClick={handleSave}><Save className="h-4 w-4" /> 保存</Button>
-              <Button variant="outline" className="gap-2"><Paperclip className="h-4 w-4" /> 附件</Button>
+              <Button variant="outline" className="gap-2" onClick={() => document.getElementById("email-editor-attachment-input")?.click()}>
+                <Paperclip className="h-4 w-4" /> 附件 {attachments.length > 0 && `(${attachments.length})`}
+              </Button>
               <Button variant="outline" className="gap-2"><UploadCloud className="h-4 w-4" /> 超大附件</Button>
               <Button variant="outline" className="gap-2"><Settings className="h-4 w-4" /> 发送设置</Button>
             </div>
@@ -285,30 +285,6 @@ export default function EmailCompose() {
             <Button variant="ghost" size="sm" className="gap-1" asChild>
               <Link to="/ai-marketing/block-library">内容块库</Link>
             </Button>
-            <Separator orientation="vertical" className="h-6" />
-            <div className="flex items-center gap-2">
-              <Select value={fontFamily} onValueChange={setFontFamily}>
-                <SelectTrigger className="h-8 w-[140px]">
-                  <SelectValue placeholder="默认字体" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="默认字体">默认字体</SelectItem>
-                  <SelectItem value="系统字体">系统字体</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={fontSize} onValueChange={setFontSize}>
-                <SelectTrigger className="h-8 w-[80px]">
-                  <SelectValue placeholder="11" />
-                </SelectTrigger>
-                <SelectContent>
-                  {Array.from({ length: 9 }).map((_, i) => {
-                    const v = String(10 + i);
-                    return <SelectItem key={v} value={v}>{v}</SelectItem>;
-                  })}
-                </SelectContent>
-              </Select>
-              <Button variant="ghost" size="sm">更多</Button>
-            </div>
           </div>
 
           {aiOpen && (
@@ -376,156 +352,17 @@ export default function EmailCompose() {
             </div>
           )}
 
-          {/* 内容块区与预览校验 */}
-          <div className="mt-3 grid grid-cols-1 md:grid-cols-[1fr_320px] gap-4">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">内容块（前端示意）</span>
-                <div className="flex items-center gap-2">
-                  <Button size="sm" variant="outline" asChild>
-                    <Link to="/ai-marketing/block-library">插入内容块</Link>
-                  </Button>
-                </div>
-              </div>
-              <div className="space-y-2">
-                {blocks.length === 0 && (
-                  <div className="text-xs text-muted-foreground">尚未插入内容块，可从“内容块库”选择。</div>
-                )}
-                {blocks.map((b) => (
-                  <Card key={b.id} className={`border ${selectedBlockId === b.id ? "border-blue-500" : "border-muted"}`}>
-                    <CardContent className="p-3 space-y-2">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <div className="text-sm font-medium">{b.title}</div>
-                          <div className="text-xs text-muted-foreground">类型：{b.type}</div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Button size="sm" variant="ghost" onClick={() => setSelectedBlockId(b.id)}>配置</Button>
-                          <Button size="sm" variant="ghost" onClick={() => removeBlock(b.id)}>移除</Button>
-                        </div>
-                      </div>
-                      <div className="text-xs border rounded p-2">
-                        {b.props.html ? (
-                          <div dangerouslySetInnerHTML={{ __html: b.props.html }} />
-                        ) : (
-                          <div className="whitespace-pre-line">
-                            {b.type === "hero" && `${b.props.title || "(标题)"}｜${b.props.subtitle || "(副标题)"}`}
-                            {b.type === "cta" && `【CTA】${b.props.text || "(文案)"} → ${b.props.link || "(链接)"}`}
-                            {b.type === "product" && `【商品】${b.props.title || "(标题)"}｜${b.props.price || "(价格)"} → ${b.props.link || "(链接)"}`}
-                            {b.type === "divider" && `────────────`}
-                            {b.type === "survey" && `【问卷】${b.props.question || "(问题)"}｜选项：${b.props.options || "A,B,C"}`}
-                          </div>
-                        )}
-                      </div>
-                      <div className="text-xs">
-                        {b.type === "cta" && !b.props.link && (
-                          <div className="text-red-600">校验：CTA 未配置链接</div>
-                        )}
-                        {b.type === "cta" && (!b.tracking?.utm || b.tracking.utm.trim() === "") && (
-                          <div className="text-amber-600">建议：添加 UTM 追踪参数</div>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </div>
-            <div className="border rounded p-3 space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">配置面板</span>
-                {selectedBlock && (
-                  <Badge variant="outline">{selectedBlock.title}</Badge>
-                )}
-              </div>
-              {!selectedBlock && (
-                <div className="text-xs text-muted-foreground">请选择要配置的内容块。</div>
-              )}
-              {selectedBlock && (
-                <div className="space-y-2 text-sm">
-                  {(selectedBlock.type === "hero" || selectedBlock.type === "product") && (
-                    <div className="space-y-2">
-                      <Label className="text-xs">标题</Label>
-                      <Input
-                        value={selectedBlock.props.title || ""}
-                        onChange={(e) => updateBlock(selectedBlock.id!, (prev) => ({ ...prev, props: { ...prev.props, title: e.target.value } }))}
-                      />
-                    </div>
-                  )}
-                  {selectedBlock.type === "hero" && (
-                    <div className="space-y-2">
-                      <Label className="text-xs">副标题</Label>
-                      <Input
-                        value={selectedBlock.props.subtitle || ""}
-                        onChange={(e) => updateBlock(selectedBlock.id!, (prev) => ({ ...prev, props: { ...prev.props, subtitle: e.target.value } }))}
-                      />
-                    </div>
-                  )}
-                  {selectedBlock.type === "product" && (
-                    <div className="space-y-2">
-                      <Label className="text-xs">价格</Label>
-                      <Input
-                        value={selectedBlock.props.price || ""}
-                        onChange={(e) => updateBlock(selectedBlock.id!, (prev) => ({ ...prev, props: { ...prev.props, price: e.target.value } }))}
-                      />
-                    </div>
-                  )}
-                  {selectedBlock.type === "cta" && (
-                    <>
-                      <div className="space-y-2">
-                        <Label className="text-xs">文案</Label>
-                        <Input
-                          value={selectedBlock.props.text || ""}
-                          onChange={(e) => updateBlock(selectedBlock.id!, (prev) => ({ ...prev, props: { ...prev.props, text: e.target.value } }))}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label className="text-xs">链接</Label>
-                        <Input
-                          value={selectedBlock.props.link || ""}
-                          onChange={(e) => updateBlock(selectedBlock.id!, (prev) => ({ ...prev, props: { ...prev.props, link: e.target.value } }))}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label className="text-xs">UTM 参数</Label>
-                        <Input
-                          value={selectedBlock.tracking?.utm || ""}
-                          onChange={(e) => updateBlock(selectedBlock.id!, (prev) => ({ ...prev, tracking: { ...(prev.tracking || {}), utm: e.target.value } }))}
-                        />
-                      </div>
-                    </>
-                  )}
-                  {selectedBlock.type === "survey" && (
-                    <>
-                      <div className="space-y-2">
-                        <Label className="text-xs">问题</Label>
-                        <Input
-                          value={selectedBlock.props.question || ""}
-                          onChange={(e) => updateBlock(selectedBlock.id!, (prev) => ({ ...prev, props: { ...prev.props, question: e.target.value } }))}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label className="text-xs">选项（逗号分隔）</Label>
-                        <Input
-                          value={selectedBlock.props.options || ""}
-                          onChange={(e) => updateBlock(selectedBlock.id!, (prev) => ({ ...prev, props: { ...prev.props, options: e.target.value } }))}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label className="text-xs">事件 Key</Label>
-                        <Input
-                          value={selectedBlock.tracking?.eventKey || ""}
-                          onChange={(e) => updateBlock(selectedBlock.id!, (prev) => ({ ...prev, tracking: { ...(prev.tracking || {}), eventKey: e.target.value } }))}
-                        />
-                      </div>
-                    </>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-
           {/* 正文 */}
-          <Textarea value={content} onChange={(e) => setContent(e.target.value)} placeholder="在此编写正文..." className="min-h-[340px] mt-2" />
+          <div className="mt-2">
+            <EmailEditor
+              content={content}
+              onContentChange={setContent}
+              attachments={attachments}
+              onAttachmentsChange={setAttachments}
+              height="340px"
+              placeholder="在此编写正文..."
+            />
+          </div>
         </CardContent>
       </Card>
     </div>
