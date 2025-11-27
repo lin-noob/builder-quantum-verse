@@ -12,6 +12,7 @@ import ContentSolution from "@/pages/solutions/ContentSolution";
 import FinancialSolution from "@/pages/solutions/FinancialSolution";
 import EnterpriseSolution from "@/pages/solutions/EnterpriseSolution";
 import AdminProfile from "@/admin/pages/AdminProfile";
+const EmailConfigInner = React.lazy(() => import("@/pages/Account/EmailConfigInner"));
 
 // 帮助中心页面组件
 const HelpCenter = React.lazy(() => import("@/pages/HelpCenter/HelpCenter"));
@@ -180,6 +181,16 @@ export const staticRoutes: RouteObject[] = [
       <Layout>
         <LazyRoute>
           <AdminProfile></AdminProfile>
+        </LazyRoute>
+      </Layout>
+    ),
+  },
+  {
+    path: "/account/settings/email",
+    element: (
+      <Layout>
+        <LazyRoute>
+          <EmailConfigInner />
         </LazyRoute>
       </Layout>
     ),

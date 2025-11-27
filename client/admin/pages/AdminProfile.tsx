@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+ 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,6 +30,7 @@ import {
 } from "../../../shared/organizationData";
 import { memberApi } from "../../../shared/organizationApi";
 import { getCurrentUserInfo } from "@/services/userService.ts";
+import EmailConfigInner from "@/pages/Account/EmailConfigInner";
 
 const AdminProfile = () => {
   const [member, setMember] = useState<Member | null>(null);
@@ -282,10 +284,11 @@ const AdminProfile = () => {
       </div>
 
       <Tabs defaultValue="profile" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="profile">个人信息</TabsTrigger>
           <TabsTrigger value="security">安全设置</TabsTrigger>
           <TabsTrigger value="account">账户信息</TabsTrigger>
+          <TabsTrigger value="email">邮箱配置</TabsTrigger>
         </TabsList>
 
         {/* 个人信息标签页 */}
@@ -647,6 +650,10 @@ const AdminProfile = () => {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="email" className="space-y-6">
+          <EmailConfigInner />
         </TabsContent>
       </Tabs>
     </div>
