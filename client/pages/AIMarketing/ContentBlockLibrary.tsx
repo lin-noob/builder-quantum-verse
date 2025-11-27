@@ -20,15 +20,20 @@ import {
   SheetClose,
 } from "@/components/ui/sheet";
 
+type BlockStatus = "draft" | "review" | "published" | "deprecated";
 type BlockItem = {
   id: string;
   name: string;
-  category: string; // 英雄区、CTA、产品卡等
+  category: string;
   description: string;
-  propsHint: string[]; // 需要配置的参数提示
+  propsHint: string[];
   preview: string;
-  richHtml?: string; // 富文本内容（仅富文本分类使用）
-  extraFields?: Record<string, string>; // 分类可选字段暂存
+  richHtml?: string;
+  extraFields?: Record<string, string>;
+  tags?: string[];
+  status?: BlockStatus;
+  version?: string;
+  usageCount?: number;
 };
 
 const mockBlocks: BlockItem[] = [
@@ -39,6 +44,10 @@ const mockBlocks: BlockItem[] = [
     description: "首屏展示核心卖点，适合促销或上新",
     propsHint: ["标题", "副标题", "背景图(可选)"],
     preview: "【英雄区】标题：年度大促｜副标题：限时抢购",
+    tags: ["电商", "促销"],
+    status: "published",
+    version: "v1",
+    usageCount: 36,
   },
   {
     id: "blk_cta_primary",
@@ -47,6 +56,10 @@ const mockBlocks: BlockItem[] = [
     description: "主要转化入口，强调行动",
     propsHint: ["文案", "链接", "UTM参数"],
     preview: "【CTA】立即购买 → https://example.com",
+    tags: ["通用", "CTA"],
+    status: "published",
+    version: "v2",
+    usageCount: 58,
   },
   {
     id: "blk_product_card",
@@ -55,6 +68,10 @@ const mockBlocks: BlockItem[] = [
     description: "展示主打商品与价格信息",
     propsHint: ["图片URL", "标题", "价格", "链接"],
     preview: "【商品卡】商品A｜¥199｜点击查看",
+    tags: ["电商"],
+    status: "review",
+    version: "v1",
+    usageCount: 12,
   },
   {
     id: "blk_divider",
@@ -63,6 +80,10 @@ const mockBlocks: BlockItem[] = [
     description: "分隔内容区域，提升版面层次",
     propsHint: ["样式(细/粗)", "颜色"],
     preview: "────────────",
+    tags: ["通用"],
+    status: "published",
+    version: "v1",
+    usageCount: 102,
   },
   {
     id: "blk_survey_quick",
@@ -71,6 +92,10 @@ const mockBlocks: BlockItem[] = [
     description: "获取用户偏好，提升互动",
     propsHint: ["问题", "选项", "提交事件Key"],
     preview: "【问卷】你更关注哪个类目？A/B/C",
+    tags: ["互动"],
+    status: "draft",
+    version: "v0",
+    usageCount: 3,
   },
 ];
 
@@ -78,6 +103,8 @@ export default function ContentBlockLibrary() {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState<string>("all");
+  const [status, setStatus] = useState<BlockStatus | "all">("all");
+  const [tagQuery, setTagQuery] = useState<string>("");
 
   // 用状态管理内容块数据，支持新增后立即显示
   const [blocks, setBlocks] = useState<BlockItem[]>(mockBlocks);
@@ -125,11 +152,13 @@ export default function ContentBlockLibrary() {
 
   const filtered = useMemo(() => {
     return blocks.filter((b) => {
-      const s = !search || b.name.includes(search);
+      const s = !search || b.name.includes(search) || b.description.includes(search);
       const c = category === "all" ? true : b.category === category;
-      return s && c;
+      const st = status === "all" ? true : (b.status || "draft") === status;
+      const tq = !tagQuery ? true : (b.tags || []).some((t) => t.toLowerCase().includes(tagQuery.toLowerCase()));
+      return s && c && st && tq;
     });
-  }, [search, category, blocks]);
+  }, [search, category, status, tagQuery, blocks]);
 
   // 识别库内内置块（支持以ID传递），否则以JSON传递给编辑器
   const KNOWN_BLOCK_IDS = new Set(mockBlocks.map((b) => b.id));
@@ -285,6 +314,24 @@ export default function ContentBlockLibrary() {
                 <SelectItem value="富文本">富文本</SelectItem>
               </SelectContent>
             </Select>
+            <Select value={status} onValueChange={(v) => setStatus(v as any)}>
+              <SelectTrigger className="w-40">
+                <SelectValue placeholder="状态" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">全部状态</SelectItem>
+                <SelectItem value="draft">草稿</SelectItem>
+                <SelectItem value="review">评审中</SelectItem>
+                <SelectItem value="published">已发布</SelectItem>
+                <SelectItem value="deprecated">已下线</SelectItem>
+              </SelectContent>
+            </Select>
+            <Input
+              value={tagQuery}
+              onChange={(e) => setTagQuery(e.target.value)}
+              placeholder="按标签筛选"
+              className="w-full sm:w-48"
+            />
           </div>
         </CardContent>
       </Card>
@@ -420,13 +467,21 @@ export default function ContentBlockLibrary() {
             <CardContent className="space-y-3">
               <div className="flex flex-wrap gap-2">
                 <Badge variant="outline">分类：{blk.category}</Badge>
+                {blk.version && <Badge variant="outline">版本：{blk.version}</Badge>}
+                {blk.status && <Badge variant="outline">状态：{blk.status}</Badge>}
                 {blk.propsHint.map((h) => (
                   <Badge key={h} variant="secondary" className="capitalize">{h}</Badge>
+                ))}
+                {(blk.tags || []).map((t) => (
+                  <Badge key={t} variant="secondary">{t}</Badge>
                 ))}
               </div>
               <div className="text-xs text-muted-foreground whitespace-pre-line border rounded p-3">
                 {blk.preview}
               </div>
+              {typeof blk.usageCount === "number" && (
+                <div className="text-xs text-muted-foreground">使用次数：{blk.usageCount}</div>
+              )}
               <div className="flex items-center gap-2">
                 <Button size="sm" variant="default" onClick={() => handleInsertToCompose(blk)}>
                   插入到编辑器

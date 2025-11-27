@@ -121,6 +121,7 @@ function TabManager() {
     "/ai-marketing/scenarios/user_login": "用户登录",
     "/effect-tracking": "效果追踪",
     "/account/settings": "个人设置",
+    "/account/settings/email": "邮箱配置",
     // 组织管理页面
     "/organization/members": "成员管理",
     "/organization/settings": "组织设置",

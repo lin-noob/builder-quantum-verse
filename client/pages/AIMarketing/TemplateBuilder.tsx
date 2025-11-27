@@ -54,6 +54,7 @@ export default function TemplateBuilder() {
   const seedBlockData = params.get("seedBlockData");
   const seedTemplateId = params.get("seedTemplate");
   const [blocks, setBlocks] = useState<BlockItem[]>([]);
+  const [title, setTitle] = useState<string>("自定义模板");
 
   function buildTemplateBlocks(tplId: string): BlockItem[] {
     const result: BlockItem[] = [];
@@ -154,7 +155,7 @@ export default function TemplateBuilder() {
 
   const exportTemplateJson = () => {
     const payload = {
-      title: "自定义模板",
+      title,
       blocks,
     };
     try {
@@ -164,6 +165,16 @@ export default function TemplateBuilder() {
     } catch (e) {
       alert("导出失败（前端示例）");
     }
+  };
+
+  const saveTemplate = () => {
+    const payload = { title, blocks };
+    alert("已保存为模板（前端示例）\n\n" + JSON.stringify(payload, null, 2));
+  };
+
+  const saveDraft = () => {
+    const payload = { title, blocks, status: "draft" };
+    alert("已保存草稿（前端示例）\n\n" + JSON.stringify(payload, null, 2));
   };
 
   return (
@@ -176,12 +187,15 @@ export default function TemplateBuilder() {
               <span className="text-sm font-medium">模板构建器（Beta）</span>
             </div>
             <div className="flex items-center gap-2">
+              <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="模板名称" className="h-8 w-[200px]" />
               <Button variant="ghost" size="sm" asChild>
                 <Link to="/ai-marketing/template-library">返回模板库</Link>
               </Button>
               <Button variant="ghost" size="sm" asChild>
                 <Link to="/ai-marketing/block-library">返回内容块库</Link>
               </Button>
+              <Button variant="default" size="sm" onClick={saveTemplate}>保存为模板</Button>
+              <Button variant="outline" size="sm" onClick={saveDraft}>保存草稿</Button>
               <Button variant="outline" size="sm" onClick={exportTemplateJson}>导出模板JSON</Button>
             </div>
           </div>
