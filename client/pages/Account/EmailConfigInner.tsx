@@ -5,6 +5,10 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { DateTimePicker } from '@/components/ui/date-time-picker'
+import { useToast } from '@/hooks/use-toast'
+import { useTranslation } from 'react-i18next'
+import { CLIENT_ID } from '@/utils/googleRegister'
+import { request } from '@/lib/request'
 
 type Provider = 'Gmail' | 'IMAP' | 'POP3'
 type Encryption = 'SSL/TLS' | 'STARTTLS' | 'None'
@@ -29,63 +33,217 @@ const EmailConfigInner: React.FC = () => {
   const [imapSelected, setImapSelected] = useState<string[]>([])
   const [syncMode, setSyncMode] = useState<SyncMode>('manual')
   const [autoInterval, setAutoInterval] = useState<number>(30)
+  const [configId, setConfigId] = useState<string | null>(null)
+  const { toast } = useToast()
+  const { t } = useTranslation()
+  const global: any = typeof window === 'object' ? window : {}
+
+  const updatePort = (enc: Encryption, proto: 'IMAP' | 'POP3') => {
+    if (proto === 'IMAP') {
+      if (enc === 'SSL/TLS') return 993
+      if (enc === 'STARTTLS') return 143
+      return 143
+    } else {
+      if (enc === 'SSL/TLS') return 995
+      if (enc === 'STARTTLS') return 110
+      return 110
+    }
+  }
+
+  const handleEncryptionChange = (enc: Encryption) => {
+    setEncryption(enc)
+    setPort(updatePort(enc, provider === 'POP3' ? 'POP3' : protocol))
+  }
+
+  const handleProtocolChange = (proto: 'IMAP' | 'POP3') => {
+    setProtocol(proto)
+    setPort(updatePort(encryption, provider === 'POP3' ? 'POP3' : proto))
+  }
+
+  const loadEmailConfig = async () => {
+    try {
+      const res = await request.get('/admin/api/user/email/config/view', { configName: provider })
+      const data = res.data?.data
+      if (data && data.id) {
+        // Populate state from data
+        setConfigId(data.id)
+        setProtocol(data.protocol as 'IMAP' | 'POP3')
+        setServer(data.serverAddress)
+        setPort(data.port)
+        setEncryption(data.encryption as Encryption)
+        setUsername(data.username)
+        setPassword(data.password)
+        setSyncStartDate(new Date(data.syncStartDate))
+        setFetchAttachments(data.syncAttachments)
+        setSyncMode(data.syncRule as SyncMode)
+        if (data.autoInterval) setAutoInterval(data.autoInterval)
+
+        const folders = data.folders ? data.folders.split(',') : []
+        setAuthorized(true)
+        if (provider === 'Gmail') {
+          if (folders.includes('Inbox')) setGmailFolderMode('Inbox')
+          else if (folders.includes('All Mail')) setGmailFolderMode('AllMail')
+          else {
+            setGmailFolderMode('Custom')
+            setGmailCustomLabels(folders)
+          }
+        } else if (provider === 'IMAP') {
+          setImapSelected(folders)
+        }
+      } else {
+        setConfigId(null)
+        setAuthorized(false)
+        setServer('')
+        setUsername('')
+        setPassword('')
+        setPort(updatePort('SSL/TLS', provider === 'POP3' ? 'POP3' : 'IMAP'))
+        setEncryption('SSL/TLS')
+        setProtocol('IMAP')
+
+        setImapSelected([])
+        setGmailCustomLabels([])
+        setGmailFolderMode('Inbox')
+      }
+    } catch (error) {
+      console.error('Failed to load email config:', error)
+      setConfigId(null)
+      setAuthorized(false)
+      setServer('')
+      setUsername('')
+      setPassword('')
+      setPort(updatePort('SSL/TLS', provider === 'POP3' ? 'POP3' : 'IMAP'))
+      setEncryption('SSL/TLS')
+      setProtocol('IMAP')
+      setImapSelected([])
+      setGmailCustomLabels([])
+      setGmailFolderMode('Inbox')
+    }
+  }
 
   useEffect(() => {
-    const update = (enc: Encryption, proto: 'IMAP' | 'POP3') => {
-      if (proto === 'IMAP') {
-        if (enc === 'SSL/TLS') return 993
-        if (enc === 'STARTTLS') return 143
-        return 143
-      } else {
-        if (enc === 'SSL/TLS') return 995
-        if (enc === 'STARTTLS') return 110
-        return 110
-      }
-    }
-    setPort(update(encryption, provider === 'POP3' ? 'POP3' : protocol))
-  }, [encryption, protocol, provider])
+    loadEmailConfig()
+  }, [provider])
 
-  const validateAndSave = () => {
+  const getConfigPayload = () => {
+    return {
+      id: configId || undefined,
+      configName: provider, // 使用提供商名称作为配置名称
+      configType: 0, // 默认为0
+      emailProvider: provider,
+      encryption,
+      folders: (provider === 'Gmail'
+        ? gmailFolderMode === 'Inbox'
+          ? ['Inbox']
+          : gmailFolderMode === 'AllMail'
+            ? ['All Mail']
+            : gmailCustomLabels
+        : provider === 'IMAP'
+          ? imapSelected
+          : ['Inbox']
+      ).join(','),
+      // gmtCreate 和 gmtModified 由后端处理
+      password,
+      port,
+      protocol,
+      serverAddress: server,
+      syncAttachments: fetchAttachments,
+      syncRule: syncMode,
+      syncStartDate: dayjs(syncStartDate).format('YYYY-MM-DD'),
+      username,
+      autoInterval: syncMode === 'auto' ? autoInterval : undefined,
+    }
+  }
+
+  const validateAndSave = async () => {
     if (provider === 'Gmail' && !authorized) return setTestMsg('请先完成 Gmail 授权')
     if ((provider === 'IMAP' || provider === 'POP3') && (!server || !port || !username || !password))
       return setTestMsg('请完整填写连接信息')
     if (provider === 'Gmail' && gmailFolderMode === 'Custom' && gmailCustomLabels.length === 0)
       return setTestMsg('请选择至少一个自定义标签')
     if (provider === 'IMAP' && imapSelected.length === 0) return setTestMsg('请至少选择一个文件夹')
-    const payload = {
-      provider,
-      authorized,
-      protocol,
-      server,
-      port,
-      encryption,
-      username,
-      syncStartDate,
-      fetchAttachments,
-      folders:
-        provider === 'Gmail'
-          ? gmailFolderMode === 'Inbox'
-            ? ['Inbox']
-            : gmailFolderMode === 'AllMail'
-              ? ['All Mail']
-              : gmailCustomLabels
-          : provider === 'IMAP'
-            ? imapSelected
-            : ['Inbox'],
-      syncMode,
-      autoInterval,
+
+    const payload = getConfigPayload()
+
+    try {
+      await request.post('/admin/api/user/email/config', payload)
+      toast({
+        title: '保存成功',
+        description: '邮箱配置已保存',
+      })
+      setTestMsg('已保存配置')
+      // Reload config to get the new ID if it was a create operation
+      loadEmailConfig()
+    } catch (error: any) {
+      console.error('Save email config error:', error)
+      toast({
+        title: '保存失败',
+        description: error.message || '保存配置时发生错误',
+        variant: 'destructive',
+      })
+      setTestMsg('保存失败')
     }
-    localStorage.setItem('email_config', JSON.stringify(payload))
-    setTestMsg('已保存配置')
   }
 
   const handleTest = async () => {
+    if (provider === 'Gmail' && !authorized) return setTestMsg('请先完成 Gmail 授权')
+    if ((provider === 'IMAP' || provider === 'POP3') && (!server || !port || !username || !password))
+      return setTestMsg('请完整填写连接信息')
+
     setTesting(true)
     setTestMsg(null)
-    await new Promise((r) => setTimeout(r, 600))
-    if (provider === 'Gmail') setTestMsg(authorized ? '连接成功' : '未授权')
-    else setTestMsg(server ? '连接成功' : '请填写服务器地址')
-    setTesting(false)
+
+    const payload = getConfigPayload()
+
+    try {
+      await request.post('/admin/api/user/email/config/connect', payload)
+      setTestMsg('连接成功')
+      toast({
+        title: '连接成功',
+        description: '邮箱服务器连接测试通过',
+      })
+    } catch (error: any) {
+      console.error('Test connection error:', error)
+      const errorMsg = error.message || '连接失败'
+      setTestMsg(errorMsg)
+      toast({
+        title: '连接失败',
+        description: errorMsg,
+        variant: 'destructive',
+      })
+    } finally {
+      setTesting(false)
+    }
+  }
+
+  const handleGoogleAuth = () => {
+    if (!global.google || !global.google.accounts) {
+      toast({
+        title: t('auth.google.initFailed'),
+        description: t('auth.google.refreshTry'),
+        variant: 'destructive',
+      })
+      return
+    }
+
+    const client = global.google.accounts.oauth2.initTokenClient({
+      client_id: CLIENT_ID,
+      scope: 'https://www.googleapis.com/auth/gmail.modify',
+      prompt: 'consent',
+      callback: (response: any) => {
+        if (response.access_token) {
+          console.log(response)
+        } else if (response.error) {
+          const errorMessage = response.error_description || response.error
+          toast({
+            title: t('auth.google.authFailed'),
+            description: errorMessage,
+            variant: 'destructive',
+          })
+        }
+      },
+    })
+
+    client.requestAccessToken()
   }
 
   return (
@@ -110,14 +268,7 @@ const EmailConfigInner: React.FC = () => {
           {provider === 'Gmail' && (
             <div className="space-y-6">
               <div className="flex flex-wrap gap-2">
-                <Button
-                  onClick={() => {
-                    setAuthorized(true)
-                    setTestMsg('已授权 Gmail 账户')
-                  }}
-                >
-                  连接 Google 账户
-                </Button>
+                <Button onClick={handleGoogleAuth}>连接 Google 账户</Button>
                 <Button
                   variant="secondary"
                   onClick={() => {
@@ -192,7 +343,7 @@ const EmailConfigInner: React.FC = () => {
 
           {(provider === 'IMAP' || provider === 'POP3') && (
             <div className="space-y-6">
-              {provider === 'IMAP' ? (
+              {/* {provider === 'IMAP' ? (
                 <div className="space-y-4">
                   <Label>协议</Label>
                   <select
@@ -211,7 +362,7 @@ const EmailConfigInner: React.FC = () => {
                   <Input value="POP3" disabled />
                   <p className="text-sm text-gray-500">POP3 仅支持收件箱同步。</p>
                 </div>
-              )}
+              )} */}
 
               <div className="space-y-4">
                 <Label>服务器</Label>
@@ -224,7 +375,7 @@ const EmailConfigInner: React.FC = () => {
                 <select
                   className="px-3 py-2 border rounded"
                   value={encryption}
-                  onChange={(e) => setEncryption(e.target.value as Encryption)}
+                  onChange={(e) => handleEncryptionChange(e.target.value as Encryption)}
                 >
                   <option value="SSL/TLS">SSL/TLS</option>
                   <option value="STARTTLS">STARTTLS</option>
