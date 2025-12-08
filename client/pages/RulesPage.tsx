@@ -457,6 +457,11 @@ const RulesPage = () => {
     { value: "AddToCart", label: "加购" },
     { value: "StartCheckout", label: "下单" },
     { value: "CompletePurchase", label: "结算" },
+    { value: "ContactUs", label: "联系我们" },
+    { value: "BoxBuildSubmit", label: "整机组装报价" },
+    { value: "ClickHomeInquiry", label: "首页询价按钮点击" },
+    { value: "ClickBannerInquiry", label: "首页banner询价" },
+    { value: "ArticleContentClick", label: "文章内嵌点击" },
   ];
 
   const baseCodeMap = {
@@ -466,6 +471,11 @@ const RulesPage = () => {
     AddToCart: "加购",
     StartCheckout: "下单",
     CompletePurchase: "结算",
+    ContactUs: "联系我们",
+    BoxBuildSubmit: "整机组装报价",
+    ClickHomeInquiry: "首页询价按钮点击",
+    ClickBannerInquiry: "首页banner询价",
+    ArticleContentClick: "文章内嵌点击",
   };
 
   const toTrackMethodName = (eventCode: string) => {
