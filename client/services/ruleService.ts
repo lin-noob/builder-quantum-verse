@@ -24,6 +24,7 @@ export interface BackendRule {
   gmtCreate?: string;
   gmtModified?: string;
   remark?: string; // For result events
+  superPosition?: boolean;
 }
 
 /**
@@ -46,12 +47,9 @@ export interface CreateRuleRequest {
   enableFlag: boolean;
   sortOrder?: number;
   remark?: string; // For result events
+  superPosition?: boolean;
 }
 
-/**
- * Rule Service for backend API calls
- * 规则服务 - 用于后端API调用
- */
 export const ruleService = {
   /**
    * Create a new rule
@@ -61,10 +59,7 @@ export const ruleService = {
    * @returns Created rule data
    */
   async createRule(rule: CreateRuleRequest, ruleType: number = 1): Promise<BackendRule> {
-    const response = await request.post<{ data: BackendRule }>(
-      "/quote/api/v1/rule",
-      { ...rule, ruleType },
-    );
+    const response = await request.post<{ data: BackendRule }>("/quote/api/v1/rule", { ...rule, ruleType });
     return response.data.data;
   },
 
@@ -75,12 +70,9 @@ export const ruleService = {
    * @returns List of rules
    */
   async getRules(ruleType: number | string = 1): Promise<BackendRule[]> {
-    const response = await request.get<{ data: BackendRule[] }>(
-      "/quote/api/v1/rule/list",
-      {
-        ruleType,
-      },
-    );
+    const response = await request.get<{ data: BackendRule[] }>("/quote/api/v1/rule/list", {
+      ruleType,
+    });
     return response.data.data || [];
   },
 
@@ -92,19 +84,12 @@ export const ruleService = {
    * @param ruleType - Rule type (1: event rule, 2: result event)
    * @returns Updated rule data
    */
-  async updateRule(
-    id: number,
-    rule: Partial<CreateRuleRequest>,
-    ruleType: number = 1,
-  ): Promise<BackendRule> {
-    const response = await request.put<{ data: BackendRule }>(
-      "/quote/api/v1/rule",
-      {
-        id,
-        ...rule,
-        ruleType,
-      },
-    );
+  async updateRule(id: number, rule: Partial<CreateRuleRequest>, ruleType: number = 1): Promise<BackendRule> {
+    const response = await request.put<{ data: BackendRule }>("/quote/api/v1/rule", {
+      id,
+      ...rule,
+      ruleType,
+    });
     return response.data.data;
   },
 
