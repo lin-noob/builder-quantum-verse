@@ -514,22 +514,18 @@ const RulesPage = () => {
           ...prev,
           [event.eventType]: attributesData,
         }));
-        setFormSuperposition(false);
       } else if (attributesData && typeof attributesData === "object") {
         // 新格式：包含 superPosition 和 details
         setDetailMap((prev) => ({
           ...prev,
           [event.eventType]: attributesData.details || [],
         }));
-        setFormSuperposition(!!attributesData.superPosition);
       } else {
         setDetailMap((prev) => ({ ...prev, [event.eventType]: [] }));
-        setFormSuperposition(false);
       }
     } catch (error) {
       console.error("Failed to parse attributes:", error);
       setDetailMap((prev) => ({ ...prev, [event.eventType]: [] }));
-      setFormSuperposition(false);
     }
 
     setFormErrorName(null);
@@ -562,11 +558,7 @@ const RulesPage = () => {
       // 新建：调用 ruleService.createRule 接口，传入 ruleType: 2
       try {
         const detailIdentifierArray = detailMap[formCode || ""] || [];
-        const attributesObj = {
-          superPosition: formSuperposition,
-          details: detailIdentifierArray,
-        };
-        const attributesStr = JSON.stringify(attributesObj);
+        const attributesStr = detailIdentifierArray.length > 0 ? JSON.stringify(detailIdentifierArray) : "";
 
         // 字段映射：eventIdentifier -> eventType, detailIdentifier -> attributes
         await ruleService.createRule(
@@ -602,11 +594,7 @@ const RulesPage = () => {
       }
     } else {
       const detailIdentifierArray = detailMap[formCode || ""] || [];
-      const attributesObj = {
-        superPosition: formSuperposition,
-        details: detailIdentifierArray,
-      };
-      const attributesStr = JSON.stringify(attributesObj);
+      const attributesStr = detailIdentifierArray.length > 0 ? JSON.stringify(detailIdentifierArray) : "";
 
       try {
         // 字段映射：eventIdentifier -> eventType, detailIdentifier -> attributes
@@ -1625,7 +1613,20 @@ const RulesPage = () => {
                         <Label className="col-span-1">叠加类型</Label>
                         <div className="col-span-3">
                           <div className="flex items-center gap-2">
-                            <Switch checked={formSuperposition} onCheckedChange={setFormSuperposition} />
+                            <Switch
+                              checked={formSuperposition}
+                              onCheckedChange={(checked) => {
+                                setFormSuperposition(checked);
+                                if (!checked) {
+                                  // When turning off, disable all inner superposition switches
+                                  setDetailMap((prev) => {
+                                    const list = prev[formCode || ""] ? [...prev[formCode || ""]] : [];
+                                    list.forEach((item) => (item.superPosition = false));
+                                    return { ...prev, [formCode || ""]: list };
+                                  });
+                                }
+                              }}
+                            />
                             <span className="text-sm text-muted-foreground">{formSuperposition ? "开启" : "关闭"}</span>
                           </div>
                           <p className="text-xs text-muted-foreground mt-2">
