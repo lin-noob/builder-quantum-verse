@@ -9,6 +9,21 @@ import { DateTimePicker } from "@/components/ui/date-time-picker";
 type Provider = "Gmail" | "IMAP" | "POP3";
 type Encryption = "SSL/TLS" | "STARTTLS" | "None";
 type SyncMode = "manual" | "auto" | "disabled";
+type EmailConfigPayload = {
+  provider: Provider;
+  authorized: boolean;
+  protocol: "IMAP" | "POP3";
+  server: string;
+  port: number | undefined;
+  encryption: Encryption;
+  username: string;
+  syncStartDate: Date;
+  fetchAttachments: boolean;
+  folders: string[];
+  syncMode: SyncMode;
+  autoInterval: number;
+};
+type SavedAccount = { id: string; email: string; provider: Provider; config: EmailConfigPayload };
 
 const EmailConfigInner: React.FC = () => {
   const [provider, setProvider] = useState<Provider>("Gmail");
@@ -29,6 +44,15 @@ const EmailConfigInner: React.FC = () => {
   const [imapSelected, setImapSelected] = useState<string[]>([]);
   const [syncMode, setSyncMode] = useState<SyncMode>("manual");
   const [autoInterval, setAutoInterval] = useState<number>(30);
+  const [accounts, setAccounts] = useState<SavedAccount[]>([]);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("email_accounts");
+      const list = raw ? JSON.parse(raw) : [];
+      if (Array.isArray(list)) setAccounts(list);
+    } catch {}
+  }, []);
 
   useEffect(() => {
     const update = (enc: Encryption, proto: "IMAP" | "POP3") => {
@@ -50,7 +74,7 @@ const EmailConfigInner: React.FC = () => {
     if ((provider === "IMAP" || provider === "POP3") && (!server || !port || !username || !password)) return setTestMsg("请完整填写连接信息");
     if (provider === "Gmail" && gmailFolderMode === "Custom" && gmailCustomLabels.length === 0) return setTestMsg("请选择至少一个自定义标签");
     if (provider === "IMAP" && imapSelected.length === 0) return setTestMsg("请至少选择一个文件夹");
-    const payload = {
+    const payload: EmailConfigPayload = {
       provider,
       authorized,
       protocol,
@@ -75,6 +99,56 @@ const EmailConfigInner: React.FC = () => {
     };
     localStorage.setItem("email_config", JSON.stringify(payload));
     setTestMsg("已保存配置");
+  };
+
+  const saveAsAccount = () => {
+    if (provider === "Gmail" && !authorized) return setTestMsg("请先完成 Gmail 授权");
+    if ((provider === "IMAP" || provider === "POP3") && (!server || !port || !username || !password)) return setTestMsg("请完整填写连接信息");
+    if (provider === "Gmail" && gmailFolderMode === "Custom" && gmailCustomLabels.length === 0) return setTestMsg("请选择至少一个自定义标签");
+    if (provider === "IMAP" && imapSelected.length === 0) return setTestMsg("请至少选择一个文件夹");
+    const payload: EmailConfigPayload = {
+      provider,
+      authorized,
+      protocol,
+      server,
+      port,
+      encryption,
+      username,
+      syncStartDate,
+      fetchAttachments,
+      folders:
+        provider === "Gmail"
+          ? gmailFolderMode === "Inbox"
+            ? ["Inbox"]
+            : gmailFolderMode === "AllMail"
+            ? ["All Mail"]
+            : gmailCustomLabels
+          : provider === "IMAP"
+          ? imapSelected
+          : ["Inbox"],
+      syncMode,
+      autoInterval,
+    };
+    const id = `acc_${Date.now()}`;
+    const email = username || "";
+    const next = [...accounts, { id, email, provider, config: payload }];
+    setAccounts(next);
+    localStorage.setItem("email_accounts", JSON.stringify(next));
+    localStorage.setItem("activeEmailAccountId", id);
+    setTestMsg("已保存为新账户");
+  };
+
+  const setDefaultAccount = (id: string) => {
+    localStorage.setItem("activeEmailAccountId", id);
+    setTestMsg("已设为默认账户");
+  };
+
+  const removeAccount = (id: string) => {
+    const next = accounts.filter((a) => a.id !== id);
+    setAccounts(next);
+    localStorage.setItem("email_accounts", JSON.stringify(next));
+    const activeId = localStorage.getItem("activeEmailAccountId");
+    if (activeId === id) localStorage.removeItem("activeEmailAccountId");
   };
 
   const handleTest = async () => {
@@ -283,6 +357,7 @@ const EmailConfigInner: React.FC = () => {
 
       <div className="flex gap-2 justify-end">
         <Button onClick={handleTest} disabled={testing}>{testing ? "测试中..." : "测试连接"}</Button>
+        <Button variant="secondary" onClick={saveAsAccount}>保存为新的邮箱账户</Button>
         <Button onClick={validateAndSave}>保存</Button>
       </div>
 
@@ -296,6 +371,27 @@ const EmailConfigInner: React.FC = () => {
         </CardHeader>
         <CardContent>
           <div className="text-sm text-gray-700">提供商：{provider}；授权：{authorized ? "已授权" : "未授权"}</div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold leading-6">已保存的邮箱账户</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {accounts.length === 0 && <div className="text-sm text-gray-500">暂无账户</div>}
+          {accounts.map((a) => (
+            <div key={a.id} className="flex items-center justify-between p-2 border rounded">
+              <div className="text-sm">
+                <div className="font-medium">{a.email || `${a.provider} 账户`}</div>
+                <div className="text-gray-500">{a.provider}</div>
+              </div>
+              <div className="flex gap-2">
+                <Button size="sm" variant="outline" onClick={() => setDefaultAccount(a.id)}>设为默认</Button>
+                <Button size="sm" variant="destructive" onClick={() => removeAccount(a.id)}>删除</Button>
+              </div>
+            </div>
+          ))}
         </CardContent>
       </Card>
     </div>

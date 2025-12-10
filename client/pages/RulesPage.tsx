@@ -552,6 +552,7 @@ const RulesPage = () => {
   const [formName, setFormName] = useState("");
   const [formCode, setFormCode] = useState("");
   const [formEnabled, setFormEnabled] = useState(true);
+  const [formStackedType, setFormStackedType] = useState(false);
   const [formRemark, setFormRemark] = useState("");
   const [formErrorName, setFormErrorName] = useState<string | null>(null);
   const [formErrorCode, setFormErrorCode] = useState<string | null>(null);
@@ -564,11 +565,14 @@ const RulesPage = () => {
     { value: "place_order", label: "下单" },
     { value: "checkout", label: "结账" },
   ];
-  const [detailMap, setDetailMap] = useState<Record<string, string[]>>({});
-  const [detailInput, setDetailInput] = useState("");
-  const [selectedDetail, setSelectedDetail] = useState<string | null>(null);
+  type DetailItem = { key: string; value: string; isStacked: boolean };
+  const [detailMap, setDetailMap] = useState<Record<string, DetailItem[]>>({});
+  const [detailKeyInput, setDetailKeyInput] = useState("");
+  const [detailValueInput, setDetailValueInput] = useState("");
+  const [detailStackedInput, setDetailStackedInput] = useState(false);
+  
   const [editingDetailIndex, setEditingDetailIndex] = useState<number | null>(null);
-  const [detailEditValue, setDetailEditValue] = useState("");
+  const [editingDetail, setEditingDetail] = useState<DetailItem | null>(null);
 
   const toCode = (s: string) => s
     .trim()
@@ -584,6 +588,7 @@ const RulesPage = () => {
     // 默认选择第一个事件标识
     setFormCode(baseCodeOptions[0].value);
     setFormEnabled(true);
+    setFormStackedType(false);
     setFormRemark("");
     setFormErrorName(null);
     setFormErrorCode(null);
@@ -597,6 +602,9 @@ const RulesPage = () => {
     setFormCode(toCode(eventName));
     setFormCode(baseCodeOptions[0].value);
     setFormEnabled(true);
+    // 读取叠加类型（基于事件ID）
+    const id = ruleTypes.get(eventName) || "";
+    setFormStackedType(id ? ruleTypeService.getStackedType(id) : false);
     setFormRemark("");
     setFormErrorName(null);
     setFormErrorCode(null);
@@ -632,7 +640,10 @@ const RulesPage = () => {
     if (!editingOutcomeId) {
       // 新建：调用现有 create 接口（当前仅支持 eventName）
       try {
-        await ruleTypeService.create(name);
+        const created = await ruleTypeService.create(name);
+        if (created?.id) {
+          ruleTypeService.setStackedType(created.id, formStackedType);
+        }
         await loadCustomEvents();
         toast({ title: "已保存结果事件", description: `已保存结果事件“${name}”` });
         setOutcomeDrawerOpen(false);
@@ -641,7 +652,8 @@ const RulesPage = () => {
       }
     } else {
       // 编辑：后端暂不支持更新，这里仅展示文案
-      toast({ title: "暂未接通更新接口", description: "该记录编辑保存待后端接口提供" });
+      ruleTypeService.setStackedType(editingOutcomeId, formStackedType);
+      toast({ title: "已保存叠加类型", description: "事件级叠加配置已更新" });
       setOutcomeDrawerOpen(false);
     }
   };
@@ -1713,6 +1725,39 @@ const RulesPage = () => {
                         </div>
                       </div>
 
+                      <div className="grid grid-cols-4 gap-3 items-center">
+                        <Label className="col-span-1">叠加类型</Label>
+                        <div className="col-span-3">
+                          <div className="flex items-center h-10">
+                            <Switch
+                              checked={formStackedType}
+                              onCheckedChange={(v) => {
+                                setFormStackedType(v);
+                                // 关闭时清除所有叠加标记
+                                if (!v) {
+                                  setDetailMap((prev) => {
+                                    const list = [...(prev[formCode || ""] || [])].map((d) => ({ ...d, isStacked: false }));
+                                    return { ...prev, [formCode || ""]: list };
+                                  });
+                                } else {
+                                  // 开启时保证唯一性（若已有多条叠加，仅保留第一条）
+                                  setDetailMap((prev) => {
+                                    const list = [...(prev[formCode || ""] || [])];
+                                    let found = false;
+                                    const next = list.map((d) => {
+                                      if (d.isStacked && !found) { found = true; return d; }
+                                      return { ...d, isStacked: false };
+                                    });
+                                    return { ...prev, [formCode || ""]: next };
+                                  });
+                                }
+                              }}
+                            />
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-1">开启后，该事件标识下最多仅允许一个细化标识为“叠加”。</p>
+                        </div>
+                      </div>
+
                       <div className="grid grid-cols-4 gap-3 items-start">
                         <Label className="col-span-1">备注</Label>
                         <Textarea className="col-span-3" rows={4} placeholder="补充说明该结果事件的使用场景" value={formRemark} onChange={(e) => setFormRemark(e.target.value)} />
@@ -1728,7 +1773,7 @@ const RulesPage = () => {
                     <CardContent className="space-y-4">
                       <div className="grid grid-cols-4 gap-3 items-center">
                         <Label className="col-span-1">事件标识（outcome_code）</Label>
-                        <Select value={formCode} onValueChange={(v) => { setFormCode(v); setSelectedDetail(null); }}>
+                        <Select value={formCode} onValueChange={(v) => { setFormCode(v); }}>
                           <SelectTrigger className="col-span-3">
                             <SelectValue placeholder="请选择事件标识" />
                           </SelectTrigger>
@@ -1743,23 +1788,47 @@ const RulesPage = () => {
 
                       {/* 细化标识管理 */}
                       <div className="space-y-2">
-                        <Label>细化标识</Label>
-                        <div className="text-xs text-muted-foreground">选择了一个事件标识后，可新增/删除/编辑细化标识，例如在“询价”下添加 pcb、pcbca quote、bom 等等。</div>
-                        <div className="flex gap-2">
-                          <Input className="flex-1" placeholder="例如 pcb 或 pcbca quote" value={detailInput} onChange={(e) => setDetailInput(e.target.value)} />
+                        <Label>细化标识（键值对）</Label>
+                        <div className="text-xs text-muted-foreground">选择了一个事件标识后，可新增/删除/编辑细化标识的键值对，例如“询价”下添加 product_type=pcb、quote_type=standard 等。值可以为空。</div>
+                        <div className="flex gap-2 items-center">
+                          <Input className="flex-1" placeholder="键，例如 product_type（必填）" value={detailKeyInput} onChange={(e) => setDetailKeyInput(e.target.value)} />
+                          <Input className="flex-1" placeholder="值，例如 pcb（可选）" value={detailValueInput} onChange={(e) => setDetailValueInput(e.target.value)} />
+                          <div className="flex items-center space-x-2">
+                            <Switch id="stack-mode" checked={formStackedType ? detailStackedInput : false} onCheckedChange={(v) => setDetailStackedInput(formStackedType ? v : false)} disabled={!formStackedType} />
+                            <Label htmlFor="stack-mode" className="whitespace-nowrap">叠加</Label>
+                          </div>
                           <Button
                             onClick={() => {
                               const code = formCode;
                               if (!code) return;
-                              const label = detailInput.trim();
-                              if (!label) return;
+                              const key = detailKeyInput.trim();
+                              if (!key) return;
+                              const val = detailValueInput.trim();
+                              
                               setDetailMap((prev) => {
                                 const list = prev[code] ? [...prev[code]] : [];
-                                if (!list.includes(label)) list.push(label);
+                                // Check if key already exists? Allowing duplicates for now as per "accumulate" requirement might imply unique keys?
+                                // Usually keys should be unique in a config object.
+                                // Let's check if key exists and update it, or just append. 
+                                // User said "accumulate rule cards", implying these are conditions.
+                                // But they are also parameters for SDK. 
+                                // Let's assume unique keys for now to update existing or add new.
+                                const existingIdx = list.findIndex(item => item.key === key);
+                                if (existingIdx >= 0) {
+                                  list[existingIdx] = { key, value: val, isStacked: formStackedType ? detailStackedInput : false };
+                                } else {
+                                  list.push({ key, value: val, isStacked: formStackedType ? detailStackedInput : false });
+                                }
+                                // 若设置为叠加则确保唯一
+                                if (formStackedType && (existingIdx >= 0 ? list[existingIdx].isStacked : detailStackedInput)) {
+                                  const targetIdx = existingIdx >= 0 ? existingIdx : list.length - 1;
+                                  list.forEach((item, i) => { if (i !== targetIdx) item.isStacked = false; });
+                                }
                                 return { ...prev, [code]: list };
                               });
-                              setSelectedDetail(label);
-                              setDetailInput("");
+                              setDetailKeyInput("");
+                              setDetailValueInput("");
+                              setDetailStackedInput(false);
                             }}
                           >
                             <Plus className="h-4 w-4 mr-2" /> 新增
@@ -1770,40 +1839,49 @@ const RulesPage = () => {
                             <div className="text-sm text-muted-foreground">当前事件标识下暂无细化标识。</div>
                           ) : (
                             (detailMap[formCode || ""] || []).map((d, idx) => (
-                              <div key={`${d}-${idx}`} className="flex items-center justify-between rounded border p-2">
+                              <div key={`${d.key}-${idx}`} className="flex items-center justify-between rounded border p-2">
                                 {editingDetailIndex === idx ? (
-                                  <div className="flex-1 flex gap-2">
-                                    <Input value={detailEditValue} onChange={(e) => setDetailEditValue(e.target.value)} />
+                                  <div className="flex-1 flex gap-2 items-center">
+                                    <Input value={editingDetail?.key || ""} onChange={(e) => setEditingDetail(prev => prev ? ({ ...prev, key: e.target.value }) : null)} placeholder="Key" />
+                                    <Input value={editingDetail?.value || ""} onChange={(e) => setEditingDetail(prev => prev ? ({ ...prev, value: e.target.value }) : null)} placeholder="Value" />
+                                    <div className="flex items-center space-x-2">
+                                        <Switch disabled={!formStackedType} checked={formStackedType ? (editingDetail?.isStacked || false) : false} onCheckedChange={(v) => setEditingDetail(prev => prev ? ({ ...prev, isStacked: formStackedType ? v : false }) : null)} />
+                                        <span className="text-xs">叠加</span>
+                                    </div>
                                     <Button variant="secondary" size="sm" onClick={() => {
-                                      const val = detailEditValue.trim();
-                                      if (!val) return;
+                                      if (!editingDetail || !editingDetail.key.trim()) return;
                                       setDetailMap((prev) => {
                                         const list = [...(prev[formCode || ""] || [])];
-                                        list[idx] = val;
+                                        list[idx] = editingDetail;
+                                        if (formStackedType && editingDetail.isStacked) {
+                                          list.forEach((item, i) => { if (i !== idx) item.isStacked = false; });
+                                        }
                                         return { ...prev, [formCode || ""]: list };
                                       });
                                       setEditingDetailIndex(null);
-                                      setSelectedDetail(val);
+                                      setEditingDetail(null);
                                     }}>
                                       <Check className="h-4 w-4 mr-1" /> 保存
                                     </Button>
                                   </div>
                                 ) : (
-                                  <div className="flex-1 cursor-pointer" onClick={() => setSelectedDetail(d)}>
-                                    <div className={`font-mono ${selectedDetail === d ? "text-primary" : ""}`}>{d}</div>
+                                  <div className="flex-1 flex items-center gap-2">
+                                    <div className="font-mono text-primary">{d.key}</div>
+                                    <div className="text-muted-foreground">=</div>
+                                    <div className="font-mono text-green-600">"{d.value}"</div>
+                                    {d.isStacked && <Badge variant="secondary" className="text-xs ml-2">叠加</Badge>}
                                   </div>
                                 )}
                                 {editingDetailIndex !== idx && (
                                   <div className="flex items-center gap-2">
-                                    <Button variant="ghost" size="sm" onClick={() => { setEditingDetailIndex(idx); setDetailEditValue(d); }}>
+                                    <Button variant="ghost" size="sm" onClick={() => { setEditingDetailIndex(idx); setEditingDetail(d); }}>
                                       <Edit className="h-4 w-4 mr-1" /> 编辑
                                     </Button>
                                     <Button variant="ghost" size="icon" onClick={() => {
                                       setDetailMap((prev) => {
-                                        const list = (prev[formCode || ""] || []).filter((x) => x !== d);
+                                        const list = (prev[formCode || ""] || []).filter((_, i) => i !== idx);
                                         return { ...prev, [formCode || ""]: list };
                                       });
-                                      if (selectedDetail === d) setSelectedDetail(null);
                                     }}>
                                       <Trash2 className="h-4 w-4" />
                                     </Button>
@@ -1817,12 +1895,15 @@ const RulesPage = () => {
                         {/* SDK 代码展示 */}
                         <div className="space-y-2">
                           <Label>SDK 上报示例</Label>
+                          <div className="text-xs text-muted-foreground mb-1">根据当前选择的事件标识和细化标识自动生成 SDK 代码示例</div>
                           <pre className="bg-muted p-3 rounded text-xs overflow-auto">
-{`// 结果事件上报示例
-sdk.trackOutcome({
-  outcome_code: "${formCode || "<请选择事件标识>"}",
-  detail_code: "${selectedDetail || "<选择/新增细化标识>"}",
-  enabled: ${formEnabled ? "true" : "false"},
+{`// 引入 SDK 方法
+import { userRegisterTrack } from 'xd-post';
+
+// 结果事件上报示例
+userRegisterTrack({
+${(detailMap[formCode || ""] || []).map(d => `  ${d.key}: "${d.value}",`).join("\n")}
+${formEnabled ? "" : "  // enabled: false"}
 });
 `}
                           </pre>

@@ -70,6 +70,7 @@ interface AttributionRow {
   inquiries: number;
   orderAmount: number;
   purchaseAmount: number;
+  [key: string]: any;
 }
 
 // 排序与列配置类型
@@ -343,15 +344,40 @@ export default function AttributionReport() {
         }
 
         // 获取规则类型��表用于动态列���置
-        const ruleTypes = await ruleTypeService.list();
+        const ruleTypes = await ruleTypeService.listWithDetails();
         console.log("Rule types:", ruleTypes);
 
         // 基于规则类型数据构建动态列配置
-        const dynamicColumns = ruleTypes.map((ruleType) => ({
-          key: ruleType.id,
-          label: ruleType.eventName,
-          sortKey: ruleType.id as SortKey,
-        }));
+        const dynamicColumns: { key: ColKey; label: string; sortKey?: SortKey }[] = [];
+        ruleTypes.forEach((ruleType) => {
+          // 原始结果事件列
+          dynamicColumns.push({
+            key: ruleType.id,
+            label: ruleType.eventName,
+            sortKey: ruleType.id as SortKey,
+          });
+          // 叠加细化标识额外列
+          if (ruleType.stackedType) {
+            (ruleType.fineIdentifiers || [])
+            .filter((fi) => fi.isStacked)
+            .forEach((fi) => {
+              const colKey = `${ruleType.id}__${fi.key}__${fi.value}`;
+              const label = `${ruleType.eventName}（${fi.key}）`;
+              dynamicColumns.push({
+                key: colKey,
+                label: label,
+                sortKey: colKey as SortKey,
+              });
+            });
+          }
+        });
+
+        // 模拟叠加选项（始终在列配置弹窗中提供一个示例项）
+        dynamicColumns.push({
+          key: "mock__stack__signup__product_type__pcb",
+          label: "注册成功（product_type）",
+          sortKey: "mock__stack__signup__product_type__pcb" as SortKey,
+        });
 
         // 合并固定列和动态列
         const allColumns = [...fixedColumns, ...dynamicColumns];
@@ -944,8 +970,7 @@ export default function AttributionReport() {
                       .filter((col) => visibleColumns.includes(col.key))
                       .map((col) => (
                         <TableCell key={col.key}>
-                          {/* 这里可以根据实际需要显示动态数据，目前显示占位符 */}
-                          —
+                          {r[col.key] ?? "—"}
                         </TableCell>
                       ))}
                   </TableRow>

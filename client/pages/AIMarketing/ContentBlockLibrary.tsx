@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Layers3, Plus } from "lucide-react";
+import { Layers3, Plus, Sparkles, Wand2, RefreshCw, AlignLeft, AlignJustify, Type } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
@@ -34,6 +34,8 @@ type BlockItem = {
   status?: BlockStatus;
   version?: string;
   usageCount?: number;
+  favorite?: boolean;
+  scoreCard?: { readability: number; consistency: number; risk: number; cta: number; total: number };
 };
 
 const mockBlocks: BlockItem[] = [
@@ -105,9 +107,12 @@ export default function ContentBlockLibrary() {
   const [category, setCategory] = useState<string>("all");
   const [status, setStatus] = useState<BlockStatus | "all">("all");
   const [tagQuery, setTagQuery] = useState<string>("");
+  const [editorId, setEditorId] = useState<string | null>(null);
+  const [aiOpen, setAiOpen] = useState(false);
 
   // 用状态管理内容块数据，支持新增后立即显示
   const [blocks, setBlocks] = useState<BlockItem[]>(mockBlocks);
+  
 
   // 右侧新建内容块表单状态
   const [open, setOpen] = useState(false);
@@ -148,6 +153,37 @@ export default function ContentBlockLibrary() {
     setNewSize("");
     setNewAnonymousAllowed("");
     setFormError(null);
+  };
+
+  
+
+  const [aiIndustry, setAiIndustry] = useState("SaaS");
+  const [aiAudience, setAiAudience] = useState("新用户");
+  const [aiGoal, setAiGoal] = useState("注册");
+  const [aiTone, setAiTone] = useState("专业");
+  const [aiLanguage, setAiLanguage] = useState("中文");
+
+  // AI 模拟处理函数
+  const simulateAiAction = (action: string, currentHtml: string): string => {
+    const plain = currentHtml.replace(/<[^>]+>/g, "").trim();
+    if (!plain) return "<p>AI根据您的要求生成了新的内容...</p>";
+    
+    switch (action) {
+      case "polish":
+        return `<p>${plain} (AI已润色：优化了语句通顺度，提升了表达质感)</p>`;
+      case "expand":
+        return `<p>${plain} ${plain} (AI已扩写：增加了更多细节描述，补充了相关背景信息，使内容更加丰富完整)</p>`;
+      case "shorten":
+        return `<p>${plain.slice(0, Math.max(10, Math.floor(plain.length / 2)))}... (AI已精简)</p>`;
+      case "professional":
+        return `<p>【专业版】${plain} (AI已调整为专业语气，适合商务场景)</p>`;
+      case "friendly":
+        return `<p>Hi~ ${plain} (AI已调整为亲切语气，拉近用户距离)</p>`;
+      case "fix":
+        return `<p>${plain} (AI已纠错：修正了2处语法错误)</p>`;
+      default:
+        return currentHtml;
+    }
   };
 
   const filtered = useMemo(() => {
@@ -232,7 +268,7 @@ export default function ContentBlockLibrary() {
     }
     // 富文本为可选：不强制填写
     const id = `blk_${newCategory}_${Math.random().toString(36).slice(2, 8)}`;
-    const propsHint = newPropsHintText
+    const propsHint = (newPropsHintText || "")
       .split(",")
       .map((s) => s.trim())
       .filter(Boolean);
@@ -248,28 +284,7 @@ export default function ContentBlockLibrary() {
       extra.richHtml = newRichHtml;
     }
 
-    // 分类可选字段聚合
     const extraFields: Record<string, string> = {};
-    if (newCategory === "英雄区") {
-      if (newBackgroundUrl.trim()) extraFields.backgroundUrl = newBackgroundUrl.trim();
-      if (newAlign.trim()) extraFields.align = newAlign.trim();
-    }
-    if (newCategory === "产品卡") {
-      if (newImageUrl.trim()) extraFields.imageUrl = newImageUrl.trim();
-      if (newCurrency.trim()) extraFields.currency = newCurrency.trim();
-      if (newBadge.trim()) extraFields.badge = newBadge.trim();
-    }
-    if (newCategory === "结构") {
-      if (newThickness.trim()) extraFields.thickness = newThickness.trim();
-      if (newMargin.trim()) extraFields.margin = newMargin.trim();
-    }
-    if (newCategory === "CTA") {
-      if (newVariant.trim()) extraFields.variant = newVariant.trim();
-      if (newSize.trim()) extraFields.size = newSize.trim();
-    }
-    if (newCategory === "互动") {
-      if (newAnonymousAllowed.trim()) extraFields.anonymousAllowed = newAnonymousAllowed.trim();
-    }
 
     const newBlk: BlockItem = {
       id,
@@ -286,67 +301,46 @@ export default function ContentBlockLibrary() {
     resetForm();
   };
 
+  
+
+  const handleAiGenerate = () => {
+    const variants = Array.from({ length: 3 }).map((_, idx) => {
+      const id = `blk_gen_${Date.now()}_${idx}`;
+      const name = `${aiIndustry}·${aiGoal}·块${idx + 1}`;
+      const content = `${aiTone}语气，面向${aiAudience}，用于${aiGoal}，语言${aiLanguage}`;
+      const preview = `【${aiIndustry}/${aiGoal}】${aiTone}｜${aiAudience}｜${aiLanguage}`;
+      return {
+        id,
+        name,
+        category: "富文本",
+        description: content,
+        propsHint: ["html"],
+        preview,
+        richHtml: `<p>${content}</p>`,
+        tags: [aiIndustry, aiGoal, aiTone],
+        status: "draft" as BlockStatus,
+        version: "v1",
+        usageCount: 0,
+      } as BlockItem;
+    });
+    setBlocks((prev) => [...variants, ...prev]);
+    setAiOpen(false);
+  };
+
+  
+
   return (
     <div className="p-6 space-y-6">
-      {/* 顶部工具区移除，统一将操作按钮移动到筛选卡片下方 */}
+      <div className="flex items-center justify-between">
+         <div className="flex items-center gap-3">
+            <Button variant="default" className="gap-2" onClick={() => setOpen(true)}>
+              <Plus className="h-4 w-4" /> 新建内容块
+            </Button>
+         </div>
+      </div>
 
-      {/* Filters */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex flex-wrap gap-3 items-center">
-            <Input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="搜索内容块"
-              className="w-full sm:w-64"
-            />
-            <Select value={category} onValueChange={setCategory}>
-              <SelectTrigger className="w-40">
-                <SelectValue placeholder="分类" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">全部分类</SelectItem>
-                <SelectItem value="英雄区">英雄区</SelectItem>
-                <SelectItem value="CTA">CTA</SelectItem>
-                <SelectItem value="产品卡">产品卡</SelectItem>
-                <SelectItem value="结构">结构</SelectItem>
-                <SelectItem value="互动">互动</SelectItem>
-                <SelectItem value="富文本">富文本</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={status} onValueChange={(v) => setStatus(v as any)}>
-              <SelectTrigger className="w-40">
-                <SelectValue placeholder="状态" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">全部状态</SelectItem>
-                <SelectItem value="draft">草稿</SelectItem>
-                <SelectItem value="review">评审中</SelectItem>
-                <SelectItem value="published">已发布</SelectItem>
-                <SelectItem value="deprecated">已下线</SelectItem>
-              </SelectContent>
-            </Select>
-            <Input
-              value={tagQuery}
-              onChange={(e) => setTagQuery(e.target.value)}
-              placeholder="按标签筛选"
-              className="w-full sm:w-48"
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* 操作按钮：移动到筛选卡片下方（左侧对齐） */}
-      <div className="flex items-center justify-start">
-        <div className="flex items-center gap-2">
-          {/* 新建内容块：右侧侧栏表单 */}
-          <Sheet open={open} onOpenChange={(v) => { setOpen(v); if (!v) resetForm(); }}>
-            <SheetTrigger asChild>
-              <Button variant="default" className="gap-2" onClick={() => setOpen(true)}>
-                <Plus className="h-4 w-4" /> 新建内容块
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="right" className="flex flex-col">
+      <Sheet open={open} onOpenChange={(v) => { setOpen(v); if (!v) resetForm(); }}>
+            <SheetContent side="right" className="flex flex-col sm:max-w-2xl w-full">
               <SheetHeader>
                 <SheetTitle>新建内容块</SheetTitle>
                 <SheetDescription>填写块信息，保存后将加入内容库。</SheetDescription>
@@ -359,83 +353,34 @@ export default function ContentBlockLibrary() {
                 </div>
 
                 <div className="space-y-2">
-                  <div className="text-sm font-medium">分类</div>
-                  <Select value={newCategory} onValueChange={setNewCategory}>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="选择分类" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="英雄区">英雄区</SelectItem>
-                      <SelectItem value="CTA">CTA</SelectItem>
-                      <SelectItem value="产品卡">产品卡</SelectItem>
-                      <SelectItem value="结构">结构</SelectItem>
-                      <SelectItem value="互动">互动</SelectItem>
-                      <SelectItem value="富文本">富文本</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                {/* 富文本（可选，所有分类通用） */}
-                <div className="space-y-2">
-                  <div className="text-sm font-medium">富文本内容（可选）</div>
+                  <div className="flex flex-col gap-2">
+                    <div className="text-sm font-medium">内容</div>
+                    <div className="flex flex-wrap items-center gap-2 p-2 bg-muted/30 rounded-lg border">
+                      <div className="text-xs text-muted-foreground mr-1 flex items-center gap-1">
+                        <Sparkles className="w-3 h-3" /> AI助手:
+                      </div>
+                      <Button variant="outline" size="sm" className="h-7 text-xs px-2 gap-1 bg-white" onClick={() => setNewRichHtml(simulateAiAction("polish", newRichHtml))}>
+                        <Wand2 className="w-3 h-3" /> 润色
+                      </Button>
+                      <Button variant="outline" size="sm" className="h-7 text-xs px-2 gap-1 bg-white" onClick={() => setNewRichHtml(simulateAiAction("fix", newRichHtml))}>
+                        <RefreshCw className="w-3 h-3" /> 纠错
+                      </Button>
+                      <Button variant="outline" size="sm" className="h-7 text-xs px-2 gap-1 bg-white" onClick={() => setNewRichHtml(simulateAiAction("expand", newRichHtml))}>
+                        <AlignJustify className="w-3 h-3" /> 扩写
+                      </Button>
+                      <Button variant="outline" size="sm" className="h-7 text-xs px-2 gap-1 bg-white" onClick={() => setNewRichHtml(simulateAiAction("shorten", newRichHtml))}>
+                        <AlignLeft className="w-3 h-3" /> 精简
+                      </Button>
+                      <Button variant="outline" size="sm" className="h-7 text-xs px-2 gap-1 bg-white" onClick={() => setNewRichHtml(simulateAiAction("professional", newRichHtml))}>
+                        <Type className="w-3 h-3" /> 专业
+                      </Button>
+                      <Button variant="outline" size="sm" className="h-7 text-xs px-2 gap-1 bg-white" onClick={() => setNewRichHtml(simulateAiAction("friendly", newRichHtml))}>
+                        <Type className="w-3 h-3" /> 亲切
+                      </Button>
+                    </div>
+                  </div>
                   <ReactQuill value={newRichHtml} onChange={setNewRichHtml} theme="snow" />
-                  <div className="text-xs text-muted-foreground">
-                    如填写，将在编辑器以富文本优先渲染。
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    解释：如果块携带 <code>props.html</code>（即你在库页填写了富文本），编辑器会优先按富文本渲染，忽略该分类的默认样式预览；如果未填写富文本，则按分类的默认预览渲染（英雄区显示标题/副标题，CTA 显示文案/链接等）。
-                  </div>
                 </div>
-
-                {/* 基本信息 */}
-                <div className="space-y-2">
-                  <div className="text-sm font-medium">用途说明</div>
-                  <Textarea value={newDescription} onChange={(e) => setNewDescription(e.target.value)} placeholder="该内容块的适用场景与说明" rows={3} />
-                </div>
-                <div className="space-y-2">
-                  <div className="text-sm font-medium">参数提示（逗号分隔）</div>
-                  <Input value={newPropsHintText} onChange={(e) => setNewPropsHintText(e.target.value)} placeholder="例如：标题, 链接, 有效期" />
-                </div>
-                <div className="space-y-2">
-                  <div className="text-sm font-medium">预览文本（可选）</div>
-                  <Textarea value={newPreview} onChange={(e) => setNewPreview(e.target.value)} placeholder="用于列表卡片的简要预览，不填将自动生成摘要" rows={3} />
-                </div>
-
-                {/* 分类可选字段 */}
-                {newCategory === "英雄区" && (
-                  <div className="space-y-2">
-                    <div className="text-sm font-medium">英雄区可选字段</div>
-                    <Input value={newBackgroundUrl} onChange={(e) => setNewBackgroundUrl(e.target.value)} placeholder="背景图 URL（可选）" />
-                    <Input value={newAlign} onChange={(e) => setNewAlign(e.target.value)} placeholder="对齐方式（left/center/right，可选）" />
-                  </div>
-                )}
-                {newCategory === "产品卡" && (
-                  <div className="space-y-2">
-                    <div className="text-sm font-medium">产品卡可选字段</div>
-                    <Input value={newImageUrl} onChange={(e) => setNewImageUrl(e.target.value)} placeholder="图片 URL（可选）" />
-                    <Input value={newCurrency} onChange={(e) => setNewCurrency(e.target.value)} placeholder="币种（如 CNY，可选）" />
-                    <Input value={newBadge} onChange={(e) => setNewBadge(e.target.value)} placeholder="角标文案（可选）" />
-                  </div>
-                )}
-                {newCategory === "结构" && (
-                  <div className="space-y-2">
-                    <div className="text-sm font-medium">分割线可选字段</div>
-                    <Input value={newThickness} onChange={(e) => setNewThickness(e.target.value)} placeholder="粗细（如 thin/2px，可选）" />
-                    <Input value={newMargin} onChange={(e) => setNewMargin(e.target.value)} placeholder="上下间距（如 24px，可选）" />
-                  </div>
-                )}
-                {newCategory === "CTA" && (
-                  <div className="space-y-2">
-                    <div className="text-sm font-medium">CTA 可选字段</div>
-                    <Input value={newVariant} onChange={(e) => setNewVariant(e.target.value)} placeholder="样式（primary/secondary，可选）" />
-                    <Input value={newSize} onChange={(e) => setNewSize(e.target.value)} placeholder="尺寸（sm/md/lg，可选）" />
-                  </div>
-                )}
-                {newCategory === "互动" && (
-                  <div className="space-y-2">
-                    <div className="text-sm font-medium">互动可选字段</div>
-                    <Input value={newAnonymousAllowed} onChange={(e) => setNewAnonymousAllowed(e.target.value)} placeholder="允许匿名（yes/no，可选）" />
-                  </div>
-                )}
 
                 {formError && (
                   <div className="text-sm text-red-600">{formError}</div>
@@ -452,49 +397,142 @@ export default function ContentBlockLibrary() {
           </Sheet>
 
           {/* 已移除：打开编辑器与新建活动按钮 */}
-        </div>
-      </div>
+
+      <Sheet open={!!editorId} onOpenChange={(v) => { if (!v) setEditorId(null); }}>
+        <SheetContent side="right" className="flex flex-col sm:max-w-2xl w-full">
+          <SheetHeader>
+            <SheetTitle>编辑内容块</SheetTitle>
+          </SheetHeader>
+          <div className="mt-4 flex-1 flex flex-col space-y-4">
+            {(() => {
+              const blk = blocks.find((b) => b.id === editorId);
+              if (!blk) return <div className="text-xs text-muted-foreground">未选中内容块</div>;
+              
+              const handleAi = (action: string) => {
+                 const current = blk.richHtml || blk.preview || "";
+                 const newContent = simulateAiAction(action, current);
+                 const plain = newContent.replace(/<[^>]+>/g, "").trim();
+                 const preview = plain ? `${plain.slice(0, 60)}...` : "";
+                 setBlocks(prev => prev.map(b => b.id === blk.id ? { ...b, richHtml: newContent, preview } : b));
+              };
+
+              return (
+                <div className="flex-1 flex flex-col space-y-4">
+                  <div className="space-y-2">
+                    <div className="text-sm font-medium">名称</div>
+                    <Input 
+                      value={blk.name} 
+                      onChange={(e) => setBlocks(prev => prev.map(b => b.id === blk.id ? { ...b, name: e.target.value } : b))}
+                    />
+                  </div>
+                  <div className="space-y-2 flex-1 flex flex-col">
+                     <div className="flex flex-col gap-2">
+                        <div className="text-sm font-medium">内容</div>
+                        <div className="flex flex-wrap items-center gap-2 p-2 bg-muted/30 rounded-lg border">
+                           <div className="text-xs text-muted-foreground mr-1 flex items-center gap-1">
+                             <Sparkles className="w-3 h-3" /> AI助手:
+                           </div>
+                           <Button variant="outline" size="sm" className="h-7 text-xs px-2 gap-1 bg-white" onClick={() => handleAi("polish")}>
+                             <Wand2 className="w-3 h-3" /> 润色
+                           </Button>
+                           <Button variant="outline" size="sm" className="h-7 text-xs px-2 gap-1 bg-white" onClick={() => handleAi("fix")}>
+                             <RefreshCw className="w-3 h-3" /> 纠错
+                           </Button>
+                           <Button variant="outline" size="sm" className="h-7 text-xs px-2 gap-1 bg-white" onClick={() => handleAi("expand")}>
+                             <AlignJustify className="w-3 h-3" /> 扩写
+                           </Button>
+                           <Button variant="outline" size="sm" className="h-7 text-xs px-2 gap-1 bg-white" onClick={() => handleAi("shorten")}>
+                             <AlignLeft className="w-3 h-3" /> 精简
+                           </Button>
+                           <Button variant="outline" size="sm" className="h-7 text-xs px-2 gap-1 bg-white" onClick={() => handleAi("professional")}>
+                             <Type className="w-3 h-3" /> 专业
+                           </Button>
+                           <Button variant="outline" size="sm" className="h-7 text-xs px-2 gap-1 bg-white" onClick={() => handleAi("friendly")}>
+                             <Type className="w-3 h-3" /> 亲切
+                           </Button>
+                        </div>
+                     </div>
+                    <ReactQuill 
+                      className="flex-1 h-full"
+                      value={blk.richHtml || blk.preview || ""} 
+                      onChange={(val) => {
+                         // Update both richHtml and preview (stripped)
+                         const plain = val.replace(/<[^>]+>/g, "").trim();
+                         const preview = plain ? `${plain.slice(0, 60)}${plain.length > 60 ? "..." : ""}` : "";
+                         setBlocks(prev => prev.map(b => b.id === blk.id ? { ...b, richHtml: val, preview } : b));
+                      }} 
+                      theme="snow" 
+                    />
+                  </div>
+                </div>
+              );
+            })()}
+            <div className="flex gap-2 pt-4">
+              <Button className="flex-1" onClick={() => setEditorId(null)}>完成</Button>
+            </div>
+          </div>
+        </SheetContent>
+      </Sheet>
+      
 
       {/* Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {filtered.map((blk) => (
-          <Card key={blk.id} className="flex flex-col">
-            <CardHeader>
-              <CardTitle className="text-base flex items-center gap-2">
+          <Card key={blk.id} className="flex flex-col relative">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className={`absolute top-2 right-2 h-6 w-6 ${blk.favorite ? "text-red-500 hover:text-red-600" : "text-muted-foreground hover:text-foreground"}`}
+              onClick={() => {
+                setBlocks((prev) => prev.map((b) => b.id === blk.id ? { ...b, favorite: !b.favorite } : b));
+                try {
+                  const raw = localStorage.getItem("block_favorites");
+                  const favs = raw ? JSON.parse(raw) : [];
+                  const set = new Set(Array.isArray(favs) ? favs : []);
+                  if (!blk.favorite) set.add(blk.id); else set.delete(blk.id);
+                  localStorage.setItem("block_favorites", JSON.stringify(Array.from(set)));
+                } catch {}
+              }}
+            >
+              <span className="sr-only">收藏</span>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill={blk.favorite ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+            </Button>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base flex items-center gap-2 pr-6 truncate" title={blk.name}>
                 {blk.name}
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex flex-wrap gap-2">
-                <Badge variant="outline">分类：{blk.category}</Badge>
-                {blk.version && <Badge variant="outline">版本：{blk.version}</Badge>}
-                {blk.status && <Badge variant="outline">状态：{blk.status}</Badge>}
-                {blk.propsHint.map((h) => (
-                  <Badge key={h} variant="secondary" className="capitalize">{h}</Badge>
-                ))}
-                {(blk.tags || []).map((t) => (
-                  <Badge key={t} variant="secondary">{t}</Badge>
-                ))}
-              </div>
-              <div className="text-xs text-muted-foreground whitespace-pre-line border rounded p-3">
+            <CardContent className="space-y-3 flex-1 flex flex-col min-h-0">
+              <div className="text-xs text-muted-foreground whitespace-pre-line border rounded p-3 bg-muted/20 flex-1 line-clamp-3 overflow-hidden text-ellipsis">
                 {blk.preview}
               </div>
-              {typeof blk.usageCount === "number" && (
-                <div className="text-xs text-muted-foreground">使用次数：{blk.usageCount}</div>
-              )}
-              <div className="flex items-center gap-2">
-                <Button size="sm" variant="default" onClick={() => handleInsertToCompose(blk)}>
-                  插入到编辑器
-                </Button>
-                <Button size="sm" variant="outline" asChild>
-                  <Link to={getPreviewUrlForBlock(blk)}>在编辑器预览</Link>
-                </Button>
-                {/* 删除：基于块组合模板按钮 */}
+              <div className="flex items-center justify-between pt-2">
+                {(() => {
+                  const t = (blk.preview || "").replace(/\s+/g, "");
+                  const h = Math.max(0, Math.min(100, 100 - Math.abs(t.length - 60)));
+                  const r = [
+                    /免费|保证|最高|无条件|不限制/.test(t) ? 1 : 0,
+                    /http(s)?:\/\//.test(t) ? 0 : 1,
+                  ].reduce((a, b) => a + b, 0);
+                  // 简化显示：只显示圆点
+                  return (
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground" title={`健康度：${h}，风险项：${r}`}>
+                      <span className={`h-2 w-2 rounded-full ${h > 80 ? "bg-green-500" : h > 60 ? "bg-yellow-500" : "bg-red-500"}`} />
+                      <span>{h > 80 ? "健康" : "需优化"}</span>
+                    </div>
+                  );
+                })()}
+                <div className="flex items-center gap-2">
+                  <Button size="sm" variant="outline" onClick={() => setEditorId(blk.id)}>编辑</Button>
+                  <Button size="sm" onClick={() => handleInsertToCompose(blk)}>使用</Button>
+                </div>
               </div>
             </CardContent>
           </Card>
         ))}
       </div>
+
+      
     </div>
   );
 }
