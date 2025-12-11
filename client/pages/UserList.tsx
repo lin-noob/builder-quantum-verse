@@ -1,22 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import {
-  Search,
-  ArrowUpDown,
-  ArrowUp,
-  ArrowDown,
-  RotateCcw,
-  RefreshCw,
-} from "lucide-react";
+import { Search, ArrowUpDown, ArrowUp, ArrowDown, RotateCcw, RefreshCw } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import AdvancedDateRangePicker from "@/components/AdvancedDateRangePicker";
@@ -201,9 +188,7 @@ export default function UserList() {
         return Math.max(0, Math.min(100, n)) / 100; // ���为 0..1
       };
       if (!currentProject || !currentProject.id) {
-        console.log(
-          "No current project or empty project id, using mock data for users",
-        );
+        console.log("No current project or empty project id, using mock data for users");
         const mockParams = {
           page: currentPage,
           pageSize: itemsPerPage,
@@ -320,16 +305,7 @@ export default function UserList() {
     } finally {
       setLoading(false);
     }
-  }, [
-    currentPage,
-    itemsPerPage,
-    searchQuery,
-    sortConfig,
-    dateRange,
-    selectedTimeField,
-    metricFilters,
-    currentProject,
-  ]);
+  }, [currentPage, itemsPerPage, searchQuery, sortConfig, dateRange, selectedTimeField, metricFilters, currentProject]);
 
   // 初始化和依赖更新时获取数据
   useEffect(() => {
@@ -340,8 +316,7 @@ export default function UserList() {
   const handleSort = (field: string) => {
     setSortConfig((prev) => ({
       field,
-      direction:
-        prev.field === field && prev.direction === "asc" ? "desc" : "asc",
+      direction: prev.field === field && prev.direction === "asc" ? "desc" : "asc",
     }));
     setCurrentPage(1); // 重置到第一页
   };
@@ -350,11 +325,7 @@ export default function UserList() {
     if (sortConfig.field !== field) {
       return <ArrowUpDown className="h-4 w-4" />;
     }
-    return sortConfig.direction === "asc" ? (
-      <ArrowUp className="h-4 w-4" />
-    ) : (
-      <ArrowDown className="h-4 w-4" />
-    );
+    return sortConfig.direction === "asc" ? <ArrowUp className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />;
   };
 
   // 搜索处理
@@ -452,18 +423,10 @@ export default function UserList() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="firstVisitTime">
-                    {t("userList.timeFields.firstVisitTime")}
-                  </SelectItem>
-                  <SelectItem value="registrationTime">
-                    {t("userList.timeFields.registrationTime")}
-                  </SelectItem>
-                  <SelectItem value="firstPurchaseTime">
-                    {t("userList.timeFields.firstPurchaseTime")}
-                  </SelectItem>
-                  <SelectItem value="lastActiveTime">
-                    {t("userList.timeFields.lastActiveTime")}
-                  </SelectItem>
+                  <SelectItem value="firstVisitTime">{t("userList.timeFields.firstVisitTime")}</SelectItem>
+                  <SelectItem value="registrationTime">{t("userList.timeFields.registrationTime")}</SelectItem>
+                  <SelectItem value="firstPurchaseTime">{t("userList.timeFields.firstPurchaseTime")}</SelectItem>
+                  <SelectItem value="lastActiveTime">{t("userList.timeFields.lastActiveTime")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -476,25 +439,21 @@ export default function UserList() {
 
           {/* Metric Filters */}
           <div className="flex flex-wrap items-end gap-4 mt-4">
-            <div className="flex items-center gap-3">
+            {/* <div className="flex items-center gap-3">
               <span className="text-sm text-gray-600">90天LTV</span>
               <Input
                 placeholder={"最小值"}
                 value={metricFilters.ltv90Min}
-                onChange={(e) =>
-                  setMetricFilters((f) => ({ ...f, ltv90Min: e.target.value }))
-                }
+                onChange={(e) => setMetricFilters((f) => ({ ...f, ltv90Min: e.target.value }))}
                 className="w-20"
               />
               <Input
                 placeholder={"最大值"}
                 value={metricFilters.ltv90Max}
-                onChange={(e) =>
-                  setMetricFilters((f) => ({ ...f, ltv90Max: e.target.value }))
-                }
+                onChange={(e) => setMetricFilters((f) => ({ ...f, ltv90Max: e.target.value }))}
                 className="w-20"
               />
-            </div>
+            </div> */}
             <div className="flex items-center gap-3">
               <span className="text-sm text-gray-600">近30天会话</span>
               <Input
@@ -545,54 +504,45 @@ export default function UserList() {
                 className="w-20"
               />
             </div>
-            <div className="flex items-center gap-3">
+            {/* <div className="flex items-center gap-3">
               <span className="text-sm text-gray-600">近30天AOV</span>
               <Input
                 placeholder={"最小值"}
                 value={metricFilters.aovMin}
-                onChange={(e) =>
-                  setMetricFilters((f) => ({ ...f, aovMin: e.target.value }))
-                }
+                onChange={(e) => setMetricFilters((f) => ({ ...f, aovMin: e.target.value }))}
                 className="w-20"
               />
               <Input
                 placeholder={"最大值"}
                 value={metricFilters.aovMax}
-                onChange={(e) =>
-                  setMetricFilters((f) => ({ ...f, aovMax: e.target.value }))
-                }
+                onChange={(e) => setMetricFilters((f) => ({ ...f, aovMax: e.target.value }))}
                 className="w-20"
               />
-            </div>
-            <div className="flex items-center gap-3">
+            </div> */}
+            {/* <div className="flex items-center gap-3">
               <span className="text-sm text-gray-600">跳出率(%)</span>
               <Input
                 placeholder={"最小值"}
                 value={metricFilters.bounceMin}
-                onChange={(e) =>
-                  setMetricFilters((f) => ({ ...f, bounceMin: e.target.value }))
-                }
+                onChange={(e) => setMetricFilters((f) => ({ ...f, bounceMin: e.target.value }))}
                 className="w-20"
               />
               <Input
                 placeholder={"最大值"}
                 value={metricFilters.bounceMax}
-                onChange={(e) =>
-                  setMetricFilters((f) => ({ ...f, bounceMax: e.target.value }))
-                }
+                onChange={(e) => setMetricFilters((f) => ({ ...f, bounceMax: e.target.value }))}
                 className="w-20"
               />
+            </div> */}
+            <div className="mt-4 flex items-center gap-2">
+              <Button variant="default" size="sm" onClick={handleSearch}>
+                搜索
+              </Button>
+              <Button variant="outline" size="sm" onClick={handleReset}>
+                <RotateCcw className="h-4 w-4 mr-1" />
+                重置
+              </Button>
             </div>
-          </div>
-
-          <div className="mt-4 flex items-center gap-2">
-            <Button variant="default" size="sm" onClick={handleSearch}>
-              搜索
-            </Button>
-            <Button variant="outline" size="sm" onClick={handleReset}>
-              <RotateCcw className="h-4 w-4 mr-1" />
-              重置
-            </Button>
           </div>
         </Card>
 
@@ -657,7 +607,7 @@ export default function UserList() {
                     </th>
                   )}
                   {/* 5+2扩展列 */}
-                  <th
+                  {/* <th
                     className="px-4 py-3 text-left text-xs font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100 min-w-[90px]"
                     onClick={() => handleSort("ltv90Days")}
                   >
@@ -666,7 +616,7 @@ export default function UserList() {
                       <span>LTV</span>
                       {getSortIcon("ltv90Days")}
                     </div>
-                  </th>
+                  </th> */}
                   <th
                     className="px-4 py-3 text-left text-xs font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100 min-w-[90px]"
                     onClick={() => handleSort("sessions30d")}
@@ -687,7 +637,7 @@ export default function UserList() {
                       {getSortIcon("pageviews30d")}
                     </div>
                   </th>
-                  <th
+                  {/* <th
                     className="px-4 py-3 text-left text-xs font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100 min-w-[90px]"
                     onClick={() => handleSort("aov30d")}
                   >
@@ -696,8 +646,8 @@ export default function UserList() {
                       <span>AOV</span>
                       {getSortIcon("aov30d")}
                     </div>
-                  </th>
-                  <th
+                  </th> */}
+                  {/* <th
                     className="px-4 py-3 text-left text-xs font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100 min-w-[80px]"
                     onClick={() => handleSort("bounceRate")}
                   >
@@ -705,7 +655,7 @@ export default function UserList() {
                       <span>跳出率</span>
                       {getSortIcon("bounceRate")}
                     </div>
-                  </th>
+                  </th> */}
                   <th className="px-4 py-3 text-left text-xs font-semibold text-gray-900 min-w-[80px] whitespace-nowrap">
                     {t("userList.table.headers.actions")}
                   </th>
@@ -714,10 +664,7 @@ export default function UserList() {
               <tbody className="divide-y divide-gray-200">
                 {loading ? (
                   <tr>
-                    <td
-                      colSpan={hasPermission("user.amountspent") ? 13 : 12}
-                      className="px-6 py-8 text-center"
-                    >
+                    <td colSpan={hasPermission("user.amountspent") ? 13 : 12} className="px-6 py-8 text-center">
                       <div className="flex items-center justify-center gap-2">
                         <RefreshCw className="h-4 w-4 animate-spin" />
                         <span>{t("userList.table.states.loading")}</span>
@@ -738,12 +685,8 @@ export default function UserList() {
                     <tr key={user.cdpId} className="hover:bg-gray-50">
                       <td className="px-4 py-3">
                         <div className="space-y-1 max-w-[150px]">
-                          <div className="font-mono text-xs text-gray-900 truncate">
-                            {user.userId || user.id}
-                          </div>
-                          <div className="text-xs text-gray-500 truncate">
-                            {user.name || user.fullName || "N/A"}
-                          </div>
+                          <div className="font-mono text-xs text-gray-900 truncate">{user.userId || user.id}</div>
+                          <div className="text-xs text-gray-500 truncate">{user.name || user.fullName || "N/A"}</div>
                           <div className="text-xs text-gray-400 truncate">
                             {user.company || user.companyName || "N/A"}
                           </div>
@@ -771,27 +714,17 @@ export default function UserList() {
                         </td>
                       )}
                       {/* 5+2扩展列渲染 */}
-                      <td className="px-4 py-3 text-xs text-gray-900 whitespace-nowrap">
-                        {user.ltv90Days != null
-                          ? formatCurrency(user.ltv90Days, user.currency)
-                          : "-"}
+                      {/* <td className="px-4 py-3 text-xs text-gray-900 whitespace-nowrap">
+                        {user.ltv90Days != null ? formatCurrency(user.ltv90Days, user.currency) : "-"}
+                      </td> */}
+                      <td className="px-4 py-3 text-xs text-gray-900 text-center">{user.sessions30d ?? "-"}</td>
+                      <td className="px-4 py-3 text-xs text-gray-900 text-center">{user.pageviews30d ?? "-"}</td>
+                      {/* <td className="px-4 py-3 text-xs text-gray-900 whitespace-nowrap">
+                        {user.aov30d != null ? formatCurrency(user.aov30d, user.currency) : "-"}
                       </td>
                       <td className="px-4 py-3 text-xs text-gray-900 text-center">
-                        {user.sessions30d ?? "-"}
-                      </td>
-                      <td className="px-4 py-3 text-xs text-gray-900 text-center">
-                        {user.pageviews30d ?? "-"}
-                      </td>
-                      <td className="px-4 py-3 text-xs text-gray-900 whitespace-nowrap">
-                        {user.aov30d != null
-                          ? formatCurrency(user.aov30d, user.currency)
-                          : "-"}
-                      </td>
-                      <td className="px-4 py-3 text-xs text-gray-900 text-center">
-                        {user.bounceRate != null
-                          ? `${Math.round((user.bounceRate || 0) * 100)}%`
-                          : "-"}
-                      </td>
+                        {user.bounceRate != null ? `${Math.round((user.bounceRate || 0) * 100)}%` : "-"}
+                      </td> */}
                       <td className="px-4 py-3">
                         {hasPermission("user.info") && (
                           <Link
@@ -812,9 +745,8 @@ export default function UserList() {
           {/* Pagination */}
           <div className="px-6 py-4 border-t bg-gray-50 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="text-sm text-gray-700 order-2 sm:order-1">
-              {t("userList.pagination.showing")} {startIndex + 1}{" "}
-              {t("userList.pagination.to")} {Math.min(endIndex, totalCount)}{" "}
-              {t("userList.pagination.of")} {totalCount}{" "}
+              {t("userList.pagination.showing")} {startIndex + 1} {t("userList.pagination.to")}{" "}
+              {Math.min(endIndex, totalCount)} {t("userList.pagination.of")} {totalCount}{" "}
               {t("userList.pagination.total")}
             </div>
             <div className="flex items-center gap-2 order-1 sm:order-2">
@@ -829,9 +761,7 @@ export default function UserList() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() =>
-                  handlePageChange(Math.min(totalPages, currentPage + 1))
-                }
+                onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
                 disabled={currentPage >= totalPages || loading}
               >
                 {t("userList.pagination.next")}
