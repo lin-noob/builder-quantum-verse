@@ -2,13 +2,7 @@ import React, { useMemo, useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@/components/ui/select";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -17,14 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { DatePicker } from "antd";
 import dayjs from "dayjs";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import {
   Download,
   Search as SearchIcon,
@@ -138,9 +125,9 @@ export default function AttributionReport() {
     start: null,
     end: null,
   });
-  const [columnsConfig, setColumnsConfig] = useState<
-    { key: any; label: string; sortKey?: SortKey }[]
-  >([...fixedColumns]);
+  const [columnsConfig, setColumnsConfig] = useState<{ key: any; label: string; sortKey?: SortKey }[]>([
+    ...fixedColumns,
+  ]);
   const [loading, setLoading] = useState(true);
   // API获取的筛选选项
   const [apiFilterOptions, setApiFilterOptions] = useState<{
@@ -173,9 +160,7 @@ export default function AttributionReport() {
   const [pageSize, setPageSize] = useState<number>(10);
   const [page, setPage] = useState<number>(1);
   // 导出配置
-  const [exportColumns, setExportColumns] = useState<ColKey[]>(
-    columnsConfig.map((c) => c.key),
-  );
+  const [exportColumns, setExportColumns] = useState<ColKey[]>(columnsConfig.map((c) => c.key));
   const [exportOpen, setExportOpen] = useState(false);
   const [exportScope, setExportScope] = useState<"current" | "all">("current");
 
@@ -184,7 +169,7 @@ export default function AttributionReport() {
   const [draggedColumn, setDraggedColumn] = useState<ColKey | null>(null);
   const [visibleColumns, setVisibleColumns] = useState<ColKey[]>(() => {
     // 默认列始终显示
-    const defaultColumns: ColKey[] = ['source', 'medium', 'campaign', 'totalSession', 'totalVisitors'];
+    const defaultColumns: ColKey[] = ["source", "medium", "campaign", "totalSession", "totalVisitors"];
     return defaultColumns;
   });
   // 存储 titleId 到 id 的映射
@@ -213,11 +198,7 @@ export default function AttributionReport() {
 
   const getSortIcon = (field: SortKey) => {
     if (sort === field) {
-      return order === "asc" ? (
-        <ArrowUp className="h-4 w-4" />
-      ) : (
-        <ArrowDown className="h-4 w-4" />
-      );
+      return order === "asc" ? <ArrowUp className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />;
     }
     return <ArrowUpDown className="h-4 w-4 text-muted-foreground" />;
   };
@@ -275,7 +256,7 @@ export default function AttributionReport() {
 
       // 然后添加动态列，按照visibleColumns的顺序
       visibleColumns.forEach((key) => {
-        if (exportColumns.includes(key) && !fixedColumns.some(f => f.key === key)) {
+        if (exportColumns.includes(key) && !fixedColumns.some((f) => f.key === key)) {
           const column = columnsConfig.find((c) => c.key === key);
           if (column) {
             titlemap[key] = column.label;
@@ -286,9 +267,7 @@ export default function AttributionReport() {
       // 构建导出参数
       const exportParams = {
         keyword: search,
-        startDate: dateRange.start
-          ? dateRange.start.toISOString().split("T")[0]
-          : "",
+        startDate: dateRange.start ? dateRange.start.toISOString().split("T")[0] : "",
         endDate: dateRange.end ? dateRange.end.toISOString().split("T")[0] : "",
         source: filters.sources.join(","),
         medium: filters.mediums.join(","),
@@ -301,12 +280,8 @@ export default function AttributionReport() {
         titlemap: titlemap,
       };
 
-      const response = await request.post(
-        "/quote/api/v1/report/export",
-        exportParams,
-        { responseType: "blob" },
-      );
-      
+      const response = await request.post("/quote/api/v1/report/export", exportParams, { responseType: "blob" });
+
       if (response.data) {
         // 如果后端返回blob数据，直接下载
         const blob = new Blob([response.data], {
@@ -330,7 +305,7 @@ export default function AttributionReport() {
   const refetchColumns = async () => {
     try {
       // 获取规则类型列表
-      const ruleTypes = await ruleService.getRules('');
+      const ruleTypes = await ruleService.getColRules();
 
       // 基于规则类型数据构建动态列配置
       const dynamicColumnsMap = new Map(
@@ -340,9 +315,9 @@ export default function AttributionReport() {
             key: ruleType.id,
             label: ruleType.ruleName,
             sortKey: String(ruleType.id),
-            mandatory: false
-          }
-        ])
+            mandatory: false,
+          },
+        ]),
       );
 
       // 从服务器加载列配置并获取排序
@@ -367,12 +342,12 @@ export default function AttributionReport() {
         // 添加任何新的规则类型（不在保存列表中的）
         const savedIds = new Set(savedListResponse.data.data.map((item: any) => item.titleId));
         const newColumns = ruleTypes
-          .filter(rule => !savedIds.has(rule.id))
-          .map(ruleType => ({
+          .filter((rule) => !savedIds.has(rule.id))
+          .map((ruleType) => ({
             key: ruleType.id,
             label: ruleType.ruleName,
             sortKey: String(ruleType.id),
-            mandatory: false
+            mandatory: false,
           }));
         orderedDynamicColumns = [...orderedDynamicColumns, ...newColumns];
       } else {
@@ -385,7 +360,7 @@ export default function AttributionReport() {
       setColumnsConfig(allColumns);
 
       // 设置可见列（基于checked字段）
-      const defaultColumns = ['source', 'medium', 'campaign', 'totalSession', 'totalVisitors'];
+      const defaultColumns = ["source", "medium", "campaign", "totalSession", "totalVisitors"];
       if (savedListResponse.data && savedListResponse.data.data && savedListResponse.data.data.length > 0) {
         const checkedColumnIds = savedListResponse.data.data
           .filter((item: any) => item.checked === true)
@@ -410,12 +385,7 @@ export default function AttributionReport() {
         const response = await request.post("/quote/api/v1/report/list");
         const filterData = response.data;
         // 保存API返回的筛选选项
-        if (
-          filterData.data &&
-          filterData.data.sources &&
-          filterData.data.mediums &&
-          filterData.data.campaigns
-        ) {
+        if (filterData.data && filterData.data.sources && filterData.data.mediums && filterData.data.campaigns) {
           setApiFilterOptions({
             sources: filterData.data.sources || [],
             mediums: filterData.data.mediums || [],
@@ -441,13 +411,13 @@ export default function AttributionReport() {
   const saveColumns = async () => {
     try {
       // 默认列不需要保存
-      const excludeColumns = ['source', 'medium', 'campaign', 'totalSession', 'totalVisitors'];
+      const excludeColumns = ["source", "medium", "campaign", "totalSession", "totalVisitors"];
       // 构建所有动态列的��存数据（包括选中和未选中的）
       const columnsToSave = columnsConfig
-        .filter(col => !excludeColumns.includes(col.key))
-        .map(col => ({
+        .filter((col) => !excludeColumns.includes(col.key))
+        .map((col) => ({
           titleId: col.key,
-          checked: visibleColumns.includes(col.key)
+          checked: visibleColumns.includes(col.key),
         }));
 
       await request.post("/quote/api/v1/report/title/save", columnsToSave);
@@ -461,12 +431,12 @@ export default function AttributionReport() {
   const moveColumn = async (sourceId: string, targetId: string) => {
     try {
       const formData = new FormData();
-      formData.append('sourceId', sourceId);
-      formData.append('targetId', targetId);
+      formData.append("sourceId", sourceId);
+      formData.append("targetId", targetId);
       await request.post("/quote/api/v1/report/title/move", formData, {
         headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+          "Content-Type": "multipart/form-data",
+        },
       });
       console.log("Column moved successfully");
     } catch (error) {
@@ -521,9 +491,7 @@ export default function AttributionReport() {
     try {
       const queryParams = {
         keyword: search,
-        startDate: dateRange.start
-          ? dateRange.start.toISOString().split("T")[0]
-          : "",
+        startDate: dateRange.start ? dateRange.start.toISOString().split("T")[0] : "",
         endDate: dateRange.end ? dateRange.end.toISOString().split("T")[0] : "",
         source: filters.sources.join(","),
         medium: filters.mediums.join(","),
@@ -534,10 +502,7 @@ export default function AttributionReport() {
         sortColumn: sort,
       };
 
-      const response = await request.post(
-        "/quote/api/v1/report/page",
-        queryParams,
-      );
+      const response = await request.post("/quote/api/v1/report/page", queryParams);
       const res = response.data;
 
       // 处理返回的分页数据
@@ -557,9 +522,7 @@ export default function AttributionReport() {
     try {
       const queryParams = {
         keyword: search,
-        startDate: dateRange.start
-          ? dateRange.start.toISOString().split("T")[0]
-          : "",
+        startDate: dateRange.start ? dateRange.start.toISOString().split("T")[0] : "",
         endDate: dateRange.end ? dateRange.end.toISOString().split("T")[0] : "",
         source: filters.sources.join(","),
         medium: filters.mediums.join(","),
@@ -570,10 +533,7 @@ export default function AttributionReport() {
         sortColumn: sort,
       };
 
-      const response = await request.post(
-        "/quote/api/v1/report/count",
-        queryParams,
-      );
+      const response = await request.post("/quote/api/v1/report/count", queryParams);
 
       // 保存统计数据
       if (response.data && response.data.data) {
@@ -629,499 +589,422 @@ export default function AttributionReport() {
   return (
     <div className=" overflow-hidden flex flex-col bg-gray-50">
       <div className="flex-1 overflow-y-auto p-6 space-y-6">
-      {/* 筛选区 - 样式参考用户画像 */}
-      <Card className="p-6 mb-8 bg-white shadow-sm">
-        <div className="flex flex-wrap items-center gap-3 md:gap-4">
-          {/* 搜���框 */}
-          <div className="relative flex-1">
-            <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-            <Input
-              placeholder="搜索来源/媒介/活动..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              onKeyPress={(e) => {
-                if (e.key === "Enter") {
-                  handleSearch();
-                }
-              }}
-              className="pl-10"
-            />
-          </div>
-
-          {/* 时间范围 */}
-
-          <div className="w-[280px] shrink-0">
-            <DatePicker.RangePicker
-              size="large"
-              value={
-                dateRange.start && dateRange.end
-                  ? [dayjs(dateRange.start), dayjs(dateRange.end)]
-                  : undefined
-              }
-              onChange={(dates) => {
-                if (dates && dates[0] && dates[1]) {
-                  setDateRange({
-                    start: dates[0].toDate(),
-                    end: dates[1].toDate(),
-                  });
-                } else {
-                  setDateRange({ start: null, end: null });
-                }
-              }}
-              placeholder={["开��日期", "结束日期"]}
-              popupStyle={{
-                zIndex: 1050,
-              }}
-            />
-          </div>
-
-          {/* 来��多选 */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="shrink-0">
-                来源（{filters.sources.length || "全部"}）
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56">
-              <DropdownMenuCheckboxItem
-                checked={filters.sources.length === 0}
-                onCheckedChange={() =>
-                  setFilters((p) => ({ ...p, sources: [] }))
-                }
-              >
-                全部
-              </DropdownMenuCheckboxItem>
-              {sources.map((s) => (
-                <DropdownMenuCheckboxItem
-                  key={s}
-                  checked={filters.sources.includes(s)}
-                  onCheckedChange={(checked) =>
-                    setFilters((p) => ({
-                      ...p,
-                      sources: checked
-                        ? [...p.sources, s]
-                        : p.sources.filter((x) => x !== s),
-                    }))
+        {/* 筛选区 - 样式参考用户画像 */}
+        <Card className="p-6 mb-8 bg-white shadow-sm">
+          <div className="flex flex-wrap items-center gap-3 md:gap-4">
+            {/* 搜���框 */}
+            <div className="relative flex-1">
+              <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Input
+                placeholder="搜索来源/媒介/活动..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                onKeyPress={(e) => {
+                  if (e.key === "Enter") {
+                    handleSearch();
                   }
-                >
-                  {s}
-                </DropdownMenuCheckboxItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+                }}
+                className="pl-10"
+              />
+            </div>
 
-          {/* 媒介多选 */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="shrink-0">
-                媒介（{filters.mediums.length || "全部"}）
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56">
-              <DropdownMenuCheckboxItem
-                checked={filters.mediums.length === 0}
-                onCheckedChange={() =>
-                  setFilters((p) => ({ ...p, mediums: [] }))
-                }
-              >
-                全部
-              </DropdownMenuCheckboxItem>
-              {mediums.map((m) => (
-                <DropdownMenuCheckboxItem
-                  key={m}
-                  checked={filters.mediums.includes(m)}
-                  onCheckedChange={(checked) =>
-                    setFilters((p) => ({
-                      ...p,
-                      mediums: checked
-                        ? [...p.mediums, m]
-                        : p.mediums.filter((x) => x !== m),
-                    }))
+            {/* 时间范围 */}
+
+            <div className="w-[280px] shrink-0">
+              <DatePicker.RangePicker
+                size="large"
+                value={dateRange.start && dateRange.end ? [dayjs(dateRange.start), dayjs(dateRange.end)] : undefined}
+                onChange={(dates) => {
+                  if (dates && dates[0] && dates[1]) {
+                    setDateRange({
+                      start: dates[0].toDate(),
+                      end: dates[1].toDate(),
+                    });
+                  } else {
+                    setDateRange({ start: null, end: null });
                   }
-                >
-                  {m}
-                </DropdownMenuCheckboxItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+                }}
+                placeholder={["开��日期", "结束日期"]}
+                popupStyle={{
+                  zIndex: 1050,
+                }}
+              />
+            </div>
 
-          {/* 活动多选 */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="shrink-0">
-                活动（{filters.campaigns.length || "全部"}）
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-64">
-              <DropdownMenuCheckboxItem
-                checked={filters.campaigns.length === 0}
-                onCheckedChange={() =>
-                  setFilters((p) => ({ ...p, campaigns: [] }))
-                }
-              >
-                全部
-              </DropdownMenuCheckboxItem>
-              {campaigns.map((c) => (
-                <DropdownMenuCheckboxItem
-                  key={c}
-                  checked={filters.campaigns.includes(c)}
-                  onCheckedChange={(checked) =>
-                    setFilters((p) => ({
-                      ...p,
-                      campaigns: checked
-                        ? [...p.campaigns, c]
-                        : p.campaigns.filter((x) => x !== c),
-                    }))
-                  }
-                >
-                  {c}
-                </DropdownMenuCheckboxItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          {/* 操作按钮 */}
-
-          <div className="flex items-center gap-2 shrink-0">
-            <Button
-              variant="outline"
-              className="flex items-center gap-2 h-10"
-              onClick={handleSearch}
-            >
-              <SearchIcon className="h-4 w-4" />
-              搜索
-            </Button>
-            <Button
-              variant="outline"
-              size="default"
-              onClick={handleReset}
-              className="flex items-center gap-2 h-10"
-            >
-              <RotateCcw className="h-4 w-4" />
-              重置
-            </Button>
-
-            {/* 导���配置��窗 */}
-            <Dialog open={exportOpen} onOpenChange={setExportOpen}>
-              <DialogTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="flex items-center gap-2 h-10"
-                >
-                  <Download className="h-4 w-4" /> 导出
+            {/* 来��多选 */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="shrink-0">
+                  来源（{filters.sources.length || "全部"}）
                 </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-xl">
-                <DialogHeader>
-                  <DialogTitle>导出配置</DialogTitle>
-                  <DialogDescription>
-                    选择要导出的列与数据范围
-                  </DialogDescription>
-                </DialogHeader>
-
-                {/* 列选择 */}
-                <div className="space-y-3">
-                  <Label className="text-sm">导出列</Label>
-                  <div className="grid grid-cols-2 gap-3">
-                    {columnsConfig.map((c) => (
-                      <div key={c.key} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`col-${c.key}`}
-                          checked={exportColumns.includes(c.key)}
-                          onCheckedChange={(checked) =>
-                            setExportColumns((prev) =>
-                              checked
-                                ? [...prev, c.key]
-                                : prev.filter((k) => k !== c.key),
-                            )
-                          }
-                        />
-                        <Label htmlFor={`col-${c.key}`}>{c.label}</Label>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() =>
-                        setExportColumns(columnsConfig.map((c) => c.key))
-                      }
-                    >
-                      全选
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setExportColumns([])}
-                    >
-                      清空
-                    </Button>
-                  </div>
-                </div>
-
-                {/* 范���选择 */}
-                <div className="space-y-3">
-                  <Label className="text-sm">数据范围</Label>
-                  <RadioGroup
-                    value={exportScope}
-                    onValueChange={(v: "current" | "all") => setExportScope(v)}
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56">
+                <DropdownMenuCheckboxItem
+                  checked={filters.sources.length === 0}
+                  onCheckedChange={() => setFilters((p) => ({ ...p, sources: [] }))}
+                >
+                  全部
+                </DropdownMenuCheckboxItem>
+                {sources.map((s) => (
+                  <DropdownMenuCheckboxItem
+                    key={s}
+                    checked={filters.sources.includes(s)}
+                    onCheckedChange={(checked) =>
+                      setFilters((p) => ({
+                        ...p,
+                        sources: checked ? [...p.sources, s] : p.sources.filter((x) => x !== s),
+                      }))
+                    }
                   >
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem id="scope-current" value="current" />
-                      <Label htmlFor="scope-current">导出当前数据</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem id="scope-all" value="all" />
-                      <Label htmlFor="scope-all">
-                        导出全部数据（按当前筛选与排序）
-                      </Label>
-                    </div>
-                  </RadioGroup>
-                </div>
+                    {s}
+                  </DropdownMenuCheckboxItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
 
-                <div className="flex justify-end gap-2">
-                  <Button
-                    variant="outline"
-                    onClick={() => setExportOpen(false)}
+            {/* 媒介多选 */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="shrink-0">
+                  媒介（{filters.mediums.length || "全部"}）
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56">
+                <DropdownMenuCheckboxItem
+                  checked={filters.mediums.length === 0}
+                  onCheckedChange={() => setFilters((p) => ({ ...p, mediums: [] }))}
+                >
+                  全部
+                </DropdownMenuCheckboxItem>
+                {mediums.map((m) => (
+                  <DropdownMenuCheckboxItem
+                    key={m}
+                    checked={filters.mediums.includes(m)}
+                    onCheckedChange={(checked) =>
+                      setFilters((p) => ({
+                        ...p,
+                        mediums: checked ? [...p.mediums, m] : p.mediums.filter((x) => x !== m),
+                      }))
+                    }
                   >
-                    取消
+                    {m}
+                  </DropdownMenuCheckboxItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* 活动多选 */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="shrink-0">
+                  活动（{filters.campaigns.length || "全部"}）
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-64">
+                <DropdownMenuCheckboxItem
+                  checked={filters.campaigns.length === 0}
+                  onCheckedChange={() => setFilters((p) => ({ ...p, campaigns: [] }))}
+                >
+                  全部
+                </DropdownMenuCheckboxItem>
+                {campaigns.map((c) => (
+                  <DropdownMenuCheckboxItem
+                    key={c}
+                    checked={filters.campaigns.includes(c)}
+                    onCheckedChange={(checked) =>
+                      setFilters((p) => ({
+                        ...p,
+                        campaigns: checked ? [...p.campaigns, c] : p.campaigns.filter((x) => x !== c),
+                      }))
+                    }
+                  >
+                    {c}
+                  </DropdownMenuCheckboxItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* 操作按钮 */}
+
+            <div className="flex items-center gap-2 shrink-0">
+              <Button variant="outline" className="flex items-center gap-2 h-10" onClick={handleSearch}>
+                <SearchIcon className="h-4 w-4" />
+                搜索
+              </Button>
+              <Button variant="outline" size="default" onClick={handleReset} className="flex items-center gap-2 h-10">
+                <RotateCcw className="h-4 w-4" />
+                重置
+              </Button>
+
+              {/* 导���配置��窗 */}
+              <Dialog open={exportOpen} onOpenChange={setExportOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" className="flex items-center gap-2 h-10">
+                    <Download className="h-4 w-4" /> 导出
                   </Button>
-                  <Button onClick={exportCSV}>确认导出</Button>
-                </div>
-              </DialogContent>
-            </Dialog>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-xl">
+                  <DialogHeader>
+                    <DialogTitle>导出配置</DialogTitle>
+                    <DialogDescription>选择要导出的列与数据范围</DialogDescription>
+                  </DialogHeader>
 
-            {/* 列配置弹窗 */}
-            <Dialog open={columnConfigOpen} onOpenChange={setColumnConfigOpen}>
-              <DialogTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="flex items-center gap-2 h-10"
-                >
-                  <Settings className="h-4 w-4" /> 列配置
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-2xl">
-                <DialogHeader>
-                  <DialogTitle>列配置</DialogTitle>
-                  <DialogDescription>
-                    选择要显示的字段，拖动可调整排序
-                  </DialogDescription>
-                </DialogHeader>
-
-                <div className="space-y-4">
-                  {/* 列选择区间 */}
+                  {/* 列选择 */}
                   <div className="space-y-3">
-                    <Label className="text-sm font-medium">显示列</Label>
-                    <div className="grid grid-cols-2 gap-3 max-h-64 overflow-y-auto">
-                      {columnsConfig.map((c) => {
-                        const isMandatory = fixedColumns.some(
-                          (fixed) => fixed.key === c.key,
-                        );
-                        return (
-                          <div
-                            key={c.key}
-                            draggable
-                            onDragStart={(e) => handleDragStart(e, c.key)}
-                            onDragOver={handleDragOver}
-                            onDrop={(e) => handleDrop(e, c.key)}
-                            className={`flex items-center space-x-2 p-2 rounded-md hover:bg-gray-50 transition-colors ${
-                              draggedColumn === c.key ? "opacity-50 bg-blue-50" : ""
-                            }`}
-                          >
-                            <Checkbox
-                              id={`visible-${c.key}`}
-                              checked={visibleColumns.includes(c.key)}
-                              disabled={isMandatory}
-                              onCheckedChange={(checked) => {
-                                if (!isMandatory) {
-                                  setVisibleColumns((prev) =>
-                                    checked
-                                      ? [...prev, c.key]
-                                      : prev.filter((k) => k !== c.key),
-                                  );
-                                }
-                              }}
-                            />
-                            <Label
-                              htmlFor={`visible-${c.key}`}
-                              className={`cursor-pointer flex-1 truncate ${isMandatory ? "text-gray-500" : ""}`}
-                              title={c.label}
-                            >
-                              {c.label} {isMandatory && "(必须)"}
-                            </Label>
-                            <GripVertical className="h-4 w-4 text-gray-400 cursor-move" />
-                          </div>
-                        );
-                      })}
+                    <Label className="text-sm">导出列</Label>
+                    <div className="grid grid-cols-2 gap-3">
+                      {columnsConfig.map((c) => (
+                        <div key={c.key} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`col-${c.key}`}
+                            checked={exportColumns.includes(c.key)}
+                            onCheckedChange={(checked) =>
+                              setExportColumns((prev) => (checked ? [...prev, c.key] : prev.filter((k) => k !== c.key)))
+                            }
+                          />
+                          <Label htmlFor={`col-${c.key}`}>{c.label}</Label>
+                        </div>
+                      ))}
                     </div>
                     <div className="flex gap-2">
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() =>
-                          setVisibleColumns(columnsConfig.map((c) => c.key))
-                        }
+                        onClick={() => setExportColumns(columnsConfig.map((c) => c.key))}
                       >
                         全选
                       </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() =>
-                          setVisibleColumns([...fixedColumns.map((c) => c.key)])
-                        }
-                      >
+                      <Button variant="ghost" size="sm" onClick={() => setExportColumns([])}>
                         清空
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() =>
-                          setVisibleColumns([...fixedColumns.map((c) => c.key)])
-                        }
-                      >
-                        重置默认
                       </Button>
                     </div>
                   </div>
 
-                  {/* 预览区域 */}
+                  {/* 范���选择 */}
                   <div className="space-y-3">
-                    <Label className="text-sm font-medium">预览</Label>
-                    <div className="border rounded-md p-3 bg-gray-50">
-                      <div className="text-sm text-gray-600">
-                        当前选择 {visibleColumns.length} 列：
-                        <div className="mt-2 flex flex-wrap gap-2">
-                          {visibleColumns.map((key) => {
-                            const config = columnsConfig.find(
-                              (c) => c.key === key,
-                            );
-                            return (
-                              <span
-                                key={key}
-                                className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs"
+                    <Label className="text-sm">数据范围</Label>
+                    <RadioGroup value={exportScope} onValueChange={(v: "current" | "all") => setExportScope(v)}>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem id="scope-current" value="current" />
+                        <Label htmlFor="scope-current">导出当前数据</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem id="scope-all" value="all" />
+                        <Label htmlFor="scope-all">导出全部数据（按当前筛选与排序）</Label>
+                      </div>
+                    </RadioGroup>
+                  </div>
+
+                  <div className="flex justify-end gap-2">
+                    <Button variant="outline" onClick={() => setExportOpen(false)}>
+                      取消
+                    </Button>
+                    <Button onClick={exportCSV}>确认导出</Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
+
+              {/* 列配置弹窗 */}
+              <Dialog open={columnConfigOpen} onOpenChange={setColumnConfigOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" className="flex items-center gap-2 h-10">
+                    <Settings className="h-4 w-4" /> 列配置
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-2xl">
+                  <DialogHeader>
+                    <DialogTitle>列配置</DialogTitle>
+                    <DialogDescription>选择要显示的字段，拖动可调整排序</DialogDescription>
+                  </DialogHeader>
+
+                  <div className="space-y-4">
+                    {/* 列选择区间 */}
+                    <div className="space-y-3">
+                      <Label className="text-sm font-medium">显示列</Label>
+                      <div className="grid grid-cols-2 gap-3 max-h-64 overflow-y-auto">
+                        {columnsConfig.map((c) => {
+                          const isMandatory = fixedColumns.some((fixed) => fixed.key === c.key);
+                          return (
+                            <div
+                              key={c.key}
+                              draggable
+                              onDragStart={(e) => handleDragStart(e, c.key)}
+                              onDragOver={handleDragOver}
+                              onDrop={(e) => handleDrop(e, c.key)}
+                              className={`flex items-center space-x-2 p-2 rounded-md hover:bg-gray-50 transition-colors ${
+                                draggedColumn === c.key ? "opacity-50 bg-blue-50" : ""
+                              }`}
+                            >
+                              <Checkbox
+                                id={`visible-${c.key}`}
+                                checked={visibleColumns.includes(c.key)}
+                                disabled={isMandatory}
+                                onCheckedChange={(checked) => {
+                                  if (!isMandatory) {
+                                    setVisibleColumns((prev) =>
+                                      checked ? [...prev, c.key] : prev.filter((k) => k !== c.key),
+                                    );
+                                  }
+                                }}
+                              />
+                              <Label
+                                htmlFor={`visible-${c.key}`}
+                                className={`cursor-pointer flex-1 truncate ${isMandatory ? "text-gray-500" : ""}`}
+                                title={c.label}
                               >
-                                {config?.label}
-                              </span>
-                            );
-                          })}
+                                {c.label} {isMandatory && "(必须)"}
+                              </Label>
+                              <GripVertical className="h-4 w-4 text-gray-400 cursor-move" />
+                            </div>
+                          );
+                        })}
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setVisibleColumns(columnsConfig.map((c) => c.key))}
+                        >
+                          全选
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setVisibleColumns([...fixedColumns.map((c) => c.key)])}
+                        >
+                          清空
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setVisibleColumns([...fixedColumns.map((c) => c.key)])}
+                        >
+                          重置默认
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* 预览区域 */}
+                    <div className="space-y-3">
+                      <Label className="text-sm font-medium">预览</Label>
+                      <div className="border rounded-md p-3 bg-gray-50">
+                        <div className="text-sm text-gray-600">
+                          当前选择 {visibleColumns.length} 列：
+                          <div className="mt-2 flex flex-wrap gap-2">
+                            {visibleColumns.map((key) => {
+                              const config = columnsConfig.find((c) => c.key === key);
+                              return (
+                                <span key={key} className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs">
+                                  {config?.label}
+                                </span>
+                              );
+                            })}
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="flex justify-end gap-2">
-                  <Button
-                    variant="outline"
-                    onClick={() => setColumnConfigOpen(false)}
-                  >
-                    取消
-                  </Button>
-                  <Button
-                    onClick={async () => {
-                      await saveColumns();
-                      setColumnConfigOpen(false);
-                    }}
-                  >
-                    确认
-                  </Button>
-                </div>
-              </DialogContent>
-            </Dialog>
+                  <div className="flex justify-end gap-2">
+                    <Button variant="outline" onClick={() => setColumnConfigOpen(false)}>
+                      取消
+                    </Button>
+                    <Button
+                      onClick={async () => {
+                        await saveColumns();
+                        setColumnConfigOpen(false);
+                      }}
+                    >
+                      确认
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
           </div>
-        </div>
-      </Card>
+        </Card>
 
-      {/* 列表区 - 表头排序、分页在下方 */}
-      <Card className="bg-white shadow-sm">
-        <div className="max-h-[620px] overflow-y-auto">
-          <div className="overflow-x-auto">
-            <div className="min-w-[1200px]">
-              <Table>
-                <TableHeader>
-                <TableRow>
-                  {fixedColumns.map((col, index) => {
-                    if (!visibleColumns.includes(col.key)) return null;
+        {/* 列表区 - 表头排序、分页在下方 */}
+        <Card className="bg-white shadow-sm">
+          <div className="max-h-[620px] overflow-y-auto">
+            <div className="overflow-x-auto">
+              <div className="min-w-[1200px]">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      {fixedColumns.map((col, index) => {
+                        if (!visibleColumns.includes(col.key)) return null;
 
-                    const width = index < 2 ? "w-[160px]" : "w-[200px]";
-                    const sortKey = col.sortKey || col.key as SortKey;
+                        const width = index < 2 ? "w-[160px]" : "w-[200px]";
+                        const sortKey = col.sortKey || (col.key as SortKey);
 
-                    return (
-                      <TableHead
-                        key={col.key}
-                        className={`${width} cursor-pointer select-none hover:bg-gray-100 whitespace-nowrap`}
-                        onClick={() => handleHeaderSort(sortKey)}
-                      >
-                        <div className="flex items-center gap-2">
-                          {col.label}
-                          {col.key === "totalSession" && reportCount.totalsession && (
-                            <span className="text-xs text-blue-600 font-normal">({reportCount.totalsession})</span>
-                          )}
-                          {col.key === "totalVisitors" && reportCount.totalvisitors && (
-                            <span className="text-xs text-blue-600 font-normal">({reportCount.totalvisitors})</span>
-                          )}
-                          {getSortIcon(sortKey)}
-                        </div>
-                      </TableHead>
-                    );
-                  })}
-                  {/* 动态列头（来自规则类型） */}
-                  {columnsConfig
-                    .filter(
-                      (col) =>
-                        !fixedColumns.some((fixed) => fixed.key === col.key),
-                    )
-                    .filter((col) => visibleColumns.includes(col.key))
-                    .map((col) => {
-                      const sortKey = col.sortKey || col.key as SortKey;
-                      return (
-                        <TableHead
-                          key={col.key}
-                          className="cursor-pointer select-none hover:bg-gray-100 whitespace-nowrap"
-                          onClick={() => handleHeaderSort(sortKey)}
-                        >
-                          <div className="flex items-center gap-2">
-                            {col.label}
-                            {getSortIcon(sortKey)}
-                          </div>
-                        </TableHead>
-                      );
-                    })}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {pagedRows.map((r) => (
-                  <TableRow key={r.id}>
-                    {fixedColumns.map((col, index) => {
-                      if (!visibleColumns.includes(col.key)) return null;
-                      return (
-                        <TableCell key={col.key} className={`whitespace-nowrap`}>
-                          {r[col.key as keyof AttributionRow]}
-                        </TableCell>
-                      );
-                    })}
+                        return (
+                          <TableHead
+                            key={col.key}
+                            className={`${width} cursor-pointer select-none hover:bg-gray-100 whitespace-nowrap`}
+                            onClick={() => handleHeaderSort(sortKey)}
+                          >
+                            <div className="flex items-center gap-2">
+                              {col.label}
+                              {col.key === "totalSession" && reportCount.totalsession && (
+                                <span className="text-xs text-blue-600 font-normal">({reportCount.totalsession})</span>
+                              )}
+                              {col.key === "totalVisitors" && reportCount.totalvisitors && (
+                                <span className="text-xs text-blue-600 font-normal">({reportCount.totalvisitors})</span>
+                              )}
+                              {getSortIcon(sortKey)}
+                            </div>
+                          </TableHead>
+                        );
+                      })}
+                      {/* 动态列头（来自规则类型） */}
+                      {columnsConfig
+                        .filter((col) => !fixedColumns.some((fixed) => fixed.key === col.key))
+                        .filter((col) => visibleColumns.includes(col.key))
+                        .map((col) => {
+                          const sortKey = col.sortKey || (col.key as SortKey);
+                          return (
+                            <TableHead
+                              key={col.key}
+                              className="cursor-pointer select-none hover:bg-gray-100 whitespace-nowrap"
+                              onClick={() => handleHeaderSort(sortKey)}
+                            >
+                              <div className="flex items-center gap-2">
+                                {col.label}
+                                {getSortIcon(sortKey)}
+                              </div>
+                            </TableHead>
+                          );
+                        })}
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {pagedRows.map((r) => (
+                      <TableRow key={r.id}>
+                        {fixedColumns.map((col, index) => {
+                          if (!visibleColumns.includes(col.key)) return null;
+                          return (
+                            <TableCell key={col.key} className={`whitespace-nowrap`}>
+                              {r[col.key as keyof AttributionRow]}
+                            </TableCell>
+                          );
+                        })}
 
-                    {/* 动态列数据（来自规则类型） */}
-                    {columnsConfig
-                      .filter(
-                        (col) =>
-                          !fixedColumns.some((fixed) => fixed.key === col.key),
-                      )
-                      .filter((col) => visibleColumns.includes(col.key))
-                      .map((col) => (
-                        <TableCell key={col.key} className="whitespace-nowrap">
-                          {/* 这里可以根据实际需要显示动态数据，目前显示占位符 */}
-                          {/* {console.log(r.metrics, col.key)} */}
-                          { r?.metrics[col.key] || '-' }
-                        </TableCell>
-                      ))}
-                  </TableRow>
-                ))}
-                {/* 总计����（���参���分页，��示当前筛选与排序后全量的总计） */}
-                {/* <TableRow>
+                        {/* 动态列数据（来自规则类型） */}
+                        {columnsConfig
+                          .filter((col) => !fixedColumns.some((fixed) => fixed.key === col.key))
+                          .filter((col) => visibleColumns.includes(col.key))
+                          .map((col) => (
+                            <TableCell key={col.key} className="whitespace-nowrap">
+                              {/* 这里可以根据实际需要显示动态数据，目前显示占位符 */}
+                              {/* {console.log(r.metrics, col.key)} */}
+                              {r?.metrics[col.key] || "-"}
+                            </TableCell>
+                          ))}
+                      </TableRow>
+                    ))}
+                    {/* 总计����（���参���分页，��示当前筛选与排序后全量的总计） */}
+                    {/* <TableRow>
                   {visibleColumns.includes("source") && (
                     <TableCell className="sticky left-0 z-10 bg-background w-[160px] font-medium">
                       总计
@@ -1148,54 +1031,53 @@ export default function AttributionReport() {
                       </TableCell>
                     ))}
                 </TableRow> */}
-              </TableBody>
-              </Table>
+                  </TableBody>
+                </Table>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* ��页 - ���格下��� */}
-        <div className="px-6 py-4 border-t bg-gray-50 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="text-sm text-gray-700 order-2 sm:order-1">
-            正在显示 {(page - 1) * pageSize + 1} -{" "}
-            {Math.min(page * pageSize, totalCount)} 条，共 {apiData.total} 条
+          {/* ��页 - ���格下��� */}
+          <div className="px-6 py-4 border-t bg-gray-50 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="text-sm text-gray-700 order-2 sm:order-1">
+              正在显示 {(page - 1) * pageSize + 1} - {Math.min(page * pageSize, totalCount)} 条，共 {apiData.total} 条
+            </div>
+            <div className="flex items-center gap-2 order-1 sm:order-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}
+              >
+                上一页
+              </Button>
+              <Select
+                value={String(pageSize)}
+                onValueChange={(v) => {
+                  setPageSize(Number(v));
+                  setPage(1);
+                }}
+              >
+                <SelectTrigger className="w-[110px]">
+                  <SelectValue placeholder="����" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="10">10</SelectItem>
+                  <SelectItem value="20">20</SelectItem>
+                  <SelectItem value="50">50</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
+              >
+                下一页
+              </Button>
+            </div>
           </div>
-          <div className="flex items-center gap-2 order-1 sm:order-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page === 1}
-            >
-              上一页
-            </Button>
-            <Select
-              value={String(pageSize)}
-              onValueChange={(v) => {
-                setPageSize(Number(v));
-                setPage(1);
-              }}
-            >
-              <SelectTrigger className="w-[110px]">
-                <SelectValue placeholder="����" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="10">10</SelectItem>
-                <SelectItem value="20">20</SelectItem>
-                <SelectItem value="50">50</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              disabled={page === totalPages}
-            >
-              下一页
-            </Button>
-          </div>
-        </div>
-      </Card>
+        </Card>
       </div>
     </div>
   );

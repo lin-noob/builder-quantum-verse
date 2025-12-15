@@ -76,6 +76,11 @@ export const ruleService = {
     return response.data.data || [];
   },
 
+  async getColRules(): Promise<BackendRule[]> {
+    const response = await request.get<{ data: BackendRule[] }>("/quote/api/v1/rule/role");
+    return response.data.data || [];
+  },
+
   /**
    * Update a rule
    * 更新规则
