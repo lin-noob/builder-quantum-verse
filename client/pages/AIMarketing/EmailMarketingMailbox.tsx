@@ -31,6 +31,7 @@ import {
   Tags,
   CalendarCheck,
   Languages,
+  RefreshCw,
 } from "lucide-react";
 
 type FolderKey =
@@ -332,6 +333,7 @@ export default function EmailMarketingMailbox() {
   const [aiDrawerOpen, setAiDrawerOpen] = useState(false);
   const [tempLabels, setTempLabels] = useState<string[]>([]);
   const [newLabel, setNewLabel] = useState("");
+  const [lastFetchAt, setLastFetchAt] = useState<string>("");
 
   const renderSections = () => {
     if (!active) return null;
@@ -828,6 +830,14 @@ export default function EmailMarketingMailbox() {
   const handleNew = () => {
     navigate("/ai-marketing/email/compose");
   };
+  const handleManualFetch = () => {
+    const ts = new Date();
+    const tsStr = `${ts.getHours().toString().padStart(2, "0")}:${ts.getMinutes()
+      .toString()
+      .padStart(2, "0")}:${ts.getSeconds().toString().padStart(2, "0")}`;
+    setLastFetchAt(tsStr);
+    toast({ title: "已手动拉取", description: `拉取完成（模拟），时间 ${tsStr}` });
+  };
 
   // 按状态控制 AI 面板入口可见性（必须在 active 定义之后）
   const canShowInsights = !!(active && ["draft", "scheduled", "sending", "sent"].includes(active.status));
@@ -865,8 +875,10 @@ export default function EmailMarketingMailbox() {
     <div className="p-6 space-y-4">
       {/* 顶部工具栏 */}
       <Card>
-        <CardContent className="pt-6 flex flex-wrap items-center gap-2">
+        <CardContent className="pt-6 flex flex-wrap items-center gap-3 justify-between">
+          {/* 左侧：账户相关 */}
           <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">邮箱账户</span>
             <Select
               value={activeAccountId}
               onValueChange={(v) => {
@@ -874,7 +886,7 @@ export default function EmailMarketingMailbox() {
                 localStorage.setItem("activeEmailAccountId", v);
               }}
             >
-              <SelectTrigger className="w-56">
+              <SelectTrigger className="h-9 w-56">
                 <SelectValue placeholder="选择邮箱账户" />
               </SelectTrigger>
               <SelectContent>
@@ -884,32 +896,35 @@ export default function EmailMarketingMailbox() {
                 ))}
               </SelectContent>
             </Select>
-            <Button variant="ghost" size="sm" asChild>
+            <Button variant="ghost" size="sm" asChild className="h-9">
               <Link to="/account/settings/email">管理账户</Link>
             </Button>
+            <Button size="sm" variant="outline" onClick={handleManualFetch} className="flex items-center gap-2 h-9">
+              <RefreshCw className="h-4 w-4" /> 手动拉取{lastFetchAt ? `（${lastFetchAt}）` : ""}
+            </Button>
           </div>
-          <Button size="sm" onClick={handleNew} className="flex items-center gap-2">
-            <Plus className="h-4 w-4" /> 新建邮件
-          </Button>
-          <Button size="sm" variant="outline" onClick={handleDelete} disabled={selectedIds.length === 0} className="flex items-center gap-2">
-            <Trash2 className="h-4 w-4" /> 删除
-          </Button>
-          <Button size="sm" variant="outline" onClick={handleReject} disabled={selectedIds.length === 0} className="flex items-center gap-2">
-            <Ban className="h-4 w-4" /> 拒收
-          </Button>
-          <Button size="sm" variant="outline" onClick={handleReply} disabled={!active} className="flex items-center gap-2">
-            <Reply className="h-4 w-4" /> 回复
-          </Button>
-          <Button size="sm" variant="outline" onClick={handleReplyAll} disabled={!active} className="flex items-center gap-2">
-            <ReplyAll className="h-4 w-4" /> 回复全部
-          </Button>
-          <Button size="sm" variant="outline" onClick={handleForward} disabled={!active} className="flex items-center gap-2">
-            <Forward className="h-4 w-4" /> 转发
-          </Button>
-
-          {enableAI && (
-            <>
-              <Separator orientation="vertical" className="h-6 hidden sm:block" />
+ 
+          {/* 中间：动作区 */}
+          <div className="flex items-center gap-2">
+            <Button size="sm" onClick={handleNew} className="flex items-center gap-2 h-9">
+              <Plus className="h-4 w-4" /> 新建邮件
+            </Button>
+            <Button size="sm" variant="outline" onClick={handleDelete} disabled={selectedIds.length === 0} className="flex items-center gap-2 h-9">
+              <Trash2 className="h-4 w-4" /> 删除
+            </Button>
+            <Button size="sm" variant="outline" onClick={handleReject} disabled={selectedIds.length === 0} className="flex items-center gap-2 h-9">
+              <Ban className="h-4 w-4" /> 拒收
+            </Button>
+            <Button size="sm" variant="outline" onClick={handleReply} disabled={!active} className="flex items-center gap-2 h-9">
+              <Reply className="h-4 w-4" /> 回复
+            </Button>
+            <Button size="sm" variant="outline" onClick={handleReplyAll} disabled={!active} className="flex items-center gap-2 h-9">
+              <ReplyAll className="h-4 w-4" /> 回复全部
+            </Button>
+            <Button size="sm" variant="outline" onClick={handleForward} disabled={!active} className="flex items-center gap-2 h-9">
+              <Forward className="h-4 w-4" /> 转发
+            </Button>
+            {enableAI && (
               <Button
                 size="sm"
                 variant="secondary"
@@ -918,16 +933,17 @@ export default function EmailMarketingMailbox() {
                   setAiDrawerOpen(true);
                   setAiTab("review");
                 }}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 h-9"
               >
                 <Sparkles className="h-4 w-4" /> AI工作台
               </Button>
-            </>
-          )}
-
-          <div className="relative ml-auto w-full sm:w-64">
+            )}
+          </div>
+ 
+          {/* 右侧：搜索 */}
+          <div className="relative w-full sm:w-64">
             <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-            <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="搜索主题/标签" className="pl-10" />
+            <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="搜索主题/标签" className="pl-10 h-9" />
           </div>
         </CardContent>
       </Card>
