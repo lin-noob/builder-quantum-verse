@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { Button, Card, Form, Input, Radio, Select, DatePicker, Switch, Alert, Space, Typography, Tree, message } from "antd";
+import { Button, Card, Form, Input, Radio, Select, DatePicker, Switch, Alert, Space, Typography, Tree, message, Modal } from "antd";
 import dayjs from "dayjs";
 
 type Provider = "Gmail" | "IMAP" | "POP3";
@@ -15,6 +15,9 @@ const EmailConfigPage: React.FC = () => {
   const [testResult, setTestResult] = useState<{ ok: boolean; msg: string } | null>(null);
   const [imapFolders, setImapFolders] = useState<any[]>([]);
   const [imapCheckedKeys, setImapCheckedKeys] = useState<React.Key[]>([]);
+  
+  // New state for Modal
+  const [isFolderModalVisible, setIsFolderModalVisible] = useState(false);
 
   const initialValues = useMemo(
     () => ({
@@ -29,6 +32,8 @@ const EmailConfigPage: React.FC = () => {
       gmailFolderMode: "Inbox",
       gmailCustomLabels: [],
       fetchAttachments: false,
+      syncMode: "manual",
+      autoInterval: 30
     }),
     [],
   );
@@ -94,28 +99,62 @@ const EmailConfigPage: React.FC = () => {
     message.success("已加载文件夹");
   };
 
-  const handleTestConnection = async () => {
-    setTesting(true);
-    setTestResult(null);
-    await new Promise((r) => setTimeout(r, 800));
-    const srv = form.getFieldValue("server");
-    if (provider === "Gmail") {
-      if (authorized) {
-        setTestResult({ ok: true, msg: "连接成功" });
+  const handleTestAndSave = async () => {
+    try {
+      // 1. Validate connection fields
+      const connectionFields = provider === 'Gmail' 
+        ? [] 
+        : ['protocol', 'server', 'port', 'encryption', 'username', 'password'];
+      
+      // Also validate sync settings which are on the main page
+      const syncFields = ['syncStartDate', 'fetchAttachments', 'syncMode', 'autoInterval'];
+      
+      await form.validateFields([...connectionFields, ...syncFields]);
+
+      setTesting(true);
+      setTestResult(null);
+      await new Promise((r) => setTimeout(r, 800));
+      
+      let connectOk = false;
+      let msg = "";
+
+      if (provider === "Gmail") {
+        if (authorized) {
+          connectOk = true;
+          msg = "连接成功";
+        } else {
+          connectOk = false;
+          msg = "未授权";
+        }
       } else {
-        setTestResult({ ok: false, msg: "未授权" });
+        const srv = form.getFieldValue("server");
+        if (srv) {
+          connectOk = true;
+          msg = "连接成功";
+        } else {
+          connectOk = false;
+          msg = "请填写服务器地址";
+        }
       }
-    } else {
-      if (srv) {
-        setTestResult({ ok: true, msg: "连接成功" });
-      } else {
-        setTestResult({ ok: false, msg: "请填写服务器地址" });
+
+      setTestResult({ ok: connectOk, msg });
+
+      if (connectOk) {
+        if (provider === "IMAP" && imapFolders.length === 0) {
+          handleLoadImapFolders();
+        }
+        setIsFolderModalVisible(true);
       }
+    } catch (e) {
+      // Validation failed
+      console.error(e);
+    } finally {
+      setTesting(false);
     }
-    setTesting(false);
   };
 
   const validateBeforeSave = async () => {
+    // Validate all fields including hidden ones in modal
     const values = await form.validateFields();
     if (provider === "Gmail" && !authorized) {
       message.error("请先完成 Gmail 授权");
@@ -133,9 +172,6 @@ const EmailConfigPage: React.FC = () => {
         message.error("请至少选择一个文件夹");
         throw new Error("no folders");
       }
-    }
-    if (provider === "POP3") {
-      /* fixed inbox */
     }
     return values;
   };
@@ -163,10 +199,21 @@ const EmailConfigPage: React.FC = () => {
             : provider === "IMAP"
             ? imapCheckedKeys
             : ["Inbox"],
+        syncMode: values.syncMode,
+        autoInterval: values.autoInterval
       };
       localStorage.setItem("email_config", JSON.stringify(payload));
       message.success("已保存配置");
+      setIsFolderModalVisible(false);
     } catch {}
+  };
+
+  const handleModalOk = () => {
+    handleSave();
+  };
+
+  const handleModalCancel = () => {
+    setIsFolderModalVisible(false);
   };
 
   return (
@@ -186,7 +233,7 @@ const EmailConfigPage: React.FC = () => {
               </Radio.Group>
             </Form.Item>
 
-            <Form.Item label="同步规则" name="syncMode" initialValue={"manual"} extra="手动拉取用于低频；定时自动同步适合持续更新；关闭同步仅保存配置。">
+            <Form.Item label="同步规则" name="syncMode" extra="手动拉取用于低频；定时自动同步适合持续更新；关闭同步仅保存配置。">
               <Radio.Group>
                 <Radio value="manual">手动拉取</Radio>
                 <Radio value="auto">定时自动同步</Radio>
@@ -196,7 +243,7 @@ const EmailConfigPage: React.FC = () => {
             <Form.Item noStyle shouldUpdate={(prev, cur) => prev.syncMode !== cur.syncMode}>
               {({ getFieldValue }) =>
                 getFieldValue("syncMode") === "auto" ? (
-                  <Form.Item label="同步间隔（分钟）" name="autoInterval" initialValue={30} extra="建议 15/30/60 分钟，过小间隔可能影响性能与限流。">
+                  <Form.Item label="同步间隔（分钟）" name="autoInterval" extra="建议 15/30/60 分钟，过小间隔可能影响性能与限流。">
                     <Input type="number" />
                   </Form.Item>
                 ) : null
@@ -211,17 +258,7 @@ const EmailConfigPage: React.FC = () => {
                   <Button danger onClick={handleDisconnectGmail}>断开授权</Button>
                   <Alert type={authorized ? "success" : "warning"} message={authorized ? "已授权" : "未授权"} showIcon />
                 </Space>
-                <Form.Item label="文件夹" name="gmailFolderMode" style={{ marginTop: 16 }} extra="选择同步的 Gmail 文件夹或标签。">
-                  <Radio.Group>
-                    <Radio value="Inbox">收件箱</Radio>
-                    <Radio value="AllMail">所有邮件</Radio>
-                    <Radio value="Custom">自定义标签</Radio>
-                  </Radio.Group>
-                </Form.Item>
-                <Alert style={{ marginBottom: 12 }} type="info" message="选择“所有邮件”可能包含大量邮件，拉取耗时较长" showIcon />
-                <Form.Item name="gmailCustomLabels" label="自定义标签" extra="输入需要同步的标签名，如 Important、Work。">
-                  <Select mode="tags" placeholder="输入或选择标签" options={[{ label: "Important", value: "Important" }, { label: "Work", value: "Work" }]} />
-                </Form.Item>
+                {/* Gmail folders moved to Modal */}
               </Card>
             )}
 
@@ -256,23 +293,8 @@ const EmailConfigPage: React.FC = () => {
                 {form.getFieldValue("encryption") === "None" && (
                   <Alert type="warning" message="不加密连接存在风险，不建议使用" showIcon />
                 )}
-
-                {provider === "IMAP" && (
-                  <div style={{ marginTop: 16 }}>
-                    <Space>
-                      <Button onClick={handleLoadImapFolders}>加载文件夹</Button>
-                    </Space>
-                    <div style={{ marginTop: 8 }}>
-                      <Tree
-                        checkable
-                        treeData={imapFolders}
-                        checkedKeys={imapCheckedKeys}
-                        onCheck={(keys) => setImapCheckedKeys(keys as React.Key[])}
-                      />
-                    </div>
-                    <Alert style={{ marginTop: 8 }} type="info" message="选择需要同步的 IMAP 文件夹。" showIcon />
-                  </div>
-                )}
+                
+                {/* IMAP Tree moved to Modal */}
               </Card>
             )}
 
@@ -286,8 +308,8 @@ const EmailConfigPage: React.FC = () => {
             </Card>
 
             <Space style={{ marginTop: 16 }} wrap>
-              <Button onClick={handleTestConnection} loading={testing}>测试连接</Button>
-              <Button type="primary" onClick={handleSave}>保存</Button>
+              {/* New Button */}
+              <Button type="primary" onClick={handleTestAndSave} loading={testing}>测试并保存</Button>
             </Space>
 
             {testResult && (
@@ -295,6 +317,52 @@ const EmailConfigPage: React.FC = () => {
                 <Alert type={testResult.ok ? "success" : "error"} message={testResult.ok ? "连接成功" : `连接失败：${testResult.msg}`} showIcon />
               </div>
             )}
+
+            {/* Modal for Folder Selection */}
+            <Modal
+              title="选择同步文件夹"
+              open={isFolderModalVisible}
+              onOk={handleModalOk}
+              onCancel={handleModalCancel}
+              width={600}
+            >
+               {provider === "Gmail" && (
+                 <div className="space-y-4">
+                    <Form.Item label="文件夹" name="gmailFolderMode" extra="选择同步的 Gmail 文件夹或标签。">
+                      <Radio.Group>
+                        <Radio value="Inbox">收件箱</Radio>
+                        <Radio value="AllMail">所有邮件</Radio>
+                        <Radio value="Custom">自定义标签</Radio>
+                      </Radio.Group>
+                    </Form.Item>
+                    <Alert style={{ marginBottom: 12 }} type="info" message="选择“所有邮件”可能包含大量邮件，拉取耗时较长" showIcon />
+                    <Form.Item name="gmailCustomLabels" label="自定义标签" extra="输入需要同步的标签名，如 Important、Work。">
+                      <Select mode="tags" placeholder="输入或选择标签" options={[{ label: "Important", value: "Important" }, { label: "Work", value: "Work" }]} />
+                    </Form.Item>
+                 </div>
+               )}
+
+               {provider === "IMAP" && (
+                  <div>
+                    <Space style={{ marginBottom: 8 }}>
+                      <Button onClick={handleLoadImapFolders}>刷新文件夹</Button>
+                    </Space>
+                    <Tree
+                      checkable
+                      defaultExpandAll
+                      treeData={imapFolders}
+                      checkedKeys={imapCheckedKeys}
+                      onCheck={(keys) => setImapCheckedKeys(keys as React.Key[])}
+                      height={400} // Virtual scroll if many folders
+                    />
+                    <Alert style={{ marginTop: 8 }} type="info" message="选择需要同步的 IMAP 文件夹。" showIcon />
+                  </div>
+               )}
+               
+               {provider === "POP3" && (
+                 <Alert message="POP3 协议仅支持同步收件箱，无需选择文件夹。" type="info" showIcon />
+               )}
+            </Modal>
           </Form>
         </Card>
 

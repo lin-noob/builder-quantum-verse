@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import KPICard from "@/components/KPICard";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -330,7 +331,7 @@ export default function EmailMarketingMailbox() {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [composeMode, setComposeMode] = useState<"none" | "reply" | "replyAll" | "forward">("none");
   const enableAI = true;
-  const [aiDrawerOpen, setAiDrawerOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<"preview" | "ai">("preview");
   const [tempLabels, setTempLabels] = useState<string[]>([]);
   const [newLabel, setNewLabel] = useState("");
   const [lastFetchAt, setLastFetchAt] = useState<string>("");
@@ -872,89 +873,40 @@ export default function EmailMarketingMailbox() {
   };
 
   return (
-    <div className="p-6 space-y-4">
+    <div className="p-6 h-screen overflow-hidden flex flex-col">
       {/* 顶部工具栏 */}
-      <Card>
-        <CardContent className="pt-6 flex flex-wrap items-center gap-3 justify-between">
-          {/* 左侧：账户相关 */}
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">邮箱账户</span>
-            <Select
-              value={activeAccountId}
-              onValueChange={(v) => {
-                setActiveAccountId(v);
-                localStorage.setItem("activeEmailAccountId", v);
-              }}
-            >
-              <SelectTrigger className="h-9 w-56">
-                <SelectValue placeholder="选择邮箱账户" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="default">marketing@hzfro.com</SelectItem>
-                {accounts.map((a) => (
-                  <SelectItem key={a.id} value={a.id}>{a.email || `${a.provider} 账户`}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Button variant="ghost" size="sm" asChild className="h-9">
-              <Link to="/account/settings/email">管理账户</Link>
-            </Button>
-            <Button size="sm" variant="outline" onClick={handleManualFetch} className="flex items-center gap-2 h-9">
-              <RefreshCw className="h-4 w-4" /> 手动拉取{lastFetchAt ? `（${lastFetchAt}）` : ""}
-            </Button>
-          </div>
- 
-          {/* 中间：动作区 */}
-          <div className="flex items-center gap-2">
-            <Button size="sm" onClick={handleNew} className="flex items-center gap-2 h-9">
-              <Plus className="h-4 w-4" /> 新建邮件
-            </Button>
-            <Button size="sm" variant="outline" onClick={handleDelete} disabled={selectedIds.length === 0} className="flex items-center gap-2 h-9">
-              <Trash2 className="h-4 w-4" /> 删除
-            </Button>
-            <Button size="sm" variant="outline" onClick={handleReject} disabled={selectedIds.length === 0} className="flex items-center gap-2 h-9">
-              <Ban className="h-4 w-4" /> 拒收
-            </Button>
-            <Button size="sm" variant="outline" onClick={handleReply} disabled={!active} className="flex items-center gap-2 h-9">
-              <Reply className="h-4 w-4" /> 回复
-            </Button>
-            <Button size="sm" variant="outline" onClick={handleReplyAll} disabled={!active} className="flex items-center gap-2 h-9">
-              <ReplyAll className="h-4 w-4" /> 回复全部
-            </Button>
-            <Button size="sm" variant="outline" onClick={handleForward} disabled={!active} className="flex items-center gap-2 h-9">
-              <Forward className="h-4 w-4" /> 转发
-            </Button>
-            {enableAI && (
-              <Button
-                size="sm"
-                variant="secondary"
-                disabled={!active}
-                onClick={() => {
-                  setAiDrawerOpen(true);
-                  setAiTab("review");
-                }}
-                className="flex items-center gap-2 h-9"
-              >
-                <Sparkles className="h-4 w-4" /> AI工作台
-              </Button>
-            )}
-          </div>
- 
-          {/* 右侧：搜索 */}
-          <div className="relative w-full sm:w-64">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-            <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="搜索主题/标签" className="pl-10 h-9" />
-          </div>
-        </CardContent>
-      </Card>
+      {/* 顶部卡片隐藏 */}
       
       {/* 三栏布局（合并为一个卡片，分割线区分，每栏有内边距）*/}
-      <Card>
-        <CardContent className="p-0">
-          <div className="flex flex-col md:flex-row items-stretch">
+      <Card className="flex-1 mt-6 overflow-hidden flex flex-col min-h-0">
+        <CardContent className="p-0 flex-1 min-h-0">
+          <div className="flex flex-col md:flex-row items-stretch h-full">
             {/* 左侧文件夹（12%）*/}
-            <div className="md:basis-[12%] p-3">
-              <div className="text-sm font-medium mb-2">{activeAccount.email}</div>
+            <div className="md:basis-[260px] shrink-0 p-3 overflow-y-auto overflow-x-hidden">
+              <div className="space-y-2 mb-3">
+                <div className="flex items-center gap-2">
+                  <Select
+                    value={activeAccountId}
+                    onValueChange={(v) => {
+                      setActiveAccountId(v);
+                      localStorage.setItem("activeEmailAccountId", v);
+                    }}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="选择邮箱账户" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="default">marketing@hzfro.com</SelectItem>
+                      {accounts.map((a) => (
+                        <SelectItem key={a.id} value={a.id}>{a.email || `${a.provider} 账户`}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Button variant="ghost" size="icon" onClick={handleManualFetch} aria-label="手动拉取">
+                    <RefreshCw className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
               <div className="space-y-2">
             {(
               [
@@ -993,7 +945,7 @@ export default function EmailMarketingMailbox() {
             </div>
 
             {/* 中间列表（13%）*/}
-            <div className="md:basis-[13%] p-3 md:border-l md:border-border">
+            <div className="md:basis-[280px] shrink-0 p-3 md:border-l md:border-border overflow-y-auto overflow-x-hidden">
               <div className="text-sm font-medium mb-2">{folder === "sent" ? "已发送" : folder === "drafts" ? "草稿" : "邮件列表"}</div>
               <div className="space-y-2">
                 {data.map((m) => {
@@ -1008,6 +960,9 @@ export default function EmailMarketingMailbox() {
                       key={m.id}
                       className="flex items-start gap-2 p-2 rounded hover:bg-muted cursor-pointer"
                       onClick={() => setActiveId(m.id)}
+                      onDoubleClick={() => {
+                        setActiveTab("ai");
+                      }}
                     >
                       <Avatar className="h-6 w-6 mt-0.5">
                         <AvatarImage src="" alt={sender} />
@@ -1042,29 +997,26 @@ export default function EmailMarketingMailbox() {
             </div>
 
             {/* 右侧预览区（75%）*/}
-            <div className="md:basis-[75%] p-3 md:border-l md:border-border">
-              <div className="text-sm font-medium mb-2">预览</div>
-              <div className="space-y-4">
-              {!active && <div className="text-sm text-muted-foreground">请选择左侧列表中的一封邮件进行预览</div>}
-
-              {active && (
+            <div className="flex-1 min-w-0 p-3 md:border-l md:border-border overflow-y-auto">
+              <div className="mb-2">
+                <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "preview" | "ai")}>
+                  <TabsList>
+                    <TabsTrigger value="preview">预览</TabsTrigger>
+                    <TabsTrigger value="ai">AI建议</TabsTrigger>
+                  </TabsList>
+                </Tabs>
+              </div>
+              {activeTab === "preview" ? (
+                <div className="space-y-4">
+                {!active && <div className="text-sm text-muted-foreground">请选择左侧列表中的一封邮件进行预览</div>}
+                {active && (
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                   <div>
                     <h2 className="text-base font-semibold">{active.subject}</h2>
                     <p className="text-xs text-muted-foreground">来自 {active.from} · 收件人数 {active.recipients.toLocaleString()}</p>
                   </div>
-                  <div className="flex gap-2">
-                    <Button size="sm" variant="outline" onClick={handleReply} className="gap-2">
-                      <Reply className="h-4 w-4" /> 回复
-                    </Button>
-                    <Button size="sm" variant="outline" onClick={handleReplyAll} className="gap-2">
-                      <ReplyAll className="h-4 w-4" /> 回复全部
-                    </Button>
-                    <Button size="sm" variant="outline" onClick={handleForward} className="gap-2">
-                      <Forward className="h-4 w-4" /> 转发
-                    </Button>
-                  </div>
+                  {/* 预览顶部操作按钮移除 */}
                 </div>
 
                 {false && (
@@ -1309,50 +1261,16 @@ export default function EmailMarketingMailbox() {
                 </div>
               )}
               </div>
+              ) : (
+                <div className="space-y-4">
+                  {active ? renderSections() : <div className="text-xs text-muted-foreground">请选择邮件以查看AI建议</div>}
+                </div>
+              )}
             </div>
           </div>
         </CardContent>
       </Card>
-      <Sheet open={aiDrawerOpen} onOpenChange={setAiDrawerOpen}>
-        <SheetContent side="right" className="flex h-screen flex-col">
-          <SheetHeader>
-            <SheetTitle>AI工作台</SheetTitle>
-            <SheetDescription>围绕选中邮件提供审查、审批、排期、分析与收件智能功能</SheetDescription>
-          </SheetHeader>
-          <div className="mt-4 space-y-4 flex-1 overflow-y-auto pr-4 pb-6">
-            {active ? (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-sm font-medium flex items-center gap-2">
-                    <Sparkles className="h-4 w-4" /> 上下文
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2 text-xs">
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <div className="text-muted-foreground">主题</div>
-                      <div className="font-medium text-sm">{active.subject}</div>
-                    </div>
-                    <div>
-                      <div className="text-muted-foreground">发件人</div>
-                      <div className="font-medium text-sm">{active.from}</div>
-                    </div>
-                    <div>
-                      <div className="text-muted-foreground">收件人数</div>
-                      <div className="font-medium text-sm">{typeof active.recipients === "number" && typeof active.recipients.toLocaleString === "function" ? active.recipients.toLocaleString() : "--"}</div>
-                    </div>
-                    <div>
-                      <div className="text-muted-foreground">文件夹</div>
-                      <div className="font-medium text-sm">{folder === "inbox" ? "收件箱" : folder === "starred" ? "星标" : folder === "drafts" ? "草稿" : folder === "sent" ? "已发送" : "已删除"}</div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ) : null}
-            {active ? renderSections() : <div className="text-xs text-muted-foreground">请选择邮件以查看AI工作台</div>}
-          </div>
-        </SheetContent>
-      </Sheet>
+      {/* AI抽屉已移除，AI建议通过右侧Tab显示 */}
     </div>
   );
 }

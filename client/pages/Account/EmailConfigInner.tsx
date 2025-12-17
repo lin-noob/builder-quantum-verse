@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { DateTimePicker } from "@/components/ui/date-time-picker";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 
 type Provider = "Gmail" | "IMAP" | "POP3";
 type Encryption = "SSL/TLS" | "STARTTLS" | "None";
@@ -45,6 +46,9 @@ const EmailConfigInner: React.FC = () => {
   const [syncMode, setSyncMode] = useState<SyncMode>("manual");
   const [autoInterval, setAutoInterval] = useState<number>(30);
   const [accounts, setAccounts] = useState<SavedAccount[]>([]);
+  
+  // New state for Folder Dialog
+  const [isFolderDialogOpen, setIsFolderDialogOpen] = useState(false);
 
   useEffect(() => {
     try {
@@ -69,11 +73,44 @@ const EmailConfigInner: React.FC = () => {
     setPort(update(encryption, provider === "POP3" ? "POP3" : protocol));
   }, [encryption, protocol, provider]);
 
-  const validateAndSave = () => {
+  const handleTestAndSave = async () => {
+    // 1. Validate basic connection info
     if (provider === "Gmail" && !authorized) return setTestMsg("请先完成 Gmail 授权");
     if ((provider === "IMAP" || provider === "POP3") && (!server || !port || !username || !password)) return setTestMsg("请完整填写连接信息");
+
+    // 2. Test Connection
+    setTesting(true);
+    setTestMsg(null);
+    await new Promise((r) => setTimeout(r, 600));
+
+    let success = false;
+    if (provider === "Gmail") {
+       success = authorized;
+       if (!success) setTestMsg("未授权");
+    } else {
+       // Mock connection test
+       if (server && port && username && password) {
+         success = true;
+       } else {
+         success = false;
+         setTestMsg("连接失败，请检查服务器信息");
+       }
+    }
+    setTesting(false);
+
+    // 3. Open Dialog if successful
+    if (success) {
+       setTestMsg("连接成功，请确认文件夹配置");
+       setIsFolderDialogOpen(true);
+    }
+  };
+
+  const confirmSave = () => {
+    // 4. Validate Folders
     if (provider === "Gmail" && gmailFolderMode === "Custom" && gmailCustomLabels.length === 0) return setTestMsg("请选择至少一个自定义标签");
     if (provider === "IMAP" && imapSelected.length === 0) return setTestMsg("请至少选择一个文件夹");
+    
+    // 5. Save
     const payload: EmailConfigPayload = {
       provider,
       authorized,
@@ -99,43 +136,7 @@ const EmailConfigInner: React.FC = () => {
     };
     localStorage.setItem("email_config", JSON.stringify(payload));
     setTestMsg("已保存配置");
-  };
-
-  const saveAsAccount = () => {
-    if (provider === "Gmail" && !authorized) return setTestMsg("请先完成 Gmail 授权");
-    if ((provider === "IMAP" || provider === "POP3") && (!server || !port || !username || !password)) return setTestMsg("请完整填写连接信息");
-    if (provider === "Gmail" && gmailFolderMode === "Custom" && gmailCustomLabels.length === 0) return setTestMsg("请选择至少一个自定义标签");
-    if (provider === "IMAP" && imapSelected.length === 0) return setTestMsg("请至少选择一个文件夹");
-    const payload: EmailConfigPayload = {
-      provider,
-      authorized,
-      protocol,
-      server,
-      port,
-      encryption,
-      username,
-      syncStartDate,
-      fetchAttachments,
-      folders:
-        provider === "Gmail"
-          ? gmailFolderMode === "Inbox"
-            ? ["Inbox"]
-            : gmailFolderMode === "AllMail"
-            ? ["All Mail"]
-            : gmailCustomLabels
-          : provider === "IMAP"
-          ? imapSelected
-          : ["Inbox"],
-      syncMode,
-      autoInterval,
-    };
-    const id = `acc_${Date.now()}`;
-    const email = username || "";
-    const next = [...accounts, { id, email, provider, config: payload }];
-    setAccounts(next);
-    localStorage.setItem("email_accounts", JSON.stringify(next));
-    localStorage.setItem("activeEmailAccountId", id);
-    setTestMsg("已保存为新账户");
+    setIsFolderDialogOpen(false);
   };
 
   const setDefaultAccount = (id: string) => {
@@ -151,19 +152,9 @@ const EmailConfigInner: React.FC = () => {
     if (activeId === id) localStorage.removeItem("activeEmailAccountId");
   };
 
-  const handleTest = async () => {
-    setTesting(true);
-    setTestMsg(null);
-    await new Promise((r) => setTimeout(r, 600));
-    if (provider === "Gmail") setTestMsg(authorized ? "连接成功" : "未授权");
-    else setTestMsg(server ? "连接成功" : "请填写服务器地址");
-    setTesting(false);
-  };
-
   return (
     <div className="space-y-6">
       
-
       <Card>
         <CardHeader>
           <CardTitle className="text-lg font-semibold leading-6">提供商与连接</CardTitle>
@@ -189,57 +180,15 @@ const EmailConfigInner: React.FC = () => {
                 <Button variant="destructive" onClick={() => { setAuthorized(false); setTestMsg("已断开 Gmail 授权"); }}>断开授权</Button>
               </div>
               <div className={`rounded px-3 py-2 text-sm ${authorized ? "bg-green-50 text-green-700" : "bg-amber-50 text-amber-700"}`}>{authorized ? "已授权" : "未授权"}</div>
-              <div className="space-y-4">
-                <Label>文件夹</Label>
-                <div className="flex gap-2">
-                  {(["Inbox", "AllMail", "Custom"] as ("Inbox" | "AllMail" | "Custom")[]).map((m) => (
-                    <Button key={m} variant={gmailFolderMode === m ? "default" : "secondary"} onClick={() => setGmailFolderMode(m)}>
-                      {m === "Inbox" ? "收件箱" : m === "AllMail" ? "所有邮件" : "自定义标签"}
-                    </Button>
-                  ))}
-                </div>
-                <p className="text-sm text-gray-500">选择同步的 Gmail 文件夹或标签。</p>
-                <div className="text-sm text-blue-700 bg-blue-50 rounded px-3 py-2">选择“所有邮件”可能包含大量邮件，拉取耗时较长。</div>
-                {gmailFolderMode === "Custom" && (
-                  <div className="space-y-4">
-                    <Label>自定义标签</Label>
-                    <Input
-                      placeholder="输入标签后按回车添加"
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          const v = (e.target as HTMLInputElement).value.trim();
-                          if (v) {
-                            setGmailCustomLabels((prev) => [...prev, v]);
-                            (e.target as HTMLInputElement).value = "";
-                          }
-                        }
-                      }}
-                    />
-                    {gmailCustomLabels.length > 0 && (
-                      <div className="flex flex-wrap gap-2">
-                        {gmailCustomLabels.map((l) => (
-                          <span key={l} className="px-2 py-1 text-xs bg-gray-100 rounded">{l}</span>
-                        ))}
-                      </div>
-                    )}
-                    <p className="text-sm text-gray-500">输入需要同步的标签名，如 Important、Work。</p>
-                  </div>
-                )}
-              </div>
+              {/* Folder selection moved to Dialog */}
             </div>
           )}
 
           {(provider === "IMAP" || provider === "POP3") && (
             <div className="space-y-6">
               {provider === "IMAP" ? (
-                <div className="space-y-4">
-                  <Label>协议</Label>
-                  <select className="px-3 py-2 border rounded" value={protocol} onChange={(e) => setProtocol(e.target.value as any)}>
-                    <option value="IMAP">IMAP</option>
-                    <option value="POP3">POP3</option>
-                  </select>
-                  <p className="text-sm text-gray-500">选择连接协议。IMAP 支持多文件夹同步，POP3 仅收件箱。</p>
-                </div>
+                // 1. 移除了协议选择下拉框，默认为 IMAP (由Provider控制)
+                <></>
               ) : (
                 <div className="space-y-4">
                   <Label>协议</Label>
@@ -289,23 +238,19 @@ const EmailConfigInner: React.FC = () => {
 
               {provider === "IMAP" && (
                 <div className="space-y-4">
-                  <Label>文件夹</Label>
-                  <div className="flex flex-wrap gap-2">
-                    {imapFolders.map((f) => (
-                      <label key={f} className="flex items-center gap-2 text-sm">
-                        <input
-                          type="checkbox"
-                          checked={imapSelected.includes(f)}
-                          onChange={(e) => {
-                            const checked = e.target.checked;
-                            setImapSelected((prev) => (checked ? [...prev, f] : prev.filter((i) => i !== f)));
-                          }}
-                        />
-                        {f}
-                      </label>
-                    ))}
-                  </div>
-                  <p className="text-sm text-gray-500">选择需要同步的 IMAP 文件夹。</p>
+                   <Label>同步文件夹范围</Label>
+                   <div 
+                     className="border rounded px-3 py-2 text-sm cursor-pointer hover:bg-gray-50 flex items-center justify-between"
+                     onClick={() => setIsFolderDialogOpen(true)}
+                   >
+                     <span>
+                       {imapSelected.length > 0 
+                         ? `已选择 ${imapSelected.length} 个文件夹` 
+                         : "点击选择文件夹"}
+                     </span>
+                     <Button variant="ghost" size="sm" className="h-6">选择</Button>
+                   </div>
+                   <p className="text-sm text-gray-500">点击上方选项选择需要同步的文件夹。</p>
                 </div>
               )}
             </div>
@@ -356,9 +301,9 @@ const EmailConfigInner: React.FC = () => {
       </Card>
 
       <div className="flex gap-2 justify-end">
-        <Button onClick={handleTest} disabled={testing}>{testing ? "测试中..." : "测试连接"}</Button>
-        <Button variant="secondary" onClick={saveAsAccount}>保存为新的邮箱账户</Button>
-        <Button onClick={validateAndSave}>保存</Button>
+        <Button onClick={handleTestAndSave} disabled={testing}>
+          {testing ? "测试中..." : "测试并保存"}
+        </Button>
       </div>
 
       {testMsg && (
@@ -394,6 +339,93 @@ const EmailConfigInner: React.FC = () => {
           ))}
         </CardContent>
       </Card>
+
+      {/* Folder Selection Dialog */}
+      <Dialog open={isFolderDialogOpen} onOpenChange={setIsFolderDialogOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>选择同步文件夹</DialogTitle>
+            <DialogDescription>
+              请选择需要同步的文件夹或标签。
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="py-4">
+             {provider === "Gmail" && (
+                <div className="space-y-4">
+                  <Label>文件夹</Label>
+                  <div className="flex gap-2">
+                    {(["Inbox", "AllMail", "Custom"] as ("Inbox" | "AllMail" | "Custom")[]).map((m) => (
+                      <Button key={m} variant={gmailFolderMode === m ? "default" : "secondary"} onClick={() => setGmailFolderMode(m)} size="sm">
+                        {m === "Inbox" ? "收件箱" : m === "AllMail" ? "所有邮件" : "自定义标签"}
+                      </Button>
+                    ))}
+                  </div>
+                  <p className="text-sm text-gray-500">选择同步的 Gmail 文件夹或标签。</p>
+                  <div className="text-sm text-blue-700 bg-blue-50 rounded px-3 py-2">选择“所有邮件”可能包含大量邮件，拉取耗时较长。</div>
+                  {gmailFolderMode === "Custom" && (
+                    <div className="space-y-4">
+                      <Label>自定义标签</Label>
+                      <Input
+                        placeholder="输入标签后按回车添加"
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            const v = (e.target as HTMLInputElement).value.trim();
+                            if (v) {
+                              setGmailCustomLabels((prev) => [...prev, v]);
+                              (e.target as HTMLInputElement).value = "";
+                            }
+                          }
+                        }}
+                      />
+                      {gmailCustomLabels.length > 0 && (
+                        <div className="flex flex-wrap gap-2">
+                          {gmailCustomLabels.map((l) => (
+                            <span key={l} className="px-2 py-1 text-xs bg-gray-100 rounded">{l}</span>
+                          ))}
+                        </div>
+                      )}
+                      <p className="text-sm text-gray-500">输入需要同步的标签名，如 Important、Work。</p>
+                    </div>
+                  )}
+                </div>
+             )}
+
+             {provider === "IMAP" && (
+                <div className="space-y-4">
+                  <Label>文件夹</Label>
+                  <div className="flex flex-wrap gap-2 border p-4 rounded-md">
+                    {imapFolders.map((f) => (
+                      <label key={f} className="flex items-center gap-2 text-sm cursor-pointer hover:bg-gray-50 p-1 rounded">
+                        <input
+                          type="checkbox"
+                          checked={imapSelected.includes(f)}
+                          onChange={(e) => {
+                            const checked = e.target.checked;
+                            setImapSelected((prev) => (checked ? [...prev, f] : prev.filter((i) => i !== f)));
+                          }}
+                        />
+                        {f}
+                      </label>
+                    ))}
+                  </div>
+                  <p className="text-sm text-gray-500">选择需要同步的 IMAP 文件夹。</p>
+                </div>
+             )}
+
+             {provider === "POP3" && (
+                <div className="text-sm text-gray-500">
+                  POP3 协议仅支持同步收件箱，无需配置文件夹。
+                </div>
+             )}
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsFolderDialogOpen(false)}>取消</Button>
+            <Button onClick={confirmSave}>确认保存</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
