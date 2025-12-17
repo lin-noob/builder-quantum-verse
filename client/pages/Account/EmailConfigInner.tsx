@@ -15,6 +15,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Badge } from "@/components/ui/badge";
 import { Check, ChevronsUpDown, X, Pencil } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 type Provider = "Gmail" | "IMAP" | "POP3";
 type Encryption = "SSL/TLS" | "STARTTLS" | "None";
@@ -183,7 +184,7 @@ const EmailConfigInner: React.FC = () => {
       syncRule: syncMode,
       syncStartDate: dayjs(syncStartDate).format("YYYY-MM-DD"),
       username,
-      autoInterval: syncMode === "auto" ? autoInterval : undefined,
+      // autoInterval: syncMode === "auto" ? autoInterval : undefined,
       allFolders: availableFolders.join(","),
     };
   };
@@ -405,7 +406,17 @@ const EmailConfigInner: React.FC = () => {
 
               <div className="space-y-4">
                 <Label>加密方式</Label>
-                <select
+                <Select value={encryption} onValueChange={handleEncryptionChange}>
+                  <SelectTrigger className="px-3 py-2 border rounded">
+                    <SelectValue placeholder="选择加密方式" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="SSL/TLS">SSL/TLS</SelectItem>
+                    <SelectItem value="STARTTLS">STARTTLS</SelectItem>
+                    <SelectItem value="None">不加密</SelectItem>
+                  </SelectContent>
+                </Select>
+                {/* <select
                   className="px-3 py-2 border rounded"
                   value={encryption}
                   onChange={(e) => handleEncryptionChange(e.target.value as Encryption)}
@@ -413,7 +424,7 @@ const EmailConfigInner: React.FC = () => {
                   <option value="SSL/TLS">SSL/TLS</option>
                   <option value="STARTTLS">STARTTLS</option>
                   <option value="None">不加密</option>
-                </select>
+                </select> */}
                 <p className="text-sm text-gray-500">SSL/TLS（安全）或 STARTTLS（升级加密），不加密不推荐。</p>
               </div>
 
@@ -493,22 +504,22 @@ const EmailConfigInner: React.FC = () => {
           <div className="space-y-2">
             <Label>同步规则</Label>
             <div className="flex gap-2">
-              {(["manual", "auto", "disabled"] as SyncMode[]).map((m) => (
+              {(["manual", "auto"] as SyncMode[]).map((m) => (
                 <Button key={m} variant={syncMode === m ? "default" : "secondary"} onClick={() => setSyncMode(m)}>
                   {m === "manual" ? "手动拉取" : m === "auto" ? "定时自动同步" : "关闭同步"}
                 </Button>
               ))}
             </div>
-            <p className="text-sm text-gray-500">手动拉取用于低频；定时自动同步适合持续更新；关闭同步仅保存配置。</p>
+            <p className="text-sm text-gray-500">手动拉取用于低频；定时自动同步适合持续更新。</p>
           </div>
 
-          {syncMode === "auto" && (
+          {/* {syncMode === "auto" && (
             <div className="space-y-4">
               <Label>同步间隔（分钟）</Label>
               <Input type="number" value={autoInterval} onChange={(e) => setAutoInterval(Number(e.target.value))} />
               <p className="text-sm text-gray-500">建议 15/30/60 分钟，过小间隔可能影响性能与限流。</p>
             </div>
-          )}
+          )} */}
 
           <div className="space-y-4">
             <Label>同步起始日期</Label>
