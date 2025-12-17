@@ -29,6 +29,7 @@ import {
   Brain,
   Clock,
   AlertTriangle,
+  RefreshCcw,
   Bold,
   Italic,
   Underline,
@@ -365,7 +366,7 @@ export default function EmailMarketingMailbox() {
   return (
     <div className="p-6 space-y-4 h-full flex flex-col">
       {/* 顶部工具栏 */}
-      <Card>
+      {/* <Card>
         <CardContent className="pt-6 flex flex-wrap items-center gap-2">
           <Select value={selectedConfigId} onValueChange={setSelectedConfigId}>
             <SelectTrigger className="w-[200px] h-9">
@@ -475,17 +476,31 @@ export default function EmailMarketingMailbox() {
             />
           </div>
         </CardContent>
-      </Card>
+      </Card> */}
 
       {/* 三栏布局（合并为一个卡片，分割线区分，每栏有内边距）*/}
       <Card className="flex-1">
         <CardContent className="p-0 h-full">
           <div className="flex flex-col md:flex-row items-stretch h-full">
             {/* 左侧文件夹（12%）*/}
-            <div className="md:basis-[18%] p-3">
-              <Button size="sm" variant="secondary" onClick={handleFetchEmail} className="flex items-center gap-2 mb-2">
-                <Clock className="h-4 w-4" /> 手动拉取
-              </Button>
+            <div className="md:basis-[16%] p-3">
+              <div className="flex gap-2">
+                <Select value={selectedConfigId} onValueChange={setSelectedConfigId}>
+                  <SelectTrigger className="w-[200px] h-9">
+                    <SelectValue placeholder="选择邮箱" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {emailConfigs.map((config) => (
+                      <SelectItem key={config.id} value={config.id}>
+                        {config.username}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button size="sm" variant="ghost" onClick={handleFetchEmail} className="flex items-center gap-2 mb-2">
+                  <RefreshCcw className="h-4 w-4" />
+                </Button>
+              </div>
               <div className="space-y-2">
                 {(
                   [
@@ -522,7 +537,7 @@ export default function EmailMarketingMailbox() {
             </div>
 
             {/* 中间列表（13%）*/}
-            <div className="md:basis-[18%] overflow-auto p-3 md:border-l md:border-border" onScroll={handleScroll}>
+            <div className="md:basis-[19%] overflow-auto p-3 md:border-l md:border-border" onScroll={handleScroll}>
               <div className="text-sm font-medium mb-2">
                 {folder === "sent" ? "已发送" : folder === "drafts" ? "草稿" : "邮件列表"}
               </div>
@@ -582,7 +597,7 @@ export default function EmailMarketingMailbox() {
             </div>
 
             {/* 右侧预览区（75%）*/}
-            <div className="md:basis-[60%] overflow-auto  p-3 md:border-l md:border-border">
+            <div className="md:basis-[58%] overflow-auto  p-3 md:border-l md:border-border">
               <div className="text-sm font-medium mb-2">预览</div>
               <div className="space-y-4">
                 {!active && <div className="text-sm text-muted-foreground">请选择左侧列表中的一封邮件进行预览</div>}
@@ -597,7 +612,7 @@ export default function EmailMarketingMailbox() {
                           {new Date(active.receivedTime).toLocaleString()}
                         </p>
                       </div>
-                      <div className="flex gap-2">
+                      {/* <div className="flex gap-2">
                         <Button size="sm" variant="outline" onClick={handleReply} className="gap-2">
                           <Reply className="h-4 w-4" /> 回复
                         </Button>
@@ -607,7 +622,7 @@ export default function EmailMarketingMailbox() {
                         <Button size="sm" variant="outline" onClick={handleForward} className="gap-2">
                           <Forward className="h-4 w-4" /> 转发
                         </Button>
-                      </div>
+                      </div> */}
                     </div>
 
                     {enableAI && aiView !== "none" && (
