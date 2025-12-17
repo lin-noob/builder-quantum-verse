@@ -7,7 +7,22 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Send, Save, Paperclip, UploadCloud, Settings, Bold, Italic, Underline, Plus, X, Sparkles, Brain, Wand2, Clock } from "lucide-react";
+import {
+  Send,
+  Save,
+  Paperclip,
+  UploadCloud,
+  Settings,
+  Bold,
+  Italic,
+  Underline,
+  Plus,
+  X,
+  Sparkles,
+  Brain,
+  Wand2,
+  Clock,
+} from "lucide-react";
 import EmailEditor from "@/components/EmailEditor";
 
 export default function EmailCompose() {
@@ -37,10 +52,7 @@ export default function EmailCompose() {
   const [blocks, setBlocks] = useState<BlockItem[]>([]);
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
 
-  const selectedBlock = useMemo(
-    () => blocks.find((b) => b.id === selectedBlockId) || null,
-    [blocks, selectedBlockId]
-  );
+  const selectedBlock = useMemo(() => blocks.find((b) => b.id === selectedBlockId) || null, [blocks, selectedBlockId]);
 
   const addBlock = (b: BlockItem) => {
     setBlocks((prev) => [...prev, b]);
@@ -70,17 +82,33 @@ export default function EmailCompose() {
       if (tpl === "tpl_ecommerce_promo") {
         setSubject("双十一限时优惠｜全场满减再加码");
         setContent(
-          "您好，\n\n我们为您准备了限时专属优惠：\n- 主打商品1：亮点/价格\n- 主打商品2：亮点/价格\n\n立即查看详情并抢购！\n\n【CTA按钮】立即购买\n\n祝好，\n品牌团队"
+          "您好，\n\n我们为您准备了限时专属优惠：\n- 主打商品1：亮点/价格\n- 主打商品2：亮点/价格\n\n立即查看详情并抢购！\n\n【CTA按钮】立即购买\n\n祝好，\n品牌团队",
         );
-        addBlock({ id: `blk_${Date.now()}`, type: "cta", title: "主CTA按钮", props: { text: "立即购买", link: "https://example.com/promo" }, tracking: { utm: "utm_source=newsletter&utm_campaign=double11" } });
+        addBlock({
+          id: `blk_${Date.now()}`,
+          type: "cta",
+          title: "主CTA按钮",
+          props: { text: "立即购买", link: "https://example.com/promo" },
+          tracking: { utm: "utm_source=newsletter&utm_campaign=double11" },
+        });
       } else if (tpl === "tpl_event_invite") {
         setSubject("本周活动邀请｜报名有礼");
         setContent("亲爱的用户，\n\n我们诚挚邀请您参加本周活动，现场有惊喜。\n\n【CTA】立即报名\n");
-        addBlock({ id: `blk_${Date.now()}`, type: "cta", title: "报名CTA", props: { text: "立即报名", link: "https://example.com/event" } });
+        addBlock({
+          id: `blk_${Date.now()}`,
+          type: "cta",
+          title: "报名CTA",
+          props: { text: "立即报名", link: "https://example.com/event" },
+        });
       } else if (tpl === "tpl_product_launch") {
         setSubject("新品首发体验｜欢迎第一时间试用");
         setContent("您好，\n\n新品上架，欢迎第一时间体验并反馈。\n\n【CTA】查看新品\n");
-        addBlock({ id: `blk_${Date.now()}`, type: "cta", title: "查看新品CTA", props: { text: "查看新品", link: "https://example.com/new" } });
+        addBlock({
+          id: `blk_${Date.now()}`,
+          type: "cta",
+          title: "查看新品CTA",
+          props: { text: "查看新品", link: "https://example.com/new" },
+        });
       }
       toast({ title: "已应用模板", description: tpl });
       navigate(location.pathname, { replace: true });
@@ -88,15 +116,42 @@ export default function EmailCompose() {
 
     if (blk) {
       if (blk === "blk_hero_basic") {
-        addBlock({ id: `blk_${Date.now()}`, type: "hero", title: "英雄区", props: { title: "年度大促", subtitle: "限时抢购" } });
+        addBlock({
+          id: `blk_${Date.now()}`,
+          type: "hero",
+          title: "英雄区",
+          props: { title: "年度大促", subtitle: "限时抢购" },
+        });
       } else if (blk === "blk_cta_primary") {
-        addBlock({ id: `blk_${Date.now()}`, type: "cta", title: "主CTA按钮", props: { text: "立即购买", link: "https://example.com" }, tracking: { utm: "utm_source=newsletter" } });
+        addBlock({
+          id: `blk_${Date.now()}`,
+          type: "cta",
+          title: "主CTA按钮",
+          props: { text: "立即购买", link: "https://example.com" },
+          tracking: { utm: "utm_source=newsletter" },
+        });
       } else if (blk === "blk_product_card") {
-        addBlock({ id: `blk_${Date.now()}`, type: "product", title: "产品卡", props: { title: "商品A", price: "¥199", link: "https://example.com/a" } });
+        addBlock({
+          id: `blk_${Date.now()}`,
+          type: "product",
+          title: "产品卡",
+          props: { title: "商品A", price: "¥199", link: "https://example.com/a" },
+        });
       } else if (blk === "blk_divider") {
-        addBlock({ id: `blk_${Date.now()}`, type: "divider", title: "分割线", props: { style: "thin", color: "#e5e7eb" } });
+        addBlock({
+          id: `blk_${Date.now()}`,
+          type: "divider",
+          title: "分割线",
+          props: { style: "thin", color: "#e5e7eb" },
+        });
       } else if (blk === "blk_survey_quick") {
-        addBlock({ id: `blk_${Date.now()}`, type: "survey", title: "快速问卷", props: { question: "你更关注哪个类目？", options: "A,B,C" }, tracking: { eventKey: "survey_preference" } });
+        addBlock({
+          id: `blk_${Date.now()}`,
+          type: "survey",
+          title: "快速问卷",
+          props: { question: "你更关注哪个类目？", options: "A,B,C" },
+          tracking: { eventKey: "survey_preference" },
+        });
       }
       toast({ title: "已插入内容块", description: blk });
       navigate(location.pathname, { replace: true });
@@ -187,13 +242,25 @@ export default function EmailCompose() {
         <CardContent className="p-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Button className="gap-2" onClick={handleSend}><Send className="h-4 w-4" /> 发送</Button>
-              <Button variant="outline" className="gap-2" onClick={handleSave}><Save className="h-4 w-4" /> 保存</Button>
-              <Button variant="outline" className="gap-2" onClick={() => document.getElementById("email-editor-attachment-input")?.click()}>
+              <Button className="gap-2" onClick={handleSend}>
+                <Send className="h-4 w-4" /> 发送
+              </Button>
+              <Button variant="outline" className="gap-2" onClick={handleSave}>
+                <Save className="h-4 w-4" /> 保存
+              </Button>
+              <Button
+                variant="outline"
+                className="gap-2"
+                onClick={() => document.getElementById("email-editor-attachment-input")?.click()}
+              >
                 <Paperclip className="h-4 w-4" /> 附件 {attachments.length > 0 && `(${attachments.length})`}
               </Button>
-              <Button variant="outline" className="gap-2"><UploadCloud className="h-4 w-4" /> 超大附件</Button>
-              <Button variant="outline" className="gap-2"><Settings className="h-4 w-4" /> 发送设置</Button>
+              <Button variant="outline" className="gap-2">
+                <UploadCloud className="h-4 w-4" /> 超大附件
+              </Button>
+              <Button variant="outline" className="gap-2">
+                <Settings className="h-4 w-4" /> 发送设置
+              </Button>
             </div>
           </div>
         </CardContent>
@@ -262,18 +329,37 @@ export default function EmailCompose() {
           {/* 主题 */}
           <div>
             <Label className="text-sm">主 题：</Label>
-            <Input value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="请输入主题" className="mt-1" />
+            <Input
+              value={subject}
+              onChange={(e) => setSubject(e.target.value)}
+              placeholder="请输入主题"
+              className="mt-1"
+            />
           </div>
 
           <Separator />
 
           {/* 工具栏 */}
           <div className="flex items-center gap-4 text-sm">
-            <Button variant="ghost" size="sm" className="gap-1"><Bold className="h-4 w-4" /> B</Button>
-            <Button variant="ghost" size="sm" className="gap-1"><Italic className="h-4 w-4" /> I</Button>
-            <Button variant="ghost" size="sm" className="gap-1"><Underline className="h-4 w-4" /> U</Button>
+            <Button variant="ghost" size="sm" className="gap-1">
+              <Bold className="h-4 w-4" /> B
+            </Button>
+            <Button variant="ghost" size="sm" className="gap-1">
+              <Italic className="h-4 w-4" /> I
+            </Button>
+            <Button variant="ghost" size="sm" className="gap-1">
+              <Underline className="h-4 w-4" /> U
+            </Button>
             <Separator orientation="vertical" className="h-6" />
-            <Button variant="ghost" size="sm" className="gap-1" onClick={() => { setAiOpen((v) => !v); setAiMode("summary"); }}>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="gap-1"
+              onClick={() => {
+                setAiOpen((v) => !v);
+                setAiMode("summary");
+              }}
+            >
               <Sparkles className="h-4 w-4" /> 智能总结 AI+
             </Button>
             <Button variant="ghost" size="sm" className="gap-1" onClick={handleImportPreviewSuggestions}>
@@ -297,25 +383,67 @@ export default function EmailCompose() {
                   {aiMode === "summary" && <Sparkles className="h-4 w-4 text-orange-500" />}
                   <span className="text-sm font-medium">AI助手</span>
                 </div>
-                <Button variant="ghost" size="sm" onClick={() => setAiOpen(false)}>收起</Button>
+                <Button variant="ghost" size="sm" onClick={() => setAiOpen(false)}>
+                  收起
+                </Button>
               </div>
 
               <div className="flex flex-wrap gap-2">
-                <Button size="sm" variant={aiMode === "suggest" ? "default" : "outline"} onClick={() => setAiMode("suggest")}>文案建议</Button>
-                <Button size="sm" variant={aiMode === "rewrite" ? "default" : "outline"} onClick={() => setAiMode("rewrite")}>润色优化</Button>
-                <Button size="sm" variant={aiMode === "templates" ? "default" : "outline"} onClick={() => setAiMode("templates")}>快速模板</Button>
-                <Button size="sm" variant={aiMode === "summary" ? "default" : "outline"} onClick={() => setAiMode("summary")}>智能总结</Button>
+                <Button
+                  size="sm"
+                  variant={aiMode === "suggest" ? "default" : "outline"}
+                  onClick={() => setAiMode("suggest")}
+                >
+                  文案建议
+                </Button>
+                <Button
+                  size="sm"
+                  variant={aiMode === "rewrite" ? "default" : "outline"}
+                  onClick={() => setAiMode("rewrite")}
+                >
+                  润色优化
+                </Button>
+                <Button
+                  size="sm"
+                  variant={aiMode === "templates" ? "default" : "outline"}
+                  onClick={() => setAiMode("templates")}
+                >
+                  快速模板
+                </Button>
+                <Button
+                  size="sm"
+                  variant={aiMode === "summary" ? "default" : "outline"}
+                  onClick={() => setAiMode("summary")}
+                >
+                  智能总结
+                </Button>
               </div>
 
               {aiMode === "suggest" && (
                 <div className="space-y-2 text-sm">
                   <div className="text-xs text-muted-foreground">建议：提升主题吸引力、强化第一屏CTA、精简段落。</div>
                   <div className="flex flex-wrap gap-2">
-                    <Button size="sm" variant="secondary" onClick={handleAISubjectSuggest}>生成主题建议</Button>
-                    <Button size="sm" variant="outline" onClick={() => toast({ title: "建议", description: "建议加入价格锚点与倒计时（前端示例）。" })}>加入价格锚点</Button>
-                    <Button size="sm" variant="outline" onClick={() => toast({ title: "建议", description: "建议将CTA放到第一屏（前端示例）。" })}>优化CTA位置</Button>
+                    <Button size="sm" variant="secondary" onClick={handleAISubjectSuggest}>
+                      生成主题建议
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => toast({ title: "建议", description: "建议加入价格锚点与倒计时（前端示例）。" })}
+                    >
+                      加入价格锚点
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => toast({ title: "建议", description: "建议将CTA放到第一屏（前端示例）。" })}
+                    >
+                      优化CTA位置
+                    </Button>
                   </div>
-                  <div className="text-xs text-muted-foreground">预测：预计打开率 38%–45%，最佳发送时段 18:00–20:00（模拟）。</div>
+                  <div className="text-xs text-muted-foreground">
+                    预测：预计打开率 38%–45%，最佳发送时段 18:00–20:00（模拟）。
+                  </div>
                 </div>
               )}
 
@@ -323,9 +451,27 @@ export default function EmailCompose() {
                 <div className="space-y-2 text-sm">
                   <div className="text-xs text-muted-foreground">润色：更精简、行动导向的文案建议。</div>
                   <div className="flex flex-wrap gap-2">
-                    <Button size="sm" variant="secondary" onClick={handleAIRewrite}>插入润色建议</Button>
-                    <Button size="sm" variant="outline" onClick={() => setContent((prev) => `${prev}\n\n[AI用词建议] 将“点击查看”替换为“立即抢购”，更具行动力。`)}>用词建议</Button>
-                    <Button size="sm" variant="outline" onClick={() => setContent((prev) => `${prev}\n\n[AI结构建议] 使用项目符号列出卖点，降低阅读负担。`)}>结构建议</Button>
+                    <Button size="sm" variant="secondary" onClick={handleAIRewrite}>
+                      插入润色建议
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() =>
+                        setContent((prev) => `${prev}\n\n[AI用词建议] 将“点击查看”替换为“立即抢购”，更具行动力。`)
+                      }
+                    >
+                      用词建议
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() =>
+                        setContent((prev) => `${prev}\n\n[AI结构建议] 使用项目符号列出卖点，降低阅读负担。`)
+                      }
+                    >
+                      结构建议
+                    </Button>
                   </div>
                 </div>
               )}
@@ -334,9 +480,25 @@ export default function EmailCompose() {
                 <div className="space-y-2 text-sm">
                   <div className="text-xs text-muted-foreground">模板：促销、活动邀请、产品上新等快速套用。</div>
                   <div className="flex flex-wrap gap-2">
-                    <Button size="sm" variant="secondary" onClick={handleAITemplate}>电商促销模板</Button>
-                    <Button size="sm" variant="outline" onClick={() => setContent("亲爱的用户，\n\n我们诚挚邀请您参加本周活动，现场有惊喜。\n\n【CTA】立即报名\n")}>活动邀请模板</Button>
-                    <Button size="sm" variant="outline" onClick={() => setContent("您好，\n\n新品上架，欢迎第一时间体验并反馈。\n\n【CTA】查看新品\n")}>新品上新模板</Button>
+                    <Button size="sm" variant="secondary" onClick={handleAITemplate}>
+                      电商促销模板
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() =>
+                        setContent("亲爱的用户，\n\n我们诚挚邀请您参加本周活动，现场有惊喜。\n\n【CTA】立即报名\n")
+                      }
+                    >
+                      活动邀请模板
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setContent("您好，\n\n新品上架，欢迎第一时间体验并反馈。\n\n【CTA】查看新品\n")}
+                    >
+                      新品上新模板
+                    </Button>
                   </div>
                 </div>
               )}
@@ -345,7 +507,9 @@ export default function EmailCompose() {
                 <div className="space-y-2 text-sm">
                   <div className="text-xs text-muted-foreground">总结：自动提炼邮件目的与关键信息。</div>
                   <div className="flex flex-wrap gap-2">
-                    <Button size="sm" variant="secondary" onClick={handleAISummary}>生成总结并插入</Button>
+                    <Button size="sm" variant="secondary" onClick={handleAISummary}>
+                      生成总结并插入
+                    </Button>
                   </div>
                 </div>
               )}

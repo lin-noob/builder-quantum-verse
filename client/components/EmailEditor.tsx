@@ -5,21 +5,29 @@ import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 
 interface EmailEditorProps {
+  subject?: string;
+  setSubject?: (subject: string) => void;
   content: string;
   onContentChange: (content: string) => void;
   attachments: File[];
   onAttachmentsChange: (attachments: File[]) => void;
   height?: string;
   placeholder?: string;
+  onSend?: () => void;
+  onCancel?: () => void;
 }
 
 export default function EmailEditor({
+  subject,
+  setSubject,
   content,
   onContentChange,
   attachments,
   onAttachmentsChange,
   height = "400px",
   placeholder = "请输入邮件内容...",
+  onSend,
+  onCancel,
 }: EmailEditorProps) {
   const handleAttachmentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -82,15 +90,10 @@ export default function EmailEditor({
         {attachments.length > 0 && (
           <div className="space-y-1.5">
             {attachments.map((file, index) => (
-              <div
-                key={index}
-                className="flex items-center gap-2 px-3 py-2 border rounded-md bg-muted/50"
-              >
+              <div key={index} className="flex items-center gap-2 px-3 py-2 border rounded-md bg-muted/50">
                 <Paperclip className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
                 <span className="text-sm flex-1 truncate">{file.name}</span>
-                <span className="text-xs text-muted-foreground flex-shrink-0">
-                  {(file.size / 1024).toFixed(1)} KB
-                </span>
+                <span className="text-xs text-muted-foreground flex-shrink-0">{(file.size / 1024).toFixed(1)} KB</span>
                 <Button
                   type="button"
                   variant="ghost"
