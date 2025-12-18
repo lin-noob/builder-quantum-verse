@@ -1,26 +1,19 @@
 import { useMemo, useState, useEffect } from "react";
 import { request } from "@/lib/request";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import KPICard from "@/components/KPICard";
 import { useToast } from "@/hooks/use-toast";
 import EmailEditor from "@/components/EmailEditor";
 import {
-  Plus,
   Trash2,
   Ban,
-  Reply,
-  ReplyAll,
-  Forward,
-  Search,
   Star,
   Inbox,
   FileText,
@@ -30,21 +23,9 @@ import {
   Clock,
   AlertTriangle,
   RefreshCcw,
-  Bold,
-  Italic,
-  Underline,
-  Link as LinkIcon,
-  Image,
-  Paperclip,
-  Smile,
-  MoreHorizontal,
-  List,
-  ListOrdered,
-  AlignLeft,
-  Type,
-  Undo,
-  Redo,
-  X,
+  Tags,
+  ListChecks,
+  Languages,
 } from "lucide-react";
 
 type FolderKey = "inbox" | "starred" | "drafts" | "sent" | "deleted" | "spam";
@@ -117,6 +98,7 @@ export default function EmailMarketingMailbox() {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [composeMode, setComposeMode] = useState<"none" | "reply" | "replyAll" | "forward">("none");
+  const [activeTab, setActiveTab] = useState<"preview" | "ai">("preview");
   const [aiView, setAiView] = useState<"none" | "insights" | "predict" | "schedule">("none");
   const enableAI = true; // 前端演示：是否显示AI入口
 
@@ -161,6 +143,578 @@ export default function EmailMarketingMailbox() {
       );
     }
     return <div className="flex flex-wrap gap-1">{nodes}</div>;
+  };
+
+  const renderSections = () => {
+    if (!active) return null;
+    if (folder === "inbox") {
+      return (
+        <div className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <ListChecks className="h-4 w-4" /> 智能归类与优先级
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="text-xs text-muted-foreground">
+                用于自动评估邮件重要性、聚类主题，并建议标签与优先级。
+              </div>
+              <div className="grid grid-cols-3 gap-3 text-sm">
+                <div>
+                  <div className="text-xs text-muted-foreground">重要程度评分</div>
+                  <div className="font-medium">
+                    {typeof active.aiScore === "number" ? `${active.aiScore}/100` : "--"}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-xs text-muted-foreground">主题聚类</div>
+                  <div className="font-medium">通用主题</div>
+                </div>
+                <div>
+                  <div className="text-xs text-muted-foreground">建议标签</div>
+                  <div className="flex flex-wrap gap-2">
+                    <Badge variant="secondary">客户</Badge>
+                    <Badge variant="secondary">会议</Badge>
+                  </div>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Button size="sm">一键打标签</Button>
+                <Button size="sm" variant="outline">
+                  设为高优先级
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <Sparkles className="h-4 w-4" /> 到达摘要与线程摘要
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="text-xs text-muted-foreground">
+                用于快速理解单封与整线程的要点，提取待办、风险与截止日期。
+              </div>
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div>
+                  <div className="font-medium">待办</div>
+                  <ul className="list-disc pl-5">
+                    <li>确认报价与发货时间</li>
+                    <li>安排会议周四下午</li>
+                  </ul>
+                </div>
+                <div>
+                  <div className="font-medium">风险</div>
+                  <ul className="list-disc pl-5">
+                    <li>付款条款未确认</li>
+                    <li>附件发票信息缺失</li>
+                  </ul>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Button size="sm">提取到待办</Button>
+                <Button size="sm" variant="outline">
+                  复制摘要
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <Brain className="h-4 w-4" /> 快捷操作建议
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-xs text-muted-foreground mb-2">
+                用于根据上下文生成可执行的快捷动作（回复、待办、会议、转发）。
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <Button size="sm" variant="secondary">
+                  生成回复草稿
+                </Button>
+                <Button size="sm" variant="secondary">
+                  提取任务到待办
+                </Button>
+                <Button size="sm" variant="secondary">
+                  创建会议
+                </Button>
+                <Button size="sm" variant="secondary">
+                  转发给合适同事
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <Clock className="h-4 w-4" /> 跟进提醒
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <div className="text-xs text-muted-foreground">用于设置未回复提醒与SLA通知，避免遗漏关键回复。</div>
+              <div className="text-xs text-muted-foreground">SLA：48小时未回复提醒</div>
+              <div className="flex gap-2">
+                <Button size="sm">设置提醒</Button>
+                <Button size="sm" variant="outline">
+                  取消提醒
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <FileText className="h-4 w-4" /> 附件洞察
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-xs text-muted-foreground mb-2">
+                用于识别合同/发票等附件中的关键信息，并生成后续操作。
+              </div>
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <div>
+                  <div className="font-medium">识别结果</div>
+                  <ul className="list-disc pl-5">
+                    <li>合同签署状态：待签</li>
+                    <li>发票金额：¥12,800</li>
+                    <li>PO号：A-231105</li>
+                  </ul>
+                </div>
+                <div>
+                  <div className="font-medium">操作</div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button size="sm" variant="secondary">
+                      提取到待办
+                    </Button>
+                    <Button size="sm" variant="secondary">
+                      推送到协作工具
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <AlertTriangle className="h-4 w-4" /> 合规与隐私提示
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <div className="text-xs text-muted-foreground">
+                用于发现敏感信息（PII、密钥等）并提供更安全的替代表达。
+              </div>
+              <ul className="list-disc pl-5 text-sm">
+                <li>检测到可能包含PII或密钥，建议使用替代表达</li>
+              </ul>
+              <div className="flex gap-2">
+                <Button size="sm" variant="secondary">
+                  一键替换建议表达
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <Languages className="h-4 w-4" /> 翻译与双语
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-xs text-muted-foreground mb-2">
+                用于检测邮件语言并生成英文版或中英双语内容，保持术语与语气一致。
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                <Button size="sm" variant="outline">
+                  检测语言
+                </Button>
+                <Button size="sm" variant="outline">
+                  生成英文版
+                </Button>
+                <Button size="sm" variant="outline">
+                  生成中英双语
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      );
+    }
+    if (folder === "starred") {
+      return (
+        <div className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <ListChecks className="h-4 w-4" /> 目标追踪与里程碑
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 text-sm">
+              <div className="text-xs text-muted-foreground">用于为星标线程设定目标与里程碑，跟踪进度并推进完成。</div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <div className="font-medium">目标</div>
+                  <ul className="list-disc pl-5">
+                    <li>签约意向确认</li>
+                    <li>技术评审完成</li>
+                  </ul>
+                </div>
+                <div>
+                  <div className="font-medium">里程碑</div>
+                  <ul className="list-disc pl-5">
+                    <li>本周评审</li>
+                    <li>下周合同草拟</li>
+                  </ul>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Button size="sm">新增里程碑</Button>
+                <Button size="sm" variant="outline">
+                  标记完成
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <Star className="h-4 w-4" /> 高优先级队列
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <div className="text-xs text-muted-foreground">用于按重要×紧急排序，聚焦关键待办并快速推进下一步。</div>
+              <div className="text-xs text-muted-foreground">重要×紧急权重：高</div>
+              <Button size="sm" variant="secondary">
+                推进下一步
+              </Button>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <Clock className="h-4 w-4" /> SLA监控与提醒
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <div className="text-xs text-muted-foreground">用于设定响应时限并提醒相关责任人，避免响应超时。</div>
+              <div className="text-xs text-muted-foreground">响应时限：24小时</div>
+              <Button size="sm">设置提醒</Button>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <FileText className="h-4 w-4" /> 汇总日报/周报
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <div className="text-xs text-muted-foreground">
+                用于生成星标邮件的进展报告，支持复制与推送到团队频道。
+              </div>
+              <div className="text-xs text-muted-foreground">自动生成进展报告（演示）。</div>
+              <div className="flex gap-2">
+                <Button size="sm" variant="outline">
+                  复制报告
+                </Button>
+                <Button size="sm" variant="secondary">
+                  推送到团队频道
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      );
+    }
+    if (folder === "drafts") {
+      return (
+        <div className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <Sparkles className="h-4 w-4" /> 意图识别与结构化写作
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <div className="text-xs text-muted-foreground">
+                用于识别草稿意图并生成结构化大纲（背景/目标/请求/行动项）。
+              </div>
+              <div className="text-xs text-muted-foreground">推荐大纲：背景-目标-请求/行动项</div>
+              <Button size="sm" variant="secondary">
+                套用大纲到草稿
+              </Button>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <Brain className="h-4 w-4" /> 语气与风格调整
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-xs text-muted-foreground mb-2">
+                用于改写草稿以匹配正式/友好/简洁/双语等语气并保持品牌术语一致。
+              </div>
+              <div className="grid grid-cols-4 gap-2">
+                <Button size="sm" variant="outline">
+                  正式
+                </Button>
+                <Button size="sm" variant="outline">
+                  友好
+                </Button>
+                <Button size="sm" variant="outline">
+                  简洁
+                </Button>
+                <Button size="sm" variant="outline">
+                  双语
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <Tags className="h-4 w-4" /> 上下文插入
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <div className="text-xs text-muted-foreground">用于注入相关线程、文件与日程，补齐事实并可引用出处。</div>
+              <div className="grid grid-cols-3 gap-2 text-sm">
+                <div className="border rounded p-2">相关线程</div>
+                <div className="border rounded p-2">相关文件</div>
+                <div className="border rounded p-2">相关日程</div>
+              </div>
+              <Button size="sm" variant="secondary">
+                注入到草稿
+              </Button>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <AlertTriangle className="h-4 w-4" /> 错别字与事实校验
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <div className="text-xs text-muted-foreground">用于统一术语、修正日期与数字不一致，保障内容准确性。</div>
+              <ul className="list-disc pl-5 text-sm">
+                <li>术语不一致：建议统一为“客户成功”</li>
+                <li>日期冲突：提及的周四与会议邀请不一致</li>
+              </ul>
+              <Button size="sm" variant="secondary">
+                一键修正
+              </Button>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <FileText className="h-4 w-4" /> 模板库
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-xs text-muted-foreground mb-2">
+                用于快速套用常用场景模板（邀约会议、催款、售后、招聘）。
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <Button size="sm" variant="outline">
+                  邀约会议
+                </Button>
+                <Button size="sm" variant="outline">
+                  催款提醒
+                </Button>
+                <Button size="sm" variant="outline">
+                  售后跟进
+                </Button>
+                <Button size="sm" variant="outline">
+                  招聘沟通
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      );
+    }
+    if (folder === "sent") {
+      return (
+        <div className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <Send className="h-4 w-4" /> 投递与互动反馈
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-xs text-muted-foreground mb-2">
+                用于查看互动KPI与趋势，评估当前邮件的表现与影响。
+              </div>
+              {active.metrics ? (
+                <div className="grid grid-cols-2 gap-3">
+                  <KPICard
+                    title="投递"
+                    value={active.metrics.delivered.toLocaleString()}
+                    change={0}
+                    isPositive={true}
+                  />
+                  <KPICard
+                    title="打开率"
+                    value={`${Math.round(active.metrics.openRate * 100)}%`}
+                    change={0}
+                    isPositive={true}
+                  />
+                  <KPICard
+                    title="点击率"
+                    value={`${Math.round(active.metrics.clickRate * 100)}%`}
+                    change={0}
+                    isPositive={true}
+                  />
+                  <KPICard
+                    title="退订率"
+                    value={`${(active.metrics.unsubRate * 100).toFixed(1)}%`}
+                    change={0}
+                    isPositive={false}
+                  />
+                </div>
+              ) : (
+                <div className="text-xs text-muted-foreground">暂无指标（模拟）</div>
+              )}
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <Clock className="h-4 w-4" /> 跟进建议
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-xs text-muted-foreground mb-2">
+                用于生成后续跟进内容与时机建议，提升响应率与转化。
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                <Button size="sm" variant="outline">
+                  专业语气
+                </Button>
+                <Button size="sm" variant="outline">
+                  友好语气
+                </Button>
+                <Button size="sm" variant="outline">
+                  简洁提醒
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <ListChecks className="h-4 w-4" /> 结果对齐（承诺事项）
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <div className="text-xs text-muted-foreground">
+                用于将承诺项转入任务板并跟踪责任人与截止时间，保障落实。
+              </div>
+              <ul className="list-disc pl-5 text-sm">
+                <li>交付时间：下周三</li>
+                <li>试用账号：今日创建</li>
+              </ul>
+              <Button size="sm" variant="secondary">
+                转入任务板
+              </Button>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <Sparkles className="h-4 w-4" /> 效果分析
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <div className="text-xs text-muted-foreground">
+                用于统计响应与转化并生成复盘建议，可一键回流至块库改进队列。
+              </div>
+              <div className="text-xs text-muted-foreground">按主题/客户/团队聚合（演示）。</div>
+              <Button size="sm" variant="secondary">
+                推送建议到块库
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      );
+    }
+    if (folder === "deleted") {
+      return (
+        <div className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <Trash2 className="h-4 w-4" /> 安全删除与快速撤销
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <div className="text-xs text-muted-foreground">
+                用于快速恢复已删除邮件并提供短窗口撤销，降低误删风险。
+              </div>
+              <div className="text-xs text-muted-foreground">可恢复窗口：7天</div>
+              <div className="flex gap-2">
+                <Button size="sm">一键恢复</Button>
+                <Button size="sm" variant="outline">
+                  撤销
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <AlertTriangle className="h-4 w-4" /> 智能保留建议
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <div className="text-xs text-muted-foreground">
+                用于识别误删场景（含附件/未读/含待办）并建议恢复，保留关键信息。
+              </div>
+              <ul className="list-disc pl-5 text-sm">
+                <li>含附件未读，建议恢复</li>
+                <li>含待办项，建议恢复</li>
+              </ul>
+              <Button size="sm" variant="secondary">
+                恢复并标注原因
+              </Button>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <FileText className="h-4 w-4" /> 清理报告
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <div className="text-xs text-muted-foreground">
+                用于输出周期清理与恢复的统计报告，辅助邮箱治理与风险提示。
+              </div>
+              <div className="text-xs text-muted-foreground">本周期清理量与恢复量（演示）。</div>
+              <div className="flex gap-2">
+                <Button size="sm" variant="outline">
+                  复制报告
+                </Button>
+                <Button size="sm" variant="secondary">
+                  推送到团队频道
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      );
+    }
+    return null;
   };
 
   const data = useMemo(() => {
@@ -598,131 +1152,137 @@ export default function EmailMarketingMailbox() {
 
             {/* 右侧预览区（75%）*/}
             <div className="md:basis-[58%] overflow-auto  p-3 md:border-l md:border-border">
-              <div className="text-sm font-medium mb-2">预览</div>
-              <div className="space-y-4">
-                {!active && <div className="text-sm text-muted-foreground">请选择左侧列表中的一封邮件进行预览</div>}
-
-                {active && (
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h2 className="text-base font-semibold">{active.subject}</h2>
-                        <p className="text-xs text-muted-foreground">
-                          来自 {active.senderName} &lt;{active.senderEmail}&gt; ·{" "}
-                          {new Date(active.receivedTime).toLocaleString()}
-                        </p>
-                      </div>
-                      {/* <div className="flex gap-2">
-                        <Button size="sm" variant="outline" onClick={handleReply} className="gap-2">
-                          <Reply className="h-4 w-4" /> 回复
-                        </Button>
-                        <Button size="sm" variant="outline" onClick={handleReplyAll} className="gap-2">
-                          <ReplyAll className="h-4 w-4" /> 回复全部
-                        </Button>
-                        <Button size="sm" variant="outline" onClick={handleForward} className="gap-2">
-                          <Forward className="h-4 w-4" /> 转发
-                        </Button>
-                      </div> */}
-                    </div>
-
-                    {enableAI && aiView !== "none" && (
-                      <div className="border rounded p-3">
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-2">
-                            {aiView === "insights" && <Sparkles className="h-4 w-4 text-purple-500" />}
-                            {aiView === "predict" && <Brain className="h-4 w-4 text-blue-500" />}
-                            {aiView === "schedule" && <Clock className="h-4 w-4 text-green-500" />}
-                            <span className="text-sm font-medium">
-                              {aiView === "insights" && "AI建议"}
-                              {aiView === "predict" && "AI预测"}
-                              {aiView === "schedule" && "最佳发送时段"}
-                            </span>
-                          </div>
-                          <Button size="sm" variant="ghost" onClick={() => setAiView("none")}>
-                            收起
-                          </Button>
-                        </div>
-                        {aiView === "insights" && (
-                          <div className="space-y-2 text-sm">
-                            {active.suggestions && active.suggestions.length > 0 ? (
-                              <ul className="list-disc pl-5">
-                                {active.suggestions.map((s, i) => (
-                                  <li key={i}>{s}</li>
-                                ))}
-                              </ul>
-                            ) : (
-                              <div className="text-muted-foreground">暂无AI建议（模拟数据）</div>
-                            )}
-                            {typeof active.aiScore === "number" && (
-                              <div className="text-xs text-muted-foreground">内容质量评分：{active.aiScore}/100</div>
-                            )}
-                          </div>
-                        )}
-                        {aiView === "predict" && (
-                          <div className="grid grid-cols-3 gap-3 text-sm">
-                            <div>
-                              <div className="text-xs text-muted-foreground">预测打开率</div>
-                              <div className="font-medium">
-                                {typeof active.openRatePred === "number"
-                                  ? `${Math.round(active.openRatePred * 100)}%`
-                                  : "--"}
-                              </div>
-                            </div>
-                            <div>
-                              <div className="text-xs text-muted-foreground">预测点击率</div>
-                              <div className="font-medium">
-                                {typeof active.clickRatePred === "number"
-                                  ? `${Math.round(active.clickRatePred * 100)}%`
-                                  : "--"}
-                              </div>
-                            </div>
-                            <div>
-                              <div className="text-xs text-muted-foreground">内容评分</div>
-                              <div className="font-medium">
-                                {typeof active.aiScore === "number" ? `${active.aiScore}/100` : "--"}
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                        {aiView === "schedule" && (
-                          <div className="text-sm">
-                            <div className="text-xs text-muted-foreground">建议发送时间窗</div>
-                            <div className="font-medium mb-2">{active.bestSendWindow || "--"}</div>
-                            <div className="text-xs text-muted-foreground">
-                              说明：基于历史打开行为预测的高活跃时段（演示）。
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    )}
-
-                    {active.status === 1 && active.metrics && (
-                      <div className="grid grid-cols-2 gap-3">
-                        <KPICard
-                          title="投递"
-                          value={active.metrics.delivered.toLocaleString()}
-                          change={0}
-                          isPositive={true}
-                        />
-                        <KPICard
-                          title="打开率"
-                          value={`${Math.round(active.metrics.openRate * 100)}%`}
-                          change={0}
-                          isPositive={true}
-                        />
-                      </div>
-                    )}
-
-                    <div className="border rounded p-4 bg-white">
-                      <iframe
-                        srcDoc={active.htmlBody || ""}
-                        className="w-full min-h-[520px] border-none"
-                        title="Email Content"
-                      />
-                    </div>
-                  </div>
-                )}
+              <div className="mb-2">
+                <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "preview" | "ai")}>
+                  <TabsList>
+                    <TabsTrigger value="preview">预览</TabsTrigger>
+                    <TabsTrigger value="ai">AI建议</TabsTrigger>
+                  </TabsList>
+                </Tabs>
               </div>
+              {activeTab === "preview" ? (
+                <div className="space-y-4">
+                  {!active && <div className="text-sm text-muted-foreground">请选择左侧列表中的一封邮件进行预览</div>}
+
+                  {active && (
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h2 className="text-base font-semibold">{active.subject}</h2>
+                          <p className="text-xs text-muted-foreground">
+                            来自 {active.senderName} &lt;{active.senderEmail}&gt; ·{" "}
+                            {new Date(active.receivedTime).toLocaleString()}
+                          </p>
+                        </div>
+                      </div>
+
+                      {enableAI && aiView !== "none" && (
+                        <div className="border rounded p-3">
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                              {aiView === "insights" && <Sparkles className="h-4 w-4 text-purple-500" />}
+                              {aiView === "predict" && <Brain className="h-4 w-4 text-blue-500" />}
+                              {aiView === "schedule" && <Clock className="h-4 w-4 text-green-500" />}
+                              <span className="text-sm font-medium">
+                                {aiView === "insights" && "AI建议"}
+                                {aiView === "predict" && "AI预测"}
+                                {aiView === "schedule" && "最佳发送时段"}
+                              </span>
+                            </div>
+                            <Button size="sm" variant="ghost" onClick={() => setAiView("none")}>
+                              收起
+                            </Button>
+                          </div>
+                          {aiView === "insights" && (
+                            <div className="space-y-2 text-sm">
+                              {active.suggestions && active.suggestions.length > 0 ? (
+                                <ul className="list-disc pl-5">
+                                  {active.suggestions.map((s, i) => (
+                                    <li key={i}>{s}</li>
+                                  ))}
+                                </ul>
+                              ) : (
+                                <div className="text-muted-foreground">暂无AI建议（模拟数据）</div>
+                              )}
+                              {typeof active.aiScore === "number" && (
+                                <div className="text-xs text-muted-foreground">内容质量评分：{active.aiScore}/100</div>
+                              )}
+                            </div>
+                          )}
+                          {aiView === "predict" && (
+                            <div className="grid grid-cols-3 gap-3 text-sm">
+                              <div>
+                                <div className="text-xs text-muted-foreground">预测打开率</div>
+                                <div className="font-medium">
+                                  {typeof active.openRatePred === "number"
+                                    ? `${Math.round(active.openRatePred * 100)}%`
+                                    : "--"}
+                                </div>
+                              </div>
+                              <div>
+                                <div className="text-xs text-muted-foreground">预测点击率</div>
+                                <div className="font-medium">
+                                  {typeof active.clickRatePred === "number"
+                                    ? `${Math.round(active.clickRatePred * 100)}%`
+                                    : "--"}
+                                </div>
+                              </div>
+                              <div>
+                                <div className="text-xs text-muted-foreground">内容评分</div>
+                                <div className="font-medium">
+                                  {typeof active.aiScore === "number" ? `${active.aiScore}/100` : "--"}
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                          {aiView === "schedule" && (
+                            <div className="text-sm">
+                              <div className="text-xs text-muted-foreground">建议发送时间窗</div>
+                              <div className="font-medium mb-2">{active.bestSendWindow || "--"}</div>
+                              <div className="text-xs text-muted-foreground">
+                                说明：基于历史打开行为预测的高活跃时段（演示）。
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {active.status === 1 && active.metrics && (
+                        <div className="grid grid-cols-2 gap-3">
+                          <KPICard
+                            title="投递"
+                            value={active.metrics.delivered.toLocaleString()}
+                            change={0}
+                            isPositive={true}
+                          />
+                          <KPICard
+                            title="打开率"
+                            value={`${Math.round(active.metrics.openRate * 100)}%`}
+                            change={0}
+                            isPositive={true}
+                          />
+                        </div>
+                      )}
+
+                      <div className="border rounded p-4 bg-white">
+                        <iframe
+                          srcDoc={active.htmlBody || ""}
+                          className="w-full min-h-[520px] border-none"
+                          title="Email Content"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {active ? (
+                    renderSections()
+                  ) : (
+                    <div className="text-xs text-muted-foreground">请选择邮件以查看AI建议</div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </CardContent>
