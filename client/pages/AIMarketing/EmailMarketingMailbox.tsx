@@ -918,7 +918,7 @@ export default function EmailMarketingMailbox() {
   }, []);
 
   return (
-    <div className="p-6 space-y-4 h-full flex flex-col">
+    <div className="p-6 h-full flex flex-col overflow-hidden">
       {/* 顶部工具栏 */}
       {/* <Card>
         <CardContent className="pt-6 flex flex-wrap items-center gap-2">
@@ -1033,9 +1033,9 @@ export default function EmailMarketingMailbox() {
       </Card> */}
 
       {/* 三栏布局（合并为一个卡片，分割线区分，每栏有内边距）*/}
-      <Card className="flex-1">
-        <CardContent className="p-0 h-full">
-          <div className="flex flex-col md:flex-row items-stretch h-full">
+      <Card className="flex-1 min-h-0 flex flex-col">
+        <CardContent className="p-0 flex-1 min-h-0">
+          <div className="flex flex-col md:flex-row items-stretch h-full min-h-0">
             {/* 左侧文件夹（12%）*/}
             <div className="md:basis-[16%] p-3">
               <div className="flex gap-2">
@@ -1151,8 +1151,8 @@ export default function EmailMarketingMailbox() {
             </div>
 
             {/* 右侧预览区（75%）*/}
-            <div className="md:basis-[58%] overflow-auto  p-3 md:border-l md:border-border">
-              <div className="mb-2">
+            <div className="md:basis-[58%] flex flex-col p-3 md:border-l md:border-border min-h-0">
+              <div className="mb-2 shrink-0">
                 <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "preview" | "ai")}>
                   <TabsList>
                     <TabsTrigger value="preview">预览</TabsTrigger>
@@ -1160,129 +1160,133 @@ export default function EmailMarketingMailbox() {
                   </TabsList>
                 </Tabs>
               </div>
-              {activeTab === "preview" ? (
-                <div className="space-y-4">
-                  {!active && <div className="text-sm text-muted-foreground">请选择左侧列表中的一封邮件进行预览</div>}
+              <div className="flex flex-1 overflow-auto min-h-0">
+                {activeTab === "preview" ? (
+                  <div className="space-y-4 flex-1 flex">
+                    {!active && <div className="text-sm text-muted-foreground">请选择左侧列表中的一封邮件进行预览</div>}
 
-                  {active && (
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h2 className="text-base font-semibold">{active.subject}</h2>
-                          <p className="text-xs text-muted-foreground">
-                            来自 {active.senderName} &lt;{active.senderEmail}&gt; ·{" "}
-                            {new Date(active.receivedTime).toLocaleString()}
-                          </p>
-                        </div>
-                      </div>
-
-                      {enableAI && aiView !== "none" && (
-                        <div className="border rounded p-3">
-                          <div className="flex items-center justify-between mb-2">
-                            <div className="flex items-center gap-2">
-                              {aiView === "insights" && <Sparkles className="h-4 w-4 text-purple-500" />}
-                              {aiView === "predict" && <Brain className="h-4 w-4 text-blue-500" />}
-                              {aiView === "schedule" && <Clock className="h-4 w-4 text-green-500" />}
-                              <span className="text-sm font-medium">
-                                {aiView === "insights" && "AI建议"}
-                                {aiView === "predict" && "AI预测"}
-                                {aiView === "schedule" && "最佳发送时段"}
-                              </span>
-                            </div>
-                            <Button size="sm" variant="ghost" onClick={() => setAiView("none")}>
-                              收起
-                            </Button>
+                    {active && (
+                      <div className="space-y-4 flex flex-col flex-1">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h2 className="text-base font-semibold">{active.subject}</h2>
+                            <p className="text-xs text-muted-foreground">
+                              来自 {active.senderName} &lt;{active.senderEmail}&gt; ·{" "}
+                              {new Date(active.receivedTime).toLocaleString()}
+                            </p>
                           </div>
-                          {aiView === "insights" && (
-                            <div className="space-y-2 text-sm">
-                              {active.suggestions && active.suggestions.length > 0 ? (
-                                <ul className="list-disc pl-5">
-                                  {active.suggestions.map((s, i) => (
-                                    <li key={i}>{s}</li>
-                                  ))}
-                                </ul>
-                              ) : (
-                                <div className="text-muted-foreground">暂无AI建议（模拟数据）</div>
-                              )}
-                              {typeof active.aiScore === "number" && (
-                                <div className="text-xs text-muted-foreground">内容质量评分：{active.aiScore}/100</div>
-                              )}
-                            </div>
-                          )}
-                          {aiView === "predict" && (
-                            <div className="grid grid-cols-3 gap-3 text-sm">
-                              <div>
-                                <div className="text-xs text-muted-foreground">预测打开率</div>
-                                <div className="font-medium">
-                                  {typeof active.openRatePred === "number"
-                                    ? `${Math.round(active.openRatePred * 100)}%`
-                                    : "--"}
-                                </div>
-                              </div>
-                              <div>
-                                <div className="text-xs text-muted-foreground">预测点击率</div>
-                                <div className="font-medium">
-                                  {typeof active.clickRatePred === "number"
-                                    ? `${Math.round(active.clickRatePred * 100)}%`
-                                    : "--"}
-                                </div>
-                              </div>
-                              <div>
-                                <div className="text-xs text-muted-foreground">内容评分</div>
-                                <div className="font-medium">
-                                  {typeof active.aiScore === "number" ? `${active.aiScore}/100` : "--"}
-                                </div>
-                              </div>
-                            </div>
-                          )}
-                          {aiView === "schedule" && (
-                            <div className="text-sm">
-                              <div className="text-xs text-muted-foreground">建议发送时间窗</div>
-                              <div className="font-medium mb-2">{active.bestSendWindow || "--"}</div>
-                              <div className="text-xs text-muted-foreground">
-                                说明：基于历史打开行为预测的高活跃时段（演示）。
-                              </div>
-                            </div>
-                          )}
                         </div>
-                      )}
 
-                      {active.status === 1 && active.metrics && (
-                        <div className="grid grid-cols-2 gap-3">
-                          <KPICard
-                            title="投递"
-                            value={active.metrics.delivered.toLocaleString()}
-                            change={0}
-                            isPositive={true}
-                          />
-                          <KPICard
-                            title="打开率"
-                            value={`${Math.round(active.metrics.openRate * 100)}%`}
-                            change={0}
-                            isPositive={true}
+                        {enableAI && aiView !== "none" && (
+                          <div className="border rounded p-3">
+                            <div className="flex items-center justify-between mb-2">
+                              <div className="flex items-center gap-2">
+                                {aiView === "insights" && <Sparkles className="h-4 w-4 text-purple-500" />}
+                                {aiView === "predict" && <Brain className="h-4 w-4 text-blue-500" />}
+                                {aiView === "schedule" && <Clock className="h-4 w-4 text-green-500" />}
+                                <span className="text-sm font-medium">
+                                  {aiView === "insights" && "AI建议"}
+                                  {aiView === "predict" && "AI预测"}
+                                  {aiView === "schedule" && "最佳发送时段"}
+                                </span>
+                              </div>
+                              <Button size="sm" variant="ghost" onClick={() => setAiView("none")}>
+                                收起
+                              </Button>
+                            </div>
+                            {aiView === "insights" && (
+                              <div className="space-y-2 text-sm">
+                                {active.suggestions && active.suggestions.length > 0 ? (
+                                  <ul className="list-disc pl-5">
+                                    {active.suggestions.map((s, i) => (
+                                      <li key={i}>{s}</li>
+                                    ))}
+                                  </ul>
+                                ) : (
+                                  <div className="text-muted-foreground">暂无AI建议（模拟数据）</div>
+                                )}
+                                {typeof active.aiScore === "number" && (
+                                  <div className="text-xs text-muted-foreground">
+                                    内容质量评分：{active.aiScore}/100
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                            {aiView === "predict" && (
+                              <div className="grid grid-cols-3 gap-3 text-sm">
+                                <div>
+                                  <div className="text-xs text-muted-foreground">预测打开率</div>
+                                  <div className="font-medium">
+                                    {typeof active.openRatePred === "number"
+                                      ? `${Math.round(active.openRatePred * 100)}%`
+                                      : "--"}
+                                  </div>
+                                </div>
+                                <div>
+                                  <div className="text-xs text-muted-foreground">预测点击率</div>
+                                  <div className="font-medium">
+                                    {typeof active.clickRatePred === "number"
+                                      ? `${Math.round(active.clickRatePred * 100)}%`
+                                      : "--"}
+                                  </div>
+                                </div>
+                                <div>
+                                  <div className="text-xs text-muted-foreground">内容评分</div>
+                                  <div className="font-medium">
+                                    {typeof active.aiScore === "number" ? `${active.aiScore}/100` : "--"}
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                            {aiView === "schedule" && (
+                              <div className="text-sm">
+                                <div className="text-xs text-muted-foreground">建议发送时间窗</div>
+                                <div className="font-medium mb-2">{active.bestSendWindow || "--"}</div>
+                                <div className="text-xs text-muted-foreground">
+                                  说明：基于历史打开行为预测的高活跃时段（演示）。
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
+
+                        {active.status === 1 && active.metrics && (
+                          <div className="grid grid-cols-2 gap-3">
+                            <KPICard
+                              title="投递"
+                              value={active.metrics.delivered.toLocaleString()}
+                              change={0}
+                              isPositive={true}
+                            />
+                            <KPICard
+                              title="打开率"
+                              value={`${Math.round(active.metrics.openRate * 100)}%`}
+                              change={0}
+                              isPositive={true}
+                            />
+                          </div>
+                        )}
+
+                        <div className="flex-1 flex border rounded p-4 bg-white">
+                          <iframe
+                            srcDoc={active.htmlBody || ""}
+                            className="w-full flex-1 border-none"
+                            title="Email Content"
                           />
                         </div>
-                      )}
-
-                      <div className="border rounded p-4 bg-white">
-                        <iframe
-                          srcDoc={active.htmlBody || ""}
-                          className="w-full min-h-[520px] border-none"
-                          title="Email Content"
-                        />
                       </div>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {active ? (
-                    renderSections()
-                  ) : (
-                    <div className="text-xs text-muted-foreground">请选择邮件以查看AI建议</div>
-                  )}
-                </div>
-              )}
+                    )}
+                  </div>
+                ) : (
+                  <div className="space-y-4 flex-1">
+                    {active ? (
+                      renderSections()
+                    ) : (
+                      <div className="text-xs text-muted-foreground">请选择邮件以查看AI建议</div>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </CardContent>
