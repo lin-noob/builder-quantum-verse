@@ -1,24 +1,9 @@
 import React, { useState, useEffect } from "react";
-import {
-  ChevronRight,
-  ChevronDown,
-  Menu,
-  Folder,
-  Trash2,
-  Plus,
-  Edit,
-  Shield,
-} from "lucide-react";
+import { ChevronRight, ChevronDown, Menu, Folder, Trash2, Plus, Edit, Shield } from "lucide-react";
 import { IconRenderer } from "@/components/IconRenderer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -29,14 +14,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import {
   Dialog,
   DialogContent,
@@ -48,13 +26,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import AddMenuDialog from "./AddMenuDialog";
 import EditMenuDialog from "./EditMenuDialog";
 import { useToast } from "@/components/ui/use-toast";
@@ -127,10 +99,7 @@ const MenuRow: React.FC<MenuRowProps> = ({
         onClick={() => onSelect(item)}
       >
         <td className="px-6 py-3 whitespace-nowrap">
-          <div
-            className="flex items-center"
-            style={{ paddingLeft: `${level * 24}px` }}
-          >
+          <div className="flex items-center" style={{ paddingLeft: `${level * 24}px` }}>
             {hasChildren ? (
               <button
                 onClick={(e) => {
@@ -150,15 +119,9 @@ const MenuRow: React.FC<MenuRowProps> = ({
             )}
 
             <div className="flex items-center gap-2">
-              <IconRenderer
-                iconName={item.icon}
-                isDirectory={isDirectory}
-                className="h-4 w-4"
-              />
+              <IconRenderer iconName={item.icon} isDirectory={isDirectory} className="h-4 w-4" />
 
-              <span
-                className={`text-sm font-medium ${isSelected ? "text-blue-900" : "text-gray-900"}`}
-              >
+              <span className={`text-sm font-medium ${isSelected ? "text-blue-900" : "text-gray-900"}`}>
                 {item.name}
               </span>
             </div>
@@ -166,15 +129,11 @@ const MenuRow: React.FC<MenuRowProps> = ({
         </td>
 
         <td className="px-6 py-3 whitespace-nowrap">
-          <Badge variant={isDirectory ? "secondary" : "default"}>
-            {isDirectory ? "目录" : "菜单"}
-          </Badge>
+          <Badge variant={isDirectory ? "secondary" : "default"}>{isDirectory ? "目录" : "菜单"}</Badge>
         </td>
 
         <td className="px-6 py-3 whitespace-nowrap">
-          <Badge variant={item.visible ? "default" : "secondary"}>
-            {item.visible ? "显示" : "隐藏"}
-          </Badge>
+          <Badge variant={item.visible ? "default" : "secondary"}>{item.visible ? "显示" : "隐藏"}</Badge>
         </td>
 
         <td className="px-6 py-3 whitespace-nowrap">{item.sort}</td>
@@ -224,13 +183,9 @@ const MenuManagementComponent: React.FC = () => {
   const [permissions, setPermissions] = useState<Permission[]>([]);
   const [permissionsLoading, setPermissionsLoading] = useState(false);
   const [permissionDialogOpen, setPermissionDialogOpen] = useState(false);
-  const [editingPermission, setEditingPermission] = useState<Permission | null>(
-    null,
-  );
-  const [deletePermissionDialogOpen, setDeletePermissionDialogOpen] =
-    useState(false);
-  const [permissionToDelete, setPermissionToDelete] =
-    useState<Permission | null>(null);
+  const [editingPermission, setEditingPermission] = useState<Permission | null>(null);
+  const [deletePermissionDialogOpen, setDeletePermissionDialogOpen] = useState(false);
+  const [permissionToDelete, setPermissionToDelete] = useState<Permission | null>(null);
   const [permissionForm, setPermissionForm] = useState({
     name: "",
     type: "2", // 默认为页面功能权限
@@ -299,9 +254,7 @@ const MenuManagementComponent: React.FC = () => {
   const fetchPermissions = async (menuId: number) => {
     try {
       setPermissionsLoading(true);
-      const response = await request.get(
-        `/admin/api/v1/permissions/page?page=0&limit=10&menuId=${menuId}&pageNum=1`,
-      );
+      const response = await request.get(`/admin/api/v1/permissions/page?page=0&limit=10&menuId=${menuId}&pageNum=1`);
       setPermissions(response.data.data || []);
     } catch (error) {
       console.error("Failed to fetch permissions:", error);
@@ -314,9 +267,7 @@ const MenuManagementComponent: React.FC = () => {
   // 获取权限详情
   const fetchPermissionDetail = async (permissionId: string) => {
     try {
-      const response = await request.get(
-        `/admin/api/v1/permissions/${permissionId}`,
-      );
+      const response = await request.get(`/admin/api/v1/permissions/${permissionId}`);
       return response.data.data || response.data;
     } catch (error) {
       console.error("Failed to fetch permission detail:", error);
@@ -383,9 +334,7 @@ const MenuManagementComponent: React.FC = () => {
       setEditingPermission(permissionDetail);
 
       // 解析 urlPerm 到三个字段
-      const { microService, requestMethod, urlPath } = parseUrlPerm(
-        permissionDetail.urlPerm || "",
-      );
+      const { microService, requestMethod, urlPath } = parseUrlPerm(permissionDetail.urlPerm || "");
 
       setPermissionForm({
         name: permissionDetail.name || "",
@@ -415,9 +364,7 @@ const MenuManagementComponent: React.FC = () => {
     if (!permissionToDelete) return;
 
     try {
-      await request.delete(
-        `/admin/api/v1/permissions/${permissionToDelete.id}`,
-      );
+      await request.delete(`/admin/api/v1/permissions/${permissionToDelete.id}`);
 
       // 删除成功后刷新权限列表
       if (selectedMenu) {
@@ -442,11 +389,7 @@ const MenuManagementComponent: React.FC = () => {
   };
 
   // 动态拼接 urlPerm
-  const generateUrlPerm = (
-    microService: string,
-    requestMethod: string,
-    urlPath: string,
-  ) => {
+  const generateUrlPerm = (microService: string, requestMethod: string, urlPath: string) => {
     if (!microService || !requestMethod || !urlPath) return "";
     return `${requestMethod}:/${microService}${urlPath}`;
   };
@@ -457,11 +400,7 @@ const MenuManagementComponent: React.FC = () => {
 
     // 如果是字段权限类型，自动拼接 urlPerm
     if (newForm.type == "1") {
-      newForm.urlPerm = generateUrlPerm(
-        newForm.microService,
-        newForm.requestMethod,
-        newForm.urlPath,
-      );
+      newForm.urlPerm = generateUrlPerm(newForm.microService, newForm.requestMethod, newForm.urlPath);
     }
 
     setPermissionForm(newForm);
@@ -483,10 +422,7 @@ const MenuManagementComponent: React.FC = () => {
 
       if (editingPermission) {
         // 更新权限
-        await request.put(
-          `/admin/api/v1/permissions/${editingPermission.id}`,
-          permissionData,
-        );
+        await request.put(`/admin/api/v1/permissions/${editingPermission.id}`, permissionData);
         toast({
           title: "更新成功",
           description: "权限已成功更新",
@@ -587,11 +523,11 @@ const MenuManagementComponent: React.FC = () => {
   }
 
   return (
-    <div className="grid grid-cols-12 gap-6 h-screen p-4">
+    <div className="flex gap-6 h-[calc(100vh-2rem)] p-4 overflow-hidden">
       {/* 左侧菜单树 */}
-      <div className="col-span-7">
-        <Card className="h-full">
-          <CardHeader>
+      <div className="flex-1 min-w-0 h-full">
+        <Card className="h-full flex flex-col">
+          <CardHeader className="shrink-0">
             <div className="flex justify-between items-center">
               <div>
                 <CardTitle>菜单管理</CardTitle>
@@ -599,7 +535,7 @@ const MenuManagementComponent: React.FC = () => {
               </div>
               <AddMenuDialog onMenuAdded={fetchMenuData} />
             </div>
-            <div className="flex space-x-2">
+            <div className="flex space-x-2 mt-2">
               <Button onClick={expandAll} variant="outline" size="sm">
                 全部展开
               </Button>
@@ -608,10 +544,10 @@ const MenuManagementComponent: React.FC = () => {
               </Button>
             </div>
           </CardHeader>
-          <CardContent className="p-0">
-            <div className="border rounded-lg overflow-hidden">
+          <CardContent className="flex-1 overflow-hidden p-0 px-6 pb-6">
+            <div className="h-full border rounded-lg overflow-auto">
               <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+                <thead className="bg-gray-50 sticky top-0 z-10">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       菜单名称
@@ -630,7 +566,7 @@ const MenuManagementComponent: React.FC = () => {
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200 max-h-[calc(100vh-300px)] overflow-y-auto">
+                <tbody className="bg-white divide-y divide-gray-200">
                   {menuData.map((item) => (
                     <MenuRow
                       key={item.id}
@@ -652,9 +588,9 @@ const MenuManagementComponent: React.FC = () => {
       </div>
 
       {/* 右侧权限管理 */}
-      <div className="col-span-5">
-        <Card className="h-full">
-          <CardHeader>
+      <div className="w-[450px] shrink-0 h-full">
+        <Card className="h-full flex flex-col">
+          <CardHeader className="shrink-0">
             <div className="flex justify-between items-center">
               <div>
                 <CardTitle className="flex items-center gap-2">
@@ -662,89 +598,74 @@ const MenuManagementComponent: React.FC = () => {
                   权限管理
                 </CardTitle>
                 <CardDescription>
-                  {selectedMenu
-                    ? `为 "${selectedMenu.name}" 配置权限`
-                    : "请从左侧选择一个菜单"}
+                  {selectedMenu ? `为 "${selectedMenu.name}" 配置权限` : "请从左侧选择一个菜单"}
                 </CardDescription>
               </div>
               {selectedMenu && (
                 <Button size="sm" onClick={handleCreatePermission}>
                   <Plus className="h-4 w-4 mr-2" />
-                  新增权限
+                  新增
                 </Button>
               )}
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="flex-1 overflow-hidden flex flex-col">
             {selectedMenu ? (
-              <div className="space-y-4">
+              <div className="flex-1 flex flex-col min-h-0">
                 {/* 权限列表 */}
                 {permissionsLoading ? (
                   <div className="flex justify-center items-center h-32">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                   </div>
                 ) : permissions.length > 0 ? (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>权限名称</TableHead>
-                        <TableHead>类型</TableHead>
-                        <TableHead>URL权限</TableHead>
-                        <TableHead>按钮权限</TableHead>
-                        <TableHead>操作</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {permissions.map((permission) => (
-                        <TableRow key={permission.id}>
-                          <TableCell className="font-medium">
-                            {permission.name}
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant="secondary">
-                              {permission.type == "1" ? "功能" : "字段"}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="text-sm text-gray-600">
-                            {permission.requestPath}
-                          </TableCell>
-                          <TableCell className="text-sm text-gray-600">
-                            {permission.btnPerm}
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex space-x-2">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleEditPermission(permission)}
-                              >
-                                <Edit className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="text-red-600 hover:text-red-700"
-                                onClick={() =>
-                                  handleDeletePermission(permission)
-                                }
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </TableCell>
+                  <div className="flex-1 overflow-auto border rounded-lg">
+                    <Table>
+                      <TableHeader className="sticky top-0 bg-white z-10">
+                        <TableRow>
+                          <TableHead>名称</TableHead>
+                          <TableHead>类型</TableHead>
+                          <TableHead>操作</TableHead>
                         </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                ) : (
-                  <div className="text-center py-8 text-gray-500">
-                    该菜单暂无权限配置
+                      </TableHeader>
+                      <TableBody>
+                        {permissions.map((permission) => (
+                          <TableRow key={permission.id}>
+                            <TableCell className="font-medium max-w-[120px] truncate">{permission.name}</TableCell>
+                            <TableCell>
+                              <Badge variant="secondary">{permission.type == "1" ? "功能" : "字段"}</Badge>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex space-x-1">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-8 w-8 p-0"
+                                  onClick={() => handleEditPermission(permission)}
+                                >
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
+                                  onClick={() => handleDeletePermission(permission)}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
                   </div>
+                ) : (
+                  <div className="text-center py-8 text-gray-500">该菜单暂无权限配置</div>
                 )}
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center h-64 text-gray-500">
-                <Shield className="h-12 w-12 mb-4" />
+              <div className="flex flex-col items-center justify-center h-full text-gray-500">
+                <Shield className="h-12 w-12 mb-4 opacity-20" />
                 <p>请从左侧选择一个菜单来配置权限</p>
               </div>
             )}
@@ -760,9 +681,7 @@ const MenuManagementComponent: React.FC = () => {
             <AlertDialogDescription>
               您确定要删除菜单 "{itemToDelete?.name}" 吗？
               {itemToDelete?.children && itemToDelete.children.length > 0 && (
-                <span className="text-red-600 block mt-2">
-                  注意：该菜单包含子菜单，删除后所有子菜单也将被删除！
-                </span>
+                <span className="text-red-600 block mt-2">注意：该菜单包含子菜单，删除后所有子菜单也将被删除！</span>
               )}
               此操作不可撤销。
             </AlertDialogDescription>
@@ -783,10 +702,7 @@ const MenuManagementComponent: React.FC = () => {
       </AlertDialog>
 
       {/* 删除权限确认对话框 */}
-      <AlertDialog
-        open={deletePermissionDialogOpen}
-        onOpenChange={setDeletePermissionDialogOpen}
-      >
+      <AlertDialog open={deletePermissionDialogOpen} onOpenChange={setDeletePermissionDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>确认删除权限</AlertDialogTitle>
@@ -796,10 +712,7 @@ const MenuManagementComponent: React.FC = () => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>取消</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDeletePermissionConfirm}
-              className="bg-red-600 hover:bg-red-700"
-            >
+            <AlertDialogAction onClick={handleDeletePermissionConfirm} className="bg-red-600 hover:bg-red-700">
               确认删除
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -807,19 +720,12 @@ const MenuManagementComponent: React.FC = () => {
       </AlertDialog>
 
       {/* 权限编辑对话框 */}
-      <Dialog
-        open={permissionDialogOpen}
-        onOpenChange={setPermissionDialogOpen}
-      >
+      <Dialog open={permissionDialogOpen} onOpenChange={setPermissionDialogOpen}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle>
-              {editingPermission ? "编辑权限" : "新增权限"}
-            </DialogTitle>
+            <DialogTitle>{editingPermission ? "编辑权限" : "新增权限"}</DialogTitle>
             <DialogDescription>
-              {editingPermission
-                ? `编辑权限信息`
-                : `为菜单 "${selectedMenu?.name}" 添加新权限`}
+              {editingPermission ? `编辑权限信息` : `为菜单 "${selectedMenu?.name}" 添加新权限`}
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
@@ -839,10 +745,7 @@ const MenuManagementComponent: React.FC = () => {
               <Label htmlFor="permission-type" className="text-right">
                 权限类型
               </Label>
-              <Select
-                value={permissionForm.type}
-                onValueChange={(value) => updatePermissionForm({ type: value })}
-              >
+              <Select value={permissionForm.type} onValueChange={(value) => updatePermissionForm({ type: value })}>
                 <SelectTrigger className="col-span-3">
                   <SelectValue placeholder="选择权限类型" />
                 </SelectTrigger>
@@ -862,9 +765,7 @@ const MenuManagementComponent: React.FC = () => {
                 <Input
                   id="btn-perm"
                   value={permissionForm.btnPerm}
-                  onChange={(e) =>
-                    updatePermissionForm({ btnPerm: e.target.value })
-                  }
+                  onChange={(e) => updatePermissionForm({ btnPerm: e.target.value })}
                   className="col-span-3"
                   placeholder="请输入权限码"
                 />
@@ -880,9 +781,7 @@ const MenuManagementComponent: React.FC = () => {
                   </Label>
                   <Select
                     value={permissionForm.microService}
-                    onValueChange={(value) =>
-                      updatePermissionForm({ microService: value })
-                    }
+                    onValueChange={(value) => updatePermissionForm({ microService: value })}
                     disabled={dictLoading}
                   >
                     <SelectTrigger className="col-span-3">
@@ -903,9 +802,7 @@ const MenuManagementComponent: React.FC = () => {
                   </Label>
                   <Select
                     value={permissionForm.requestMethod}
-                    onValueChange={(value) =>
-                      updatePermissionForm({ requestMethod: value })
-                    }
+                    onValueChange={(value) => updatePermissionForm({ requestMethod: value })}
                     disabled={dictLoading}
                   >
                     <SelectTrigger className="col-span-3">
@@ -927,17 +824,13 @@ const MenuManagementComponent: React.FC = () => {
                   <Input
                     id="url-path"
                     value={permissionForm.urlPath}
-                    onChange={(e) =>
-                      updatePermissionForm({ urlPath: e.target.value })
-                    }
+                    onChange={(e) => updatePermissionForm({ urlPath: e.target.value })}
                     className="col-span-3"
                     placeholder="/api/user/add"
                   />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
-                  <Label className="text-right text-sm text-gray-500">
-                    URL权限预览
-                  </Label>
+                  <Label className="text-right text-sm text-gray-500">URL权限预览</Label>
                   <div className="col-span-3 text-sm text-gray-600 bg-gray-50 p-2 rounded">
                     {permissionForm.urlPerm || "请填写上述字段生成URL权限"}
                   </div>
@@ -946,15 +839,10 @@ const MenuManagementComponent: React.FC = () => {
             )}
           </div>
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setPermissionDialogOpen(false)}
-            >
+            <Button variant="outline" onClick={() => setPermissionDialogOpen(false)}>
               取消
             </Button>
-            <Button onClick={handleSavePermission}>
-              {editingPermission ? "更新" : "创建"}
-            </Button>
+            <Button onClick={handleSavePermission}>{editingPermission ? "更新" : "创建"}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
