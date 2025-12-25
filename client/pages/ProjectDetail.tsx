@@ -1,13 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Copy, Download, Check, ArrowLeft, Building } from "lucide-react";
 import { toast } from "sonner";
@@ -33,7 +27,7 @@ export default function ProjectDetail() {
   useEffect(() => {
     const checkSDKExists = async () => {
       try {
-        const response = await sdkService.checkSDK();
+        const response = await sdkService.checkSDK(id);
 
         if (response.data) {
           setSdkExists(true);
@@ -117,21 +111,15 @@ export default function ProjectDetail() {
   }
 
   const npmInstallCommand = "npm install xd-post";
-  const umdScriptTag =
-    '<script src="https://cdn.jsdelivr.net/npm/xd-post@latest/dist/xd-post.umd.js"></script>';
-  const iifeScriptTag =
-    '<script src="https://cdn.jsdelivr.net/npm/xd-post@latest/dist/xd-post.iife.js"></script>';
+  const umdScriptTag = '<script src="https://cdn.jsdelivr.net/npm/xd-post@latest/dist/xd-post.umd.js"></script>';
+  const iifeScriptTag = '<script src="https://cdn.jsdelivr.net/npm/xd-post@latest/dist/xd-post.iife.js"></script>';
 
   return (
     <div className="container mx-auto py-8">
       {/* 项目头部信息 */}
       <div className="mb-8">
         <div className="flex items-center gap-4 mb-4">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => navigate("/projects")}
-          >
+          <Button variant="outline" size="sm" onClick={() => navigate("/projects")}>
             <ArrowLeft className="h-4 w-4 mr-2" />
             返回项目列表
           </Button>
@@ -159,29 +147,19 @@ export default function ProjectDetail() {
         <TabsContent value="sdk" className="space-y-6">
           <div className="mb-6">
             <h2 className="text-2xl font-bold mb-2">开发者工具</h2>
-            <p className="text-muted-foreground">
-              生成并集成xd-post SDK到您的项目中
-            </p>
+            <p className="text-muted-foreground">生成并集成xd-post SDK到您的项目中</p>
           </div>
 
           <div className="grid gap-6 md:grid-cols-2">
             <Card>
               <CardHeader>
                 <CardTitle>生成SDK</CardTitle>
-                <CardDescription>
-                  {sdkExists
-                    ? "您的SDK已生成"
-                    : "点击按钮生成适用于您项目的SDK"}
-                </CardDescription>
+                <CardDescription>{sdkExists ? "您的SDK已生成" : "点击按钮生成适用于您项目的SDK"}</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="flex flex-col gap-4">
                   {!sdkExists && (
-                    <Button
-                      onClick={handleGenerateSDK}
-                      disabled={isGenerating || loading}
-                      className="w-full"
-                    >
+                    <Button onClick={handleGenerateSDK} disabled={isGenerating || loading} className="w-full">
                       {isGenerating ? (
                         <>
                           <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"></div>
@@ -196,9 +174,7 @@ export default function ProjectDetail() {
                     </Button>
                   )}
                   <p className="text-sm text-muted-foreground">
-                    {sdkExists
-                      ? "您已生成SDK，可直接使用下方的集成说明"
-                      : "生成的SDK将包含xd-post的所有功能和配置"}
+                    {sdkExists ? "您已生成SDK，可直接使用下方的集成说明" : "生成的SDK将包含xd-post的所有功能和配置"}
                   </p>
 
                   {loading && (
@@ -211,9 +187,7 @@ export default function ProjectDetail() {
                   {generatedSDK && (
                     <div className="mt-4 p-4 bg-green-50 rounded-lg border border-green-200">
                       <div className="flex items-center justify-between mb-2">
-                        <h4 className="font-medium text-green-800">
-                          SDK生成成功
-                        </h4>
+                        <h4 className="font-medium text-green-800">SDK生成成功</h4>
                         <Button
                           variant="outline"
                           size="sm"
@@ -224,9 +198,7 @@ export default function ProjectDetail() {
                           复制SDK密钥
                         </Button>
                       </div>
-                      <div className="bg-white p-3 rounded border font-mono text-sm text-green-900">
-                        {generatedSDK}
-                      </div>
+                      <div className="bg-white p-3 rounded border font-mono text-sm text-green-900">{generatedSDK}</div>
                     </div>
                   )}
                 </div>
@@ -256,11 +228,7 @@ export default function ProjectDetail() {
                           className="absolute top-1 right-1 h-6 w-6 p-0"
                           onClick={() => copyToClipboard(npmInstallCommand)}
                         >
-                          {isCopied ? (
-                            <Check className="h-3 w-3" />
-                          ) : (
-                            <Copy className="h-3 w-3" />
-                          )}
+                          {isCopied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
                         </Button>
                       </div>
                     </div>
@@ -282,11 +250,7 @@ export default function ProjectDetail() {
                           className="absolute top-1 right-1 h-6 w-6 p-0"
                           onClick={() => copyToClipboard(umdScriptTag)}
                         >
-                          {isCopied ? (
-                            <Check className="h-3 w-3" />
-                          ) : (
-                            <Copy className="h-3 w-3" />
-                          )}
+                          {isCopied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
                         </Button>
                       </div>
                     </div>
@@ -302,11 +266,7 @@ export default function ProjectDetail() {
                           className="absolute top-1 right-1 h-6 w-6 p-0"
                           onClick={() => copyToClipboard(iifeScriptTag)}
                         >
-                          {isCopied ? (
-                            <Check className="h-3 w-3" />
-                          ) : (
-                            <Copy className="h-3 w-3" />
-                          )}
+                          {isCopied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
                         </Button>
                       </div>
                     </div>
@@ -326,8 +286,8 @@ export default function ProjectDetail() {
                 <div>
                   <h4 className="font-medium mb-2">基础使用</h4>
                   <div className="bg-muted p-4 rounded-md font-mono text-sm relative">
-                  <pre className="bg-muted rounded-md p-4 text-sm overflow-x-auto">
-                        <code>{`xdpost.enableAutoTracker({
+                    <pre className="bg-muted rounded-md p-4 text-sm overflow-x-auto">
+                      <code>{`xdpost.enableAutoTracker({
   sdk: ${generatedSDK ? `'${generatedSDK}'` : "'Your SKD'"},
   endpoint: '/quote/api/v1/events/behavior',
   autoDetectSource: true,
@@ -338,7 +298,7 @@ export default function ProjectDetail() {
     interval: 10000,
   },
 });`}</code>
-        <Button
+                      <Button
                         variant="ghost"
                         size="icon"
                         className="absolute right-2 top-2"
@@ -358,13 +318,9 @@ export default function ProjectDetail() {
                           `)
                         }
                       >
-                        {isCopied ? (
-                          <Check className="h-4 w-4" />
-                        ) : (
-                          <Copy className="h-4 w-4" />
-                        )}
+                        {isCopied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                       </Button>
-                      </pre>
+                    </pre>
                   </div>
                 </div>
                 {/* <div>
@@ -395,27 +351,19 @@ const xdPost = new XDPost({
               <div className="space-y-4">
                 <div>
                   <label className="text-sm font-medium">项目名称</label>
-                  <div className="mt-1 p-2 bg-gray-100 rounded-md">
-                    {project.name}
-                  </div>
+                  <div className="mt-1 p-2 bg-gray-100 rounded-md">{project.name}</div>
                 </div>
                 <div>
                   <label className="text-sm font-medium">项目ID</label>
-                  <div className="mt-1 p-2 bg-gray-100 rounded-md font-mono">
-                    {project.id}
-                  </div>
+                  <div className="mt-1 p-2 bg-gray-100 rounded-md font-mono">{project.id}</div>
                 </div>
                 <div>
                   <label className="text-sm font-medium">租户ID</label>
-                  <div className="mt-1 p-2 bg-gray-100 rounded-md font-mono">
-                    {project.tenantId}
-                  </div>
+                  <div className="mt-1 p-2 bg-gray-100 rounded-md font-mono">{project.tenantId}</div>
                 </div>
                 <div>
                   <label className="text-sm font-medium">创建时间</label>
-                  <div className="mt-1 p-2 bg-gray-100 rounded-md">
-                    {project.createdAt}
-                  </div>
+                  <div className="mt-1 p-2 bg-gray-100 rounded-md">{project.createdAt}</div>
                 </div>
               </div>
             </CardContent>
@@ -436,9 +384,7 @@ const xdPost = new XDPost({
               </div>
               <div>
                 <h4 className="font-medium">自动追踪</h4>
-                <p className="text-sm text-muted-foreground mt-1">
-                  自动收集用户行为数据，无需手动埋点
-                </p>
+                <p className="text-sm text-muted-foreground mt-1">自动收集用户行为数据，无需手动埋点</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
@@ -447,9 +393,7 @@ const xdPost = new XDPost({
               </div>
               <div>
                 <h4 className="font-medium">事件分析</h4>
-                <p className="text-sm text-muted-foreground mt-1">
-                  实时分析用户事件，洞察用户行为模式
-                </p>
+                <p className="text-sm text-muted-foreground mt-1">实时分析用户事件，洞察用户行为模式</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
@@ -458,9 +402,7 @@ const xdPost = new XDPost({
               </div>
               <div>
                 <h4 className="font-medium">性能监控</h4>
-                <p className="text-sm text-muted-foreground mt-1">
-                  监控页面加载性能和用户交互体验
-                </p>
+                <p className="text-sm text-muted-foreground mt-1">监控页面加载性能和用户交互体验</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
@@ -469,9 +411,7 @@ const xdPost = new XDPost({
               </div>
               <div>
                 <h4 className="font-medium">数据上报</h4>
-                <p className="text-sm text-muted-foreground mt-1">
-                  灵活配置数据上报策略，支持批量发送
-                </p>
+                <p className="text-sm text-muted-foreground mt-1">灵活配置数据上报策略，支持批量发送</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
@@ -480,9 +420,7 @@ const xdPost = new XDPost({
               </div>
               <div>
                 <h4 className="font-medium">用户识别</h4>
-                <p className="text-sm text-muted-foreground mt-1">
-                  准确识别用户身份，关联用户行为数据
-                </p>
+                <p className="text-sm text-muted-foreground mt-1">准确识别用户身份，关联用户行为数据</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
@@ -491,9 +429,7 @@ const xdPost = new XDPost({
               </div>
               <div>
                 <h4 className="font-medium">自定义属性</h4>
-                <p className="text-sm text-muted-foreground mt-1">
-                  支持自定义事件和用户属性，满足业务需求
-                </p>
+                <p className="text-sm text-muted-foreground mt-1">支持自定义事件和用户属性，满足业务需求</p>
               </div>
             </div>
           </div>

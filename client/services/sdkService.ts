@@ -24,15 +24,10 @@ export interface CheckSDKResponse {
 }
 
 export const sdkService = {
-  generateSDK: async (
-    data: GenerateSDKRequest,
-  ): Promise<GenerateSDKResponse> => {
+  generateSDK: async (data: GenerateSDKRequest): Promise<GenerateSDKResponse> => {
     try {
       // 实际API调用
-      const response = await request.post<GenerateSDKResponse>(
-        "/quote/api/v1/sdk",
-        data,
-      );
+      const response = await request.post<GenerateSDKResponse>("/quote/api/v1/sdk", data);
       return response.data;
     } catch (error) {
       console.error("生成SDK失败:", error);
@@ -40,12 +35,12 @@ export const sdkService = {
     }
   },
 
-  checkSDK: async (): Promise<CheckSDKResponse> => {
+  checkSDK: async (id: string): Promise<CheckSDKResponse> => {
     try {
       // 检查SDK是否存在
-      const response = await request.get<CheckSDKResponse>(
-        "/quote/api/v1/sdk/view"
-      );
+      const response = await request.get<CheckSDKResponse>("/quote/api/v1/sdk/view", {
+        projectId: id,
+      });
       return response.data;
     } catch (error) {
       console.error("检查SDK失败:", error);
