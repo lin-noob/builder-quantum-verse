@@ -1882,7 +1882,7 @@ const RulesPage = () => {
 import { ${toTrackMethodName(formCode)} } from 'xd-post';
 
 // 结果事件上报示例
-${toTrackMethodName(formCode)}({
+${toTrackMethodName(formCode)}(${formCode === "UserLogin" || formCode === "UserRegister" ? "key, // 用户信息唯一值\n" : ""}{
 ${(detailMap[formCode || ""] || []).length > 0 ? (detailMap[formCode || ""] || []).map((d) => `  ${d.key}: "${d.value}",${d.superPosition ? " // 叠加" : ""}`).join("\n") + "\n" : "  // 添加细化标识后，会在此显示键值对\n"}  enabled: ${formEnabled ? "true" : "false"},
 });
 `}
