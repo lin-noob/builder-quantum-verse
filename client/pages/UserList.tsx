@@ -26,7 +26,7 @@ interface SortConfig {
 }
 
 // 转换为UI需要的用户格式
-interface User {
+export interface User {
   id: string;
   userId: string;
   cdpId: string;
