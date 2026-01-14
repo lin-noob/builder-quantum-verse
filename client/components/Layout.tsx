@@ -187,6 +187,12 @@ export default function Layout({ children }: LayoutProps) {
   const baseMenuItems: MenuItem[] = useMemo(
     () => [
       {
+        id: "enterprise-model",
+        label: "Enterprise Model",
+        path: "/enterprise/overview",
+        icon: <Building className="h-5 w-5" />,
+      },
+      {
         id: "dashboard2",
         label: "仪表盘",
         path: "/dashboard2",
@@ -289,13 +295,18 @@ export default function Layout({ children }: LayoutProps) {
 
   // 合并静态菜单和动态菜单，静态菜单在前
   const menuItems: MenuItem[] = useMemo(() => {
-    return [...dynamicMenuItems];
-  }, [dynamicMenuItems]);
+    return [...baseMenuItems, ...dynamicMenuItems];
+  }, [baseMenuItems, dynamicMenuItems]);
 
   function changeProject(project: Project) {
     setCurrentProject(project);
     navigate(0);
   }
+
+  const isNoScrollPage =
+    location.pathname === "/enterprise/capabilities" ||
+    location.pathname === "/enterprise/rules" ||
+    location.pathname === "/enterprise/process";
 
   return (
     <div className="flex h-screen bg-background-secondary">
@@ -976,7 +987,14 @@ export default function Layout({ children }: LayoutProps) {
         </div>
 
         {/* Main Content */}
-        <main className="flex-1 overflow-auto pt-16 lg:pt-0">{children}</main>
+        <main
+          className={cn(
+            "flex-1 pt-16 lg:pt-0",
+            isNoScrollPage ? "overflow-hidden" : "overflow-auto",
+          )}
+        >
+          {children}
+        </main>
       </div>
 
       {/* 创建项目弹框 - 当没有项目时强制显示 */}

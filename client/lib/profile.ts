@@ -197,9 +197,7 @@ export async function getProfileView(id: string): Promise<ApiUser | null> {
     if (envelope && envelope.data) {
       const data = envelope.data.data;
       const userProfile = data?.userProfile;
-      const properties = userProfile?.properties
-        ? JSON.parse(userProfile.properties)
-        : null;
+      const properties = userProfile?.properties ? JSON.parse(userProfile.properties) : null;
 
       data.dclid = properties?.dclid;
       data.epik = properties?.epik;
@@ -277,9 +275,7 @@ export async function getUserEventList(
       requestBody,
     );
 
-    const envelope = response as unknown as
-      | ApiEnvelope<ApiEventListResponse>
-      | any;
+    const envelope = response as unknown as ApiEnvelope<ApiEventListResponse> | any;
     if (envelope && envelope.data) {
       return envelope.data.data as ApiEventListResponse;
     }
@@ -296,20 +292,13 @@ export interface LabelUpdateItem {
   labelName: string;
 }
 
-export async function addProfileLabel(
-  cdpUserId: string,
-  labelName: string,
-): Promise<boolean> {
+export async function addProfileLabel(cdpUserId: string, labelName: string): Promise<boolean> {
   try {
     const payload: LabelUpdateItem = { cdpUserId, labelName };
-    const res = await request.post<ApiEnvelope<unknown>>(
-      "/quote/api/v1/profile/label/add",
-      payload,
-      {
-        headers: { "Content-Type": "application/json" },
-        timeout: 5000,
-      },
-    );
+    const res = await request.post<ApiEnvelope<unknown>>("/quote/api/v1/profile/label/add", payload, {
+      headers: { "Content-Type": "application/json" },
+      timeout: 5000,
+    });
     console.log(res);
     const data = res.data;
     if (data && (data.code === "201" || data.code === "200")) return true;

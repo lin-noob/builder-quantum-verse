@@ -34,6 +34,38 @@ const PersonalSettings = React.lazy(
 );
 const ProjectList = React.lazy(() => import("@/pages/ProjectList"));
 const ProjectDetail = React.lazy(() => import("@/pages/ProjectDetail"));
+const EnterpriseModelOverview = React.lazy(
+  () => import("@/pages/EnterpriseModelOverview")
+);
+
+const AIBoundaryWorkbench = React.lazy(
+  () => import("@/pages/AIBoundaryWorkbench")
+);
+
+const EnterpriseRegistry = React.lazy(
+  () => import("@/pages/EnterpriseRegistry"),
+);
+const BusinessEntityWorkbench = React.lazy(
+  () => import("@/pages/BusinessEntityWorkbench"),
+);
+const CapabilitiesWorkbench = React.lazy(
+  () => import("@/pages/CapabilitiesWorkbench"),
+);
+const BusinessBaselineWorkbench = React.lazy(
+  () => import("@/pages/BusinessBaselineWorkbench"),
+);
+const LifecycleWorkbench = React.lazy(
+  () => import("@/pages/LifecycleWorkbench"),
+);
+const BusinessEventsWorkbench = React.lazy(
+  () => import("@/pages/BusinessEventsWorkbench"),
+);
+const ResponsibilityWorkbench = React.lazy(
+  () => import("@/pages/ResponsibilityWorkbench"),
+);
+const ProcessOrchestrationWorkbench = React.lazy(
+  () => import("@/pages/ProcessOrchestrationWorkbench"),
+);
 
 // 带参数的页面组件
 const OrganizationDetail = React.lazy(
@@ -135,7 +167,117 @@ const LazyRoute: React.FC<{
 export const staticRoutes: RouteObject[] = [
   {
     path: "/",
-    element: <Navigate to="/marketing" replace />,
+    element: <Navigate to="/enterprise/overview" replace />,
+  },
+  {
+    path: "/enterprise/overview",
+    element: (
+      <Layout>
+        <LazyRoute>
+          <EnterpriseModelOverview />
+        </LazyRoute>
+      </Layout>
+    ),
+  },
+  {
+    path: "/enterprise/registry",
+    element: (
+      <Layout>
+        <LazyRoute>
+          <EnterpriseRegistry />
+        </LazyRoute>
+      </Layout>
+    ),
+  },
+  {
+    path: "/enterprise/entities",
+    element: (
+      <Layout>
+        <LazyRoute>
+          <BusinessEntityWorkbench />
+        </LazyRoute>
+      </Layout>
+    ),
+  },
+  {
+    path: "/enterprise/capabilities",
+    element: (
+      <Layout>
+        <LazyRoute>
+          <CapabilitiesWorkbench />
+        </LazyRoute>
+      </Layout>
+    ),
+  },
+  {
+    path: "/enterprise/rules",
+    element: (
+      <Layout>
+        <LazyRoute>
+          <BusinessBaselineWorkbench />
+        </LazyRoute>
+      </Layout>
+    ),
+  },
+  {
+    path: "/enterprise/lifecycle",
+    element: (
+      <Layout>
+        <LazyRoute>
+          <LifecycleWorkbench />
+        </LazyRoute>
+      </Layout>
+    ),
+  },
+  {
+    path: "/enterprise/events",
+    element: (
+      <Layout>
+        <LazyRoute>
+          <BusinessEventsWorkbench />
+        </LazyRoute>
+      </Layout>
+    ),
+  },
+  {
+    path: "/enterprise/responsibility",
+    element: (
+      <Layout>
+        <LazyRoute>
+          <ResponsibilityWorkbench />
+        </LazyRoute>
+      </Layout>
+    ),
+  },
+  {
+    path: "/enterprise/process",
+    element: (
+      <Layout>
+        <LazyRoute>
+          <ProcessOrchestrationWorkbench />
+        </LazyRoute>
+      </Layout>
+    ),
+  },
+  {
+    path: "/enterprise/ai-boundary",
+    element: (
+      <Layout>
+        <LazyRoute>
+          <AIBoundaryWorkbench />
+        </LazyRoute>
+      </Layout>
+    ),
+  },
+  {
+    path: "/enterprise/webhooks",
+    element: (
+      <Layout>
+        <LazyRoute>
+          {React.lazy(() => import("@/pages/WebhookManagement"))}
+        </LazyRoute>
+      </Layout>
+    ),
   },
   {
     path: "/marketing",
