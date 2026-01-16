@@ -16,6 +16,7 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import { usePageRequestManager } from "./hooks/useRequestManager";
 import { ContactModalProvider, useContactModal } from "./contexts/ContactModalContext";
 import ContactFormModal from "./components/ContactFormModal";
+import { KnowledgeProvider } from "./contexts/KnowledgeContext";
 
 import { staticRoutes, isStaticRoute } from "./config/staticRoutes";
 
@@ -238,7 +239,9 @@ export default function App() {
         <TooltipProvider>
           <I18nextProvider i18n={i18n}>
             <ContactModalProvider>
-              <AppContent />
+              <KnowledgeProvider>
+                <AppContent />
+              </KnowledgeProvider>
             </ContactModalProvider>
           </I18nextProvider>
         </TooltipProvider>

@@ -142,6 +142,28 @@ const ApprovalStatistics = React.lazy(
   () => import("@/pages/Approval/ApprovalStatistics"),
 );
 
+const BusinessModelEditor = React.lazy(
+  () => import("@/pages/BusinessModelEditor"),
+);
+
+const BusinessModelList = React.lazy(
+  () => import("@/pages/BusinessModelList"),
+);
+
+const PagePerformance = React.lazy(() => import("@/pages/PagePerformance"));
+
+// 知识库页面组件
+const NodeDetailsPage = React.lazy(
+  () => import("@/pages/Knowledge/NodeDetailsPage")
+);
+const GraphGlobalView = React.lazy(
+  () => import("@/pages/Knowledge/GraphGlobalView")
+);
+
+const KnowledgeObjectEditor = React.lazy(
+  () => import("@/pages/Knowledge/KnowledgeObjectEditor")
+);
+
 // LazyRoute 包装组件
 const LazyRoute: React.FC<{
   children: React.ReactNode;
@@ -738,6 +760,36 @@ export const staticRoutes: RouteObject[] = [
       <Layout>
         <LazyRoute>
           <TemplateManagement />
+        </LazyRoute>
+      </Layout>
+    ),
+  },
+  {
+    path: "/knowledge/explorer/:id",
+    element: (
+      <Layout>
+        <LazyRoute>
+          <NodeDetailsPage />
+        </LazyRoute>
+      </Layout>
+    ),
+  },
+  {
+    path: "/knowledge/editor",
+    element: (
+      <Layout>
+        <LazyRoute>
+          <KnowledgeObjectEditor />
+        </LazyRoute>
+      </Layout>
+    ),
+  },
+  {
+    path: "/knowledge/graph",
+    element: (
+      <Layout>
+        <LazyRoute>
+          <GraphGlobalView />
         </LazyRoute>
       </Layout>
     ),
