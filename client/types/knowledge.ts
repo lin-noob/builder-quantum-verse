@@ -1,14 +1,14 @@
 export enum PropSource {
-  DB_COLUMN = 'DB_COLUMN',
-  COMPUTED = 'COMPUTED',
-  EXTERNAL_SYNC = 'EXTERNAL_SYNC',
+  DB_COLUMN = "DB_COLUMN",
+  COMPUTED = "COMPUTED",
+  EXTERNAL_SYNC = "EXTERNAL_SYNC",
 }
 
-export type KnowledgeNodeType = 'Master' | 'Transaction' | 'Result';
+export type KnowledgeNodeType = "Master" | "Transaction" | "Result";
 
-export type RelationDirection = 'IN' | 'OUT';
+export type RelationDirection = "IN" | "OUT";
 
-export type RiskLevel = 'Low' | 'Mid' | 'High';
+export type RiskLevel = "Low" | "Mid" | "High";
 
 export interface KnowledgeProperty {
   id: string;
@@ -32,7 +32,7 @@ export interface KnowledgeAction {
   name: string; // Unique identifier/name for the action
   label: string; // Display name
   apiEndpoint: string;
-  httpMethod: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
+  httpMethod: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
   conditions?: string[]; // Pre-conditions
   riskLevel: RiskLevel;
   affectedProperties?: string[]; // IDs of properties
@@ -55,15 +55,21 @@ export interface KnowledgeNodeStats {
 
 export interface KnowledgeNode {
   id: string;
+  numericId?: number;
   name: string;
   type: KnowledgeNodeType;
   icon: string; // Lucide icon name
   description?: string;
-  
+
   stats: KnowledgeNodeStats;
-  
+
   properties: KnowledgeProperty[];
   relations: KnowledgeRelation[];
   actions: KnowledgeAction[];
   rules: KnowledgeRule[];
+
+  attributeCount?: number;
+  relationCount?: number;
+  actionCount?: number;
+  ruleCount?: number;
 }

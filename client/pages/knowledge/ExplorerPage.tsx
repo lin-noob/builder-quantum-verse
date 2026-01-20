@@ -1,41 +1,121 @@
-import React, { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Search, 
-  Plus,
-  PackageOpen,
-  LayoutGrid,
-  Network,
-  Activity,
-  GitGraph
-} from 'lucide-react';
-import { useKnowledge } from '../../contexts/KnowledgeContext';
-import ObjectCard from '../../components/Knowledge/ObjectCard';
-import { KnowledgeNodeType, KnowledgeNode } from '../../types/knowledge';
+import React, { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import { Search, Plus, PackageOpen, LayoutGrid, Network, Activity, GitGraph } from "lucide-react";
+import ObjectCard from "../../components/knowledge/ObjectCard";
+import { KnowledgeNodeType, KnowledgeNode, PropSource, RiskLevel } from "../../types/knowledge";
 import { Button } from "@/components/ui/button";
-import { KnowledgeObjectWizard } from '../../components/Knowledge/KnowledgeObjectWizard';
+import { KnowledgeObjectWizard } from "../../components/knowledge/KnowledgeObjectWizard";
+import { Request } from "@/lib/request";
+import { useDebounce } from "@/hooks/useDebounce";
+
+type SortOption = "popularity" | "complexity";
+type RiskFilterOption = "all" | "high" | "low";
 
 // Lazy load graph view to avoid heavy initial load
-const GraphGlobalView = React.lazy(() => import('./GraphGlobalView'));
-
-type SortOption = 'popularity' | 'complexity';
-type RiskFilterOption = 'all' | 'high' | 'low';
+const GraphGlobalView = React.lazy(() => import("./GraphGlobalView"));
 
 const ExplorerPage: React.FC = () => {
   const navigate = useNavigate();
-  const { nodes, loading, error } = useKnowledge();
-  
+
   // State
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedType, setSelectedType] = useState<KnowledgeNodeType | 'All'>('All');
-  const [riskFilter, setRiskFilter] = useState<RiskFilterOption>('all');
-  const [sortBy, setSortBy] = useState<SortOption>('popularity');
-  
+  const [nodes, setNodes] = useState<KnowledgeNode[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedType, setSelectedType] = useState<KnowledgeNodeType | "All">("All");
+  const [riskFilter, setRiskFilter] = useState<RiskFilterOption>("all");
+  const [sortBy, setSortBy] = useState<SortOption>("popularity");
+
+  const debouncedSearchQuery = useDebounce(searchQuery, 500);
+
+  // Fetch Logic
+  React.useEffect(() => {
+    const fetchNodes = async () => {
+      setLoading(true);
+      const request = new Request();
+      try {
+        const response = await request.request("/quote/api/v1/digital/list", {
+          method: "GET",
+          params: { objectName: debouncedSearchQuery },
+        });
+
+        if (response.status === 200) {
+          const apiData = response.data.data || [];
+          const typeMap: Record<number, KnowledgeNodeType> = {
+            1: "Master",
+            2: "Transaction",
+            3: "Result",
+          };
+
+          const mappedNodes: KnowledgeNode[] = apiData.map((item: any) => ({
+            id: item.objectCode,
+            numericId: item.id,
+            name: item.objectName,
+            type: typeMap[item.modelType] || "Master",
+            description: item.description,
+            icon: "Box", // Default icon
+            stats: {
+              inDegree: item.inDegree || 0,
+              outDegree: item.outDegree || 0,
+              referenceCount: Number(item.referenceCount) || 0,
+              usageFrequency: item.usageRate || 0,
+            },
+            properties: (item.attributes || []).map((attr: any) => ({
+              id: attr.attributeCode,
+              name: attr.attributeName,
+              type: attr.attributeType,
+              source: attr.attributeSource as PropSource,
+              sourceLabel: attr.attributeSource,
+              description: attr.attributeDesc,
+              relatedDbColumn: attr.dbColumnName,
+            })),
+            relations: (item.relations || []).map((rel: any) => ({
+              semanticName: rel.relationName,
+              targetNodeType: rel.targetType,
+              direction: rel.direction || "OUT",
+              sourceAction: rel.sourceAction,
+              isMutable: rel.mutability === "true",
+            })),
+            actions: (item.actions || []).map((act: any) => ({
+              name: act.actionCode,
+              label: act.actionName,
+              apiEndpoint: act.apiEndpoint,
+              httpMethod: act.httpMethod as any,
+              conditions: act.preConditions ? act.preConditions.split(",").map((s: string) => s.trim()) : [],
+              riskLevel: act.riskLevel as RiskLevel,
+            })),
+            rules: (item.rules || []).map((rule: any) => ({
+              id: rule.ruleCode,
+              name: rule.ruleName,
+              description: rule.ruleDesc,
+              expression: rule.ruleExpression,
+            })),
+            attributeCount: item.attributeCount ?? 0,
+            relationCount: item.relationCount ?? 0,
+            actionCount: item.actionCount ?? 0,
+            ruleCount: item.ruleCount ?? 0,
+          }));
+          setNodes(mappedNodes);
+          setError(null);
+        } else {
+          setError(`加载失败: ${response.statusText}`);
+        }
+      } catch (err: any) {
+        console.error("Fetch nodes failed:", err);
+        setError(`加载失败: ${err.message || "未知错误"}`);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchNodes();
+  }, [debouncedSearchQuery]);
+
   // Wizard State
   const [isWizardOpen, setIsWizardOpen] = useState(false);
 
-  const [activeTab, setActiveTab] = useState<'objects' | 'graph'>('objects');
+  const [activeTab, setActiveTab] = useState<"objects" | "graph">("objects");
 
   // Derived State
   const filteredAndSortedNodes = useMemo(() => {
@@ -45,30 +125,29 @@ const ExplorerPage: React.FC = () => {
     // 1. Search
     if (searchQuery) {
       const lowerQuery = searchQuery.toLowerCase();
-      result = result.filter(node => 
-        node.name.toLowerCase().includes(lowerQuery) || 
-        node.description?.toLowerCase().includes(lowerQuery)
+      result = result.filter(
+        (node) => node.name.toLowerCase().includes(lowerQuery) || node.description?.toLowerCase().includes(lowerQuery),
       );
     }
 
     // 2. Type Filter
-    if (selectedType !== 'All') {
-      result = result.filter(node => node.type === selectedType);
+    if (selectedType !== "All") {
+      result = result.filter((node) => node.type === selectedType);
     }
 
     // 3. Risk Filter
-    if (riskFilter !== 'all') {
-      result = result.filter(node => {
-        const hasHighRisk = node.actions.some(a => a.riskLevel === 'High');
-        if (riskFilter === 'high') return hasHighRisk;
-        if (riskFilter === 'low') return !hasHighRisk;
+    if (riskFilter !== "all") {
+      result = result.filter((node) => {
+        const hasHighRisk = node.actions.some((a) => a.riskLevel === "High");
+        if (riskFilter === "high") return hasHighRisk;
+        if (riskFilter === "low") return !hasHighRisk;
         return true;
       });
     }
 
     // 4. Sort
     result.sort((a, b) => {
-      if (sortBy === 'popularity') {
+      if (sortBy === "popularity") {
         // Sort by usage frequency (descending)
         return b.stats.usageFrequency - a.stats.usageFrequency;
       } else {
@@ -82,12 +161,12 @@ const ExplorerPage: React.FC = () => {
     return result;
   }, [nodes, searchQuery, selectedType, riskFilter, sortBy]);
 
-  const handleCardClick = (id: string) => {
+  const handleCardClick = (id: string | number) => {
     navigate(`/knowledge/explorer/${id}`);
   };
 
   const handleCreateObject = () => {
-    navigate('/knowledge/editor');
+    navigate("/knowledge/editor");
   };
 
   if (loading) {
@@ -99,18 +178,13 @@ const ExplorerPage: React.FC = () => {
   }
 
   if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[#F8F9FB] text-red-500">
-        错误: {error}
-      </div>
-    );
+    return <div className="min-h-screen flex items-center justify-center bg-[#F8F9FB] text-red-500">错误: {error}</div>;
   }
 
   return (
     <div className="h-full w-full bg-[#F8F9FB] flex flex-col overflow-hidden">
       {/* Header Area (Matching EnterpriseModelOverview) */}
       <div className="bg-white/50 backdrop-blur-md border-b border-slate-200/60 px-8 py-6 sticky top-0 z-10">
-        
         {/* Row 1: Tabs & Meta Actions */}
         <div className="flex justify-between items-center mb-8">
           {/* Tab Switcher - Capsule Style */}
@@ -119,9 +193,11 @@ const ExplorerPage: React.FC = () => {
               onClick={() => setActiveTab("objects")}
               className={`
                 flex items-center gap-2 px-5 py-1.5 rounded-full text-sm font-medium transition-all duration-300
-                ${activeTab === "objects" 
-                  ? "bg-white text-blue-600 shadow-sm ring-1 ring-black/5" 
-                  : "text-slate-500 hover:text-slate-700 hover:bg-slate-200/50"}
+                ${
+                  activeTab === "objects"
+                    ? "bg-white text-blue-600 shadow-sm ring-1 ring-black/5"
+                    : "text-slate-500 hover:text-slate-700 hover:bg-slate-200/50"
+                }
               `}
             >
               <LayoutGrid className="w-3.5 h-3.5" />
@@ -131,9 +207,11 @@ const ExplorerPage: React.FC = () => {
               onClick={() => setActiveTab("graph")}
               className={`
                 flex items-center gap-2 px-5 py-1.5 rounded-full text-sm font-medium transition-all duration-300
-                ${activeTab === "graph" 
-                  ? "bg-white text-blue-600 shadow-sm ring-1 ring-black/5" 
-                  : "text-slate-500 hover:text-slate-700 hover:bg-slate-200/50"}
+                ${
+                  activeTab === "graph"
+                    ? "bg-white text-blue-600 shadow-sm ring-1 ring-black/5"
+                    : "text-slate-500 hover:text-slate-700 hover:bg-slate-200/50"
+                }
               `}
             >
               <GitGraph className="w-3.5 h-3.5" />
@@ -144,32 +222,32 @@ const ExplorerPage: React.FC = () => {
 
         {/* Row 2: Title & Context & Actions */}
         <div className="flex flex-col md:flex-row justify-between items-end gap-6">
-           <div className="flex-1">
-             <div className="flex items-center gap-3 mb-1">
-                <h1 className="text-3xl font-bold text-slate-900 tracking-tight">
-                  企业数字模型
-                  <AnimatePresence mode="wait">
-                    <motion.span
-                      key={activeTab}
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: 10 }}
-                      transition={{ duration: 0.2 }}
-                      className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 ml-2 font-semibold"
-                    >
-                       - {activeTab === 'objects' ? '知识对象' : '图谱视图'}
-                    </motion.span>
-                  </AnimatePresence>
-                </h1>
-             </div>
-             <p className="text-slate-500 text-sm font-medium flex items-center gap-2">
-               <span className="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
-               {activeTab === 'objects' ? '管理和浏览所有定义的业务知识对象' : '可视化查看对象间的拓扑关系与风险传播'}
-             </p>
-           </div>
-           
-           <div className="flex items-center gap-3">
-             <div className="relative group">
+          <div className="flex-1">
+            <div className="flex items-center gap-3 mb-1">
+              <h1 className="text-3xl font-bold text-slate-900 tracking-tight">
+                企业数字模型
+                <AnimatePresence mode="wait">
+                  <motion.span
+                    key={activeTab}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 10 }}
+                    transition={{ duration: 0.2 }}
+                    className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 ml-2 font-semibold"
+                  >
+                    - {activeTab === "objects" ? "知识对象" : "图谱视图"}
+                  </motion.span>
+                </AnimatePresence>
+              </h1>
+            </div>
+            <p className="text-slate-500 text-sm font-medium flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
+              {activeTab === "objects" ? "管理和浏览所有定义的业务知识对象" : "可视化查看对象间的拓扑关系与风险传播"}
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="relative group">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4 group-focus-within:text-blue-500 transition-colors" />
               <input
                 type="text"
@@ -185,15 +263,14 @@ const ExplorerPage: React.FC = () => {
             </Button>
           </div>
         </div>
-
       </div>
 
       {/* Main Content */}
       <div className="flex-1 overflow-y-auto p-8 flex flex-col min-h-0">
         <div className="max-w-[1600px] mx-auto w-full h-full flex flex-col">
           <AnimatePresence mode="wait">
-            {activeTab === 'objects' ? (
-              <motion.div 
+            {activeTab === "objects" ? (
+              <motion.div
                 key="objects"
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -203,29 +280,25 @@ const ExplorerPage: React.FC = () => {
               >
                 <div className="mb-6 flex items-center justify-between">
                   <div className="flex items-center gap-2 text-sm text-slate-500">
-                     <Activity className="w-4 h-4 text-emerald-500" />
-                     <span className="font-medium text-slate-700">{filteredAndSortedNodes.length}</span> 个活跃对象
+                    <Activity className="w-4 h-4 text-emerald-500" />
+                    <span className="font-medium text-slate-700">{filteredAndSortedNodes.length}</span> 个活跃对象
                   </div>
                 </div>
 
                 {filteredAndSortedNodes.length > 0 ? (
-                  <motion.div 
+                  <motion.div
                     layout
                     className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pb-10"
                   >
                     <AnimatePresence>
                       {filteredAndSortedNodes.map((node) => (
-                        <ObjectCard 
-                          key={node.id} 
-                          node={node} 
-                          onClick={handleCardClick} 
-                        />
+                        <ObjectCard key={node.id} node={node} onClick={handleCardClick} />
                       ))}
                     </AnimatePresence>
                   </motion.div>
                 ) : (
                   /* Empty State */
-                  <motion.div 
+                  <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     className="flex flex-col items-center justify-center h-96 text-center"
@@ -234,15 +307,13 @@ const ExplorerPage: React.FC = () => {
                       <PackageOpen className="w-10 h-10 text-slate-400" />
                     </div>
                     <h3 className="text-lg font-semibold text-slate-900 mb-2">未找到对象</h3>
-                    <p className="text-slate-500 max-w-sm mb-6">
-                      我们找不到任何符合您当前筛选条件的知识对象。
-                    </p>
-                    <Button 
+                    <p className="text-slate-500 max-w-sm mb-6">我们找不到任何符合您当前筛选条件的知识对象。</p>
+                    <Button
                       variant="outline"
                       onClick={() => {
-                        setSearchQuery('');
-                        setSelectedType('All');
-                        setRiskFilter('all');
+                        setSearchQuery("");
+                        setSelectedType("All");
+                        setRiskFilter("all");
                       }}
                     >
                       清除所有筛选
@@ -251,7 +322,7 @@ const ExplorerPage: React.FC = () => {
                 )}
               </motion.div>
             ) : (
-              <motion.div 
+              <motion.div
                 key="graph"
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -259,7 +330,9 @@ const ExplorerPage: React.FC = () => {
                 transition={{ duration: 0.2 }}
                 className="flex-1 h-full min-h-[600px]"
               >
-                <React.Suspense fallback={<div className="h-full flex items-center justify-center">Loading Graph...</div>}>
+                <React.Suspense
+                  fallback={<div className="h-full flex items-center justify-center">Loading Graph...</div>}
+                >
                   <GraphGlobalView />
                 </React.Suspense>
               </motion.div>
