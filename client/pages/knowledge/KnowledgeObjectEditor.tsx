@@ -185,6 +185,7 @@ const KnowledgeObjectEditor: React.FC = () => {
         status: "",
         mutability: r.isMutable ? "true" : "false",
         direction: r.direction,
+        targetModelId: r.targetNodeType,
       })),
       actionCount: (formData.actions || []).length,
       actions: (formData.actions || []).map((a) => ({
