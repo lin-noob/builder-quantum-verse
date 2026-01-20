@@ -16,153 +16,75 @@ const EmailConfigInner = React.lazy(() => import("@/pages/Account/EmailConfigInn
 
 // 帮助中心页面组件
 const HelpCenter = React.lazy(() => import("@/pages/HelpCenter/HelpCenter"));
-const DocumentDetail = React.lazy(
-  () => import("@/pages/HelpCenter/DocumentDetail"),
-);
-const MarketingHelpCenter = React.lazy(
-  () => import("@/pages/MarketingHelpCenter"),
-);
-const MarketingDocumentDetail = React.lazy(
-  () => import("@/pages/MarketingDocumentDetail"),
-);
+const DocumentDetail = React.lazy(() => import("@/pages/HelpCenter/DocumentDetail"));
+const MarketingHelpCenter = React.lazy(() => import("@/pages/MarketingHelpCenter"));
+const MarketingDocumentDetail = React.lazy(() => import("@/pages/MarketingDocumentDetail"));
 
 // 懒加载组件
 import Dashboard2 from "@/pages/Dashboard2"; // 改为直接导入解决模块加载问题
 // const Dashboard2 = React.lazy(() => import("@/pages/Dashboard2"));
-const PersonalSettings = React.lazy(
-  () => import("@/pages/Account/PersonalSettings"),
-);
+const PersonalSettings = React.lazy(() => import("@/pages/Account/PersonalSettings"));
 const ProjectList = React.lazy(() => import("@/pages/ProjectList"));
 const ProjectDetail = React.lazy(() => import("@/pages/ProjectDetail"));
-const EnterpriseModelOverview = React.lazy(
-  () => import("@/pages/EnterpriseModelOverview")
-);
+const EnterpriseModelOverview = React.lazy(() => import("@/pages/EnterpriseModelOverview"));
 
-const AIBoundaryWorkbench = React.lazy(
-  () => import("@/pages/AIBoundaryWorkbench")
-);
+const AIBoundaryWorkbench = React.lazy(() => import("@/pages/AIBoundaryWorkbench"));
 
-const EnterpriseRegistry = React.lazy(
-  () => import("@/pages/EnterpriseRegistry"),
-);
-const BusinessEntityWorkbench = React.lazy(
-  () => import("@/pages/BusinessEntityWorkbench"),
-);
-const CapabilitiesWorkbench = React.lazy(
-  () => import("@/pages/CapabilitiesWorkbench"),
-);
-const BusinessBaselineWorkbench = React.lazy(
-  () => import("@/pages/BusinessBaselineWorkbench"),
-);
-const LifecycleWorkbench = React.lazy(
-  () => import("@/pages/LifecycleWorkbench"),
-);
-const BusinessEventsWorkbench = React.lazy(
-  () => import("@/pages/BusinessEventsWorkbench"),
-);
-const ResponsibilityWorkbench = React.lazy(
-  () => import("@/pages/ResponsibilityWorkbench"),
-);
-const ProcessOrchestrationWorkbench = React.lazy(
-  () => import("@/pages/ProcessOrchestrationWorkbench"),
-);
+const EnterpriseRegistry = React.lazy(() => import("@/pages/EnterpriseRegistry"));
+const BusinessEntityWorkbench = React.lazy(() => import("@/pages/BusinessEntityWorkbench"));
+const CapabilitiesWorkbench = React.lazy(() => import("@/pages/CapabilitiesWorkbench"));
+const BusinessBaselineWorkbench = React.lazy(() => import("@/pages/BusinessBaselineWorkbench"));
+const LifecycleWorkbench = React.lazy(() => import("@/pages/LifecycleWorkbench"));
+const BusinessEventsWorkbench = React.lazy(() => import("@/pages/BusinessEventsWorkbench"));
+const ResponsibilityWorkbench = React.lazy(() => import("@/pages/ResponsibilityWorkbench"));
+const ProcessOrchestrationWorkbench = React.lazy(() => import("@/pages/ProcessOrchestrationWorkbench"));
 
 // 带参数的页面组件
-const OrganizationDetail = React.lazy(
-  () => import("@/admin/pages/OrganizationDetail"),
-);
-const UserDetailsAnalytics = React.lazy(
-  () => import("@/admin/pages/UserDetailsAnalytics"),
-);
+const OrganizationDetail = React.lazy(() => import("@/admin/pages/OrganizationDetail"));
+const UserDetailsAnalytics = React.lazy(() => import("@/admin/pages/UserDetailsAnalytics"));
 const UserDetail_New = React.lazy(() => import("@/pages/UserDetail_New"));
-const ScenarioConfig = React.lazy(
-  () => import("@/pages/AIMarketing/ScenarioConfig"),
-);
+const ScenarioConfig = React.lazy(() => import("@/pages/AIMarketing/ScenarioConfig"));
 const I18nConfig = React.lazy(() => import("@/pages/Organization/I18nConfig"));
-const I18nTranslationManager = React.lazy(
-  () => import("@/pages/Organization/I18nTranslationManager"),
-);
-const HelpDocumentI18nManager = React.lazy(
-  () => import("@/pages/Organization/HelpDocumentI18nManager"),
-);
+const I18nTranslationManager = React.lazy(() => import("@/pages/Organization/I18nTranslationManager"));
+const HelpDocumentI18nManager = React.lazy(() => import("@/pages/Organization/HelpDocumentI18nManager"));
 
 // 邮件营销页面（懒加载）
-const EmailCampaigns = React.lazy(
-  () => import("@/pages/AIMarketing/EmailCampaigns"),
-);
-const EmailCampaignEditor = React.lazy(
-  () => import("@/pages/AIMarketing/EmailCampaignEditor"),
-);
-const EmailAnalytics = React.lazy(
-  () => import("@/pages/AIMarketing/EmailAnalytics"),
-);
-const EmailMarketingMailbox = React.lazy(
-  () => import("@/pages/AIMarketing/EmailMarketingMailbox"),
-);
-const EmailCompose = React.lazy(
-  () => import("@/pages/AIMarketing/EmailCompose"),
-);
-const EmailComposePreview = React.lazy(
-  () => import("@/pages/AIMarketing/EmailComposePreview"),
-);
-const TemplateLibrary = React.lazy(
-  () => import("@/pages/AIMarketing/TemplateLibrary"),
-);
-const ContentBlockLibrary = React.lazy(
-  () => import("@/pages/AIMarketing/ContentBlockLibrary"),
-);
-const TemplateBuilder = React.lazy(
-  () => import("@/pages/AIMarketing/TemplateBuilder"),
-);
+const EmailCampaigns = React.lazy(() => import("@/pages/AIMarketing/EmailCampaigns"));
+const EmailCampaignEditor = React.lazy(() => import("@/pages/AIMarketing/EmailCampaignEditor"));
+const EmailAnalytics = React.lazy(() => import("@/pages/AIMarketing/EmailAnalytics"));
+const EmailMarketingMailbox = React.lazy(() => import("@/pages/AIMarketing/EmailMarketingMailbox"));
+const EmailCompose = React.lazy(() => import("@/pages/AIMarketing/EmailCompose"));
+const EmailComposePreview = React.lazy(() => import("@/pages/AIMarketing/EmailComposePreview"));
+const TemplateLibrary = React.lazy(() => import("@/pages/AIMarketing/TemplateLibrary"));
+const ContentBlockLibrary = React.lazy(() => import("@/pages/AIMarketing/ContentBlockLibrary"));
+const TemplateBuilder = React.lazy(() => import("@/pages/AIMarketing/TemplateBuilder"));
 
 const Events = React.lazy(() => import("@/pages/events"));
 const RulesPage = React.lazy(() => import("@/pages/RulesPage"));
 const Tasks = React.lazy(() => import("@/pages/MyTasks"));
 const Calendar = React.lazy(() => import("@/pages/TeamCalendar"));
 const EmailManualProcessing = React.lazy(() => import("@/pages/EmailManualProcessing"));
-const LegacyAppPlaceholder = React.lazy(
-  () => import("@/pages/LegacyAppPlaceholder"),
-);
+const LegacyAppPlaceholder = React.lazy(() => import("@/pages/LegacyAppPlaceholder"));
 
 // 审批管理页面组件
-const TemplateManagement = React.lazy(
-  () => import("../src/pages/Approval/TemplateManagement"),
-);
-const ApprovalConfig = React.lazy(
-  () => import("../pages/ApprovalConfig/ApprovalConfig"),
-);
+const TemplateManagement = React.lazy(() => import("../src/pages/Approval/TemplateManagement"));
+const ApprovalConfig = React.lazy(() => import("../pages/ApprovalConfig/ApprovalConfig"));
 // 新增审批中心与监控、统计页面
-const ApprovalCenter = React.lazy(
-  () => import("@/pages/Approval/ApprovalCenter"),
-);
-const ApprovalMonitor = React.lazy(
-  () => import("@/pages/Approval/ApprovalMonitor"),
-);
-const ApprovalStatistics = React.lazy(
-  () => import("@/pages/Approval/ApprovalStatistics"),
-);
+const ApprovalCenter = React.lazy(() => import("@/pages/Approval/ApprovalCenter"));
+const ApprovalMonitor = React.lazy(() => import("@/pages/Approval/ApprovalMonitor"));
+const ApprovalStatistics = React.lazy(() => import("@/pages/Approval/ApprovalStatistics"));
 
-const BusinessModelEditor = React.lazy(
-  () => import("@/pages/BusinessModelEditor"),
-);
+const BusinessModelEditor = React.lazy(() => import("@/pages/BusinessModelEditor"));
 
-const BusinessModelList = React.lazy(
-  () => import("@/pages/BusinessModelList"),
-);
+// const BusinessModelList = React.lazy(() => import("@/pages/BusinessModelList"));
 
-const PagePerformance = React.lazy(() => import("@/pages/PagePerformance"));
+// const PagePerformance = React.lazy(() => import("@/pages/PagePerformance"));
 
 // 知识库页面组件
-const NodeDetailsPage = React.lazy(
-  () => import("@/pages/Knowledge/NodeDetailsPage")
-);
-const GraphGlobalView = React.lazy(
-  () => import("@/pages/Knowledge/GraphGlobalView")
-);
+const NodeDetailsPage = React.lazy(() => import("@/pages/Knowledge/NodeDetailsPage"));
+const GraphGlobalView = React.lazy(() => import("@/pages/Knowledge/GraphGlobalView"));
 
-const KnowledgeObjectEditor = React.lazy(
-  () => import("@/pages/Knowledge/KnowledgeObjectEditor")
-);
+const KnowledgeObjectEditor = React.lazy(() => import("@/pages/Knowledge/KnowledgeObjectEditor"));
 
 // LazyRoute 包装组件
 const LazyRoute: React.FC<{
@@ -295,9 +217,7 @@ export const staticRoutes: RouteObject[] = [
     path: "/enterprise/webhooks",
     element: (
       <Layout>
-        <LazyRoute>
-          {React.lazy(() => import("@/pages/WebhookManagement"))}
-        </LazyRoute>
+        <LazyRoute>{React.lazy(() => import("@/pages/WebhookManagement"))}</LazyRoute>
       </Layout>
     ),
   },
