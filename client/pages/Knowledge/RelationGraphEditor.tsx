@@ -137,6 +137,7 @@ interface RelationGraphEditorProps {
   relations: KnowledgeRelation[];
   onChange?: (newRelations: KnowledgeRelation[]) => void;
   readOnly?: boolean;
+  id?: string;
 }
 
 const RelationGraphEditor: React.FC<RelationGraphEditorProps> = ({
@@ -145,6 +146,7 @@ const RelationGraphEditor: React.FC<RelationGraphEditorProps> = ({
   relations,
   onChange,
   readOnly = false,
+  id = null,
 }) => {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
@@ -166,10 +168,16 @@ const RelationGraphEditor: React.FC<RelationGraphEditorProps> = ({
       try {
         const response = await request.request("/quote/api/v1/digital/list", { method: "GET" });
         if (response.status === 200 && response.data.data) {
-          const types = response.data.data.map((item: any) => ({
+          const lists: any[] = response.data.data.map((item: any) => ({
             id: item.id,
             name: item.objectName,
           }));
+
+          let types = lists;
+          if (id) {
+            types = lists.filter((item) => item.id !== id);
+          }
+
           setAvailableTypes(types);
         }
       } catch (e) {

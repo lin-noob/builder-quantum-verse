@@ -44,6 +44,7 @@ const KnowledgeObjectEditor: React.FC = () => {
     id: "",
     name: "",
     type: "Master",
+    numericId: null,
     description: "",
     properties: [],
     relations: [],
@@ -657,6 +658,7 @@ const KnowledgeObjectEditor: React.FC = () => {
                         currentName={formData.name || "Current Object"}
                         relations={formData.relations || []}
                         onChange={handleRelationsChange}
+                        id={initialData.numericId ?? null}
                       />
                     </div>
                   </TabsContent>
