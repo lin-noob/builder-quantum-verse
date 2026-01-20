@@ -10,6 +10,8 @@ export type RelationDirection = "IN" | "OUT";
 
 export type RiskLevel = "Low" | "Mid" | "High";
 
+export type LifecycleStatus = 'active' | 'deprecated';
+
 export interface KnowledgeProperty {
   id: string;
   name: string;
@@ -58,6 +60,7 @@ export interface KnowledgeNode {
   numericId?: number;
   name: string;
   type: KnowledgeNodeType;
+  lifecycleStatus?: LifecycleStatus;
   icon: string; // Lucide icon name
   description?: string;
 

@@ -81,10 +81,11 @@ const BusinessModelEditor = React.lazy(() => import("@/pages/BusinessModelEditor
 // const PagePerformance = React.lazy(() => import("@/pages/PagePerformance"));
 
 // 知识库页面组件
-const NodeDetailsPage = React.lazy(() => import("@/pages/Knowledge/NodeDetailsPage"));
-const GraphGlobalView = React.lazy(() => import("@/pages/Knowledge/GraphGlobalView"));
+const NodeDetailsPage = React.lazy(() => import("@/pages/knowledge/NodeDetailsPage"));
+const GraphGlobalView = React.lazy(() => import("@/pages/knowledge/GraphGlobalView"));
+const ExplorerPage = React.lazy(() => import("@/pages/knowledge/ExplorerPage"));
 
-const KnowledgeObjectEditor = React.lazy(() => import("@/pages/Knowledge/KnowledgeObjectEditor"));
+const KnowledgeObjectEditor = React.lazy(() => import("@/pages/knowledge/KnowledgeObjectEditor"));
 
 // LazyRoute 包装组件
 const LazyRoute: React.FC<{
@@ -680,6 +681,16 @@ export const staticRoutes: RouteObject[] = [
       <Layout>
         <LazyRoute>
           <TemplateManagement />
+        </LazyRoute>
+      </Layout>
+    ),
+  },
+  {
+    path: "/knowledge/explorer",
+    element: (
+      <Layout>
+        <LazyRoute>
+          <ExplorerPage />
         </LazyRoute>
       </Layout>
     ),

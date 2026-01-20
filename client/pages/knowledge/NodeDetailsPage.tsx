@@ -30,7 +30,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { LayoutList, GitGraph } from "lucide-react";
 import { Request } from "@/lib/request";
 import { RiskLevel } from "../../types/knowledge";
 import { useToast } from "@/hooks/use-toast";
@@ -137,8 +136,6 @@ const NodeDetailsPage: React.FC = () => {
 
   // State
   const [activeTab, setActiveTab] = useState("basic");
-  const [expandedRelations, setExpandedRelations] = useState<string[]>([]);
-  const [relationViewMode, setRelationViewMode] = useState<"list" | "graph">("list");
 
   if (loading)
     return (
@@ -184,10 +181,6 @@ const NodeDetailsPage: React.FC = () => {
     } finally {
       setIsDeleteDialogOpen(false);
     }
-  };
-
-  const toggleRelation = (relName: string) => {
-    setExpandedRelations((prev) => (prev.includes(relName) ? prev.filter((r) => r !== relName) : [...prev, relName]));
   };
 
   const getSourceBadge = (source: PropSource) => {
@@ -495,121 +488,16 @@ const NodeDetailsPage: React.FC = () => {
                             </p>
                           </div>
                         </div>
-
-                        {/* View Mode Toggle */}
-                        <div className="bg-white p-1 rounded-lg border border-blue-100 flex items-center shadow-sm">
-                          <button
-                            onClick={() => setRelationViewMode("list")}
-                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
-                              relationViewMode === "list"
-                                ? "bg-blue-100 text-blue-700 shadow-sm"
-                                : "text-slate-500 hover:bg-slate-50"
-                            }`}
-                          >
-                            <LayoutList className="w-3.5 h-3.5" />
-                            列表视图
-                          </button>
-                          <button
-                            onClick={() => setRelationViewMode("graph")}
-                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
-                              relationViewMode === "graph"
-                                ? "bg-blue-100 text-blue-700 shadow-sm"
-                                : "text-slate-500 hover:bg-slate-50"
-                            }`}
-                          >
-                            <GitGraph className="w-3.5 h-3.5" />
-                            图谱视图
-                          </button>
-                        </div>
                       </div>
                     </div>
 
                     <div className="flex-1 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col relative">
-                      {relationViewMode === "list" ? (
-                        <div className="flex-1 overflow-y-auto p-6 space-y-3">
-                          {node.relations.length === 0 ? (
-                            <div className="text-center py-8 text-slate-400 italic">未定义关系。</div>
-                          ) : (
-                            node.relations.map((rel, index) => (
-                              <div
-                                key={index}
-                                className="border border-slate-200 rounded-lg overflow-hidden transition-all hover:border-blue-300"
-                              >
-                                <div
-                                  className="flex items-center justify-between p-4 bg-white hover:bg-slate-50 cursor-pointer"
-                                  onClick={() => toggleRelation(rel.semanticName)}
-                                >
-                                  <div className="flex items-center gap-4">
-                                    <div className="flex items-center text-slate-300">
-                                      <div className="w-2 h-2 rounded-full bg-slate-400"></div>
-                                      <div className="w-8 h-px bg-slate-300"></div>
-                                      {rel.direction === "OUT" ? (
-                                        <ChevronRight className="w-4 h-4 text-slate-400 -ml-1" />
-                                      ) : (
-                                        <ChevronRight className="w-4 h-4 text-slate-400 rotate-180 -ml-1" />
-                                      )}
-                                    </div>
-
-                                    <span className="font-mono text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded border border-indigo-100">
-                                      {rel.semanticName}
-                                    </span>
-
-                                    <div className="flex items-center gap-2 px-3 py-1 bg-slate-100 rounded-full text-sm font-medium text-slate-700">
-                                      <Box className="w-3.5 h-3.5 text-slate-500" />
-                                      {rel.targetNodeType}
-                                    </div>
-                                  </div>
-
-                                  {expandedRelations.includes(rel.semanticName) ? (
-                                    <ChevronDown className="w-4 h-4 text-slate-400" />
-                                  ) : (
-                                    <ChevronRight className="w-4 h-4 text-slate-400" />
-                                  )}
-                                </div>
-
-                                <AnimatePresence>
-                                  {expandedRelations.includes(rel.semanticName) && (
-                                    <motion.div
-                                      initial={{ height: 0, opacity: 0 }}
-                                      animate={{ height: "auto", opacity: 1 }}
-                                      exit={{ height: 0, opacity: 0 }}
-                                      className="bg-slate-50 border-t border-slate-200"
-                                    >
-                                      <div className="p-4 grid grid-cols-2 gap-4 text-sm">
-                                        <div>
-                                          <span className="block text-xs text-slate-500 mb-1 uppercase tracking-wider">
-                                            来源动作
-                                          </span>
-                                          <span className="font-medium text-slate-900">
-                                            {rel.sourceAction || "系统定义"}
-                                          </span>
-                                        </div>
-                                        <div>
-                                          <span className="block text-xs text-slate-500 mb-1 uppercase tracking-wider">
-                                            可变性
-                                          </span>
-                                          <span
-                                            className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${rel.isMutable ? "bg-amber-100 text-amber-800" : "bg-slate-200 text-slate-600"}`}
-                                          >
-                                            {rel.isMutable ? "可变" : "不可变"}
-                                          </span>
-                                        </div>
-                                      </div>
-                                    </motion.div>
-                                  )}
-                                </AnimatePresence>
-                              </div>
-                            ))
-                          )}
-                        </div>
-                      ) : (
-                        <RelationGraphEditor
-                          currentId={node.id}
-                          currentName={node.name}
-                          relations={node.relations}
-                          readOnly={true}
-                        />
-                      )}
+                      <RelationGraphEditor
+                        currentId={node.id}
+                        currentName={node.name}
+                        relations={node.relations}
+                        readOnly={true}
+                      />
                     </div>
                   </TabsContent>
                 )}

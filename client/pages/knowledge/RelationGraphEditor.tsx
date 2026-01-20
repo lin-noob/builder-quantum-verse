@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import ReactFlow, {
   Node,
   Edge,
@@ -6,8 +6,6 @@ import ReactFlow, {
   Controls,
   useNodesState,
   useEdgesState,
-  addEdge,
-  Connection,
   MarkerType,
   Handle,
   Position,
@@ -31,6 +29,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Request } from "@/lib/request";
 
 // --- Custom Node Types ---
 
@@ -155,8 +154,41 @@ const RelationGraphEditor: React.FC<RelationGraphEditorProps> = ({
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   
   // Edit Dialog State
-  const [editingRelIndex, setEditingRelIndex] = React.useState<number | null>(null);
-  const [editForm, setEditForm] = React.useState<Partial<KnowledgeRelation>>({});
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingRelIndex, setEditingRelIndex] = useState<number | null>(null);
+  const [editForm, setEditForm] = useState<Partial<KnowledgeRelation>>({
+    direction: "OUT"
+  });
+  
+  // Available Object Types for Target Selection
+  const [availableTypes, setAvailableTypes] = useState<{name: string, code: string}[]>([]);
+
+  // Fetch available types when dialog opens
+  useEffect(() => {
+    if (isDialogOpen && availableTypes.length === 0) {
+      const fetchTypes = async () => {
+        const request = new Request();
+        try {
+          const response = await request.request("/quote/api/v1/digital/list", { method: "GET" });
+          if (response.status === 200 && response.data.data) {
+            const types = response.data.data.map((item: any) => ({
+              name: item.objectName,
+              code: item.objectCode // Using objectName as display, objectName (or code?) as value. 
+                                    // User requirement: "Target Object Type (Required): Dropdown selection from system knowledge object types"
+                                    // "Example: Customer, Order..." (Names).
+                                    // Relation stores `targetNodeType`. 
+                                    // Let's assume we store the Name or Code depending on backend.
+                                    // Existing code used `targetNodeType`.
+            }));
+            setAvailableTypes(types);
+          }
+        } catch (e) {
+          console.error("Failed to fetch types", e);
+        }
+      };
+      fetchTypes();
+    }
+  }, [isDialogOpen, availableTypes.length]);
 
   // Initialize Graph
   useEffect(() => {
@@ -166,7 +198,7 @@ const RelationGraphEditor: React.FC<RelationGraphEditorProps> = ({
       type: 'source',
       position: { x: 0, y: 0 },
       data: { id: currentId, label: currentName },
-      draggable: false, // Keep center fixed? Or let it move. Let's fix it for now or center it.
+      draggable: false, 
     };
 
     // 2. Target Nodes & Edges
@@ -174,12 +206,6 @@ const RelationGraphEditor: React.FC<RelationGraphEditorProps> = ({
     const relEdges: Edge[] = [];
 
     relations.forEach((rel, index) => {
-      // Check if target node already exists (for multiple relations to same type)
-      // Actually, to make it editable visually, distinct relations should probably have distinct edges.
-      // But if we have multiple relations to "Order", do we show "Order" node once or multiple times?
-      // For simplicity in this editor, let's create a unique node for each relation instance to allow easy 1-1 mapping.
-      // This is "Relation Instance" view.
-      
       // Calculate position in a circle
       const angle = (index / relations.length) * 2 * Math.PI;
       const radius = 300;
@@ -223,6 +249,20 @@ const RelationGraphEditor: React.FC<RelationGraphEditorProps> = ({
     if (readOnly) return;
     setEditingRelIndex(index);
     setEditForm({ ...relations[index] });
+    setIsDialogOpen(true);
+  };
+
+  const handleAddRelation = () => {
+    if (readOnly) return;
+    setEditingRelIndex(null);
+    setEditForm({
+      semanticName: "",
+      targetNodeType: "",
+      direction: "OUT",
+      sourceAction: "",
+      isMutable: true
+    });
+    setIsDialogOpen(true);
   };
 
   const handleDeleteRelation = (index: number) => {
@@ -232,24 +272,30 @@ const RelationGraphEditor: React.FC<RelationGraphEditorProps> = ({
     onChange?.(newRels);
   };
 
-  const handleSaveEdit = () => {
-    if (editingRelIndex !== null && editForm && !readOnly) {
-      const newRels = [...relations];
-      newRels[editingRelIndex] = editForm as KnowledgeRelation;
-      onChange?.(newRels);
-      setEditingRelIndex(null);
+  const handleSave = () => {
+    if (!editForm.targetNodeType || !editForm.semanticName) {
+      // Basic validation
+      return; 
     }
-  };
 
-  const handleAddRelation = () => {
-    if (readOnly) return;
     const newRel: KnowledgeRelation = {
-      semanticName: "NEW_RELATION",
-      targetNodeType: "NewType",
-      direction: "OUT",
-      isMutable: false
+      semanticName: editForm.semanticName.toUpperCase(), // Enforce uppercase
+      targetNodeType: editForm.targetNodeType,
+      direction: editForm.direction || "OUT",
+      sourceAction: editForm.sourceAction || "",
+      isMutable: editForm.isMutable ?? true
     };
-    onChange?.([...relations, newRel]);
+
+    if (editingRelIndex !== null) {
+      // Update existing
+      const newRels = [...relations];
+      newRels[editingRelIndex] = newRel;
+      onChange?.(newRels);
+    } else {
+      // Add new
+      onChange?.([...relations, newRel]);
+    }
+    setIsDialogOpen(false);
   };
 
   return (
@@ -271,77 +317,104 @@ const RelationGraphEditor: React.FC<RelationGraphEditorProps> = ({
       {!readOnly && (
         <div className="absolute top-4 right-4 bg-white p-2 rounded-lg shadow-md border border-slate-200">
           <Button onClick={handleAddRelation} size="sm" className="bg-blue-600 hover:bg-blue-700 text-white gap-2">
-            <Plus className="w-4 h-4" /> 添加关系节点
+            <Plus className="w-4 h-4" /> 添加对象类型关系
           </Button>
         </div>
       )}
 
-      {/* Edit Dialog */}
-      <Dialog open={editingRelIndex !== null} onOpenChange={(open) => !open && setEditingRelIndex(null)}>
-        <DialogContent>
+      {/* Unified Configuration Dialog */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle>配置关系</DialogTitle>
+            <DialogTitle>添加对象类型关系</DialogTitle>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
+          <div className="grid gap-6 py-4">
+            {/* 1. Current Object Type (Read-only) */}
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label className="text-right">语义名称</Label>
-              <Input 
-                value={editForm.semanticName || ''} 
-                onChange={(e) => setEditForm({...editForm, semanticName: e.target.value})}
-                className="col-span-3 font-mono" 
-              />
+              <Label className="text-right text-slate-500">当前对象类型</Label>
+              <div className="col-span-3 px-3 py-2 bg-slate-100 rounded-md text-sm text-slate-700 font-medium border border-slate-200">
+                {currentName}
+              </div>
+              <div className="col-start-2 col-span-3 text-[10px] text-slate-400 -mt-2">
+                该关系将从此对象类型出发
+              </div>
             </div>
+
+            {/* 2. Target Object Type (Select) */}
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label className="text-right">目标类型</Label>
-              <Input 
-                value={editForm.targetNodeType || ''} 
-                onChange={(e) => setEditForm({...editForm, targetNodeType: e.target.value})}
-                className="col-span-3" 
-              />
+              <Label className="text-right">目标对象类型 <span className="text-red-500">*</span></Label>
+              <div className="col-span-3">
+                <Select 
+                  value={editForm.targetNodeType} 
+                  onValueChange={(val) => setEditForm({...editForm, targetNodeType: val})}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="选择目标对象类型" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableTypes.map(t => (
+                      <SelectItem key={t.code} value={t.name}>{t.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
+
+            {/* 3. Relation Semantic Name (Input) */}
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label className="text-right">方向</Label>
-              <Select 
-                value={editForm.direction} 
-                onValueChange={(val: any) => setEditForm({...editForm, direction: val})}
-              >
-                <SelectTrigger className="col-span-3">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="OUT">OUT (指向目标)</SelectItem>
-                  <SelectItem value="IN">IN (来自目标)</SelectItem>
-                </SelectContent>
-              </Select>
+              <Label className="text-right">关系语义 <span className="text-red-500">*</span></Label>
+              <div className="col-span-3">
+                <Input 
+                  value={editForm.semanticName || ''} 
+                  onChange={(e) => setEditForm({...editForm, semanticName: e.target.value.toUpperCase()})}
+                  className="font-mono uppercase"
+                  placeholder="PLACED_BY" 
+                />
+                <div className="text-[10px] text-slate-400 mt-1">
+                  大写英文，下划线分隔。例如：CONTAINS, BELONGS_TO
+                </div>
+              </div>
             </div>
+
+            {/* 4. Direction (Select) */}
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label className="text-right">可变性</Label>
-              <Select 
-                value={editForm.isMutable ? "yes" : "no"} 
-                onValueChange={(val) => setEditForm({...editForm, isMutable: val === "yes"})}
-              >
-                <SelectTrigger className="col-span-3">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="yes">可变</SelectItem>
-                  <SelectItem value="no">不可变</SelectItem>
-                </SelectContent>
-              </Select>
+              <Label className="text-right">关系方向 <span className="text-red-500">*</span></Label>
+              <div className="col-span-3">
+                <Select 
+                  value={editForm.direction} 
+                  onValueChange={(val: any) => setEditForm({...editForm, direction: val})}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="OUT">从当前对象 → 目标对象</SelectItem>
+                    <SelectItem value="IN">从目标对象 → 当前对象</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
+
+            {/* 5. Source Action (Optional) */}
             <div className="grid grid-cols-4 items-center gap-4">
               <Label className="text-right">来源动作</Label>
-              <Input 
-                value={editForm.sourceAction || ''} 
-                onChange={(e) => setEditForm({...editForm, sourceAction: e.target.value})}
-                className="col-span-3" 
-                placeholder="例如: create_order"
-              />
+              <div className="col-span-3">
+                <Input 
+                  value={editForm.sourceAction || ''} 
+                  onChange={(e) => setEditForm({...editForm, sourceAction: e.target.value})}
+                  placeholder="create_order" 
+                />
+                <div className="text-[10px] text-slate-400 mt-1">
+                  表示该关系通常由哪个业务动作产生
+                </div>
+              </div>
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setEditingRelIndex(null)}>取消</Button>
-            <Button onClick={handleSaveEdit}>保存更改</Button>
+            <Button variant="outline" onClick={() => setIsDialogOpen(false)}>取消</Button>
+            <Button onClick={handleSave} disabled={!editForm.targetNodeType || !editForm.semanticName}>
+              保存关系
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
