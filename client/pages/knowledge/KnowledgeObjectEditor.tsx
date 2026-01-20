@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { KnowledgeNode, KnowledgeNodeType, PropSource, RiskLevel, RelationDirection, KnowledgeRelation } from '../../types/knowledge';
+import { KnowledgeNode, KnowledgeNodeType, PropSource, RiskLevel, RelationDirection, KnowledgeRelation, LifecycleStatus } from '../../types/knowledge';
 import RelationGraphEditor from './RelationGraphEditor';
 
 const KnowledgeObjectEditor: React.FC = () => {
@@ -44,7 +44,8 @@ const KnowledgeObjectEditor: React.FC = () => {
     relations: [],
     actions: [],
     rules: [],
-    stats: { inDegree: 0, outDegree: 0, referenceCount: 0, usageFrequency: 0 }
+    stats: { inDegree: 0, outDegree: 0, referenceCount: 0, usageFrequency: 0 },
+    lifecycleStatus: 'active' as LifecycleStatus,
   };
 
   const [formData, setFormData] = useState<Partial<KnowledgeNode>>(initialData);
@@ -279,6 +280,103 @@ const KnowledgeObjectEditor: React.FC = () => {
                                   className="min-h-[120px] text-sm bg-white resize-none"
                                 />
                               </div>
+
+                              <div className="grid grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                  <Label className="text-sm font-medium text-slate-700">当前版本</Label>
+                                  <Input
+                                    value={formData.version || ""}
+                                    onChange={(e) => updateData({ version: e.target.value })}
+                                    placeholder="例如：v1.0.0"
+                                    className="bg-white h-10"
+                                  />
+                                </div>
+                                <div className="space-y-2">
+                                  <Label className="text-sm font-medium text-slate-700">生命周期状态</Label>
+                                  <Select
+                                    value={(formData.lifecycleStatus as LifecycleStatus) || 'active'}
+                                    onValueChange={(val) => updateData({ lifecycleStatus: val as LifecycleStatus })}
+                                  >
+                                    <SelectTrigger className="h-10">
+                                      <SelectValue placeholder="选择状态" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="active">活跃</SelectItem>
+                                      <SelectItem value="deprecated">已弃用</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                              </div>
+
+                              <div className="grid grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                  <Label className="text-sm font-medium text-slate-700">责任人 (Owner)</Label>
+                                  <Input
+                                    value={formData.owner || ""}
+                                    onChange={(e) => updateData({ owner: e.target.value })}
+                                    placeholder="例如：张三"
+                                    className="bg-white h-10"
+                                  />
+                                </div>
+                                <div className="space-y-2">
+                                  <Label className="text-sm font-medium text-slate-700">所属团队</Label>
+                                  <Input
+                                    value={formData.ownerTeam || ""}
+                                    onChange={(e) => updateData({ ownerTeam: e.target.value })}
+                                    placeholder="例如：订单域数据团队"
+                                    className="bg-white h-10"
+                                  />
+                                </div>
+                              </div>
+
+                              <div className="grid grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                  <Label className="text-sm font-medium text-slate-700">联系方式</Label>
+                                  <Input
+                                    value={formData.ownerContact || ""}
+                                    onChange={(e) => updateData({ ownerContact: e.target.value })}
+                                    placeholder="例如：zhangsan@example.com"
+                                    className="bg-white h-10"
+                                  />
+                                </div>
+                                <div className="space-y-2">
+                                  <Label className="text-sm font-medium text-slate-700">标签 (逗号分隔)</Label>
+                                  <Input
+                                    value={(formData.tags || []).join(", ")}
+                                    onChange={(e) =>
+                                      updateData({
+                                        tags: e.target.value
+                                          .split(",")
+                                          .map((s) => s.trim())
+                                          .filter(Boolean),
+                                      })
+                                    }
+                                    placeholder="例如：主数据, 核心交易"
+                                    className="bg-white h-10"
+                                  />
+                                </div>
+                              </div>
+
+                              <div className="grid grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                  <Label className="text-sm font-medium text-slate-700">创建时间</Label>
+                                  <Input
+                                    value={formData.createdAt || ""}
+                                    onChange={(e) => updateData({ createdAt: e.target.value })}
+                                    placeholder="例如：2025-12-01"
+                                    className="bg-white h-10"
+                                  />
+                                </div>
+                                <div className="space-y-2">
+                                  <Label className="text-sm font-medium text-slate-700">最后更新时间</Label>
+                                  <Input
+                                    value={formData.updatedAt || ""}
+                                    onChange={(e) => updateData({ updatedAt: e.target.value })}
+                                    placeholder="例如：2026-01-10"
+                                    className="bg-white h-10"
+                                  />
+                                </div>
+                              </div>
                            </div>
   
                            <div className="col-span-4 bg-slate-50 rounded-lg p-5 border border-slate-100">
@@ -441,9 +539,9 @@ const KnowledgeObjectEditor: React.FC = () => {
                            <Share2 className="w-5 h-5 text-blue-600" />
                         </div>
                         <div>
-                          <h4 className="text-sm font-bold text-blue-900">关系图谱编辑器</h4>
+                          <h4 className="text-sm font-bold text-blue-900">对象类型关系定义</h4>
                           <p className="text-xs text-blue-700 mt-1 leading-relaxed opacity-80">
-                            可视化定义对象间的关联关系。中心节点为当前对象。您可以添加目标类型节点并配置连接关系。
+                            定义当前对象类型与其他对象类型的概念关系。所有配置均为全局生效的类型定义。
                           </p>
                         </div>
                       </div>

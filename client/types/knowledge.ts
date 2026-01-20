@@ -9,6 +9,7 @@ export type KnowledgeNodeType = 'Master' | 'Transaction' | 'Result';
 export type RelationDirection = 'IN' | 'OUT';
 
 export type RiskLevel = 'Low' | 'Mid' | 'High';
+export type LifecycleStatus = 'active' | 'deprecated';
 
 export interface KnowledgeProperty {
   id: string;
@@ -51,9 +52,25 @@ export interface KnowledgeNodeStats {
   outDegree: number;
   referenceCount: number;
   usageFrequency: number; // e.g., 0-100 score
+  referencedBy?: {
+    actions: number;
+    rules: number;
+    flows: number;
+  };
 }
 
-export interface KnowledgeNode {
+export interface KnowledgeNodeMeta {
+  version?: string;
+  lifecycleStatus?: LifecycleStatus;
+  owner?: string;
+  ownerTeam?: string;
+  ownerContact?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  tags?: string[];
+}
+
+export interface KnowledgeNode extends KnowledgeNodeMeta {
   id: string;
   name: string;
   type: KnowledgeNodeType;

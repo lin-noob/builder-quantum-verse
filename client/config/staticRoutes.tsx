@@ -150,7 +150,6 @@ const BusinessModelList = React.lazy(
   () => import("@/pages/BusinessModelList"),
 );
 
-const PagePerformance = React.lazy(() => import("@/pages/PagePerformance"));
 
 // 知识库页面组件
 const NodeDetailsPage = React.lazy(
@@ -162,6 +161,10 @@ const GraphGlobalView = React.lazy(
 
 const KnowledgeObjectEditor = React.lazy(
   () => import("@/pages/Knowledge/KnowledgeObjectEditor")
+);
+
+const Knowledge = React.lazy(
+  () => import("@/pages/Knowledge/ExplorerPage")
 );
 
 // LazyRoute 包装组件
@@ -196,7 +199,7 @@ export const staticRoutes: RouteObject[] = [
     element: (
       <Layout>
         <LazyRoute>
-          <EnterpriseModelOverview />
+          <Knowledge />
         </LazyRoute>
       </Layout>
     ),

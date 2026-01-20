@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ArrowLeft, 
   Share2, 
@@ -12,8 +11,6 @@ import {
   Box,
   Edit,
   Trash2,
-  ChevronRight,
-  ChevronDown,
   Info,
   Settings,
   ShoppingCart,
@@ -22,7 +19,7 @@ import {
 import { useParams, useNavigate } from 'react-router-dom';
 import RelationGraphEditor from './RelationGraphEditor';
 import { useKnowledge } from '../../contexts/KnowledgeContext';
-import { PropSource, KnowledgeNode } from '../../types/knowledge';
+import { PropSource, KnowledgeNode, LifecycleStatus } from '../../types/knowledge';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -30,7 +27,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { LayoutList, GitGraph } from 'lucide-react';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const NodeDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -39,10 +41,11 @@ const NodeDetailsPage: React.FC = () => {
   
   const node = id ? getNodeById(id) : undefined;
   
-  // State
   const [activeTab, setActiveTab] = useState('basic');
-  const [expandedRelations, setExpandedRelations] = useState<string[]>([]);
-  const [relationViewMode, setRelationViewMode] = useState<'list' | 'graph'>('list');
+  const [propertySearch, setPropertySearch] = useState('');
+  const [propertySortKey, setPropertySortKey] = useState<'name' | 'type' | 'source'>('name');
+  const [propertySortAsc, setPropertySortAsc] = useState(true);
+  const [showAllProperties, setShowAllProperties] = useState(false);
 
   if (loading) return <div className="p-10 flex justify-center"><div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div></div>;
   if (error || !node) return <div className="p-10 text-center text-red-500">未找到节点或加载数据错误。</div>;
@@ -62,15 +65,68 @@ const NodeDetailsPage: React.FC = () => {
   const getSourceBadge = (source: PropSource) => {
     switch (source) {
       case PropSource.DB_COLUMN:
-        return <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-100 font-normal shadow-none">DB Column</Badge>;
+        return <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-100 font-normal shadow-none">数据库字段</Badge>;
       case PropSource.COMPUTED:
-        return <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-100 font-normal shadow-none">Computed</Badge>;
+        return <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-100 font-normal shadow-none">计算字段</Badge>;
       case PropSource.EXTERNAL_SYNC:
-        return <Badge variant="outline" className="bg-green-50 text-green-700 border-green-100 font-normal shadow-none">External</Badge>;
+        return <Badge variant="outline" className="bg-green-50 text-green-700 border-green-100 font-normal shadow-none">外部同步</Badge>;
       default:
-        return <Badge variant="outline">Unknown</Badge>;
+        return <Badge variant="outline">未知</Badge>;
     }
   };
+
+  const getTypeIcon = (type: KnowledgeNode['type']) => {
+    switch (type) {
+      case 'Master':
+        return Database;
+      case 'Transaction':
+        return ShoppingCart;
+      case 'Result':
+        return FileText;
+      default:
+        return Box;
+    }
+  };
+
+  const getLifecycleLabel = (status?: LifecycleStatus) => {
+    if (status === 'active') return '活跃';
+    if (status === 'deprecated') return '已弃用';
+    return '未配置';
+  };
+
+  const getLifecycleClass = (status?: LifecycleStatus) => {
+    if (status === 'active') return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+    if (status === 'deprecated') return 'bg-slate-100 text-slate-500 border-slate-200';
+    return 'bg-slate-50 text-slate-500 border-slate-200';
+  };
+
+  const filteredProperties = node
+    ? node.properties
+        .filter((prop) => {
+          if (!propertySearch) return true;
+          const keyword = propertySearch.toLowerCase();
+          return (
+            prop.name.toLowerCase().includes(keyword) ||
+            prop.type.toLowerCase().includes(keyword) ||
+            prop.sourceLabel.toLowerCase().includes(keyword)
+          );
+        })
+        .sort((a, b) => {
+          const dir = propertySortAsc ? 1 : -1;
+          if (propertySortKey === 'name') {
+            return a.name.localeCompare(b.name) * dir;
+          }
+          if (propertySortKey === 'type') {
+            return a.type.localeCompare(b.type) * dir;
+          }
+          return a.sourceLabel.localeCompare(b.sourceLabel) * dir;
+        })
+    : [];
+
+  const visibleProperties =
+    showAllProperties || filteredProperties.length <= 10
+      ? filteredProperties
+      : filteredProperties.slice(0, 10);
 
   const navItems = [
     { id: 'basic', label: '基础信息', icon: Settings },
@@ -81,8 +137,8 @@ const NodeDetailsPage: React.FC = () => {
   ];
 
   return (
-    <div className="h-full flex flex-col bg-white overflow-hidden">
-      {/* Header (Consistent with Enterprise Style) */}
+    <TooltipProvider>
+      <div className="h-full flex flex-col bg-white overflow-hidden">
       <header className="h-16 border-b flex items-center px-6 justify-between shrink-0 bg-white z-20 shadow-sm sticky top-0">
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="text-slate-500 hover:text-slate-700">
@@ -90,9 +146,11 @@ const NodeDetailsPage: React.FC = () => {
           </Button>
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-blue-50">
-              <Box className="h-5 w-5 text-blue-600" />
+              {React.createElement(getTypeIcon(node.type), {
+                className: "h-5 w-5 text-blue-600",
+              })}
             </div>
-            <div>
+            <div className="space-y-1">
               <div className="flex items-center gap-2">
                 <h1 className="font-bold text-lg text-slate-900">
                   {node.name}
@@ -100,11 +158,29 @@ const NodeDetailsPage: React.FC = () => {
                 <Badge variant="outline" className="font-mono bg-slate-50 text-slate-600 border-slate-200">
                   {node.type}
                 </Badge>
+                <Badge
+                  variant="outline"
+                  className={`text-xs border ${getLifecycleClass(node.lifecycleStatus)}`}
+                >
+                  生命周期：{getLifecycleLabel(node.lifecycleStatus)}
+                </Badge>
               </div>
-              <div className="text-xs text-slate-500 flex items-center gap-2">
-                定义视图
-                <span className="w-1 h-1 rounded-full bg-slate-300"></span>
-                {node.id}
+              <div className="text-xs text-slate-500 flex flex-wrap items-center gap-x-4 gap-y-1">
+                <span>标识 ID：{node.id}</span>
+                <span>版本：{node.version || '未配置'}</span>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="cursor-help">
+                      责任人：{node.owner || '未配置'}
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <div className="text-xs space-y-1">
+                      <div>所属团队：{node.ownerTeam || '未配置'}</div>
+                      <div>联系方式：{node.ownerContact || '未配置'}</div>
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
               </div>
             </div>
           </div>
@@ -120,7 +196,6 @@ const NodeDetailsPage: React.FC = () => {
         </div>
       </header>
 
-      {/* Main Layout: Sidebar + Content */}
       <div className="flex-1 flex overflow-hidden">
         
         {/* Left Sidebar: Navigation Only */}
@@ -169,7 +244,6 @@ const NodeDetailsPage: React.FC = () => {
             <div className="flex-1 p-8 overflow-hidden flex flex-col">
               <div className="max-w-[1200px] w-full h-full flex flex-col">
                 
-                {/* 0. Basic Info */}
                 {activeTab === 'basic' && (
                   <TabsContent value="basic" className="mt-0 h-full flex flex-col overflow-y-auto" forceMount>
                      <div className="shrink-0 space-y-4 mb-4">
@@ -214,6 +288,34 @@ const NodeDetailsPage: React.FC = () => {
                                   {node.description || '暂无描述'}
                                 </div>
                               </div>
+
+                              <div className="grid grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                  <Label className="text-sm font-medium text-slate-500">时间信息</Label>
+                                  <div className="bg-slate-50 p-4 rounded-lg border border-slate-100 text-xs text-slate-600 space-y-1.5">
+                                    <div>创建时间：{node.createdAt || '未配置'}</div>
+                                    <div>最后更新时间：{node.updatedAt || '未配置'}</div>
+                                  </div>
+                                </div>
+                                <div className="space-y-2">
+                                  <Label className="text-sm font-medium text-slate-500">标签</Label>
+                                  {node.tags && node.tags.length > 0 ? (
+                                    <div className="flex flex-wrap gap-2">
+                                      {node.tags.map((tag) => (
+                                        <span
+                                          key={tag}
+                                          className="inline-flex items-center px-2.5 py-1 rounded-full bg-slate-50 border border-slate-200 text-xs text-slate-700"
+                                          title={tag}
+                                        >
+                                          {tag}
+                                        </span>
+                                      ))}
+                                    </div>
+                                  ) : (
+                                    <div className="text-xs text-slate-400">未设置标签</div>
+                                  )}
+                                </div>
+                              </div>
                            </div>
 
                            {/* Stats Panel */}
@@ -224,20 +326,16 @@ const NodeDetailsPage: React.FC = () => {
                                 </h4>
                                 <div className="grid grid-cols-2 gap-4">
                                   <div className="bg-white p-3 rounded border border-slate-200 shadow-sm">
-                                    <div className="text-xs text-slate-500 mb-1">入度 (In-Degree)</div>
+                                <div className="text-xs text-slate-500 mb-1">入度</div>
                                     <div className="text-xl font-bold text-slate-900">{node.stats.inDegree}</div>
                                   </div>
                                   <div className="bg-white p-3 rounded border border-slate-200 shadow-sm">
-                                    <div className="text-xs text-slate-500 mb-1">出度 (Out-Degree)</div>
+                                <div className="text-xs text-slate-500 mb-1">出度</div>
                                     <div className="text-xl font-bold text-slate-900">{node.stats.outDegree}</div>
                                   </div>
                                   <div className="bg-white p-3 rounded border border-slate-200 shadow-sm">
-                                    <div className="text-xs text-slate-500 mb-1">引用次数</div>
+                                <div className="text-xs text-slate-500 mb-1">引用次数</div>
                                     <div className="text-xl font-bold text-slate-900">{node.stats.referenceCount}</div>
-                                  </div>
-                                  <div className="bg-white p-3 rounded border border-slate-200 shadow-sm">
-                                    <div className="text-xs text-slate-500 mb-1">使用频率</div>
-                                    <div className="text-xl font-bold text-slate-900">{node.stats.usageFrequency}%</div>
                                   </div>
                                 </div>
                               </div>
@@ -271,6 +369,54 @@ const NodeDetailsPage: React.FC = () => {
                       </div>
                     </div>
                     <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex-1 flex flex-col">
+                      <div className="flex items-center justify-between px-6 py-3 border-b bg-slate-50">
+                        <div className="flex items-center gap-3 text-xs text-slate-500">
+                          <span>共 {filteredProperties.length} 个属性</span>
+                          {filteredProperties.length > 10 && (
+                            <button
+                              onClick={() => setShowAllProperties(!showAllProperties)}
+                              className="text-blue-600 hover:text-blue-700"
+                            >
+                              {showAllProperties ? '折叠部分属性' : '展开全部属性'}
+                            </button>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <div className="text-xs text-slate-500 flex items-center gap-1">
+                            <span>排序：</span>
+                            <button
+                              onClick={() => {
+                                setPropertySortKey('name');
+                                setPropertySortAsc(propertySortKey === 'name' ? !propertySortAsc : true);
+                              }}
+                              className={`px-2 py-0.5 rounded ${
+                                propertySortKey === 'name' ? 'bg-blue-100 text-blue-700' : 'text-slate-500 hover:bg-slate-100'
+                              }`}
+                            >
+                              按名称
+                            </button>
+                            <button
+                              onClick={() => {
+                                setPropertySortKey('type');
+                                setPropertySortAsc(propertySortKey === 'type' ? !propertySortAsc : true);
+                              }}
+                              className={`px-2 py-0.5 rounded ${
+                                propertySortKey === 'type' ? 'bg-blue-100 text-blue-700' : 'text-slate-500 hover:bg-slate-100'
+                              }`}
+                            >
+                              按类型
+                            </button>
+                          </div>
+                          <div className="relative">
+                            <Input
+                              value={propertySearch}
+                              onChange={(e) => setPropertySearch(e.target.value)}
+                              placeholder="搜索属性名称或类型"
+                              className="h-8 text-xs pl-3 pr-3 w-56"
+                            />
+                          </div>
+                        </div>
+                      </div>
                       <div className="flex-1 overflow-y-auto">
                         <table className="w-full text-left text-sm">
                           <thead className="bg-slate-50 text-slate-500 font-medium sticky top-0 z-10 shadow-sm">
@@ -283,9 +429,9 @@ const NodeDetailsPage: React.FC = () => {
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-slate-100">
-                            {node.properties.map((prop) => (
+                            {visibleProperties.map((prop) => (
                               <tr key={prop.id} className="hover:bg-slate-50 transition-colors">
-                                <td className="px-6 py-4 font-medium text-slate-900">{prop.name}</td>
+                                <td className="px-6 py-4 font-medium text-slate-900" title={prop.name}>{prop.name}</td>
                                 <td className="px-6 py-4 text-slate-500 font-mono text-xs">{prop.type}</td>
                                 <td className="px-6 py-4">{getSourceBadge(prop.source)}</td>
                                 <td className="px-6 py-4">
@@ -320,111 +466,22 @@ const NodeDetailsPage: React.FC = () => {
                              <Share2 className="w-5 h-5 text-blue-600" />
                           </div>
                           <div>
-                            <h4 className="text-sm font-bold text-blue-900">关系画布</h4>
+                            <h4 className="text-sm font-bold text-blue-900">类型关系图谱</h4>
                             <p className="text-xs text-blue-700 mt-1 leading-relaxed opacity-80">
-                              可视化展示对象间的关联关系。
+                              可视化展示该对象类型的全局关系定义。
                             </p>
                           </div>
-                        </div>
-                        
-                        {/* View Mode Toggle */}
-                        <div className="bg-white p-1 rounded-lg border border-blue-100 flex items-center shadow-sm">
-                          <button
-                            onClick={() => setRelationViewMode('list')}
-                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
-                              relationViewMode === 'list' 
-                                ? 'bg-blue-100 text-blue-700 shadow-sm' 
-                                : 'text-slate-500 hover:bg-slate-50'
-                            }`}
-                          >
-                            <LayoutList className="w-3.5 h-3.5" />
-                            列表视图
-                          </button>
-                          <button
-                            onClick={() => setRelationViewMode('graph')}
-                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
-                              relationViewMode === 'graph' 
-                                ? 'bg-blue-100 text-blue-700 shadow-sm' 
-                                : 'text-slate-500 hover:bg-slate-50'
-                            }`}
-                          >
-                            <GitGraph className="w-3.5 h-3.5" />
-                            图谱视图
-                          </button>
                         </div>
                       </div>
                     </div>
                     
                     <div className="flex-1 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col relative">
-                      {relationViewMode === 'list' ? (
-                        <div className="flex-1 overflow-y-auto p-6 space-y-3">
-                          {node.relations.length === 0 ? (
-                            <div className="text-center py-8 text-slate-400 italic">未定义关系。</div>
-                          ) : (
-                            node.relations.map((rel, index) => (
-                              <div key={index} className="border border-slate-200 rounded-lg overflow-hidden transition-all hover:border-blue-300">
-                                <div 
-                                  className="flex items-center justify-between p-4 bg-white hover:bg-slate-50 cursor-pointer"
-                                  onClick={() => toggleRelation(rel.semanticName)}
-                                >
-                                  <div className="flex items-center gap-4">
-                                    <div className="flex items-center text-slate-300">
-                                      <div className="w-2 h-2 rounded-full bg-slate-400"></div>
-                                      <div className="w-8 h-px bg-slate-300"></div>
-                                      {rel.direction === 'OUT' ? <ChevronRight className="w-4 h-4 text-slate-400 -ml-1" /> : <ChevronRight className="w-4 h-4 text-slate-400 rotate-180 -ml-1" />}
-                                    </div>
-  
-                                    <span className="font-mono text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded border border-indigo-100">
-                                      {rel.semanticName}
-                                    </span>
-                                    
-                                    <div className="flex items-center gap-2 px-3 py-1 bg-slate-100 rounded-full text-sm font-medium text-slate-700">
-                                      <Box className="w-3.5 h-3.5 text-slate-500" />
-                                      {rel.targetNodeType}
-                                    </div>
-                                  </div>
-                                  
-                                  {expandedRelations.includes(rel.semanticName) 
-                                    ? <ChevronDown className="w-4 h-4 text-slate-400" /> 
-                                    : <ChevronRight className="w-4 h-4 text-slate-400" />
-                                  }
-                                </div>
-                                
-                                <AnimatePresence>
-                                  {expandedRelations.includes(rel.semanticName) && (
-                                    <motion.div
-                                      initial={{ height: 0, opacity: 0 }}
-                                      animate={{ height: 'auto', opacity: 1 }}
-                                      exit={{ height: 0, opacity: 0 }}
-                                      className="bg-slate-50 border-t border-slate-200"
-                                    >
-                                      <div className="p-4 grid grid-cols-2 gap-4 text-sm">
-                                        <div>
-                                          <span className="block text-xs text-slate-500 mb-1 uppercase tracking-wider">来源动作</span>
-                                          <span className="font-medium text-slate-900">{rel.sourceAction || '系统定义'}</span>
-                                        </div>
-                                        <div>
-                                          <span className="block text-xs text-slate-500 mb-1 uppercase tracking-wider">可变性</span>
-                                          <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${rel.isMutable ? 'bg-amber-100 text-amber-800' : 'bg-slate-200 text-slate-600'}`}>
-                                            {rel.isMutable ? '可变' : '不可变'}
-                                          </span>
-                                        </div>
-                                      </div>
-                                    </motion.div>
-                                  )}
-                                </AnimatePresence>
-                              </div>
-                            ))
-                          )}
-                        </div>
-                      ) : (
                         <RelationGraphEditor 
                           currentId={node.id}
                           currentName={node.name}
                           relations={node.relations}
                           readOnly={true}
                         />
-                      )}
                     </div>
                   </TabsContent>
                 )}
@@ -570,6 +627,7 @@ const NodeDetailsPage: React.FC = () => {
 
       {/* Wizard Modal Removed */}
     </div>
+    </TooltipProvider>
   );
 };
 

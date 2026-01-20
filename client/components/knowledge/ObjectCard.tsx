@@ -5,7 +5,8 @@ import {
   Share2, 
   Zap, 
   GitMerge, 
-  AlertCircle 
+  AlertTriangle,
+  ArrowRight
 } from 'lucide-react';
 import { KnowledgeNode, KnowledgeNodeType } from '../../types/knowledge';
 import {
@@ -15,6 +16,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 interface ObjectCardProps {
   node: KnowledgeNode;
@@ -24,13 +26,13 @@ interface ObjectCardProps {
 const getTypeColor = (type: KnowledgeNodeType) => {
   switch (type) {
     case 'Master':
-      return 'bg-blue-100 text-blue-700 border-blue-200';
+      return 'text-blue-700 border-blue-200 bg-blue-50';
     case 'Transaction':
-      return 'bg-emerald-100 text-emerald-700 border-emerald-200';
+      return 'text-emerald-700 border-emerald-200 bg-emerald-50';
     case 'Result':
-      return 'bg-purple-100 text-purple-700 border-purple-200';
+      return 'text-purple-700 border-purple-200 bg-purple-50';
     default:
-      return 'bg-gray-100 text-gray-700 border-gray-200';
+      return 'text-gray-700 border-gray-200 bg-gray-50';
   }
 };
 
@@ -38,14 +40,8 @@ const ObjectCard: React.FC<ObjectCardProps> = ({ node, onClick }) => {
   const hasHighRisk = node.actions.some(a => a.riskLevel === 'High') || 
                       node.rules.some(r => r.description.toLowerCase().includes('high risk'));
 
-  const totalLinks = node.stats.inDegree + node.stats.outDegree;
-
-  // Derive Tags
-  const tags: string[] = [];
-  if (node.type === 'Master') tags.push('Core');
-  if (node.stats.usageFrequency > 80) tags.push('High-Freq');
-  if (node.stats.referenceCount > 1000) tags.push('Hot');
-  if (hasHighRisk) tags.push('Risk-Critical');
+  // Default to 0 if not present (backward compatibility)
+  const refStats = node.stats.referencedBy || { actions: 0, rules: 0, flows: 0 };
 
   return (
     <TooltipProvider>
@@ -59,127 +55,86 @@ const ObjectCard: React.FC<ObjectCardProps> = ({ node, onClick }) => {
         whileTap={{ scale: 0.95, opacity: 0.8 }}
         onClick={() => onClick(node.id)}
         className={`
-          relative flex flex-col p-5 rounded-xl border cursor-pointer transition-all duration-300
+          relative flex flex-col p-5 rounded-xl border cursor-pointer transition-all duration-300 h-full bg-white
           ${hasHighRisk 
-            ? 'border-red-200 bg-gradient-to-br from-white to-red-50/40 shadow-sm' 
-            : 'border-slate-200 bg-white hover:border-blue-300'}
+            ? 'border-red-200 ring-1 ring-red-50 shadow-sm' 
+            : 'border-slate-200 hover:border-blue-300'}
         `}
       >
-        {/* High Risk Indicator */}
+        {/* Zone D: Risk Indicator (Absolute Positioned) */}
         {hasHighRisk && (
-          <div className="absolute top-3 right-3 flex items-center justify-center">
-             <span className="relative flex h-3 w-3">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75 duration-1000"></span>
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500 shadow-md"></span>
-            </span>
-          </div>
-        )}
-
-        {/* Header */}
-        <div className="flex items-center gap-3 mb-4">
-          <div className={`p-2 rounded-lg ${getTypeColor(node.type)} bg-opacity-20`}>
-            <Box className="w-5 h-5" />
-          </div>
-          <div>
-            <h3 className="font-semibold text-slate-900 leading-none mb-1.5">{node.name}</h3>
-            <span className={`text-[10px] px-2 py-0.5 rounded-full border ${getTypeColor(node.type)}`}>
-              {node.type}
-            </span>
-          </div>
-        </div>
-
-        {/* Body: 2x2 Grid */}
-        <div className="grid grid-cols-2 gap-3 mt-auto mb-4">
-          {/* Properties */}
-          <div className="flex flex-col items-start p-2.5 rounded-lg bg-slate-50 border border-slate-100 hover:bg-slate-100 transition-colors">
-            <span className="text-xs text-slate-500 font-medium mb-1 flex items-center gap-1.5">
-              <Box className="w-3.5 h-3.5 text-slate-400" /> 属性
-            </span>
-            <span className="text-lg font-bold text-slate-700">{node.properties.length}</span>
-          </div>
-
-          {/* Relations with Tooltip */}
           <Tooltip>
             <TooltipTrigger asChild>
-              <div className="flex flex-col items-start p-2.5 rounded-lg bg-slate-50 border border-slate-100 hover:bg-slate-100 transition-colors group">
-                <span className="text-xs text-slate-500 font-medium mb-1 flex items-center gap-1.5">
-                  <Share2 className="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-500 transition-colors" /> 关系
-                </span>
-                <span className="text-lg font-bold text-slate-700">{totalLinks}</span>
+              <div className="absolute top-4 right-4 text-red-500 animate-pulse z-10">
+                <AlertTriangle className="h-5 w-5" />
               </div>
             </TooltipTrigger>
-            <TooltipContent className="bg-slate-800 text-slate-50 border-slate-700">
-              <p className="text-xs font-semibold mb-1 text-slate-300">关联对象 (Top 3):</p>
-              <ul className="text-xs list-disc pl-3 space-y-0.5">
-                {node.relations.slice(0, 3).map((r, i) => (
-                  <li key={i} className="text-slate-200">{r.semanticName} → {r.targetNodeType}</li>
-                )) || <li className="text-slate-500 italic">无关联</li>}
-                {node.relations.length > 3 && <li className="text-slate-500 italic">...</li>}
-                {node.relations.length === 0 && <li className="text-slate-500 italic">暂无</li>}
-              </ul>
+            <TooltipContent>
+              <p>包含高风险动作</p>
+              <p>用于关键工作流</p>
             </TooltipContent>
           </Tooltip>
+        )}
 
-          {/* Actions with Tooltip */}
-          <Tooltip>
-             <TooltipTrigger asChild>
-              <div className="flex flex-col items-start p-2.5 rounded-lg bg-slate-50 border border-slate-100 hover:bg-slate-100 transition-colors group">
-                <span className="text-xs text-slate-500 font-medium mb-1 flex items-center gap-1.5">
-                  <Zap className="w-3.5 h-3.5 text-slate-400 group-hover:text-amber-500 transition-colors" /> 动作
-                </span>
-                <span className="text-lg font-bold text-slate-700">{node.actions.length}</span>
-              </div>
-            </TooltipTrigger>
-            <TooltipContent className="bg-slate-800 text-slate-50 border-slate-700">
-               <p className="text-xs font-semibold mb-1 text-slate-300">可用动作 (Top 3):</p>
-              <ul className="text-xs list-disc pl-3 space-y-0.5">
-                {node.actions.slice(0, 3).map((a, i) => (
-                  <li key={i} className="text-slate-200">{a.label}</li>
-                ))}
-                {node.actions.length > 3 && <li className="text-slate-500 italic">...</li>}
-                {node.actions.length === 0 && <li className="text-slate-500 italic">暂无</li>}
-              </ul>
-            </TooltipContent>
-          </Tooltip>
+        {/* Zone A: Identity */}
+        <div className="mb-4 pr-8">
+          <div className="flex items-center gap-2 mb-2">
+            <Badge variant="outline" className={`${getTypeColor(node.type)} border px-2 py-0.5 h-6 font-medium`}>
+              {node.type}
+            </Badge>
+          </div>
+          <h3 className="font-bold text-lg text-slate-900 mb-1.5">{node.name}</h3>
+          <p className="text-sm text-slate-500 line-clamp-1 min-h-[1.25rem]">
+            {node.description || "暂无描述"}
+          </p>
+        </div>
 
-          {/* References with Progress Bar */}
-          <div className="flex flex-col items-start p-2.5 rounded-lg bg-slate-50 border border-slate-100 hover:bg-slate-100 transition-colors relative overflow-hidden">
-            <div 
-              className="absolute bottom-0 left-0 h-1 bg-emerald-500/20 transition-all duration-500" 
-              style={{ width: `${Math.min(node.stats.usageFrequency, 100)}%` }}
-            />
-            <span className="text-xs text-slate-500 font-medium mb-1 flex items-center gap-1.5 relative z-10">
-              <GitMerge className="w-3.5 h-3.5 text-slate-400" /> 引用
-            </span>
-            <span className="text-lg font-bold text-slate-700 relative z-10">{node.stats.referenceCount}</span>
+        {/* Zone B: Structure Counts */}
+        <div className="flex flex-wrap gap-2 mb-5">
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-50 border border-slate-100 text-xs font-medium text-slate-600">
+                <Box className="w-3.5 h-3.5 text-slate-400" />
+                <span>属性 {node.properties.length}</span>
+            </div>
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-50 border border-slate-100 text-xs font-medium text-slate-600">
+                <Share2 className="w-3.5 h-3.5 text-slate-400" />
+                <span>关系 {node.relations.length}</span>
+            </div>
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-50 border border-slate-100 text-xs font-medium text-slate-600">
+                <Zap className="w-3.5 h-3.5 text-slate-400" />
+                <span>动作 {node.actions.length}</span>
+            </div>
+        </div>
+
+        {/* Zone C: Referenced By */}
+        <div className="mb-6 bg-slate-50/50 rounded-lg border border-slate-100 p-3">
+          <div className="text-xs text-slate-400 font-medium mb-1.5 uppercase tracking-wider flex items-center gap-1">
+             结构引用
+          </div>
+          <div className="flex items-center flex-wrap gap-y-1 gap-x-3 text-sm text-slate-700 font-medium">
+             <span className="flex items-center gap-1.5">
+                <span className="text-slate-500 font-normal">动作</span> 
+                {refStats.actions}
+             </span>
+             <span className="text-slate-300">·</span>
+             <span className="flex items-center gap-1.5">
+                <span className="text-slate-500 font-normal">规则</span>
+                {refStats.rules}
+             </span>
+             <span className="text-slate-300">·</span>
+             <span className="flex items-center gap-1.5">
+                <span className="text-slate-500 font-normal">流程</span>
+                {refStats.flows}
+             </span>
           </div>
         </div>
 
-        {/* Tags Area */}
-        {tags.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 mb-3">
-            {tags.slice(0, 3).map(tag => (
-              <Badge 
-                key={tag} 
-                variant="outline" 
-                className={`
-                  text-[10px] h-5 px-1.5 border-0 font-medium
-                  ${tag === 'Risk-Critical' ? 'bg-red-100 text-red-700' : 
-                    tag === 'Core' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600'}
-                `}
-              >
-                {tag}
-              </Badge>
-            ))}
-          </div>
-        )}
-        
-        {/* Footer / Description */}
-        {node.description && (
-          <p className="mt-auto text-xs text-slate-400 line-clamp-2 border-t border-slate-100 pt-3 leading-relaxed">
-            {node.description}
-          </p>
-        )}
+        {/* Zone E: Actions (Footer) */}
+        <div className="mt-auto flex items-center justify-between pt-4 border-t border-slate-100">
+           <Button variant="ghost" size="sm" className="text-slate-500 hover:text-blue-600 px-0 hover:bg-transparent p-0 h-auto font-medium">
+             查看详情 <ArrowRight className="w-4 h-4 ml-1" />
+           </Button>
+           {/* Placeholder for Edit or other actions if needed */}
+        </div>
       </motion.div>
     </TooltipProvider>
   );

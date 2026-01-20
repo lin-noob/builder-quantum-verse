@@ -14,6 +14,13 @@ import { useKnowledge } from '../../contexts/KnowledgeContext';
 import ObjectCard from '../../components/Knowledge/ObjectCard';
 import { KnowledgeNodeType, KnowledgeNode } from '../../types/knowledge';
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { KnowledgeObjectWizard } from '../../components/Knowledge/KnowledgeObjectWizard';
 
 // Lazy load graph view to avoid heavy initial load
@@ -164,11 +171,23 @@ const ExplorerPage: React.FC = () => {
              </div>
              <p className="text-slate-500 text-sm font-medium flex items-center gap-2">
                <span className="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
-               {activeTab === 'objects' ? '管理和浏览所有定义的业务知识对象' : '可视化查看对象间的拓扑关系与风险传播'}
+               {activeTab === 'objects' ? '浏览并分析企业知识对象及其结构关系。' : '可视化查看对象间的拓扑关系与风险传播'}
              </p>
            </div>
            
            <div className="flex items-center gap-3">
+             <Select value={selectedType} onValueChange={(value: any) => setSelectedType(value)}>
+               <SelectTrigger className="w-[130px] bg-white border-slate-200 shadow-sm">
+                 <SelectValue placeholder="筛选类型" />
+               </SelectTrigger>
+               <SelectContent>
+                 <SelectItem value="All">全部类型</SelectItem>
+                 <SelectItem value="Master">主数据</SelectItem>
+                 <SelectItem value="Transaction">交易数据</SelectItem>
+                 <SelectItem value="Result">结果数据</SelectItem>
+               </SelectContent>
+             </Select>
+
              <div className="relative group">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4 group-focus-within:text-blue-500 transition-colors" />
               <input
@@ -242,7 +261,6 @@ const ExplorerPage: React.FC = () => {
                       onClick={() => {
                         setSearchQuery('');
                         setSelectedType('All');
-                        setRiskFilter('all');
                       }}
                     >
                       清除所有筛选

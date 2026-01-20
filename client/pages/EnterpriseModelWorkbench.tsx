@@ -1220,6 +1220,8 @@ export default function EnterpriseRegistry() {
     )
   }
   return (
+    <>
+      {uiMode !== "wizard" && (
     <div className="flex flex-col h-screen bg-slate-50 overflow-hidden">
       {/* Global Header */}
       <header className="h-14 shrink-0 bg-white border-b flex items-center px-4 justify-between z-10">
@@ -1287,6 +1289,64 @@ export default function EnterpriseRegistry() {
       <div className="flex-1 flex overflow-hidden">
         {/* Sidebar */}
         <aside className="w-64 border-r bg-gray-50/50 flex flex-col shrink-0">
+          {(moduleTab === "Capabilities" || moduleTab === "Rules" || moduleTab === "Events") && (
+            <div className="p-3 border-b space-y-3 bg-white">
+              {moduleTab === "Capabilities" && (
+                <div className="space-y-1">
+                  <span className="text-xs font-medium text-gray-500">风险等级</span>
+                  <Select value={capRisk} onValueChange={(v) => setCapRisk(v as any)}>
+                    <SelectTrigger className="w-full h-8 text-xs"><SelectValue placeholder="全部" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">全部风险</SelectItem>
+                      <SelectItem value="Low">Low</SelectItem>
+                      <SelectItem value="Medium">Medium</SelectItem>
+                      <SelectItem value="High">High</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+              {moduleTab === "Rules" && (
+                <div className="space-y-1">
+                  <span className="text-xs font-medium text-gray-500">严重级别</span>
+                  <Select value={ruleSeverity} onValueChange={(v) => setRuleSeverity(v as any)}>
+                    <SelectTrigger className="w-full h-8 text-xs"><SelectValue placeholder="全部" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">全部级别</SelectItem>
+                      <SelectItem value="blocking">⛔ Blocking</SelectItem>
+                      <SelectItem value="warning">⚠ Warning</SelectItem>
+                      <SelectItem value="audit">📋 Audit</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+              {moduleTab === "Events" && (
+                <>
+                  <div className="space-y-1">
+                    <span className="text-xs font-medium text-gray-500">Agent订阅</span>
+                    <Select value={eventSub} onValueChange={(v) => setEventSub(v as any)}>
+                      <SelectTrigger className="w-full h-8 text-xs"><SelectValue placeholder="全部" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">全部</SelectItem>
+                        <SelectItem value="subscribable">可订阅</SelectItem>
+                        <SelectItem value="not">不可订阅</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1">
+                    <span className="text-xs font-medium text-gray-500">检测类型</span>
+                    <Select value={eventDetect} onValueChange={(v) => setEventDetect(v as any)}>
+                      <SelectTrigger className="w-full h-8 text-xs"><SelectValue placeholder="全部" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">全部</SelectItem>
+                        <SelectItem value="Realtime">实时</SelectItem>
+                        <SelectItem value="Scheduled">定时</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
           <ScrollArea className="flex-1 p-4">
              <div className="space-y-6">
                {Object.entries(groupedItems).map(([group, items]: [string, any[]]) => (
@@ -1656,68 +1716,8 @@ export default function EnterpriseRegistry() {
       </div>
     </div>
 
-          <div className="flex flex-wrap items-end gap-4 mt-4">
-            <div className="flex items-center gap-3">
-              <span className="text-sm text-gray-600">向导流程</span>
-            </div>
-            {moduleTab === "Capabilities" && uiMode !== "overview" && (
-              <div className="flex items-center gap-3">
-                <span className="text-sm text-gray-600">风险等级</span>
-                <Select value={capRisk} onValueChange={(v) => setCapRisk(v as any)}>
-                  <SelectTrigger className="w-[160px]"><SelectValue placeholder="风险等级" /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">全部风险</SelectItem>
-                    <SelectItem value="Low">Low</SelectItem>
-                    <SelectItem value="Medium">Medium</SelectItem>
-                    <SelectItem value="High">High</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-            {moduleTab === "Rules" && uiMode !== "overview" && (
-              <div className="flex items-center gap-3">
-                <span className="text-sm text-gray-600">严重级别</span>
-                <Select value={ruleSeverity} onValueChange={(v) => setRuleSeverity(v as any)}>
-                  <SelectTrigger className="w-[160px]"><SelectValue placeholder="严重级别" /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">全部级别</SelectItem>
-                    <SelectItem value="blocking">⛔ Blocking</SelectItem>
-                    <SelectItem value="warning">⚠ Warning</SelectItem>
-                    <SelectItem value="audit">📋 Audit</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-            {moduleTab === "Events" && uiMode !== "overview" && (
-              <div className="flex items-center gap-3">
-                <span className="text-sm text-gray-600">Agent订阅</span>
-                <Select value={eventSub} onValueChange={(v) => setEventSub(v as any)}>
-                  <SelectTrigger className="w-[180px]"><SelectValue placeholder="Agent订阅" /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">全部</SelectItem>
-                    <SelectItem value="subscribable">可订阅</SelectItem>
-                    <SelectItem value="not">不可订阅</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-            {moduleTab === "Events" && uiMode !== "overview" && (
-              <div className="flex items-center gap-3">
-                <span className="text-sm text-gray-600">检测类型</span>
-                <Select value={eventDetect} onValueChange={(v) => setEventDetect(v as any)}>
-                  <SelectTrigger className="w-[160px]"><SelectValue placeholder="检测类型" /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">全部</SelectItem>
-                    <SelectItem value="Realtime">实时</SelectItem>
-                    <SelectItem value="Scheduled">定时</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-          </div>
-        </Card>
-      </div>
       )}
+
 
       {uiMode === "wizard" && (
         <div className="max-w-none">
@@ -4693,6 +4693,6 @@ export default function EnterpriseRegistry() {
         </Card>
       </div>
       )}
-    </div>
+    </>
   );
 }

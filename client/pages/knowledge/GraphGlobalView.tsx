@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import ReactFlow, {
   Background,
   Controls,
@@ -10,55 +10,65 @@ import ReactFlow, {
   ReactFlowProvider,
   Handle,
   Position,
-  MiniMap
+  MiniMap,
+  useReactFlow
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  X, 
-  Sparkles, 
-  AlertTriangle, 
-  Share2,
-  Activity,
+  Search,
+  Layout,
   Maximize2,
-  ZoomIn,
-  ZoomOut
+  Database,
+  Share2,
+  Zap,
+  Box,
+  ArrowRight,
+  Info
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useKnowledge } from '../../contexts/KnowledgeContext';
 import { KnowledgeNode } from '../../types/knowledge';
 
+// --- Visual Config ---
+const TYPE_COLORS = {
+  Master: { bg: 'bg-blue-50', border: 'border-blue-500', text: 'text-blue-700', badge: 'bg-blue-100 text-blue-800' },
+  Transaction: { bg: 'bg-purple-50', border: 'border-purple-500', text: 'text-purple-700', badge: 'bg-purple-100 text-purple-800' },
+  Result: { bg: 'bg-green-50', border: 'border-green-500', text: 'text-green-700', badge: 'bg-green-100 text-green-800' },
+  default: { bg: 'bg-slate-50', border: 'border-slate-400', text: 'text-slate-700', badge: 'bg-slate-100 text-slate-800' }
+};
+
 // --- Custom Node Component ---
-const CustomNode = ({ data }: { data: { label: string; type: string; risk: boolean; frequency: number; impacted?: boolean } }) => {
-  const isHighRisk = data.risk;
-  // Size based on frequency (simplified)
-  const sizeClass = data.frequency > 80 ? 'w-32 h-32' : data.frequency > 50 ? 'w-24 h-24' : 'w-20 h-20';
+const CustomNode = React.memo(({ data, selected }: { data: any, selected: boolean }) => {
+  const style = TYPE_COLORS[data.type as keyof typeof TYPE_COLORS] || TYPE_COLORS.default;
+  const isHighRisk = data.hasHighRiskAction;
   
   return (
-    <div className={`relative flex items-center justify-center rounded-full border-2 transition-all duration-500
-      ${sizeClass}
-      ${isHighRisk ? 'border-red-400 bg-red-50 shadow-[0_0_15px_rgba(248,113,113,0.4)]' : 'border-blue-400 bg-blue-50 shadow-md'}
-      hover:scale-110 hover:shadow-lg cursor-pointer
+    <div className={`
+      relative flex flex-col items-center justify-center w-32 h-32 rounded-full border-2 transition-all duration-300
+      ${style.bg} ${style.border}
+      ${selected ? 'ring-4 ring-offset-2 ring-blue-200 scale-110 z-10' : 'shadow-md hover:shadow-lg hover:scale-105'}
+      ${isHighRisk ? 'ring-2 ring-red-500 ring-offset-1' : ''}
+      ${data.dimmed ? 'opacity-30 grayscale' : 'opacity-100'}
     `}>
-      <Handle type="target" position={Position.Top} className="opacity-0" />
-      <Handle type="source" position={Position.Bottom} className="opacity-0" />
-      {data.impacted && (
-        <div className="absolute inset-0 rounded-full ring-2 ring-indigo-400 animate-pulse" />
-      )}
+      <Handle type="target" position={Position.Top} className="!bg-slate-400" />
+      <Handle type="source" position={Position.Bottom} className="!bg-slate-400" />
       
       {isHighRisk && (
-        <div className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-1 animate-pulse">
-          <AlertTriangle className="w-3 h-3" />
+        <div className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold shadow-sm animate-pulse">
+          Risk
         </div>
       )}
       
-      <div className="text-center p-2">
-        <div className="font-bold text-gray-800 text-xs md:text-sm truncate max-w-full">{data.label}</div>
-        <div className="text-[10px] text-gray-500 uppercase tracking-tighter">{data.type}</div>
+      <div className="text-center p-2 flex flex-col items-center gap-1">
+        <div className={`font-bold text-sm truncate max-w-[110px] ${style.text}`}>{data.label}</div>
+        <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${style.badge}`}>
+          {data.type}
+        </span>
       </div>
     </div>
   );
-};
+});
 
 const nodeTypes = {
   custom: CustomNode,
@@ -67,513 +77,377 @@ const nodeTypes = {
 const GraphGlobalView: React.FC = () => {
   const navigate = useNavigate();
   const { nodes, loading, getNodeById } = useKnowledge();
-  const [showInsights, setShowInsights] = useState(false);
-  const [insightText, setInsightText] = useState('');
-  const [snapshotOpen, setSnapshotOpen] = useState(false);
-  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
-  const [selectedEdge, setSelectedEdge] = useState<Edge | null>(null);
-  const [layoutMode, setLayoutMode] = useState<'circular' | 'hierarchical' | 'free'>('circular');
-  const [typeFilter, setTypeFilter] = useState<'all' | 'Master' | 'Transaction' | 'Result'>('all');
-  const [riskFilter, setRiskFilter] = useState<'all' | 'high'>('all');
+  
+  // UI State
+  const [layoutMode, setLayoutMode] = useState<'hierarchical' | 'circular'>('hierarchical');
   const [searchQuery, setSearchQuery] = useState('');
-  const [pathMode, setPathMode] = useState(false);
-  const [pathStart, setPathStart] = useState<string | null>(null);
-  const [pathEnd, setPathEnd] = useState<string | null>(null);
-  const [highlightedEdgeIds, setHighlightedEdgeIds] = useState<Set<string>>(new Set());
-  const [impactSource, setImpactSource] = useState<string | null>(null);
-  const [impactedNodeIds, setImpactedNodeIds] = useState<Set<string>>(new Set());
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
 
-  // Transform data to ReactFlow format
-  const initialNodes: Node[] = [];
-  const initialEdges: Edge[] = [];
+  // ReactFlow State
+  const [rfNodes, setNodes, onNodesChange] = useNodesState([]);
+  const [rfEdges, setEdges, onEdgesChange] = useEdgesState([]);
 
-  // Simple layout algorithm variants
-  if (nodes.length > 0) {
+  // Compute Layout & Elements
+  useEffect(() => {
+    if (loading || nodes.length === 0) return;
+
+    // 1. Create Nodes
+    let newNodes: Node[] = [];
+    
     if (layoutMode === 'circular') {
       const centerX = 400;
       const centerY = 300;
-      const radius = 250;
-      const centerNode = nodes.find(n => n.id === 'order') || nodes[0];
-      const otherNodes = nodes.filter(n => n.id !== centerNode.id);
-      initialNodes.push({
-        id: centerNode.id,
-        type: 'custom',
-        position: { x: centerX, y: centerY },
-        data: { 
-          label: centerNode.name, 
-          type: centerNode.type, 
-          risk: centerNode.actions.some(a => a.riskLevel === 'High'),
-          frequency: centerNode.stats.usageFrequency 
-        },
-      });
-      otherNodes.forEach((node, index) => {
-        const angle = (index / Math.max(1, otherNodes.length)) * 2 * Math.PI;
-        const x = centerX + radius * Math.cos(angle);
-        const y = centerY + radius * Math.sin(angle);
-        initialNodes.push({
+      const radius = 300;
+      
+      // Sort nodes to group by type roughly
+      const sortedNodes = [...nodes].sort((a, b) => a.type.localeCompare(b.type));
+      
+      sortedNodes.forEach((node, index) => {
+        const angle = (index / sortedNodes.length) * 2 * Math.PI;
+        newNodes.push({
           id: node.id,
           type: 'custom',
-          position: { x, y },
+          position: {
+            x: centerX + radius * Math.cos(angle),
+            y: centerY + radius * Math.sin(angle)
+          },
           data: { 
             label: node.name, 
             type: node.type,
-            risk: node.actions.some(a => a.riskLevel === 'High'),
-            frequency: node.stats.usageFrequency 
+            hasHighRiskAction: node.actions.some(a => a.riskLevel === 'High'),
+            dimmed: false
           },
         });
       });
-    } else if (layoutMode === 'hierarchical') {
-      const layers: Record<string, number> = { Master: 0, Transaction: 1, Result: 2 };
-      const layerCounts: Record<number, number> = { 0: 0, 1: 0, 2: 0 };
-      const positions: Record<string, { x: number; y: number }> = {};
-      nodes.forEach(n => { layerCounts[layers[n.type]] += 1; });
-      const width = 800;
-      const height = 600;
-      const layerY = [100, height / 2, height - 150];
-      const layerSpacingX = [width / (layerCounts[0] + 1), width / (layerCounts[1] + 1), width / (layerCounts[2] + 1)];
-      const layerIndex: Record<number, number> = { 0: 1, 1: 1, 2: 1 };
-      nodes.forEach(n => {
-        const layer = layers[n.type];
-        const x = layerSpacingX[layer] * layerIndex[layer];
-        const y = layerY[layer];
-        layerIndex[layer] += 1;
-        positions[n.id] = { x, y };
-      });
-      nodes.forEach(n => {
-        initialNodes.push({
-          id: n.id,
-          type: 'custom',
-          position: positions[n.id],
-          data: {
-            label: n.name,
-            type: n.type,
-            risk: n.actions.some(a => a.riskLevel === 'High'),
-            frequency: n.stats.usageFrequency
-          }
-        });
-      });
     } else {
-      nodes.forEach((n, i) => {
-        initialNodes.push({
-          id: n.id,
-          type: 'custom',
-          position: { x: 120 + (i % 5) * 160, y: 120 + Math.floor(i / 5) * 140 },
-          data: {
-            label: n.name,
-            type: n.type,
-            risk: n.actions.some(a => a.riskLevel === 'High'),
-            frequency: n.stats.usageFrequency
-          }
+      // Hierarchical Layout (Master -> Transaction -> Result)
+      const layers = { Master: 0, Transaction: 1, Result: 2 };
+      const groupedNodes: Record<string, KnowledgeNode[]> = { Master: [], Transaction: [], Result: [] };
+      
+      nodes.forEach(n => {
+        const type = n.type as keyof typeof groupedNodes;
+        if (groupedNodes[type]) {
+          groupedNodes[type].push(n);
+        } else {
+          // Fallback for unknown types
+          if (!groupedNodes['Result']) groupedNodes['Result'] = [];
+          groupedNodes['Result'].push(n);
+        }
+      });
+
+      const startY = 50;
+      const layerHeight = 250; // Vertical distance between layers
+      const canvasWidth = 1000;
+
+      Object.entries(groupedNodes).forEach(([type, typeNodes]) => {
+        const layerIndex = layers[type as keyof typeof layers] || 2;
+        const count = typeNodes.length;
+        if (count === 0) return;
+
+        const availableWidth = Math.max(canvasWidth, count * 150);
+        const spacingX = availableWidth / (count + 1);
+
+        typeNodes.forEach((node, idx) => {
+          newNodes.push({
+            id: node.id,
+            type: 'custom',
+            position: {
+              x: (idx + 1) * spacingX,
+              y: startY + layerIndex * layerHeight
+            },
+            data: { 
+              label: node.name, 
+              type: node.type,
+              hasHighRiskAction: node.actions.some(a => a.riskLevel === 'High'),
+              dimmed: false
+            },
+          });
         });
       });
     }
 
-    // Edges
+    // 2. Create Edges
+    const newEdges: Edge[] = [];
     nodes.forEach(sourceNode => {
       sourceNode.relations.forEach((rel, idx) => {
-        // Find if target exists in our subset
-        const targetNode = nodes.find(n => n.id === rel.targetNodeType); // Note: in mock data targetNodeType is ID
+        const targetNode = nodes.find(n => n.id === rel.targetNodeType);
         if (targetNode) {
-            const isRiskPath = rel.semanticName.includes('FULFILLED_BY') || rel.semanticName.includes('PAID_WITH'); // Mock risk path logic
-            
-            const freq = sourceNode.stats.usageFrequency;
-            const dash = freq > 80 ? '2,2' : freq > 60 ? '4,2' : freq > 40 ? '6,3' : '8,4';
-            initialEdges.push({
-              id: `e-${sourceNode.id}-${targetNode.id}-${idx}`,
-              source: sourceNode.id,
-              target: targetNode.id,
-              label: rel.semanticName,
-              type: 'default',
-              animated: true,
-              style: { 
-                stroke: isRiskPath ? '#ef4444' : '#94a3b8', 
-                strokeWidth: isRiskPath ? 2.5 : 2,
-                strokeDasharray: dash
-              },
-              labelStyle: { fill: isRiskPath ? '#ef4444' : '#64748b', fontWeight: 700, fontSize: 10 },
-              markerEnd: {
-                type: MarkerType.ArrowClosed,
-                color: isRiskPath ? '#ef4444' : '#94a3b8',
-              },
-            });
+          newEdges.push({
+            id: `${sourceNode.id}-${targetNode.id}-${rel.semanticName}`,
+            source: sourceNode.id,
+            target: targetNode.id,
+            label: rel.semanticName,
+            type: 'default', // Using default bezier curve
+            markerEnd: { type: MarkerType.ArrowClosed, color: '#94a3b8' },
+            style: { stroke: '#94a3b8', strokeWidth: 1.5 },
+            labelStyle: { fill: '#64748b', fontWeight: 600, fontSize: 10 },
+            data: { dimmed: false }
+          });
         }
       });
     });
-  }
 
-  const [rfNodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [rfEdges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+    setNodes(newNodes);
+    setEdges(newEdges);
+  }, [nodes, loading, layoutMode, setNodes, setEdges]);
 
-  // Typewriter effect for insights
+  // Handle Search & Highlighting
   useEffect(() => {
-    if (showInsights) {
-      const text = "系统分析检测到订单 (Order) 节点的入度异常高，表明它是关键瓶颈。\n\n建议重点监控 订单 -> 履约 的延迟路径，当前交易量已超出基线 15%。\n\n风险评估：延迟传播的高概率风险。";
-      let i = 0;
-      setInsightText('');
-      const timer = setInterval(() => {
-        setInsightText(prev => prev + text.charAt(i));
-        i++;
-        if (i >= text.length) clearInterval(timer);
-      }, 30);
-      return () => clearInterval(timer);
-    }
-  }, [showInsights]);
+    setNodes(nds => nds.map(node => {
+      const isMatch = !searchQuery || node.data.label.toLowerCase().includes(searchQuery.toLowerCase());
+      
+      let isDimmed = !isMatch;
+      
+      // If a node is selected, override dimming logic to focus on 1-degree connections
+      if (selectedNodeId) {
+        if (node.id === selectedNodeId) {
+          isDimmed = false;
+        } else {
+          // Check if connected
+          const isConnected = rfEdges.some(e => 
+            (e.source === selectedNodeId && e.target === node.id) || 
+            (e.target === selectedNodeId && e.source === node.id)
+          );
+          isDimmed = !isConnected;
+        }
+      } else if (searchQuery) {
+        // If searching, dim non-matches
+        isDimmed = !isMatch;
+      } else {
+        // No selection, no search -> show all
+        isDimmed = false;
+      }
 
-  const onNodeDoubleClick = useCallback((event: React.MouseEvent, node: Node) => {
-    navigate(`/knowledge/explorer/${node.id}`);
-  }, [navigate]);
+      return {
+        ...node,
+        data: { ...node.data, dimmed: isDimmed }
+      };
+    }));
+
+    setEdges(eds => eds.map(edge => {
+      let isDimmed = false;
+      if (selectedNodeId) {
+        isDimmed = edge.source !== selectedNodeId && edge.target !== selectedNodeId;
+      } else if (searchQuery) {
+         // If searching, dim edges not connected to visible nodes
+         // (Simplified: just show all edges if no selection, or could verify source/target visibility)
+         const sourceVisible = rfNodes.find(n => n.id === edge.source)?.data.dimmed === false;
+         const targetVisible = rfNodes.find(n => n.id === edge.target)?.data.dimmed === false;
+         isDimmed = !(sourceVisible && targetVisible);
+      }
+      
+      return {
+        ...edge,
+        style: { 
+          ...edge.style, 
+          stroke: isDimmed ? '#e2e8f0' : '#94a3b8',
+          opacity: isDimmed ? 0.2 : 1 
+        },
+        labelStyle: {
+          ...edge.labelStyle,
+          opacity: isDimmed ? 0.2 : 1
+        }
+      };
+    }));
+  }, [searchQuery, selectedNodeId, rfEdges.length, setNodes, setEdges]); // rfEdges.length to trigger when edges are re-created
 
   const onNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
     setSelectedNodeId(node.id);
-    setSelectedEdge(null);
-    setSnapshotOpen(true);
-    if (pathMode) {
-      if (!pathStart) {
-        setPathStart(node.id);
-      } else if (!pathEnd && node.id !== pathStart) {
-        setPathEnd(node.id);
-      } else {
-        setPathStart(node.id);
-        setPathEnd(null);
-        setHighlightedEdgeIds(new Set());
-      }
-    }
-  }, [pathMode, pathStart, pathEnd]);
-
-  const onEdgeClick = useCallback((event: React.MouseEvent, edge: Edge) => {
-    setSelectedEdge(edge);
-    setSelectedNodeId(null);
-    setSnapshotOpen(true);
   }, []);
 
-  useEffect(() => {
-    if (pathStart && pathEnd) {
-      const adj: Record<string, string[]> = {};
-      nodes.forEach(n => { adj[n.id] = []; });
-      nodes.forEach(n => {
-        n.relations.forEach(rel => {
-          if (rel.direction === 'OUT') {
-            adj[n.id].push(rel.targetNodeType);
-          }
-        });
-      });
-      const queue: string[] = [pathStart];
-      const prev: Record<string, string | null> = {};
-      nodes.forEach(n => { prev[n.id] = null; });
-      const visited = new Set<string>([pathStart]);
-      while (queue.length > 0) {
-        const u = queue.shift() as string;
-        if (u === pathEnd) break;
-        adj[u].forEach(v => {
-          if (!visited.has(v)) {
-            visited.add(v);
-            prev[v] = u;
-            queue.push(v);
-          }
-        });
-      }
-      const path: string[] = [];
-      let cur: string | null = pathEnd;
-      while (cur) {
-        path.unshift(cur);
-        cur = prev[cur];
-      }
-      const edgeIds = new Set<string>();
-      for (let i = 0; i < path.length - 1; i++) {
-        const s = path[i];
-        const t = path[i + 1];
-        rfEdges.forEach(e => {
-          if (e.source === s && e.target === t) {
-            edgeIds.add(e.id);
-          }
-        });
-      }
-      setHighlightedEdgeIds(edgeIds);
-    } else {
-      setHighlightedEdgeIds(new Set());
-    }
-  }, [pathStart, pathEnd, nodes, rfEdges]);
+  const onPaneClick = useCallback(() => {
+    setSelectedNodeId(null);
+  }, []);
 
-  const applyFilters = useCallback(() => {
-    const filteredNodes = rfNodes.map(n => {
-      const nodeData = getNodeById(n.id);
-      const typeOk = typeFilter === 'all' || nodeData?.type === typeFilter;
-      const riskOk = riskFilter === 'all' || nodeData?.actions.some(a => a.riskLevel === 'High');
-      const searchOk = searchQuery.trim() === '' || (nodeData?.name.includes(searchQuery) || nodeData?.actions.some(a => a.label.includes(searchQuery)) || nodeData?.properties.some(p => p.name.includes(searchQuery)));
-      return { ...n, hidden: !(typeOk && riskOk && searchOk) };
-    });
-    const filteredEdges = rfEdges.map(e => {
-      const srcHidden = filteredNodes.find(n => n.id === e.source)?.hidden;
-      const tgtHidden = filteredNodes.find(n => n.id === e.target)?.hidden;
-      return { ...e, hidden: srcHidden || tgtHidden };
-    });
-    setNodes(filteredNodes);
-    setEdges(filteredEdges);
-  }, [rfNodes, rfEdges, typeFilter, riskFilter, searchQuery, getNodeById, setNodes, setEdges]);
+  const selectedNodeData = useMemo(() => {
+    if (!selectedNodeId) return null;
+    return getNodeById(selectedNodeId);
+  }, [selectedNodeId, getNodeById]);
 
-  useEffect(() => {
-    applyFilters();
-  }, [typeFilter, riskFilter, searchQuery]);
-
-  useEffect(() => {
-    if (impactSource) {
-      const impacted = new Set<string>();
-      const queue: string[] = [impactSource];
-      const visited = new Set<string>([impactSource]);
-      const adj: Record<string, string[]> = {};
-      nodes.forEach(n => { adj[n.id] = []; });
-      nodes.forEach(n => {
-        n.relations.forEach(rel => {
-          if (rel.direction === 'OUT') {
-            adj[n.id].push(rel.targetNodeType);
-          }
-        });
-      });
-      while (queue.length > 0) {
-        const u = queue.shift() as string;
-        adj[u].forEach(v => {
-          if (!visited.has(v)) {
-            visited.add(v);
-            impacted.add(v);
-            queue.push(v);
-          }
-        });
-      }
-      setImpactedNodeIds(impacted);
-    } else {
-      setImpactedNodeIds(new Set());
-    }
-  }, [impactSource, nodes]);
-
-  useEffect(() => {
-    const updatedNodes = rfNodes.map(n => {
-      return { ...n, data: { ...(n.data as any), impacted: impactedNodeIds.has(n.id) } };
-    });
-    setNodes(updatedNodes);
-  }, [impactedNodeIds]);
-
-  useEffect(() => {
-    const updatedEdges = rfEdges.map(e => {
-      const isHighlighted = highlightedEdgeIds.has(e.id);
-      const base = e.style || {};
-      const style = { ...base, stroke: isHighlighted ? '#3b82f6' : base.stroke, strokeWidth: isHighlighted ? 3 : base.strokeWidth };
-      return { ...e, style };
-    });
-    setEdges(updatedEdges);
-  }, [highlightedEdgeIds]);
-
-  useEffect(() => {
-    if (showInsights) {
-      const set = new Set<string>();
-      nodes.forEach(n => {
-        const deg = n.stats.inDegree + n.stats.outDegree;
-        if (deg === 0 || deg >= 3) {
-          set.add(n.id);
-        }
-      });
-      setImpactedNodeIds(set);
-    } else {
-      setImpactedNodeIds(new Set());
-    }
-  }, [showInsights, nodes]);
   if (loading) return <div className="h-full w-full flex items-center justify-center bg-gray-50 text-slate-400">正在加载图谱...</div>;
 
   return (
-    <div className="h-full w-full bg-gray-50 relative overflow-hidden rounded-xl border border-slate-200 shadow-sm">
+    <div className="h-full w-full bg-slate-50 relative overflow-hidden flex">
       
-      {/* Top Bar - Simplified for Embedded View */}
-      <div className="absolute top-4 right-4 z-10 pointer-events-auto flex gap-2">
-           <button 
-             onClick={() => setShowInsights(!showInsights)}
-             className="flex items-center gap-2 px-3 py-1.5 bg-white text-indigo-600 border border-indigo-100 rounded-lg shadow-sm hover:bg-indigo-50 transition-all text-xs font-medium"
-           >
-             <Sparkles className="w-3.5 h-3.5" />
-             AI 洞察
-           </button>
-      </div>
-      <div className="absolute top-4 left-4 z-10 pointer-events-auto flex items-center gap-2 bg-white/80 backdrop-blur-sm p-2 rounded-lg border border-slate-200">
-        <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value as any)} className="text-xs px-2 py-1 border rounded">
-          <option value="all">全部类型</option>
-          <option value="Master">Master</option>
-          <option value="Transaction">Transaction</option>
-          <option value="Result">Result</option>
-        </select>
-        <select value={riskFilter} onChange={(e) => setRiskFilter(e.target.value as any)} className="text-xs px-2 py-1 border rounded">
-          <option value="all">全部风险</option>
-          <option value="high">仅高风险</option>
-        </select>
-        <select value={layoutMode} onChange={(e) => setLayoutMode(e.target.value as any)} className="text-xs px-2 py-1 border rounded">
-          <option value="circular">环形布局</option>
-          <option value="hierarchical">层次布局</option>
-          <option value="free">自由布局</option>
-        </select>
-        <input placeholder="自然语言搜索…" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="text-xs px-2 py-1 border rounded w-40" />
-        <button onClick={() => setPathMode(!pathMode)} className={`text-xs px-2 py-1 rounded border ${pathMode ? 'bg-blue-500 text-white border-blue-500' : 'bg-white text-slate-700'}`}>路径模式</button>
-        <button onClick={() => setImpactSource(selectedNodeId)} className="text-xs px-2 py-1 rounded border bg-white">影响面</button>
-      </div>
+      {/* Main Canvas Area */}
+      <div className="flex-1 relative h-full">
+        {/* Top Toolbar */}
+        <div className="absolute top-4 left-4 right-4 z-10 pointer-events-none flex justify-between">
+           <div className="bg-white/90 backdrop-blur shadow-sm border border-slate-200 p-2 rounded-lg pointer-events-auto flex items-center gap-3">
+              <div className="relative">
+                <Search className="w-4 h-4 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                <input 
+                  placeholder="搜索对象名称..." 
+                  value={searchQuery} 
+                  onChange={(e) => setSearchQuery(e.target.value)} 
+                  className="pl-9 pr-3 py-1.5 text-sm border border-slate-200 rounded-md w-64 focus:outline-none focus:ring-2 focus:ring-blue-100" 
+                />
+              </div>
+              <div className="h-6 w-px bg-slate-200 mx-1"></div>
+              <div className="flex bg-slate-100 p-1 rounded-md">
+                <button 
+                  onClick={() => setLayoutMode('hierarchical')}
+                  className={`px-3 py-1 rounded text-xs font-medium transition-all ${layoutMode === 'hierarchical' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                >
+                  层级布局
+                </button>
+                <button 
+                  onClick={() => setLayoutMode('circular')}
+                  className={`px-3 py-1 rounded text-xs font-medium transition-all ${layoutMode === 'circular' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                >
+                  环形布局
+                </button>
+              </div>
+           </div>
+           
+           <div className="bg-white/90 backdrop-blur shadow-sm border border-slate-200 px-3 py-2 rounded-lg pointer-events-auto flex items-center gap-4 text-xs text-slate-600">
+              <div className="flex items-center gap-1.5">
+                <div className="w-2.5 h-2.5 rounded-full bg-blue-100 border border-blue-500"></div>
+                <span>Master</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <div className="w-2.5 h-2.5 rounded-full bg-purple-100 border border-purple-500"></div>
+                <span>Transaction</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <div className="w-2.5 h-2.5 rounded-full bg-green-100 border border-green-500"></div>
+                <span>Result</span>
+              </div>
+              <div className="h-4 w-px bg-slate-200 mx-1"></div>
+              <div className="flex items-center gap-1.5">
+                <div className="w-2.5 h-2.5 rounded-full border-2 border-red-500"></div>
+                <span>高风险对象</span>
+              </div>
+           </div>
+        </div>
 
-      {/* Graph Area */}
-      <ReactFlowProvider>
         <ReactFlow
           nodes={rfNodes}
           edges={rfEdges}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
-          onNodeDoubleClick={onNodeDoubleClick}
           onNodeClick={onNodeClick}
-          onEdgeClick={onEdgeClick}
+          onPaneClick={onPaneClick}
           nodeTypes={nodeTypes}
           fitView
           attributionPosition="bottom-left"
           className="bg-slate-50"
+          minZoom={0.1}
+          maxZoom={1.5}
         >
           <Background color="#cbd5e1" gap={20} size={1} />
           <Controls className="bg-white shadow-lg border-gray-200 rounded-lg overflow-hidden m-2" />
-          <MiniMap pannable zoomable className="bg-white/80 border border-slate-200 rounded-md m-2" />
+          <MiniMap 
+            pannable 
+            zoomable 
+            className="bg-white border border-slate-200 rounded-lg shadow-sm m-4 !w-32 !h-32" 
+            nodeColor={(node) => {
+              const type = node.data.type;
+              if (type === 'Master') return '#3b82f6';
+              if (type === 'Transaction') return '#a855f7';
+              if (type === 'Result') return '#22c55e';
+              return '#94a3b8';
+            }}
+          />
         </ReactFlow>
-      </ReactFlowProvider>
+      </div>
 
-      {/* AI Insights Drawer */}
+      {/* Right Snapshot Panel */}
       <AnimatePresence>
-        {showInsights && (
+        {selectedNodeId && selectedNodeData && (
           <motion.div
-            initial={{ x: '100%' }}
-            animate={{ x: 0 }}
-            exit={{ x: '100%' }}
-            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="absolute top-0 right-0 h-full w-80 bg-white shadow-xl z-20 border-l border-gray-200 flex flex-col"
+            initial={{ x: '100%', opacity: 0.5 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: '100%', opacity: 0 }}
+            transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+            className="w-80 h-full bg-white border-l border-slate-200 shadow-xl z-20 flex flex-col"
           >
-            <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-gradient-to-r from-indigo-50 to-white">
-              <div className="flex items-center gap-2 text-indigo-700 font-bold text-sm">
-                <Sparkles className="w-4 h-4" />
-                AI 分析
-              </div>
+            <div className="p-5 border-b border-slate-100 bg-slate-50/50">
+               <div className="flex items-start justify-between">
+                 <div>
+                   <h3 className="font-bold text-lg text-slate-900">{selectedNodeData.name}</h3>
+                   <span className={`inline-block mt-1 px-2 py-0.5 rounded text-xs font-medium ${
+                     TYPE_COLORS[selectedNodeData.type as keyof typeof TYPE_COLORS]?.badge || 'bg-slate-100 text-slate-600'
+                   }`}>
+                     {selectedNodeData.type}
+                   </span>
+                 </div>
+                 <button 
+                   onClick={() => setSelectedNodeId(null)}
+                   className="text-slate-400 hover:text-slate-600"
+                 >
+                   <Maximize2 className="w-4 h-4 rotate-45" /> {/* Use as close icon alternative or just standard close */}
+                 </button>
+               </div>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-5 space-y-6">
+               <div className="space-y-4">
+                 <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">概览统计</h4>
+                 <div className="grid grid-cols-2 gap-3">
+                    <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                      <div className="flex items-center gap-2 text-slate-500 mb-1">
+                        <Database className="w-3.5 h-3.5" />
+                        <span className="text-xs">核心属性</span>
+                      </div>
+                      <div className="text-xl font-bold text-slate-800">{selectedNodeData.properties.length}</div>
+                    </div>
+                    <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                      <div className="flex items-center gap-2 text-slate-500 mb-1">
+                        <Share2 className="w-3.5 h-3.5" />
+                        <span className="text-xs">关系定义</span>
+                      </div>
+                      <div className="text-xl font-bold text-slate-800">{selectedNodeData.relations.length}</div>
+                    </div>
+                    <div className="bg-slate-50 p-3 rounded-lg border border-slate-100 col-span-2">
+                      <div className="flex items-center gap-2 text-slate-500 mb-1">
+                        <Zap className="w-3.5 h-3.5" />
+                        <span className="text-xs">绑定动作</span>
+                      </div>
+                      <div className="text-xl font-bold text-slate-800">{selectedNodeData.actions.length}</div>
+                      {selectedNodeData.actions.some(a => a.riskLevel === 'High') && (
+                        <div className="mt-2 text-xs text-red-600 bg-red-50 px-2 py-1 rounded border border-red-100 flex items-center gap-1">
+                          <Info className="w-3 h-3" />
+                          存在高风险动作
+                        </div>
+                      )}
+                    </div>
+                 </div>
+               </div>
+
+               <div className="space-y-3">
+                  <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">关系摘要</h4>
+                  {selectedNodeData.relations.length === 0 ? (
+                    <div className="text-sm text-slate-400 italic">暂无关系定义</div>
+                  ) : (
+                    <div className="space-y-2">
+                      {selectedNodeData.relations.slice(0, 5).map((rel, i) => (
+                        <div key={i} className="flex items-center justify-between text-sm p-2 bg-slate-50 rounded border border-slate-100">
+                           <span className="font-mono text-xs text-blue-600 font-medium">{rel.semanticName}</span>
+                           <div className="flex items-center gap-1 text-slate-500 text-xs">
+                             <ArrowRight className="w-3 h-3" />
+                             <span>{rel.targetNodeType}</span>
+                           </div>
+                        </div>
+                      ))}
+                      {selectedNodeData.relations.length > 5 && (
+                        <div className="text-xs text-center text-slate-400">
+                          还有 {selectedNodeData.relations.length - 5} 条关系...
+                        </div>
+                      )}
+                    </div>
+                  )}
+               </div>
+            </div>
+
+            <div className="p-5 border-t border-slate-100 bg-slate-50/30">
               <button 
-                onClick={() => setShowInsights(false)}
-                className="p-1 rounded hover:bg-gray-100 text-gray-500 transition-colors"
+                onClick={() => navigate(`/knowledge/explorer/${selectedNodeId}`)}
+                className="w-full flex items-center justify-center gap-2 bg-white border border-slate-200 hover:border-blue-300 hover:text-blue-600 text-slate-700 py-2.5 rounded-lg transition-all shadow-sm font-medium text-sm"
               >
-                <X className="w-4 h-4" />
+                <Box className="w-4 h-4" />
+                进入对象详情
               </button>
-            </div>
-            
-            <div className="p-4 flex-1 overflow-y-auto bg-gray-50/50">
-              <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
-                <div className="flex items-center gap-2 mb-2 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
-                  <Activity className="w-3 h-3" />
-                  实时洞察
-                </div>
-                <p className="text-gray-800 leading-relaxed font-mono text-xs whitespace-pre-wrap">
-                  {insightText}
-                  <span className="inline-block w-1.5 h-3 bg-indigo-500 ml-1 animate-pulse align-middle"></span>
-                </p>
-              </div>
-
-              <div className="mt-4 space-y-2">
-                <h4 className="text-xs font-bold text-gray-900">推荐行动</h4>
-                
-                <div className="p-2 bg-white border border-gray-200 rounded-lg flex gap-2 hover:border-indigo-300 transition-colors cursor-pointer group">
-                  <div className="mt-0.5 p-1 bg-indigo-50 text-indigo-600 rounded">
-                    <Maximize2 className="w-3 h-3" />
-                  </div>
-                  <div>
-                    <div className="text-xs font-medium text-gray-900 group-hover:text-indigo-700">优化订单 Schema</div>
-                    <div className="text-[10px] text-gray-500 mt-0.5">为 'status' 字段添加索引</div>
-                  </div>
-                </div>
-
-                <div className="p-2 bg-white border border-gray-200 rounded-lg flex gap-2 hover:border-red-300 transition-colors cursor-pointer group">
-                   <div className="mt-0.5 p-1 bg-red-50 text-red-600 rounded">
-                    <AlertTriangle className="w-3 h-3" />
-                  </div>
-                  <div>
-                    <div className="text-xs font-medium text-gray-900 group-hover:text-red-700">审查风险规则</div>
-                    <div className="text-[10px] text-gray-500 mt-0.5">支付同步失败率较高</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-      <AnimatePresence>
-        {snapshotOpen && (
-          <motion.div
-            initial={{ x: '100%' }}
-            animate={{ x: 0 }}
-            exit={{ x: '100%' }}
-            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="absolute top-0 right-0 h-full w-96 bg-white shadow-xl z-20 border-l border-gray-200 flex flex-col"
-          >
-            <div className="p-4 border-b border-gray-100 flex items-center justify-between">
-              <div className="text-sm font-bold text-slate-800">对象快照</div>
-              <button onClick={() => setSnapshotOpen(false)} className="p-1 rounded hover:bg-gray-100 text-gray-500 transition-colors">
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-            <div className="p-4 flex-1 overflow-y-auto bg-gray-50/50">
-              {selectedNodeId && (() => {
-                const node = getNodeById(selectedNodeId) as KnowledgeNode;
-                const coreProps = node.properties.slice(0, 3);
-                const coreActions = node.actions.slice(0, 2);
-                const relCount = node.relations.length;
-                return (
-                  <div className="space-y-4">
-                    <div className="bg-white p-3 rounded-lg border">
-                      <div className="text-xs text-slate-500 mb-1">对象</div>
-                      <div className="text-sm font-bold text-slate-800">{node.name}</div>
-                      <div className="text-xs text-slate-500 mt-1">{node.type}</div>
-                    </div>
-                    <div className="bg-white p-3 rounded-lg border">
-                      <div className="text-xs font-semibold mb-2 text-slate-600">核心属性</div>
-                      <div className="space-y-1">
-                        {coreProps.map(p => (
-                          <div key={p.id} className="flex items-center justify-between text-xs">
-                            <span className="text-slate-700">{p.name}</span>
-                            <span className="text-slate-400">{p.type}</span>
-                          </div>
-                        ))}
-                        {coreProps.length === 0 && <div className="text-xs text-slate-400">暂无属性</div>}
-                      </div>
-                    </div>
-                    <div className="bg-white p-3 rounded-lg border">
-                      <div className="text-xs font-semibold mb-2 text-slate-600">关键动作</div>
-                      <div className="space-y-1">
-                        {coreActions.map(a => (
-                          <div key={a.name} className="flex items-center justify-between text-xs">
-                            <span className="text-slate-700">{a.label}</span>
-                            <span className={`px-1.5 py-0.5 rounded text-[10px] ${a.riskLevel === 'High' ? 'bg-red-100 text-red-700' : 'bg-slate-100 text-slate-600'}`}>{a.riskLevel}</span>
-                          </div>
-                        ))}
-                        {coreActions.length === 0 && <div className="text-xs text-slate-400">暂无动作</div>}
-                      </div>
-                    </div>
-                    <div className="bg-white p-3 rounded-lg border">
-                      <div className="text-xs font-semibold mb-2 text-slate-600">关系摘要</div>
-                      <div className="text-xs text-slate-700">连接了 {relCount} 个业务逻辑</div>
-                    </div>
-                    <div className="flex gap-2">
-                      <button onClick={() => navigate(`/knowledge/explorer/${node.id}`)} className="text-xs px-2 py-1 border rounded bg-white">进入详情</button>
-                      <button onClick={() => setImpactSource(node.id)} className="text-xs px-2 py-1 border rounded bg-white">影响面</button>
-                    </div>
-                  </div>
-                );
-              })()}
-              {selectedEdge && (() => {
-                const s = getNodeById(selectedEdge.source) as KnowledgeNode;
-                const t = getNodeById(selectedEdge.target) as KnowledgeNode;
-                return (
-                  <div className="space-y-4">
-                    <div className="bg-white p-3 rounded-lg border">
-                      <div className="text-xs font-semibold mb-2 text-slate-600">关系快照</div>
-                      <div className="text-xs text-slate-700">{s?.name} → {t?.name}</div>
-                      <div className="text-xs text-slate-500 mt-1">{selectedEdge.label}</div>
-                    </div>
-                    <div className="flex gap-2">
-                      <button onClick={() => { setPathMode(true); setPathStart(s.id); setPathEnd(t.id); }} className="text-xs px-2 py-1 border rounded bg-white">路径高亮</button>
-                    </div>
-                  </div>
-                );
-              })()}
             </div>
           </motion.div>
         )}
