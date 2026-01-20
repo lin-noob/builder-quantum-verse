@@ -16,7 +16,7 @@ import ReactFlow, {
   EdgeLabelRenderer,
 } from "reactflow";
 import "reactflow/dist/style.css";
-import { KnowledgeRelation, RelationDirection } from "../../types/knowledge";
+import { KnowledgeRelation, RelationDirection } from "../../types/Knowledge";
 import { Button } from "@/components/ui/button";
 import { Plus, X, Settings } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";

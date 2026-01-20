@@ -22,7 +22,7 @@ import {
 import { useParams, useNavigate } from "react-router-dom";
 import RelationGraphEditor from "./RelationGraphEditor";
 import { useKnowledge } from "../../contexts/KnowledgeContext";
-import { PropSource, KnowledgeNode, KnowledgeNodeType } from "../../types/knowledge";
+import { PropSource, KnowledgeNode, KnowledgeNodeType } from "../../types/Knowledge";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -31,7 +31,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Request } from "@/lib/request";
-import { RiskLevel } from "../../types/knowledge";
+import { RiskLevel } from "../../types/Knowledge";
 import { useToast } from "@/hooks/use-toast";
 import {
   AlertDialog,
@@ -146,7 +146,7 @@ const NodeDetailsPage: React.FC = () => {
   if (error || !node) return <div className="p-10 text-center text-red-500">未找到节点或加载数据错误。</div>;
 
   const handleEditObject = () => {
-    navigate("/knowledge/editor", { state: { initialData: node } });
+    navigate("/Knowledge/editor", { state: { initialData: node } });
   };
 
   const handleDelete = async () => {
@@ -163,7 +163,7 @@ const NodeDetailsPage: React.FC = () => {
           title: "成功",
           description: "对象已成功删除",
         });
-        navigate("/knowledge/explorer");
+        navigate("/Knowledge/explorer");
       } else {
         toast({
           title: "删除失败",

@@ -1,7 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Box, Share2, Zap, GitMerge, AlertCircle } from "lucide-react";
-import { KnowledgeNode, KnowledgeNodeType } from "../../types/knowledge";
+import { KnowledgeNode, KnowledgeNodeType } from "../../types/Knowledge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
 

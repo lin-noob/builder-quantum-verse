@@ -2,18 +2,12 @@ import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Plus, PackageOpen, LayoutGrid, Network, Activity, GitGraph } from "lucide-react";
-import ObjectCard from "../../components/knowledge/ObjectCard";
-import { KnowledgeNodeType, KnowledgeNode, PropSource, RiskLevel } from "../../types/knowledge";
+import ObjectCard from "../../components/Knowledge/ObjectCard";
+import { KnowledgeNodeType, KnowledgeNode, PropSource, RiskLevel } from "../../types/Knowledge";
 import { Button } from "@/components/ui/button";
 import { Request } from "@/lib/request";
 import { useDebounce } from "@/hooks/useDebounce";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 type SortOption = "popularity" | "complexity";
 type RiskFilterOption = "all" | "high" | "low";
@@ -165,11 +159,11 @@ const ExplorerPage: React.FC = () => {
   }, [nodes, searchQuery, selectedType, riskFilter, sortBy]);
 
   const handleCardClick = (id: string | number) => {
-    navigate(`/knowledge/explorer/${id}`);
+    navigate(`/Knowledge/explorer/${id}`);
   };
 
   const handleCreateObject = () => {
-    navigate("/knowledge/editor");
+    navigate("/Knowledge/editor");
   };
 
   if (loading) {
@@ -245,7 +239,9 @@ const ExplorerPage: React.FC = () => {
             </div>
             <p className="text-slate-500 text-sm font-medium flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
-              {activeTab === "objects" ? "浏览并分析企业知识对象及其结构关系。" : "可视化查看对象间的拓扑关系与风险传播"}
+              {activeTab === "objects"
+                ? "浏览并分析企业知识对象及其结构关系。"
+                : "可视化查看对象间的拓扑关系与风险传播"}
             </p>
           </div>
 

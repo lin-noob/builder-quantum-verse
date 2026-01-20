@@ -81,11 +81,11 @@ const BusinessModelEditor = React.lazy(() => import("@/pages/BusinessModelEditor
 // const PagePerformance = React.lazy(() => import("@/pages/PagePerformance"));
 
 // 知识库页面组件
-const NodeDetailsPage = React.lazy(() => import("@/pages/knowledge/NodeDetailsPage"));
-const GraphGlobalView = React.lazy(() => import("@/pages/knowledge/GraphGlobalView"));
-const ExplorerPage = React.lazy(() => import("@/pages/knowledge/ExplorerPage"));
+const NodeDetailsPage = React.lazy(() => import("@/pages/Knowledge/NodeDetailsPage"));
+const GraphGlobalView = React.lazy(() => import("@/pages/Knowledge/GraphGlobalView"));
+const ExplorerPage = React.lazy(() => import("@/pages/Knowledge/ExplorerPage"));
 
-const KnowledgeObjectEditor = React.lazy(() => import("@/pages/knowledge/KnowledgeObjectEditor"));
+const KnowledgeObjectEditor = React.lazy(() => import("@/pages/Knowledge/KnowledgeObjectEditor"));
 
 // LazyRoute 包装组件
 const LazyRoute: React.FC<{
@@ -686,7 +686,7 @@ export const staticRoutes: RouteObject[] = [
     ),
   },
   {
-    path: "/knowledge/explorer",
+    path: "/Knowledge/explorer",
     element: (
       <Layout>
         <LazyRoute>
@@ -696,7 +696,7 @@ export const staticRoutes: RouteObject[] = [
     ),
   },
   {
-    path: "/knowledge/explorer/:id",
+    path: "/Knowledge/explorer/:id",
     element: (
       <Layout>
         <LazyRoute>
@@ -706,7 +706,7 @@ export const staticRoutes: RouteObject[] = [
     ),
   },
   {
-    path: "/knowledge/editor",
+    path: "/Knowledge/editor",
     element: (
       <Layout>
         <LazyRoute>
@@ -716,7 +716,7 @@ export const staticRoutes: RouteObject[] = [
     ),
   },
   {
-    path: "/knowledge/graph",
+    path: "/Knowledge/graph",
     element: (
       <Layout>
         <LazyRoute>

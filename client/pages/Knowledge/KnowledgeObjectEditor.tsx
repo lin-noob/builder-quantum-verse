@@ -29,7 +29,7 @@ import {
   RiskLevel,
   RelationDirection,
   KnowledgeRelation,
-} from "../../types/knowledge";
+} from "../../types/Knowledge";
 import RelationGraphEditor from "./RelationGraphEditor";
 import { Request } from "@/lib/request";
 import useProjectStore from "@/stores/projectStore";
@@ -218,7 +218,7 @@ const KnowledgeObjectEditor: React.FC = () => {
           title: "成功",
           description: isEditing ? "更新成功" : "创建成功",
         });
-        navigate("/knowledge/explorer");
+        navigate("/Knowledge/explorer");
       } else {
         toast({
           title: "失败",
