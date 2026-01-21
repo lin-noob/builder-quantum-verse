@@ -624,7 +624,7 @@ export default function AttributionReport() {
                     setDateRange({ start: null, end: null });
                   }
                 }}
-                placeholder={["开��日期", "结束日期"]}
+                placeholder={["开始日期", "结束日期"]}
                 popupStyle={{
                   zIndex: 1050,
                 }}
