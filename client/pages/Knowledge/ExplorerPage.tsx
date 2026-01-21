@@ -246,28 +246,32 @@ const ExplorerPage: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-3">
-            <Select value={selectedType} onValueChange={(value: any) => setSelectedType(value)}>
-              <SelectTrigger className="w-[130px] bg-white border-slate-200 shadow-sm">
-                <SelectValue placeholder="筛选类型" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="All">全部类型</SelectItem>
-                <SelectItem value="Master">主数据</SelectItem>
-                <SelectItem value="Transaction">交易数据</SelectItem>
-                <SelectItem value="Result">结果数据</SelectItem>
-              </SelectContent>
-            </Select>
+            {activeTab === "objects" && (
+              <>
+                <Select value={selectedType} onValueChange={(value: any) => setSelectedType(value)}>
+                  <SelectTrigger className="w-[130px] bg-white border-slate-200 shadow-sm">
+                    <SelectValue placeholder="筛选类型" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="All">全部类型</SelectItem>
+                    <SelectItem value="Master">主数据</SelectItem>
+                    <SelectItem value="Transaction">交易数据</SelectItem>
+                    <SelectItem value="Result">结果数据</SelectItem>
+                  </SelectContent>
+                </Select>
 
-            <div className="relative group">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4 group-focus-within:text-blue-500 transition-colors" />
-              <input
-                type="text"
-                placeholder="搜索对象..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-lg text-sm w-64 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 outline-none transition-all shadow-sm"
-              />
-            </div>
+                <div className="relative group">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4 group-focus-within:text-blue-500 transition-colors" />
+                  <input
+                    type="text"
+                    placeholder="搜索对象..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-lg text-sm w-64 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 outline-none transition-all shadow-sm"
+                  />
+                </div>
+              </>
+            )}
             <Button onClick={handleCreateObject} className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm">
               <Plus className="h-4 w-4 mr-2" />
               新建对象
