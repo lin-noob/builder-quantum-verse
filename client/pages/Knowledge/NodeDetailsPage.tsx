@@ -376,7 +376,7 @@ const NodeDetailsPage: React.FC = () => {
                           </div>
 
                           {/* Stats Panel */}
-                          <div className="col-span-4 bg-slate-50 rounded-lg p-5 border border-slate-100 flex flex-col justify-between">
+                          {/* <div className="col-span-4 bg-slate-50 rounded-lg p-5 border border-slate-100 flex flex-col justify-between">
                             <div>
                               <h4 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
                                 <Calculator className="w-4 h-4 text-blue-600" /> 数据统计
@@ -406,7 +406,7 @@ const NodeDetailsPage: React.FC = () => {
                                 <span>版本: v1.0.2</span>
                               </div>
                             </div>
-                          </div>
+                          </div> */}
                         </div>
                       </section>
                     </div>
