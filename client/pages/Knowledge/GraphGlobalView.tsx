@@ -17,10 +17,10 @@ import "reactflow/dist/style.css";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Search, Layout, GitGraph, Box, Share2, Zap, ArrowRightCircle, AlertTriangle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useKnowledge } from "../../contexts/KnowledgeContext";
 import { KnowledgeNodeType } from "../../types/Knowledge";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Request } from "@/lib/request";
 
 // --- Visual Constants ---
 const TYPE_COLORS = {
@@ -197,7 +197,6 @@ const getCircularLayoutElements = (nodes: Node[], edges: Edge[]) => {
 
 const GraphGlobalView: React.FC = () => {
   const navigate = useNavigate();
-  const { nodes: rawNodes, loading, getNodeById } = useKnowledge();
 
   const [rfNodes, setNodes, onNodesChange] = useNodesState([]);
   const [rfEdges, setEdges, onEdgesChange] = useEdgesState([]);
@@ -205,45 +204,71 @@ const GraphGlobalView: React.FC = () => {
   const [layoutMode, setLayoutMode] = useState<"hierarchical" | "circular">("hierarchical");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+  const [apiData, setApiData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch digital list view data
+  useEffect(() => {
+    const fetchDigitalListView = async () => {
+      const request = new Request();
+      try {
+        setLoading(true);
+        const response = await request.request("/quote/api/v1/digital/list/view", { method: "GET" });
+        if (response.status === 200 && response.data.data) {
+          setApiData(response.data.data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch digital list view:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDigitalListView();
+  }, []);
 
   // Initialize Graph Data
   useEffect(() => {
-    if (loading || rawNodes.length === 0) return;
+    if (loading || apiData.length === 0) return;
 
-    const initialNodes: Node[] = rawNodes.map((n) => ({
-      id: n.id,
+    // Map API data to nodes
+    const initialNodes: Node[] = apiData.map((item) => ({
+      id: item.id,
       type: "custom",
       position: { x: 0, y: 0 }, // Will be set by layout
       data: {
-        label: n.name,
-        type: n.type,
-        risk: n.actions.some((a) => a.riskLevel === "High"),
+        label: item.objectName,
+        type: getNodeType(item.modelType),
+        risk: false, // Can be determined based on actions if needed
         stats: {
-          relationCount: n.relationCount || n.relations.length,
-          actionCount: n.actionCount || n.actions.length,
+          relationCount: item.relationCount || 0,
+          actionCount: item.actionCount || 0,
         },
       },
     }));
 
+    // Build edges from relations
     const initialEdges: Edge[] = [];
-    rawNodes.forEach((source) => {
-      source.relations.forEach((rel, idx) => {
-        // Ensure target exists
-        const targetExists = rawNodes.find((n) => n.id === rel.targetNodeType);
-        if (targetExists) {
-          initialEdges.push({
-            id: `e-${source.id}-${rel.targetNodeType}-${idx}`,
-            source: source.id,
-            target: rel.targetNodeType,
-            label: rel.semanticName,
-            type: "smoothstep", // Better for hierarchical
-            animated: false,
-            style: { stroke: "#94a3b8", strokeWidth: 1.5 },
-            labelStyle: { fill: "#475569", fontWeight: 600, fontSize: 10 },
-            markerEnd: { type: MarkerType.ArrowClosed, color: "#94a3b8" },
-          });
-        }
-      });
+    apiData.forEach((source) => {
+      if (source.relations && Array.isArray(source.relations)) {
+        source.relations.forEach((rel: any, idx: number) => {
+          // Ensure target exists - using targetType field from API
+          const targetExists = apiData.find((n) => n.id === rel.targetType);
+          if (targetExists) {
+            initialEdges.push({
+              id: `e-${source.id}-${rel.targetType}-${idx}`,
+              source: source.id,
+              target: rel.targetType,
+              label: rel.relationName,
+              type: "smoothstep",
+              animated: false,
+              style: { stroke: "#94a3b8", strokeWidth: 1.5 },
+              labelStyle: { fill: "#475569", fontWeight: 600, fontSize: 10 },
+              markerEnd: { type: MarkerType.ArrowClosed, color: "#94a3b8" },
+            });
+          } else {
+          }
+        });
+      }
     });
 
     let layouted;
@@ -255,7 +280,40 @@ const GraphGlobalView: React.FC = () => {
 
     setNodes(layouted.nodes);
     setEdges(layouted.edges);
-  }, [rawNodes, loading, layoutMode]);
+  }, [apiData, loading, layoutMode]);
+
+  // Helper function to map modelType to KnowledgeNodeType
+  const getNodeType = (modelType: number): KnowledgeNodeType => {
+    switch (modelType) {
+      case 1:
+        return "Master";
+      case 2:
+        return "Transaction";
+      case 3:
+        return "Result";
+      default:
+        return "Master";
+    }
+  };
+
+  // Get node data by ID from API data
+  const getNodeById = (id: string) => {
+    const node = apiData.find((n) => n.id === id);
+    if (!node) return null;
+
+    return {
+      id: node.id,
+      name: node.objectName,
+      type: getNodeType(node.modelType),
+      description: node.description || "",
+      properties: node.attributes || [],
+      relations: node.relations || [],
+      actions: node.actions || [],
+      attributeCount: node.attributeCount,
+      relationCount: node.relationCount,
+      actionCount: node.actionCount,
+    };
+  };
 
   // Search Filter Effect (Highlighting)
   useEffect(() => {
