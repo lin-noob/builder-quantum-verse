@@ -20,6 +20,7 @@ import {
   Eye,
   EyeOff,
   AlertTriangle,
+  Bot,
 } from "lucide-react";
 import {
   Member,
@@ -31,6 +32,7 @@ import {
 import { memberApi } from "../../../shared/organizationApi";
 import { getCurrentUserInfo } from "@/services/userService.ts";
 import EmailConfigInner from "@/pages/Account/EmailConfigInner";
+import ModelSettings from "@/pages/Account/ModelSettings";
 
 const AdminProfile = () => {
   const [member, setMember] = useState<Member | null>(null);
@@ -284,11 +286,12 @@ const AdminProfile = () => {
       </div>
 
       <Tabs defaultValue="profile" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="profile">个人信息</TabsTrigger>
           <TabsTrigger value="security">安全设置</TabsTrigger>
           <TabsTrigger value="account">账户信息</TabsTrigger>
           <TabsTrigger value="email">邮箱配置</TabsTrigger>
+          <TabsTrigger value="model-settings">大模型配置</TabsTrigger>
         </TabsList>
 
         {/* 个人信息标签页 */}
@@ -654,6 +657,20 @@ const AdminProfile = () => {
 
         <TabsContent value="email" className="space-y-6">
           <EmailConfigInner />
+        </TabsContent>
+
+        <TabsContent value="model-settings" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Bot className="h-5 w-5" />
+                大模型配置
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ModelSettings />
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
     </div>
