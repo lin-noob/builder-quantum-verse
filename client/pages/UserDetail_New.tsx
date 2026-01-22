@@ -17,6 +17,7 @@ import { toast } from "@/hooks/use-toast";
 import { getDaysBetween } from "@/lib/utils";
 import useProjectStore from "@/stores/projectStore";
 import { useRoleStore } from "@/stores";
+import { MockDataService } from "@/services/mockDataService";
 // 添加用于日期格式化的工具函数
 import { formatDateYMD } from "@/lib/utils";
 // 引入事件类型以计算会话/转化/活跃指标
@@ -100,6 +101,35 @@ export default function UserDetail() {
       try {
         // 检查 currentProject ���否存在或 id 是否为空
         if (!currentProject || !currentProject.id) {
+          // 尝试获取模拟数据
+          const mockUser = await MockDataService.getUserById(cdpId);
+          if (mockUser) {
+            setApiUser({
+              distinctId: mockUser.userId,
+              userId: mockUser.userId,
+              cdpUserId: Number(mockUser.cdpId.replace(/\D/g, "")) || 0,
+              fullName: mockUser.name,
+              contactInfo: mockUser.contact,
+              companyName: mockUser.company,
+              signTime: mockUser.registrationTime,
+              createGmt: mockUser.firstVisitTime,
+              minBuyTime: mockUser.firstPurchaseTime,
+              maxBuyTime: mockUser.lastActiveTime,
+              maxOrderAmount: 0,
+              totalOrders: mockUser.totalSpent,
+              orderCount: Math.floor(mockUser.totalSpent / 100),
+              loginDate: mockUser.lastActiveTime,
+              location: "Unknown/Unknown",
+              shopid: "",
+              currencySymbol: mockUser.currency,
+              sessionId: "",
+              sessionTotal: 0,
+              pageViewTotal: 0,
+            } as ApiUser);
+            if (mounted) setLoading(false);
+            return;
+          }
+
           setError(t("userDetail.error.selectProject"));
           return;
         }
@@ -157,6 +187,7 @@ export default function UserDetail() {
       currency: apiUser.currencySymbol,
       firstVisitSource: apiUser.firstVisitSource || "",
       firstVisitMedium: apiUser.firstVisitMedium || "",
+      firstReferrer: apiUser.firstReferrer || "",
       ltv90Days: apiUser.ltv90Days ?? 0,
       tags: [],
       sessions: [],
@@ -741,6 +772,23 @@ export default function UserDetail() {
                                   <td className="px-4 py-3 text-sm text-gray-900 bg-gray-50">最后活跃时间</td>
                                   <td className="px-4 py-3 text-sm text-gray-900">{user.lastActiveTime || "-"}</td>
                                 </tr>
+                                <tr>
+                                  <td className="px-4 py-3 text-sm text-gray-900 bg-gray-50">首访页面链接</td>
+                                  <td className="px-4 py-3 text-sm text-gray-900" colSpan={3}>
+                                    {user.firstReferrer ? (
+                                      <a 
+                                        href={user.firstReferrer.startsWith('http') ? user.firstReferrer : `http://${user.firstReferrer}`} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer" 
+                                        className="text-blue-600 hover:underline break-all"
+                                      >
+                                        {user.firstReferrer}
+                                      </a>
+                                    ) : (
+                                      "-"
+                                    )}
+                                  </td>
+                                </tr>
                               </tbody>
                             </table>
                           </div>
@@ -835,13 +883,8 @@ export default function UserDetail() {
                                   <td className="px-4 py-3 text-sm text-gray-900">
                                     {user?.userEngagement?.sessionCount30d ?? 0}
                                   </td>
-                                  <td className="px-4 py-3 text-sm text-gray-900 bg-gray-50">
-                                    跳出率
-                                    <TooltipIcon text="只浏览一个页面就离开的会话占比" />
-                                  </td>
-                                  <td className="px-4 py-3 text-sm text-gray-900">
-                                    {user?.userEngagement?.bounceRate30d ?? 0}%
-                                  </td>
+                                  <td className="px-4 py-3 text-sm text-gray-900 bg-gray-50"></td>
+                                  <td className="px-4 py-3 text-sm text-gray-900"></td>
                                 </tr>
                                 <tr>
                                   <td className="px-4 py-3 text-sm text-gray-900 bg-gray-50">
@@ -881,77 +924,7 @@ export default function UserDetail() {
                         </div>
                       </div>
 
-                      {/* 转化相关表格 */}
-                      <div className="mb-6">
-                        <hr className="border-gray-200 mb-4" />
-                        <h3 className="text-sm font-semibold text-gray-900 mb-3">转化相关</h3>
-                        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-                          <div className="overflow-x-auto">
-                            <table className="min-w-full table-fixed">
-                              <colgroup>
-                                <col className="w-1/4" />
-                                <col className="w-1/4" />
-                                <col className="w-1/4" />
-                                <col className="w-1/4" />
-                              </colgroup>
-                              <tbody className="divide-y divide-gray-200">
-                                {hasPermission("user.amountspent") && (
-                                  <tr>
-                                    <td className="px-4 py-3 text-sm text-gray-900 bg-gray-50">总消费金额</td>
-                                    <td className="px-4 py-3 text-sm text-gray-900">
-                                      {formatWithSymbol(user.totalSpent, user.currency)}
-                                    </td>
-                                    <td className="px-4 py-3 text-sm text-gray-900 bg-gray-50">总订单数</td>
-                                    <td className="px-4 py-3 text-sm text-gray-900">{user.totalOrders}</td>
-                                  </tr>
-                                )}
-                                <tr>
-                                  <td className="px-4 py-3 text-sm text-gray-900 bg-gray-50">平均订单价值</td>
-                                  <td className="px-4 py-3 text-sm text-gray-900">
-                                    {formatWithSymbol(user.averageOrderValue, user.currency)}
-                                  </td>
-                                  <td className="px-4 py-3 text-sm text-gray-900 bg-gray-50">最后购买时间</td>
-                                  <td className="px-4 py-3 text-sm text-gray-900">{user.lastPurchaseDate}</td>
-                                </tr>
-                                <tr>
-                                  {/* <td className="px-4 py-3 text-sm text-gray-900 bg-gray-50">
-                                    90天LTV
-                                    <TooltipIcon text="最近90天的生命周期总价值（下单金额总和）" />
-                                  </td>
-                                  <td className="px-4 py-3 text-sm text-gray-900">
-                                    {formatWithSymbol(user.ltv90Days ?? 0, user.currency)}
-                                  </td> */}
-                                  {/* <td className="px-4 py-3 text-sm text-gray-900 bg-gray-50">近30天下单次数</td>
-                                  <td className="px-4 py-3 text-sm text-gray-900">{ordersCount30d}</td> */}
-                                </tr>
-                                {/* <tr>
-                                  <td className="px-4 py-3 text-sm text-gray-900 bg-gray-50">近30天订单金额</td>
-                                  <td className="px-4 py-3 text-sm text-gray-900">
-                                    {formatWithSymbol(ordersAmount30d, user.currency)}
-                                  </td>
-                                  <td className="px-4 py-3 text-sm text-gray-900 bg-gray-50">
-                                    近30天AOV
-                                    <TooltipIcon text="最近30天内每笔订单的平均金额" />
-                                  </td>
-                                  <td className="px-4 py-3 text-sm text-gray-900">
-                                    {formatWithSymbol(aov30d, user.currency)}
-                                  </td>
-                                </tr>
-                                <tr>
-                                  <td className="px-4 py-3 text-sm text-gray-900 bg-gray-50">
-                                    下单转化率（事件/订单）
-                                  </td>
-                                  <td className="px-4 py-3 text-sm text-gray-900">
-                                    {isFinite(conversionRate30d) ? `${conversionRate30d}%` : "-"}
-                                  </td>
-                                  <td className="px-4 py-3 text-sm text-gray-900 bg-gray-50"></td>
-                                  <td className="px-4 py-3 text-sm text-gray-900"></td>
-                                </tr> */}
-                              </tbody>
-                            </table>
-                          </div>
-                        </div>
-                      </div>
+
                     </TabsContent>
 
                     <TabsContent value="timeline" className="space-y-6">

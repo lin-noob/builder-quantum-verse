@@ -144,6 +144,7 @@ export interface ApiUser extends UserProfile {
   };
   sessionTotal: number;
   pageViewTotal: number;
+  ltv90Days?: number;
 }
 
 interface UserProfile {
@@ -173,6 +174,7 @@ interface UserProfile {
   _kx?: string;
 
   firstVisitSource?: string;
+  firstVisitMedium?: string;
   firstReferrer?: string;
 }
 
