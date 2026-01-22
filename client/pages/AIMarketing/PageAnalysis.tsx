@@ -8,6 +8,7 @@ import { ExternalLink, Sparkles, AlertTriangle, CheckCircle2, Circle, TrendingUp
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import dayjs from "dayjs";
 import { DatePicker, Slider, Table } from "antd";
+import HeatmapOverlay, { HeatmapPoint } from "@/components/HeatmapOverlay";
 
 import { request } from "@/lib/request";
 import {
@@ -32,12 +33,6 @@ interface PageMetric {
   aiScore: string | number | null;
   aiSuggestion: string | null;
   aiDiagnosis: string | null;
-}
-
-interface HeatmapPoint {
-  x: number;
-  y: number;
-  value: number;
 }
 
 const chartData = [
@@ -126,6 +121,22 @@ export default function PageAnalysis() {
   const [loadingStep, setLoadingStep] = useState(0);
   const [scale, setScale] = useState(0.3);
   const [heatmapPoints, setHeatmapPoints] = useState<HeatmapPoint[]>([]);
+  const [iframeLoaded, setIframeLoaded] = useState(false);
+  const [viewport, setViewport] = useState<{
+    width: number;
+    height: number;
+    scrollX: number;
+    scrollY: number;
+    documentWidth: number;
+    documentHeight: number;
+  }>({
+    width: 1920,
+    height: 1080,
+    scrollX: 0,
+    scrollY: 0,
+    documentWidth: 1920,
+    documentHeight: 1080,
+  });
 
   // Pagination and Data State
   const [data, setData] = useState<PageMetric[]>([]);
@@ -276,81 +287,702 @@ export default function PageAnalysis() {
       }, 800);
       return () => clearTimeout(timer);
     }
-
-    if (isSheetOpen && loadingStep === loadingSteps.length) {
-      // Only request once when loading finishes
-      const timer = setTimeout(() => {
-        iframe.current = document.getElementById("myIframe") as HTMLIFrameElement;
-        if (iframe.current) {
-          requestElementPosition([
-            {
-              tag_name: "span",
-              nth_child: 1,
-              nth_of_type: 1,
-              $el_text: "Explore Now",
-            },
-            {
-              tag_name: "button",
-              $el_text: "Explore Now",
-              classes: ["ant-btn", "css-dev-only-do-not-override-16d607q", "ant-btn-primary"],
-              attr__type: "button",
-              attr__class: "ant-btn css-dev-only-do-not-override-16d607q ant-btn-primary",
-              nth_child: 1,
-              nth_of_type: 1,
-            },
-            {
-              tag_name: "div",
-              classes: ["Header_btn__zJNkB"],
-              attr__class: "Header_btn__zJNkB",
-              nth_child: 3,
-              nth_of_type: 1,
-            },
-            {
-              tag_name: "div",
-              classes: ["Header_content__ozzI5"],
-              attr__class: "Header_content__ozzI5",
-              nth_child: 1,
-              nth_of_type: 1,
-            },
-            {
-              tag_name: "div",
-              classes: ["Header_header__VSk7f"],
-              attr__class: "Header_header__VSk7f",
-              nth_child: 1,
-              nth_of_type: 1,
-            },
-            {
-              tag_name: "section",
-              classes: ["Main_main__tu3Ga"],
-              attr__class: "Main_main__tu3Ga",
-              nth_child: 1,
-              nth_of_type: 1,
-            },
-            {
-              tag_name: "section",
-              classes: ["page_main__nw1Wk"],
-              attr__class: "page_main__nw1Wk",
-              nth_child: 2,
-              nth_of_type: 1,
-            },
-            {
-              tag_name: "body",
-              "attr__data-hash": "922142f",
-              nth_child: 10,
-              nth_of_type: 1,
-            },
-          ]);
-        }
-      }, 5000);
-    }
   }, [isSheetOpen, loadingStep]);
+
+  // 当 iframe 加载完成且 loading 步骤完成时，发送请求
+  useEffect(() => {
+    if (isSheetOpen && loadingStep === loadingSteps.length && iframeLoaded) {
+      iframe.current = document.getElementById("myIframe") as HTMLIFrameElement;
+      if (iframe.current) {
+        requestElementPosition([
+          {
+            tag_name: "span",
+            nth_child: 1,
+            nth_of_type: 1,
+            $el_text: "Explore Now",
+          },
+          {
+            tag_name: "button",
+            $el_text: "Explore Now",
+            classes: ["ant-btn", "css-dev-only-do-not-override-16d607q", "ant-btn-primary"],
+            attr__type: "button",
+            attr__class: "ant-btn css-dev-only-do-not-override-16d607q ant-btn-primary",
+            nth_child: 1,
+            nth_of_type: 1,
+          },
+          {
+            tag_name: "div",
+            classes: ["Header_btn__zJNkB"],
+            attr__class: "Header_btn__zJNkB",
+            nth_child: 3,
+            nth_of_type: 1,
+          },
+          {
+            tag_name: "div",
+            classes: ["Header_content__ozzI5"],
+            attr__class: "Header_content__ozzI5",
+            nth_child: 1,
+            nth_of_type: 1,
+          },
+          {
+            tag_name: "div",
+            classes: ["Header_header__VSk7f"],
+            attr__class: "Header_header__VSk7f",
+            nth_child: 1,
+            nth_of_type: 1,
+          },
+          {
+            tag_name: "section",
+            classes: ["Main_main__tu3Ga"],
+            attr__class: "Main_main__tu3Ga",
+            nth_child: 1,
+            nth_of_type: 1,
+          },
+          {
+            tag_name: "section",
+            classes: ["page_main__nw1Wk"],
+            attr__class: "page_main__nw1Wk",
+            nth_child: 2,
+            nth_of_type: 1,
+          },
+          {
+            tag_name: "body",
+            "attr__data-hash": "922142f",
+            nth_child: 10,
+            nth_of_type: 1,
+          },
+        ]);
+        requestElementPosition([
+          {
+            tag_name: "img",
+            attr__alt: "LD09S33E4GV00LF",
+            attr__loading: "lazy",
+            attr__width: "232",
+            attr__height: "232",
+            attr__decoding: "async",
+            "attr__data-nimg": "1",
+            attr__style: "color:transparent",
+            attr__src: "/home/pop1.png",
+            nth_child: 1,
+            nth_of_type: 1,
+            $el_text: "",
+            attr__href: "/product-detail/LD09S33E4GV00LF-Amphenol-500001413",
+          },
+          {
+            tag_name: "a",
+            $el_text: "",
+            attr__href: "/product-detail/LD09S33E4GV00LF-Amphenol-500001413",
+            nth_child: 1,
+            nth_of_type: 1,
+          },
+          {
+            tag_name: "div",
+            classes: ["EcartCard_img-content__WiKHf"],
+            attr__class: "EcartCard_img-content__WiKHf",
+            nth_child: 2,
+            nth_of_type: 2,
+          },
+          {
+            tag_name: "div",
+            classes: ["EcartCard_card__N_szG"],
+            attr__class: "EcartCard_card__N_szG",
+            nth_child: 1,
+            nth_of_type: 1,
+          },
+          {
+            tag_name: "div",
+            classes: ["Product_card__TBkqv"],
+            attr__class: "Product_card__TBkqv",
+            nth_child: 2,
+            nth_of_type: 2,
+          },
+          {
+            tag_name: "div",
+            classes: ["Product_popular_content__nSqJc"],
+            attr__class: "Product_popular_content__nSqJc",
+            nth_child: 2,
+            nth_of_type: 2,
+          },
+          {
+            tag_name: "div",
+            classes: ["Product_popular__xlW6y"],
+            attr__class: "Product_popular__xlW6y",
+            nth_child: 1,
+            nth_of_type: 1,
+          },
+          {
+            tag_name: "div",
+            classes: ["Product_container__ocwku"],
+            attr__class: "Product_container__ocwku",
+            nth_child: 1,
+            nth_of_type: 1,
+          },
+          {
+            tag_name: "div",
+            classes: ["Main_container__L_Kjq"],
+            attr__class: "Main_container__L_Kjq",
+            nth_child: 2,
+            nth_of_type: 2,
+          },
+          {
+            tag_name: "section",
+            classes: ["Main_main__tu3Ga"],
+            attr__class: "Main_main__tu3Ga",
+            nth_child: 1,
+            nth_of_type: 1,
+          },
+          {
+            tag_name: "section",
+            classes: ["page_main__nw1Wk"],
+            attr__class: "page_main__nw1Wk",
+            nth_child: 2,
+            nth_of_type: 1,
+          },
+          {
+            tag_name: "body",
+            "attr__data-hash": "922142f",
+            nth_child: 8,
+            nth_of_type: 1,
+          },
+        ]);
+        requestElementPosition([
+          {
+            tag_name: "span",
+            nth_child: 1,
+            nth_of_type: 1,
+            $el_text: "Quote Now",
+          },
+          {
+            tag_name: "button",
+            $el_text: "Quote Now",
+            classes: ["ant-btn", "css-16d607q", "ant-btn-default", "Product_order-btn__1Cgpb"],
+            attr__type: "button",
+            attr__class: "ant-btn css-16d607q ant-btn-default Product_order-btn__1Cgpb",
+            nth_child: 4,
+            nth_of_type: 1,
+          },
+          {
+            tag_name: "div",
+            classes: ["Product_order_item__u6UFC"],
+            attr__class: "Product_order_item__u6UFC",
+            attr__style: 'background-image: url("/home/pcbabg.png");',
+            nth_child: 2,
+            nth_of_type: 2,
+          },
+          {
+            tag_name: "div",
+            classes: ["Product_order__RVU8j"],
+            attr__class: "Product_order__RVU8j",
+            nth_child: 2,
+            nth_of_type: 1,
+          },
+          {
+            tag_name: "div",
+            classes: ["Product_order_content__cGAdp"],
+            attr__class: "Product_order_content__cGAdp",
+            nth_child: 3,
+            nth_of_type: 3,
+          },
+          {
+            tag_name: "div",
+            classes: ["Product_container__ocwku"],
+            attr__class: "Product_container__ocwku",
+            nth_child: 1,
+            nth_of_type: 1,
+          },
+          {
+            tag_name: "div",
+            classes: ["Main_container__L_Kjq"],
+            attr__class: "Main_container__L_Kjq",
+            nth_child: 2,
+            nth_of_type: 2,
+          },
+          {
+            tag_name: "section",
+            classes: ["Main_main__tu3Ga"],
+            attr__class: "Main_main__tu3Ga",
+            nth_child: 1,
+            nth_of_type: 1,
+          },
+          {
+            tag_name: "section",
+            classes: ["page_main__nw1Wk"],
+            attr__class: "page_main__nw1Wk",
+            nth_child: 17,
+            nth_of_type: 1,
+          },
+          {
+            tag_name: "body",
+            "attr__data-hash": "922142f",
+            nth_child: 7,
+            nth_of_type: 1,
+          },
+        ]);
+        requestElementPosition([
+          {
+            tag_name: "a",
+            $el_text: "View Price",
+            classes: ["EcartCard_price-more__gDoJf"],
+            attr__class: "EcartCard_price-more__gDoJf",
+            attr__href: "/product-detail/B2B-PH-SM4-TB(LF)(SN)-JST-500008458",
+            nth_child: 2,
+            nth_of_type: 1,
+          },
+          {
+            tag_name: "div",
+            classes: ["EcartCard_discount-price__YFxOc"],
+            attr__class: "EcartCard_discount-price__YFxOc",
+            nth_child: 4,
+            nth_of_type: 1,
+          },
+          {
+            tag_name: "div",
+            classes: ["EcartCard_info__GBksA"],
+            attr__class: "EcartCard_info__GBksA",
+            nth_child: 2,
+            nth_of_type: 2,
+          },
+          {
+            tag_name: "div",
+            classes: ["EcartCard_card__N_szG"],
+            attr__class: "EcartCard_card__N_szG",
+            nth_child: 4,
+            nth_of_type: 4,
+          },
+          {
+            tag_name: "div",
+            classes: ["Product_card__TBkqv"],
+            attr__class: "Product_card__TBkqv",
+            nth_child: 2,
+            nth_of_type: 2,
+          },
+          {
+            tag_name: "div",
+            classes: ["Product_popular_content__nSqJc"],
+            attr__class: "Product_popular_content__nSqJc",
+            nth_child: 2,
+            nth_of_type: 2,
+          },
+          {
+            tag_name: "div",
+            classes: ["Product_popular__xlW6y"],
+            attr__class: "Product_popular__xlW6y",
+            nth_child: 1,
+            nth_of_type: 1,
+          },
+          {
+            tag_name: "div",
+            classes: ["Product_container__ocwku"],
+            attr__class: "Product_container__ocwku",
+            nth_child: 1,
+            nth_of_type: 1,
+          },
+          {
+            tag_name: "div",
+            classes: ["Main_container__L_Kjq"],
+            attr__class: "Main_container__L_Kjq",
+            nth_child: 2,
+            nth_of_type: 2,
+          },
+          {
+            tag_name: "section",
+            classes: ["Main_main__tu3Ga"],
+            attr__class: "Main_main__tu3Ga",
+            nth_child: 1,
+            nth_of_type: 1,
+          },
+          {
+            tag_name: "section",
+            classes: ["page_main__nw1Wk"],
+            attr__class: "page_main__nw1Wk",
+            nth_child: 17,
+            nth_of_type: 1,
+          },
+          {
+            tag_name: "body",
+            "attr__data-hash": "922142f",
+            nth_child: 7,
+            nth_of_type: 1,
+          },
+        ]);
+        requestElementPosition([
+          {
+            tag_name: "a",
+            $el_text: "",
+            attr__href: "/bom/quote?f=PCB",
+            nth_child: 1,
+            nth_of_type: 1,
+          },
+          {
+            tag_name: "div",
+            classes: ["Product_category_item__J11Il"],
+            attr__class: "Product_category_item__J11Il",
+            nth_child: 1,
+            nth_of_type: 1,
+          },
+          {
+            tag_name: "div",
+            classes: ["Product_category_content__0HCHf"],
+            attr__class: "Product_category_content__0HCHf",
+            nth_child: 2,
+            nth_of_type: 2,
+          },
+          {
+            tag_name: "div",
+            classes: ["Product_newProduct__l7M8R"],
+            attr__class: "Product_newProduct__l7M8R",
+            nth_child: 2,
+            nth_of_type: 2,
+          },
+          {
+            tag_name: "div",
+            classes: ["Product_container__ocwku"],
+            attr__class: "Product_container__ocwku",
+            nth_child: 1,
+            nth_of_type: 1,
+          },
+          {
+            tag_name: "div",
+            classes: ["Main_container__L_Kjq"],
+            attr__class: "Main_container__L_Kjq",
+            nth_child: 2,
+            nth_of_type: 2,
+          },
+          {
+            tag_name: "section",
+            classes: ["Main_main__tu3Ga"],
+            attr__class: "Main_main__tu3Ga",
+            nth_child: 1,
+            nth_of_type: 1,
+          },
+          {
+            tag_name: "section",
+            classes: ["page_main__nw1Wk"],
+            attr__class: "page_main__nw1Wk",
+            nth_child: 17,
+            nth_of_type: 1,
+          },
+          {
+            tag_name: "body",
+            "attr__data-hash": "922142f",
+            nth_child: 7,
+            nth_of_type: 1,
+          },
+        ]);
+        requestElementPosition([
+          {
+            tag_name: "a",
+            $el_text: "",
+            attr__href: "/bom/quote?f=Stencil",
+            nth_child: 1,
+            nth_of_type: 1,
+          },
+          {
+            tag_name: "div",
+            classes: ["Product_category_item__J11Il"],
+            attr__class: "Product_category_item__J11Il",
+            nth_child: 8,
+            nth_of_type: 8,
+          },
+          {
+            tag_name: "div",
+            classes: ["Product_category_content__0HCHf"],
+            attr__class: "Product_category_content__0HCHf",
+            nth_child: 2,
+            nth_of_type: 2,
+          },
+          {
+            tag_name: "div",
+            classes: ["Product_newProduct__l7M8R"],
+            attr__class: "Product_newProduct__l7M8R",
+            nth_child: 2,
+            nth_of_type: 2,
+          },
+          {
+            tag_name: "div",
+            classes: ["Product_container__ocwku"],
+            attr__class: "Product_container__ocwku",
+            nth_child: 1,
+            nth_of_type: 1,
+          },
+          {
+            tag_name: "div",
+            classes: ["Main_container__L_Kjq"],
+            attr__class: "Main_container__L_Kjq",
+            nth_child: 2,
+            nth_of_type: 2,
+          },
+          {
+            tag_name: "section",
+            classes: ["Main_main__tu3Ga"],
+            attr__class: "Main_main__tu3Ga",
+            nth_child: 1,
+            nth_of_type: 1,
+          },
+          {
+            tag_name: "section",
+            classes: ["page_main__nw1Wk"],
+            attr__class: "page_main__nw1Wk",
+            nth_child: 17,
+            nth_of_type: 1,
+          },
+          {
+            tag_name: "body",
+            "attr__data-hash": "922142f",
+            nth_child: 7,
+            nth_of_type: 1,
+          },
+        ]);
+        requestElementPosition([
+          {
+            tag_name: "div",
+            classes: ["Product_right__Zg2Dm", "Product_change_card__FUrvL"],
+            attr__class: "Product_right__Zg2Dm Product_change_card__FUrvL",
+            nth_child: 1,
+            nth_of_type: 1,
+            $el_text: "",
+          },
+          {
+            tag_name: "div",
+            classes: ["Product_popular_content__nSqJc"],
+            attr__class: "Product_popular_content__nSqJc",
+            nth_child: 2,
+            nth_of_type: 2,
+          },
+          {
+            tag_name: "div",
+            classes: ["Product_popular__xlW6y"],
+            attr__class: "Product_popular__xlW6y",
+            nth_child: 1,
+            nth_of_type: 1,
+          },
+          {
+            tag_name: "div",
+            classes: ["Product_container__ocwku"],
+            attr__class: "Product_container__ocwku",
+            nth_child: 1,
+            nth_of_type: 1,
+          },
+          {
+            tag_name: "div",
+            classes: ["Main_container__L_Kjq"],
+            attr__class: "Main_container__L_Kjq",
+            nth_child: 2,
+            nth_of_type: 2,
+          },
+          {
+            tag_name: "section",
+            classes: ["Main_main__tu3Ga"],
+            attr__class: "Main_main__tu3Ga",
+            nth_child: 1,
+            nth_of_type: 1,
+          },
+          {
+            tag_name: "section",
+            classes: ["page_main__nw1Wk"],
+            attr__class: "page_main__nw1Wk",
+            nth_child: 17,
+            nth_of_type: 1,
+          },
+          {
+            tag_name: "body",
+            "attr__data-hash": "922142f",
+            nth_child: 7,
+            nth_of_type: 1,
+          },
+        ]);
+        requestElementPosition([
+          {
+            tag_name: "a",
+            $el_text: "B560C-13-F",
+            classes: ["EcartCard_partnumber__9zw7H"],
+            attr__class: "EcartCard_partnumber__9zw7H",
+            attr__href: "/product-detail/B560C-13-F-Diodes-Incorporated-500048594",
+            nth_child: 1,
+            nth_of_type: 1,
+          },
+          {
+            tag_name: "div",
+            classes: ["EcartCard_info__GBksA"],
+            attr__class: "EcartCard_info__GBksA",
+            nth_child: 2,
+            nth_of_type: 2,
+          },
+          {
+            tag_name: "div",
+            classes: ["EcartCard_card__N_szG"],
+            attr__class: "EcartCard_card__N_szG",
+            nth_child: 4,
+            nth_of_type: 4,
+          },
+          {
+            tag_name: "div",
+            classes: ["Product_card__TBkqv"],
+            attr__class: "Product_card__TBkqv",
+            nth_child: 3,
+            nth_of_type: 3,
+          },
+          {
+            tag_name: "div",
+            classes: ["Product_popular_content__nSqJc"],
+            attr__class: "Product_popular_content__nSqJc",
+            nth_child: 2,
+            nth_of_type: 2,
+          },
+          {
+            tag_name: "div",
+            classes: ["Product_popular__xlW6y"],
+            attr__class: "Product_popular__xlW6y",
+            nth_child: 1,
+            nth_of_type: 1,
+          },
+          {
+            tag_name: "div",
+            classes: ["Product_container__ocwku"],
+            attr__class: "Product_container__ocwku",
+            nth_child: 1,
+            nth_of_type: 1,
+          },
+          {
+            tag_name: "div",
+            classes: ["Main_container__L_Kjq"],
+            attr__class: "Main_container__L_Kjq",
+            nth_child: 2,
+            nth_of_type: 2,
+          },
+          {
+            tag_name: "section",
+            classes: ["Main_main__tu3Ga"],
+            attr__class: "Main_main__tu3Ga",
+            nth_child: 1,
+            nth_of_type: 1,
+          },
+          {
+            tag_name: "section",
+            classes: ["page_main__nw1Wk"],
+            attr__class: "page_main__nw1Wk",
+            nth_child: 17,
+            nth_of_type: 1,
+          },
+          {
+            tag_name: "body",
+            "attr__data-hash": "922142f",
+            nth_child: 7,
+            nth_of_type: 1,
+          },
+        ]);
+        requestElementPosition([
+          {
+            tag_name: "img",
+            attr__alt: "LTV-354T",
+            attr__loading: "lazy",
+            attr__width: "232",
+            attr__height: "232",
+            attr__decoding: "async",
+            "attr__data-nimg": "1",
+            attr__src: "/home/pop10.png",
+            attr__style: "color: transparent;",
+            nth_child: 1,
+            nth_of_type: 1,
+            $el_text: "",
+            attr__href: "/product-detail/LTV-354T-UMW-501541228",
+          },
+          {
+            tag_name: "a",
+            $el_text: "",
+            attr__href: "/product-detail/LTV-354T-UMW-501541228",
+            nth_child: 1,
+            nth_of_type: 1,
+          },
+          {
+            tag_name: "div",
+            classes: ["EcartCard_img-content__WiKHf"],
+            attr__class: "EcartCard_img-content__WiKHf",
+            nth_child: 1,
+            nth_of_type: 1,
+          },
+          {
+            tag_name: "div",
+            classes: ["EcartCard_card__N_szG"],
+            attr__class: "EcartCard_card__N_szG",
+            nth_child: 3,
+            nth_of_type: 3,
+          },
+          {
+            tag_name: "div",
+            classes: ["Product_card__TBkqv"],
+            attr__class: "Product_card__TBkqv",
+            nth_child: 3,
+            nth_of_type: 3,
+          },
+          {
+            tag_name: "div",
+            classes: ["Product_popular_content__nSqJc"],
+            attr__class: "Product_popular_content__nSqJc",
+            nth_child: 2,
+            nth_of_type: 2,
+          },
+          {
+            tag_name: "div",
+            classes: ["Product_popular__xlW6y"],
+            attr__class: "Product_popular__xlW6y",
+            nth_child: 1,
+            nth_of_type: 1,
+          },
+          {
+            tag_name: "div",
+            classes: ["Product_container__ocwku"],
+            attr__class: "Product_container__ocwku",
+            nth_child: 1,
+            nth_of_type: 1,
+          },
+          {
+            tag_name: "div",
+            classes: ["Main_container__L_Kjq"],
+            attr__class: "Main_container__L_Kjq",
+            nth_child: 2,
+            nth_of_type: 2,
+          },
+          {
+            tag_name: "section",
+            classes: ["Main_main__tu3Ga"],
+            attr__class: "Main_main__tu3Ga",
+            nth_child: 1,
+            nth_of_type: 1,
+          },
+          {
+            tag_name: "section",
+            classes: ["page_main__nw1Wk"],
+            attr__class: "page_main__nw1Wk",
+            nth_child: 17,
+            nth_of_type: 1,
+          },
+          {
+            tag_name: "body",
+            "attr__data-hash": "922142f",
+            nth_child: 7,
+            nth_of_type: 1,
+          },
+        ]);
+      }
+    }
+  }, [isSheetOpen, loadingStep, iframeLoaded]);
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       if (event.data.type === "heatmap-element-position") {
-        const { found, position } = event.data.data;
+        const { found, position, viewport: views } = event.data.data;
         if (found && position) {
-          setHeatmapPoints((prev) => [...prev, { x: position.centerX, y: position.centerY, value: 10000000 }]);
+          setHeatmapPoints((prev) => [
+            ...prev,
+            { x: position.centerX, y: position.centerY, value: Math.random() * 100 },
+          ]);
+        }
+        if (
+          views &&
+          (views.documentWidth !== viewport.documentWidth || views.documentHeight !== viewport.documentHeight)
+        ) {
+          setViewport(views);
         }
       }
     };
@@ -362,7 +994,12 @@ export default function PageAnalysis() {
     setSelectedPage(page);
     setLoadingStep(0);
     setHeatmapPoints([]); // Clear previous points
+    setIframeLoaded(false); // Reset iframe loaded state
     setIsSheetOpen(true);
+  };
+
+  const handleIframeLoad = () => {
+    setIframeLoaded(true);
   };
 
   function requestElementPosition(elements: any[]) {
@@ -636,21 +1273,25 @@ export default function PageAnalysis() {
                         {/* Viewport Area */}
                         <div className="flex-1 overflow-auto p-8 flex justify-center bg-slate-100/50">
                           <div
-                            className="bg-white shadow-xl origin-top transition-all duration-300 ease-in-out"
+                            className="bg-white shadow-xl transition-all duration-300 ease-in-out relative overflow-hidden"
                             style={{
-                              width: 1920 * scale,
-                              height: 4000 * scale,
+                              width: viewport.documentWidth * scale,
+                              height: viewport.documentHeight * scale,
                               minWidth: 1920 * scale,
-                              minHeight: 4000 * scale,
+                              minHeight: 1080 * scale,
                             }}
                           >
                             <div
                               style={{
                                 transform: `scale(${scale})`,
-                                transformOrigin: "top left",
-                                width: 1920,
-                                height: 4000,
-                                position: "relative",
+                                transformOrigin: "center center",
+                                width: viewport.documentWidth,
+                                height: viewport.documentHeight,
+                                position: "absolute",
+                                left: "50%",
+                                top: "50%",
+                                marginLeft: -viewport.documentWidth / 2, // 1920 / 2
+                                marginTop: -viewport.documentHeight / 2, // 4000 / 2
                               }}
                             >
                               <iframe
@@ -658,50 +1299,10 @@ export default function PageAnalysis() {
                                 src="http://localhost:3000/"
                                 className="w-full h-full border-0 pointer-events-none"
                                 title="Heatmap"
+                                onLoad={handleIframeLoad}
                               />
                               {/* Heatmap Overlay */}
-                              <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                                {(() => {
-                                  const maxValue = Math.max(...heatmapPoints.map((p) => p.value), 1);
-                                  return heatmapPoints.map((point, i) => {
-                                    const normalized = point.value / maxValue;
-                                    const size = 40 + normalized * 80;
-                                    const opacity = 0.4 + normalized * 0.4;
-
-                                    // Color interpolation (Green -> Yellow -> Red)
-                                    let r, g, b;
-                                    if (normalized < 0.5) {
-                                      // Green (34, 197, 94) to Yellow (234, 179, 8)
-                                      const factor = normalized * 2;
-                                      r = Math.floor(34 + (234 - 34) * factor);
-                                      g = Math.floor(197 + (179 - 197) * factor);
-                                      b = Math.floor(94 + (8 - 94) * factor);
-                                    } else {
-                                      // Yellow (234, 179, 8) to Red (239, 68, 68)
-                                      const factor = (normalized - 0.5) * 2;
-                                      r = Math.floor(234 + (239 - 234) * factor);
-                                      g = Math.floor(179 + (68 - 179) * factor);
-                                      b = Math.floor(8 + (68 - 8) * factor);
-                                    }
-
-                                    return (
-                                      <div
-                                        key={i}
-                                        className="absolute rounded-full blur-xl animate-in fade-in zoom-in duration-500"
-                                        style={{
-                                          left: point.x,
-                                          top: point.y,
-                                          width: size,
-                                          height: size,
-                                          opacity: opacity,
-                                          transform: "translate(-50%, -50%)",
-                                          background: `radial-gradient(circle, rgba(${r},${g},${b},0.8) 0%, rgba(${r},${g},${b},0.4) 50%, transparent 100%)`,
-                                        }}
-                                      />
-                                    );
-                                  });
-                                })()}
-                              </div>
+                              <HeatmapOverlay points={heatmapPoints} />
                             </div>
                           </div>
                         </div>

@@ -142,11 +142,7 @@ const PersonalSettings = () => {
 
   const handleChangePassword = async () => {
     // 表单验证
-    if (
-      !passwordForm.currentPassword ||
-      !passwordForm.newPassword ||
-      !passwordForm.confirmPassword
-    ) {
+    if (!passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword) {
       toast({
         title: "验证失败",
         description: "请填写完整的密码信息",
@@ -306,11 +302,7 @@ const PersonalSettings = () => {
               <div className="flex items-center gap-6">
                 <div className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center">
                   {member.avatar ? (
-                    <img
-                      src={member.avatar}
-                      alt={member.name}
-                      className="w-20 h-20 rounded-full object-cover"
-                    />
+                    <img src={member.avatar} alt={member.name} className="w-20 h-20 rounded-full object-cover" />
                   ) : (
                     <User className="h-10 w-10 text-gray-400" />
                   )}
@@ -360,34 +352,21 @@ const PersonalSettings = () => {
 
                 <div>
                   <Label htmlFor="email">邮箱地址</Label>
-                  <Input
-                    id="email"
-                    value={member.email}
-                    disabled
-                    className="bg-gray-50"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    邮箱地址不可修改，作为登录账号使用
-                  </p>
+                  <Input id="email" value={member.email} disabled className="bg-gray-50" />
+                  <p className="text-xs text-gray-500 mt-1">邮箱地址不可修改，作为登录账号使用</p>
                 </div>
 
                 <div>
                   <Label>角色权限</Label>
                   <div className="mt-2">{getRoleBadge(member.role)}</div>
-                  <p className="text-xs text-gray-500 mt-1">
-                    角色权限由组织管理员分配
-                  </p>
+                  <p className="text-xs text-gray-500 mt-1">角色权限由组织管理员分配</p>
                 </div>
               </div>
 
               <div className="flex justify-end">
                 <Button
                   onClick={handleUpdateProfile}
-                  disabled={
-                    loading ||
-                    (profileForm.name === member.name &&
-                      profileForm.phone === (member.phone || ""))
-                  }
+                  disabled={loading || (profileForm.name === member.name && profileForm.phone === (member.phone || ""))}
                   className="flex items-center gap-2"
                 >
                   <Save className="h-4 w-4" />
@@ -450,11 +429,7 @@ const PersonalSettings = () => {
                         }))
                       }
                     >
-                      {showPasswords.current ? (
-                        <EyeOff className="h-4 w-4" />
-                      ) : (
-                        <Eye className="h-4 w-4" />
-                      )}
+                      {showPasswords.current ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </Button>
                   </div>
                 </div>
@@ -486,11 +461,7 @@ const PersonalSettings = () => {
                         }))
                       }
                     >
-                      {showPasswords.new ? (
-                        <EyeOff className="h-4 w-4" />
-                      ) : (
-                        <Eye className="h-4 w-4" />
-                      )}
+                      {showPasswords.new ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </Button>
                   </div>
                 </div>
@@ -522,22 +493,14 @@ const PersonalSettings = () => {
                         }))
                       }
                     >
-                      {showPasswords.confirm ? (
-                        <EyeOff className="h-4 w-4" />
-                      ) : (
-                        <Eye className="h-4 w-4" />
-                      )}
+                      {showPasswords.confirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </Button>
                   </div>
                 </div>
               </div>
 
               <div className="flex justify-end">
-                <Button
-                  onClick={handleChangePassword}
-                  disabled={loading}
-                  className="flex items-center gap-2"
-                >
+                <Button onClick={handleChangePassword} disabled={loading} className="flex items-center gap-2">
                   <Lock className="h-4 w-4" />
                   {loading ? "修改中..." : "修改密码"}
                 </Button>
@@ -558,27 +521,17 @@ const PersonalSettings = () => {
             <CardContent className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <Label className="text-sm font-medium text-gray-700">
-                    成员ID
-                  </Label>
-                  <div className="mt-1 p-2 bg-gray-50 border rounded text-sm font-mono">
-                    {member.memberId}
-                  </div>
+                  <Label className="text-sm font-medium text-gray-700">成员ID</Label>
+                  <div className="mt-1 p-2 bg-gray-50 border rounded text-sm font-mono">{member.memberId}</div>
                 </div>
 
                 <div>
-                  <Label className="text-sm font-medium text-gray-700">
-                    组织ID
-                  </Label>
-                  <div className="mt-1 p-2 bg-gray-50 border rounded text-sm font-mono">
-                    {member.organizationId}
-                  </div>
+                  <Label className="text-sm font-medium text-gray-700">组织ID</Label>
+                  <div className="mt-1 p-2 bg-gray-50 border rounded text-sm font-mono">{member.organizationId}</div>
                 </div>
 
                 <div>
-                  <Label className="text-sm font-medium text-gray-700">
-                    登录邮箱
-                  </Label>
+                  <Label className="text-sm font-medium text-gray-700">登录邮箱</Label>
                   <div className="mt-1 flex items-center gap-2">
                     <Mail className="h-4 w-4 text-gray-400" />
                     <span className="text-sm">{member.email}</span>
@@ -586,9 +539,7 @@ const PersonalSettings = () => {
                 </div>
 
                 <div>
-                  <Label className="text-sm font-medium text-gray-700">
-                    联系电话
-                  </Label>
+                  <Label className="text-sm font-medium text-gray-700">联系电话</Label>
                   <div className="mt-1 flex items-center gap-2">
                     <Phone className="h-4 w-4 text-gray-400" />
                     <span className="text-sm">{member.phone || "未设置"}</span>
@@ -596,42 +547,28 @@ const PersonalSettings = () => {
                 </div>
 
                 <div>
-                  <Label className="text-sm font-medium text-gray-700">
-                    账户状态
-                  </Label>
-                  <div className="mt-1">
-                    {getStatusBadge(member.accountStatus)}
-                  </div>
+                  <Label className="text-sm font-medium text-gray-700">账户状态</Label>
+                  <div className="mt-1">{getStatusBadge(member.accountStatus)}</div>
                 </div>
 
                 <div>
-                  <Label className="text-sm font-medium text-gray-700">
-                    角色权限
-                  </Label>
+                  <Label className="text-sm font-medium text-gray-700">角色权限</Label>
                   <div className="mt-1">{getRoleBadge(member.role)}</div>
                 </div>
 
                 <div>
-                  <Label className="text-sm font-medium text-gray-700">
-                    创建时间
-                  </Label>
+                  <Label className="text-sm font-medium text-gray-700">创建时间</Label>
                   <div className="mt-1 flex items-center gap-2">
                     <Calendar className="h-4 w-4 text-gray-400" />
-                    <span className="text-sm">
-                      {formatDate(member.createdAt)}
-                    </span>
+                    <span className="text-sm">{formatDate(member.createdAt)}</span>
                   </div>
                 </div>
 
                 <div>
-                  <Label className="text-sm font-medium text-gray-700">
-                    最后登录
-                  </Label>
+                  <Label className="text-sm font-medium text-gray-700">最后登录</Label>
                   <div className="mt-1 flex items-center gap-2">
                     <Calendar className="h-4 w-4 text-gray-400" />
-                    <span className="text-sm">
-                      {formatDate(member.lastLoginAt)}
-                    </span>
+                    <span className="text-sm">{formatDate(member.lastLoginAt)}</span>
                   </div>
                 </div>
               </div>
@@ -659,7 +596,7 @@ const PersonalSettings = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Bot className="h-5 w-5" />
-                大模型配置
+                大模型配置123
               </CardTitle>
             </CardHeader>
             <CardContent>
