@@ -19,7 +19,9 @@ import {
   Eye,
   EyeOff,
   AlertTriangle,
+  Bot,
 } from "lucide-react";
+import ModelSettings from "./ModelSettings";
 import {
   Member,
   MemberRole,
@@ -283,10 +285,11 @@ const PersonalSettings = () => {
       </div>
 
       <Tabs defaultValue="profile" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="profile">个人信息</TabsTrigger>
           <TabsTrigger value="security">安全设置</TabsTrigger>
           <TabsTrigger value="account">账户信息</TabsTrigger>
+          <TabsTrigger value="model-settings">大模型配置</TabsTrigger>
         </TabsList>
 
         {/* 个人信息标签页 */}
@@ -646,6 +649,21 @@ const PersonalSettings = () => {
                   <li>如需修改角色权限或账户状态，请联系组织管理员</li>
                 </ul>
               </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* 大模型配置标签页 */}
+        <TabsContent value="model-settings" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Bot className="h-5 w-5" />
+                大模型配置
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ModelSettings />
             </CardContent>
           </Card>
         </TabsContent>
