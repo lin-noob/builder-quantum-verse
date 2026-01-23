@@ -50,16 +50,8 @@ const PROFILE_FIELDS: ColumnConfig[] = [
   { key: "bounceRate", label: "跳出率", source: "profile", type: "number" },
 ];
 
-const EVENT_FIELDS: ColumnConfig[] = [
-  { key: "page_view", label: "页面浏览", source: "event", type: "number" },
-  { key: "click", label: "点击", source: "event", type: "number" },
-  { key: "submit_order", label: "提交订单", source: "event", type: "number" },
-  { key: "payment_success", label: "支付成功", source: "event", type: "number" },
-  { key: "add_to_cart", label: "加入购物车", source: "event", type: "number" },
-  { key: "view_product", label: "查看商品", source: "event", type: "number" },
-  { key: "login", label: "登录", source: "event", type: "number" },
-  { key: "search", label: "搜索", source: "event", type: "number" },
-];
+// EVENT_FIELDS removed from optional columns per requirement
+const EVENT_FIELDS: ColumnConfig[] = [];
 
 interface DateRange {
   start: Date | null;
@@ -819,8 +811,8 @@ export default function UserList() {
                                                          </Button>
                                                       </div>
                                                       <span className="text-sm font-medium flex-1 select-none">{col.label}</span>
-                                                      <span className={`text-[10px] px-1.5 py-0.5 rounded border ${col.source === 'event' ? 'bg-blue-50 text-blue-600 border-blue-100' : 'bg-gray-100 text-gray-600 border-gray-200'}`}>
-                                                         {col.source === 'event' ? '事件' : '画像'}
+                                                      <span className={`text-[10px] px-1.5 py-0.5 rounded border bg-gray-100 text-gray-600 border-gray-200`}>
+                                                         画像
                                                       </span>
                                                       <Button variant="ghost" size="icon" className="h-6 w-6 text-gray-400 hover:text-red-500" onClick={() => handleRemoveColumn(key)}>
                                                          <X className="h-3 w-3" />
@@ -846,12 +838,8 @@ export default function UserList() {
                        <div className="flex-1 flex flex-col p-4">
                           <div className="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wider">可选列</div>
                           <div className="flex-1 bg-white rounded border flex flex-col overflow-hidden">
-                             <Tabs defaultValue="profile" className="flex-1 flex flex-col">
+                             <div className="flex-1 flex flex-col">
                                 <div className="px-3 pt-3">
-                                   <TabsList className="w-full grid grid-cols-2">
-                                      <TabsTrigger value="profile">用户画像</TabsTrigger>
-                                      <TabsTrigger value="event">事件指标</TabsTrigger>
-                                   </TabsList>
                                    <div className="mt-2 relative">
                                       <Search className="absolute left-2.5 top-1/2 transform -translate-y-1/2 text-gray-400 h-3 w-3" />
                                       <Input 
@@ -862,7 +850,7 @@ export default function UserList() {
                                       />
                                    </div>
                                 </div>
-                                <TabsContent value="profile" className="flex-1 overflow-hidden mt-2">
+                                <div className="flex-1 overflow-hidden mt-2">
                                    <ScrollArea className="h-full">
                                       <div className="p-2 space-y-1">
                                          {getFilteredFields("profile").map(field => {
@@ -880,26 +868,8 @@ export default function UserList() {
                                          })}
                                       </div>
                                    </ScrollArea>
-                                </TabsContent>
-                                <TabsContent value="event" className="flex-1 overflow-hidden mt-2">
-                                   <ScrollArea className="h-full">
-                                      <div className="p-2 space-y-1">
-                                         {getFilteredFields("event").map(field => {
-                                            const isSelected = tempSelectedColumns.includes(field.key);
-                                            return (
-                                               <div key={field.key} 
-                                                  className={`flex items-center justify-between p-2 rounded cursor-pointer ${isSelected ? 'opacity-50 bg-gray-50' : 'hover:bg-blue-50'}`}
-                                                  onClick={() => !isSelected && handleToggleColumn(field.key)}
-                                               >
-                                                  <span className="text-sm">{field.label}</span>
-                                                  {isSelected ? <Check className="h-3 w-3 text-gray-400" /> : <div className="h-3 w-3 rounded-full border border-gray-300" />}
-                                               </div>
-                                            );
-                                         })}
-                                      </div>
-                                   </ScrollArea>
-                                </TabsContent>
-                             </Tabs>
+                                </div>
+                             </div>
                           </div>
                        </div>
                     </div>

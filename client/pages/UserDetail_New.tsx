@@ -3,7 +3,7 @@ import React from "react";
 import { createPortal } from "react-dom";
 import { useParams, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { User, Building, MapPin, Mail, Copy, X, Plus, Calendar, Clock } from "lucide-react";
+import { User, Building, MapPin, Mail, Copy, X, Plus, Calendar, Clock, Loader2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -91,6 +91,27 @@ export default function UserDetail() {
   const { currentProject } = useProjectStore();
   // 权限检查
   const { hasPermission } = useRoleStore();
+
+  // 事件统计 Mock 数据与状态
+  const [eventStatsLoading, setEventStatsLoading] = useState(true);
+  const [eventStats, setEventStats] = useState<{ name: string; count: number }[]>([]);
+
+  useEffect(() => {
+    // 模拟加载事件统计数据
+    setEventStatsLoading(true);
+    const timer = setTimeout(() => {
+      setEventStats([
+        { name: "View Product", count: 128 },
+        { name: "Add to Cart", count: 45 },
+        { name: "Checkout Start", count: 12 },
+        { name: "Purchase Completed", count: 8 },
+        { name: "Site Search", count: 64 },
+        { name: "Banner Click", count: 32 },
+      ]);
+      setEventStatsLoading(false);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, [cdpId]);
 
   useEffect(() => {
     let mounted = true;
@@ -921,6 +942,69 @@ export default function UserDetail() {
                               </tbody>
                             </table>
                           </div>
+                        </div>
+                      </div>
+
+                      {/* 事件统计模块 */}
+                      <div className="mb-6">
+                        <hr className="border-gray-200 mb-4" />
+                        <h3 className="text-sm font-semibold text-gray-900 mb-3">事件统计</h3>
+                        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden min-h-[100px]">
+                          {eventStatsLoading ? (
+                            <div className="flex items-center justify-center h-[200px]">
+                              <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+                            </div>
+                          ) : eventStats.length === 0 ? (
+                            <div className="flex items-center justify-center h-[100px] text-gray-500 text-sm">
+                              暂无数据
+                            </div>
+                          ) : (
+                            <div className="overflow-x-auto">
+                              <table className="min-w-full table-fixed">
+                                <colgroup>
+                                  <col className="w-1/4" />
+                                  <col className="w-1/4" />
+                                  <col className="w-1/4" />
+                                  <col className="w-1/4" />
+                                </colgroup>
+                                <tbody className="divide-y divide-gray-200">
+                                  {(() => {
+                                    const rows = [];
+                                    for (let i = 0; i < eventStats.length; i += 2) {
+                                      const stat1 = eventStats[i];
+                                      const stat2 = eventStats[i + 1];
+                                      rows.push(
+                                        <tr key={i}>
+                                          <td className="px-4 py-3 text-sm text-gray-900 bg-gray-50">
+                                            {stat1.name}
+                                          </td>
+                                          <td className="px-4 py-3 text-sm text-gray-900">
+                                            {stat1.count}
+                                          </td>
+                                          {stat2 ? (
+                                            <>
+                                              <td className="px-4 py-3 text-sm text-gray-900 bg-gray-50">
+                                                {stat2.name}
+                                              </td>
+                                              <td className="px-4 py-3 text-sm text-gray-900">
+                                                {stat2.count}
+                                              </td>
+                                            </>
+                                          ) : (
+                                            <>
+                                              <td className="px-4 py-3 text-sm text-gray-900 bg-gray-50"></td>
+                                              <td className="px-4 py-3 text-sm text-gray-900"></td>
+                                            </>
+                                          )}
+                                        </tr>
+                                      );
+                                    }
+                                    return rows;
+                                  })()}
+                                </tbody>
+                              </table>
+                            </div>
+                          )}
                         </div>
                       </div>
 
