@@ -2,8 +2,8 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DateTimePicker } from "@/components/ui/date-time-picker";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   ChevronLeft,
   ChevronRight,
@@ -21,6 +21,7 @@ import {
   Send,
   Pencil,
 } from "lucide-react";
+import { EventSelector } from "./EventSelector";
 import {
   ApiSessionEvent,
   getUserEventList,
@@ -33,6 +34,8 @@ import { request } from "@/lib/request";
 import { EventType } from "@shared/eventRuleTypes";
 import { ruleTypeService, RuleType } from "@/services/ruleTypeService";
 import { ruleService } from "@/services/ruleService";
+import useProjectStore from "@/stores/projectStore";
+import { MockDataService } from "@/services/mockDataService";
 
 // Session interface
 interface Session {
@@ -46,6 +49,7 @@ interface Session {
 
 export default function SessionTimeline({ cdpUserId, sessionId }: { cdpUserId: string; sessionId: string }) {
   const { t } = useTranslation();
+  const { currentProject } = useProjectStore();
   const [loading, setLoading] = useState(false);
   const [eventData, setEventData] = useState<ApiEventListResponse | null>(null);
   const [sessions, setSessions] = useState<SessionEvent[] | null>([]);
@@ -58,7 +62,7 @@ export default function SessionTimeline({ cdpUserId, sessionId }: { cdpUserId: s
   const [eventList, setEventList] = useState<ParsedEventData[]>([]);
   const [selectedEventIndex, setSelectedEventIndex] = useState(0);
   const [timeRange, setTimeRange] = useState<{ start?: Date; end?: Date }>({});
-  const [filterEventType, setFilterEventType] = useState<EventType | "all">("all");
+  const [filterEventType, setFilterEventType] = useState<string[]>([]);
   const [filterSource, setFilterSource] = useState<string | "all">("all");
   const [filterDevice, setFilterDevice] = useState<string | "all">("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -191,21 +195,36 @@ export default function SessionTimeline({ cdpUserId, sessionId }: { cdpUserId: s
         } else {
           // Use current state filters - reading from state at call time
           if (searchQuery) filters.pageUrl = searchQuery;
-          if (filterEventType !== "all") filters.eventName = filterEventType;
+          if (filterEventType.length > 0) filters.eventName = filterEventType.join(",");
           if (filterSource !== "all") filters.source = filterSource;
           if (filterDevice !== "all") filters.device = filterDevice;
           if (timeRange.start) filters.startDate = timeRange.start;
           if (timeRange.end) filters.endDate = timeRange.end;
         }
 
-        const data = await getUserEventList(
-          cdpUserId,
-          sessionId,
-          page,
-          pageSize,
-          2, // 2 for behavior data
-          filters,
-        );
+        let data: ApiEventListResponse | null = null;
+
+        if (!currentProject || !currentProject.id) {
+          // Mock data
+          data = await MockDataService.getMockEventList(
+            cdpUserId,
+            sessionId,
+            page,
+            pageSize,
+            0,
+          );
+        } else {
+          data = await getUserEventList(
+            cdpUserId,
+            sessionId,
+            page,
+            pageSize,
+            2, // 2 for behavior data
+            filters,
+          );
+        }
+
+        if (!data) return;
 
         setEventData(data);
         setTotal(data.total);
@@ -221,7 +240,7 @@ export default function SessionTimeline({ cdpUserId, sessionId }: { cdpUserId: s
 
         // Append or replace sessions
         if (appendMode) {
-          setSessions((prev) => [...prev, ...newSessions]);
+          setSessions((prev) => [...(prev || []), ...newSessions]);
         } else {
           setSessions(newSessions);
         }
@@ -232,7 +251,7 @@ export default function SessionTimeline({ cdpUserId, sessionId }: { cdpUserId: s
         setIsLoadingMore(false);
       }
     },
-    [cdpUserId, pageSize, sessionId], // Removed filter dependencies
+    [cdpUserId, pageSize, sessionId, currentProject], // Removed filter dependencies
   );
 
   // Load data on component mount only
@@ -245,6 +264,13 @@ export default function SessionTimeline({ cdpUserId, sessionId }: { cdpUserId: s
   // Fetch rule types on mount
   useEffect(() => {
     const fetchRuleTypes = async () => {
+      if (!currentProject || !currentProject.id) {
+        // Mock rule types
+        const mockTypes = ["PageView", "Click", "ViewProduct", "AddToCart", "Order"];
+        setRuleTypes(mockTypes.map((name) => ({ id: name, eventName: name } as RuleType)));
+        return;
+      }
+
       const types = await ruleTypeService.list();
       const data = await ruleService.getRules(2);
 
@@ -509,19 +535,11 @@ export default function SessionTimeline({ cdpUserId, sessionId }: { cdpUserId: s
             />
           </div>
           <div>
-            <Select value={filterEventType} onValueChange={(value) => setFilterEventType(value as any)}>
-              <SelectTrigger className="h-10">
-                <SelectValue placeholder="全部事件" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">全部事件</SelectItem>
-                {ruleTypes.map((ruleType) => (
-                  <SelectItem key={ruleType.id} value={ruleType.eventName}>
-                    {ruleType.eventName}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <EventSelector
+              allEvents={ruleTypes.map((r) => r.eventName)}
+              selectedEvents={filterEventType}
+              onApply={(events) => setFilterEventType(events)}
+            />
           </div>
           <div>
             <Select value={filterSource} onValueChange={(value) => setFilterSource(value)}>
@@ -576,7 +594,7 @@ export default function SessionTimeline({ cdpUserId, sessionId }: { cdpUserId: s
                 // Build filters from current state
                 const filters: any = {};
                 if (searchQuery) filters.pageUrl = searchQuery;
-                if (filterEventType !== "all") filters.eventName = filterEventType;
+                if (filterEventType.length > 0) filters.eventName = filterEventType.join(",");
                 if (filterSource !== "all") filters.source = filterSource;
                 if (filterDevice !== "all") filters.device = filterDevice;
                 if (timeRange.start) filters.startDate = timeRange.start;
@@ -592,7 +610,7 @@ export default function SessionTimeline({ cdpUserId, sessionId }: { cdpUserId: s
               size="sm"
               onClick={async () => {
                 setSearchQuery("");
-                setFilterEventType("all");
+                setFilterEventType([]);
                 setFilterSource("all");
                 setFilterDevice("all");
                 setTimeRange({});

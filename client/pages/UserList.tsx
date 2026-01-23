@@ -1,19 +1,57 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { Link } from "react-router-dom";
+import { Table } from "antd";
 import { useTranslation } from "react-i18next";
-import { Search, ArrowUpDown, ArrowUp, ArrowDown, RotateCcw, RefreshCw } from "lucide-react";
+import { Search, ArrowUpDown, ArrowUp, ArrowDown, RotateCcw, RefreshCw, Settings, Filter, X, Check, GripVertical, ChevronDown, ChevronUp } from "lucide-react";
+import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetHeader, SheetFooter, SheetTitle, SheetTrigger, SheetClose } from "@/components/ui/sheet";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import AdvancedDateRangePicker from "@/components/AdvancedDateRangePicker";
 import { request } from "@/lib/request";
 import { toast } from "@/hooks/use-toast";
 import { MockDataService } from "@/services/mockDataService";
-import { formatStartDate, formatEndDate } from "@/lib/utils";
+import { formatStartDate, formatEndDate, cn } from "@/lib/utils";
 import { useRoleStore } from "@/stores/roleStore";
 import useProjectStore from "@/stores/projectStore";
 import { ApiUser } from "@/lib/profile";
+
+// 列配置接口
+interface ColumnConfig {
+  key: string;
+  label: string;
+  source: "profile" | "event";
+  fixed?: boolean;
+  permission?: string;
+  type?: "string" | "number" | "date" | "boolean";
+}
+
+// 预定义字段
+const PROFILE_FIELDS: ColumnConfig[] = [
+  { key: "name", label: "用户姓名", source: "profile", type: "string" },
+  { key: "company", label: "公司", source: "profile", type: "string" },
+  { key: "contact", label: "联系方式", source: "profile", type: "string" },
+  { key: "firstVisitTime", label: "首次访问时间", source: "profile", type: "date" },
+  { key: "registrationTime", label: "注册时间", source: "profile", type: "date" },
+  { key: "firstPurchaseTime", label: "首次购买时间", source: "profile", type: "date" },
+  { key: "lastActiveTime", label: "最近活跃时间", source: "profile", type: "date" },
+  { key: "totalSpent", label: "总消费", source: "profile", permission: "user.amountspent", type: "number" },
+  { key: "currency", label: "货币", source: "profile", type: "string" },
+  { key: "ltv90Days", label: "90天LTV", source: "profile", type: "number" },
+  { key: "sessions30d", label: "近30天会话", source: "profile", type: "number" },
+  { key: "pageviews30d", label: "近30天PV", source: "profile", type: "number" },
+  { key: "aov30d", label: "近30天AOV", source: "profile", type: "number" },
+  { key: "bounceRate", label: "跳出率", source: "profile", type: "number" },
+];
+
+// EVENT_FIELDS removed from optional columns per requirement
+const EVENT_FIELDS: ColumnConfig[] = [];
 
 interface DateRange {
   start: Date | null;
@@ -45,6 +83,7 @@ export interface User {
   pageviews30d?: number;
   aov30d?: number;
   bounceRate?: number; // 0..1
+  [key: string]: any; // Allow dynamic fields for events
 }
 
 interface OrderSummaryDto {
@@ -75,15 +114,18 @@ export default function UserList() {
     start: null,
     end: null,
   });
-  const [currentPage, setCurrentPage] = useState(1);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    pageSize: 10,
+    total: 0
+  });
+  
   const [sortConfig, setSortConfig] = useState<SortConfig>({
     field: "lastActiveTime",
     direction: "desc",
   });
   const [loading, setLoading] = useState(false);
   const [users, setUsers] = useState<User[]>([]);
-  const [totalCount, setTotalCount] = useState(0);
-  const itemsPerPage = 10;
 
   // 5+2 指标筛选条件（范围）
   const [metricFilters, setMetricFilters] = useState({
@@ -99,13 +141,52 @@ export default function UserList() {
     bounceMax: "", // 百分比 0-100
   });
 
+  // Column Configuration State
+  const [selectedColumns, setSelectedColumns] = useState<string[]>([
+    "name", 
+    "contact", 
+    "firstVisitTime", 
+    "registrationTime",
+    "firstPurchaseTime",
+    "lastActiveTime",
+    "totalSpent",
+    "sessions30d",
+    "pageviews30d"
+  ]);
+  const [isColumnConfigOpen, setIsColumnConfigOpen] = useState(false);
+  const [tempSelectedColumns, setTempSelectedColumns] = useState<string[]>([]);
+  const [columnSearchQuery, setColumnSearchQuery] = useState("");
+
+  // Dynamic Column Filters
+  const [columnFilters, setColumnFilters] = useState<Record<string, any>>({});
+  
+  // Filter Card Expansion State
+  const [isFilterExpanded, setIsFilterExpanded] = useState(() => {
+    return localStorage.getItem("userListFilterExpanded") === "true";
+  });
+  
+  useEffect(() => {
+    localStorage.setItem("userListFilterExpanded", String(isFilterExpanded));
+  }, [isFilterExpanded]);
+
+  // Helper to generate mock event data for users
+  const enrichUsersWithMockEvents = useCallback((users: User[]) => {
+    return users.map(u => {
+      const mockEvents: Record<string, number> = {};
+      EVENT_FIELDS.forEach(field => {
+        // Deterministic-ish random based on user ID for consistency
+        const seed = u.id.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
+        mockEvents[field.key] = Math.floor((seed % 100) * Math.random() * 10); 
+      });
+      return { ...u, ...mockEvents };
+    });
+  }, []);
+
   // 权限检查
   const { hasPermission, permissions } = useRoleStore();
 
   // 项目状态检查
   const { currentProject } = useProjectStore();
-
-  // 调试日志
 
   // 转换API用户数据为UI格式
   const convertApiUserToUser = (apiUser: ApiUser): User => {
@@ -172,7 +253,7 @@ export default function UserList() {
       case "bounceRate":
         return "bounce_rate";
       default:
-        return "create_gmt";
+        return field; // Return key for event fields or others
     }
   };
 
@@ -180,47 +261,35 @@ export default function UserList() {
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
-      const parseNum = (v: string) => (v.trim() === "" ? undefined : Number(v));
-      const parsePct = (v: string) => {
-        if (v.trim() === "") return undefined;
-        const n = Number(v);
-        if (isNaN(n)) return undefined;
-        return Math.max(0, Math.min(100, n)) / 100; // ���为 0..1
-      };
+      // 构建动态过滤器
+      const filters: Record<string, any> = {};
+      Object.entries(columnFilters).forEach(([key, value]) => {
+         if (value) filters[key] = value;
+      });
+
       if (!currentProject || !currentProject.id) {
         console.log("No current project or empty project id, using mock data for users");
         const mockParams = {
-          page: currentPage,
-          pageSize: itemsPerPage,
+          page: pagination.page,
+          pageSize: pagination.pageSize,
           search: searchQuery.trim() || undefined,
           sortField: sortConfig.field || undefined,
           sortDirection: sortConfig.direction,
-          filters: {
-            ltv90Min: parseNum(metricFilters.ltv90Min),
-            ltv90Max: parseNum(metricFilters.ltv90Max),
-            sessionsMin: parseNum(metricFilters.sessionsMin),
-            sessionsMax: parseNum(metricFilters.sessionsMax),
-            pageviewsMin: parseNum(metricFilters.pageviewsMin),
-            pageviewsMax: parseNum(metricFilters.pageviewsMax),
-            aovMin: parseNum(metricFilters.aovMin),
-            aovMax: parseNum(metricFilters.aovMax),
-            bounceMin: parsePct(metricFilters.bounceMin),
-            bounceMax: parsePct(metricFilters.bounceMax),
-          },
+          filters: filters,
         };
 
-        // 检查 currentProject 是否存在或 id 是否为空
-        // if (!currentProject || !currentProject.id) {
         const mockResult = await MockDataService.getUsers(mockParams);
-        setUsers(mockResult.users);
-        setTotalCount(mockResult.total);
+        // Cast MockUser to User and enrich
+        const usersWithEvents = enrichUsersWithMockEvents(mockResult.users as unknown as User[]);
+        setUsers(usersWithEvents);
+        setPagination(prev => ({ ...prev, total: mockResult.total }));
         return;
       }
 
       // 有项目时调用真实API
       const requestBody: OrderSummaryDto = {
-        currentpage: currentPage,
-        pagesize: itemsPerPage,
+        currentpage: pagination.page,
+        pagesize: pagination.pageSize,
       };
 
       // 只有在有值的时候才添加这些字段
@@ -247,22 +316,15 @@ export default function UserList() {
 
       // 扩展指标筛选通过 paramother 传递（后端可忽略，前端将使用）
       const paramother: Record<string, string> = {};
-      const addIfPresent = (key: string, val?: number) => {
-        if (val !== undefined && !isNaN(val)) paramother[key] = String(val);
-      };
-      addIfPresent("ltv90DaysMin", parseNum(metricFilters.ltv90Min));
-      addIfPresent("ltv90DaysMax", parseNum(metricFilters.ltv90Max));
-      addIfPresent("sessions30dMin", parseNum(metricFilters.sessionsMin));
-      addIfPresent("sessions30dMax", parseNum(metricFilters.sessionsMax));
-      addIfPresent("pageviews30dMin", parseNum(metricFilters.pageviewsMin));
-      addIfPresent("pageviews30dMax", parseNum(metricFilters.pageviewsMax));
-      addIfPresent("aov30dMin", parseNum(metricFilters.aovMin));
-      addIfPresent("aov30dMax", parseNum(metricFilters.aovMax));
-      // 百分比转 0..1
-      const bMin = parsePct(metricFilters.bounceMin);
-      const bMax = parsePct(metricFilters.bounceMax);
-      if (bMin !== undefined) paramother["bounceRateMin"] = String(bMin);
-      if (bMax !== undefined) paramother["bounceRateMax"] = String(bMax);
+      // Map dynamic columnFilters to paramother if possible (Best Effort)
+      Object.entries(filters).forEach(([key, val]) => {
+         // 这里尝试将 filters 映射到 paramother
+         // 例如 min_totalSpent -> totalSpentMin (假设后端支持这种命名约定，或者需要具体映射)
+         // 目前仅对 MockDataService 做了完整支持，真实后端可能需要具体对接
+         // 简单透传：
+         paramother[key] = String(val);
+      });
+
       if (Object.keys(paramother).length > 0) {
         requestBody.paramother = paramother;
       }
@@ -288,24 +350,24 @@ export default function UserList() {
         const apiUsers = records;
         if (Array.isArray(apiUsers)) {
           const convertedUsers = apiUsers.map(convertApiUserToUser);
-          setUsers(convertedUsers);
-          setTotalCount(response.data.data.total || 0);
+          setUsers(enrichUsersWithMockEvents(convertedUsers));
+          setPagination(prev => ({ ...prev, total: response.data.data.total || 0 }));
         } else {
           console.log("数据格式异常，data不是数组:", apiUsers);
           setUsers([]);
-          setTotalCount(0);
+          setPagination(prev => ({ ...prev, total: 0 }));
         }
       } else {
         console.log("响应中没有data字段");
         setUsers([]);
-        setTotalCount(0);
+        setPagination(prev => ({ ...prev, total: 0 }));
       }
     } catch (error: any) {
       return [];
     } finally {
       setLoading(false);
     }
-  }, [currentPage, itemsPerPage, searchQuery, sortConfig, dateRange, selectedTimeField, metricFilters, currentProject]);
+  }, [pagination.page, pagination.pageSize, searchQuery, sortConfig, dateRange, selectedTimeField, columnFilters, currentProject]);
 
   // 初始化和依赖更新时获取数据
   useEffect(() => {
@@ -318,7 +380,7 @@ export default function UserList() {
       field,
       direction: prev.field === field && prev.direction === "asc" ? "desc" : "asc",
     }));
-    setCurrentPage(1); // 重置到第一页
+    setPagination(prev => ({ ...prev, page: 1 })); // 重置到第一页
   };
 
   const getSortIcon = (field: string) => {
@@ -330,19 +392,23 @@ export default function UserList() {
 
   // 搜索处理
   const handleSearch = () => {
-    setCurrentPage(1);
+    setPagination(prev => ({ ...prev, page: 1 }));
     fetchUsers();
   };
 
   // 页面变化处理
   const handlePageChange = (page: number) => {
-    setCurrentPage(page);
+    setPagination(prev => ({ ...prev, page }));
+  };
+  
+  const handlePageSizeChange = (pageSize: string) => {
+    setPagination(prev => ({ ...prev, pageSize: parseInt(pageSize), page: 1 }));
   };
 
   // Pagination - 由于数据来自API，直接使用users数组
-  const totalPages = Math.ceil(totalCount / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = Math.min(startIndex + itemsPerPage, totalCount);
+  const totalPages = Math.ceil(pagination.total / pagination.pageSize);
+  const startIndex = (pagination.page - 1) * pagination.pageSize;
+  const endIndex = Math.min(startIndex + pagination.pageSize, pagination.total);
   const currentUsers = users; // API已经返回了当前页的数据
 
   const formatCurrency = (amount: number, currency: string) => {
@@ -351,27 +417,16 @@ export default function UserList() {
 
   const handleDateRangeChange = (range: DateRange) => {
     setDateRange(range);
-    setCurrentPage(1);
+    setPagination(prev => ({ ...prev, page: 1 }));
   };
 
   const handleReset = () => {
-    setSearchQuery("");
-    setSelectedTimeField("lastActiveTime");
-    setDateRange({ start: null, end: null });
+    // setSearchQuery(""); // Keep CDP ID per requirement
+    // setSelectedTimeField("lastActiveTime"); // Deprecated
+    // setDateRange({ start: null, end: null }); // Deprecated
     setSortConfig({ field: null, direction: "asc" });
-    setCurrentPage(1);
-    setMetricFilters({
-      ltv90Min: "",
-      ltv90Max: "",
-      sessionsMin: "",
-      sessionsMax: "",
-      pageviewsMin: "",
-      pageviewsMax: "",
-      aovMin: "",
-      aovMax: "",
-      bounceMin: "",
-      bounceMax: "",
-    });
+    setPagination(prev => ({ ...prev, page: 1 }));
+    setColumnFilters({});
   };
 
   // 手动刷新数据
@@ -387,387 +442,473 @@ export default function UserList() {
       day: "2-digit",
       hour: "2-digit",
       minute: "2-digit",
+      second: undefined, // Removed seconds to save space
     });
+  };
+
+  const handleOpenColumnConfig = () => {
+    setTempSelectedColumns([...selectedColumns]);
+    setColumnSearchQuery("");
+    setIsColumnConfigOpen(true);
+  };
+
+  const handleToggleColumn = (key: string) => {
+    if (tempSelectedColumns.includes(key)) {
+      setTempSelectedColumns(tempSelectedColumns.filter(k => k !== key));
+    } else {
+      setTempSelectedColumns([...tempSelectedColumns, key]);
+    }
+  };
+
+  const handleRemoveColumn = (key: string) => {
+     setTempSelectedColumns(tempSelectedColumns.filter(k => k !== key));
+  };
+
+  const handleMoveColumn = (index: number, direction: 'up' | 'down') => {
+    const newCols = [...tempSelectedColumns];
+    if (direction === 'up' && index > 0) {
+      [newCols[index], newCols[index - 1]] = [newCols[index - 1], newCols[index]];
+    } else if (direction === 'down' && index < newCols.length - 1) {
+      [newCols[index], newCols[index + 1]] = [newCols[index + 1], newCols[index]];
+    }
+    setTempSelectedColumns(newCols);
+  };
+
+  const handleDragEnd = (result: DropResult) => {
+    if (!result.destination) return;
+    
+    const items = Array.from(tempSelectedColumns);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+    
+    setTempSelectedColumns(items);
+  };
+
+  const handleApplyColumns = () => {
+    setSelectedColumns(tempSelectedColumns);
+    
+    // Cleanup filters for removed columns
+    const newFilters = { ...columnFilters };
+    Object.keys(newFilters).forEach(filterKey => {
+      // Check if filter key belongs to a removed column
+      // Heuristic: filter keys are like min_KEY, max_KEY, etc.
+      const isRemoved = !tempSelectedColumns.some(colKey => filterKey.includes(colKey));
+      if (isRemoved) {
+         delete newFilters[filterKey];
+      }
+    });
+    setColumnFilters(newFilters);
+    
+    setIsColumnConfigOpen(false);
+  };
+
+  const handleResetColumns = () => {
+    setTempSelectedColumns([]);
+  };
+
+  const getFilteredFields = (source: "profile" | "event") => {
+    const fields = source === "profile" ? PROFILE_FIELDS : EVENT_FIELDS;
+    if (!columnSearchQuery) return fields;
+    return fields.filter(f => f.label.toLowerCase().includes(columnSearchQuery.toLowerCase()));
+  };
+
+  const allColumns = [...PROFILE_FIELDS, ...EVENT_FIELDS];
+  const getColumnLabel = (key: string) => {
+    const col = allColumns.find(c => c.key === key);
+    return col ? col.label : key;
+  };
+
+  const getColumnSource = (key: string) => {
+     const col = allColumns.find(c => c.key === key);
+     return col ? col.source : "profile";
+  };
+  
+  const updateColumnFilter = (key: string, value: any) => {
+    setColumnFilters(prev => ({ ...prev, [key]: value }));
+  };
+
+  const renderFilterInput = (colKey: string) => {
+    const col = allColumns.find(c => c.key === colKey);
+    if (!col) return null;
+    
+    // Check permission
+    if (col.permission && !hasPermission(col.permission)) return null;
+
+    if (col.type === 'number') {
+      return (
+        <div key={colKey} className="flex flex-col gap-1 w-full">
+           <span className="text-xs font-medium text-gray-500">{col.label}</span>
+           <div className="flex items-center gap-1">
+             <Input 
+               placeholder="Min" 
+               className="h-8 text-xs" 
+               type="number"
+               value={columnFilters[`min_${colKey}`] || ''}
+               onChange={(e) => updateColumnFilter(`min_${colKey}`, e.target.value)}
+             />
+             <span className="text-gray-400">-</span>
+             <Input 
+               placeholder="Max" 
+               className="h-8 text-xs" 
+               type="number"
+               value={columnFilters[`max_${colKey}`] || ''}
+               onChange={(e) => updateColumnFilter(`max_${colKey}`, e.target.value)}
+             />
+           </div>
+        </div>
+      );
+    }
+
+    if (col.type === 'date') {
+       return (
+        <div key={colKey} className="flex flex-col gap-1 w-full">
+           <span className="text-xs font-medium text-gray-500">{col.label}</span>
+           <div className="flex items-center gap-1">
+             <Input 
+               placeholder="Start" 
+               className="h-8 text-xs" 
+               type="date"
+               value={columnFilters[`start_${colKey}`] || ''}
+               onChange={(e) => updateColumnFilter(`start_${colKey}`, e.target.value)}
+             />
+             <span className="text-gray-400">-</span>
+             <Input 
+               placeholder="End" 
+               className="h-8 text-xs" 
+               type="date"
+               value={columnFilters[`end_${colKey}`] || ''}
+               onChange={(e) => updateColumnFilter(`end_${colKey}`, e.target.value)}
+             />
+           </div>
+        </div>
+      );
+    }
+
+    // Default string/text
+    return (
+       <div key={colKey} className="flex flex-col gap-1 w-full">
+           <span className="text-xs font-medium text-gray-500">{col.label}</span>
+           <Input 
+               placeholder="Contains..." 
+               className="h-8 text-xs" 
+               value={columnFilters[`contains_${colKey}`] || ''}
+               onChange={(e) => updateColumnFilter(`contains_${colKey}`, e.target.value)}
+             />
+       </div>
+    );
+  };
+
+
+  const renderCell = (user: User, key: string) => {
+    // Custom renderers based on key
+    if (key === "name") {
+      return (
+        <div className="space-y-1 max-w-[150px]">
+          <div className="font-mono text-xs text-gray-900 truncate">{user.userId || user.id}</div>
+          <div className="text-xs text-gray-500 truncate">{user.name || user.fullName || "N/A"}</div>
+        </div>
+      );
+    }
+    if (key === "company") return <span className="text-gray-400">{user.company || "N/A"}</span>;
+    if (["firstVisitTime", "registrationTime", "firstPurchaseTime", "lastActiveTime"].includes(key)) {
+      return formatDateTime(user[key]);
+    }
+    if (key === "totalSpent") return formatCurrency(user.totalSpent || 0, user.currency);
+    if (key === "bounceRate") return user.bounceRate != null ? `${Math.round((user.bounceRate || 0) * 100)}%` : "-";
+    if (key === "currency") return user.currency || "-";
+    
+    // Default fallback
+    return user[key] ?? "-";
+  };
+
+  const tableColumns = useMemo(() => {
+    const columns: any[] = [
+      {
+        title: 'CDP ID',
+        key: 'cdpId',
+        fixed: 'left',
+        width: 150,
+        render: (_: any, record: User) => (
+          <Link
+            to={`/users1/${record.cdpId}`}
+            className="text-blue-600 hover:text-blue-800 hover:underline font-mono"
+          >
+            {record.cdpId || record.userId || "-"}
+          </Link>
+        ),
+      },
+    ];
+
+    selectedColumns.forEach((key) => {
+      const col = allColumns.find((c) => c.key === key);
+      if (!col) return;
+      if (col.permission && !hasPermission(col.permission)) return;
+
+      columns.push({
+        title: col.label,
+        dataIndex: key,
+        key: key,
+        width: 150,
+        sorter: true,
+        sortOrder: sortConfig.field === key ? (sortConfig.direction === 'asc' ? 'ascend' : 'descend') : null,
+        render: (_: any, record: User) => renderCell(record, key),
+      });
+    });
+
+    return columns;
+  }, [selectedColumns, sortConfig, allColumns, hasPermission]);
+
+  const handleTableChange = (newPagination: any, filters: any, sorter: any) => {
+    // Handle Pagination
+    if (newPagination.current !== pagination.page || newPagination.pageSize !== pagination.pageSize) {
+       setPagination(prev => ({
+         ...prev,
+         page: newPagination.current || 1,
+         pageSize: newPagination.pageSize || 10
+       }));
+    }
+
+    // Handle Sort
+    if (sorter.field) {
+       const direction = sorter.order === 'ascend' ? 'asc' : 'desc';
+       if (sortConfig.field !== sorter.field || sortConfig.direction !== direction) {
+          setSortConfig({
+              field: sorter.field as string,
+              direction
+          });
+          if (sortConfig.field !== sorter.field) {
+            setPagination(prev => ({ ...prev, page: 1 }));
+          }
+       }
+    } else if (sortConfig.field && !sorter.order) {
+       setSortConfig({ field: null, direction: 'asc' });
+    }
   };
 
   return (
     <div className="p-6 space-y-6 bg-gray-50 min-h-full">
       <div className="max-w-none">
-        {/* Search and Filter Card */}
-        <Card className="p-6 mb-8 bg-white shadow-sm">
-          <div className="flex flex-col md:flex-row gap-4 items-end">
-            {/* Search Box */}
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <Input
-                placeholder={t("userList.search.placeholder")}
-                value={searchQuery}
-                onChange={(e) => {
-                  setSearchQuery(e.target.value);
-                }}
-                onKeyPress={(e) => e.key === "Enter" && handleSearch()}
-                className="pl-10"
-              />
-            </div>
+        {/* Unified Filter Card */}
+        <Card className="p-4 mb-4 bg-white shadow-sm">
+           {/* Filter Grid */}
+           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+              {/* 1. Fixed CDP ID */}
+              <div className="flex flex-col gap-1 w-full">
+                 <span className="text-xs font-medium text-gray-500">CDP ID</span>
+                 <div className="relative">
+                   <Search className="absolute left-2.5 top-1/2 transform -translate-y-1/2 text-gray-400 h-3 w-3" />
+                   <Input 
+                     placeholder="输入 CDP ID" 
+                     className="pl-8 h-8 text-xs" 
+                     value={searchQuery}
+                     onChange={(e) => setSearchQuery(e.target.value)}
+                     onKeyPress={(e) => e.key === "Enter" && handleSearch()}
+                   />
+                 </div>
+              </div>
 
-            {/* Time Field Selector */}
-            <div className="md:w-1/4">
-              <Select
-                value={selectedTimeField}
-                onValueChange={(value) => {
-                  setSelectedTimeField(value);
-                  setCurrentPage(1);
-                }}
+              {/* 2. Dynamic Columns */}
+              {(() => {
+                 const visibleCols = isFilterExpanded ? selectedColumns : selectedColumns.slice(0, 5);
+                 return visibleCols.map(colKey => renderFilterInput(colKey));
+              })()}
+           </div>
+           
+           {/* Footer Actions */}
+           <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-100">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => setIsFilterExpanded(!isFilterExpanded)}
+                className="text-gray-500 hover:text-gray-900"
               >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="firstVisitTime">{t("userList.timeFields.firstVisitTime")}</SelectItem>
-                  <SelectItem value="registrationTime">{t("userList.timeFields.registrationTime")}</SelectItem>
-                  <SelectItem value="firstPurchaseTime">{t("userList.timeFields.firstPurchaseTime")}</SelectItem>
-                  <SelectItem value="lastActiveTime">{t("userList.timeFields.lastActiveTime")}</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Advanced Date Range Picker */}
-            <div className="md:w-1/4">
-              <AdvancedDateRangePicker value={dateRange} onPresetChange={() => {}} onChange={handleDateRangeChange} />
-            </div>
-          </div>
-
-          {/* Metric Filters */}
-          <div className="flex flex-wrap items-end gap-4 mt-4">
-            {/* <div className="flex items-center gap-3">
-              <span className="text-sm text-gray-600">90天LTV</span>
-              <Input
-                placeholder={"最小值"}
-                value={metricFilters.ltv90Min}
-                onChange={(e) => setMetricFilters((f) => ({ ...f, ltv90Min: e.target.value }))}
-                className="w-20"
-              />
-              <Input
-                placeholder={"最大值"}
-                value={metricFilters.ltv90Max}
-                onChange={(e) => setMetricFilters((f) => ({ ...f, ltv90Max: e.target.value }))}
-                className="w-20"
-              />
-            </div> */}
-            <div className="flex items-center gap-3">
-              <span className="text-sm text-gray-600">近30天会话</span>
-              <Input
-                placeholder={"最小值"}
-                value={metricFilters.sessionsMin}
-                onChange={(e) =>
-                  setMetricFilters((f) => ({
-                    ...f,
-                    sessionsMin: e.target.value,
-                  }))
-                }
-                className="w-20"
-              />
-              <Input
-                placeholder={"最大值"}
-                value={metricFilters.sessionsMax}
-                onChange={(e) =>
-                  setMetricFilters((f) => ({
-                    ...f,
-                    sessionsMax: e.target.value,
-                  }))
-                }
-                className="w-20"
-              />
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="text-sm text-gray-600">近30天页面浏览</span>
-              <Input
-                placeholder={"最小值"}
-                value={metricFilters.pageviewsMin}
-                onChange={(e) =>
-                  setMetricFilters((f) => ({
-                    ...f,
-                    pageviewsMin: e.target.value,
-                  }))
-                }
-                className="w-20"
-              />
-              <Input
-                placeholder={"最大值"}
-                value={metricFilters.pageviewsMax}
-                onChange={(e) =>
-                  setMetricFilters((f) => ({
-                    ...f,
-                    pageviewsMax: e.target.value,
-                  }))
-                }
-                className="w-20"
-              />
-            </div>
-            {/* <div className="flex items-center gap-3">
-              <span className="text-sm text-gray-600">近30天AOV</span>
-              <Input
-                placeholder={"最小值"}
-                value={metricFilters.aovMin}
-                onChange={(e) => setMetricFilters((f) => ({ ...f, aovMin: e.target.value }))}
-                className="w-20"
-              />
-              <Input
-                placeholder={"最大值"}
-                value={metricFilters.aovMax}
-                onChange={(e) => setMetricFilters((f) => ({ ...f, aovMax: e.target.value }))}
-                className="w-20"
-              />
-            </div> */}
-            {/* <div className="flex items-center gap-3">
-              <span className="text-sm text-gray-600">跳出率(%)</span>
-              <Input
-                placeholder={"最小值"}
-                value={metricFilters.bounceMin}
-                onChange={(e) => setMetricFilters((f) => ({ ...f, bounceMin: e.target.value }))}
-                className="w-20"
-              />
-              <Input
-                placeholder={"最大值"}
-                value={metricFilters.bounceMax}
-                onChange={(e) => setMetricFilters((f) => ({ ...f, bounceMax: e.target.value }))}
-                className="w-20"
-              />
-            </div> */}
-            <div className="mt-4 flex items-center gap-2">
-              <Button variant="default" size="sm" onClick={handleSearch}>
-                搜索
+                {isFilterExpanded ? (
+                  <>
+                    <ChevronUp className="h-4 w-4 mr-1" />
+                    折叠筛选
+                  </>
+                ) : (
+                  <>
+                    <ChevronDown className="h-4 w-4 mr-1" />
+                    展开更多 ({selectedColumns.length > 5 ? selectedColumns.length - 5 : 0})
+                  </>
+                )}
               </Button>
-              <Button variant="outline" size="sm" onClick={handleReset}>
-                <RotateCcw className="h-4 w-4 mr-1" />
-                重置
-              </Button>
-            </div>
-          </div>
+
+              <div className="flex items-center gap-2">
+                 <Button variant="outline" size="sm" onClick={handleReset}>
+                   <RotateCcw className="h-4 w-4 mr-1" />
+                   重置所有筛选
+                 </Button>
+                 <Button size="sm" onClick={handleSearch}>
+                   应用筛选
+                 </Button>
+                 
+                 <Sheet open={isColumnConfigOpen} onOpenChange={setIsColumnConfigOpen}>
+                  <SheetTrigger asChild>
+                    <Button variant="outline" size="sm" onClick={handleOpenColumnConfig} className="gap-2 ml-2">
+                      <Settings className="h-4 w-4" />
+                      列配置
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent className="w-[800px] sm:w-[800px] sm:max-w-[800px] flex flex-col p-0 gap-0">
+                      <SheetHeader className="px-6 py-4 border-b">
+                      <SheetTitle>列配置</SheetTitle>
+                    </SheetHeader>
+                    
+                    <div className="flex-1 overflow-hidden flex flex-row bg-gray-50/50">
+                       {/* Left Panel: Selected Columns (Fixed + Sortable) */}
+                       <div className="flex-1 flex flex-col border-r border-gray-200">
+                          {/* 1. Fixed Columns */}
+                          <div className="p-4 pb-0">
+                             <div className="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wider">固定列</div>
+                             <div className="bg-white p-3 rounded border flex items-center gap-3 opacity-75">
+                                <Checkbox checked disabled />
+                                <span className="text-sm font-medium">CDP ID</span>
+                                <span className="text-xs text-gray-400 ml-auto">固定置顶</span>
+                             </div>
+                          </div>
+
+                          {/* 2. Selected Columns (Reorderable) */}
+                          <div className="p-4 flex-1 min-h-0 flex flex-col">
+                             <div className="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wider">已选列 (可排序)</div>
+                             <ScrollArea className="flex-1 bg-white rounded border">
+                                <DragDropContext onDragEnd={handleDragEnd}>
+                                   <Droppable droppableId="selected-columns">
+                                     {(provided) => (
+                                       <div 
+                                         {...provided.droppableProps}
+                                         ref={provided.innerRef}
+                                         className="p-2 space-y-1"
+                                       >
+                                         {tempSelectedColumns.map((key, index) => {
+                                            const col = allColumns.find(c => c.key === key);
+                                            if (!col) return null;
+                                            return (
+                                               <Draggable key={key} draggableId={key} index={index}>
+                                                 {(provided, snapshot) => (
+                                                   <div
+                                                     ref={provided.innerRef}
+                                                     {...provided.draggableProps}
+                                                     className={cn(
+                                                       "flex items-center gap-3 p-2 rounded group border border-transparent",
+                                                       snapshot.isDragging ? "bg-white shadow-md border-gray-200 z-50" : "hover:bg-gray-50 hover:border-gray-100"
+                                                     )}
+                                                     style={provided.draggableProps.style}
+                                                   >
+                                                      <div {...provided.dragHandleProps} className="text-gray-300 hover:text-gray-600 cursor-grab active:cursor-grabbing">
+                                                         <GripVertical className="h-4 w-4" />
+                                                      </div>
+                                                      {/* Keep Up/Down buttons for accessibility/fine control */}
+                                                      <div className="flex flex-col gap-0.5">
+                                                         <Button variant="ghost" size="icon" className="h-3 w-3 text-gray-300 hover:text-gray-600" 
+                                                            disabled={index === 0} onClick={() => handleMoveColumn(index, 'up')}>
+                                                            <ArrowUp className="h-2 w-2" />
+                                                         </Button>
+                                                         <Button variant="ghost" size="icon" className="h-3 w-3 text-gray-300 hover:text-gray-600"
+                                                            disabled={index === tempSelectedColumns.length - 1} onClick={() => handleMoveColumn(index, 'down')}>
+                                                            <ArrowDown className="h-2 w-2" />
+                                                         </Button>
+                                                      </div>
+                                                      <span className="text-sm font-medium flex-1 select-none">{col.label}</span>
+                                                      <span className={`text-[10px] px-1.5 py-0.5 rounded border bg-gray-100 text-gray-600 border-gray-200`}>
+                                                         画像
+                                                      </span>
+                                                      <Button variant="ghost" size="icon" className="h-6 w-6 text-gray-400 hover:text-red-500" onClick={() => handleRemoveColumn(key)}>
+                                                         <X className="h-3 w-3" />
+                                                      </Button>
+                                                   </div>
+                                                 )}
+                                               </Draggable>
+                                            );
+                                         })}
+                                         {provided.placeholder}
+                                         {tempSelectedColumns.length === 0 && (
+                                            <div className="p-8 text-center text-gray-400 text-sm">暂无选定列</div>
+                                         )}
+                                       </div>
+                                     )}
+                                   </Droppable>
+                                </DragDropContext>
+                             </ScrollArea>
+                          </div>
+                       </div>
+
+                       {/* Right Panel: Available Columns */}
+                       <div className="flex-1 flex flex-col p-4">
+                          <div className="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wider">可选列</div>
+                          <div className="flex-1 bg-white rounded border flex flex-col overflow-hidden">
+                             <div className="flex-1 flex flex-col">
+                                <div className="px-3 pt-3">
+                                   <div className="mt-2 relative">
+                                      <Search className="absolute left-2.5 top-1/2 transform -translate-y-1/2 text-gray-400 h-3 w-3" />
+                                      <Input 
+                                        placeholder="搜索字段..." 
+                                        className="pl-8 h-8 text-xs"
+                                        value={columnSearchQuery}
+                                        onChange={(e) => setColumnSearchQuery(e.target.value)}
+                                      />
+                                   </div>
+                                </div>
+                                <div className="flex-1 overflow-hidden mt-2">
+                                   <ScrollArea className="h-full">
+                                      <div className="p-2 space-y-1">
+                                         {getFilteredFields("profile").map(field => {
+                                            if (field.permission && !hasPermission(field.permission)) return null;
+                                            const isSelected = tempSelectedColumns.includes(field.key);
+                                            return (
+                                               <div key={field.key} 
+                                                  className={`flex items-center justify-between p-2 rounded cursor-pointer ${isSelected ? 'opacity-50 bg-gray-50' : 'hover:bg-blue-50'}`}
+                                                  onClick={() => !isSelected && handleToggleColumn(field.key)}
+                                               >
+                                                  <span className="text-sm">{field.label}</span>
+                                                  {isSelected ? <Check className="h-3 w-3 text-gray-400" /> : <div className="h-3 w-3 rounded-full border border-gray-300" />}
+                                               </div>
+                                            );
+                                         })}
+                                      </div>
+                                   </ScrollArea>
+                                </div>
+                             </div>
+                          </div>
+                       </div>
+                    </div>
+
+                    <SheetFooter className="p-4 border-t bg-white">
+                      <Button variant="outline" onClick={handleResetColumns} size="sm">重置</Button>
+                      <Button onClick={handleApplyColumns} size="sm">
+                        应用配置
+                      </Button>
+                    </SheetFooter>
+                  </SheetContent>
+                </Sheet>
+              </div>
+           </div>
         </Card>
 
-        {/* User Table */}
-        <Card className="bg-white shadow-sm">
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[800px]">
-              <thead className="bg-gray-50 border-b">
-                <tr>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-900 min-w-[150px] whitespace-nowrap">
-                    {t("userList.table.headers.user")}
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-900 min-w-[120px] whitespace-nowrap">
-                    {t("userList.table.headers.contact")}
-                  </th>
-                  <th
-                    className="px-4 py-3 text-left text-xs font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100 min-w-[110px]"
-                    onClick={() => handleSort("firstVisitTime")}
-                  >
-                    <div className="flex items-center gap-1 whitespace-nowrap">
-                      <span>{t("userList.table.headers.firstVisit")}</span>
-                      {getSortIcon("firstVisitTime")}
-                    </div>
-                  </th>
-                  <th
-                    className="px-4 py-3 text-left text-xs font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100 min-w-[110px]"
-                    onClick={() => handleSort("registrationTime")}
-                  >
-                    <div className="flex items-center gap-1 whitespace-nowrap">
-                      <span>{t("userList.table.headers.registrationTime")}</span>
-                      {getSortIcon("registrationTime")}
-                    </div>
-                  </th>
-                  <th
-                    className="px-4 py-3 text-left text-xs font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100 min-w-[110px]"
-                    onClick={() => handleSort("firstPurchaseTime")}
-                  >
-                    <div className="flex items-center gap-1 whitespace-nowrap">
-                      <span>{t("userList.table.headers.firstPurchase")}</span>
-                      {getSortIcon("firstPurchaseTime")}
-                    </div>
-                  </th>
-                  <th
-                    className="px-4 py-3 text-left text-xs font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100 min-w-[110px]"
-                    onClick={() => handleSort("lastActiveTime")}
-                  >
-                    <div className="flex items-center gap-1 whitespace-nowrap">
-                      <span>{t("userList.table.headers.lastActive")}</span>
-                      {getSortIcon("lastActiveTime")}
-                    </div>
-                  </th>
-
-                  {hasPermission("user.amountspent") && (
-                    <th
-                      className="px-4 py-3 text-left text-xs font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100 min-w-[100px]"
-                      onClick={() => handleSort("totalSpent")}
-                    >
-                      <div className="flex items-center gap-1 whitespace-nowrap">
-                        <span>{t("userList.table.headers.totalSpent")}</span>
-                        {getSortIcon("totalSpent")}
-                      </div>
-                    </th>
-                  )}
-                  {/* 5+2扩展列 */}
-                  {/* <th
-                    className="px-4 py-3 text-left text-xs font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100 min-w-[90px]"
-                    onClick={() => handleSort("ltv90Days")}
-                  >
-                    <div className="flex items-center gap-1 whitespace-nowrap">
-                      <span>90天</span>
-                      <span>LTV</span>
-                      {getSortIcon("ltv90Days")}
-                    </div>
-                  </th> */}
-                  <th
-                    className="px-4 py-3 text-left text-xs font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100 min-w-[90px]"
-                    onClick={() => handleSort("sessions30d")}
-                  >
-                    <div className="flex items-center gap-1 whitespace-nowrap">
-                      <span>近30天</span>
-                      <span>会话</span>
-                      {getSortIcon("sessions30d")}
-                    </div>
-                  </th>
-                  <th
-                    className="px-4 py-3 text-left text-xs font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100 min-w-[90px]"
-                    onClick={() => handleSort("pageviews30d")}
-                  >
-                    <div className="flex items-center gap-1 whitespace-nowrap">
-                      <span>近30天</span>
-                      <span>浏览</span>
-                      {getSortIcon("pageviews30d")}
-                    </div>
-                  </th>
-                  {/* <th
-                    className="px-4 py-3 text-left text-xs font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100 min-w-[90px]"
-                    onClick={() => handleSort("aov30d")}
-                  >
-                    <div className="flex items-center gap-1 whitespace-nowrap">
-                      <span>近30天</span>
-                      <span>AOV</span>
-                      {getSortIcon("aov30d")}
-                    </div>
-                  </th> */}
-                  {/* <th
-                    className="px-4 py-3 text-left text-xs font-semibold text-gray-900 cursor-pointer select-none hover:bg-gray-100 min-w-[80px]"
-                    onClick={() => handleSort("bounceRate")}
-                  >
-                    <div className="flex items-center gap-1 whitespace-nowrap">
-                      <span>跳出率</span>
-                      {getSortIcon("bounceRate")}
-                    </div>
-                  </th> */}
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-900 min-w-[80px] whitespace-nowrap">
-                    {t("userList.table.headers.actions")}
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {loading ? (
-                  <tr>
-                    <td colSpan={hasPermission("user.amountspent") ? 13 : 12} className="px-6 py-8 text-center">
-                      <div className="flex items-center justify-center gap-2">
-                        <RefreshCw className="h-4 w-4 animate-spin" />
-                        <span>{t("userList.table.states.loading")}</span>
-                      </div>
-                    </td>
-                  </tr>
-                ) : currentUsers.length === 0 ? (
-                  <tr>
-                    <td
-                      colSpan={hasPermission("user.amountspent") ? 13 : 12}
-                      className="px-6 py-8 text-center text-gray-500"
-                    >
-                      {t("userList.table.states.noData")}
-                    </td>
-                  </tr>
-                ) : (
-                  currentUsers.map((user) => (
-                    <tr key={user.cdpId} className="hover:bg-gray-50">
-                      <td className="px-4 py-3">
-                        <div className="space-y-1 max-w-[150px]">
-                          <div className="font-mono text-xs text-gray-900 truncate">{user.userId || user.id}</div>
-                          <div className="text-xs text-gray-500 truncate">{user.name || user.fullName || "N/A"}</div>
-                          <div className="text-xs text-gray-400 truncate">
-                            {user.company || user.companyName || "N/A"}
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 text-xs text-gray-900 max-w-[120px] truncate">
-                        {user.contact || user.contactInfo || "N/A"}
-                      </td>
-                      <td className="px-4 py-3 text-xs text-gray-600 whitespace-nowrap">
-                        {formatDateTime(user.firstVisitTime || "")}
-                      </td>
-                      <td className="px-4 py-3 text-xs text-gray-600 whitespace-nowrap">
-                        {formatDateTime(user.registrationTime || "")}
-                      </td>
-                      <td className="px-4 py-3 text-xs text-gray-600 whitespace-nowrap">
-                        {formatDateTime(user.firstPurchaseTime || "")}
-                      </td>
-                      <td className="px-4 py-3 text-xs text-gray-600 whitespace-nowrap">
-                        {formatDateTime(user.lastActiveTime || "")}
-                      </td>
-
-                      {hasPermission("user.amountspent") && (
-                        <td className="px-4 py-3 text-xs text-gray-900 whitespace-nowrap">
-                          {formatCurrency(user.totalSpent || 0, user.currency)}
-                        </td>
-                      )}
-                      {/* 5+2扩展列渲染 */}
-                      {/* <td className="px-4 py-3 text-xs text-gray-900 whitespace-nowrap">
-                        {user.ltv90Days != null ? formatCurrency(user.ltv90Days, user.currency) : "-"}
-                      </td> */}
-                      <td className="px-4 py-3 text-xs text-gray-900 text-center">{user.sessions30d ?? "-"}</td>
-                      <td className="px-4 py-3 text-xs text-gray-900 text-center">{user.pageviews30d ?? "-"}</td>
-                      {/* <td className="px-4 py-3 text-xs text-gray-900 whitespace-nowrap">
-                        {user.aov30d != null ? formatCurrency(user.aov30d, user.currency) : "-"}
-                      </td>
-                      <td className="px-4 py-3 text-xs text-gray-900 text-center">
-                        {user.bounceRate != null ? `${Math.round((user.bounceRate || 0) * 100)}%` : "-"}
-                      </td> */}
-                      <td className="px-4 py-3">
-                        {hasPermission("user.info") && (
-                          <Link
-                            to={`/users1/${user.userId}`}
-                            className="text-blue-600 hover:text-blue-800 text-xs font-medium whitespace-nowrap"
-                          >
-                            {t("userList.table.actions.viewDetails")}
-                          </Link>
-                        )}
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Pagination */}
-          <div className="px-6 py-4 border-t bg-gray-50 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="text-sm text-gray-700 order-2 sm:order-1">
-              {t("userList.pagination.showing")} {startIndex + 1} {t("userList.pagination.to")}{" "}
-              {Math.min(endIndex, totalCount)} {t("userList.pagination.of")} {totalCount}{" "}
-              {t("userList.pagination.total")}
-            </div>
-            <div className="flex items-center gap-2 order-1 sm:order-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
-                disabled={currentPage === 1 || loading}
-              >
-                {t("userList.pagination.previous")}
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
-                disabled={currentPage >= totalPages || loading}
-              >
-                {t("userList.pagination.next")}
-              </Button>
-            </div>
-          </div>
+        {/* User Table with Column Config */}
+        <Card className="bg-white shadow-sm p-4">
+          <Table
+            columns={tableColumns}
+            dataSource={users}
+            rowKey={(record) => record.id || record.userId || record.cdpId}
+            loading={loading}
+            pagination={{
+              current: pagination.page,
+              pageSize: pagination.pageSize,
+              total: pagination.total,
+              showSizeChanger: true,
+              pageSizeOptions: ['10', '20', '50', '100'],
+              showTotal: (total, range) => t("userList.pagination.showing", {
+                start: range[0],
+                end: range[1],
+                total: total,
+              }),
+              position: ['bottomRight'],
+            }}
+            onChange={handleTableChange}
+            scroll={{ x: 'max-content', y: 450 }}
+          />
         </Card>
       </div>
     </div>
