@@ -330,7 +330,6 @@ export default function UserList() {
 
   // 调用API获取用户数据
   const fetchUsers = useCallback(async () => {
-    debugger;
     setLoading(true);
     try {
       // 构建动态过滤器
