@@ -1,26 +1,37 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { Table } from "antd";
+import { Table, DatePicker } from "antd";
+import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
-import { Search, ArrowUpDown, ArrowUp, ArrowDown, RotateCcw, RefreshCw, Settings, Filter, X, Check, GripVertical, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  Search,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+  RotateCcw,
+  Settings,
+  X,
+  Check,
+  GripVertical,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
 import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetHeader, SheetFooter, SheetTitle, SheetTrigger, SheetClose } from "@/components/ui/sheet";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Sheet, SheetContent, SheetHeader, SheetFooter, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import AdvancedDateRangePicker from "@/components/AdvancedDateRangePicker";
 import { request } from "@/lib/request";
-import { toast } from "@/hooks/use-toast";
 import { MockDataService } from "@/services/mockDataService";
 import { formatStartDate, formatEndDate, cn } from "@/lib/utils";
 import { useRoleStore } from "@/stores/roleStore";
 import useProjectStore from "@/stores/projectStore";
 import { ApiUser } from "@/lib/profile";
+import { userProfileService, ColumnSetting } from "@/services/userProfileService";
+import { toast } from "sonner";
+import { useDebounce } from "@/hooks/useDebounce";
 
 // 列配置接口
 interface ColumnConfig {
@@ -117,9 +128,9 @@ export default function UserList() {
   const [pagination, setPagination] = useState({
     page: 1,
     pageSize: 10,
-    total: 0
+    total: 0,
   });
-  
+
   const [sortConfig, setSortConfig] = useState<SortConfig>({
     field: "lastActiveTime",
     direction: "desc",
@@ -143,15 +154,15 @@ export default function UserList() {
 
   // Column Configuration State
   const [selectedColumns, setSelectedColumns] = useState<string[]>([
-    "name", 
-    "contact", 
-    "firstVisitTime", 
+    "name",
+    "contact",
+    "firstVisitTime",
     "registrationTime",
     "firstPurchaseTime",
     "lastActiveTime",
     "totalSpent",
     "sessions30d",
-    "pageviews30d"
+    "pageviews30d",
   ]);
   const [isColumnConfigOpen, setIsColumnConfigOpen] = useState(false);
   const [tempSelectedColumns, setTempSelectedColumns] = useState<string[]>([]);
@@ -159,24 +170,53 @@ export default function UserList() {
 
   // Dynamic Column Filters
   const [columnFilters, setColumnFilters] = useState<Record<string, any>>({});
-  
+
+  // Debounced values
+  const debouncedSearchQuery = useDebounce(searchQuery, 500);
+  const debouncedColumnFilters = useDebounce(columnFilters, 500);
+
   // Filter Card Expansion State
   const [isFilterExpanded, setIsFilterExpanded] = useState(() => {
     return localStorage.getItem("userListFilterExpanded") === "true";
   });
-  
+
   useEffect(() => {
     localStorage.setItem("userListFilterExpanded", String(isFilterExpanded));
   }, [isFilterExpanded]);
 
+  // Fetch column settings on mount
+  const fetchColumnSettings = useCallback(async () => {
+    try {
+      const response = await userProfileService.getColumnSettings();
+      if (response.data && response.data.length) {
+        // Filter enabled columns and sort by sortOrder
+        const enabledColumns = response.data
+          .filter((setting) => setting.enabled)
+          .sort((a, b) => a.sortOrder - b.sortOrder)
+          .map((setting) => setting.columnKey);
+
+        // Only update if we have enabled columns, otherwise fall back to default
+        if (enabledColumns.length > 0) {
+          setSelectedColumns(enabledColumns);
+        }
+      }
+    } catch (error) {
+      console.error("Failed to fetch column settings:", error);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchColumnSettings();
+  }, [fetchColumnSettings]);
+
   // Helper to generate mock event data for users
   const enrichUsersWithMockEvents = useCallback((users: User[]) => {
-    return users.map(u => {
+    return users.map((u) => {
       const mockEvents: Record<string, number> = {};
-      EVENT_FIELDS.forEach(field => {
+      EVENT_FIELDS.forEach((field) => {
         // Deterministic-ish random based on user ID for consistency
         const seed = u.id.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
-        mockEvents[field.key] = Math.floor((seed % 100) * Math.random() * 10); 
+        mockEvents[field.key] = Math.floor((seed % 100) * Math.random() * 10);
       });
       return { ...u, ...mockEvents };
     });
@@ -264,7 +304,7 @@ export default function UserList() {
       // 构建动态过滤器
       const filters: Record<string, any> = {};
       Object.entries(columnFilters).forEach(([key, value]) => {
-         if (value) filters[key] = value;
+        if (value) filters[key] = value;
       });
 
       if (!currentProject || !currentProject.id) {
@@ -272,7 +312,7 @@ export default function UserList() {
         const mockParams = {
           page: pagination.page,
           pageSize: pagination.pageSize,
-          search: searchQuery.trim() || undefined,
+          search: debouncedSearchQuery.trim() || undefined,
           sortField: sortConfig.field || undefined,
           sortDirection: sortConfig.direction,
           filters: filters,
@@ -282,7 +322,7 @@ export default function UserList() {
         // Cast MockUser to User and enrich
         const usersWithEvents = enrichUsersWithMockEvents(mockResult.users as unknown as User[]);
         setUsers(usersWithEvents);
-        setPagination(prev => ({ ...prev, total: mockResult.total }));
+        setPagination((prev) => ({ ...prev, total: mockResult.total }));
         return;
       }
 
@@ -293,8 +333,8 @@ export default function UserList() {
       };
 
       // 只有在有值的时候才添加这些字段
-      if (searchQuery.trim()) {
-        requestBody.keyword = searchQuery.trim();
+      if (debouncedSearchQuery.trim()) {
+        requestBody.keyword = debouncedSearchQuery.trim();
       }
 
       if (dateRange.start) {
@@ -318,11 +358,11 @@ export default function UserList() {
       const paramother: Record<string, string> = {};
       // Map dynamic columnFilters to paramother if possible (Best Effort)
       Object.entries(filters).forEach(([key, val]) => {
-         // 这里尝试将 filters 映射到 paramother
-         // 例如 min_totalSpent -> totalSpentMin (假设后端支持这种命名约定，或者需要具体映射)
-         // 目前仅对 MockDataService 做了完整支持，真实后端可能需要具体对接
-         // 简单透传：
-         paramother[key] = String(val);
+        // 这里尝试将 filters 映射到 paramother
+        // 例如 min_totalSpent -> totalSpentMin (假设后端支持这种命名约定，或者需要具体映射)
+        // 目前仅对 MockDataService 做了完整支持，真实后端可能需要具体对接
+        // 简单透传：
+        paramother[key] = String(val);
       });
 
       if (Object.keys(paramother).length > 0) {
@@ -331,10 +371,12 @@ export default function UserList() {
 
       // 使用通用request方法明确指定POST，添加快速超时
       const response = await request.request<{
-        code: string;
-        records: ApiUser[];
-        msg: string;
-        total: number;
+        data: {
+          code: string;
+          records: ApiUser[];
+          msg: string;
+          total: number;
+        };
       }>("/quote/api/v1/profile/list", {
         method: "POST",
         data: requestBody,
@@ -351,23 +393,32 @@ export default function UserList() {
         if (Array.isArray(apiUsers)) {
           const convertedUsers = apiUsers.map(convertApiUserToUser);
           setUsers(enrichUsersWithMockEvents(convertedUsers));
-          setPagination(prev => ({ ...prev, total: response.data.data.total || 0 }));
+          setPagination((prev) => ({ ...prev, total: response.data.data.total || 0 }));
         } else {
           console.log("数据格式异常，data不是数组:", apiUsers);
           setUsers([]);
-          setPagination(prev => ({ ...prev, total: 0 }));
+          setPagination((prev) => ({ ...prev, total: 0 }));
         }
       } else {
         console.log("响应中没有data字段");
         setUsers([]);
-        setPagination(prev => ({ ...prev, total: 0 }));
+        setPagination((prev) => ({ ...prev, total: 0 }));
       }
     } catch (error: any) {
       return [];
     } finally {
       setLoading(false);
     }
-  }, [pagination.page, pagination.pageSize, searchQuery, sortConfig, dateRange, selectedTimeField, columnFilters, currentProject]);
+  }, [
+    pagination.page,
+    pagination.pageSize,
+    debouncedSearchQuery,
+    sortConfig,
+    dateRange,
+    selectedTimeField,
+    debouncedColumnFilters,
+    currentProject,
+  ]);
 
   // 初始化和依赖更新时获取数据
   useEffect(() => {
@@ -380,7 +431,7 @@ export default function UserList() {
       field,
       direction: prev.field === field && prev.direction === "asc" ? "desc" : "asc",
     }));
-    setPagination(prev => ({ ...prev, page: 1 })); // 重置到第一页
+    setPagination((prev) => ({ ...prev, page: 1 })); // 重置到第一页
   };
 
   const getSortIcon = (field: string) => {
@@ -392,17 +443,24 @@ export default function UserList() {
 
   // 搜索处理
   const handleSearch = () => {
-    setPagination(prev => ({ ...prev, page: 1 }));
-    fetchUsers();
+    setPagination((prev) => ({ ...prev, page: 1 }));
+    // fetchUsers will be triggered by useEffect when debounced value changes
+    // or if we want immediate trigger, we might need to bypass debounce,
+    // but for now we rely on the effect.
   };
+
+  // Reset page when search query or filters change (debounced)
+  useEffect(() => {
+    setPagination((prev) => ({ ...prev, page: 1 }));
+  }, [debouncedSearchQuery, debouncedColumnFilters]);
 
   // 页面变化处理
   const handlePageChange = (page: number) => {
-    setPagination(prev => ({ ...prev, page }));
+    setPagination((prev) => ({ ...prev, page }));
   };
-  
+
   const handlePageSizeChange = (pageSize: string) => {
-    setPagination(prev => ({ ...prev, pageSize: parseInt(pageSize), page: 1 }));
+    setPagination((prev) => ({ ...prev, pageSize: parseInt(pageSize), page: 1 }));
   };
 
   // Pagination - 由于数据来自API，直接使用users数组
@@ -417,7 +475,7 @@ export default function UserList() {
 
   const handleDateRangeChange = (range: DateRange) => {
     setDateRange(range);
-    setPagination(prev => ({ ...prev, page: 1 }));
+    setPagination((prev) => ({ ...prev, page: 1 }));
   };
 
   const handleReset = () => {
@@ -425,7 +483,7 @@ export default function UserList() {
     // setSelectedTimeField("lastActiveTime"); // Deprecated
     // setDateRange({ start: null, end: null }); // Deprecated
     setSortConfig({ field: null, direction: "asc" });
-    setPagination(prev => ({ ...prev, page: 1 }));
+    setPagination((prev) => ({ ...prev, page: 1 }));
     setColumnFilters({});
   };
 
@@ -454,21 +512,21 @@ export default function UserList() {
 
   const handleToggleColumn = (key: string) => {
     if (tempSelectedColumns.includes(key)) {
-      setTempSelectedColumns(tempSelectedColumns.filter(k => k !== key));
+      setTempSelectedColumns(tempSelectedColumns.filter((k) => k !== key));
     } else {
       setTempSelectedColumns([...tempSelectedColumns, key]);
     }
   };
 
   const handleRemoveColumn = (key: string) => {
-     setTempSelectedColumns(tempSelectedColumns.filter(k => k !== key));
+    setTempSelectedColumns(tempSelectedColumns.filter((k) => k !== key));
   };
 
-  const handleMoveColumn = (index: number, direction: 'up' | 'down') => {
+  const handleMoveColumn = (index: number, direction: "up" | "down") => {
     const newCols = [...tempSelectedColumns];
-    if (direction === 'up' && index > 0) {
+    if (direction === "up" && index > 0) {
       [newCols[index], newCols[index - 1]] = [newCols[index - 1], newCols[index]];
-    } else if (direction === 'down' && index < newCols.length - 1) {
+    } else if (direction === "down" && index < newCols.length - 1) {
       [newCols[index], newCols[index + 1]] = [newCols[index + 1], newCols[index]];
     }
     setTempSelectedColumns(newCols);
@@ -476,30 +534,69 @@ export default function UserList() {
 
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
-    
+
     const items = Array.from(tempSelectedColumns);
     const [reorderedItem] = items.splice(result.source.index, 1);
     items.splice(result.destination.index, 0, reorderedItem);
-    
+
     setTempSelectedColumns(items);
   };
 
-  const handleApplyColumns = () => {
+  const handleApplyColumns = async () => {
     setSelectedColumns(tempSelectedColumns);
-    
+
     // Cleanup filters for removed columns
     const newFilters = { ...columnFilters };
-    Object.keys(newFilters).forEach(filterKey => {
+    Object.keys(newFilters).forEach((filterKey) => {
       // Check if filter key belongs to a removed column
       // Heuristic: filter keys are like min_KEY, max_KEY, etc.
-      const isRemoved = !tempSelectedColumns.some(colKey => filterKey.includes(colKey));
+      const isRemoved = !tempSelectedColumns.some((colKey) => filterKey.includes(colKey));
       if (isRemoved) {
-         delete newFilters[filterKey];
+        delete newFilters[filterKey];
       }
     });
     setColumnFilters(newFilters);
-    
+
     setIsColumnConfigOpen(false);
+
+    // Save configuration to backend
+    try {
+      const settingsToSave: Partial<ColumnSetting>[] = [];
+
+      // 1. Add enabled columns with new order
+      tempSelectedColumns.forEach((key, index) => {
+        const col = allColumns.find((c) => c.key === key);
+        if (col) {
+          settingsToSave.push({
+            columnKey: key,
+            columnLabel: col.label,
+            columnType: col.type || "string",
+            enabled: true,
+            sortOrder: index,
+            sourceField: col.source,
+          });
+        }
+      });
+
+      // 2. Add disabled columns (append to end, order doesn't matter much but good to keep)
+      const disabledColumns = allColumns.filter((col) => !tempSelectedColumns.includes(col.key));
+      disabledColumns.forEach((col, index) => {
+        settingsToSave.push({
+          columnKey: col.key,
+          columnLabel: col.label,
+          columnType: col.type || "string",
+          enabled: false,
+          sortOrder: tempSelectedColumns.length + index,
+          sourceField: col.source,
+        });
+      });
+
+      await userProfileService.saveColumnSettings(settingsToSave);
+      toast.success(t("userList.columnConfigSaved", "Column configuration saved"));
+    } catch (error) {
+      console.error("Failed to save column settings:", error);
+      toast.error(t("userList.columnConfigSaveFailed", "Failed to save column configuration"));
+    }
   };
 
   const handleResetColumns = () => {
@@ -509,95 +606,95 @@ export default function UserList() {
   const getFilteredFields = (source: "profile" | "event") => {
     const fields = source === "profile" ? PROFILE_FIELDS : EVENT_FIELDS;
     if (!columnSearchQuery) return fields;
-    return fields.filter(f => f.label.toLowerCase().includes(columnSearchQuery.toLowerCase()));
+    return fields.filter((f) => f.label.toLowerCase().includes(columnSearchQuery.toLowerCase()));
   };
 
   const allColumns = [...PROFILE_FIELDS, ...EVENT_FIELDS];
   const getColumnLabel = (key: string) => {
-    const col = allColumns.find(c => c.key === key);
+    const col = allColumns.find((c) => c.key === key);
     return col ? col.label : key;
   };
 
   const getColumnSource = (key: string) => {
-     const col = allColumns.find(c => c.key === key);
-     return col ? col.source : "profile";
+    const col = allColumns.find((c) => c.key === key);
+    return col ? col.source : "profile";
   };
-  
+
   const updateColumnFilter = (key: string, value: any) => {
-    setColumnFilters(prev => ({ ...prev, [key]: value }));
+    setColumnFilters((prev) => ({ ...prev, [key]: value }));
   };
 
   const renderFilterInput = (colKey: string) => {
-    const col = allColumns.find(c => c.key === colKey);
+    const col = allColumns.find((c) => c.key === colKey);
     if (!col) return null;
-    
+
     // Check permission
     if (col.permission && !hasPermission(col.permission)) return null;
 
-    if (col.type === 'number') {
+    if (col.type === "number") {
       return (
         <div key={colKey} className="flex flex-col gap-1 w-full">
-           <span className="text-xs font-medium text-gray-500">{col.label}</span>
-           <div className="flex items-center gap-1">
-             <Input 
-               placeholder="Min" 
-               className="h-8 text-xs" 
-               type="number"
-               value={columnFilters[`min_${colKey}`] || ''}
-               onChange={(e) => updateColumnFilter(`min_${colKey}`, e.target.value)}
-             />
-             <span className="text-gray-400">-</span>
-             <Input 
-               placeholder="Max" 
-               className="h-8 text-xs" 
-               type="number"
-               value={columnFilters[`max_${colKey}`] || ''}
-               onChange={(e) => updateColumnFilter(`max_${colKey}`, e.target.value)}
-             />
-           </div>
+          <span className="text-xs font-medium text-gray-500">{col.label}</span>
+          <div className="flex items-center gap-1">
+            <Input
+              placeholder="Min"
+              className="h-8 text-xs"
+              type="number"
+              value={columnFilters[`min_${colKey}`] || ""}
+              onChange={(e) => updateColumnFilter(`min_${colKey}`, e.target.value)}
+            />
+            <span className="text-gray-400">-</span>
+            <Input
+              placeholder="Max"
+              className="h-8 text-xs"
+              type="number"
+              value={columnFilters[`max_${colKey}`] || ""}
+              onChange={(e) => updateColumnFilter(`max_${colKey}`, e.target.value)}
+            />
+          </div>
         </div>
       );
     }
 
-    if (col.type === 'date') {
-       return (
+    if (col.type === "date") {
+      const startVal = columnFilters[`start_${colKey}`];
+      const endVal = columnFilters[`end_${colKey}`];
+      const rangeValue = startVal && endVal ? [dayjs(startVal), dayjs(endVal)] : null;
+
+      return (
         <div key={colKey} className="flex flex-col gap-1 w-full">
-           <span className="text-xs font-medium text-gray-500">{col.label}</span>
-           <div className="flex items-center gap-1">
-             <Input 
-               placeholder="Start" 
-               className="h-8 text-xs" 
-               type="date"
-               value={columnFilters[`start_${colKey}`] || ''}
-               onChange={(e) => updateColumnFilter(`start_${colKey}`, e.target.value)}
-             />
-             <span className="text-gray-400">-</span>
-             <Input 
-               placeholder="End" 
-               className="h-8 text-xs" 
-               type="date"
-               value={columnFilters[`end_${colKey}`] || ''}
-               onChange={(e) => updateColumnFilter(`end_${colKey}`, e.target.value)}
-             />
-           </div>
+          <span className="text-xs font-medium text-gray-500">{col.label}</span>
+          <DatePicker.RangePicker
+            className="w-full"
+            size="middle"
+            value={rangeValue as any}
+            onChange={(dates, dateStrings) => {
+              if (dates) {
+                updateColumnFilter(`start_${colKey}`, dateStrings[0]);
+                updateColumnFilter(`end_${colKey}`, dateStrings[1]);
+              } else {
+                updateColumnFilter(`start_${colKey}`, null);
+                updateColumnFilter(`end_${colKey}`, null);
+              }
+            }}
+          />
         </div>
       );
     }
 
     // Default string/text
     return (
-       <div key={colKey} className="flex flex-col gap-1 w-full">
-           <span className="text-xs font-medium text-gray-500">{col.label}</span>
-           <Input 
-               placeholder="Contains..." 
-               className="h-8 text-xs" 
-               value={columnFilters[`contains_${colKey}`] || ''}
-               onChange={(e) => updateColumnFilter(`contains_${colKey}`, e.target.value)}
-             />
-       </div>
+      <div key={colKey} className="flex flex-col gap-1 w-full">
+        <span className="text-xs font-medium text-gray-500">{col.label}</span>
+        <Input
+          placeholder="Contains..."
+          className="h-8 text-xs"
+          value={columnFilters[`contains_${colKey}`] || ""}
+          onChange={(e) => updateColumnFilter(`contains_${colKey}`, e.target.value)}
+        />
+      </div>
     );
   };
-
 
   const renderCell = (user: User, key: string) => {
     // Custom renderers based on key
@@ -616,7 +713,7 @@ export default function UserList() {
     if (key === "totalSpent") return formatCurrency(user.totalSpent || 0, user.currency);
     if (key === "bounceRate") return user.bounceRate != null ? `${Math.round((user.bounceRate || 0) * 100)}%` : "-";
     if (key === "currency") return user.currency || "-";
-    
+
     // Default fallback
     return user[key] ?? "-";
   };
@@ -624,16 +721,13 @@ export default function UserList() {
   const tableColumns = useMemo(() => {
     const columns: any[] = [
       {
-        title: 'CDP ID',
-        key: 'cdpId',
-        fixed: 'left',
+        title: "CDP ID",
+        key: "cdpId",
+        fixed: "left",
         width: 150,
         render: (_: any, record: User) => (
-          <Link
-            to={`/users1/${record.cdpId}`}
-            className="text-blue-600 hover:text-blue-800 hover:underline font-mono"
-          >
-            {record.cdpId || record.userId || "-"}
+          <Link to={`/users1/${record.userId}`} className="text-blue-600 hover:text-blue-800 hover:underline font-mono">
+            {record.userId || "-"}
           </Link>
         ),
       },
@@ -650,7 +744,7 @@ export default function UserList() {
         key: key,
         width: 150,
         sorter: true,
-        sortOrder: sortConfig.field === key ? (sortConfig.direction === 'asc' ? 'ascend' : 'descend') : null,
+        sortOrder: sortConfig.field === key ? (sortConfig.direction === "asc" ? "ascend" : "descend") : null,
         render: (_: any, record: User) => renderCell(record, key),
       });
     });
@@ -661,27 +755,27 @@ export default function UserList() {
   const handleTableChange = (newPagination: any, filters: any, sorter: any) => {
     // Handle Pagination
     if (newPagination.current !== pagination.page || newPagination.pageSize !== pagination.pageSize) {
-       setPagination(prev => ({
-         ...prev,
-         page: newPagination.current || 1,
-         pageSize: newPagination.pageSize || 10
-       }));
+      setPagination((prev) => ({
+        ...prev,
+        page: newPagination.current || 1,
+        pageSize: newPagination.pageSize || 10,
+      }));
     }
 
     // Handle Sort
     if (sorter.field) {
-       const direction = sorter.order === 'ascend' ? 'asc' : 'desc';
-       if (sortConfig.field !== sorter.field || sortConfig.direction !== direction) {
-          setSortConfig({
-              field: sorter.field as string,
-              direction
-          });
-          if (sortConfig.field !== sorter.field) {
-            setPagination(prev => ({ ...prev, page: 1 }));
-          }
-       }
+      const direction = sorter.order === "ascend" ? "asc" : "desc";
+      if (sortConfig.field !== sorter.field || sortConfig.direction !== direction) {
+        setSortConfig({
+          field: sorter.field as string,
+          direction,
+        });
+        if (sortConfig.field !== sorter.field) {
+          setPagination((prev) => ({ ...prev, page: 1 }));
+        }
+      }
     } else if (sortConfig.field && !sorter.order) {
-       setSortConfig({ field: null, direction: 'asc' });
+      setSortConfig({ field: null, direction: "asc" });
     }
   };
 
@@ -690,200 +784,234 @@ export default function UserList() {
       <div className="max-w-none">
         {/* Unified Filter Card */}
         <Card className="p-4 mb-4 bg-white shadow-sm">
-           {/* Filter Grid */}
-           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-              {/* 1. Fixed CDP ID */}
-              <div className="flex flex-col gap-1 w-full">
-                 <span className="text-xs font-medium text-gray-500">CDP ID</span>
-                 <div className="relative">
-                   <Search className="absolute left-2.5 top-1/2 transform -translate-y-1/2 text-gray-400 h-3 w-3" />
-                   <Input 
-                     placeholder="输入 CDP ID" 
-                     className="pl-8 h-8 text-xs" 
-                     value={searchQuery}
-                     onChange={(e) => setSearchQuery(e.target.value)}
-                     onKeyPress={(e) => e.key === "Enter" && handleSearch()}
-                   />
-                 </div>
+          {/* Filter Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            {/* 1. Fixed CDP ID */}
+            <div className="flex flex-col gap-1 w-full">
+              <span className="text-xs font-medium text-gray-500">CDP ID</span>
+              <div className="relative">
+                <Search className="absolute left-2.5 top-1/2 transform -translate-y-1/2 text-gray-400 h-3 w-3" />
+                <Input
+                  placeholder="输入 CDP ID"
+                  className="pl-8 h-8 text-xs"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyPress={(e) => e.key === "Enter" && handleSearch()}
+                />
               </div>
+            </div>
 
-              {/* 2. Dynamic Columns */}
-              {(() => {
-                 const visibleCols = isFilterExpanded ? selectedColumns : selectedColumns.slice(0, 5);
-                 return visibleCols.map(colKey => renderFilterInput(colKey));
-              })()}
-           </div>
-           
-           {/* Footer Actions */}
-           <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-100">
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={() => setIsFilterExpanded(!isFilterExpanded)}
-                className="text-gray-500 hover:text-gray-900"
-              >
-                {isFilterExpanded ? (
-                  <>
-                    <ChevronUp className="h-4 w-4 mr-1" />
-                    折叠筛选
-                  </>
-                ) : (
-                  <>
-                    <ChevronDown className="h-4 w-4 mr-1" />
-                    展开更多 ({selectedColumns.length > 5 ? selectedColumns.length - 5 : 0})
-                  </>
-                )}
+            {/* 2. Dynamic Columns */}
+            {(() => {
+              const visibleCols = isFilterExpanded ? selectedColumns : selectedColumns.slice(0, 5);
+              return visibleCols.map((colKey) => renderFilterInput(colKey));
+            })()}
+          </div>
+
+          {/* Footer Actions */}
+          <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-100">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsFilterExpanded(!isFilterExpanded)}
+              className="text-gray-500 hover:text-gray-900"
+            >
+              {isFilterExpanded ? (
+                <>
+                  <ChevronUp className="h-4 w-4 mr-1" />
+                  折叠筛选
+                </>
+              ) : (
+                <>
+                  <ChevronDown className="h-4 w-4 mr-1" />
+                  展开更多 ({selectedColumns.length > 5 ? selectedColumns.length - 5 : 0})
+                </>
+              )}
+            </Button>
+
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" onClick={handleReset}>
+                <RotateCcw className="h-4 w-4 mr-1" />
+                重置所有筛选
+              </Button>
+              <Button size="sm" onClick={handleSearch}>
+                应用筛选
               </Button>
 
-              <div className="flex items-center gap-2">
-                 <Button variant="outline" size="sm" onClick={handleReset}>
-                   <RotateCcw className="h-4 w-4 mr-1" />
-                   重置所有筛选
-                 </Button>
-                 <Button size="sm" onClick={handleSearch}>
-                   应用筛选
-                 </Button>
-                 
-                 <Sheet open={isColumnConfigOpen} onOpenChange={setIsColumnConfigOpen}>
-                  <SheetTrigger asChild>
-                    <Button variant="outline" size="sm" onClick={handleOpenColumnConfig} className="gap-2 ml-2">
-                      <Settings className="h-4 w-4" />
-                      列配置
-                    </Button>
-                  </SheetTrigger>
-                  <SheetContent className="w-[800px] sm:w-[800px] sm:max-w-[800px] flex flex-col p-0 gap-0">
-                      <SheetHeader className="px-6 py-4 border-b">
-                      <SheetTitle>列配置</SheetTitle>
-                    </SheetHeader>
-                    
-                    <div className="flex-1 overflow-hidden flex flex-row bg-gray-50/50">
-                       {/* Left Panel: Selected Columns (Fixed + Sortable) */}
-                       <div className="flex-1 flex flex-col border-r border-gray-200">
-                          {/* 1. Fixed Columns */}
-                          <div className="p-4 pb-0">
-                             <div className="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wider">固定列</div>
-                             <div className="bg-white p-3 rounded border flex items-center gap-3 opacity-75">
-                                <Checkbox checked disabled />
-                                <span className="text-sm font-medium">CDP ID</span>
-                                <span className="text-xs text-gray-400 ml-auto">固定置顶</span>
-                             </div>
-                          </div>
+              <Sheet open={isColumnConfigOpen} onOpenChange={setIsColumnConfigOpen}>
+                <SheetTrigger asChild>
+                  <Button variant="outline" size="sm" onClick={handleOpenColumnConfig} className="gap-2 ml-2">
+                    <Settings className="h-4 w-4" />
+                    列配置
+                  </Button>
+                </SheetTrigger>
+                <SheetContent className="w-[800px] sm:w-[800px] sm:max-w-[800px] flex flex-col p-0 gap-0">
+                  <SheetHeader className="px-6 py-4 border-b">
+                    <SheetTitle>列配置</SheetTitle>
+                  </SheetHeader>
 
-                          {/* 2. Selected Columns (Reorderable) */}
-                          <div className="p-4 flex-1 min-h-0 flex flex-col">
-                             <div className="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wider">已选列 (可排序)</div>
-                             <ScrollArea className="flex-1 bg-white rounded border">
-                                <DragDropContext onDragEnd={handleDragEnd}>
-                                   <Droppable droppableId="selected-columns">
-                                     {(provided) => (
-                                       <div 
-                                         {...provided.droppableProps}
-                                         ref={provided.innerRef}
-                                         className="p-2 space-y-1"
-                                       >
-                                         {tempSelectedColumns.map((key, index) => {
-                                            const col = allColumns.find(c => c.key === key);
-                                            if (!col) return null;
-                                            return (
-                                               <Draggable key={key} draggableId={key} index={index}>
-                                                 {(provided, snapshot) => (
-                                                   <div
-                                                     ref={provided.innerRef}
-                                                     {...provided.draggableProps}
-                                                     className={cn(
-                                                       "flex items-center gap-3 p-2 rounded group border border-transparent",
-                                                       snapshot.isDragging ? "bg-white shadow-md border-gray-200 z-50" : "hover:bg-gray-50 hover:border-gray-100"
-                                                     )}
-                                                     style={provided.draggableProps.style}
-                                                   >
-                                                      <div {...provided.dragHandleProps} className="text-gray-300 hover:text-gray-600 cursor-grab active:cursor-grabbing">
-                                                         <GripVertical className="h-4 w-4" />
-                                                      </div>
-                                                      {/* Keep Up/Down buttons for accessibility/fine control */}
-                                                      <div className="flex flex-col gap-0.5">
-                                                         <Button variant="ghost" size="icon" className="h-3 w-3 text-gray-300 hover:text-gray-600" 
-                                                            disabled={index === 0} onClick={() => handleMoveColumn(index, 'up')}>
-                                                            <ArrowUp className="h-2 w-2" />
-                                                         </Button>
-                                                         <Button variant="ghost" size="icon" className="h-3 w-3 text-gray-300 hover:text-gray-600"
-                                                            disabled={index === tempSelectedColumns.length - 1} onClick={() => handleMoveColumn(index, 'down')}>
-                                                            <ArrowDown className="h-2 w-2" />
-                                                         </Button>
-                                                      </div>
-                                                      <span className="text-sm font-medium flex-1 select-none">{col.label}</span>
-                                                      <span className={`text-[10px] px-1.5 py-0.5 rounded border bg-gray-100 text-gray-600 border-gray-200`}>
-                                                         画像
-                                                      </span>
-                                                      <Button variant="ghost" size="icon" className="h-6 w-6 text-gray-400 hover:text-red-500" onClick={() => handleRemoveColumn(key)}>
-                                                         <X className="h-3 w-3" />
-                                                      </Button>
-                                                   </div>
-                                                 )}
-                                               </Draggable>
-                                            );
-                                         })}
-                                         {provided.placeholder}
-                                         {tempSelectedColumns.length === 0 && (
-                                            <div className="p-8 text-center text-gray-400 text-sm">暂无选定列</div>
-                                         )}
-                                       </div>
-                                     )}
-                                   </Droppable>
-                                </DragDropContext>
-                             </ScrollArea>
-                          </div>
-                       </div>
+                  <div className="flex-1 overflow-hidden flex flex-row bg-gray-50/50">
+                    {/* Left Panel: Selected Columns (Fixed + Sortable) */}
+                    <div className="flex-1 flex flex-col border-r border-gray-200">
+                      {/* 1. Fixed Columns */}
+                      <div className="p-4 pb-0">
+                        <div className="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wider">固定列</div>
+                        <div className="bg-white p-3 rounded border flex items-center gap-3 opacity-75">
+                          <Checkbox checked disabled />
+                          <span className="text-sm font-medium">CDP ID</span>
+                          <span className="text-xs text-gray-400 ml-auto">固定置顶</span>
+                        </div>
+                      </div>
 
-                       {/* Right Panel: Available Columns */}
-                       <div className="flex-1 flex flex-col p-4">
-                          <div className="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wider">可选列</div>
-                          <div className="flex-1 bg-white rounded border flex flex-col overflow-hidden">
-                             <div className="flex-1 flex flex-col">
-                                <div className="px-3 pt-3">
-                                   <div className="mt-2 relative">
-                                      <Search className="absolute left-2.5 top-1/2 transform -translate-y-1/2 text-gray-400 h-3 w-3" />
-                                      <Input 
-                                        placeholder="搜索字段..." 
-                                        className="pl-8 h-8 text-xs"
-                                        value={columnSearchQuery}
-                                        onChange={(e) => setColumnSearchQuery(e.target.value)}
-                                      />
-                                   </div>
+                      {/* 2. Selected Columns (Reorderable) */}
+                      <div className="p-4 flex-1 min-h-0 flex flex-col">
+                        <div className="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wider">
+                          已选列 (可排序)
+                        </div>
+                        <ScrollArea className="flex-1 bg-white rounded border">
+                          <DragDropContext onDragEnd={handleDragEnd}>
+                            <Droppable droppableId="selected-columns">
+                              {(provided) => (
+                                <div {...provided.droppableProps} ref={provided.innerRef} className="p-2 space-y-1">
+                                  {tempSelectedColumns.map((key, index) => {
+                                    const col = allColumns.find((c) => c.key === key);
+                                    if (!col) return null;
+                                    return (
+                                      <Draggable key={key} draggableId={key} index={index}>
+                                        {(provided, snapshot) => (
+                                          <div
+                                            ref={provided.innerRef}
+                                            {...provided.draggableProps}
+                                            className={cn(
+                                              "flex items-center gap-3 p-2 rounded group border border-transparent",
+                                              snapshot.isDragging
+                                                ? "bg-white shadow-md border-gray-200 z-50"
+                                                : "hover:bg-gray-50 hover:border-gray-100",
+                                            )}
+                                            style={provided.draggableProps.style}
+                                          >
+                                            <div
+                                              {...provided.dragHandleProps}
+                                              className="text-gray-300 hover:text-gray-600 cursor-grab active:cursor-grabbing"
+                                            >
+                                              <GripVertical className="h-4 w-4" />
+                                            </div>
+                                            {/* Keep Up/Down buttons for accessibility/fine control */}
+                                            <div className="flex flex-col gap-0.5">
+                                              <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-3 w-3 text-gray-300 hover:text-gray-600"
+                                                disabled={index === 0}
+                                                onClick={() => handleMoveColumn(index, "up")}
+                                              >
+                                                <ArrowUp className="h-2 w-2" />
+                                              </Button>
+                                              <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-3 w-3 text-gray-300 hover:text-gray-600"
+                                                disabled={index === tempSelectedColumns.length - 1}
+                                                onClick={() => handleMoveColumn(index, "down")}
+                                              >
+                                                <ArrowDown className="h-2 w-2" />
+                                              </Button>
+                                            </div>
+                                            <span className="text-sm font-medium flex-1 select-none">{col.label}</span>
+                                            <span
+                                              className={`text-[10px] px-1.5 py-0.5 rounded border bg-gray-100 text-gray-600 border-gray-200`}
+                                            >
+                                              画像
+                                            </span>
+                                            <Button
+                                              variant="ghost"
+                                              size="icon"
+                                              className="h-6 w-6 text-gray-400 hover:text-red-500"
+                                              onClick={() => handleRemoveColumn(key)}
+                                            >
+                                              <X className="h-3 w-3" />
+                                            </Button>
+                                          </div>
+                                        )}
+                                      </Draggable>
+                                    );
+                                  })}
+                                  {provided.placeholder}
+                                  {tempSelectedColumns.length === 0 && (
+                                    <div className="p-8 text-center text-gray-400 text-sm">暂无选定列</div>
+                                  )}
                                 </div>
-                                <div className="flex-1 overflow-hidden mt-2">
-                                   <ScrollArea className="h-full">
-                                      <div className="p-2 space-y-1">
-                                         {getFilteredFields("profile").map(field => {
-                                            if (field.permission && !hasPermission(field.permission)) return null;
-                                            const isSelected = tempSelectedColumns.includes(field.key);
-                                            return (
-                                               <div key={field.key} 
-                                                  className={`flex items-center justify-between p-2 rounded cursor-pointer ${isSelected ? 'opacity-50 bg-gray-50' : 'hover:bg-blue-50'}`}
-                                                  onClick={() => !isSelected && handleToggleColumn(field.key)}
-                                               >
-                                                  <span className="text-sm">{field.label}</span>
-                                                  {isSelected ? <Check className="h-3 w-3 text-gray-400" /> : <div className="h-3 w-3 rounded-full border border-gray-300" />}
-                                               </div>
-                                            );
-                                         })}
-                                      </div>
-                                   </ScrollArea>
-                                </div>
-                             </div>
-                          </div>
-                       </div>
+                              )}
+                            </Droppable>
+                          </DragDropContext>
+                        </ScrollArea>
+                      </div>
                     </div>
 
-                    <SheetFooter className="p-4 border-t bg-white">
-                      <Button variant="outline" onClick={handleResetColumns} size="sm">重置</Button>
-                      <Button onClick={handleApplyColumns} size="sm">
-                        应用配置
-                      </Button>
-                    </SheetFooter>
-                  </SheetContent>
-                </Sheet>
-              </div>
-           </div>
+                    {/* Right Panel: Available Columns */}
+                    <div className="flex-1 flex flex-col p-4">
+                      <div className="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wider">可选列</div>
+                      <div className="flex-1 bg-white rounded border flex flex-col overflow-hidden">
+                        <div className="flex-1 flex flex-col">
+                          <div className="px-3 pt-3">
+                            <div className="mt-2 relative">
+                              <Search className="absolute left-2.5 top-1/2 transform -translate-y-1/2 text-gray-400 h-3 w-3" />
+                              <Input
+                                placeholder="搜索字段..."
+                                className="pl-8 h-8 text-xs"
+                                value={columnSearchQuery}
+                                onChange={(e) => setColumnSearchQuery(e.target.value)}
+                              />
+                            </div>
+                          </div>
+                          <div className="flex-1 overflow-hidden mt-2">
+                            <ScrollArea className="h-full">
+                              <div className="p-2 space-y-1">
+                                {getFilteredFields("profile").map((field) => {
+                                  if (field.permission && !hasPermission(field.permission)) return null;
+                                  const isSelected = tempSelectedColumns.includes(field.key);
+                                  return (
+                                    <div
+                                      key={field.key}
+                                      className={`flex items-center justify-between p-2 rounded cursor-pointer transition-colors ${
+                                        isSelected
+                                          ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                                          : "hover:bg-blue-50 text-gray-700"
+                                      }`}
+                                      onClick={() => !isSelected && handleToggleColumn(field.key)}
+                                    >
+                                      <span className="text-sm">{field.label}</span>
+                                      {isSelected ? (
+                                        <div className="flex items-center gap-1">
+                                          <span className="text-[10px]">已添加</span>
+                                          <Check className="h-4 w-4" />
+                                        </div>
+                                      ) : (
+                                        <div className="h-4 w-4 rounded-full border border-gray-300" />
+                                      )}
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </ScrollArea>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <SheetFooter className="p-4 border-t bg-white">
+                    <Button variant="outline" onClick={handleResetColumns} size="sm">
+                      重置
+                    </Button>
+                    <Button onClick={handleApplyColumns} size="sm">
+                      应用配置
+                    </Button>
+                  </SheetFooter>
+                </SheetContent>
+              </Sheet>
+            </div>
+          </div>
         </Card>
 
         {/* User Table with Column Config */}
@@ -898,16 +1026,17 @@ export default function UserList() {
               pageSize: pagination.pageSize,
               total: pagination.total,
               showSizeChanger: true,
-              pageSizeOptions: ['10', '20', '50', '100'],
-              showTotal: (total, range) => t("userList.pagination.showing", {
-                start: range[0],
-                end: range[1],
-                total: total,
-              }),
-              position: ['bottomRight'],
+              pageSizeOptions: ["10", "20", "50", "100"],
+              showTotal: (total, range) =>
+                t("userList.pagination.showing", {
+                  start: range[0],
+                  end: range[1],
+                  total: total,
+                }),
+              position: ["bottomRight"],
             }}
             onChange={handleTableChange}
-            scroll={{ x: 'max-content', y: 450 }}
+            scroll={{ x: "max-content", y: 450 }}
           />
         </Card>
       </div>

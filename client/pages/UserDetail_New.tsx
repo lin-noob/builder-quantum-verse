@@ -22,6 +22,7 @@ import { MockDataService } from "@/services/mockDataService";
 import { formatDateYMD } from "@/lib/utils";
 // 引入事件类型以计算会话/转化/活跃指标
 import { type ApiEvent } from "@/lib/profile";
+import { ruleService } from "@/services/ruleService";
 
 // TooltipIcon: 使用Portal将提示层渲染到body，避免被overflow或表格单元格裁剪
 const TooltipIcon = ({ text }: { text: string }) => {
@@ -98,19 +99,24 @@ export default function UserDetail() {
 
   useEffect(() => {
     // 模拟加载事件统计数据
-    setEventStatsLoading(true);
-    const timer = setTimeout(() => {
-      setEventStats([
-        { name: "View Product", count: 128 },
-        { name: "Add to Cart", count: 45 },
-        { name: "Checkout Start", count: 12 },
-        { name: "Purchase Completed", count: 8 },
-        { name: "Site Search", count: 64 },
-        { name: "Banner Click", count: 32 },
-      ]);
-      setEventStatsLoading(false);
-    }, 1000);
-    return () => clearTimeout(timer);
+    async function ruleCols() {
+      setEventStatsLoading(true);
+      try {
+        const ruleData = await ruleService.getRules("");
+        const stats = ruleData.map((item) => ({
+          name: item.ruleName,
+          count: 0,
+        }));
+        setEventStats(stats);
+      } catch (error) {
+      } finally {
+        setEventStatsLoading(false);
+      }
+    }
+
+    ruleCols();
+
+    return () => {};
   }, [cdpId]);
 
   useEffect(() => {
@@ -797,10 +803,14 @@ export default function UserDetail() {
                                   <td className="px-4 py-3 text-sm text-gray-900 bg-gray-50">首访页面链接</td>
                                   <td className="px-4 py-3 text-sm text-gray-900" colSpan={3}>
                                     {user.firstReferrer ? (
-                                      <a 
-                                        href={user.firstReferrer.startsWith('http') ? user.firstReferrer : `http://${user.firstReferrer}`} 
-                                        target="_blank" 
-                                        rel="noopener noreferrer" 
+                                      <a
+                                        href={
+                                          user.firstReferrer.startsWith("http")
+                                            ? user.firstReferrer
+                                            : `http://${user.firstReferrer}`
+                                        }
+                                        target="_blank"
+                                        rel="noopener noreferrer"
                                         className="text-blue-600 hover:underline break-all"
                                       >
                                         {user.firstReferrer}
@@ -975,20 +985,14 @@ export default function UserDetail() {
                                       const stat2 = eventStats[i + 1];
                                       rows.push(
                                         <tr key={i}>
-                                          <td className="px-4 py-3 text-sm text-gray-900 bg-gray-50">
-                                            {stat1.name}
-                                          </td>
-                                          <td className="px-4 py-3 text-sm text-gray-900">
-                                            {stat1.count}
-                                          </td>
+                                          <td className="px-4 py-3 text-sm text-gray-900 bg-gray-50">{stat1.name}</td>
+                                          <td className="px-4 py-3 text-sm text-gray-900">{stat1.count || "-"}</td>
                                           {stat2 ? (
                                             <>
                                               <td className="px-4 py-3 text-sm text-gray-900 bg-gray-50">
                                                 {stat2.name}
                                               </td>
-                                              <td className="px-4 py-3 text-sm text-gray-900">
-                                                {stat2.count}
-                                              </td>
+                                              <td className="px-4 py-3 text-sm text-gray-900">{stat2.count || "-"}</td>
                                             </>
                                           ) : (
                                             <>
@@ -996,7 +1000,7 @@ export default function UserDetail() {
                                               <td className="px-4 py-3 text-sm text-gray-900"></td>
                                             </>
                                           )}
-                                        </tr>
+                                        </tr>,
                                       );
                                     }
                                     return rows;
@@ -1007,8 +1011,6 @@ export default function UserDetail() {
                           )}
                         </div>
                       </div>
-
-
                     </TabsContent>
 
                     <TabsContent value="timeline" className="space-y-6">
