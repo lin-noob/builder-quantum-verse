@@ -221,6 +221,7 @@ export default function UserDetail() {
       orders: [],
       sessionId: apiUser.sessionId,
       userEngagement: apiUser.userEngagement,
+      firstVisitSite: apiUser.firstVisitSite,
     } as any;
   }, [apiUser, cdpId]);
 
@@ -802,18 +803,18 @@ export default function UserDetail() {
                                 <tr>
                                   <td className="px-4 py-3 text-sm text-gray-900 bg-gray-50">首访页面链接</td>
                                   <td className="px-4 py-3 text-sm text-gray-900" colSpan={3}>
-                                    {user.firstReferrer ? (
+                                    {user.firstVisitSite ? (
                                       <a
                                         href={
-                                          user.firstReferrer.startsWith("http")
-                                            ? user.firstReferrer
-                                            : `http://${user.firstReferrer}`
+                                          user.firstVisitSite.startsWith("http")
+                                            ? user.firstVisitSite
+                                            : `http://${user.firstVisitSite}`
                                         }
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="text-blue-600 hover:underline break-all"
                                       >
-                                        {user.firstReferrer}
+                                        {user.firstVisitSite}
                                       </a>
                                     ) : (
                                       "-"

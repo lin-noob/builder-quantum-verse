@@ -43,19 +43,88 @@ interface ColumnConfig {
   fixed?: boolean;
   permission?: string;
   type?: "string" | "number" | "date" | "boolean";
+  filterable?: boolean; // 是否可筛选，默认为 true
 }
+
+const extraF: ColumnConfig[] = [
+  {
+    key: "source",
+    label: "utm_source",
+    source: "profile",
+    type: "string",
+  },
+  {
+    key: "medium",
+    label: "utm_medium",
+    source: "profile",
+    type: "string",
+  },
+  {
+    key: "campaign",
+    label: "utm_campaign",
+    source: "profile",
+    type: "string",
+  },
+];
+
+const extraS: ColumnConfig[] = [
+  // {
+  //   key: "utm_content",
+  //   label: "utm_content",
+  //   source: "profile",
+  //   type: "string",
+  // },
+  // {
+  //   key: "utm_term",
+  //   label: "utm_term",
+  //   source: "profile",
+  //   type: "string",
+  // },
+  // 30天
+  {
+    key: "sessionTotal",
+    label: "近30天会话次数", // sessionTotal
+    source: "profile",
+    type: "string",
+  },
+  // {
+  //   key: "eventCount7d",
+  //   label: "近7天事件数",
+  //   source: "profile",
+  //   type: "string",
+  // },
+  // {
+  //   key: "pageViewTotal",
+  //   label: "页面浏览量",
+  //   source: "profile",
+  //   type: "string",
+  // },
+  {
+    key: "eventCount",
+    label: "近30天事件数", // eventCount
+    source: "profile",
+    type: "string",
+  },
+  {
+    key: "pageViewTotal",
+    label: "近30天页面浏览", // pageViewTotal
+    source: "profile",
+    type: "string",
+  },
+];
 
 // 预定义字段
 const PROFILE_FIELDS: ColumnConfig[] = [
   { key: "name", label: "用户姓名", source: "profile", type: "string" },
   { key: "company", label: "公司", source: "profile", type: "string" },
   { key: "contact", label: "联系方式", source: "profile", type: "string" },
+  { key: "firstVisitSite", label: "首访链接", source: "profile", type: "string" },
   { key: "firstVisitTime", label: "首次访问时间", source: "profile", type: "date" },
   { key: "registrationTime", label: "注册时间", source: "profile", type: "date" },
-  { key: "firstPurchaseTime", label: "首次购买时间", source: "profile", type: "date" },
+  // { key: "firstPurchaseTime", label: "首次购买时间", source: "profile", type: "date" },
   { key: "lastActiveTime", label: "最近活跃时间", source: "profile", type: "date" },
-  { key: "totalSpent", label: "总消费", source: "profile", permission: "user.amountspent", type: "number" },
-  { key: "currency", label: "货币", source: "profile", type: "string" },
+  // { key: "totalSpent", label: "总消费", source: "profile", permission: "user.amountspent", type: "number" },
+  // { key: "currency", label: "货币", source: "profile", type: "string" },
   // { key: "ltv90Days", label: "90天LTV", source: "profile", type: "number" },
   // { key: "sessions30d", label: "近30天会话", source: "profile", type: "number" },
   // { key: "pageviews30d", label: "近30天PV", source: "profile", type: "number" },
@@ -258,7 +327,8 @@ export default function UserList() {
 
   // 转换API用户数据为UI格式
   const convertApiUserToUser = (apiUser: ApiUser): User => {
-    return {
+    const baseUser = {
+      ...apiUser,
       id: apiUser.id || "",
       userId: apiUser.userId || "",
       cdpId: apiUser.cdpUserId ? apiUser.cdpUserId.toString() : "",
@@ -276,7 +346,29 @@ export default function UserList() {
       sessions30d: apiUser.sessionTotal,
       pageviews30d: apiUser.pageViewTotal,
       metrics: apiUser.metrics,
+      userProfile: apiUser.userProfile,
     };
+    // 添加 extraF 字段 - 从 userProfile 中取值
+    extraF.forEach((field) => {
+      if (apiUser.userProfile && apiUser.userProfile[field.key as keyof ApiUser] !== undefined) {
+        (baseUser as any)[field.key] = apiUser.userProfile[field.key as keyof ApiUser];
+      }
+    });
+
+    // 添加 extraS 字段 - 从列表字段中取值
+    extraS.forEach((field) => {
+      if (field.key === "sessionCount30d") {
+        (baseUser as any)[field.key] = apiUser.userEngagement?.sessionCount30d || apiUser.sessionTotal;
+      } else if (field.key === "eventCount30d") {
+        (baseUser as any)[field.key] = apiUser.userEngagement?.eventCount30d;
+      } else if (field.key === "pageView30d") {
+        (baseUser as any)[field.key] = apiUser.userEngagement?.pageView30d || apiUser.pageViewTotal;
+      } else if (apiUser[field.key as keyof ApiUser] !== undefined) {
+        (baseUser as any)[field.key] = apiUser[field.key as keyof ApiUser];
+      }
+    });
+
+    return baseUser;
   };
 
   // 获取搜索类型映射
@@ -313,8 +405,12 @@ export default function UserList() {
         return "ltv_90_days";
       case "sessions30d":
         return "session_total";
-      case "pageviews30d":
-        return "pageviews_30d";
+      case "eventCount":
+        return "eventCount";
+      case "sessionTotal":
+        return "sessionTotal";
+      case "pageViewTotal":
+        return "pageViewTotal";
       case "aov30d":
         return "aov_30d";
       case "contact":
@@ -336,10 +432,16 @@ export default function UserList() {
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
-      // 构建动态过滤器
+      // 构建动态过滤器，排除 extraF 和 extraS 配置的字段以及 firstVisitSite
       const filters: Record<string, any> = {};
+      const extraFKeys = extraF.map((col) => col.key);
+      const extraSKeys = extraS.map((col) => col.key);
+      const excludedKeys = [...extraFKeys, ...extraSKeys, "firstVisitSite"];
+
       Object.entries(columnFilters).forEach(([key, value]) => {
-        if (value) filters[key] = value;
+        if (value && !excludedKeys.includes(key)) {
+          filters[key] = value;
+        }
       });
 
       if (!currentProject || !currentProject.id) {
@@ -454,6 +556,7 @@ export default function UserList() {
         setPagination((prev) => ({ ...prev, total: 0 }));
       }
     } catch (error: any) {
+      console.log("获取用户数据失败:", error);
       return [];
     } finally {
       setLoading(false);
@@ -654,12 +757,15 @@ export default function UserList() {
   };
 
   const getFilteredFields = (source: "profile" | "event") => {
-    const fields = source === "profile" ? PROFILE_FIELDS : EVENT_FIELDS;
+    const fields = source === "profile" ? [...PROFILE_FIELDS, ...extraF, ...extraS] : EVENT_FIELDS;
     if (!columnSearchQuery) return fields;
     return fields.filter((f) => f.label.toLowerCase().includes(columnSearchQuery.toLowerCase()));
   };
 
-  const allColumns = useMemo(() => [...PROFILE_FIELDS, ...EVENT_FIELDS, ...ruleFields], [ruleFields]);
+  const allColumns = useMemo(
+    () => [...PROFILE_FIELDS, ...EVENT_FIELDS, ...extraF, ...extraS, ...ruleFields],
+    [ruleFields],
+  );
   const getColumnLabel = (key: string) => {
     const col = allColumns.find((c) => c.key === key);
     return col ? col.label : key;
@@ -677,6 +783,12 @@ export default function UserList() {
   const renderFilterInput = (colKey: string) => {
     const col = allColumns.find((c) => c.key === colKey);
     if (!col) return null;
+
+    // 排除 extraF 和 extraS 配置的字段以及 firstVisitSite，不生成筛选输入框
+    const extraFKeys = extraF.map((col) => col.key);
+    const extraSKeys = extraS.map((col) => col.key);
+    const excludedKeys = [...extraFKeys, ...extraSKeys, "firstVisitSite"];
+    if (excludedKeys.includes(colKey)) return null;
 
     // Check permission
     if (col.permission && !hasPermission(col.permission)) return null;
@@ -984,7 +1096,7 @@ export default function UserList() {
                                             <span
                                               className={`text-[10px] px-1.5 py-0.5 rounded border bg-gray-100 text-gray-600 border-gray-200`}
                                             >
-                                              画像
+                                              {col.source === "profile" ? "画像" : "事件"}
                                             </span>
                                             <Button
                                               variant="ghost"

@@ -146,6 +146,8 @@ export interface ApiUser extends UserProfile {
   sessionTotal: number;
   pageViewTotal: number;
   ltv90Days?: number;
+  userProfile?: Record<string, string | number>;
+  firstVisitSite?: string;
 }
 
 interface UserProfile {
