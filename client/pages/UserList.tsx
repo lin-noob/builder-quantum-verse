@@ -100,6 +100,10 @@ export interface User {
 }
 
 interface OrderSummaryDto {
+  cdpUserId?: string;
+  fullName?: string;
+  contactInfo?: string;
+  companyName?: string;
   currentpage?: number;
   endDate?: string;
   keyword?: string;
@@ -339,7 +343,6 @@ export default function UserList() {
       });
 
       if (!currentProject || !currentProject.id) {
-        console.log("No current project or empty project id, using mock data for users");
         const mockParams = {
           page: pagination.page,
           pageSize: pagination.pageSize,
@@ -365,7 +368,7 @@ export default function UserList() {
 
       // 只有在有值的时候才添加这些字段
       if (debouncedSearchQuery.trim()) {
-        requestBody.keyword = debouncedSearchQuery.trim();
+        requestBody.cdpUserId = debouncedSearchQuery.trim();
       }
 
       if (dateRange.start) {
@@ -376,9 +379,9 @@ export default function UserList() {
         requestBody.endDate = formatEndDate(dateRange.end);
       }
 
-      if (selectedTimeField) {
-        requestBody.searchtype = getSearchTypeMapping(selectedTimeField);
-      }
+      // if (selectedTimeField) {
+      //   requestBody.searchtype = getSearchTypeMapping(selectedTimeField);
+      // }
 
       if (sortConfig.field) {
         // Check if this is a rule field (numeric key)
@@ -392,15 +395,28 @@ export default function UserList() {
           requestBody.order = sortConfig.direction;
         }
       }
-
-      const paramother: Record<string, string> = {};
       Object.entries(filters).forEach(([key, val]) => {
-        paramother[key] = String(val);
-      });
+        // Map date filters to backend field names
+        let mappedKey = key;
 
-      if (Object.keys(paramother).length > 0) {
-        requestBody.paramother = paramother;
-      }
+        // Map date range filters for specific fields
+        if (key === "start_firstVisitTime") mappedKey = "startSignTime";
+        else if (key === "end_firstVisitTime") mappedKey = "endSignTime";
+        else if (key === "start_registrationTime") mappedKey = "startDate";
+        else if (key === "end_registrationTime") mappedKey = "endDate";
+        else if (key === "start_firstPurchaseTime") mappedKey = "startMinBuyTime";
+        else if (key === "end_firstPurchaseTime") mappedKey = "endMinBuyTime";
+        else if (key === "start_lastActiveTime") mappedKey = "startMaxBuyTime";
+        else if (key === "end_lastActiveTime") mappedKey = "endMaxBuyTime";
+        else if (key === "contact") mappedKey = "contactInfo";
+        else if (key === "name") mappedKey = "fullName";
+        else if (key === "company") mappedKey = "companyName";
+        else if (key === "max_totalSpent") mappedKey = "maxTotalOrders";
+        else if (key === "min_totalSpent") mappedKey = "minTotalOrders";
+        else if (key === "currency") mappedKey = "currencySymbol";
+
+        requestBody[mappedKey] = String(val);
+      });
 
       // 使用通用request方法明确指定POST，添加快速超时
       const response = await request.request<{
@@ -518,6 +534,7 @@ export default function UserList() {
     setSortConfig({ field: null, direction: "asc" });
     setPagination((prev) => ({ ...prev, page: 1 }));
     setColumnFilters({});
+    setSearchQuery("");
   };
 
   // 手动刷新数据
@@ -722,8 +739,8 @@ export default function UserList() {
         <Input
           placeholder="Contains..."
           className="h-8 text-xs"
-          value={columnFilters[`contains_${colKey}`] || ""}
-          onChange={(e) => updateColumnFilter(`contains_${colKey}`, e.target.value)}
+          value={columnFilters[`${colKey}`] || ""}
+          onChange={(e) => updateColumnFilter(`${colKey}`, e.target.value)}
         />
       </div>
     );
