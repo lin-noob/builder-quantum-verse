@@ -132,6 +132,7 @@ export interface ApiUser extends UserProfile {
   shopid: string;
   currencySymbol: string;
   sessionId: string;
+  metrics: Record<string, string | number>;
   labelList?: ApiLabel[]; // backend field name
   eventList?: ApiEventListResponse; // Add eventList field
   userEngagement?: {

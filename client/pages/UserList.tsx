@@ -30,8 +30,10 @@ import { useRoleStore } from "@/stores/roleStore";
 import useProjectStore from "@/stores/projectStore";
 import { ApiUser } from "@/lib/profile";
 import { userProfileService, ColumnSetting } from "@/services/userProfileService";
+import { ruleService } from "@/services/ruleService";
 import { toast } from "sonner";
 import { useDebounce } from "@/hooks/useDebounce";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // 列配置接口
 interface ColumnConfig {
@@ -54,11 +56,11 @@ const PROFILE_FIELDS: ColumnConfig[] = [
   { key: "lastActiveTime", label: "最近活跃时间", source: "profile", type: "date" },
   { key: "totalSpent", label: "总消费", source: "profile", permission: "user.amountspent", type: "number" },
   { key: "currency", label: "货币", source: "profile", type: "string" },
-  { key: "ltv90Days", label: "90天LTV", source: "profile", type: "number" },
-  { key: "sessions30d", label: "近30天会话", source: "profile", type: "number" },
-  { key: "pageviews30d", label: "近30天PV", source: "profile", type: "number" },
-  { key: "aov30d", label: "近30天AOV", source: "profile", type: "number" },
-  { key: "bounceRate", label: "跳出率", source: "profile", type: "number" },
+  // { key: "ltv90Days", label: "90天LTV", source: "profile", type: "number" },
+  // { key: "sessions30d", label: "近30天会话", source: "profile", type: "number" },
+  // { key: "pageviews30d", label: "近30天PV", source: "profile", type: "number" },
+  // { key: "aov30d", label: "近30天AOV", source: "profile", type: "number" },
+  // { key: "bounceRate", label: "跳出率", source: "profile", type: "number" },
 ];
 
 // EVENT_FIELDS removed from optional columns per requirement
@@ -107,6 +109,7 @@ interface OrderSummaryDto {
   searchtype?: string;
   shopid?: string;
   sort?: string;
+  sortColumn?: string;
   startDate?: string;
 }
 
@@ -170,6 +173,7 @@ export default function UserList() {
 
   // Dynamic Column Filters
   const [columnFilters, setColumnFilters] = useState<Record<string, any>>({});
+  const [ruleFields, setRuleFields] = useState<ColumnConfig[]>([]);
 
   // Debounced values
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
@@ -209,6 +213,26 @@ export default function UserList() {
     fetchColumnSettings();
   }, [fetchColumnSettings]);
 
+  // Fetch rule fields
+  const fetchRuleFields = useCallback(async () => {
+    try {
+      const rules = await ruleService.getRules("");
+      const fields: ColumnConfig[] = rules.map((rule) => ({
+        key: rule.id ? String(rule.id) : rule.ruleName, // Using rule ID directly as key
+        label: rule.ruleName,
+        source: "profile", // Rules are usually profile attributes
+        type: "number", // Rule metrics are typically numbers
+      }));
+      setRuleFields(fields);
+    } catch (error) {
+      console.error("Failed to fetch rule fields:", error);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchRuleFields();
+  }, [fetchRuleFields]);
+
   // Helper to generate mock event data for users
   const enrichUsersWithMockEvents = useCallback((users: User[]) => {
     return users.map((u) => {
@@ -247,8 +271,7 @@ export default function UserList() {
       ltv90Days: apiUser.ltv90Days,
       sessions30d: apiUser.sessionTotal,
       pageviews30d: apiUser.pageViewTotal,
-      aov30d: apiUser.aov30d,
-      bounceRate: apiUser.bounceRate,
+      metrics: apiUser.metrics,
     };
   };
 
@@ -285,11 +308,19 @@ export default function UserList() {
       case "ltv90Days":
         return "ltv_90_days";
       case "sessions30d":
-        return "sessions_30d";
+        return "session_total";
       case "pageviews30d":
         return "pageviews_30d";
       case "aov30d":
         return "aov_30d";
+      case "contact":
+        return "contact_info";
+      case "name":
+        return "full_name";
+      case "company":
+        return "company_name";
+      case "currency":
+        return "currency_symbol";
       case "bounceRate":
         return "bounce_rate";
       default:
@@ -299,6 +330,7 @@ export default function UserList() {
 
   // 调用API获取用户数据
   const fetchUsers = useCallback(async () => {
+    debugger;
     setLoading(true);
     try {
       // 构建动态过滤器
@@ -350,18 +382,20 @@ export default function UserList() {
       }
 
       if (sortConfig.field) {
-        requestBody.sort = getSortFieldMapping(sortConfig.field);
-        requestBody.order = sortConfig.direction;
+        // Check if this is a rule field (numeric key)
+        if (!isNaN(Number(sortConfig.field))) {
+          // Rule field: use sortColumn
+          requestBody.sortColumn = sortConfig.field;
+          requestBody.order = sortConfig.direction;
+        } else {
+          // Regular field: use sort
+          requestBody.sort = getSortFieldMapping(sortConfig.field);
+          requestBody.order = sortConfig.direction;
+        }
       }
 
-      // 扩展指标筛选通过 paramother 传递（后端可忽略，前端将使用）
       const paramother: Record<string, string> = {};
-      // Map dynamic columnFilters to paramother if possible (Best Effort)
       Object.entries(filters).forEach(([key, val]) => {
-        // 这里尝试将 filters 映射到 paramother
-        // 例如 min_totalSpent -> totalSpentMin (假设后端支持这种命名约定，或者需要具体映射)
-        // 目前仅对 MockDataService 做了完整支持，真实后端可能需要具体对接
-        // 简单透传：
         paramother[key] = String(val);
       });
 
@@ -609,7 +643,7 @@ export default function UserList() {
     return fields.filter((f) => f.label.toLowerCase().includes(columnSearchQuery.toLowerCase()));
   };
 
-  const allColumns = [...PROFILE_FIELDS, ...EVENT_FIELDS];
+  const allColumns = useMemo(() => [...PROFILE_FIELDS, ...EVENT_FIELDS, ...ruleFields], [ruleFields]);
   const getColumnLabel = (key: string) => {
     const col = allColumns.find((c) => c.key === key);
     return col ? col.label : key;
@@ -714,6 +748,12 @@ export default function UserList() {
     if (key === "bounceRate") return user.bounceRate != null ? `${Math.round((user.bounceRate || 0) * 100)}%` : "-";
     if (key === "currency") return user.currency || "-";
 
+    // Handle rule fields from metrics object
+    // Check if this is a numeric key (rule ID)
+    if (!isNaN(Number(key)) && user.metrics && user.metrics[key] !== undefined) {
+      return user.metrics[key];
+    }
+
     // Default fallback
     return user[key] ?? "-";
   };
@@ -724,7 +764,7 @@ export default function UserList() {
         title: "CDP ID",
         key: "cdpId",
         fixed: "left",
-        width: 150,
+        width: 220,
         render: (_: any, record: User) => (
           <Link to={`/users1/${record.userId}`} className="text-blue-600 hover:text-blue-800 hover:underline font-mono">
             {record.userId || "-"}
@@ -742,7 +782,6 @@ export default function UserList() {
         title: col.label,
         dataIndex: key,
         key: key,
-        width: 150,
         sorter: true,
         sortOrder: sortConfig.field === key ? (sortConfig.direction === "asc" ? "ascend" : "descend") : null,
         render: (_: any, record: User) => renderCell(record, key),
@@ -803,7 +842,9 @@ export default function UserList() {
 
             {/* 2. Dynamic Columns */}
             {(() => {
-              const visibleCols = isFilterExpanded ? selectedColumns : selectedColumns.slice(0, 5);
+              const ruleFieldKeys = ruleFields.map((rf) => rf.key);
+              const filteredSelectedCols = selectedColumns.filter((key) => !ruleFieldKeys.includes(key));
+              const visibleCols = isFilterExpanded ? filteredSelectedCols : filteredSelectedCols.slice(0, 5);
               return visibleCols.map((colKey) => renderFilterInput(colKey));
             })()}
           </div>
@@ -824,7 +865,13 @@ export default function UserList() {
               ) : (
                 <>
                   <ChevronDown className="h-4 w-4 mr-1" />
-                  展开更多 ({selectedColumns.length > 5 ? selectedColumns.length - 5 : 0})
+                  展开更多 (
+                  {(() => {
+                    const ruleFieldKeys = ruleFields.map((rf) => rf.key);
+                    const filteredSelectedCols = selectedColumns.filter((key) => !ruleFieldKeys.includes(key));
+                    return filteredSelectedCols.length > 5 ? filteredSelectedCols.length - 5 : 0;
+                  })()}
+                  )
                 </>
               )}
             </Button>
@@ -965,35 +1012,92 @@ export default function UserList() {
                             </div>
                           </div>
                           <div className="flex-1 overflow-hidden mt-2">
-                            <ScrollArea className="h-full">
-                              <div className="p-2 space-y-1">
-                                {getFilteredFields("profile").map((field) => {
-                                  if (field.permission && !hasPermission(field.permission)) return null;
-                                  const isSelected = tempSelectedColumns.includes(field.key);
-                                  return (
-                                    <div
-                                      key={field.key}
-                                      className={`flex items-center justify-between p-2 rounded cursor-pointer transition-colors ${
-                                        isSelected
-                                          ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                                          : "hover:bg-blue-50 text-gray-700"
-                                      }`}
-                                      onClick={() => !isSelected && handleToggleColumn(field.key)}
-                                    >
-                                      <span className="text-sm">{field.label}</span>
-                                      {isSelected ? (
-                                        <div className="flex items-center gap-1">
-                                          <span className="text-[10px]">已添加</span>
-                                          <Check className="h-4 w-4" />
-                                        </div>
-                                      ) : (
-                                        <div className="h-4 w-4 rounded-full border border-gray-300" />
+                            <Tabs defaultValue="business" className="h-full flex flex-col">
+                              <div className="px-3 border-b">
+                                <TabsList className="w-full justify-start h-9 bg-transparent p-0 gap-4">
+                                  <TabsTrigger
+                                    value="business"
+                                    className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none px-0 h-9 text-xs"
+                                  >
+                                    业务字段
+                                  </TabsTrigger>
+                                  <TabsTrigger
+                                    value="rule"
+                                    className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-blue-600 rounded-none px-0 h-9 text-xs"
+                                  >
+                                    规则字段
+                                  </TabsTrigger>
+                                </TabsList>
+                              </div>
+                              <div className="flex-1 overflow-hidden">
+                                <TabsContent value="business" className="h-full m-0">
+                                  <ScrollArea className="h-full">
+                                    <div className="p-2 space-y-1">
+                                      {getFilteredFields("profile").map((field) => {
+                                        if (field.permission && !hasPermission(field.permission)) return null;
+                                        const isSelected = tempSelectedColumns.includes(field.key);
+                                        return (
+                                          <div
+                                            key={field.key}
+                                            className={`flex items-center justify-between p-2 rounded cursor-pointer transition-colors ${
+                                              isSelected
+                                                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                                                : "hover:bg-blue-50 text-gray-700"
+                                            }`}
+                                            onClick={() => !isSelected && handleToggleColumn(field.key)}
+                                          >
+                                            <span className="text-sm">{field.label}</span>
+                                            {isSelected ? (
+                                              <div className="flex items-center gap-1">
+                                                <span className="text-[10px]">已添加</span>
+                                                <Check className="h-4 w-4" />
+                                              </div>
+                                            ) : (
+                                              <div className="h-4 w-4 rounded-full border border-gray-300" />
+                                            )}
+                                          </div>
+                                        );
+                                      })}
+                                    </div>
+                                  </ScrollArea>
+                                </TabsContent>
+                                <TabsContent value="rule" className="h-full m-0">
+                                  <ScrollArea className="h-full">
+                                    <div className="p-2 space-y-1">
+                                      {ruleFields
+                                        .filter((f) => f.label.toLowerCase().includes(columnSearchQuery.toLowerCase()))
+                                        .map((field) => {
+                                          const isSelected = tempSelectedColumns.includes(field.key);
+                                          return (
+                                            <div
+                                              key={field.key}
+                                              className={`flex items-center justify-between p-2 rounded cursor-pointer transition-colors ${
+                                                isSelected
+                                                  ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                                                  : "hover:bg-blue-50 text-gray-700"
+                                              }`}
+                                              onClick={() => !isSelected && handleToggleColumn(field.key)}
+                                            >
+                                              <span className="text-sm">{field.label}</span>
+                                              {isSelected ? (
+                                                <div className="flex items-center gap-1">
+                                                  <span className="text-[10px]">已添加</span>
+                                                  <Check className="h-4 w-4" />
+                                                </div>
+                                              ) : (
+                                                <div className="h-4 w-4 rounded-full border border-gray-300" />
+                                              )}
+                                            </div>
+                                          );
+                                        })}
+                                      {ruleFields.length === 0 && (
+                                        <div className="p-8 text-center text-gray-400 text-sm">暂无规则字段</div>
                                       )}
                                     </div>
-                                  );
-                                })}
+                                  </ScrollArea>
+                                </TabsContent>
                               </div>
-                            </ScrollArea>
+                            </Tabs>
                           </div>
                         </div>
                       </div>

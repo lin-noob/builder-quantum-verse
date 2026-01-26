@@ -956,7 +956,7 @@ export default function UserDetail() {
                       </div>
 
                       {/* 事件统计模块 */}
-                      <div className="mb-6">
+                      {/* <div className="mb-6">
                         <hr className="border-gray-200 mb-4" />
                         <h3 className="text-sm font-semibold text-gray-900 mb-3">事件统计</h3>
                         <div className="bg-white border border-gray-200 rounded-lg overflow-hidden min-h-[100px]">
@@ -1010,7 +1010,7 @@ export default function UserDetail() {
                             </div>
                           )}
                         </div>
-                      </div>
+                      </div> */}
                     </TabsContent>
 
                     <TabsContent value="timeline" className="space-y-6">
