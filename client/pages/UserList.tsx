@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { Table, DatePicker } from "antd";
+import { Table, DatePicker, Tooltip, Typography } from "antd";
 import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
 import {
@@ -434,9 +434,9 @@ export default function UserList() {
     try {
       // 构建动态过滤器，排除 extraF 和 extraS 配置的字段以及 firstVisitSite
       const filters: Record<string, any> = {};
-      const extraFKeys = extraF.map((col) => col.key);
+      // const extraFKeys = extraF.map((col) => col.key);
       const extraSKeys = extraS.map((col) => col.key);
-      const excludedKeys = [...extraFKeys, ...extraSKeys, "firstVisitSite"];
+      const excludedKeys = [...extraSKeys, "firstVisitSite"];
 
       Object.entries(columnFilters).forEach(([key, value]) => {
         if (value && !excludedKeys.includes(key)) {
@@ -785,9 +785,9 @@ export default function UserList() {
     if (!col) return null;
 
     // 排除 extraF 和 extraS 配置的字段以及 firstVisitSite，不生成筛选输入框
-    const extraFKeys = extraF.map((col) => col.key);
+    // const extraFKeys = extraF.map((col) => col.key);
     const extraSKeys = extraS.map((col) => col.key);
-    const excludedKeys = [...extraFKeys, ...extraSKeys, "firstVisitSite"];
+    const excludedKeys = [...extraSKeys, "firstVisitSite"];
     if (excludedKeys.includes(colKey)) return null;
 
     // Check permission
@@ -875,6 +875,15 @@ export default function UserList() {
     if (key === "totalSpent") return formatCurrency(user.totalSpent || 0, user.currency);
     if (key === "bounceRate") return user.bounceRate != null ? `${Math.round((user.bounceRate || 0) * 100)}%` : "-";
     if (key === "currency") return user.currency || "-";
+    if (key === "firstVisitSite") {
+      return (
+        <Tooltip title={user[key]}>
+          <Typography.Text style={{ maxWidth: 200 }} ellipsis={{ tooltip: false }}>
+            {user[key] || "N/A"}
+          </Typography.Text>
+        </Tooltip>
+      );
+    }
 
     // Handle rule fields from metrics object
     // Check if this is a numeric key (rule ID)
