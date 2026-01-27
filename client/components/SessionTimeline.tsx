@@ -4,26 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DateTimePicker } from "@/components/ui/date-time-picker";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import {
-  ChevronLeft,
-  ChevronRight,
-  Search as SearchIcon,
-  Eye,
-  LogOut,
-  MousePointer,
-  ArrowDownToLine,
-  ShoppingCart,
-  MinusCircle,
-  CreditCard,
-  CheckCircle,
-  UserPlus,
-  LogIn,
-  Send,
-  Pencil,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight, Search as SearchIcon } from "lucide-react";
 import { EventSelector } from "./EventSelector";
 import {
-  ApiSessionEvent,
   getUserEventList,
   ParsedEventData,
   SessionEvent,
@@ -206,13 +189,7 @@ export default function SessionTimeline({ cdpUserId, sessionId }: { cdpUserId: s
 
         if (!currentProject || !currentProject.id) {
           // Mock data
-          data = await MockDataService.getMockEventList(
-            cdpUserId,
-            sessionId,
-            page,
-            pageSize,
-            0,
-          );
+          data = await MockDataService.getMockEventList(cdpUserId, sessionId, page, pageSize, 0);
         } else {
           data = await getUserEventList(
             cdpUserId,
@@ -267,19 +244,19 @@ export default function SessionTimeline({ cdpUserId, sessionId }: { cdpUserId: s
       if (!currentProject || !currentProject.id) {
         // Mock rule types
         const mockTypes = ["PageView", "Click", "ViewProduct", "AddToCart", "Order"];
-        setRuleTypes(mockTypes.map((name) => ({ id: name, eventName: name } as RuleType)));
+        setRuleTypes(mockTypes.map((name) => ({ id: name, eventName: name }) as RuleType));
         return;
       }
 
       const types = await ruleTypeService.list();
-      const data = await ruleService.getRules(2);
+      const data = await ruleService.getRules("");
 
       if (data) {
         const cusTypes: RuleType[] = data.map((item) => ({
           id: String(item.id),
           eventName: item.ruleName,
         }));
-        setRuleTypes((types || []).concat(cusTypes));
+        setRuleTypes(cusTypes);
         return;
       }
 

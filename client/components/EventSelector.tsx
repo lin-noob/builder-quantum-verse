@@ -25,14 +25,10 @@ export function EventSelector({ allEvents, selectedEvents, onApply }: EventSelec
     }
   }, [open, selectedEvents]);
 
-  const filteredEvents = allEvents.filter((event) =>
-    event.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredEvents = allEvents.filter((event) => event.toLowerCase().includes(searchQuery.toLowerCase()));
 
   const toggleEvent = (event: string) => {
-    setTempSelected((prev) =>
-      prev.includes(event) ? prev.filter((e) => e !== event) : [...prev, event]
-    );
+    setTempSelected((prev) => (prev.includes(event) ? prev.filter((e) => e !== event) : [...prev, event]));
   };
 
   const handleClear = () => {
@@ -47,16 +43,11 @@ export function EventSelector({ allEvents, selectedEvents, onApply }: EventSelec
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          className="w-full justify-between font-normal h-10 px-3 bg-white"
-        >
+        <Button variant="outline" className="w-full justify-between font-normal h-10 px-3 bg-white">
           {selectedEvents.length === 0 ? (
             <span className="text-muted-foreground">全部事件</span>
           ) : (
-            <span className="truncate text-left block w-[calc(100%-20px)]">
-              {selectedEvents.join(", ")}
-            </span>
+            <span className="truncate text-left block w-[calc(100%-20px)]">{selectedEvents.join(", ")}</span>
           )}
           <ChevronDown className="ml-2 h-4 w-4 opacity-50 shrink-0" />
         </Button>
@@ -77,9 +68,7 @@ export function EventSelector({ allEvents, selectedEvents, onApply }: EventSelec
           <ScrollArea className="h-[300px]">
             <div className="px-3 space-y-1">
               {filteredEvents.length === 0 ? (
-                <div className="py-6 text-center text-sm text-muted-foreground">
-                  无匹配事件
-                </div>
+                <div className="py-6 text-center text-sm text-muted-foreground">无匹配事件</div>
               ) : (
                 filteredEvents.map((event) => (
                   <div
@@ -87,11 +76,7 @@ export function EventSelector({ allEvents, selectedEvents, onApply }: EventSelec
                     className="flex items-center space-x-2 rounded-sm px-2 py-1.5 hover:bg-accent hover:text-accent-foreground cursor-pointer"
                     onClick={() => toggleEvent(event)}
                   >
-                    <Checkbox
-                      checked={tempSelected.includes(event)}
-                      onCheckedChange={() => toggleEvent(event)}
-                      id={`event-${event}`}
-                    />
+                    <Checkbox checked={tempSelected.includes(event)} id={`event-${event}`} />
                     <label
                       htmlFor={`event-${event}`}
                       className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex-1 break-all"
