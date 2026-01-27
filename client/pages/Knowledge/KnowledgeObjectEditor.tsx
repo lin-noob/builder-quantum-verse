@@ -465,19 +465,19 @@ const KnowledgeObjectEditor: React.FC = () => {
                               {[
                                 {
                                   id: "Master",
-                                  name: "主数据 (Master)",
+                                  name: "主数据",
                                   icon: Database,
                                   desc: "核心业务实体，如客户、产品。",
                                 },
                                 {
                                   id: "Transaction",
-                                  name: "交易数据 (Transaction)",
+                                  name: "交易数据",
                                   icon: ShoppingCart,
                                   desc: "业务过程记录，如订单、流水。",
                                 },
                                 {
                                   id: "Result",
-                                  name: "结果数据 (Result)",
+                                  name: "结果数据",
                                   icon: FileText,
                                   desc: "分析或计算产生的衍生数据。",
                                 },
@@ -745,10 +745,10 @@ const KnowledgeObjectEditor: React.FC = () => {
                                       <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
-                                      <SelectItem value="Low">Low</SelectItem>
-                                      <SelectItem value="Mid">Mid</SelectItem>
+                                      <SelectItem value="Low">低 (Low)</SelectItem>
+                                      <SelectItem value="Mid">中 (Mid)</SelectItem>
                                       <SelectItem value="High" className="text-red-600">
-                                        High
+                                        高 (High)
                                       </SelectItem>
                                     </SelectContent>
                                   </Select>

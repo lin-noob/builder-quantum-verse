@@ -55,8 +55,8 @@ const TargetNode = ({ data, id }: NodeProps) => {
         </button>
       )}
 
-      <div className="font-bold text-slate-800">{data.label || "Unknown Type"}</div>
-      <div className="text-xs text-slate-500 font-mono mt-1">Target Type</div>
+      <div className="font-bold text-slate-800">{data.label || "未知类型"}</div>
+      <div className="text-xs text-slate-500 font-mono mt-1">目标类型</div>
       <Handle type="target" position={Position.Left} className="w-2 h-2 bg-slate-300" />
       <Handle type="source" position={Position.Right} className="w-2 h-2 bg-slate-300" />
     </div>
@@ -111,7 +111,7 @@ const CustomEdge = ({
             <div
               className={`bg-white border px-2 py-1 rounded shadow-sm font-mono text-xs font-bold transition-colors ${!data.readOnly ? "border-indigo-200 text-indigo-700 hover:bg-indigo-50 hover:border-indigo-300" : "border-slate-200 text-slate-600"}`}
             >
-              {data?.label || "RELATION"}
+              {data?.label || "未命名关系"}
             </div>
             {!data.readOnly && (
               <div className="bg-slate-800 text-white text-[10px] px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">

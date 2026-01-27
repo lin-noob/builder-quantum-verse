@@ -179,11 +179,11 @@ const WizardStep2 = ({
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="string">String</SelectItem>
-                        <SelectItem value="number">Number</SelectItem>
-                        <SelectItem value="boolean">Boolean</SelectItem>
-                        <SelectItem value="date">Date</SelectItem>
-                        <SelectItem value="currency">Currency</SelectItem>
+                        <SelectItem value="string">字符串 (String)</SelectItem>
+                        <SelectItem value="number">数字 (Number)</SelectItem>
+                        <SelectItem value="boolean">布尔值 (Boolean)</SelectItem>
+                        <SelectItem value="date">日期 (Date)</SelectItem>
+                        <SelectItem value="currency">货币 (Currency)</SelectItem>
                       </SelectContent>
                     </Select>
                   </TableCell>
@@ -193,9 +193,9 @@ const WizardStep2 = ({
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value={PropSource.DB_COLUMN}>DB Column</SelectItem>
-                        <SelectItem value={PropSource.COMPUTED}>Computed</SelectItem>
-                        <SelectItem value={PropSource.EXTERNAL_SYNC}>External</SelectItem>
+                        <SelectItem value={PropSource.DB_COLUMN}>数据库列</SelectItem>
+                        <SelectItem value={PropSource.COMPUTED}>计算属性</SelectItem>
+                        <SelectItem value={PropSource.EXTERNAL_SYNC}>外部同步</SelectItem>
                       </SelectContent>
                     </Select>
                   </TableCell>

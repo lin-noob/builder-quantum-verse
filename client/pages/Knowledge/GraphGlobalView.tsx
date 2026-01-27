@@ -448,7 +448,7 @@ const GraphGlobalView: React.FC = () => {
 
               <h2 className="text-xl font-bold text-slate-900 mb-1">{selectedNodeData.name}</h2>
               <Badge variant="outline" className={`${TYPE_COLORS[selectedNodeData.type].badge} border-0 px-2`}>
-                {selectedNodeData.type}
+                {typeMap[selectedNodeData.type] || selectedNodeData.type}
               </Badge>
 
               {selectedNodeData.description && (
