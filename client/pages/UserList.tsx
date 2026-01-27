@@ -436,7 +436,7 @@ export default function UserList() {
       const filters: Record<string, any> = {};
       // const extraFKeys = extraF.map((col) => col.key);
       const extraSKeys = extraS.map((col) => col.key);
-      const excludedKeys = [...extraSKeys, "firstVisitSite"];
+      const excludedKeys = [...extraSKeys];
 
       Object.entries(columnFilters).forEach(([key, value]) => {
         if (value && !excludedKeys.includes(key)) {
@@ -787,7 +787,7 @@ export default function UserList() {
     // 排除 extraF 和 extraS 配置的字段以及 firstVisitSite，不生成筛选输入框
     // const extraFKeys = extraF.map((col) => col.key);
     const extraSKeys = extraS.map((col) => col.key);
-    const excludedKeys = [...extraSKeys, "firstVisitSite"];
+    const excludedKeys = [...extraSKeys];
     if (excludedKeys.includes(colKey)) return null;
 
     // Check permission
