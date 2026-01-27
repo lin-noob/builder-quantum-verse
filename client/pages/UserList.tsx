@@ -390,6 +390,8 @@ export default function UserList() {
   // 获取排序字段映射
   const getSortFieldMapping = (field: string): string => {
     switch (field) {
+      case "firstVisitSite":
+        return "first_visit_site";
       case "firstVisitTime":
         return "create_gmt";
       case "registrationTime":
