@@ -76,3 +76,13 @@ export interface KnowledgeNode {
   actionCount?: number;
   ruleCount?: number;
 }
+
+export interface KnowledgeInstanceSummary {
+  typeId: string;
+  typeName: string;
+  type: KnowledgeNodeType; // Added for styling
+  totalInstances: number;
+  statusDistribution: Record<string, number>;
+  recentActivityCount: number; // last 7 days
+  relationCount: number;
+}

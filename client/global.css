@@ -63,6 +63,16 @@
       transform: scale(1);
     }
   }
+
+  @keyframes flow-pulse {
+    to {
+      stroke-dashoffset: -20;
+    }
+  }
+
+  .animate-flow {
+    animation: flow-pulse 1s linear infinite;
+  }
 }
 
 @layer base {

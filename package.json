@@ -12,10 +12,13 @@
     "typecheck": "tsc"
   },
   "dependencies": {
+    "@antv/g6": "^5.0.51",
     "@hello-pangea/dnd": "^18.0.1",
+    "@types/d3-force": "^3.0.10",
     "@xyflow/react": "^12.10.0",
     "antd": "^5.27.3",
     "chart.js": "^4.5.0",
+    "d3-force": "^3.0.0",
     "dayjs": "^1.11.19",
     "google-auth-library": "^10.3.0",
     "i18next": "^25.4.2",

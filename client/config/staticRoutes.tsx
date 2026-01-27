@@ -87,6 +87,13 @@ const ExplorerPage = React.lazy(() => import("@/pages/Knowledge/ExplorerPage"));
 
 const KnowledgeObjectEditor = React.lazy(() => import("@/pages/Knowledge/KnowledgeObjectEditor"));
 
+const TypeDetailPage = React.lazy(() => import("@/pages/Knowledge/TypeDetailPage"));
+const InstanceListPage = React.lazy(() => import("@/pages/Knowledge/InstanceListPage"));
+const InstanceDetailPage = React.lazy(() => import("@/pages/Knowledge/InstanceDetailPage"));
+const KnowledgeGraphPage = React.lazy(() => import("@/pages/KnowledgeGraph/KnowledgeGraphPage"));
+const BusinessKnowledgeGraph = React.lazy(() => import("@/pages/BusinessKnowledgeGraph"));
+
+
 // LazyRoute 包装组件
 const LazyRoute: React.FC<{
   children: React.ReactNode;
@@ -113,6 +120,26 @@ export const staticRoutes: RouteObject[] = [
   {
     path: "/",
     element: <Navigate to="/enterprise/overview" replace />,
+  },
+  {
+    path: "/business-knowledge-graph",
+    element: (
+      <Layout>
+        <LazyRoute>
+          <BusinessKnowledgeGraph />
+        </LazyRoute>
+      </Layout>
+    ),
+  },
+  {
+    path: "/knowledge-graph",
+    element: (
+      <Layout>
+        <LazyRoute>
+          <KnowledgeGraphPage />
+        </LazyRoute>
+      </Layout>
+    ),
   },
   {
     path: "/enterprise/overview",
@@ -696,6 +723,36 @@ export const staticRoutes: RouteObject[] = [
     ),
   },
   {
+    path: "/Knowledge/type/:id",
+    element: (
+      <Layout>
+        <LazyRoute>
+          <TypeDetailPage />
+        </LazyRoute>
+      </Layout>
+    ),
+  },
+  {
+    path: "/Knowledge/instance-list/:typeId",
+    element: (
+      <Layout>
+        <LazyRoute>
+          <InstanceListPage />
+        </LazyRoute>
+      </Layout>
+    ),
+  },
+  {
+    path: "/Knowledge/instance/:id",
+    element: (
+      <Layout>
+        <LazyRoute>
+          <InstanceDetailPage />
+        </LazyRoute>
+      </Layout>
+    ),
+  },
+  {
     path: "/Knowledge/explorer/:id",
     element: (
       <Layout>
@@ -748,3 +805,4 @@ export const isStaticRoute = (pathname: string): boolean => {
     return routePath === pathname;
   });
 };
+
