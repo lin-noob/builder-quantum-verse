@@ -289,12 +289,12 @@ p {
   @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2;
 }
 
-.ant-select-focused.ant-select-outlined:not(.ant-select-disabled):not(.ant-select-customize-input):not(
+/* .ant-select-focused.ant-select-outlined:not(.ant-select-disabled):not(.ant-select-customize-input):not(
     .ant-pagination-size-changer
   )
   .ant-select-selector {
   @apply outline-none ring-2 ring-ring ring-offset-2;
-}
+} */
 
 .ant-picker-focused,
 .ant-picker.ant-picker-focused {
@@ -302,10 +302,10 @@ p {
   outline: none !important;
 }
 
-.ant-select-focused .ant-select-selector {
+/* .ant-select-focused .ant-select-selector {
   border-color: #d9d9d9 !important;
   outline: none !important;
-}
+} */
 
 /* Input styling */
 .ant-picker-input {
