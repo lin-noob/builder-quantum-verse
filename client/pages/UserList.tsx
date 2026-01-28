@@ -885,6 +885,7 @@ export default function UserList() {
               value={columnFilters[`${colKey}`] || undefined}
               onChange={(val) => updateColumnFilter(`${colKey}`, val)}
               options={col.options}
+              open
               allowClear
             />
           </div>
