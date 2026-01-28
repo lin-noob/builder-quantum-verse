@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { Table, DatePicker, Tooltip, Typography } from "antd";
+import { Table, DatePicker, Tooltip, Typography, Select } from "antd";
 import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
 import {
@@ -42,11 +42,39 @@ interface ColumnConfig {
   source: "profile" | "event";
   fixed?: boolean;
   permission?: string;
-  type?: "string" | "number" | "date" | "boolean";
+  type?: "string" | "number" | "date" | "boolean" | "select";
   filterable?: boolean; // 是否可筛选，默认为 true
+  options?: {
+    label: string;
+    value: string;
+  }[];
 }
 
 const extraF: ColumnConfig[] = [
+  {
+    key: "firstReferrer",
+    label: "访问来源",
+    source: "profile",
+    type: "select",
+    options: [
+      {
+        label: "付费广告",
+        value: "付费广告",
+      },
+      {
+        label: "自然搜索",
+        value: "自然搜索",
+      },
+      {
+        label: "其他渠道",
+        value: "其他渠道",
+      },
+      {
+        label: "直接访问",
+        value: "直接访问",
+      },
+    ],
+  },
   {
     key: "source",
     label: "utm_source",
@@ -232,6 +260,7 @@ export default function UserList() {
   const [selectedColumns, setSelectedColumns] = useState<string[]>([
     "name",
     "contact",
+    "firstReferrer",
     "firstVisitTime",
     "registrationTime",
     "firstPurchaseTime",
@@ -390,6 +419,8 @@ export default function UserList() {
   // 获取排序字段映射
   const getSortFieldMapping = (field: string): string => {
     switch (field) {
+      case "firstReferrer":
+        return "first_referrer";
       case "firstVisitSite":
         return "first_visit_site";
       case "firstVisitTime":
@@ -818,9 +849,7 @@ export default function UserList() {
           </div>
         </div>
       );
-    }
-
-    if (col.type === "date") {
+    } else if (col.type === "date") {
       const startVal = columnFilters[`start_${colKey}`];
       const endVal = columnFilters[`end_${colKey}`];
       const rangeValue = startVal && endVal ? [dayjs(startVal), dayjs(endVal)] : null;
@@ -842,6 +871,23 @@ export default function UserList() {
               }
             }}
           />
+        </div>
+      );
+    } else if (col.type === "select") {
+      return (
+        <div key={colKey} className="flex flex-col gap-1 w-full">
+          <span className="text-xs font-medium text-gray-500">{col.label}</span>
+          <div className="flex items-center gap-1">
+            <Select
+              placeholder="Select"
+              className="text-xs w-full"
+              size="middle"
+              value={columnFilters[`${colKey}`] || undefined}
+              onChange={(val) => updateColumnFilter(`${colKey}`, val)}
+              options={col.options}
+              allowClear
+            />
+          </div>
         </div>
       );
     }

@@ -222,6 +222,7 @@ export default function UserDetail() {
       sessionId: apiUser.sessionId,
       userEngagement: apiUser.userEngagement,
       firstVisitSite: apiUser.firstVisitSite,
+      firstReferrerType: apiUser?.userProfile?.firstReferrer,
     } as any;
   }, [apiUser, cdpId]);
 
@@ -239,6 +240,14 @@ export default function UserDetail() {
 
   // 渠道类型判断逻辑 - 按照优先级和详细判断条件实现
   const getChannelType = useMemo(() => {
+    const type = apiUser?.userProfile?.firstReferrer || user?.firstReferrerType;
+    let color = "bg-gray-100 text-gray-800";
+    if (type === "付费广告") color = "bg-red-100 text-red-800";
+    else if (type === "自然搜索") color = "bg-green-100 text-green-800";
+    else if (type === "直接访问") color = "bg-blue-100 text-blue-800";
+
+    return { type, color };
+
     // 获取所有相关字段
     const source = apiUser?.firstVisitSource || user?.firstVisitSource || "";
     const medium = apiUser?.firstVisitMedium || user?.firstVisitMedium || "";
@@ -302,6 +311,13 @@ export default function UserDetail() {
       referrer && (referrer.includes(window.location.hostname) || referrer.startsWith("/") || referrer === "");
 
     if (!hasClickId && !hasUtmParams && (!referrer || isInternalReferrer)) {
+      return { type: "直接访问", color: "bg-blue-100 text-blue-800" };
+    }
+
+    // 步骤 6
+    // 所有 Click ID 字段均为空，所有 UTM 参数均为空，Referrer 为空或内部页面
+    const isDirect = referrer === "$direct";
+    if (isDirect) {
       return { type: "直接访问", color: "bg-blue-100 text-blue-800" };
     }
 
