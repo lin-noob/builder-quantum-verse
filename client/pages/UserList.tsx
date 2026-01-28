@@ -874,6 +874,9 @@ export default function UserList() {
         </div>
       );
     } else if (col.type === "select") {
+      {
+        console.log(col);
+      }
       return (
         <div key={colKey} className="flex flex-col gap-1 w-full">
           <span className="text-xs font-medium text-gray-500">{col.label}</span>
@@ -885,7 +888,7 @@ export default function UserList() {
               value={columnFilters[`${colKey}`] || undefined}
               onChange={(val) => updateColumnFilter(`${colKey}`, val)}
               options={col.options}
-              getPopupContainer={(trigger) => trigger.parentElement}
+              getPopupContainer={(trigger) => trigger.parentElement ?? document.body}
               allowClear
             />
           </div>
