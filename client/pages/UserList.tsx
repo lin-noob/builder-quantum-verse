@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { Table, DatePicker, Tooltip, Typography, Select } from "antd";
+import { Table, DatePicker, Tooltip, Typography } from "antd";
 import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
 import {
@@ -23,6 +23,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetFooter, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { request } from "@/lib/request";
 import { MockDataService } from "@/services/mockDataService";
 import { formatStartDate, formatEndDate, cn } from "@/lib/utils";
@@ -57,6 +58,10 @@ const extraF: ColumnConfig[] = [
     source: "profile",
     type: "select",
     options: [
+      {
+        label: "全部",
+        value: "all",
+      },
       {
         label: "付费广告",
         value: "付费广告",
@@ -549,8 +554,12 @@ export default function UserList() {
         else if (key === "max_totalSpent") mappedKey = "maxTotalOrders";
         else if (key === "min_totalSpent") mappedKey = "minTotalOrders";
         else if (key === "currency") mappedKey = "currencySymbol";
+        else if (key === "firstReferrer") {
+          mappedKey = "firstReferrer";
+          val = val === "all" ? undefined : val;
+        }
 
-        requestBody[mappedKey] = String(val);
+        requestBody[mappedKey] = val;
       });
 
       // 使用通用request方法明确指定POST，添加快速超时
@@ -874,24 +883,24 @@ export default function UserList() {
         </div>
       );
     } else if (col.type === "select") {
-      {
-        console.log(col);
-      }
       return (
         <div key={colKey} className="flex flex-col gap-1 w-full">
           <span className="text-xs font-medium text-gray-500">{col.label}</span>
-          <div className="flex items-center gap-1">
-            <Select
-              placeholder="Select1"
-              className="text-xs w-full"
-              size="middle"
-              value={columnFilters[`${colKey}`] || undefined}
-              onChange={(val) => updateColumnFilter(`${colKey}`, val)}
-              options={col.options}
-              getPopupContainer={(trigger) => trigger.parentElement ?? document.body}
-              allowClear
-            />
-          </div>
+          <Select
+            value={columnFilters[`${colKey}`] || ""}
+            onValueChange={(val) => updateColumnFilter(`${colKey}`, val || undefined)}
+          >
+            <SelectTrigger className="h-8 text-xs w-full">
+              <SelectValue placeholder="Select" />
+            </SelectTrigger>
+            <SelectContent>
+              {col.options?.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       );
     }
