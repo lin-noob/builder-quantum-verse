@@ -540,10 +540,10 @@ export default function UserList() {
         let mappedKey = key;
 
         // Map date range filters for specific fields
-        if (key === "start_firstVisitTime") mappedKey = "startSignTime";
-        else if (key === "end_firstVisitTime") mappedKey = "endSignTime";
-        else if (key === "start_registrationTime") mappedKey = "startDate";
-        else if (key === "end_registrationTime") mappedKey = "endDate";
+        if (key === "start_registrationTime") mappedKey = "startSignTime";
+        else if (key === "end_registrationTime") mappedKey = "endSignTime";
+        else if (key === "start_firstVisitTime") mappedKey = "startDate";
+        else if (key === "end_firstVisitTime") mappedKey = "endDate";
         else if (key === "start_firstPurchaseTime") mappedKey = "startMinBuyTime";
         else if (key === "end_firstPurchaseTime") mappedKey = "endMinBuyTime";
         else if (key === "start_lastActiveTime") mappedKey = "startMaxBuyTime";
