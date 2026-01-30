@@ -13,6 +13,7 @@ import {
 import { useParams, useNavigate } from "react-router-dom";
 import RelationGraphEditor from "./RelationGraphEditor";
 import { PropSource, KnowledgeNode, KnowledgeNodeType, RiskLevel } from "../../types/Knowledge";
+import { mockKnowledgeNodes } from "./mockData";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
@@ -116,10 +117,24 @@ const TypeDetailPage: React.FC = () => {
           };
           setNode(mappedNode);
         } else {
-          setError(response.data.msg || "加载详情失败");
+          // Fallback to mock data
+          const mockNode = mockKnowledgeNodes.find(n => n.numericId === Number(id) || n.id === id);
+          if (mockNode) {
+             console.log("Using mock data for node", id);
+             setNode(mockNode);
+          } else {
+             setError(response.data.msg || "加载详情失败");
+          }
         }
       } catch (err) {
-        setError("网络请求失败");
+        // Fallback to mock data
+        const mockNode = mockKnowledgeNodes.find(n => n.numericId === Number(id) || n.id === id);
+        if (mockNode) {
+           console.log("Using mock data for node (on error)", id);
+           setNode(mockNode);
+        } else {
+           setError("网络请求失败");
+        }
       } finally {
         setLoading(false);
       }
