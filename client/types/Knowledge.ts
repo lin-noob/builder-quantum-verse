@@ -75,10 +75,12 @@ export interface KnowledgeNode {
   relationCount?: number;
   actionCount?: number;
   ruleCount?: number;
+  instanceCount?: number;
 }
 
 export interface KnowledgeInstanceSummary {
   typeId: string;
+  modelId: number;
   typeName: string;
   type: KnowledgeNodeType; // Added for styling
   totalInstances: number;

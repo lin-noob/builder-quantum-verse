@@ -1,14 +1,23 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Box, Share2, Zap, GitMerge, AlertCircle } from "lucide-react";
+import { Box, Share2, Zap, GitMerge, AlertCircle, Database, Eye } from "lucide-react";
 import { KnowledgeNode, KnowledgeNodeType } from "../../types/Knowledge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 interface ObjectCardProps {
   node: KnowledgeNode;
+  instanceCount?: number;
   onClick: (id: string | number) => void;
+  onViewInstances?: (id: string) => void;
 }
+
+const typeMap: Record<string, string> = {
+  Master: "主数据",
+  Transaction: "事务数据",
+  Result: "结果数据",
+};
 
 const getTypeColor = (type: KnowledgeNodeType) => {
   switch (type) {
@@ -23,7 +32,7 @@ const getTypeColor = (type: KnowledgeNodeType) => {
   }
 };
 
-const ObjectCard: React.FC<ObjectCardProps> = ({ node, onClick }) => {
+const ObjectCard: React.FC<ObjectCardProps> = ({ node, instanceCount = 0, onClick, onViewInstances }) => {
   const hasHighRisk =
     node.actions.some((a) => a.riskLevel === "High") ||
     node.rules.some((r) => r.description.toLowerCase().includes("high risk"));
@@ -49,7 +58,7 @@ const ObjectCard: React.FC<ObjectCardProps> = ({ node, onClick }) => {
         whileTap={{ scale: 0.95, opacity: 0.8 }}
         onClick={() => onClick(node.numericId || node.id)}
         className={`
-          relative flex flex-col p-5 rounded-xl border cursor-pointer transition-all duration-300
+          relative flex flex-col p-5 rounded-xl border cursor-pointer transition-all duration-300 group
           ${
             hasHighRisk
               ? "border-red-200 bg-gradient-to-br from-white to-red-50/40 shadow-sm"
@@ -74,9 +83,17 @@ const ObjectCard: React.FC<ObjectCardProps> = ({ node, onClick }) => {
           </div>
           <div>
             <h3 className="font-semibold text-slate-900 leading-none mb-1.5">{node.name}</h3>
-            <span className={`text-[10px] px-2 py-0.5 rounded-full border ${getTypeColor(node.type)}`}>
-              {node.type}
-            </span>
+            <div className="flex items-center gap-2">
+              <span className={`text-[10px] px-2 py-0.5 rounded-full border ${getTypeColor(node.type)}`}>
+                {typeMap[node.type] || node.type}
+              </span>
+              {instanceCount > 0 && (
+                <span className="text-[10px] text-slate-500 flex items-center gap-0.5">
+                  <Database className="w-3 h-3" />
+                  {instanceCount > 1000 ? `${(instanceCount / 1000).toFixed(1)}k` : instanceCount}
+                </span>
+              )}
+            </div>
           </div>
         </div>
 
@@ -93,9 +110,10 @@ const ObjectCard: React.FC<ObjectCardProps> = ({ node, onClick }) => {
           {/* Relations with Tooltip */}
           <Tooltip>
             <TooltipTrigger asChild>
-              <div className="flex flex-col items-start p-2.5 rounded-lg bg-slate-50 border border-slate-100 hover:bg-slate-100 transition-colors group">
+              <div className="flex flex-col items-start p-2.5 rounded-lg bg-slate-50 border border-slate-100 hover:bg-slate-100 transition-colors group/item">
                 <span className="text-xs text-slate-500 font-medium mb-1 flex items-center gap-1.5">
-                  <Share2 className="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-500 transition-colors" /> 关系
+                  <Share2 className="w-3.5 h-3.5 text-slate-400 group-hover/item:text-blue-500 transition-colors" />{" "}
+                  关系
                 </span>
                 <span className="text-lg font-bold text-slate-700">{node.relationCount ?? totalLinks}</span>
               </div>
@@ -117,9 +135,9 @@ const ObjectCard: React.FC<ObjectCardProps> = ({ node, onClick }) => {
           {/* Actions with Tooltip */}
           <Tooltip>
             <TooltipTrigger asChild>
-              <div className="flex flex-col items-start p-2.5 rounded-lg bg-slate-50 border border-slate-100 hover:bg-slate-100 transition-colors group">
+              <div className="flex flex-col items-start p-2.5 rounded-lg bg-slate-50 border border-slate-100 hover:bg-slate-100 transition-colors group/item">
                 <span className="text-xs text-slate-500 font-medium mb-1 flex items-center gap-1.5">
-                  <Zap className="w-3.5 h-3.5 text-slate-400 group-hover:text-amber-500 transition-colors" /> 动作
+                  <Zap className="w-3.5 h-3.5 text-slate-400 group-hover/item:text-amber-500 transition-colors" /> 动作
                 </span>
                 <span className="text-lg font-bold text-slate-700">{node.actionCount ?? node.actions.length}</span>
               </div>
@@ -151,36 +169,26 @@ const ObjectCard: React.FC<ObjectCardProps> = ({ node, onClick }) => {
           </div>
         </div>
 
-        {/* Tags Area */}
-        {tags.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 mb-3">
-            {tags.slice(0, 3).map((tag) => (
-              <Badge
-                key={tag}
-                variant="outline"
-                className={`
-                  text-[10px] h-5 px-1.5 border-0 font-medium
-                  ${
-                    tag === "Risk-Critical"
-                      ? "bg-red-100 text-red-700"
-                      : tag === "Core"
-                        ? "bg-blue-100 text-blue-700"
-                        : "bg-slate-100 text-slate-600"
-                  }
-                `}
-              >
-                {tag}
-              </Badge>
-            ))}
-          </div>
-        )}
+        {/* View Instances Button */}
+        <div className="mt-2 pt-3 border-t border-slate-100 flex justify-between items-center opacity-0 group-hover:opacity-100 transition-opacity">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 text-xs text-blue-600 hover:text-blue-700 hover:bg-blue-50 w-full"
+            onClick={(e) => {
+              e.stopPropagation();
+              if (onViewInstances) onViewInstances(node.id);
+            }}
+          >
+            <Eye className="w-3 h-3 mr-1.5" />
+            查看实例
+          </Button>
+        </div>
 
-        {/* Footer / Description */}
-        {node.description && (
-          <p className="mt-auto text-xs text-slate-400 line-clamp-2 border-t border-slate-100 pt-3 leading-relaxed">
-            {node.description}
-          </p>
-        )}
+        {/* Footer Description (only visible when not hovering or minimal info?) 
+            Actually, let's keep it but maybe hide when hovering if space is tight? 
+            Or just keep it. 
+        */}
       </motion.div>
     </TooltipProvider>
   );
