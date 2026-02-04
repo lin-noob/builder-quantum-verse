@@ -15,10 +15,11 @@ import {
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent } from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import InstanceGraph from "@/components/Knowledge/InstanceGraph";
+import { request } from "@/lib/request";
 
 // Mock data for Instance Detail (Runtime)
 interface InstanceData {
@@ -26,34 +27,35 @@ interface InstanceData {
   typeId: string;
   typeName: string;
   status: string;
-  createdAt: string;
-  updatedAt: string;
+  gmtCreate: string;
+  gmtModified: string;
   relatedObjectsCount: number;
   recentEventsCount: number;
   staticProperties: Record<string, string | number>;
   runtimeMetrics: Record<string, string | number>;
   stateHistory: { timestamp: string; from: string; to: string; event: string }[];
   events: { id: string; name: string; timestamp: string; type: string }[];
+  keyAttributes?: Record<string, string>;
 }
 
 const mockInstanceData: InstanceData = {
   id: "ORD-20240321-001",
   typeId: "ORDER",
   typeName: "订单 (Order)",
-  status: "已支付",
-  createdAt: "2024-03-21 10:30:00",
-  updatedAt: "2024-03-21 10:35:12",
+  status: "NEW",
+  gmtCreate: "2024-03-21 10:30:00",
+  gmtModified: "2024-03-21 10:35:12",
   relatedObjectsCount: 5,
   recentEventsCount: 3,
   staticProperties: {
-    "订单号": "ORD-20240321-001",
+    订单号: "ORD-20240321-001",
     "客户 ID": "CUST-8821",
-    "区域": "北美",
+    区域: "北美",
   },
   runtimeMetrics: {
-    "总金额": "¥1,250.00",
-    "应用折扣": "10%",
-    "风险评分": "低 (12)",
+    总金额: "¥1,250.00",
+    应用折扣: "10%",
+    风险评分: "低 (12)",
   },
   stateHistory: [
     { timestamp: "2024-03-21 10:30:00", from: "-", to: "已创建", event: "订单创建" },
@@ -72,12 +74,15 @@ const InstanceDetailPage: React.FC = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("basic");
   const [data, setData] = useState<InstanceData | null>(null);
+  const [aiView, setAiView] = useState<"preview" | "ai">("preview");
 
   useEffect(() => {
-    // Simulate fetching data
-    setTimeout(() => {
-      setData({ ...mockInstanceData, id: id || "UNKNOWN" });
-    }, 500);
+    request.get(`/quote/api/v1/instance/view/${id}`).then((res) => {
+      setData({
+        status: "NEW",
+        ...res.data.data,
+      });
+    });
   }, [id]);
 
   if (!data)
@@ -91,8 +96,8 @@ const InstanceDetailPage: React.FC = () => {
     { id: "basic", label: "运行快照", icon: Activity },
     { id: "properties", label: "运行属性", icon: Database },
     { id: "relations", label: "实例图谱", icon: Share2 },
-    { id: "actions", label: "运行动作", icon: Zap },
-    { id: "rules", label: "规则与推理", icon: BookOpen },
+    // { id: "actions", label: "运行动作", icon: Zap },
+    // { id: "rules", label: "规则与推理", icon: BookOpen },
   ];
 
   return (
@@ -166,7 +171,6 @@ const InstanceDetailPage: React.FC = () => {
 
             <div className="flex-1 p-8 overflow-hidden flex flex-col">
               <div className="max-w-[1200px] w-full h-full flex flex-col">
-                
                 {/* 1. Runtime Snapshot */}
                 {activeTab === "basic" && (
                   <TabsContent value="basic" className="mt-0 h-full flex flex-col overflow-y-auto" forceMount>
@@ -181,148 +185,147 @@ const InstanceDetailPage: React.FC = () => {
                             </div>
                             <div className="space-y-1">
                               <Label className="text-slate-500 text-xs uppercase">当前状态</Label>
-                              <div><Badge className="bg-green-100 text-green-700 border-green-200">{data.status}</Badge></div>
+                              <div>
+                                <Badge className="bg-green-100 text-green-700 border-green-200">{data.status}</Badge>
+                              </div>
                             </div>
                             <div className="space-y-1">
                               <Label className="text-slate-500 text-xs uppercase">创建时间</Label>
-                              <div className="text-sm">{data.createdAt}</div>
+                              <div className="text-sm">{data.gmtCreate}</div>
                             </div>
                             <div className="space-y-1">
                               <Label className="text-slate-500 text-xs uppercase">最后更新</Label>
-                              <div className="text-sm">{data.updatedAt}</div>
+                              <div className="text-sm">{data.gmtModified}</div>
                             </div>
                           </div>
                         </section>
 
-                         <section className="bg-white rounded-lg border border-slate-200 p-6 shadow-sm">
-                           <h3 className="font-bold text-slate-900 mb-4">近期事件</h3>
-                           <div className="space-y-4">
-                             {data.events.map(event => (
-                               <div key={event.id} className="flex items-center justify-between border-b border-slate-50 pb-2 last:border-0 last:pb-0">
-                                 <div className="flex items-center gap-3">
-                                   <div className="p-1.5 bg-blue-50 rounded text-blue-600"><Clock className="w-4 h-4"/></div>
-                                   <div>
-                                     <div className="text-sm font-medium text-slate-900">{event.name}</div>
-                                     <div className="text-xs text-slate-500">{event.timestamp}</div>
-                                   </div>
-                                 </div>
-                                 <Badge variant="outline" className="text-xs">{event.type}</Badge>
-                               </div>
-                             ))}
-                           </div>
-                         </section>
+                        {/* <section className="bg-white rounded-lg border border-slate-200 p-6 shadow-sm">
+                          <h3 className="font-bold text-slate-900 mb-4">近期事件</h3>
+                          <div className="space-y-4">
+                            {data.events.map((event) => (
+                              <div
+                                key={event.id}
+                                className="flex items-center justify-between border-b border-slate-50 pb-2 last:border-0 last:pb-0"
+                              >
+                                <div className="flex items-center gap-3">
+                                  <div className="p-1.5 bg-blue-50 rounded text-blue-600">
+                                    <Clock className="w-4 h-4" />
+                                  </div>
+                                  <div>
+                                    <div className="text-sm font-medium text-slate-900">{event.name}</div>
+                                    <div className="text-xs text-slate-500">{event.timestamp}</div>
+                                  </div>
+                                </div>
+                                <Badge variant="outline" className="text-xs">
+                                  {event.type}
+                                </Badge>
+                              </div>
+                            ))}
+                          </div>
+                        </section> */}
                       </div>
 
-                      <div className="col-span-4 space-y-6">
+                      {/* <div className="col-span-4 space-y-6">
                         <div className="bg-slate-50 rounded-lg p-5 border border-slate-100">
                           <h4 className="text-sm font-bold text-slate-800 mb-4">运行指标</h4>
                           <div className="space-y-4">
-                             <div className="bg-white p-3 rounded border border-slate-200 shadow-sm flex justify-between items-center">
-                               <span className="text-sm text-slate-600">关联对象</span>
-                               <span className="font-bold text-slate-900">{data.relatedObjectsCount}</span>
-                             </div>
-                             <div className="bg-white p-3 rounded border border-slate-200 shadow-sm flex justify-between items-center">
-                               <span className="text-sm text-slate-600">近期事件</span>
-                               <span className="font-bold text-slate-900">{data.recentEventsCount}</span>
-                             </div>
+                            <div className="bg-white p-3 rounded border border-slate-200 shadow-sm flex justify-between items-center">
+                              <span className="text-sm text-slate-600">关联对象</span>
+                              <span className="font-bold text-slate-900">{data.relatedObjectsCount}</span>
+                            </div>
+                            <div className="bg-white p-3 rounded border border-slate-200 shadow-sm flex justify-between items-center">
+                              <span className="text-sm text-slate-600">近期事件</span>
+                              <span className="font-bold text-slate-900">{data.recentEventsCount}</span>
+                            </div>
                           </div>
                         </div>
-                      </div>
+                      </div> */}
                     </div>
                   </TabsContent>
                 )}
 
                 {/* 2. Runtime Properties */}
                 {activeTab === "properties" && (
-                  <TabsContent value="properties" className="mt-0 h-full flex flex-col overflow-y-auto" forceMount>
-                     <div className="grid grid-cols-2 gap-6">
-                       {/* Static Properties */}
-                       <div className="bg-white rounded-lg border border-slate-200 p-6 shadow-sm">
-                         <h3 className="font-bold text-slate-900 mb-4 flex items-center gap-2">
-                           <Database className="w-4 h-4 text-slate-500"/> 静态属性
-                         </h3>
-                         <div className="space-y-3">
-                           {Object.entries(data.staticProperties).map(([key, value]) => (
-                             <div key={key} className="flex justify-between py-2 border-b border-slate-50 last:border-0">
-                               <span className="text-sm text-slate-500">{key}</span>
-                               <span className="text-sm font-medium text-slate-900">{value}</span>
-                             </div>
-                           ))}
-                         </div>
-                       </div>
+                  <>
+                    <div className="flex flex-col p-3 md:border-l md:border-border min-h-0 h-full">
+                      <div className="mb-2 shrink-0">
+                        <Tabs value={aiView} onValueChange={(v) => setAiView(v as "preview" | "ai")}>
+                          <TabsList>
+                            <TabsTrigger value="preview">预览</TabsTrigger>
+                            <TabsTrigger value="ai">原始数据</TabsTrigger>
+                          </TabsList>
+                        </Tabs>
+                      </div>
+                      <div className="flex flex-1 overflow-auto min-h-0">
+                        {aiView === "preview" ? (
+                          <div className="space-y-4 flex-1 flex">
+                            <div className="space-y-4 flex flex-col flex-1">
+                              <div className="flex items-center justify-between">
+                                <div>
+                                  <h2 className="text-base font-semibold">{data.keyAttributes.subject}</h2>
+                                  <p className="text-xs text-muted-foreground">
+                                    来自 {data.keyAttributes.senderName} &lt;{data.keyAttributes.senderEmail}&gt; ·{" "}
+                                    {new Date(data.keyAttributes.receivedTime).toLocaleString()}
+                                  </p>
+                                </div>
+                              </div>
 
-                       {/* Runtime Metrics */}
-                       <div className="bg-white rounded-lg border border-slate-200 p-6 shadow-sm">
-                         <h3 className="font-bold text-slate-900 mb-4 flex items-center gap-2">
-                           <Activity className="w-4 h-4 text-slate-500"/> 运行指标
-                         </h3>
-                         <div className="space-y-3">
-                           {Object.entries(data.runtimeMetrics).map(([key, value]) => (
-                             <div key={key} className="flex justify-between py-2 border-b border-slate-50 last:border-0">
-                               <span className="text-sm text-slate-500">{key}</span>
-                               <span className="text-sm font-medium text-slate-900">{value}</span>
-                             </div>
-                           ))}
-                         </div>
-                       </div>
-                       
-                       {/* State History */}
-                       <div className="col-span-2 bg-white rounded-lg border border-slate-200 p-6 shadow-sm">
-                          <h3 className="font-bold text-slate-900 mb-4 flex items-center gap-2">
-                           <History className="w-4 h-4 text-slate-500"/> 状态流转记录
-                         </h3>
-                         <div className="relative border-l-2 border-slate-100 ml-3 space-y-6 py-2">
-                           {data.stateHistory.map((history, idx) => (
-                             <div key={idx} className="relative pl-6">
-                               <div className="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-white border-2 border-purple-400"></div>
-                               <div className="flex items-center gap-2 mb-1">
-                                 <span className="text-sm font-bold text-slate-900">{history.to}</span>
-                                 <span className="text-xs text-slate-400">触发事件: {history.event}</span>
-                               </div>
-                               <div className="text-xs text-slate-500">{history.timestamp}</div>
-                             </div>
-                           ))}
-                         </div>
-                       </div>
-                     </div>
-                  </TabsContent>
+                              <div className="flex-1 flex border rounded p-4 bg-white">
+                                <iframe
+                                  srcDoc={data.keyAttributes.htmlBody || ""}
+                                  className="w-full flex-1 border-none"
+                                  title="Email Content"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="space-y-4 flex-1">
+                            <pre>{JSON.stringify(data, null, 2)}</pre>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </>
                 )}
 
                 {/* 3. Instance Graph */}
                 {activeTab === "relations" && (
                   <TabsContent value="relations" className="mt-0 h-full flex flex-col" forceMount>
-                     <div className="h-full w-full">
-                        <InstanceGraph instanceId={data.id} />
-                     </div>
+                    <div className="h-full w-full">
+                      <InstanceGraph instanceId={data.id} />
+                    </div>
                   </TabsContent>
                 )}
 
                 {/* 4. Runtime Actions */}
                 {activeTab === "actions" && (
                   <TabsContent value="actions" className="mt-0 h-full flex flex-col" forceMount>
-                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {/* Mock Action */}
-                        <div className="p-5 border rounded-xl bg-white border-slate-200 hover:border-purple-200 transition-all shadow-sm">
-                          <div className="flex justify-between items-start mb-3">
-                             <h4 className="font-bold text-slate-900">发货</h4>
-                             <Badge>流转</Badge>
-                          </div>
-                          <div className="text-sm text-slate-600 mb-4">
-                            状态流转: 从 <span className="font-mono bg-slate-100 px-1 rounded">PAID</span> 到 <span className="font-mono bg-slate-100 px-1 rounded">SHIPPED</span>。
-                          </div>
-                          <div className="bg-slate-50 p-3 rounded text-xs space-y-2 mb-4">
-                            <div className="flex justify-between">
-                              <span className="text-slate-500">触发事件:</span>
-                              <span className="font-medium">LOGISTICS_PICKUP</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-slate-500">前置条件:</span>
-                              <span className="font-medium">已分配追踪号</span>
-                            </div>
-                          </div>
-                          <Button className="w-full bg-purple-600 hover:bg-purple-700">执行动作</Button>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Mock Action */}
+                      <div className="p-5 border rounded-xl bg-white border-slate-200 hover:border-purple-200 transition-all shadow-sm">
+                        <div className="flex justify-between items-start mb-3">
+                          <h4 className="font-bold text-slate-900">发货</h4>
+                          <Badge>流转</Badge>
                         </div>
-                     </div>
+                        <div className="text-sm text-slate-600 mb-4">
+                          状态流转: 从 <span className="font-mono bg-slate-100 px-1 rounded">PAID</span> 到{" "}
+                          <span className="font-mono bg-slate-100 px-1 rounded">SHIPPED</span>。
+                        </div>
+                        <div className="bg-slate-50 p-3 rounded text-xs space-y-2 mb-4">
+                          <div className="flex justify-between">
+                            <span className="text-slate-500">触发事件:</span>
+                            <span className="font-medium">LOGISTICS_PICKUP</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-slate-500">前置条件:</span>
+                            <span className="font-medium">已分配追踪号</span>
+                          </div>
+                        </div>
+                        <Button className="w-full bg-purple-600 hover:bg-purple-700">执行动作</Button>
+                      </div>
+                    </div>
                   </TabsContent>
                 )}
 
@@ -333,7 +336,7 @@ const InstanceDetailPage: React.FC = () => {
                       {/* Hard Rules */}
                       <div className="bg-red-50 border border-red-100 rounded-lg p-4">
                         <h4 className="font-bold text-red-800 flex items-center gap-2 mb-2">
-                          <AlertCircle className="w-4 h-4"/> 硬性规则 (阻断)
+                          <AlertCircle className="w-4 h-4" /> 硬性规则 (阻断)
                         </h4>
                         <ul className="list-disc pl-5 text-sm text-red-700 space-y-1">
                           <li>无有效地址无法发货。</li>
@@ -344,25 +347,23 @@ const InstanceDetailPage: React.FC = () => {
                       {/* State Rules */}
                       <div className="bg-blue-50 border border-blue-100 rounded-lg p-4">
                         <h4 className="font-bold text-blue-800 flex items-center gap-2 mb-2">
-                          <Activity className="w-4 h-4"/> 状态规则
+                          <Activity className="w-4 h-4" /> 状态规则
                         </h4>
                         <ul className="list-disc pl-5 text-sm text-blue-700 space-y-1">
                           <li>退款动作仅在“已支付”状态可见。</li>
                           <li>发货后隐藏“取消”动作。</li>
                         </ul>
                       </div>
-                      
+
                       {/* Inference */}
                       <div className="bg-purple-50 border border-purple-100 rounded-lg p-4">
-                         <h4 className="font-bold text-purple-800 flex items-center gap-2 mb-2">
-                          <Zap className="w-4 h-4"/> AI 推理建议
+                        <h4 className="font-bold text-purple-800 flex items-center gap-2 mb-2">
+                          <Zap className="w-4 h-4" /> AI 推理建议
                         </h4>
-                         <p className="text-sm text-purple-700 mb-2">
-                           基于当前状态和历史记录，系统建议：
-                         </p>
-                         <div className="bg-white p-3 rounded border border-purple-100 text-sm text-slate-700 shadow-sm">
-                           退货概率为 <b>低 (5%)</b>。建议使用标准发货速度。
-                         </div>
+                        <p className="text-sm text-purple-700 mb-2">基于当前状态和历史记录，系统建议：</p>
+                        <div className="bg-white p-3 rounded border border-purple-100 text-sm text-slate-700 shadow-sm">
+                          退货概率为 <b>低 (5%)</b>。建议使用标准发货速度。
+                        </div>
                       </div>
                     </div>
                   </TabsContent>

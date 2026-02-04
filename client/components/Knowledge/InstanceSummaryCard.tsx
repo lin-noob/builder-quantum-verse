@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Box, Database, ChevronDown, ChevronUp, List, LayoutGrid } from "lucide-react";
 import { KnowledgeInstanceSummary, KnowledgeNodeType } from "../../types/Knowledge";
@@ -26,6 +27,7 @@ const getTypeColor = (type: KnowledgeNodeType) => {
 };
 
 const InstanceSummaryCard: React.FC<InstanceSummaryCardProps> = ({ summary, expanded, onToggle }) => {
+  const navigate = useNavigate();
   const [viewType, setViewType] = useState<"graph" | "list">("graph");
 
   const typeMap: Record<string, string> = {
@@ -167,9 +169,12 @@ const InstanceSummaryCard: React.FC<InstanceSummaryCardProps> = ({ summary, expa
               </div>
 
               {viewType === "graph" ? (
-                <InstanceIndexGraph typeId={summary.typeId} />
+                <InstanceIndexGraph
+                  typeId={summary.modelId}
+                  onInstanceClick={(id) => navigate(`/Knowledge/instance/${id}`)}
+                />
               ) : (
-                <InstanceList typeId={summary.typeId} modelId={summary.modelId} />
+                <InstanceList modelId={summary.modelId} />
               )}
             </motion.div>
           )}

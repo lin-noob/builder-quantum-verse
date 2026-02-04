@@ -138,6 +138,7 @@ interface RelationGraphEditorProps {
   onChange?: (newRelations: KnowledgeRelation[]) => void;
   readOnly?: boolean;
   id?: string;
+  properties?: any[];
 }
 
 const RelationGraphEditor: React.FC<RelationGraphEditorProps> = ({
@@ -147,6 +148,7 @@ const RelationGraphEditor: React.FC<RelationGraphEditorProps> = ({
   onChange,
   readOnly = false,
   id = null,
+  properties = [],
 }) => {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
@@ -158,10 +160,9 @@ const RelationGraphEditor: React.FC<RelationGraphEditorProps> = ({
     direction: "OUT",
   });
 
-  // Available Object Types for Target Selection
   const [availableTypes, setAvailableTypes] = useState<{ name: string; code: string; id: string }[]>([]);
+  const [targetProperties, setTargetProperties] = useState<any[]>([]);
 
-  // Fetch available types on mount
   useEffect(() => {
     const fetchTypes = async () => {
       const request = new Request();
@@ -187,6 +188,28 @@ const RelationGraphEditor: React.FC<RelationGraphEditorProps> = ({
     fetchTypes();
   }, []);
 
+  // Fetch properties for target object
+  useEffect(() => {
+    const fetchTargetProps = async () => {
+      if (!editForm.targetNodeType) {
+        setTargetProperties([]);
+        return;
+      }
+      const request = new Request();
+      try {
+        const response = await request.request(`/quote/api/v1/digital/view/${editForm.targetNodeType}`, {
+          method: "GET",
+        });
+        if (response.status === 200 && response.data.data) {
+          setTargetProperties(response.data.data.attributes || []);
+        }
+      } catch (e) {
+        console.error("Failed to fetch target properties", e);
+      }
+    };
+    fetchTargetProps();
+  }, [editForm.targetNodeType]);
+
   // Initialize Graph
   useEffect(() => {
     // 1. Source Node (Center)
@@ -208,9 +231,7 @@ const RelationGraphEditor: React.FC<RelationGraphEditorProps> = ({
       const radius = 300;
       const x = Math.cos(angle) * radius;
       const y = Math.sin(angle) * radius;
-
       const nodeId = `target-${index}`;
-
       // Find the name for the target node type
       const targetTypeObj = availableTypes.find((t) => t.id === rel.targetNodeType);
       const targetTypeName = targetTypeObj ? targetTypeObj.name : rel.targetNodeType;
@@ -261,6 +282,8 @@ const RelationGraphEditor: React.FC<RelationGraphEditorProps> = ({
       targetNodeType: "",
       direction: "OUT",
       sourceAction: "",
+      sourceProperty: "",
+      targetProperty: "",
       isMutable: true,
     });
     setIsDialogOpen(true);
@@ -284,6 +307,8 @@ const RelationGraphEditor: React.FC<RelationGraphEditorProps> = ({
       targetNodeType: editForm.targetNodeType,
       direction: editForm.direction || "OUT",
       sourceAction: editForm.sourceAction || "",
+      sourceProperty: editForm.sourceProperty || "",
+      targetProperty: editForm.targetProperty || "",
       isMutable: editForm.isMutable ?? true,
     };
 
@@ -362,6 +387,51 @@ const RelationGraphEditor: React.FC<RelationGraphEditorProps> = ({
                 </Select>
               </div>
             </div>
+
+            {/* 2.1 Current Object Property (Select) */}
+            {/* <div className="grid grid-cols-4 items-center gap-4">
+              <Label className="text-right">当前对象属性</Label>
+              <div className="col-span-3">
+                <Select
+                  value={editForm.sourceProperty || ""}
+                  onValueChange={(val) => setEditForm({ ...editForm, sourceProperty: val })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="选择当前对象属性" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {properties.map((p) => (
+                      <SelectItem key={p.name} value={p.name}>
+                        {p.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div> */}
+
+            {/* 2.2 Target Object Property (Select) */}
+            {/* <div className="grid grid-cols-4 items-center gap-4">
+              <Label className="text-right">目标对象属性</Label>
+              <div className="col-span-3">
+                <Select
+                  value={editForm.targetProperty || ""}
+                  onValueChange={(val) => setEditForm({ ...editForm, targetProperty: val })}
+                  disabled={!editForm.targetNodeType}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="选择目标对象属性" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {targetProperties.map((p) => (
+                      <SelectItem key={p.attributeName} value={p.attributeName}>
+                        {p.attributeName}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div> */}
 
             {/* 3. Relation Semantic Name (Input) */}
             <div className="grid grid-cols-4 items-center gap-4">

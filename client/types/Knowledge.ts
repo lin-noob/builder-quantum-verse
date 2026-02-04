@@ -27,6 +27,8 @@ export interface KnowledgeRelation {
   targetNodeType: string; // ID or Name of the target node type
   direction: RelationDirection;
   sourceAction?: string; // Action that creates this relation
+  sourceProperty?: string; // Property of source node
+  targetProperty?: string; // Property of target node
   isMutable: boolean;
 }
 

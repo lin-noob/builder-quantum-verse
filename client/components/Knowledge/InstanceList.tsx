@@ -8,7 +8,6 @@ import { Input } from "@/components/ui/input";
 import { request } from "@/lib/request";
 
 interface InstanceListProps {
-  typeId: string;
   modelId: number;
 }
 
@@ -36,7 +35,7 @@ interface InstanceItem {
   updatedAt: string;
 }
 
-const InstanceList: React.FC<InstanceListProps> = ({ typeId, modelId }) => {
+const InstanceList: React.FC<InstanceListProps> = ({ modelId }) => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [instances, setInstances] = useState<InstanceItem[]>([]);

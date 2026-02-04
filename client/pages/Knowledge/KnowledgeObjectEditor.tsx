@@ -102,6 +102,8 @@ const KnowledgeObjectEditor: React.FC = () => {
                 targetNodeType: rel.targetType,
                 direction: rel.direction || "OUT",
                 sourceAction: rel.sourceAction,
+                sourceProperty: rel.sourceProperty,
+                targetProperty: rel.targetProperty,
                 isMutable: rel.mutability === "true",
               })),
               actions: (item.actions || []).map((act: any) => ({
@@ -183,6 +185,8 @@ const KnowledgeObjectEditor: React.FC = () => {
         relationName: r.semanticName,
         targetType: r.targetNodeType,
         sourceAction: r.sourceAction || "",
+        sourceProperty: r.sourceProperty || "",
+        targetProperty: r.targetProperty || "",
         status: "",
         mutability: r.isMutable ? "true" : "false",
         direction: r.direction,
@@ -659,6 +663,7 @@ const KnowledgeObjectEditor: React.FC = () => {
                         relations={formData.relations || []}
                         onChange={handleRelationsChange}
                         id={initialData.numericId ?? null}
+                        properties={formData.properties || []}
                       />
                     </div>
                   </TabsContent>
