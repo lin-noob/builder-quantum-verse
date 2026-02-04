@@ -121,7 +121,6 @@ export default function Index() {
         });
 
         if (res.status === 200 && res.data.data?.records) {
-          console.log(JSON.parse(res.data.data.records[0].expertBriefing.replace(/\\(?=[^\\"/bfnrtu])/g, "\\n")));
           setPagination((prev) => ({ ...prev, total: res.data.data.total || 0 }));
           const apiList: DecisionTraceItem[] = res.data.data.records;
           const mappedEvents: DecisionEvent[] = apiList.map((item) => ({
@@ -143,8 +142,12 @@ export default function Index() {
             sales_rep: item.ownerName || "",
             team: item.ownerTeam || "",
             instanceName: item.instanceName,
-            semanticSummary: JSON.parse(item.semanticSummary.replace(/\\(?=[^\\"/bfnrtu])/g, "\\n")),
-            expertBriefing: JSON.parse(item.expertBriefing.replace(/\\(?=[^\\"/bfnrtu])/g, "\\n")),
+            semanticSummary: item.semanticSummary
+              ? JSON.parse(item.semanticSummary.replace(/\\(?=[^\\"/bfnrtu])/g, "\\n"))
+              : null,
+            expertBriefing: item.expertBriefing
+              ? JSON.parse(item.expertBriefing.replace(/\\(?=[^\\"/bfnrtu])/g, "\\n"))
+              : null,
             instanceId: item.instanceId,
           }));
           setEvents(mappedEvents);
