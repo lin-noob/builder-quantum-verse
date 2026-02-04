@@ -40,6 +40,8 @@ export interface DecisionTraceItem {
   instanceName?: string;
   semanticSummary?: string;
   expertBriefing?: string;
+  statusCode?: string | null;
+  statusName?: string | null;
 }
 
 // Helper removed
@@ -123,33 +125,50 @@ export default function Index() {
         if (res.status === 200 && res.data.data?.records) {
           setPagination((prev) => ({ ...prev, total: res.data.data.total || 0 }));
           const apiList: DecisionTraceItem[] = res.data.data.records;
-          const mappedEvents: DecisionEvent[] = apiList.map((item) => ({
-            id: item.id,
-            type: "CUSTOMER_EMAIL_RECEIVED", // Defaulting for now as API actionType is null
-            type_label: item.instanceName || "未知事件",
-            icon: "mail", // Defaulting
-            customer: {
-              id: item.customerId,
-              name: item.customerName,
-              type: "Customer",
-            },
-            ai_initial_judgement: item.aiAnalysisResult,
-            status: "NEW",
-            occurred_at: item.gmtCreate,
-            ai_analyzed_at: item.gmtModified,
-            has_human_override: !!item.analyzedBy,
-            source_url: "",
-            sales_rep: item.ownerName || "",
-            team: item.ownerTeam || "",
-            instanceName: item.instanceName,
-            semanticSummary: item.semanticSummary
-              ? JSON.parse(item.semanticSummary.replace(/\\(?=[^\\"/bfnrtu])/g, "\\n"))
-              : null,
-            expertBriefing: item.expertBriefing
-              ? JSON.parse(item.expertBriefing.replace(/\\(?=[^\\"/bfnrtu])/g, "\\n"))
-              : null,
-            instanceId: item.instanceId,
-          }));
+          const mappedEvents: DecisionEvent[] = apiList.map((item) => {
+            let parsedSemantic = null;
+            let parsedBriefing = null;
+
+            try {
+              if (item.semanticSummary) {
+                parsedSemantic = JSON.parse(item.semanticSummary.replace(/\\(?=[^\\"/bfnrtu])/g, "\\n"));
+              }
+            } catch (e) {
+              console.error("Failed to parse semanticSummary for event:", item.id, e);
+            }
+
+            try {
+              if (item.expertBriefing) {
+                parsedBriefing = JSON.parse(item.expertBriefing.replace(/\\(?=[^\\"/bfnrtu])/g, "\\n"));
+              }
+            } catch (e) {
+              console.error("Failed to parse expertBriefing for event:", item.id, e);
+            }
+
+            return {
+              id: item.id,
+              type: "CUSTOMER_EMAIL_RECEIVED", // Defaulting for now as API actionType is null
+              type_label: item.instanceName || "未知事件",
+              icon: "mail", // Defaulting
+              customer: {
+                id: item.customerId,
+                name: item.customerName,
+                type: "Customer",
+              },
+              ai_initial_judgement: item.aiAnalysisResult,
+              status: (item.statusCode as any) || "NEW",
+              occurred_at: item.gmtCreate,
+              ai_analyzed_at: item.gmtModified,
+              has_human_override: !!item.analyzedBy,
+              source_url: "",
+              sales_rep: item.ownerName || "",
+              team: item.ownerTeam || "",
+              instanceName: item.instanceName,
+              semanticSummary: parsedSemantic,
+              expertBriefing: parsedBriefing,
+              instanceId: item.instanceId,
+            };
+          });
           setEvents(mappedEvents);
         }
       } catch (error) {
