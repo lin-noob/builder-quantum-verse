@@ -37,68 +37,10 @@ export interface DecisionTraceItem {
   eventTime?: string | null;
   ownerName?: string | null;
   ownerTeam?: string | null;
+  instanceName?: string;
+  semanticSummary?: string;
+  expertBriefing?: string;
 }
-
-// Mock Data based on user requirements
-const mockDecisionEvents: DecisionEvent[] = [
-  {
-    id: "evt_001",
-    type: "CUSTOMER_EMAIL_RECEIVED",
-    type_label: "客户发送了新邮件",
-    icon: "mail",
-    customer: {
-      id: "cus_123",
-      name: "A 公司",
-      type: "Customer",
-    },
-    ai_initial_judgement: "高购买意向 · 交期敏感",
-    status: "AI_ANALYZED",
-    occurred_at: "2026-01-27 10:32",
-    ai_analyzed_at: "2026-01-27 10:33",
-    has_human_override: false,
-    source_url: "https://mail.company.com/inbox/evt_001",
-    sales_rep: "张三",
-    team: "销售一部",
-  },
-  {
-    id: "evt_002",
-    type: "CUSTOMER_EMAIL_RECEIVED",
-    type_label: "客户发送了新邮件",
-    icon: "mail",
-    customer: {
-      id: "cus_456",
-      name: "B 科技",
-      type: "Customer",
-    },
-    ai_initial_judgement: "询价行为 · 存在价格犹豫",
-    status: "HUMAN_REVIEWED",
-    occurred_at: "2026-01-27 09:10",
-    ai_analyzed_at: "2026-01-27 09:11",
-    has_human_override: true,
-    source_url: "https://mail.company.com/inbox/evt_002",
-    sales_rep: "李四",
-    team: "销售二部",
-  },
-  {
-    id: "evt_003",
-    type: "CUSTOMER_WEB_ACTIVITY",
-    type_label: "客户在网站上产生新行为",
-    icon: "web",
-    customer: {
-      id: "cus_789",
-      name: "C Industries",
-      type: "Lead",
-    },
-    ai_initial_judgement: "频繁查看价格页 · 存在决策迟疑",
-    status: "NEW",
-    occurred_at: "2026-01-27 08:45",
-    ai_analyzed_at: null,
-    has_human_override: false,
-    source_url: "https://analytics.company.com/sessions/evt_003",
-    sales_rep: "王五",
-    team: "市场部",
-  },
-];
 
 // Helper removed
 
@@ -179,12 +121,13 @@ export default function Index() {
         });
 
         if (res.status === 200 && res.data.data?.records) {
+          console.log(JSON.parse(res.data.data.records[0].expertBriefing.replace(/\\(?=[^\\"/bfnrtu])/g, "\\n")));
           setPagination((prev) => ({ ...prev, total: res.data.data.total || 0 }));
           const apiList: DecisionTraceItem[] = res.data.data.records;
           const mappedEvents: DecisionEvent[] = apiList.map((item) => ({
             id: item.id,
             type: "CUSTOMER_EMAIL_RECEIVED", // Defaulting for now as API actionType is null
-            type_label: item.businessType || "未知事件",
+            type_label: item.instanceName || "未知事件",
             icon: "mail", // Defaulting
             customer: {
               id: item.customerId,
@@ -192,13 +135,17 @@ export default function Index() {
               type: "Customer",
             },
             ai_initial_judgement: item.aiAnalysisResult,
-            status: (item.currentStatus as any) || "",
+            status: "NEW",
             occurred_at: item.gmtCreate,
             ai_analyzed_at: item.gmtModified,
             has_human_override: !!item.analyzedBy,
             source_url: "",
             sales_rep: item.ownerName || "",
             team: item.ownerTeam || "",
+            instanceName: item.instanceName,
+            semanticSummary: JSON.parse(item.semanticSummary.replace(/\\(?=[^\\"/bfnrtu])/g, "\\n")),
+            expertBriefing: JSON.parse(item.expertBriefing.replace(/\\(?=[^\\"/bfnrtu])/g, "\\n")),
+            instanceId: item.instanceId,
           }));
           setEvents(mappedEvents);
         }
@@ -224,7 +171,7 @@ export default function Index() {
   }, [eventType, eventStatusFilter, timeRange, dateRange, customerSearch, aiTagFilter, humanOverrideFilter]);
 
   const selectedEvent = useMemo(() => {
-    const sourceData = events.length > 0 ? events : mockDecisionEvents;
+    const sourceData = events.length > 0 ? events : [];
     return sourceData.find((e) => e.id === selectedEventId);
   }, [selectedEventId, events]);
 
@@ -306,7 +253,7 @@ export default function Index() {
             )}
 
             {/* Advanced Toggle */}
-            <div>
+            {/* <div>
               <button
                 onClick={() => setShowAdvanced(!showAdvanced)}
                 className="flex items-center text-xs text-slate-500 hover:text-slate-800 transition-colors w-full justify-center py-1 border-t border-slate-50 mt-1"
@@ -349,7 +296,7 @@ export default function Index() {
                   </div>
                 </div>
               )}
-            </div>
+            </div> */}
           </div>
         </div>
 
@@ -409,15 +356,10 @@ export default function Index() {
                 isOpen={expandedLayers[1]}
                 onToggle={() => toggleLayer(1)}
                 status={expandedLayers[1] ? "active" : "completed"}
-                summary={
-                  <span>
-                    涉及关键实体: <span className="font-semibold text-slate-700">3个</span> (
-                    {selectedEvent.customer.name}, {selectedEvent.sales_rep}) · 关联深度: 2层
-                  </span>
-                }
+                summary={<span></span>}
                 className="mb-2"
               >
-                <GraphSliceLayer externalHighlightId={highlightedFactId} />
+                <GraphSliceLayer instanceId={selectedEvent.instanceId} externalHighlightId={highlightedFactId} />
               </CollapsibleLayer>
 
               {/* Layer 2: Semantic Summary */}
@@ -429,7 +371,7 @@ export default function Index() {
                 status={expandedLayers[2] ? "active" : "completed"}
                 summary={
                   <div className="flex gap-2">
-                    <span className="px-1.5 py-0.5 rounded text-[10px] bg-blue-50 text-blue-600 border border-blue-100 font-medium">
+                    {/* <span className="px-1.5 py-0.5 rounded text-[10px] bg-blue-50 text-blue-600 border border-blue-100 font-medium">
                       邮件: 询价 (98%)
                     </span>
                     <span className="px-1.5 py-0.5 rounded text-[10px] bg-slate-100 text-slate-600 border border-slate-200">
@@ -437,12 +379,12 @@ export default function Index() {
                     </span>
                     <span className="px-1.5 py-0.5 rounded text-[10px] bg-orange-50 text-orange-600 border border-orange-100 font-medium">
                       风险: 高
-                    </span>
+                    </span> */}
                   </div>
                 }
                 className="mb-2"
               >
-                <SemanticSummaryLayer onHighlight={setHighlightedFactId} />
+                <SemanticSummaryLayer semanticData={selectedEvent.semanticSummary} onHighlight={setHighlightedFactId} />
               </CollapsibleLayer>
 
               {/* Layer 3: Summary Builder */}
@@ -454,12 +396,12 @@ export default function Index() {
                 status={isExecuted ? "locked" : expandedLayers[3] ? "active" : "completed"}
                 summary={
                   <span>
-                    状态: <span className="text-purple-600 font-medium">人工已修订</span> · 3条局势判断 · 2条行动目标
+                    {/* 状态: <span className="text-purple-600 font-medium">人工已修订</span> · 3条局势判断 · 2条行动目标 */}
                   </span>
                 }
                 className="mb-2"
               >
-                <SummaryBuilderLayer externalLock={isExecuted} />
+                <SummaryBuilderLayer data={selectedEvent.expertBriefing} externalLock={isExecuted} />
               </CollapsibleLayer>
 
               {/* Layer 4: AI Execution */}
@@ -470,13 +412,14 @@ export default function Index() {
                 onToggle={() => toggleLayer(4)}
                 status={isExecuted ? "completed" : expandedLayers[4] ? "active" : "default"}
                 summary={
-                  isExecuted ? (
-                    <span className="text-green-600 font-medium">已执行 · 邮件已发送</span>
-                  ) : (
-                    <span>
-                      AI 建议: 2条策略 · <span className="text-orange-500 font-medium">待确认</span>
-                    </span>
-                  )
+                  <></>
+                  // isExecuted ? (
+                  //   <span className="text-green-600 font-medium">已执行 · 邮件已发送</span>
+                  // ) : (
+                  //   <span>
+                  //     AI 建议: 2条策略 · <span className="text-orange-500 font-medium">待确认</span>
+                  //   </span>
+                  // )
                 }
                 className="mb-20"
               >

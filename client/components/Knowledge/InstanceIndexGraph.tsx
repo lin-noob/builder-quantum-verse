@@ -75,27 +75,23 @@ const InstanceIndexGraph: React.FC<InstanceIndexGraphProps> = ({ typeId, onInsta
     return { nodes, edges };
   };
 
-  // Fetch data
+  // New API call for Digital Graph View
   useEffect(() => {
-    const fetchInstances = async () => {
+    const fetchDigitalGraph = async () => {
+      if (!typeId) return;
       setLoading(true);
       try {
-        const res = await request.post("/quote/api/v1/instance/page", {
-          modelId: typeId,
-          pagesize: 50, // Fetch more for graph
-          currentpage: 1,
-        });
-
-        if (res.data?.data?.records) {
-          setInstances(res.data.data.records);
+        const res = await request.get(`/quote/api/v1/digital/graph/view/${typeId}`);
+        if (res.data?.data) {
+          setInstances(res.data.data);
         }
       } catch (err) {
-        console.error("Failed to fetch index graph data:", err);
+        console.error("Failed to fetch digital graph view:", err);
       } finally {
         setLoading(false);
       }
     };
-    fetchInstances();
+    fetchDigitalGraph();
   }, [typeId]);
 
   // Initialize Graph
@@ -103,7 +99,7 @@ const InstanceIndexGraph: React.FC<InstanceIndexGraphProps> = ({ typeId, onInsta
     if (!containerRef.current || loading || instances.length === 0) return;
 
     const data = {
-      nodes: instances.map((item, i) => {
+      nodes: instances.map((item) => {
         const status = item.statusName || item.statusCode || "UNKNOWN";
         let color = "#3b82f6"; // blue
         if (status === "FROZEN") color = "#94a3b8"; // slate
@@ -130,26 +126,41 @@ const InstanceIndexGraph: React.FC<InstanceIndexGraphProps> = ({ typeId, onInsta
             category: "instance",
             status,
             label: label,
+            senderEmail: item.keyAttributes?.senderEmail,
           },
         };
       }),
       edges: [] as any[],
     };
 
-    // Add some random connections for visual effect since real relations might not be available in bulk
-    for (let i = 1; i < data.nodes.length; i++) {
-      if (Math.random() > 0.8) {
-        const targetIdx = Math.floor(Math.random() * i);
-        data.edges.push({
-          source: data.nodes[i].id,
-          target: data.nodes[targetIdx].id,
-          style: {
-            stroke: "#e2e8f0",
-            lineWidth: 1,
-          },
-        });
+    // Connect nodes with same senderEmail
+    const emailToNodeIds: Record<string, string[]> = {};
+    instances.forEach((item) => {
+      const email = item.keyAttributes?.senderEmail;
+      if (email) {
+        if (!emailToNodeIds[email]) {
+          emailToNodeIds[email] = [];
+        }
+        emailToNodeIds[email].push(String(item.id));
       }
-    }
+    });
+
+    Object.values(emailToNodeIds).forEach((nodeIds) => {
+      if (nodeIds.length > 1) {
+        // Connect each node to the first one in the group to create a simple hub/spoke or chain
+        // To avoid complete graph O(n^2), we'll just connect them sequentially or all to first
+        for (let i = 1; i < nodeIds.length; i++) {
+          data.edges.push({
+            source: nodeIds[0],
+            target: nodeIds[i],
+            style: {
+              stroke: "#e2e8f0",
+              lineWidth: 1,
+            },
+          });
+        }
+      }
+    });
 
     // Initialize G6 Graph
     const graph = new Graph({

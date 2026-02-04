@@ -1,10 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Brain,
   Mail,
@@ -18,48 +15,108 @@ import {
   CheckCircle2,
   XCircle,
   AlertOctagon,
+  FileText,
+  Target,
+  History,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// Mock Data for Semantic Summary
-const MOCK_SEMANTIC_DATA = {
-  email: {
-    subject: "紧急：更改收货地址",
-    sender: "zhang.san@example.com",
-    receiver: "support@shop.com",
-    intent: "modify_order",
-    intentLabel: "修改订单信息",
-    entities: [
-      { id: "e1", type: "order", label: "订单号", value: "ORD-20240127-001", verified: true },
-      { id: "e2", type: "address", label: "新地址", value: "北京市朝阳区三里屯 SOHO A座 1202", verified: false },
-      { id: "e3", type: "product", label: "涉及商品", value: "iPhone 15 Pro Max", verified: true },
-    ],
+// Types for AI Output based on AI_Output_Structure_Mapping.md
+interface CoreIntent {
+  type: string;
+  sub_type: string;
+  urgency_signals: string[];
+}
+
+interface EntityOrder {
+  id: string;
+  mentioned_in: string;
+  customer_claim: string;
+}
+
+interface EntityProduct {
+  sku: string;
+  description_in_text: string;
+}
+
+interface EntityMonetary {
+  currency: string;
+  amount: number | string;
+  context: string;
+}
+
+interface Entities {
+  orders: EntityOrder[];
+  products: EntityProduct[];
+  monetary: EntityMonetary[];
+}
+
+interface ContextInfo {
+  conversation_stage: string;
+  thread_position: string | number;
+  references_history: boolean;
+  unresolved_commitment: { promise: string } | null;
+}
+
+interface GapRecord {
+  field: string;
+  impact: string;
+}
+
+interface UnverifiedClaim {
+  claim: string;
+  against_system_record: string;
+  status: string;
+}
+
+interface GapsAndInconsistencies {
+  missing_critical_data: GapRecord[];
+  unverified_claims: UnverifiedClaim[];
+  anaphora_to_resolve: any[];
+}
+
+interface AISemanticData {
+  natural_language_summary: string;
+  core_intent: CoreIntent;
+  entities: Entities;
+  context: ContextInfo;
+  gaps_and_inconsistencies: GapsAndInconsistencies;
+}
+
+// Mock Data for Fallback
+const DEFAULT_FALLBACK_DATA: AISemanticData = {
+  natural_language_summary: "系统尚未生成此次事件的语义摘要。AI 分析正在由于网络或数据延迟稍后呈现。",
+  core_intent: { type: "unknown", sub_type: "unknown", urgency_signals: [] },
+  entities: { orders: [], products: [], monetary: [] },
+  context: {
+    conversation_stage: "initial",
+    thread_position: 1,
+    references_history: false,
+    unresolved_commitment: null,
   },
-  behavior: {
-    signals: [
-      { id: "b1", time: "10:32:15", action: "异地登录", detail: "IP: 192.168.1.1 (上海)", risk: "high" },
-      { id: "b2", time: "10:33:00", action: "查看订单", detail: "ORD-20240127-001", risk: "low" },
-      { id: "b3", time: "10:35:12", action: "发送邮件", detail: "Subject: 更改地址", risk: "medium" },
-    ],
-  },
-  risk: {
-    level: "high",
-    score: 85,
-    factors: [
-      { id: "r1", label: "异地登录后立即修改地址", type: "pattern" },
-      { id: "r2", label: "高价值商品 (¥9,999)", type: "value" },
-      { id: "r3", label: "收货地址与注册地不符", type: "location" },
-    ],
-  },
+  gaps_and_inconsistencies: { missing_critical_data: [], unverified_claims: [], anaphora_to_resolve: [] },
 };
 
 interface SemanticSummaryLayerProps {
+  semanticData?: AISemanticData;
   onHighlight?: (factId: string | null) => void;
 }
 
-export default function SemanticSummaryLayer({ onHighlight }: SemanticSummaryLayerProps) {
+export default function SemanticSummaryLayer({ semanticData, onHighlight }: SemanticSummaryLayerProps) {
   const [isEditing, setIsEditing] = useState(false);
-  const [data, setData] = useState(MOCK_SEMANTIC_DATA);
+
+  // Parse semanticData
+  const parsedData = useMemo(() => {
+    if (!semanticData) return DEFAULT_FALLBACK_DATA;
+    try {
+      return semanticData;
+    } catch (e) {
+      console.error("Failed to parse semantic summary JSON:", e);
+      return DEFAULT_FALLBACK_DATA;
+    }
+  }, [semanticData]);
+
+  const { natural_language_summary, core_intent, entities, context, gaps_and_inconsistencies } = parsedData;
 
   // Helper to handle highlight
   const handleMouseEnter = (factId: string | null) => {
@@ -68,23 +125,9 @@ export default function SemanticSummaryLayer({ onHighlight }: SemanticSummaryLay
     }
   };
 
-  // Helper to render risk badge
-  const renderRiskBadge = (level: string) => {
-    switch (level) {
-      case "high":
-        return <Badge className="bg-red-100 text-red-700 hover:bg-red-200 border-red-200">高风险</Badge>;
-      case "medium":
-        return <Badge className="bg-orange-100 text-orange-700 hover:bg-orange-200 border-orange-200">中风险</Badge>;
-      case "low":
-        return <Badge className="bg-green-100 text-green-700 hover:bg-green-200 border-green-200">低风险</Badge>;
-      default:
-        return <Badge variant="outline">未知</Badge>;
-    }
-  };
-
   return (
-    <Card className="w-full border-slate-200 shadow-sm">
-      <CardHeader className="pb-3 border-b border-slate-100">
+    <Card className="w-full border-slate-200 shadow-sm overflow-hidden">
+      <CardHeader className="pb-3 border-b border-slate-100 bg-slate-50/30">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="p-1.5 bg-purple-100 text-purple-700 rounded-md">
@@ -94,7 +137,7 @@ export default function SemanticSummaryLayer({ onHighlight }: SemanticSummaryLay
               <CardTitle className="text-base font-semibold text-slate-900">
                 Layer 2: Semantic Summary (语义摘要)
               </CardTitle>
-              <p className="text-xs text-slate-500 mt-0.5">AI 对事实切片的结构化理解与风险研判</p>
+              <p className="text-xs text-slate-500 mt-0.5">AI 对事实切片的结构化理解与建议</p>
             </div>
           </div>
           <Button
@@ -109,157 +152,194 @@ export default function SemanticSummaryLayer({ onHighlight }: SemanticSummaryLay
         </div>
       </CardHeader>
 
-      <CardContent className="p-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Module 1: Email Understanding */}
-          <div
-            className="space-y-3 flex flex-col"
-            onMouseEnter={() => handleMouseEnter("evt_001")}
-            onMouseLeave={() => handleMouseEnter(null)}
-          >
-            <div className="flex items-center gap-2 mb-1">
-              <Mail className="w-3.5 h-3.5 text-slate-500" />
-              <h3 className="text-xs font-bold uppercase text-slate-500 tracking-wider">邮件理解</h3>
-            </div>
+      <CardContent className="p-4 space-y-6">
+        {/* Section 1: Natural Language Summary */}
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <FileText className="w-4 h-4 text-slate-400" />
+            <h3 className="text-sm font-bold text-slate-700">自然语言摘要</h3>
+          </div>
+          <div className="bg-slate-50 p-3 rounded-lg border border-slate-100 text-sm text-slate-600 leading-relaxed shadow-inner">
+            {natural_language_summary}
+          </div>
+        </div>
 
-            <div className="bg-slate-50 rounded-lg p-3 border border-slate-100 space-y-3 flex-1">
-              <div className="space-y-1">
-                <label className="text-[10px] text-slate-400">邮件意图</label>
-                <div className="flex items-center justify-between">
-                  {isEditing ? (
-                    <Select defaultValue={data.email.intent}>
-                      <SelectTrigger className="h-7 text-xs w-full">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="modify_order">修改订单信息</SelectItem>
-                        <SelectItem value="complaint">投诉反馈</SelectItem>
-                        <SelectItem value="inquiry">一般咨询</SelectItem>
-                      </SelectContent>
-                    </Select>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Section 2.1: Core Intent */}
+          <div className="space-y-3 bg-white border border-slate-100 rounded-lg p-3 shadow-sm">
+            <div className="flex items-center gap-2 mb-1">
+              <div className="p-1 bg-blue-50 text-blue-600 rounded">
+                <Target className="w-3.5 h-3.5" />
+              </div>
+              <h3 className="text-xs font-bold uppercase text-slate-500 tracking-wider">核心意图 (Core Intent)</h3>
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-slate-500">类型 (Type)</span>
+                <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-100">
+                  {core_intent.type}
+                </Badge>
+              </div>
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-slate-500">子类型 (Sub-type)</span>
+                <span className="font-medium text-slate-800">{core_intent.sub_type}</span>
+              </div>
+              <div className="pt-2 flex flex-wrap gap-1">
+                {core_intent.urgency_signals.map((signal, i) => (
+                  <Badge key={i} className="bg-red-50 text-red-600 border-red-100 text-[10px] h-5">
+                    {signal}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Section 2.2: Context */}
+          <div className="space-y-3 bg-white border border-slate-100 rounded-lg p-3 shadow-sm">
+            <div className="flex items-center gap-2 mb-1">
+              <div className="p-1 bg-slate-50 text-slate-600 rounded">
+                <History className="w-3.5 h-3.5" />
+              </div>
+              <h3 className="text-xs font-bold uppercase text-slate-500 tracking-wider">上下文 (Context)</h3>
+            </div>
+            <div className="space-y-2 text-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-slate-500">对话阶段</span>
+                <span className="font-medium text-slate-800">{context.conversation_stage}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-slate-500">邮件位置</span>
+                <span className="font-medium text-slate-800">第 {context.thread_position} 封</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-slate-500">参考历史</span>
+                {context.references_history ? (
+                  <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
+                ) : (
+                  <Badge variant="secondary" className="text-[10px] h-4">
+                    否
+                  </Badge>
+                )}
+              </div>
+              {context.unresolved_commitment && (
+                <div className="mt-2 bg-orange-50 p-2 rounded border border-orange-100">
+                  <div className="text-[10px] font-bold text-orange-700 mb-1">未解决承诺</div>
+                  <div className="text-[10px] text-orange-600 italic">"{context.unresolved_commitment.promise}"</div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Section 2.3: Entities */}
+          <div className="col-span-1 md:col-span-2 space-y-3 bg-white border border-slate-100 rounded-lg p-3 shadow-sm">
+            <div className="flex items-center gap-2 mb-1">
+              <div className="p-1 bg-amber-50 text-amber-600 rounded">
+                <Package className="w-3.5 h-3.5" />
+              </div>
+              <h3 className="text-xs font-bold uppercase text-slate-500 tracking-wider">实体识别 (Entities)</h3>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Orders */}
+              <div className="space-y-2">
+                <label className="text-[10px] text-slate-400 font-bold uppercase">订单 (Orders)</label>
+                <div className="space-y-2">
+                  {entities.orders.length > 0 ? (
+                    entities.orders.map((o, i) => (
+                      <div key={i} className="p-2 border rounded bg-slate-50/50">
+                        <div className="text-xs font-bold text-slate-800">{o.id}</div>
+                        <div className="text-[10px] text-slate-500 mt-1">
+                          来源: {o.mentioned_in} · {o.customer_claim}
+                        </div>
+                      </div>
+                    ))
                   ) : (
-                    <span className="font-medium text-sm text-slate-800 flex items-center gap-2">
-                      {data.email.intentLabel}
-                      <Badge
-                        variant="outline"
-                        className="text-[10px] h-4 px-1 text-green-600 bg-green-50 border-green-200"
-                      >
-                        98% 置信度
-                      </Badge>
-                    </span>
+                    <div className="text-[10px] text-slate-300 italic">未发现相关订单</div>
                   )}
                 </div>
               </div>
-
-              <div className="space-y-2 pt-2 border-t border-slate-100/50">
-                <label className="text-[10px] text-slate-400">提取实体</label>
+              {/* Products */}
+              <div className="space-y-2">
+                <label className="text-[10px] text-slate-400 font-bold uppercase">商品 (Products)</label>
                 <div className="space-y-2">
-                  {data.email.entities.map((entity) => (
-                    <div
-                      key={entity.id}
-                      className="group flex items-start gap-2 text-xs p-1.5 hover:bg-white rounded border border-transparent hover:border-slate-100 transition-colors cursor-pointer"
-                    >
-                      <div className="mt-0.5 text-slate-400">
-                        {entity.type === "order" && <Package className="w-3 h-3" />}
-                        {entity.type === "address" && <MapPin className="w-3 h-3" />}
-                        {entity.type === "product" && <CreditCard className="w-3 h-3" />}
+                  {entities.products.length > 0 ? (
+                    entities.products.map((p, i) => (
+                      <div key={i} className="p-2 border rounded bg-slate-50/50">
+                        <div className="text-xs font-bold text-slate-800">{p.sku}</div>
+                        <div className="text-[10px] text-slate-500 mt-1">{p.description_in_text}</div>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between">
-                          <span className="text-slate-500 text-[10px]">{entity.label}</span>
-                          {entity.verified ? (
-                            <CheckCircle2 className="w-3 h-3 text-green-500" />
-                          ) : (
-                            <Badge variant="secondary" className="text-[9px] h-3.5 px-0.5">
-                              待确认
-                            </Badge>
-                          )}
+                    ))
+                  ) : (
+                    <div className="text-[10px] text-slate-300 italic">未发现商品信息</div>
+                  )}
+                </div>
+              </div>
+              {/* Monetary */}
+              <div className="space-y-2">
+                <label className="text-[10px] text-slate-400 font-bold uppercase">金额 (Monetary)</label>
+                <div className="space-y-2">
+                  {entities.monetary.length > 0 ? (
+                    entities.monetary.map((m, i) => (
+                      <div key={i} className="p-2 border rounded bg-slate-50/50">
+                        <div className="text-xs font-bold text-slate-800">
+                          {m.currency} {m.amount}
                         </div>
-                        <div className="font-medium text-slate-800 truncate" title={entity.value}>
-                          {entity.value}
-                        </div>
+                        <div className="text-[10px] text-slate-500 mt-1">{m.context}</div>
                       </div>
-                    </div>
-                  ))}
+                    ))
+                  ) : (
+                    <div className="text-[10px] text-slate-300 italic">未发现金额引用</div>
+                  )}
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Module 2: Behavior Signals */}
-          <div className="space-y-3 flex flex-col">
+          {/* Section 2.4: Gaps & Inconsistencies */}
+          <div className="col-span-1 md:col-span-2 space-y-3 bg-red-50/30 border border-red-100 rounded-lg p-3 shadow-sm">
             <div className="flex items-center gap-2 mb-1">
-              <Activity className="w-3.5 h-3.5 text-slate-500" />
-              <h3 className="text-xs font-bold uppercase text-slate-500 tracking-wider">行为信号 (Time Series)</h3>
+              <div className="p-1 bg-red-100 text-red-600 rounded">
+                <AlertTriangle className="w-3.5 h-3.5" />
+              </div>
+              <h3 className="text-xs font-bold uppercase text-red-800 tracking-wider">
+                缺口与矛盾 (Gaps & Inconsistencies)
+              </h3>
             </div>
-
-            <div className="bg-slate-50 rounded-lg p-3 border border-slate-100 overflow-hidden flex-1">
-              <div className="relative pl-3 space-y-4 before:absolute before:left-[5px] before:top-1 before:bottom-1 before:w-[1px] before:bg-slate-200">
-                {data.behavior.signals.map((signal, idx) => (
-                  <div
-                    key={signal.id}
-                    className="relative text-xs cursor-pointer hover:bg-slate-100/50 -mx-1 px-1 rounded transition-colors"
-                    onMouseEnter={() => handleMouseEnter(idx === 0 ? "evt_002" : idx === 1 ? "evt_003" : "evt_001")}
-                    onMouseLeave={() => handleMouseEnter(null)}
-                  >
-                    {/* Timeline dot */}
-                    <div
-                      className={cn(
-                        "absolute -left-[11px] top-1 w-2.5 h-2.5 rounded-full border-2 border-white shadow-sm",
-                        signal.risk === "high"
-                          ? "bg-red-500"
-                          : signal.risk === "medium"
-                            ? "bg-orange-400"
-                            : "bg-slate-300",
-                      )}
-                    />
-
-                    <div className="flex items-center justify-between mb-0.5">
-                      <span className="font-medium text-slate-800">{signal.action}</span>
-                      <span className="text-[10px] text-slate-400 font-mono">{signal.time}</span>
-                    </div>
-                    <p className="text-slate-500 leading-tight">{signal.detail}</p>
-                  </div>
-                ))}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-[10px] text-red-800/60 font-bold uppercase tracking-tighter">缺失关键信息</label>
+                <div className="space-y-2">
+                  {gaps_and_inconsistencies.missing_critical_data.length > 0 ? (
+                    gaps_and_inconsistencies.missing_critical_data.map((gap, i) => (
+                      <div key={i} className="bg-white p-2 rounded border border-red-100 shadow-sm">
+                        <div className="text-xs font-bold text-red-600">{gap.field}</div>
+                        <div className="text-[10px] text-slate-600 mt-1">{gap.impact}</div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-[10px] text-slate-400 italic">无缺失信息</div>
+                  )}
+                </div>
               </div>
-
-              <div className="mt-4 pt-3 border-t border-slate-200/50 text-center">
-                <Button variant="link" size="sm" className="text-[10px] h-6 text-slate-500">
-                  查看完整时间轴 <ArrowRight className="w-3 h-3 ml-1" />
-                </Button>
-              </div>
-            </div>
-          </div>
-
-          {/* Module 3: Risk Prompts */}
-          <div className="space-y-3 flex flex-col">
-            <div className="flex items-center gap-2 mb-1">
-              <AlertTriangle className="w-3.5 h-3.5 text-slate-500" />
-              <h3 className="text-xs font-bold uppercase text-slate-500 tracking-wider">风险提示</h3>
-            </div>
-
-            <div className="bg-red-50/50 rounded-lg p-3 border border-red-100 flex flex-col flex-1">
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-xs text-red-600 font-medium">综合风险等级</span>
-                {renderRiskBadge(data.risk.level)}
-              </div>
-
-              <div className="space-y-2 flex-1">
-                {data.risk.factors.map((factor) => (
-                  <div
-                    key={factor.id}
-                    className="flex items-start gap-2 bg-white p-2 rounded border border-red-100/50 shadow-sm"
-                  >
-                    <AlertOctagon className="w-3.5 h-3.5 text-red-500 mt-0.5 shrink-0" />
-                    <span className="text-xs text-slate-700">{factor.label}</span>
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-4 pt-2 border-t border-red-100">
-                <Button size="sm" className="w-full h-7 text-xs bg-red-600 hover:bg-red-700 text-white shadow-sm">
-                  标记为欺诈事件
-                </Button>
+              <div className="space-y-2">
+                <label className="text-[10px] text-red-800/60 font-bold uppercase tracking-tighter">未验证陈述</label>
+                <div className="space-y-2">
+                  {gaps_and_inconsistencies.unverified_claims.length > 0 ? (
+                    gaps_and_inconsistencies.unverified_claims.map((claim, i) => (
+                      <div
+                        key={i}
+                        className="bg-white p-2 rounded border border-red-100 shadow-sm relative overflow-hidden"
+                      >
+                        <div className="text-xs font-bold text-amber-700">{claim.claim}</div>
+                        <div className="text-[10px] text-slate-600 mt-1">vs 系统: {claim.against_system_record}</div>
+                        <Badge className="absolute top-2 right-2 text-[8px] h-3 px-1 bg-red-50 text-red-600 border-red-100">
+                          {claim.status}
+                        </Badge>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-[10px] text-slate-400 italic">无未验证陈述</div>
+                  )}
+                </div>
               </div>
             </div>
           </div>

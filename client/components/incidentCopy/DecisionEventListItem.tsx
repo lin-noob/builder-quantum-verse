@@ -1,7 +1,18 @@
-import { Mail, Globe, AlertCircle, RefreshCw, Clock, User, CheckCircle2, AlertTriangle, XCircle, HelpCircle } from 'lucide-react';
+import {
+  Mail,
+  Globe,
+  AlertCircle,
+  RefreshCw,
+  Clock,
+  User,
+  CheckCircle2,
+  AlertTriangle,
+  XCircle,
+  HelpCircle,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
-import { format } from 'date-fns';
-import { zhCN } from 'date-fns/locale';
+import { format } from "date-fns";
+import { zhCN } from "date-fns/locale";
 
 // Define the DecisionEvent type based on user requirements
 export interface DecisionEvent {
@@ -19,9 +30,13 @@ export interface DecisionEvent {
   occurred_at: string;
   ai_analyzed_at?: string | null;
   has_human_override: boolean;
+  instanceId: string;
   source_url?: string;
   sales_rep?: string;
   team?: string;
+  instanceName?: string;
+  semanticSummary?: any;
+  expertBriefing?: any;
 }
 
 interface DecisionEventListItemProps {
@@ -31,11 +46,11 @@ interface DecisionEventListItemProps {
 }
 
 const statusConfig = {
-  NEW: { label: 'NEW', color: 'bg-blue-100 text-blue-700 border-blue-200' },
-  AI_ANALYZED: { label: 'AI_ANALYZED', color: 'bg-purple-100 text-purple-700 border-purple-200' },
-  HUMAN_REVIEWED: { label: 'HUMAN_REVIEWED', color: 'bg-indigo-100 text-indigo-700 border-indigo-200' },
-  ACTION_TAKEN: { label: 'ACTION_TAKEN', color: 'bg-green-100 text-green-700 border-green-200' },
-  DISMISSED: { label: 'DISMISSED', color: 'bg-slate-100 text-slate-600 border-slate-200' },
+  NEW: { label: "NEW", color: "bg-blue-100 text-blue-700 border-blue-200" },
+  AI_ANALYZED: { label: "AI_ANALYZED", color: "bg-purple-100 text-purple-700 border-purple-200" },
+  HUMAN_REVIEWED: { label: "HUMAN_REVIEWED", color: "bg-indigo-100 text-indigo-700 border-indigo-200" },
+  ACTION_TAKEN: { label: "ACTION_TAKEN", color: "bg-green-100 text-green-700 border-green-200" },
+  DISMISSED: { label: "DISMISSED", color: "bg-slate-100 text-slate-600 border-slate-200" },
 };
 
 const iconMap = {
@@ -53,7 +68,7 @@ export default function DecisionEventListItem({ event, isSelected, onClick }: De
     <div
       className={cn(
         "group relative flex flex-col gap-2 p-4 border-b border-slate-200 cursor-pointer transition-colors hover:bg-slate-50",
-        isSelected && "bg-blue-50/50 border-l-4 border-l-blue-600"
+        isSelected && "bg-blue-50/50 border-l-4 border-l-blue-600",
       )}
       onClick={onClick}
     >
@@ -73,9 +88,7 @@ export default function DecisionEventListItem({ event, isSelected, onClick }: De
       </div>
 
       {/* Row 2: AI Initial Judgment (Weakened) */}
-      <div className="text-xs text-slate-500 truncate pl-6">
-        {event.ai_initial_judgement}
-      </div>
+      <div className="text-xs text-slate-500 truncate pl-6">{event.ai_initial_judgement}</div>
 
       {/* Row 3: Status & Time */}
       <div className="flex items-center justify-between pl-6 mt-1">
@@ -83,17 +96,17 @@ export default function DecisionEventListItem({ event, isSelected, onClick }: De
           {event.status}
         </span>
         <span className="text-xs text-slate-400 flex items-center gap-1">
-           {event.has_human_override && (
+          {event.has_human_override && (
             <span className="flex items-center text-amber-600" title="有人工修正">
               <User className="w-3 h-3 mr-0.5" />
             </span>
           )}
-          {format(new Date(event.occurred_at), 'MM-dd HH:mm')}
+          {format(new Date(event.occurred_at), "yyyy-MM-dd HH:mm")}
         </span>
       </div>
 
       {/* Hover Info Overlay */}
-      <div className="hidden group-hover:flex absolute top-2 right-2 bg-slate-900/90 text-white text-[10px] px-2 py-1.5 rounded shadow-lg items-center gap-3 backdrop-blur-sm animate-in fade-in zoom-in-95 duration-200 z-10 pointer-events-none">
+      {/* <div className="hidden group-hover:flex absolute top-2 right-2 bg-slate-900/90 text-white text-[10px] px-2 py-1.5 rounded shadow-lg items-center gap-3 backdrop-blur-sm animate-in fade-in zoom-in-95 duration-200 z-10 pointer-events-none">
         <div className="flex items-center gap-1">
           <span className="opacity-70">AI 分析:</span>
           <span className="font-mono">{event.ai_analyzed_at ? format(new Date(event.ai_analyzed_at), 'HH:mm:ss') : '-'}</span>
@@ -108,7 +121,7 @@ export default function DecisionEventListItem({ event, isSelected, onClick }: De
              <span>无人工修正</span>
           </div>
         )}
-      </div>
+      </div> */}
     </div>
   );
 }
