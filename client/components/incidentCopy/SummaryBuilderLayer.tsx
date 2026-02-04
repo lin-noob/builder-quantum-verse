@@ -39,7 +39,7 @@ interface SummaryBuilderLayerProps {
 }
 
 // Fallback data if none provided
-const DEFAULT_BRIEFING: ExpertBriefingData = {
+export const DEFAULT_BRIEFING: ExpertBriefingData = {
   customer_intent: "正在分析客户意图...",
   business_stage: "分析中",
   reply_recommended: true,

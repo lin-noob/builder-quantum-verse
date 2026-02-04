@@ -4,7 +4,7 @@ import DecisionEventListItem, { DecisionEvent } from "@/components/incidentCopy/
 import EventHeaderCard from "@/components/incidentCopy/EventHeaderCard";
 import GraphSliceLayer from "@/components/incidentCopy/GraphSliceLayer";
 import SemanticSummaryLayer from "@/components/incidentCopy/SemanticSummaryLayer";
-import SummaryBuilderLayer from "@/components/incidentCopy/SummaryBuilderLayer";
+import SummaryBuilderLayer, { DEFAULT_BRIEFING } from "@/components/incidentCopy/SummaryBuilderLayer";
 import ExecutionLayer from "@/components/incidentCopy/ExecutionLayer";
 import CollapsibleLayer from "@/components/incidentCopy/CollapsibleLayer";
 import StickyActionBar, { EventActionStatus } from "@/components/incidentCopy/StickyActionBar";
@@ -404,7 +404,10 @@ export default function Index() {
                 }
                 className="mb-2"
               >
-                <SummaryBuilderLayer data={selectedEvent.expertBriefing} externalLock={isExecuted} />
+                <SummaryBuilderLayer
+                  data={selectedEvent.expertBriefing || DEFAULT_BRIEFING}
+                  externalLock={isExecuted}
+                />
               </CollapsibleLayer>
 
               {/* Layer 4: AI Execution */}
