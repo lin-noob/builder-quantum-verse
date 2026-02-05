@@ -985,6 +985,7 @@ export default function UserList() {
         dataIndex: key,
         key: key,
         sorter: true,
+        minWidth: 150,
         sortOrder: sortConfig.field === key ? (sortConfig.direction === "asc" ? "ascend" : "descend") : null,
         render: (_: any, record: User) => renderCell(record, key),
       });
