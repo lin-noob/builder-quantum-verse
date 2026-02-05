@@ -3,7 +3,7 @@ import React from "react";
 import { createPortal } from "react-dom";
 import { useParams, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { User, Building, MapPin, Mail, Copy, X, Plus, Calendar, Clock, Loader2 } from "lucide-react";
+import { User, Building, MapPin, Mail, Copy, X, Plus, Calendar, Clock, Loader2, Globe } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -147,6 +147,7 @@ export default function UserDetail() {
               orderCount: Math.floor(mockUser.totalSpent / 100),
               loginDate: mockUser.lastActiveTime,
               location: "Unknown/Unknown",
+              ip: "127.0.0.1",
               shopid: "",
               currencySymbol: mockUser.currency,
               sessionId: "",
@@ -223,6 +224,7 @@ export default function UserDetail() {
       userEngagement: apiUser.userEngagement,
       firstVisitSite: apiUser.firstVisitSite,
       firstReferrerType: apiUser?.userProfile?.firstReferrer,
+      ip: apiUser.ip,
     } as any;
   }, [apiUser, cdpId]);
 
@@ -688,13 +690,15 @@ export default function UserDetail() {
 
                         {/* Basic Info */}
                         <div className="space-y-3">
-                          <div className="flex items-center gap-3">
-                            <Building className="h-4 w-4 text-gray-500" />
-                            <div>
-                              <div className="text-xs text-gray-600">{t("userDetail.labels.company")}</div>
-                              <div className="text-sm">{user.company}</div>
+                          {hasPermission("user:company") && (
+                            <div className="flex items-center gap-3">
+                              <Building className="h-4 w-4 text-gray-500" />
+                              <div>
+                                <div className="text-xs text-gray-600">{t("userDetail.labels.company")}</div>
+                                <div className="text-sm">{user.company}</div>
+                              </div>
                             </div>
-                          </div>
+                          )}
                           <div className="flex items-center gap-3">
                             <MapPin className="h-4 w-4 text-gray-500" />
                             <div>
@@ -705,12 +709,21 @@ export default function UserDetail() {
                             </div>
                           </div>
                           <div className="flex items-center gap-3">
-                            <Mail className="h-4 w-4 text-gray-500" />
+                            <Globe className="h-4 w-4 text-gray-500" />
                             <div>
-                              <div className="text-xs text-gray-600">{t("userDetail.labels.contact")}</div>
-                              <div className="text-sm">{user.contact}</div>
+                              <div className="text-xs text-gray-600">IP</div>
+                              <div className="text-sm">{user.ip || "-"}</div>
                             </div>
                           </div>
+                          {hasPermission("user:email") && (
+                            <div className="flex items-center gap-3">
+                              <Mail className="h-4 w-4 text-gray-500" />
+                              <div>
+                                <div className="text-xs text-gray-600">{t("userDetail.labels.contact")}</div>
+                                <div className="text-sm">{user.contact}</div>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       </div>
                       {/* Time Information moved from Overview */}
@@ -796,7 +809,9 @@ export default function UserDetail() {
                               <tbody className="divide-y divide-gray-200">
                                 <tr>
                                   <td className="px-4 py-3 text-sm text-gray-900 bg-gray-50">公司</td>
-                                  <td className="px-4 py-3 text-sm text-gray-900">{user.company || "-"}</td>
+                                  <td className="px-4 py-3 text-sm text-gray-900">
+                                    {hasPermission("user:company") ? user.company || "-" : "******"}
+                                  </td>
                                   <td className="px-4 py-3 text-sm text-gray-900 bg-gray-50">地区</td>
                                   <td className="px-4 py-3 text-sm text-gray-900">
                                     {user.country && user.city
@@ -806,7 +821,9 @@ export default function UserDetail() {
                                 </tr>
                                 <tr>
                                   <td className="px-4 py-3 text-sm text-gray-900 bg-gray-50">联系方式</td>
-                                  <td className="px-4 py-3 text-sm text-gray-900">{user.contact || "-"}</td>
+                                  <td className="px-4 py-3 text-sm text-gray-900">
+                                    {hasPermission("user:email") ? user.contact || "-" : "******"}
+                                  </td>
                                   <td className="px-4 py-3 text-sm text-gray-900 bg-gray-50">首次访问时间</td>
                                   <td className="px-4 py-3 text-sm text-gray-900">{user.firstVisitTime || "-"}</td>
                                 </tr>

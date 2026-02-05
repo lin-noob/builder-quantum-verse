@@ -149,8 +149,8 @@ const extraS: ColumnConfig[] = [
 // 预定义字段
 const PROFILE_FIELDS: ColumnConfig[] = [
   { key: "name", label: "用户姓名", source: "profile", type: "string" },
-  { key: "company", label: "公司", source: "profile", type: "string" },
-  { key: "contact", label: "联系方式", source: "profile", type: "string" },
+  { key: "company", label: "公司", source: "profile", type: "string", permission: "user:company" },
+  { key: "contact", label: "联系方式", source: "profile", type: "string", permission: "user:email" },
   { key: "firstVisitSite", label: "首访链接", source: "profile", type: "string" },
   { key: "firstVisitTime", label: "首次访问时间", source: "profile", type: "date" },
   { key: "registrationTime", label: "注册时间", source: "profile", type: "date" },
@@ -163,6 +163,8 @@ const PROFILE_FIELDS: ColumnConfig[] = [
   // { key: "pageviews30d", label: "近30天PV", source: "profile", type: "number" },
   // { key: "aov30d", label: "近30天AOV", source: "profile", type: "number" },
   // { key: "bounceRate", label: "跳出率", source: "profile", type: "number" },
+  { key: "ip", label: "IP", source: "profile", type: "string" },
+  { key: "location", label: "地区", source: "profile", type: "string" },
 ];
 
 // EVENT_FIELDS removed from optional columns per requirement
@@ -198,6 +200,8 @@ export interface User {
   pageviews30d?: number;
   aov30d?: number;
   bounceRate?: number; // 0..1
+  ip?: string;
+  location?: string;
   [key: string]: any; // Allow dynamic fields for events
 }
 

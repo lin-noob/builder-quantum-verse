@@ -129,6 +129,7 @@ export interface ApiUser extends UserProfile {
   orderCount: number;
   loginDate: string;
   location: string;
+  ip?: string;
   shopid: string;
   currencySymbol: string;
   sessionId: string;
