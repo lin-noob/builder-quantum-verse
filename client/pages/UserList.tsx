@@ -5,7 +5,6 @@ import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
 import {
   Search,
-  ArrowUpDown,
   ArrowUp,
   ArrowDown,
   RotateCcw,
@@ -15,6 +14,7 @@ import {
   GripVertical,
   ChevronDown,
   ChevronUp,
+  Download,
 } from "lucide-react";
 import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
 import { Input } from "@/components/ui/input";
@@ -25,7 +25,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { request } from "@/lib/request";
-import { MockDataService } from "@/services/mockDataService";
 import { formatStartDate, formatEndDate, cn } from "@/lib/utils";
 import { useRoleStore } from "@/stores/roleStore";
 import useProjectStore from "@/stores/projectStore";
@@ -223,12 +222,20 @@ interface OrderSummaryDto {
   startDate?: string;
 }
 
-interface ApiResponse {
-  code: string;
-  data: ApiUser[];
-  msg: string;
-  total: number;
-}
+const converMap = {
+  name: "fullName",
+  company: "companyName",
+  contact: "contactInfo",
+  firstVisitTime: "createGmt",
+  registrationTime: "signTime",
+  firstPurchaseTime: "minBuyTime",
+  lastActiveTime: "loginDate",
+  totalSpent: "totalOrders",
+  currency: "currencySymbol",
+  // 5+2扩展指标
+  sessions30d: "sessionTotal",
+  pageviews30d: "pageViewTotal",
+};
 
 export default function UserList() {
   const { t } = useTranslation();
@@ -362,7 +369,7 @@ export default function UserList() {
   }, []);
 
   // 权限检查
-  const { hasPermission, permissions } = useRoleStore();
+  const { hasPermission } = useRoleStore();
 
   // 项目状态检查
   const { currentProject } = useProjectStore();
@@ -414,20 +421,6 @@ export default function UserList() {
   };
 
   // 获取搜索类型映射
-  const getSearchTypeMapping = (timeField: string): string => {
-    switch (timeField) {
-      case "firstVisitTime":
-        return "createGmt";
-      case "registrationTime":
-        return "signTime";
-      case "firstPurchaseTime":
-        return "minBuyTime";
-      case "lastActiveTime":
-        return "maxBuyTime";
-      default:
-        return "signTime";
-    }
-  };
 
   // 获取排序字段映射
   const getSortFieldMapping = (field: string): string => {
@@ -474,6 +467,80 @@ export default function UserList() {
     }
   };
 
+  // 构建请求体的公共逻辑
+  const buildRequestBody = useCallback(() => {
+    // 构建动态过滤器，排除 extraS 配置的字段
+    const filters: Record<string, any> = {};
+    const extraSKeys = extraS.map((col) => col.key);
+    const excludedKeys = [...extraSKeys];
+
+    Object.entries(columnFilters).forEach(([key, value]) => {
+      if (value && !excludedKeys.includes(key)) {
+        filters[key] = value;
+      }
+    });
+
+    const requestBody: OrderSummaryDto = {
+      currentpage: pagination.page,
+      pagesize: pagination.pageSize,
+    };
+
+    // 只有在有值的时候才添加这些字段
+    if (debouncedSearchQuery.trim()) {
+      requestBody.cdpUserId = debouncedSearchQuery.trim();
+    }
+
+    if (dateRange.start) {
+      requestBody.startDate = formatStartDate(dateRange.start);
+    }
+
+    if (dateRange.end) {
+      requestBody.endDate = formatEndDate(dateRange.end);
+    }
+
+    if (sortConfig.field) {
+      // Check if this is a rule field (numeric key)
+      if (!isNaN(Number(sortConfig.field))) {
+        // Rule field: use sortColumn
+        requestBody.sortColumn = sortConfig.field;
+        requestBody.order = sortConfig.direction;
+      } else {
+        // Regular field: use sort
+        requestBody.sort = getSortFieldMapping(sortConfig.field);
+        requestBody.order = sortConfig.direction;
+      }
+    }
+
+    Object.entries(filters).forEach(([key, val]) => {
+      // Map date filters to backend field names
+      let mappedKey = key;
+
+      // Map date range filters for specific fields
+      if (key === "start_registrationTime") mappedKey = "startSignTime";
+      else if (key === "end_registrationTime") mappedKey = "endSignTime";
+      else if (key === "start_firstVisitTime") mappedKey = "startDate";
+      else if (key === "end_firstVisitTime") mappedKey = "endDate";
+      else if (key === "start_firstPurchaseTime") mappedKey = "startMinBuyTime";
+      else if (key === "end_firstPurchaseTime") mappedKey = "endMinBuyTime";
+      else if (key === "start_lastActiveTime") mappedKey = "startMaxBuyTime";
+      else if (key === "end_lastActiveTime") mappedKey = "endMaxBuyTime";
+      else if (key === "contact") mappedKey = "contactInfo";
+      else if (key === "name") mappedKey = "fullName";
+      else if (key === "company") mappedKey = "companyName";
+      else if (key === "max_totalSpent") mappedKey = "maxTotalOrders";
+      else if (key === "min_totalSpent") mappedKey = "minTotalOrders";
+      else if (key === "currency") mappedKey = "currencySymbol";
+      else if (key === "firstReferrer") {
+        mappedKey = "firstReferrer";
+        val = val === "all" ? undefined : val;
+      }
+
+      requestBody[mappedKey] = val;
+    });
+
+    return requestBody;
+  }, [pagination.page, pagination.pageSize, debouncedSearchQuery, dateRange, sortConfig, columnFilters]);
+
   // 调用API获取用户数据
   const fetchUsers = useCallback(async () => {
     setLoading(true);
@@ -490,85 +557,26 @@ export default function UserList() {
         }
       });
 
-      if (!currentProject || !currentProject.id) {
-        const mockParams = {
-          page: pagination.page,
-          pageSize: pagination.pageSize,
-          search: debouncedSearchQuery.trim() || undefined,
-          sortField: sortConfig.field || undefined,
-          sortDirection: sortConfig.direction,
-          filters: filters,
-        };
+      // if (!currentProject || !currentProject.id) {
+      //   const mockParams = {
+      //     page: pagination.page,
+      //     pageSize: pagination.pageSize,
+      //     search: debouncedSearchQuery.trim() || undefined,
+      //     sortField: sortConfig.field || undefined,
+      //     sortDirection: sortConfig.direction,
+      //     filters: filters,
+      //   };
 
-        const mockResult = await MockDataService.getUsers(mockParams);
-        // Cast MockUser to User and enrich
-        const usersWithEvents = enrichUsersWithMockEvents(mockResult.users as unknown as User[]);
-        setUsers(usersWithEvents);
-        setPagination((prev) => ({ ...prev, total: mockResult.total }));
-        return;
-      }
-
-      // 有项目时调用真实API
-      const requestBody: OrderSummaryDto = {
-        currentpage: pagination.page,
-        pagesize: pagination.pageSize,
-      };
-
-      // 只有在有值的时候才添加这些字段
-      if (debouncedSearchQuery.trim()) {
-        requestBody.cdpUserId = debouncedSearchQuery.trim();
-      }
-
-      if (dateRange.start) {
-        requestBody.startDate = formatStartDate(dateRange.start);
-      }
-
-      if (dateRange.end) {
-        requestBody.endDate = formatEndDate(dateRange.end);
-      }
-
-      // if (selectedTimeField) {
-      //   requestBody.searchtype = getSearchTypeMapping(selectedTimeField);
+      //   const mockResult = await MockDataService.getUsers(mockParams);
+      //   // Cast MockUser to User and enrich
+      //   const usersWithEvents = enrichUsersWithMockEvents(mockResult.users as unknown as User[]);
+      //   setUsers(usersWithEvents);
+      //   setPagination((prev) => ({ ...prev, total: mockResult.total }));
+      //   return;
       // }
 
-      if (sortConfig.field) {
-        // Check if this is a rule field (numeric key)
-        if (!isNaN(Number(sortConfig.field))) {
-          // Rule field: use sortColumn
-          requestBody.sortColumn = sortConfig.field;
-          requestBody.order = sortConfig.direction;
-        } else {
-          // Regular field: use sort
-          requestBody.sort = getSortFieldMapping(sortConfig.field);
-          requestBody.order = sortConfig.direction;
-        }
-      }
-      Object.entries(filters).forEach(([key, val]) => {
-        // Map date filters to backend field names
-        let mappedKey = key;
-
-        // Map date range filters for specific fields
-        if (key === "start_registrationTime") mappedKey = "startSignTime";
-        else if (key === "end_registrationTime") mappedKey = "endSignTime";
-        else if (key === "start_firstVisitTime") mappedKey = "startDate";
-        else if (key === "end_firstVisitTime") mappedKey = "endDate";
-        else if (key === "start_firstPurchaseTime") mappedKey = "startMinBuyTime";
-        else if (key === "end_firstPurchaseTime") mappedKey = "endMinBuyTime";
-        else if (key === "start_lastActiveTime") mappedKey = "startMaxBuyTime";
-        else if (key === "end_lastActiveTime") mappedKey = "endMaxBuyTime";
-        else if (key === "contact") mappedKey = "contactInfo";
-        else if (key === "name") mappedKey = "fullName";
-        else if (key === "company") mappedKey = "companyName";
-        else if (key === "max_totalSpent") mappedKey = "maxTotalOrders";
-        else if (key === "min_totalSpent") mappedKey = "minTotalOrders";
-        else if (key === "currency") mappedKey = "currencySymbol";
-        else if (key === "firstReferrer") {
-          mappedKey = "firstReferrer";
-          val = val === "all" ? undefined : val;
-        }
-
-        requestBody[mappedKey] = val;
-      });
+      // 有项目时调用真实API
+      const requestBody = buildRequestBody();
 
       // 使用通用request方法明确指定POST，添加快速超时
       const response = await request.request<{
@@ -628,27 +636,11 @@ export default function UserList() {
   }, [fetchUsers]);
 
   // Sort function
-  const handleSort = (field: string) => {
-    setSortConfig((prev) => ({
-      field,
-      direction: prev.field === field && prev.direction === "asc" ? "desc" : "asc",
-    }));
-    setPagination((prev) => ({ ...prev, page: 1 })); // 重置到第一页
-  };
-
-  const getSortIcon = (field: string) => {
-    if (sortConfig.field !== field) {
-      return <ArrowUpDown className="h-4 w-4" />;
-    }
-    return sortConfig.direction === "asc" ? <ArrowUp className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />;
-  };
 
   // 搜索处理
   const handleSearch = () => {
     setPagination((prev) => ({ ...prev, page: 1 }));
-    // fetchUsers will be triggered by useEffect when debounced value changes
-    // or if we want immediate trigger, we might need to bypass debounce,
-    // but for now we rely on the effect.
+    fetchUsers();
   };
 
   // Reset page when search query or filters change (debounced)
@@ -657,27 +649,12 @@ export default function UserList() {
   }, [debouncedSearchQuery, debouncedColumnFilters]);
 
   // 页面变化处理
-  const handlePageChange = (page: number) => {
-    setPagination((prev) => ({ ...prev, page }));
-  };
-
-  const handlePageSizeChange = (pageSize: string) => {
-    setPagination((prev) => ({ ...prev, pageSize: parseInt(pageSize), page: 1 }));
-  };
 
   // Pagination - 由于数据来自API，直接使用users数组
-  const totalPages = Math.ceil(pagination.total / pagination.pageSize);
   const startIndex = (pagination.page - 1) * pagination.pageSize;
-  const endIndex = Math.min(startIndex + pagination.pageSize, pagination.total);
-  const currentUsers = users; // API已经返回了当前页的数据
 
   const formatCurrency = (amount: number, currency: string) => {
     return currency + amount;
-  };
-
-  const handleDateRangeChange = (range: DateRange) => {
-    setDateRange(range);
-    setPagination((prev) => ({ ...prev, page: 1 }));
   };
 
   const handleReset = () => {
@@ -691,8 +668,69 @@ export default function UserList() {
   };
 
   // 手动刷新数据
-  const handleRefresh = () => {
-    fetchUsers();
+
+  // 导出用户数据
+  const handleExport = async () => {
+    try {
+      if (!currentProject || !currentProject.id) {
+        toast.error("请先选择项目");
+        return;
+      }
+
+      // 构建请求体
+      const requestBody: any = buildRequestBody();
+
+      // 生成 titlemap: key 是字段名，value 是显示名称
+      const titlemap: Record<string, string> = {
+        userId: "CDP ID",
+      };
+      selectedColumns.forEach((key) => {
+        const col = allColumns.find((c) => c.key === key);
+        if (col) {
+          let mappedKey = converMap[key] || key;
+          // // Map date range filters for specific fields
+          // if (key === "start_registrationTime") mappedKey = "startSignTime";
+          // else if (key === "end_registrationTime") mappedKey = "endSignTime";
+          // else if (key === "start_firstVisitTime") mappedKey = "startDate";
+          // else if (key === "end_firstVisitTime") mappedKey = "endDate";
+          // else if (key === "start_firstPurchaseTime") mappedKey = "startMinBuyTime";
+          // else if (key === "end_firstPurchaseTime") mappedKey = "endMinBuyTime";
+          // else if (key === "start_lastActiveTime") mappedKey = "startMaxBuyTime";
+          // else if (key === "end_lastActiveTime") mappedKey = "endMaxBuyTime";
+          // else if (key === "max_totalSpent") mappedKey = "maxTotalOrders";
+          // else if (key === "min_totalSpent") mappedKey = "minTotalOrders";
+          // else if (key === "currency") mappedKey = "currencySymbol";
+          titlemap[`${mappedKey}`] = col.label;
+        }
+      });
+      requestBody.titlemap = titlemap;
+      requestBody.checkAll = true;
+
+      // 调用导出接口
+      const response = await request.request("/quote/api/v1/profile/export", {
+        method: "POST",
+        data: requestBody,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        responseType: "blob",
+      });
+
+      // 创建下载链接
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `users_${new Date().getTime()}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+
+      toast.success("导出成功");
+    } catch (error: any) {
+      console.error("导出失败:", error);
+      toast.error("导出失败，请稍后重试");
+    }
   };
 
   const formatDateTime = (dateStr: string) => {
@@ -824,15 +862,6 @@ export default function UserList() {
     () => [...PROFILE_FIELDS, ...EVENT_FIELDS, ...extraF, ...extraS, ...ruleFields],
     [ruleFields],
   );
-  const getColumnLabel = (key: string) => {
-    const col = allColumns.find((c) => c.key === key);
-    return col ? col.label : key;
-  };
-
-  const getColumnSource = (key: string) => {
-    const col = allColumns.find((c) => c.key === key);
-    return col ? col.source : "profile";
-  };
 
   const updateColumnFilter = (key: string, value: any) => {
     setColumnFilters((prev) => ({ ...prev, [key]: value }));
@@ -940,7 +969,6 @@ export default function UserList() {
     if (key === "name") {
       return (
         <div className="space-y-1 max-w-[150px]">
-          <div className="font-mono text-xs text-gray-900 truncate">{user.userId || user.id}</div>
           <div className="text-xs text-gray-500 truncate">{user.name || user.fullName || "N/A"}</div>
         </div>
       );
@@ -1098,6 +1126,10 @@ export default function UserList() {
               </Button>
               <Button size="sm" onClick={handleSearch}>
                 应用筛选
+              </Button>
+              <Button variant="outline" size="sm" onClick={handleExport}>
+                <Download className="h-4 w-4 mr-1" />
+                导出
               </Button>
 
               <Sheet open={isColumnConfigOpen} onOpenChange={setIsColumnConfigOpen}>
