@@ -304,11 +304,15 @@ export default function UserList() {
     try {
       const response = await userProfileService.getColumnSettings();
       if (response.data && response.data.length) {
-        // Filter enabled columns and sort by sortOrder
-        const enabledColumns = response.data
-          .filter((setting) => setting.enabled)
-          .sort((a, b) => a.sortOrder - b.sortOrder)
-          .map((setting) => setting.columnKey);
+        // Filter enabled columns, deduplicate, and sort by sortOrder
+        const enabledColumns = Array.from(
+          new Set(
+            response.data
+              .filter((setting) => setting.enabled)
+              .sort((a, b) => a.sortOrder - b.sortOrder)
+              .map((setting) => setting.columnKey),
+          ),
+        );
 
         // Only update if we have enabled columns, otherwise fall back to default
         if (enabledColumns.length > 0) {
@@ -704,12 +708,20 @@ export default function UserList() {
   };
 
   const handleOpenColumnConfig = () => {
-    setTempSelectedColumns([...selectedColumns]);
+    // 过滤掉重复项和没有权限的列，确保 tempSelectedColumns 与 UI 渲染完全一致
+    const filteredColumns = Array.from(new Set(selectedColumns)).filter((key) => {
+      const col = allColumns.find((c) => c.key === key);
+      return col && (!col.permission || hasPermission(col.permission));
+    });
+    setTempSelectedColumns([...filteredColumns]);
     setColumnSearchQuery("");
     setIsColumnConfigOpen(true);
   };
 
   const handleToggleColumn = (key: string) => {
+    const col = allColumns.find((c) => c.key === key);
+    if (col?.permission && !hasPermission(col.permission)) return;
+
     if (tempSelectedColumns.includes(key)) {
       setTempSelectedColumns(tempSelectedColumns.filter((k) => k !== key));
     } else {
@@ -742,14 +754,14 @@ export default function UserList() {
   };
 
   const handleApplyColumns = async () => {
-    setSelectedColumns(tempSelectedColumns);
+    // 再次去重确保安全
+    const cleanColumns = Array.from(new Set(tempSelectedColumns));
+    setSelectedColumns(cleanColumns);
 
     // Cleanup filters for removed columns
     const newFilters = { ...columnFilters };
     Object.keys(newFilters).forEach((filterKey) => {
-      // Check if filter key belongs to a removed column
-      // Heuristic: filter keys are like min_KEY, max_KEY, etc.
-      const isRemoved = !tempSelectedColumns.some((colKey) => filterKey.includes(colKey));
+      const isRemoved = !cleanColumns.some((colKey) => filterKey.includes(colKey));
       if (isRemoved) {
         delete newFilters[filterKey];
       }
@@ -763,7 +775,7 @@ export default function UserList() {
       const settingsToSave: Partial<ColumnSetting>[] = [];
 
       // 1. Add enabled columns with new order
-      tempSelectedColumns.forEach((key, index) => {
+      cleanColumns.forEach((key, index) => {
         const col = allColumns.find((c) => c.key === key);
         if (col) {
           settingsToSave.push({
@@ -785,7 +797,7 @@ export default function UserList() {
           columnLabel: col.label,
           columnType: col.type || "string",
           enabled: false,
-          sortOrder: tempSelectedColumns.length + index,
+          sortOrder: cleanColumns.length + index,
           sourceField: col.source,
         });
       });

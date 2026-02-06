@@ -710,9 +710,9 @@ export default function UserDetail() {
                           </div>
                           <div className="flex items-center gap-3">
                             <Globe className="h-4 w-4 text-gray-500" />
-                            <div>
+                            <div className="flex-1 min-w-0">
                               <div className="text-xs text-gray-600">IP</div>
-                              <div className="text-sm">{user.ip || "-"}</div>
+                              <div className="text-sm break-all">{user.ip || "-"}</div>
                             </div>
                           </div>
                           {hasPermission("user:email") && (
