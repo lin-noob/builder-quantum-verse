@@ -1,13 +1,9 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import {
-  getUserEventList,
-  type ApiEvent,
-  type ApiEventListResponse,
-} from "@/lib/profile";
+import { Table } from "antd";
+import type { ColumnsType } from "antd/es/table";
+import { getUserEventList, type ApiEvent, type ApiEventListResponse } from "@/lib/profile";
 
 // Parsed order data structure
 interface ParsedOrderData {
@@ -34,25 +30,19 @@ interface ParsedOrderData {
   phone: string;
   sn: string;
   userName: string;
+  matched_attribute_key?: Array<{ key: string; value: string }>;
+  properties?: any;
 }
 
-export default function OrderHistory({
-  cdpUserId,
-  sessionId,
-}: {
-  cdpUserId: string;
-  sessionId: string;
-}) {
+export default function OrderHistory({ cdpUserId, sessionId }: { cdpUserId: string; sessionId: string }) {
   const { t } = useTranslation();
   const { cdpId } = useParams<{ cdpId: string }>();
   const [loading, setLoading] = useState(false);
   const [eventData, setEventData] = useState<ApiEventListResponse | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedOrder, setSelectedOrder] = useState<ParsedOrderData | null>(
-    null,
-  );
+  const [pageSize, setPageSize] = useState(10);
+  const [selectedOrder, setSelectedOrder] = useState<ParsedOrderData | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const pageSize = 10;
 
   // Parse properties JSON string to extract order details
   const parseOrderProperties = (propertiesStr: string): any => {
@@ -67,6 +57,16 @@ export default function OrderHistory({
   // Convert API event to parsed order data
   const convertEventToOrder = (event: ApiEvent): ParsedOrderData => {
     const properties = parseOrderProperties(event.properties);
+
+    // 解析 matched_attribute_key (same logic as SessionTimeline)
+    let matchedAttributeKey: Array<{ key: string; value: string }> | undefined;
+    if (properties.matched_attribute_key) {
+      try {
+        matchedAttributeKey = JSON.parse(properties.matched_attribute_key);
+      } catch (error) {
+        console.error("Failed to parse matched_attribute_key:", error);
+      }
+    }
 
     return {
       orderId: properties.sn || event.id,
@@ -86,19 +86,21 @@ export default function OrderHistory({
       shippingAmount: properties.shipping_amount || "",
       discountAmout: properties.discount_amount || "",
       userName: event.userName || "",
+      matched_attribute_key: matchedAttributeKey,
+      properties: properties,
     };
   };
 
   // Get status text based on status code
   const getStatusText = (status: string): string => {
     switch (status) {
-      case 'unconfirmed':
+      case "unconfirmed":
         return t("orderHistory.status.unconfirmed");
-      case 'confirmed':
+      case "confirmed":
         return t("orderHistory.status.confirmed");
-      case 'completed':
+      case "completed":
         return t("orderHistory.status.completed");
-      case 'cancelled':
+      case "cancelled":
         return t("orderHistory.status.cancelled");
       default:
         return t("orderHistory.status.unknown");
@@ -112,14 +114,36 @@ export default function OrderHistory({
 
       setLoading(true);
       try {
-        const data = await getUserEventList(
-          cdpUserId,
-          sessionId,
-          page,
-          pageSize,
-          1,
-        ); // 0 for order data
-        setEventData(data);
+        // Use eventType: 2 (behavior data) and filter by eventName "结账 Checkout"
+        const data = await getUserEventList(cdpUserId, sessionId, page, pageSize, 2, {
+          eventName: "结账 Checkout",
+        });
+
+        if (data) {
+          // Flatten session-based data: extract all events from all sessions
+          const flattenedEvents: ApiEvent[] = [];
+          data.records.forEach((session) => {
+            if (session.eventList && Array.isArray(session.eventList)) {
+              flattenedEvents.push(...session.eventList);
+            }
+          });
+
+          // Create a modified response with flattened events
+          const flattenedData: ApiEventListResponse = {
+            records: flattenedEvents as any, // Type assertion needed due to structure difference
+            total: data.total,
+            size: data.size,
+            current: data.current,
+            orders: data.orders,
+            optimizeCountSql: data.optimizeCountSql,
+            searchCount: data.searchCount,
+            countId: data.countId,
+            maxLimit: data.maxLimit,
+            pages: data.pages,
+          };
+
+          setEventData(flattenedData);
+        }
       } catch (error) {
         console.error("Failed to fetch event data:", error);
       } finally {
@@ -162,6 +186,35 @@ export default function OrderHistory({
     return `${currency}${formatted}`;
   };
 
+  // 动态生成表格列 - 基于 matched_attribute_key
+  const columns = useMemo((): ColumnsType<any> => {
+    if (!eventData || eventData.records.length === 0) return [];
+
+    // 收集所有事件的 matched_attribute_key
+    const allKeys = new Set<string>();
+    (eventData.records as any[]).forEach((event: ApiEvent) => {
+      const orderData = convertEventToOrder(event);
+      if (orderData.matched_attribute_key) {
+        orderData.matched_attribute_key.forEach((attr) => {
+          allKeys.add(attr.key);
+        });
+      }
+    });
+
+    // 生成动态列
+    const dynamicColumns: ColumnsType<any> = Array.from(allKeys).map((key) => ({
+      title: key,
+      dataIndex: key,
+      key: key,
+      render: (_: any, record: ApiEvent) => {
+        const orderData = convertEventToOrder(record);
+        return orderData.properties?.[key] || "-";
+      },
+    }));
+
+    return dynamicColumns;
+  }, [eventData]);
+
   // Get status badge component
   const getStatusBadge = (status: string) => {
     let bgColor = "bg-slate-100";
@@ -190,13 +243,7 @@ export default function OrderHistory({
         break;
     }
 
-    return (
-      <span
-        className={`px-2 py-1 text-xs rounded-full ${bgColor} ${textColor}`}
-      >
-        {status}
-      </span>
-    );
+    return <span className={`px-2 py-1 text-xs rounded-full ${bgColor} ${textColor}`}>{status}</span>;
   };
 
   // Calculate pagination info
@@ -237,78 +284,26 @@ export default function OrderHistory({
           </div>
         </div>
 
-        {/* Order List Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left">
-            <thead className="bg-slate-50 text-slate-500">
-              <tr>
-                <th className="p-3 font-medium">{t("orderHistory.table.orderNumber")}</th>
-                <th className="p-3 font-medium">{t("orderHistory.table.orderTime")}</th>
-                <th className="p-3 font-medium">{t("orderHistory.table.status")}</th>
-                <th className="p-3 font-medium text-center">{t("orderHistory.table.itemCount")}</th>
-                <th className="p-3 font-medium text-right">{t("orderHistory.table.orderAmount")}</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-200">
-              {eventData.records.map((event) => {
-                const orderData = convertEventToOrder(event);
-                return (
-                  <tr
-                    key={event.id}
-                    className="hover:bg-slate-50 cursor-pointer"
-                    onClick={() => handleRowClick(event)}
-                  >
-                    <td className="p-3 font-medium text-slate-900">
-                      {orderData.sn}
-                    </td>
-                    <td className="p-3 text-slate-600">
-                      {orderData.orderTime}
-                    </td>
-                    <td className="p-3">{getStatusBadge(orderData.status)}</td>
-                    <td className="p-3 text-center text-slate-600">
-                      {orderData.itemCount}
-                    </td>
-                    <td className="p-3 text-right font-medium text-slate-900">
-                      {formatCurrency(
-                        orderData.totalAmount,
-                        orderData.currency,
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="flex items-center justify-between mt-4">
-            <div className="text-sm text-slate-500">
-              {t("orderHistory.pagination.page", { current: currentPage, total: totalPages })}
-            </div>
-            <div className="flex items-center space-x-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handlePageChange(currentPage - 1)}
-                disabled={currentPage <= 1}
-              >
-                <ChevronLeft className="h-4 w-4" />
-                {t("orderHistory.pagination.previous")}
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage >= totalPages}
-              >
-                {t("orderHistory.pagination.next")}
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        )}
+        {/* Order List Table - Ant Design */}
+        <Table
+          columns={columns}
+          dataSource={eventData.records}
+          rowKey="id"
+          loading={loading}
+          pagination={{
+            current: currentPage,
+            pageSize: pageSize,
+            total: eventData.total,
+            onChange: (page, size) => {
+              setCurrentPage(page);
+              setPageSize(size);
+            },
+          }}
+          onRow={(record) => ({
+            onClick: () => handleRowClick(record),
+            style: { cursor: "pointer" },
+          })}
+        />
       </div>
 
       {/* Order Detail Modal */}
@@ -326,22 +321,9 @@ export default function OrderHistory({
             {/* Modal Header */}
             <div className="flex justify-between items-center p-4 border-b border-slate-200">
               <h3 className="text-lg font-semibold text-slate-900">{t("orderHistory.modal.title")}</h3>
-              <button
-                onClick={closeModal}
-                className="text-slate-400 hover:text-slate-600"
-              >
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M6 18L18 6M6 6l12 12"
-                  ></path>
+              <button onClick={closeModal} className="text-slate-400 hover:text-slate-600">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
                 </svg>
               </button>
             </div>
@@ -352,27 +334,19 @@ export default function OrderHistory({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 {/* Order Information */}
                 <div>
-                  <h4 className="text-sm font-medium text-slate-900 mb-3">
-                    {t("orderHistory.modal.orderInfo")}
-                  </h4>
+                  <h4 className="text-sm font-medium text-slate-900 mb-3">{t("orderHistory.modal.orderInfo")}</h4>
                   <dl className="space-y-2 text-sm">
                     <div className="flex justify-between">
                       <dt className="text-slate-500">{t("orderHistory.modal.fields.orderNumber")}:</dt>
-                      <dd className="text-slate-900 font-medium">
-                        {selectedOrder.sn}
-                      </dd>
+                      <dd className="text-slate-900 font-medium">{selectedOrder.sn}</dd>
                     </div>
                     <div className="flex justify-between">
                       <dt className="text-slate-500">{t("orderHistory.modal.fields.orderTime")}:</dt>
-                      <dd className="text-slate-900">
-                        {selectedOrder.orderTime}
-                      </dd>
+                      <dd className="text-slate-900">{selectedOrder.orderTime}</dd>
                     </div>
                     <div className="flex justify-between">
                       <dt className="text-slate-500">{t("orderHistory.modal.fields.orderStatus")}:</dt>
-                      <dd className="text-slate-900">
-                        {getStatusBadge(selectedOrder.status)}
-                      </dd>
+                      <dd className="text-slate-900">{getStatusBadge(selectedOrder.status)}</dd>
                     </div>
                     <div className="flex justify-between">
                       <dt className="text-slate-500">{t("orderHistory.modal.fields.paymentMethod")}:</dt>
@@ -382,59 +356,41 @@ export default function OrderHistory({
                     </div>
                     <div className="flex justify-between">
                       <dt className="text-slate-500">{t("orderHistory.modal.fields.consignee")}:</dt>
-                      <dd className="text-slate-900">
-                        {selectedOrder.consignee || t("orderHistory.modal.unknown")}
-                      </dd>
+                      <dd className="text-slate-900">{selectedOrder.consignee || t("orderHistory.modal.unknown")}</dd>
                     </div>
                     <div className="flex justify-between">
                       <dt className="text-slate-500">{t("orderHistory.modal.fields.phone")}:</dt>
-                      <dd className="text-slate-900">
-                        {selectedOrder.phone || t("orderHistory.modal.unknown")}
-                      </dd>
+                      <dd className="text-slate-900">{selectedOrder.phone || t("orderHistory.modal.unknown")}</dd>
                     </div>
                   </dl>
                 </div>
 
                 {/* Amount Details */}
                 <div>
-                  <h4 className="text-sm font-medium text-slate-900 mb-3">
-                    {t("orderHistory.modal.amountDetails")}
-                  </h4>
+                  <h4 className="text-sm font-medium text-slate-900 mb-3">{t("orderHistory.modal.amountDetails")}</h4>
                   <dl className="space-y-2 text-sm">
                     <div className="flex justify-between  border-slate-200 font-medium">
                       <dt className="text-slate-900">{t("orderHistory.modal.fields.subtotalAmount")}:</dt>
                       <dd className="text-slate-900">
-                        {formatCurrency(
-                          selectedOrder.subtotalAmount,
-                          selectedOrder.currency,
-                        )}
+                        {formatCurrency(selectedOrder.subtotalAmount, selectedOrder.currency)}
                       </dd>
                     </div>
                     <div className="flex justify-between  border-slate-200 font-medium">
                       <dt className="text-slate-900">{t("orderHistory.modal.fields.shippingAmount")}:</dt>
                       <dd className="text-slate-900">
-                        {formatCurrency(
-                          selectedOrder.shippingAmount,
-                          selectedOrder.currency,
-                        )}
+                        {formatCurrency(selectedOrder.shippingAmount, selectedOrder.currency)}
                       </dd>
                     </div>
                     <div className="flex justify-between  border-slate-200 font-medium">
                       <dt className="text-slate-900">{t("orderHistory.modal.fields.taxAmount")}:</dt>
                       <dd className="text-slate-900">
-                        {formatCurrency(
-                          selectedOrder.taxAmount,
-                          selectedOrder.currency,
-                        )}
+                        {formatCurrency(selectedOrder.taxAmount, selectedOrder.currency)}
                       </dd>
                     </div>
                     <div className="flex justify-between pt-2 border-t border-slate-200 font-medium">
                       <dt className="text-slate-900">{t("orderHistory.modal.fields.totalAmount")}:</dt>
                       <dd className="text-slate-900">
-                        {formatCurrency(
-                          selectedOrder.totalAmount,
-                          selectedOrder.currency,
-                        )}
+                        {formatCurrency(selectedOrder.totalAmount, selectedOrder.currency)}
                       </dd>
                     </div>
                   </dl>
@@ -443,9 +399,7 @@ export default function OrderHistory({
 
               {/* Order Items */}
               <div className="mb-6">
-                <h4 className="text-sm font-medium text-slate-900 mb-3">
-                  {t("orderHistory.modal.orderItems")}
-                </h4>
+                <h4 className="text-sm font-medium text-slate-900 mb-3">{t("orderHistory.modal.orderItems")}</h4>
                 <div className="border border-slate-200 rounded-lg overflow-hidden">
                   <table className="w-full text-sm">
                     <thead className="bg-slate-50">
@@ -471,14 +425,9 @@ export default function OrderHistory({
                           <td className="p-3 text-right text-slate-600">
                             {formatCurrency(item.price, selectedOrder.currency)}
                           </td>
-                          <td className="p-3 text-center text-slate-600">
-                            {item.count}
-                          </td>
+                          <td className="p-3 text-center text-slate-600">{item.count}</td>
                           <td className="p-3 text-right font-medium text-slate-900">
-                            {formatCurrency(
-                              item.totalPrice,
-                              selectedOrder.currency,
-                            )}
+                            {formatCurrency(item.totalPrice, selectedOrder.currency)}
                           </td>
                         </tr>
                       ))}
@@ -488,11 +437,9 @@ export default function OrderHistory({
               </div>
 
               {/* Address Information */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div>
-                  <h4 className="text-sm font-medium text-slate-900 mb-3">
-                    {t("orderHistory.modal.shippingAddress")}
-                  </h4>
+                  <h4 className="text-sm font-medium text-slate-900 mb-3">{t("orderHistory.modal.shippingAddress")}</h4>
                   <p className="text-sm text-slate-600">
                     {selectedOrder.userName || ""} {"  "}
                     {selectedOrder.phone || ""}
@@ -503,12 +450,27 @@ export default function OrderHistory({
                   </p>
                 </div>
                 <div>
-                  <h4 className="text-sm font-medium text-slate-900 mb-3">
-                    {t("orderHistory.modal.billingAddress")}
-                  </h4>
+                  <h4 className="text-sm font-medium text-slate-900 mb-3">{t("orderHistory.modal.billingAddress")}</h4>
                   <p className="text-sm text-slate-600">{t("orderHistory.modal.sameAsShipping")}</p>
                 </div>
               </div>
+
+              {/* Matched Attribute Key - 显示匹配的属性字段 (same as SessionTimeline) */}
+              {selectedOrder.matched_attribute_key && selectedOrder.matched_attribute_key.length > 0 && (
+                <div>
+                  <h4 className="text-sm font-medium text-slate-900 mb-3">匹配属性</h4>
+                  <div className="p-3 bg-slate-50 rounded border border-slate-200">
+                    {selectedOrder.matched_attribute_key.map((attr, index) => (
+                      <div key={index} className="mb-2 last:mb-0 text-sm">
+                        <span className="text-slate-500">{attr.key}:</span>{" "}
+                        <span className="font-medium text-slate-900">
+                          {selectedOrder.properties?.[attr.key] || "N/A"}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
