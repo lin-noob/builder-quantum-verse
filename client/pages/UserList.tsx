@@ -15,6 +15,7 @@ import {
   ChevronDown,
   ChevronUp,
   Download,
+  Loader2,
 } from "lucide-react";
 import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
 import { Input } from "@/components/ui/input";
@@ -288,6 +289,7 @@ export default function UserList() {
   const [isColumnConfigOpen, setIsColumnConfigOpen] = useState(false);
   const [tempSelectedColumns, setTempSelectedColumns] = useState<string[]>([]);
   const [columnSearchQuery, setColumnSearchQuery] = useState("");
+  const [exportLoading, setExportLoading] = useState(false);
 
   // Dynamic Column Filters
   const [columnFilters, setColumnFilters] = useState<Record<string, any>>({});
@@ -677,6 +679,8 @@ export default function UserList() {
         return;
       }
 
+      setExportLoading(true);
+
       // 构建请求体
       const requestBody: any = buildRequestBody();
 
@@ -730,6 +734,8 @@ export default function UserList() {
     } catch (error: any) {
       console.error("导出失败:", error);
       toast.error("导出失败，请稍后重试");
+    } finally {
+      setExportLoading(false);
     }
   };
 
@@ -1127,8 +1133,12 @@ export default function UserList() {
               <Button size="sm" onClick={handleSearch}>
                 应用筛选
               </Button>
-              <Button variant="outline" size="sm" onClick={handleExport}>
-                <Download className="h-4 w-4 mr-1" />
+              <Button variant="outline" size="sm" onClick={handleExport} disabled={exportLoading}>
+                {exportLoading ? (
+                  <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                ) : (
+                  <Download className="h-4 w-4 mr-1" />
+                )}
                 导出
               </Button>
 
