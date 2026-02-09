@@ -3,7 +3,7 @@ import React from "react";
 import { createPortal } from "react-dom";
 import { useParams, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { User, Building, MapPin, Mail, Copy, X, Plus, Calendar, Clock, Loader2, Globe } from "lucide-react";
+import { User, Building, MapPin, Mail, Copy, X, Plus, Calendar, Clock, Globe } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -19,9 +19,7 @@ import useProjectStore from "@/stores/projectStore";
 import { useRoleStore } from "@/stores";
 import { MockDataService } from "@/services/mockDataService";
 // 添加用于日期格式化的工具函数
-import { formatDateYMD } from "@/lib/utils";
 // 引入事件类型以计算会话/转化/活跃指标
-import { type ApiEvent } from "@/lib/profile";
 import { ruleService } from "@/services/ruleService";
 
 // TooltipIcon: 使用Portal将提示层渲染到body，避免被overflow或表格单元格裁剪
@@ -229,14 +227,9 @@ export default function UserDetail() {
   }, [apiUser, cdpId]);
 
   const [userTags, setUserTags] = useState<ApiLabel[]>(user?.tags || []);
-  const [labelNameToId, setLabelNameToId] = useState<Record<string, number>>({});
   const [newTag, setNewTag] = useState("");
   const [isTagPopoverOpen, setIsTagPopoverOpen] = useState(false);
-  const [openSessions, setOpenSessions] = useState<Set<string>>(new Set());
   const [tagSaving, setTagSaving] = useState(false);
-  // 新增：用于总览指标计算的事件数据
-  const [behaviorEvents, setBehaviorEvents] = useState<ApiEvent[]>([]);
-  const [orderEvents, setOrderEvents] = useState<ApiEvent[]>([]);
   // 新增：首访字段折叠/展开状态
   const [showAllFirstVisitFields, setShowAllFirstVisitFields] = useState(false);
 
@@ -485,22 +478,6 @@ export default function UserDetail() {
   // }, [user?.cdpId, user?.distinctId]);
 
   // 计算近7天/30天相关指标（粗略）
-  const now = new Date();
-  const sevenDaysAgo = new Date(now.getTime() - 7 * 86400000);
-  const thirtyDaysAgo = new Date(now.getTime() - 30 * 86400000);
-  const behaviorLast30Days = behaviorEvents.filter((e) => {
-    const t = new Date(e.gmtCreate);
-    return !isNaN(t.getTime()) && t >= thirtyDaysAgo;
-  });
-  const ordersLast30Days = orderEvents.filter((e) => {
-    const t = new Date(e.gmtCreate);
-    return !isNaN(t.getTime()) && t >= thirtyDaysAgo;
-  });
-  const ordersCount30d = ordersLast30Days.length;
-  const conversionRate30d = Math.round((ordersCount30d / Math.max(1, behaviorLast30Days.length)) * 1000) / 10; // %
-  const ordersAmount30d = ordersLast30Days.reduce((sum, e) => sum + (typeof e.price === "number" ? e.price : 0), 0);
-  const aov30d = ordersCount30d ? ordersAmount30d / ordersCount30d : 0;
-
   const refetchUser = async () => {
     if (!cdpId || !currentProject || !currentProject.id) return;
     try {
@@ -599,19 +576,6 @@ export default function UserDetail() {
       setTagSaving(false);
     }
   };
-
-  function formatWithSymbol(amount: number, symbol?: string) {
-    if (!symbol) {
-      return amount;
-    }
-    const formatted = new Intl.NumberFormat("en-US", {
-      style: "decimal", // t("userDetail.comments.formatNumberOnly")
-      minimumFractionDigits: 2, // t("userDetail.comments.keepTwoDecimals")
-      maximumFractionDigits: 2,
-    }).format(amount);
-
-    return `${symbol}${formatted}`;
-  }
 
   return (
     <div className="p-6 space-y-6 bg-gray-50 min-h-full">
