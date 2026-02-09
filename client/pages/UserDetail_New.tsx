@@ -18,7 +18,6 @@ import { getDaysBetween } from "@/lib/utils";
 import useProjectStore from "@/stores/projectStore";
 import { useRoleStore } from "@/stores";
 import { MockDataService } from "@/services/mockDataService";
-import { ruleService } from "@/services/ruleService";
 
 const TooltipIcon = ({ text }: { text: string }) => {
   const [show, setShow] = useState(false);
@@ -87,32 +86,6 @@ export default function UserDetail() {
   const { currentProject } = useProjectStore();
   // 权限检查
   const { hasPermission } = useRoleStore();
-
-  // 事件统计 Mock 数据与状态
-  const [eventStatsLoading, setEventStatsLoading] = useState(true);
-  const [eventStats, setEventStats] = useState<{ name: string; count: number }[]>([]);
-
-  useEffect(() => {
-    // 模拟加载事件统计数据
-    async function ruleCols() {
-      setEventStatsLoading(true);
-      try {
-        const ruleData = await ruleService.getRules("");
-        const stats = ruleData.map((item) => ({
-          name: item.ruleName,
-          count: 0,
-        }));
-        setEventStats(stats);
-      } catch (error) {
-      } finally {
-        setEventStatsLoading(false);
-      }
-    }
-
-    ruleCols();
-
-    return () => {};
-  }, [cdpId]);
 
   useEffect(() => {
     let mounted = true;
@@ -769,10 +742,12 @@ export default function UserDetail() {
                               </colgroup>
                               <tbody className="divide-y divide-gray-200">
                                 <tr>
-                                  <td className="px-4 py-3 text-sm text-gray-900 bg-gray-50">公司</td>
-                                  <td className="px-4 py-3 text-sm text-gray-900">
-                                    {hasPermission("user:company") ? user.company || "-" : "******"}
-                                  </td>
+                                  {hasPermission("user:company") && (
+                                    <>
+                                      <td className="px-4 py-3 text-sm text-gray-900 bg-gray-50">公司</td>
+                                      <td className="px-4 py-3 text-sm text-gray-900">{user.company || "-"}</td>
+                                    </>
+                                  )}
                                   <td className="px-4 py-3 text-sm text-gray-900 bg-gray-50">地区</td>
                                   <td className="px-4 py-3 text-sm text-gray-900">
                                     {user.country && user.city
@@ -781,10 +756,12 @@ export default function UserDetail() {
                                   </td>
                                 </tr>
                                 <tr>
-                                  <td className="px-4 py-3 text-sm text-gray-900 bg-gray-50">联系方式</td>
-                                  <td className="px-4 py-3 text-sm text-gray-900">
-                                    {hasPermission("user:email") ? user.contact || "-" : "******"}
-                                  </td>
+                                  {hasPermission("user:email") && (
+                                    <>
+                                      <td className="px-4 py-3 text-sm text-gray-900 bg-gray-50">联系方式</td>
+                                      <td className="px-4 py-3 text-sm text-gray-900">{user.contact || "-"}</td>
+                                    </>
+                                  )}
                                   <td className="px-4 py-3 text-sm text-gray-900 bg-gray-50">首次访问时间</td>
                                   <td className="px-4 py-3 text-sm text-gray-900">{user.firstVisitTime || "-"}</td>
                                 </tr>

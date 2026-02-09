@@ -604,7 +604,7 @@ export default function GranularPermissionManagement({ title }: GranularPermissi
       };
       fetchRolePermissionIdsByMenu();
     }
-  }, [activeMenuId]);
+  }, [activeMenuId, selectedRole?.id]);
 
   return (
     <div className="p-6 space-y-6">
