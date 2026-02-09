@@ -1,12 +1,9 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useRoles, useCreateRole, useUpdateRole, useDeleteRole, Role } from "@/admin/hooks/useRoleManagement";
-import { cn } from "@/lib/utils";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import {
   Dialog,
   DialogContent,
@@ -15,7 +12,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -34,20 +30,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Plus,
-  Edit,
-  Copy,
-  Trash2,
-  Shield,
-  Users,
-  Eye,
-  Edit3,
-  Save,
-  X,
-  MoreHorizontal,
-  ChevronDown,
-} from "lucide-react";
+import { Plus, Shield, Save, X, MoreHorizontal } from "lucide-react";
 import { Tree } from "antd";
 import type { TreeDataNode } from "antd";
 import "antd/dist/reset.css";
@@ -56,15 +39,6 @@ import { useToast } from "@/hooks/use-toast";
 import { useRoleStore } from "@/stores";
 import useProjectStore from "@/stores/projectStore";
 import { useTranslation } from "react-i18next";
-
-interface Permission {
-  id: string;
-  name: string;
-  description: string;
-  category: string;
-  resource: string;
-  action: string;
-}
 
 interface ApiPermissionItem {
   id: string;
@@ -111,17 +85,13 @@ export default function GranularPermissionManagement({ title }: GranularPermissi
   const [searchTerm, setSearchTerm] = useState("");
   const { data: rolesData, isLoading, isError, error } = useRoles({ page, limit, name: searchTerm });
   const { fetchRoles } = useRoleStore();
-  const { projects, fetchProjects, currentProject } = useProjectStore();
+  const { projects, currentProject } = useProjectStore();
   const createRoleMutation = useCreateRole();
   const updateRoleMutation = useUpdateRole();
   const deleteRoleMutation = useDeleteRole();
 
-  const [users, setUsers] = useState<User[]>([]);
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
   const [isRoleDialogOpen, setIsRoleDialogOpen] = useState(false);
-  const [selectedResource, setSelectedResource] = useState("");
-  const [roleMenuPermissions, setRoleMenuPermissions] = useState<string[]>([]);
-  const [loadingMenuPermissions, setLoadingMenuPermissions] = useState(false);
 
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
   const [activeMenuComponent, setActiveMenuComponent] = useState<string | null>(null);
@@ -241,8 +211,6 @@ export default function GranularPermissionManagement({ title }: GranularPermissi
   useEffect(() => {
     if (selectedRole) {
       fetchRoleMenuPermissions(selectedRole.id);
-    } else {
-      setRoleMenuPermissions([]);
     }
   }, [selectedRole?.id]);
 
@@ -284,11 +252,9 @@ export default function GranularPermissionManagement({ title }: GranularPermissi
 
   const fetchRoleMenuPermissions = async (roleId: string) => {
     try {
-      setLoadingMenuPermissions(true);
       const response = await request.get(`/admin/api/v1/roles/${roleId}/menus`);
       const rawMenuIds = response.data.data || [];
       const filteredMenuIds = filterActualCheckedNodes(rawMenuIds);
-      setRoleMenuPermissions(filteredMenuIds);
       setSelectedRole(
         (prv) =>
           ({
@@ -297,9 +263,7 @@ export default function GranularPermissionManagement({ title }: GranularPermissi
           }) as any,
       );
     } catch (error) {
-      setRoleMenuPermissions([]);
     } finally {
-      setLoadingMenuPermissions(false);
     }
   };
 
@@ -404,90 +368,6 @@ export default function GranularPermissionManagement({ title }: GranularPermissi
         variant: "destructive",
       });
     }
-  };
-
-  const openFieldPermissionConfig = (resource: string) => {
-    setSelectedResource(resource);
-  };
-
-  const toggleFieldViewPermission = (fieldId: string) => {
-    if (!selectedRole) return;
-    const updatedFieldPermissions = { ...selectedRole.fieldPermissions };
-    const resourceFields = updatedFieldPermissions[selectedResource] || [];
-    const fieldIndex = resourceFields.findIndex((f) => f.id === fieldId);
-    if (fieldIndex !== -1) {
-      const updatedField = { ...resourceFields[fieldIndex], view: !resourceFields[fieldIndex].view };
-      if (!updatedField.view) {
-        updatedField.edit = false;
-      }
-      resourceFields[fieldIndex] = updatedField;
-      updatedFieldPermissions[selectedResource] = resourceFields;
-      setSelectedRole({ ...selectedRole, fieldPermissions: updatedFieldPermissions });
-    }
-  };
-
-  const toggleFieldEditPermission = (fieldId: string) => {
-    if (!selectedRole) return;
-    const updatedFieldPermissions = { ...selectedRole.fieldPermissions };
-    const resourceFields = updatedFieldPermissions[selectedResource] || [];
-    const fieldIndex = resourceFields.findIndex((f) => f.id === fieldId);
-    if (fieldIndex !== -1) {
-      const updatedField = { ...resourceFields[fieldIndex] };
-      if (!updatedField.view) {
-        updatedField.view = true;
-      }
-      updatedField.edit = !updatedField.edit;
-      resourceFields[fieldIndex] = updatedField;
-      updatedFieldPermissions[selectedResource] = resourceFields;
-      setSelectedRole({ ...selectedRole, fieldPermissions: updatedFieldPermissions });
-    }
-  };
-
-  const handleSavePermissions = () => {
-    if (selectedRole) {
-      // Reserved for future API call
-      // console.log("保存权限配置:", selectedRole);
-    }
-  };
-
-  const handleAssignRole = (userId: string, roleId: string) => {
-    setUsers(
-      users.map((user) => {
-        if (user.id === userId) {
-          const updatedRoles = user.roles.includes(roleId)
-            ? user.roles.filter((id) => id !== roleId)
-            : [...user.roles, roleId];
-          return { ...user, roles: updatedRoles };
-        }
-        return user;
-      }),
-    );
-  };
-
-  const [fieldPermissionPage, setFieldPermissionPage] = useState(1);
-  const fieldPermissionsPerPage = 5;
-
-  const getResourceFieldPermissions = (resource: string) => {
-    if (selectedRole) {
-      return selectedRole.fieldPermissions[resource] || [];
-    }
-    return [];
-  };
-
-  const getCurrentPageFieldPermissions = () => {
-    const allFieldPermissions = getResourceFieldPermissions(selectedResource);
-    const startIndex = (fieldPermissionPage - 1) * fieldPermissionsPerPage;
-    const endIndex = startIndex + fieldPermissionsPerPage;
-    return allFieldPermissions.slice(startIndex, endIndex);
-  };
-
-  const getFieldPermissionTotalPages = () => {
-    const allFieldPermissions = getResourceFieldPermissions(selectedResource);
-    return Math.ceil(allFieldPermissions.length / fieldPermissionsPerPage);
-  };
-
-  const handleFieldPermissionPageChange = (page: number) => {
-    setFieldPermissionPage(page);
   };
 
   const getAllLeafNodes = (nodes: TreeDataNode[]): string[] => {
