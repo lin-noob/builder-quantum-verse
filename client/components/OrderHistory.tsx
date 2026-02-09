@@ -300,7 +300,7 @@ export default function OrderHistory({ cdpUserId, sessionId }: { cdpUserId: stri
             },
           }}
           onRow={(record) => ({
-            onClick: () => handleRowClick(record),
+            // onClick: () => handleRowClick(record),
             style: { cursor: "pointer" },
           })}
         />
