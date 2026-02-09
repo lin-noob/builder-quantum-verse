@@ -18,11 +18,8 @@ import { getDaysBetween } from "@/lib/utils";
 import useProjectStore from "@/stores/projectStore";
 import { useRoleStore } from "@/stores";
 import { MockDataService } from "@/services/mockDataService";
-// 添加用于日期格式化的工具函数
-// 引入事件类型以计算会话/转化/活跃指标
 import { ruleService } from "@/services/ruleService";
 
-// TooltipIcon: 使用Portal将提示层渲染到body，避免被overflow或表格单元格裁剪
 const TooltipIcon = ({ text }: { text: string }) => {
   const [show, setShow] = useState(false);
   const iconRef = React.useRef<SVGSVGElement>(null);
