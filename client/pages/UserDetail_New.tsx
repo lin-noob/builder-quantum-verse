@@ -500,7 +500,7 @@ export default function UserDetail() {
   }
 
   const handleCopyId = () => {
-    navigator.clipboard.writeText(user.cdpId);
+    navigator.clipboard.writeText(user.userId);
     toast({ title: t("userDetail.toast.copied"), description: t("userDetail.toast.cdpIdCopied") });
   };
 
