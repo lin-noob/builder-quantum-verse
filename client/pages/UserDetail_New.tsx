@@ -154,7 +154,7 @@ export default function UserDetail() {
       // old UI-compatible fields
       userId: apiUser.userId ?? "",
       distinctId: apiUser.distinctId ?? "",
-      cdpId: String(apiUser.cdpUserId ?? cdpId ?? ""),
+      cdpId: String(apiUser.cdpUserId ?? ""),
       name: apiUser.fullName,
       company: apiUser.companyName,
       country: apiUser.location?.split("/")[0] || "",

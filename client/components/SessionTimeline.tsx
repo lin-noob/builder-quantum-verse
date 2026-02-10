@@ -150,8 +150,6 @@ export default function SessionTimeline({ cdpUserId, sessionId }: { cdpUserId: s
       } | null,
       appendMode: boolean = false,
     ) => {
-      if (!cdpUserId) return;
-
       if (appendMode) {
         setIsLoadingMore(true);
       } else {
@@ -233,9 +231,7 @@ export default function SessionTimeline({ cdpUserId, sessionId }: { cdpUserId: s
 
   // Load data on component mount only
   useEffect(() => {
-    if (cdpUserId) {
-      fetchEventData(1);
-    }
+    fetchEventData(1);
   }, [cdpUserId, sessionId]); // Only trigger on mount or when user/session changes
 
   // Fetch rule types on mount
