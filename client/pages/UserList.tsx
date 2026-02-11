@@ -1133,14 +1133,14 @@ export default function UserList() {
               <Button size="sm" onClick={handleSearch}>
                 应用筛选
               </Button>
-              <Button variant="outline" size="sm" onClick={handleExport} disabled={exportLoading}>
+              {/* <Button variant="outline" size="sm" onClick={handleExport} disabled={exportLoading}>
                 {exportLoading ? (
                   <Loader2 className="h-4 w-4 mr-1 animate-spin" />
                 ) : (
                   <Download className="h-4 w-4 mr-1" />
                 )}
                 导出
-              </Button>
+              </Button> */}
 
               <Sheet open={isColumnConfigOpen} onOpenChange={setIsColumnConfigOpen}>
                 <SheetTrigger asChild>
