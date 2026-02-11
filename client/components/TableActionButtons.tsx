@@ -81,9 +81,9 @@ export const TableActionButtons: React.FC<TableActionButtonsProps> = ({
       {/* Export Dialog */}
       <Dialog open={exportOpen} onOpenChange={setExportOpen}>
         <DialogTrigger asChild>
-          <Button variant="outline" size="sm" className="bg-white flex items-center gap-2">
+          {/* <Button variant="outline" size="sm" className="bg-white flex items-center gap-2">
             <Download className="h-4 w-4" /> 导出数据
-          </Button>
+          </Button> */}
         </DialogTrigger>
         <DialogContent className="sm:max-w-xl">
           <DialogHeader>
