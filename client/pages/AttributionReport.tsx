@@ -36,6 +36,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { request } from "@/lib/request";
 import { ruleTypeService } from "@/services/ruleTypeService";
 import { ruleService } from "@/services/ruleService";
+import { TableActionButtons, ColumnConfig } from "@/components/TableActionButtons";
 
 interface DateRange {
   start: Date | null;
@@ -159,13 +160,11 @@ export default function AttributionReport() {
   // 分页
   const [pageSize, setPageSize] = useState<number>(10);
   const [page, setPage] = useState<number>(1);
-  // 导出配置
+  // 导出配置 (kept for parent component tracking if needed, though mostly handled by component now)
   const [exportColumns, setExportColumns] = useState<ColKey[]>(columnsConfig.map((c) => c.key));
-  const [exportOpen, setExportOpen] = useState(false);
   const [exportScope, setExportScope] = useState<"current" | "all">("current");
 
-  // 列配置弹窗状态
-  const [columnConfigOpen, setColumnConfigOpen] = useState(false);
+  // 列配置弹窗状态 - handled by component
   const [draggedColumn, setDraggedColumn] = useState<ColKey | null>(null);
   const [visibleColumns, setVisibleColumns] = useState<ColKey[]>(() => {
     // 默认列始终显示
@@ -241,22 +240,22 @@ export default function AttributionReport() {
     );
   }, [displayRows]);
 
-  // 导出（弹窗配置：列与范围）
-  const exportCSV = async () => {
+  // 导出（由 TableActionButtons 调用）
+  const exportCSVInternal = async (targetColumns: string[], targetScope: "current" | "all") => {
     try {
-      // 构建titlemap：按照visibleColumns的顺序，只包含exportColumns中选中的列
+      // 构建titlemap：按照visibleColumns的顺序，只包含targetColumns中选中的列
       const titlemap: Record<string, string> = {};
 
-      // 首先添���fixedColumns中的列
+      // 首先添加fixedColumns中的列
       fixedColumns.forEach((col) => {
-        if (exportColumns.includes(col.key) && visibleColumns.includes(col.key)) {
+        if (targetColumns.includes(col.key) && visibleColumns.includes(col.key)) {
           titlemap[col.key] = col.label;
         }
       });
 
       // 然后添加动态列，按照visibleColumns的顺序
       visibleColumns.forEach((key) => {
-        if (exportColumns.includes(key) && !fixedColumns.some((f) => f.key === key)) {
+        if (targetColumns.includes(key) && !fixedColumns.some((f) => f.key === key)) {
           const column = columnsConfig.find((c) => c.key === key);
           if (column) {
             titlemap[key] = column.label;
@@ -276,7 +275,7 @@ export default function AttributionReport() {
         currentpage: page,
         order: order,
         sortColumn: sort,
-        checkAll: exportScope === "all",
+        checkAll: targetScope === "all",
         titlemap: titlemap,
       };
 
@@ -294,14 +293,12 @@ export default function AttributionReport() {
         a.click();
         URL.revokeObjectURL(url);
       }
-
-      setExportOpen(false);
     } catch (error) {
       console.error("Error exporting report:", error);
     }
   };
 
-  // 重新加载列配����
+  // 重新加载列配
   const refetchColumns = async () => {
     try {
       // 获取规则类型列表
@@ -375,7 +372,7 @@ export default function AttributionReport() {
     }
   };
 
-  // ��用报告列表API和规则类型列表API
+  // 用报告列表API和规则类型列表API
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -412,7 +409,7 @@ export default function AttributionReport() {
     try {
       // 默认列不需要保存
       const excludeColumns = ["source", "medium", "campaign", "totalSession", "totalVisitors"];
-      // 构建所有动态列的��存数据（包括选中和未选中的）
+      // 构建所有动态列的存数据（包括选中和未选中的）
       const columnsToSave = columnsConfig
         .filter((col) => !excludeColumns.includes(col.key))
         .map((col) => ({
@@ -444,8 +441,10 @@ export default function AttributionReport() {
     }
   };
 
-  // 处理列拖���
+  // 处理列拖
   const handleDragStart = (e: React.DragEvent, columnKey: ColKey) => {
+    // This can still be used locally for other drag/drop if needed,
+    // but the column config is handled inside component.
     setDraggedColumn(columnKey);
     e.dataTransfer.effectAllowed = "move";
   };
@@ -736,190 +735,23 @@ export default function AttributionReport() {
                 重置
               </Button>
 
-              {/* 导���配置��窗 */}
-              <Dialog open={exportOpen} onOpenChange={setExportOpen}>
-                <DialogTrigger asChild>
-                  <Button variant="outline" className="flex items-center gap-2 h-10">
-                    <Download className="h-4 w-4" /> 导出
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-xl">
-                  <DialogHeader>
-                    <DialogTitle>导出配置</DialogTitle>
-                    <DialogDescription>选择要导出的列与数据范围</DialogDescription>
-                  </DialogHeader>
-
-                  {/* 列选择 */}
-                  <div className="space-y-3">
-                    <Label className="text-sm">导出列</Label>
-                    <div className="grid grid-cols-2 gap-3">
-                      {columnsConfig.map((c) => (
-                        <div key={c.key} className="flex items-center space-x-2">
-                          <Checkbox
-                            id={`col-${c.key}`}
-                            checked={exportColumns.includes(c.key)}
-                            onCheckedChange={(checked) =>
-                              setExportColumns((prev) => (checked ? [...prev, c.key] : prev.filter((k) => k !== c.key)))
-                            }
-                          />
-                          <Label htmlFor={`col-${c.key}`}>{c.label}</Label>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setExportColumns(columnsConfig.map((c) => c.key))}
-                      >
-                        全选
-                      </Button>
-                      <Button variant="ghost" size="sm" onClick={() => setExportColumns([])}>
-                        清空
-                      </Button>
-                    </div>
-                  </div>
-
-                  {/* 范���选择 */}
-                  <div className="space-y-3">
-                    <Label className="text-sm">数据范围</Label>
-                    <RadioGroup value={exportScope} onValueChange={(v: "current" | "all") => setExportScope(v)}>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem id="scope-current" value="current" />
-                        <Label htmlFor="scope-current">导出当前数据</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem id="scope-all" value="all" />
-                        <Label htmlFor="scope-all">导出全部数据（按当前筛选与排序）</Label>
-                      </div>
-                    </RadioGroup>
-                  </div>
-
-                  <div className="flex justify-end gap-2">
-                    <Button variant="outline" onClick={() => setExportOpen(false)}>
-                      取消
-                    </Button>
-                    <Button onClick={exportCSV}>确认导出</Button>
-                  </div>
-                </DialogContent>
-              </Dialog>
-
-              {/* 列配置弹窗 */}
-              <Dialog open={columnConfigOpen} onOpenChange={setColumnConfigOpen}>
-                <DialogTrigger asChild>
-                  <Button variant="outline" className="flex items-center gap-2 h-10">
-                    <Settings className="h-4 w-4" /> 列配置
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-2xl">
-                  <DialogHeader>
-                    <DialogTitle>列配置</DialogTitle>
-                    <DialogDescription>选择要显示的字段，拖动可调整排序</DialogDescription>
-                  </DialogHeader>
-
-                  <div className="space-y-4">
-                    {/* 列选择区间 */}
-                    <div className="space-y-3">
-                      <Label className="text-sm font-medium">显示列</Label>
-                      <div className="grid grid-cols-2 gap-3 max-h-64 overflow-y-auto">
-                        {columnsConfig.map((c) => {
-                          const isMandatory = fixedColumns.some((fixed) => fixed.key === c.key);
-                          return (
-                            <div
-                              key={c.key}
-                              draggable
-                              onDragStart={(e) => handleDragStart(e, c.key)}
-                              onDragOver={handleDragOver}
-                              onDrop={(e) => handleDrop(e, c.key)}
-                              className={`flex items-center space-x-2 p-2 rounded-md hover:bg-gray-50 transition-colors ${
-                                draggedColumn === c.key ? "opacity-50 bg-blue-50" : ""
-                              }`}
-                            >
-                              <Checkbox
-                                id={`visible-${c.key}`}
-                                checked={visibleColumns.includes(c.key)}
-                                disabled={isMandatory}
-                                onCheckedChange={(checked) => {
-                                  if (!isMandatory) {
-                                    setVisibleColumns((prev) =>
-                                      checked ? [...prev, c.key] : prev.filter((k) => k !== c.key),
-                                    );
-                                  }
-                                }}
-                              />
-                              <Label
-                                htmlFor={`visible-${c.key}`}
-                                className={`cursor-pointer flex-1 truncate ${isMandatory ? "text-gray-500" : ""}`}
-                                title={c.label}
-                              >
-                                {c.label} {isMandatory && "(必须)"}
-                              </Label>
-                              <GripVertical className="h-4 w-4 text-gray-400 cursor-move" />
-                            </div>
-                          );
-                        })}
-                      </div>
-                      <div className="flex gap-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setVisibleColumns(columnsConfig.map((c) => c.key))}
-                        >
-                          全选
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setVisibleColumns([...fixedColumns.map((c) => c.key)])}
-                        >
-                          清空
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setVisibleColumns([...fixedColumns.map((c) => c.key)])}
-                        >
-                          重置默认
-                        </Button>
-                      </div>
-                    </div>
-
-                    {/* 预览区域 */}
-                    <div className="space-y-3">
-                      <Label className="text-sm font-medium">预览</Label>
-                      <div className="border rounded-md p-3 bg-gray-50">
-                        <div className="text-sm text-gray-600">
-                          当前选择 {visibleColumns.length} 列：
-                          <div className="mt-2 flex flex-wrap gap-2">
-                            {visibleColumns.map((key) => {
-                              const config = columnsConfig.find((c) => c.key === key);
-                              return (
-                                <span key={key} className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs">
-                                  {config?.label}
-                                </span>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex justify-end gap-2">
-                    <Button variant="outline" onClick={() => setColumnConfigOpen(false)}>
-                      取消
-                    </Button>
-                    <Button
-                      onClick={async () => {
-                        await saveColumns();
-                        setColumnConfigOpen(false);
-                      }}
-                    >
-                      确认
-                    </Button>
-                  </div>
-                </DialogContent>
-              </Dialog>
+              <TableActionButtons
+                columns={columnsConfig.map((col) => ({
+                  key: col.key,
+                  label: col.label,
+                  mandatory: fixedColumns.some((f) => f.key === col.key),
+                }))}
+                visibleColumns={visibleColumns}
+                onVisibleColumnsChange={setVisibleColumns}
+                onSaveColumns={saveColumns}
+                onMoveColumn={moveColumn}
+                onExport={async ({ columns, scope }) => {
+                  setExportColumns(columns);
+                  setExportScope(scope);
+                  // Since setExportColumns/setExportScope are async, we use the local values for the immediate call
+                  await exportCSVInternal(columns, scope);
+                }}
+              />
             </div>
           </div>
         </Card>
