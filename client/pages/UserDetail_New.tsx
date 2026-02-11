@@ -803,7 +803,7 @@ export default function UserDetail() {
                         <hr className="border-gray-200 mb-4" />
                         <div className="flex items-center justify-between mb-3">
                           <div className="flex items-center gap-2">
-                            <h3 className="text-sm font-semibold text-gray-900">90天内首访</h3>
+                            <h3 className="text-sm font-semibold text-gray-900">24个月内首访</h3>
                             <Badge className={`text-xs ${getChannelType.color}`}>{getChannelType.type}</Badge>
                           </div>
                           <Button variant="outline" size="sm" onClick={() => setShowAllFirstVisitFields((v) => !v)}>
