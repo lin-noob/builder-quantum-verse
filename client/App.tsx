@@ -10,10 +10,11 @@ import { ConfigProvider } from "antd";
 import zhCN from "antd/locale/zh_CN";
 import enUS from "antd/locale/en_US";
 import dayjs from "dayjs";
-import 'dayjs/locale/zh-cn';
+import "dayjs/locale/zh-cn";
 import Layout from "./components/Layout";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { usePageRequestManager } from "./hooks/useRequestManager";
+import { ComponentCacheProvider, GuardedKeepAlive } from "./components/KeepAlive";
 import { ContactModalProvider, useContactModal } from "./contexts/ContactModalContext";
 import ContactFormModal from "./components/ContactFormModal";
 import { KnowledgeProvider } from "./contexts/KnowledgeContext";
@@ -27,7 +28,12 @@ import ResetPassword from "./pages/ResetPassword";
 const AdminApp = React.lazy(() => import("./admin/AdminApp"));
 
 // 前台动态菜单与懒加载工具
-import { fetchClientMenus, filterClientMenus, flattenClientMenus, type ClientMenuApiItem } from "./services/clientMenuService";
+import {
+  fetchClientMenus,
+  filterClientMenus,
+  flattenClientMenus,
+  type ClientMenuApiItem,
+} from "./services/clientMenuService";
 import { loadLazyClientComponent } from "./utils/clientPageLoader";
 import { useAuthStore } from "./stores";
 import { useRoleStore } from "./stores/roleStore";
@@ -54,27 +60,27 @@ const SmartRouteGuard: React.FC<{
   menus: ClientMenuApiItem[] | null;
 }> = ({ isAuthenticated, menus }) => {
   const location = useLocation();
-  
+
   // 如果未认证，重定向到认证页面
   if (!isAuthenticated) {
     return <Navigate to="/auth" replace />;
   }
-  
+
   // 特殊处理 dashboard2 路径，避免模块加载问题
   if (location.pathname === "/dashboard2") {
     return <PageLoader message="正在加载仪表盘..." />;
   }
-  
+
   // 检查是否为静态路由
   if (isStaticRoute(location.pathname)) {
     // 静态路由存在但可能还没渲染，显示加载页面而不是重定向
     return <PageLoader message="正在加载页面..." />;
   }
-  
+
   // 检查是否为动态路由
   if (menus) {
     const flatMenus = flattenClientMenus(menus);
-    const isDynamicRoute = flatMenus.some(menu => menu.path === location.pathname);
+    const isDynamicRoute = flatMenus.some((menu) => menu.path === location.pathname);
     if (isDynamicRoute) {
       // 动态路由存在但可能还没渲染，显示加载页面而不是重定向
       return <PageLoader message="正在加载页面..." />;
@@ -83,18 +89,18 @@ const SmartRouteGuard: React.FC<{
     // 菜单还在加载中，等待而不是重定向
     return <PageLoader message="正在加载菜单..." />;
   }
-  
+
   // 只有��认是无效路由时才重定向到默认页面
   return <Navigate to="/dashboard2" replace />;
 };
 
 // 获取 Ant Design 的 locale 配置
 const getAntdLocale = (language: string) => {
-  if (language.startsWith('zh')) {
-    dayjs.locale('zh-cn');
+  if (language.startsWith("zh")) {
+    dayjs.locale("zh-cn");
     return zhCN;
   }
-  dayjs.locale('en');
+  dayjs.locale("en");
   return enUS;
 };
 
@@ -142,7 +148,13 @@ function AppContent() {
               element={
                 <Layout>
                   <Suspense fallback={<PageLoader message="加载页面..." />}>
-                    <LazyComp />
+                    {m.path === "/users1" ? (
+                      <GuardedKeepAlive name="users1">
+                        <LazyComp />
+                      </GuardedKeepAlive>
+                    ) : (
+                      <LazyComp />
+                    )}
                   </Suspense>
                 </Layout>
               }
@@ -150,13 +162,7 @@ function AppContent() {
           );
         }
       } else if (m.path && m.redirect) {
-        built.push(
-          <Route
-            key={`${m.path}_redirect`}
-            path={m.path}
-            element={<Navigate to={m.redirect!} replace />}
-          />,
-        );
+        built.push(<Route key={`${m.path}_redirect`} path={m.path} element={<Navigate to={m.redirect!} replace />} />);
       }
       if (m.children) m.children.forEach(addRoute);
     };
@@ -178,50 +184,37 @@ function AppContent() {
       }}
     >
       <BrowserRouter>
-        <Routes>
-          {/* 认证路���（保留） */}
-          <Route path="/auth" element={<Auth />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
-          {/* <Route path="/admin/auth" element={<AdminAuth />} /> */}
-          <Route path="/admin/auth" element={<AdminAuth />} />
-          {/* 静态路由 */}
-          {staticRoutes.map((route, index) => (
-            <Route key={index} path={route.path} element={route.element} />
-          ))}
+        <ComponentCacheProvider>
+          <Routes>
+            {/* 认证路���（保留） */}
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+            {/* <Route path="/admin/auth" element={<AdminAuth />} /> */}
+            <Route path="/admin/auth" element={<AdminAuth />} />
+            {/* 静态路由 */}
+            {staticRoutes.map((route, index) => (
+              <Route key={index} path={route.path} element={route.element} />
+            ))}
 
-          {/* 管理后台 */}
-          <Route
-            path="/admin/*"
-            element={
-              <LazyRoute fallback={<PageLoader message="加载管理后台..." />}>
-                <AdminApp />
-              </LazyRoute>
-            }
-          />
+            {/* 管理后台 */}
+            <Route
+              path="/admin/*"
+              element={
+                <LazyRoute fallback={<PageLoader message="加载管理后台..." />}>
+                  <AdminApp />
+                </LazyRoute>
+              }
+            />
 
-          {/* 动态路由（登录后构建） */}
-          {dynamicRoutes}
+            {/* 动态路由（登录后构建） */}
+            {dynamicRoutes}
 
-          {/* 默认路由：优先跳转到Dashboard2 */}
-          <Route 
-            path="/" 
-            element={
-              <Navigate 
-                to={
-                  isAuthenticated 
-                    ? "/dashboard2"
-                    : "/auth"
-                } 
-                replace 
-              />
-            } 
-          />
-          <Route 
-            path="*" 
-            element={<SmartRouteGuard isAuthenticated={isAuthenticated} menus={menus} />}
-          />
-        </Routes>
+            {/* 默认路由：优先跳转到Dashboard2 */}
+            <Route path="/" element={<Navigate to={isAuthenticated ? "/dashboard2" : "/auth"} replace />} />
+            <Route path="*" element={<SmartRouteGuard isAuthenticated={isAuthenticated} menus={menus} />} />
+          </Routes>
+        </ComponentCacheProvider>
       </BrowserRouter>
 
       <ContactFormModal open={isOpen} onOpenChange={closeModal} title={modalTitle} description={modalDescription} />
