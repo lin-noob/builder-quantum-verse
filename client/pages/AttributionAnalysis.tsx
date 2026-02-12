@@ -15,10 +15,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { GripVertical, Plus, Trash2, Info } from "lucide-react";
-import { DatePicker, Table } from "antd";
+import { DatePicker, Table, Select as AntSelect } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
 import { cn } from "@/lib/utils";
+
+dayjs.extend(utc);
 import { TableActionButtons } from "@/components/TableActionButtons";
 import { request } from "@/lib/request";
 
@@ -134,8 +137,8 @@ const AttributionAnalysis = () => {
     setLoading(true);
     try {
       const payload = {
-        startDate: dateRange[0]?.format("YYYY-MM-DD"),
-        endDate: dateRange[1]?.format("YYYY-MM-DD"),
+        startDate: dateRange?.length ? dateRange[0]?.startOf("day").utc().toISOString() : undefined,
+        endDate: dateRange?.length ? dateRange[1]?.endOf("day").utc().toISOString() : undefined,
         firstReferrer: selectedReferrer === "all" ? undefined : selectedReferrer,
         location: selectedCountry === "all" ? undefined : selectedCountry,
         fullName: selectedPageType === "all" ? undefined : selectedPageType,
@@ -180,7 +183,8 @@ const AttributionAnalysis = () => {
       try {
         const response = await request.get("/quote/api/marketing/page-rule/country/list");
         if (response.data && Array.isArray(response.data.data)) {
-          setCountries(response.data.data);
+          const sortedCountries = [...response.data.data].sort((a, b) => a.localeCompare(b));
+          setCountries(sortedCountries);
         }
       } catch (error) {
         console.error("Failed to fetch country list:", error);
@@ -409,19 +413,21 @@ const AttributionAnalysis = () => {
 
             <div className="space-y-2">
               <label className="text-sm font-medium text-slate-700">来源国家/地区</label>
-              <Select value={selectedCountry} onValueChange={setSelectedCountry}>
-                <SelectTrigger className="h-8">
-                  <SelectValue placeholder="全部地区" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">全部地区</SelectItem>
-                  {countries.map((country) => (
-                    <SelectItem key={country} value={country}>
-                      {country}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <AntSelect
+                showSearch
+                className="w-full h-8"
+                placeholder="全部地区"
+                value={selectedCountry}
+                onChange={setSelectedCountry}
+                optionFilterProp="children"
+              >
+                <AntSelect.Option value="all">全部地区</AntSelect.Option>
+                {countries.map((country) => (
+                  <AntSelect.Option key={country} value={country}>
+                    {country}
+                  </AntSelect.Option>
+                ))}
+              </AntSelect>
             </div>
 
             <div className="flex gap-2">
