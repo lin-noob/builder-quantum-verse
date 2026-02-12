@@ -143,19 +143,12 @@ const AttributionAnalysis = () => {
       const response = await request.post("/quote/api/marketing/page-rule/list", payload);
       const rawData = response.data.data || [];
 
-      // 1. Extract total data (id: "0")
       const totalItem = rawData.find((item: any) => String(item.id) === "0");
       setTotalData(totalItem);
-
-      // 2. Filter out total data and other special items for regular table display
       const listData = rawData.filter((item: any) => String(item.id) !== "0");
 
       if (totalItem) {
-        // 3. Calculate "Other Pages" row
-        // Other Pages = Total - Sum(listed items)
         const otherPagesMetrics: Record<string, number> = {};
-
-        // Initialize metrics for other pages
         Object.keys(totalItem.metrics || {}).forEach((key) => {
           let sumValue = 0;
           listData.forEach((item: any) => {
@@ -289,20 +282,17 @@ const AttributionAnalysis = () => {
   const renderTableSummary = (pageData: any[]) => {
     const totals: Record<string, number> = {};
 
-    // Initialize totals for visible columns
     columns.forEach((col) => {
       if ((col as any).key !== "pageType" && (col as any).key !== "matchRule") {
         totals[(col as any).key] = 0;
       }
     });
 
-    // Use total data from server if available, otherwise calculate from visible pageData
     if (totalData) {
       Object.keys(totals).forEach((key) => {
         totals[key] = totalData.metrics?.[key] || 0;
       });
     } else {
-      // Fallback calculation
       pageData.forEach((record) => {
         Object.keys(totals).forEach((key) => {
           const val = record.metrics?.[key] ?? 0;
@@ -333,7 +323,6 @@ const AttributionAnalysis = () => {
   };
 
   const handleExport = async ({ columns }: { columns: string[]; scope: "current" | "all" }) => {
-    // Labels for CSV header
     const columnLabels: Record<string, string> = {
       pageType: "页面类型",
     };
@@ -341,10 +330,8 @@ const AttributionAnalysis = () => {
       columnLabels[col.key] = col.label;
     });
 
-    // Filter labels based on selected columns
     const header = columns.map((key) => columnLabels[key] || key).join(",");
 
-    // Generate rows from tableData
     const rows = tableData.map((item) => {
       return columns
         .map((key) => {
@@ -372,7 +359,6 @@ const AttributionAnalysis = () => {
 
   return (
     <div className="p-6 space-y-6 bg-slate-50 h-full">
-      {/* Filters */}
       <Card>
         <CardContent className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
@@ -463,7 +449,6 @@ const AttributionAnalysis = () => {
         </CardContent>
       </Card>
 
-      {/* Page Classification Hint / Toolbar */}
       <div className="flex flex-col md:flex-row justify-between items-center my-6 gap-4">
         <div className="flex items-center gap-2 text-sm  px-3 py-2 rounded-md">
           <Button size="sm" onClick={() => setIsConfigOpen(true)} variant="outline">
@@ -483,7 +468,6 @@ const AttributionAnalysis = () => {
         />
       </div>
 
-      {/* Data Table */}
       <div className="bg-white rounded-lg border shadow-sm overflow-hidden">
         <Table
           columns={columns}
@@ -586,7 +570,6 @@ const AttributionAnalysis = () => {
                 );
               })}
 
-              {/* Default Rule (ReadOnly) */}
               <div className="flex items-center gap-2 p-3 rounded-lg border border-slate-200 bg-slate-50 opacity-60">
                 <div className="w-4" /> {/* Spacer for Grip handle */}
                 <div className="flex-1 grid grid-cols-3 gap-3">
