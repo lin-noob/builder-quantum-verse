@@ -420,6 +420,7 @@ const AttributionAnalysis = () => {
                 value={selectedCountry}
                 onChange={setSelectedCountry}
                 optionFilterProp="children"
+                allowClear
               >
                 <AntSelect.Option value="all">全部地区</AntSelect.Option>
                 {countries.map((country) => (
