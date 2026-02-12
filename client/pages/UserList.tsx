@@ -998,8 +998,10 @@ export default function UserList() {
 
     // Handle rule fields from metrics object
     // Check if this is a numeric key (rule ID)
-    if (!isNaN(Number(key)) && user.metrics && user.metrics[key] !== undefined) {
+    if (user.metrics && user.metrics[key] !== undefined) {
       return user.metrics[key];
+    } else if (!isNaN(Number(key))) {
+      return "0";
     }
 
     // Default fallback
