@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { Table, DatePicker, Tooltip, Typography } from "antd";
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
 import { useTranslation } from "react-i18next";
 import {
   Search,
@@ -35,6 +36,8 @@ import { ruleService } from "@/services/ruleService";
 import { toast } from "sonner";
 import { useDebounce } from "@/hooks/useDebounce";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+dayjs.extend(utc);
 
 // 列配置接口
 interface ColumnConfig {
@@ -493,11 +496,11 @@ export default function UserList() {
     }
 
     if (dateRange.start) {
-      requestBody.startDate = formatStartDate(dateRange.start);
+      requestBody.startDate = dayjs(dateRange.start).startOf("day").utc().toISOString();
     }
 
     if (dateRange.end) {
-      requestBody.endDate = formatEndDate(dateRange.end);
+      requestBody.endDate = dayjs(dateRange.end).endOf("day").utc().toISOString();
     }
 
     if (sortConfig.field) {
@@ -518,15 +521,31 @@ export default function UserList() {
       let mappedKey = key;
 
       // Map date range filters for specific fields
-      if (key === "start_registrationTime") mappedKey = "startSignTime";
-      else if (key === "end_registrationTime") mappedKey = "endSignTime";
-      else if (key === "start_firstVisitTime") mappedKey = "startDate";
-      else if (key === "end_firstVisitTime") mappedKey = "endDate";
-      else if (key === "start_firstPurchaseTime") mappedKey = "startMinBuyTime";
-      else if (key === "end_firstPurchaseTime") mappedKey = "endMinBuyTime";
-      else if (key === "start_lastActiveTime") mappedKey = "startMaxBuyTime";
-      else if (key === "end_lastActiveTime") mappedKey = "endMaxBuyTime";
-      else if (key === "contact") mappedKey = "contactInfo";
+      if (key === "start_registrationTime") {
+        mappedKey = "startSignTime";
+        val = val ? dayjs(val).startOf("day").utc().toISOString() : undefined;
+      } else if (key === "end_registrationTime") {
+        mappedKey = "endSignTime";
+        val = val ? dayjs(val).endOf("day").utc().toISOString() : undefined;
+      } else if (key === "start_firstVisitTime") {
+        mappedKey = "startDate";
+        val = val ? dayjs(val).startOf("day").utc().toISOString() : undefined;
+      } else if (key === "end_firstVisitTime") {
+        mappedKey = "endDate";
+        val = val ? dayjs(val).endOf("day").utc().toISOString() : undefined;
+      } else if (key === "start_firstPurchaseTime") {
+        mappedKey = "startMinBuyTime";
+        val = val ? dayjs(val).startOf("day").utc().toISOString() : undefined;
+      } else if (key === "end_firstPurchaseTime") {
+        mappedKey = "endMinBuyTime";
+        val = val ? dayjs(val).endOf("day").utc().toISOString() : undefined;
+      } else if (key === "start_lastActiveTime") {
+        mappedKey = "startMaxBuyTime";
+        val = val ? dayjs(val).startOf("day").utc().toISOString() : undefined;
+      } else if (key === "end_lastActiveTime") {
+        mappedKey = "endMaxBuyTime";
+        val = val ? dayjs(val).endOf("day").utc().toISOString() : undefined;
+      } else if (key === "contact") mappedKey = "contactInfo";
       else if (key === "name") mappedKey = "fullName";
       else if (key === "company") mappedKey = "companyName";
       else if (key === "max_totalSpent") mappedKey = "maxTotalOrders";
@@ -921,10 +940,10 @@ export default function UserList() {
             className="w-full"
             size="middle"
             value={rangeValue as any}
-            onChange={(dates, dateStrings) => {
-              if (dates) {
-                updateColumnFilter(`start_${colKey}`, dateStrings[0]);
-                updateColumnFilter(`end_${colKey}`, dateStrings[1]);
+            onChange={(dates) => {
+              if (dates && dates[0] && dates[1]) {
+                updateColumnFilter(`start_${colKey}`, dates[0].toISOString());
+                updateColumnFilter(`end_${colKey}`, dates[1].toISOString());
               } else {
                 updateColumnFilter(`start_${colKey}`, null);
                 updateColumnFilter(`end_${colKey}`, null);
