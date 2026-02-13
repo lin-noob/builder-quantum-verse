@@ -19,15 +19,27 @@ import { DatePicker, Table, Select as AntSelect } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
-import { cn } from "@/lib/utils";
 
 dayjs.extend(utc);
 import { TableActionButtons } from "@/components/TableActionButtons";
 import { request } from "@/lib/request";
+import { toast } from "sonner";
 
 const { RangePicker } = DatePicker;
 
+interface PageRule {
+  id: string;
+  matchType: string;
+  matchValue: string;
+}
+interface PageClassification {
+  id: string;
+  name: string;
+  rules: PageRule[];
+}
+
 const AttributionAnalysis = () => {
+  const [rules, setRules] = useState<PageClassification[]>([]);
   const [visibleColumns, setVisibleColumns] = useState<string[]>(["pageType"]);
   const [isConfigOpen, setIsConfigOpen] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -195,13 +207,29 @@ const AttributionAnalysis = () => {
       try {
         const response = await request.get("/quote/api/marketing/page-rule/all");
         if (response.data && Array.isArray(response.data.data)) {
-          const mappedRules = response.data.data.map((item: any) => ({
-            id: String(item.id),
-            name: item.pageTypeName || "",
-            rule: item.matchValue || "",
-            type: "other",
-            matchType: item.matchType || "contains",
-          }));
+          const rawData = response.data.data;
+          const mappedRules = rawData.map((item: any) => {
+            let parsedRules = [];
+            try {
+              // The backend sends matchValue as a JSON string of rules
+              parsedRules = JSON.parse(item.matchValue || "[]");
+            } catch (e) {
+              console.error("Failed to parse matchValue JSON:", e);
+            }
+
+            return {
+              id: String(item.id),
+              name: item.pageTypeName || "",
+              rules: Array.isArray(parsedRules)
+                ? parsedRules.map((r: any) => ({
+                    id: Math.random().toString(36).substr(2, 9),
+                    matchType: r.matchType || "contains",
+                    matchValue: r.matchValue || "",
+                  }))
+                : [{ id: Math.random().toString(36).substr(2, 9), matchType: "contains", matchValue: "" }],
+            };
+          });
+
           setRules(mappedRules);
         }
       } catch (error) {
@@ -214,32 +242,100 @@ const AttributionAnalysis = () => {
     refetchColumns();
     fetchAllPageRules();
   }, [dateRange, selectedCountry, selectedReferrer, selectedPageType]);
-  const [rules, setRules] = useState([]);
 
-  const handleAddRule = () => {
-    const newId = (rules.length + 1).toString();
-    setRules([...rules, { id: newId, name: "", rule: "", type: "other", matchType: "contains" }]);
+  const handleAddClassification = () => {
+    setRules([
+      ...rules,
+      {
+        id: Math.random().toString(36).substr(2, 9),
+        name: "",
+        rules: [{ id: Math.random().toString(36).substr(2, 9), matchType: "contains", matchValue: "" }],
+      },
+    ]);
   };
 
-  const handleDeleteRule = (id: string) => {
-    setRules(rules.filter((rule) => rule.id !== id));
+  const handleAddRuleToClassification = (classId: string) => {
+    setRules(
+      rules.map((c) => {
+        if (c.id === classId) {
+          return {
+            ...c,
+            rules: [...c.rules, { id: Math.random().toString(36).substr(2, 9), matchType: "contains", matchValue: "" }],
+          };
+        }
+        return c;
+      }),
+    );
   };
 
-  const handleUpdateRule = (id: string, field: "name" | "rule" | "matchType", value: string) => {
-    setRules(rules.map((rule) => (rule.id === id ? { ...rule, [field]: value } : rule)));
+  const handleDeleteClassification = (id: string) => {
+    setRules(rules.filter((c) => c.id !== id));
+  };
+
+  const handleDeleteRule = (classId: string, ruleId: string) => {
+    setRules(
+      rules.map((c) => {
+        if (c.id === classId) {
+          return {
+            ...c,
+            rules: c.rules.filter((r) => r.id !== ruleId),
+          };
+        }
+        return c;
+      }),
+    );
+  };
+
+  const handleUpdateClassificationName = (id: string, name: string) => {
+    setRules(rules.map((c) => (c.id === id ? { ...c, name } : c)));
+  };
+
+  const handleUpdateRule = (classId: string, ruleId: string, field: "matchType" | "matchValue", value: string) => {
+    setRules(
+      rules.map((c) => {
+        if (c.id === classId) {
+          return {
+            ...c,
+            rules: c.rules.map((r) => (r.id === ruleId ? { ...r, [field]: value } : r)),
+          };
+        }
+        return c;
+      }),
+    );
   };
 
   const handleSavePageClassification = async () => {
     try {
-      const payload = rules.map((r) => ({
-        pageTypeName: r.name,
-        matchValue: r.rule,
-        matchType: r.matchType,
+      for (const c of rules) {
+        if (!c.name || c.name.trim() === "") {
+          toast.error("页面分类名称不能为空");
+          return;
+        }
+        for (const r of c.rules) {
+          if (!r.matchValue || r.matchValue.trim() === "") {
+            toast.error(`分类 "${c.name}" 的 URL 匹配值不能为空`);
+            return;
+          }
+        }
+      }
+
+      const payload = rules.map((c) => ({
+        pageTypeName: c.name,
+        matchValue: JSON.stringify(
+          c.rules.map((r) => ({
+            matchValue: r.matchValue,
+            matchType: r.matchType,
+          })),
+        ),
       }));
+
       await request.post("/quote/api/marketing/page-rule/save", payload);
+      toast.success("保存成功");
       setIsConfigOpen(false);
+      fetchTableData();
     } catch (error) {
       console.error("Failed to save page classification:", error);
+      toast.error("保存失败");
     }
   };
 
@@ -253,12 +349,26 @@ const AttributionAnalysis = () => {
           key: "pageType",
           minWidth: 350,
           render: (_: any, record: any) => {
+            let parsedRules = [];
+            try {
+              parsedRules = JSON.parse(record.matchValue || "[]");
+            } catch (e) {
+              parsedRules = [];
+            }
+
             return (
               <div className="flex flex-col gap-1.5 py-1">
                 <div className="flex items-center gap-3">
                   <span className="font-medium text-slate-900">{record.pageTypeName}</span>
                 </div>
-                <div className="text-xs text-slate-400">匹配规则: {record.matchValue}</div>
+                <div className="text-xs text-slate-400">
+                  匹配规则:{" "}
+                  {Array.isArray(parsedRules)
+                    ? parsedRules
+                        .map((r) => `${r.matchType === "equals" ? "=" : "contains"} "${r.matchValue}"`)
+                        .join(" 或 ")
+                    : record.matchValue}
+                </div>
               </div>
             );
           },
@@ -401,10 +511,10 @@ const AttributionAnalysis = () => {
                 <SelectContent>
                   <SelectItem value="all">全部类型</SelectItem>
                   {rules
-                    .filter((rule) => rule.name && rule.name.trim() !== "")
-                    .map((rule) => (
-                      <SelectItem key={rule.id} value={rule.name}>
-                        {rule.name}
+                    .filter((c) => c.name && c.name.trim() !== "")
+                    .map((c) => (
+                      <SelectItem key={c.id} value={c.name}>
+                        {c.name}
                       </SelectItem>
                     ))}
                 </SelectContent>
@@ -498,84 +608,88 @@ const AttributionAnalysis = () => {
             <Alert className="bg-orange-50 border-orange-200 text-orange-800">
               <Info className="h-4 w-4 text-orange-600" />
               <AlertTitle className="text-orange-900 font-medium ml-2">匹配逻辑说明</AlertTitle>
-              <AlertDescription className="ml-2 text-orange-800/90 text-xs">
-                系统按规则顺序从上到下匹配，首个符合条件的规则生效。未匹配任何规则的 URL 将自动归入"其他"。支持通配符 *
-                匹配任意字符。
+              <AlertDescription className="ml-2 mt-2 text-orange-800/90 text-xs leading-5">
+                系统按页面类型顺序匹配。 <br />
+                同一类型内规则为 OR 关系，命中任意一条即归类; <br />
+                命中后停止匹配;未命中则归入"其他"。 <br />
+                支持"等于"和"包含"两种匹配模式。
               </AlertDescription>
             </Alert>
 
-            <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
-              {rules.map((rule) => {
-                let styleClass = "";
-                switch (rule.type) {
-                  case "product":
-                    styleClass = "bg-blue-50/50 border-blue-100";
-                    break;
-                  case "pricing":
-                    styleClass = "bg-green-50/50 border-green-100";
-                    break;
-                  case "blog":
-                    styleClass = "bg-purple-50/50 border-purple-100";
-                    break;
-                  case "home":
-                    styleClass = "bg-orange-50/50 border-orange-100";
-                    break;
-                  default:
-                    styleClass = "bg-slate-50 border-slate-200";
-                }
-
-                return (
-                  <div key={rule.id} className={cn("flex items-center gap-2 p-3 rounded-lg border group", styleClass)}>
-                    <GripVertical className="h-4 w-4 text-slate-400 cursor-grab" />
-
-                    <div className="flex-1 grid grid-cols-3 gap-3">
-                      <div className="space-y-1">
-                        <label className="text-[10px] text-slate-500 font-medium ml-1">页面类型名称</label>
+            <div className="space-y-6 max-h-[400px] overflow-y-auto pr-2">
+              {rules.map((classification) => (
+                <div key={classification.id} className="p-4 rounded-lg border border-slate-200 bg-white space-y-4">
+                  <div className="flex items-center gap-3">
+                    {/* <GripVertical className="h-4 w-4 text-slate-400 cursor-grab" /> */}
+                    <div className="flex-1">
+                      <div className="flex items-center gap-1 mb-1">
+                        <span className="text-red-500">*</span>
+                        <span className="text-xs text-slate-500 font-medium">页面分类名称</span>
+                      </div>
+                      <div className="flex items-center gap-2">
                         <Input
-                          value={rule.name}
-                          onChange={(e) => handleUpdateRule(rule.id, "name", e.target.value)}
-                          className="h-8 bg-white"
-                          placeholder="例如：产品页"
+                          value={classification.name}
+                          onChange={(e) => handleUpdateClassificationName(classification.id, e.target.value)}
+                          className="h-9 font-medium bg-slate-50 focus-visible:ring-1 focus-visible:ring-blue-500"
+                          placeholder="页面分类名称 (例如：产品页)"
                         />
-                      </div>
-                      <div className="space-y-1">
-                        <label className="text-[10px] text-slate-500 font-medium ml-1">匹配模式</label>
-                        <Select
-                          value={rule.matchType}
-                          onValueChange={(val) => handleUpdateRule(rule.id, "matchType", val)}
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-slate-400 hover:text-red-500 hover:bg-red-50"
+                          onClick={() => handleDeleteClassification(classification.id)}
                         >
-                          <SelectTrigger className="h-8 bg-white">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="contains">包含</SelectItem>
-                            <SelectItem value="equals">等于</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="space-y-1">
-                        <label className="text-[10px] text-slate-500 font-medium ml-1">URL 匹配值</label>
-                        <div className="flex gap-2">
-                          <Input
-                            value={rule.rule}
-                            onChange={(e) => handleUpdateRule(rule.id, "rule", e.target.value)}
-                            className="h-8 bg-white flex-1"
-                            placeholder="/example"
-                          />
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-slate-400 hover:text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-opacity"
-                            onClick={() => handleDeleteRule(rule.id)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </div>
                     </div>
                   </div>
-                );
-              })}
+
+                  <div className="space-y-3">
+                    {classification.rules.map((rule, index) => (
+                      <div key={rule.id} className="flex items-center gap-2 group">
+                        <div className="w-32">
+                          <Select
+                            value={rule.matchType}
+                            onValueChange={(val) => handleUpdateRule(classification.id, rule.id, "matchType", val)}
+                          >
+                            <SelectTrigger className="h-8 bg-white">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="contains">包含</SelectItem>
+                              <SelectItem value="equals">等于</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <Input
+                          value={rule.matchValue}
+                          onChange={(e) => handleUpdateRule(classification.id, rule.id, "matchValue", e.target.value)}
+                          className="h-8 bg-white flex-1"
+                          placeholder="/example (必填)"
+                        />
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-slate-400 hover:text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => handleDeleteRule(classification.id, rule.id)}
+                          disabled={classification.rules.length === 1}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 text-xs text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                      onClick={() => handleAddRuleToClassification(classification.id)}
+                    >
+                      <Plus className="h-3 w-3 mr-1" /> 添加匹配规则
+                    </Button>
+                  </div>
+                </div>
+              ))}
 
               <div className="flex items-center gap-2 p-3 rounded-lg border border-slate-200 bg-slate-50 opacity-60">
                 <div className="w-4" /> {/* Spacer for Grip handle */}
@@ -590,9 +704,9 @@ const AttributionAnalysis = () => {
             <Button
               variant="outline"
               className="w-full border-dashed text-slate-500 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50"
-              onClick={handleAddRule}
+              onClick={handleAddClassification}
             >
-              <Plus className="h-4 w-4 mr-2" /> 添加新规则
+              <Plus className="h-4 w-4 mr-2" /> 添加新分类
             </Button>
           </div>
 
