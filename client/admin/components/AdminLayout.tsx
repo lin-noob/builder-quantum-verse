@@ -1,0 +1,502 @@
+import React, { ReactNode, useState, useEffect } from "react";
+import { Link, useLocation, Outlet } from "react-router-dom";
+import { cn } from "@/lib/utils";
+import * as LucideIcons from "lucide-react";
+import {
+  LayoutDashboard,
+  Users,
+  Settings,
+  Database,
+  Shield,
+  BarChart3,
+  Bot,
+  LogOut,
+  Menu,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  User,
+  Cog,
+  ChevronDown,
+  Key,
+  List,
+  Bell,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { adminAuthService } from "@/services/adminAuthService";
+import TabManager from "@/components/TabManager";
+import { useAdminStore } from "@/stores";
+import { messageCenterService } from "../services/messageCenterService";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { AdminMenuApiItem, fetchAdminMenus, flattenVisibleMenus } from "../services/menuRouteService";
+import MessageCenterDrawer from "./MessageCenterDrawer";
+
+interface AdminLayoutProps {
+  children?: ReactNode;
+}
+
+interface AdminMenuItem {
+  id: string;
+  label: string;
+  path: string;
+  icon: ReactNode;
+  badge?: string;
+}
+
+function getIconByName(name?: string) {
+  if (!name) return <List className="h-5 w-5" />;
+  const Icon = (LucideIcons as any)[name];
+  if (Icon) return <Icon className="h-5 w-5" />;
+  return <List className="h-5 w-5" />;
+}
+
+export default function AdminLayout({ children }: AdminLayoutProps) {
+  const location = useLocation();
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [currentAdminUser, setCurrentAdminUser] = useState(
+    adminAuthService.getCurrentAdminUser(),
+  );
+  const [menuItems, setMenuItems] = useState<AdminMenuItem[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [isMessageCenterOpen, setIsMessageCenterOpen] = useState(false);
+
+  useEffect(() => {
+    const adminUser = adminAuthService.getCurrentAdminUser();
+    setCurrentAdminUser(adminUser);
+  }, [location]);
+
+  const isAdminAuthenticated = useAdminStore((s) => s.isAdminAuthenticated);
+
+  // 获取未读消息数量
+  useEffect(() => {
+    let mounted = true;
+    const loadUnreadCount = async () => {
+      if (!isAdminAuthenticated) {
+        setUnreadCount(0);
+        return;
+      }
+      try {
+        const count = await messageCenterService.getUnreadCount();
+        if (mounted) setUnreadCount(count);
+      } catch (error) {
+        console.error("获取未读消息数量失败:", error);
+        if (mounted) setUnreadCount(0);
+      }
+    };
+    
+    // 初始加载
+    loadUnreadCount();
+    
+    // 每30秒更新一次未读消息数量
+    const interval = setInterval(() => {
+      loadUnreadCount();
+    }, 30000);
+    
+    return () => { 
+      mounted = false; 
+      clearInterval(interval);
+    };
+  }, [isAdminAuthenticated]);
+
+  useEffect(() => {
+    let mounted = true;
+    const loadMenus = async () => {
+      if (!isAdminAuthenticated) {
+        setMenuItems([]);
+        return;
+      }
+      const menus = await fetchAdminMenus();
+      if (!mounted) return;
+      const visible = flattenVisibleMenus(menus).filter(m => m.path && m.meta?.title);
+      const items: AdminMenuItem[] = visible
+        .filter(m => m.path.startsWith("/admin"))
+        .map((m) => ({
+          id: m.name || m.path,
+          label: (m.meta?.title as string) || (m as any).title || m.path,
+          path: m.path,
+          icon: getIconByName(m.meta?.icon),
+        }));
+      setMenuItems(items);
+    };
+    loadMenus();
+    return () => { mounted = false; };
+  }, [isAdminAuthenticated]);
+
+  const isActiveRoute = (path: string) => {
+    return (
+      location.pathname === path ||
+      (path !== "/admin" && location.pathname.startsWith(path))
+    );
+  };
+
+  return (
+    <div className="flex h-screen bg-background-secondary">
+      {/* 移动端头部 */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-card border-b border-border flex items-center justify-between px-4 z-50">
+        <div className="flex items-center gap-3">
+          {/* Admin User Profile Dropdown */}
+          {currentAdminUser ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className="w-8 h-8 rounded-full flex items-center justify-center transition-colors bg-red-600 hover:bg-red-700"
+                  title="管理员信息"
+                >
+                  <User className="h-4 w-4 text-white" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem className="flex items-center gap-2">
+                  <Link
+                    to="/admin/profile"
+                    className="flex items-center gap-2 cursor-pointer"
+                  >
+                    <User className="h-4 w-4" />
+                    个人中心
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="flex items-center gap-2 text-red-600 focus:text-red-600 cursor-pointer"
+                  onClick={() => {
+                    adminAuthService.adminLogout();
+                    window.location.href = "/admin/auth";
+                  }}
+                >
+                  <LogOut className="h-4 w-4" />
+                  退出登录
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <div
+              className="w-8 h-8 rounded-full flex items-center justify-center transition-colors bg-gray-200 border border-dashed border-gray-400"
+              title="未登录"
+            >
+              <User className="h-4 w-4 text-gray-500" />
+            </div>
+          )}
+          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+            <BarChart3 className="h-5 w-5 text-white" />
+          </div>
+          <span className="text-xl font-bold text-gray-900">
+            AI营销管理后台
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          {/* 消息中心按钮 - 移动端 */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsMessageCenterOpen(true)}
+            className="relative"
+          >
+            <Bell className="h-5 w-5 text-gray-600" />
+            {unreadCount > 0 && (
+              <Badge className="absolute -top-1 -right-1 bg-red-500 text-white text-xs h-5 w-5 rounded-full flex items-center justify-center p-0">
+                {unreadCount > 99 ? "99+" : unreadCount}
+              </Badge>
+            )}
+          </Button>
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="p-2 rounded-lg text-gray-600 hover:bg-gray-100"
+          >
+            {isMobileMenuOpen ? (
+              <X className="h-5 w-5" />
+            ) : (
+              <Menu className="h-5 w-5" />
+            )}
+          </button>
+        </div>
+      </div>
+
+      {/* 移动端菜单遮罩 */}
+      {isMobileMenuOpen && (
+        <div
+          className="lg:hidden fixed inset-0 z-40 bg-black bg-opacity-50"
+          onClick={() => setIsMobileMenuOpen(false)}
+        >
+          <div className="fixed top-16 left-0 right-0 bg-white border-b border-gray-200 p-4">
+            <nav>
+              <ul className="space-y-2">
+                {menuItems.map((item) => (
+                  <li key={item.id}>
+                    <Link
+                      to={item.path}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className={cn(
+                        "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+                        isActiveRoute(item.path)
+                          ? "bg-blue-50 text-blue-700 border border-blue-200"
+                          : "text-gray-600 hover:text-gray-900 hover:bg-gray-50",
+                      )}
+                    >
+                      {item.icon}
+                      {item.label}
+                      {item.badge && (
+                        <Badge variant="secondary" className="ml-auto text-xs">
+                          {item.badge}
+                        </Badge>
+                      )}
+                    </Link>
+                  </li>
+                ))}
+
+                {/* 分隔线 */}
+                <li className="my-4">
+                  <div className="border-t border-gray-300"></div>
+                </li>
+
+                {/* 个人中心 */}
+                <li>
+                  <Link
+                    to="/admin/profile"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={cn(
+                      "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+                      isActiveRoute("/admin/profile")
+                        ? "bg-blue-50 text-blue-700 border border-blue-200"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50",
+                    )}
+                  >
+                    <User className="h-5 w-5" />
+                    个人中心
+                  </Link>
+                </li>
+              </ul>
+            </nav>
+          </div>
+        </div>
+      )}
+
+      {/* 左侧边栏 */}
+      <div
+        className={cn(
+          "hidden lg:flex bg-card border-r border-border flex-col transition-all duration-300 ease-in-out relative",
+          isSidebarCollapsed ? "w-16" : "w-64",
+        )}
+      >
+        {/* Logo */}
+        <div className="h-16 flex items-center justify-center px-3 border-b border-gray-200">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+              <BarChart3 className="h-5 w-5 text-white" />
+            </div>
+            {!isSidebarCollapsed && (
+              <span className="text-xl font-bold text-gray-900 whitespace-nowrap overflow-hidden">
+                AI营销管理后台
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* 导航菜单 */}
+        <nav className="flex-1 px-2 py-6 overflow-y-auto">
+          <ul className="space-y-2">
+            {menuItems.map((item) => (
+              <li key={item.id}>
+                <Link
+                  to={item.path}
+                  className={cn(
+                    "flex items-center rounded-lg text-sm font-medium transition-colors relative group",
+                    isSidebarCollapsed
+                      ? "gap-0 px-3 py-2 justify-center"
+                      : "gap-3 px-3 py-2",
+                    isActiveRoute(item.path)
+                      ? "bg-blue-50 text-blue-700 border border-blue-200"
+                      : "text-gray-600 hover:text-gray-900 hover:bg-gray-50",
+                  )}
+                  title={isSidebarCollapsed ? item.label : undefined}
+                >
+                  {item.icon}
+                  {!isSidebarCollapsed && (
+                    <>
+                      <span className="whitespace-nowrap flex-1">
+                        {item.label}
+                      </span>
+                      {item.badge && (
+                        <Badge variant="secondary" className="text-xs">
+                          {item.badge}
+                        </Badge>
+                      )}
+                    </>
+                  )}
+
+                  {/* 悬浮提示 */}
+                  {isSidebarCollapsed && (
+                    <div className="absolute left-full top-1/2 transform -translate-y-1/2 ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 whitespace-nowrap">
+                      {item.label}
+                      {item.badge && ` (${item.badge})`}
+                    </div>
+                  )}
+                </Link>
+              </li>
+            ))}
+
+            {/* 分隔线 */}
+            <li className="my-4">
+              <div className="border-t border-gray-300"></div>
+            </li>
+
+            {/* 个人中心 */}
+            <li>
+              <Link
+                to="/admin/profile"
+                className={cn(
+                  "flex items-center rounded-lg text-sm font-medium transition-colors relative group",
+                  isSidebarCollapsed
+                    ? "gap-0 px-3 py-2 justify-center"
+                    : "gap-3 px-3 py-2",
+                  isActiveRoute("/admin/profile")
+                    ? "bg-blue-50 text-blue-700 border border-blue-200"
+                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-50",
+                )}
+                title={isSidebarCollapsed ? "个人中心" : undefined}
+              >
+                <User className="h-5 w-5" />
+                {!isSidebarCollapsed && (
+                  <span className="whitespace-nowrap flex-1">
+                    个人中心
+                  </span>
+                )}
+
+                {isSidebarCollapsed && (
+                  <div className="absolute left-full top-1/2 transform -translate-y-1/2 ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 whitespace-nowrap">
+                    个人中心
+                  </div>
+                )}
+              </Link>
+            </li>
+          </ul>
+        </nav>
+
+        {/* 管理员信息和消息中心按钮 */}
+        <div className="border-t border-gray-200 p-3 space-y-2">
+          {/* 消息中心按钮 - 桌面端 */}
+          <Button
+            variant="ghost"
+            className={cn(
+              "w-full flex items-center gap-3 p-2 rounded-lg text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-colors",
+              isSidebarCollapsed ? "justify-center" : "justify-start",
+            )}
+            onClick={() => setIsMessageCenterOpen(true)}
+          >
+            <div className="relative">
+              <Bell className="h-5 w-5 text-gray-600" />
+              {unreadCount > 0 && (
+                <Badge className="absolute -top-2 -right-2 bg-red-500 text-white text-xs h-4 w-4 rounded-full flex items-center justify-center p-0">
+                  {unreadCount > 99 ? "99+" : unreadCount}
+                </Badge>
+              )}
+            </div>
+            {!isSidebarCollapsed && (
+              <span className="whitespace-nowrap flex-1 text-left text-gray-700">
+                消息中心
+              </span>
+            )}
+          </Button>
+
+          {currentAdminUser ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className={cn(
+                    "flex items-center gap-3 p-2 rounded-lg text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-colors w-full",
+                    isSidebarCollapsed ? "justify-center" : "justify-start",
+                  )}
+                  title={
+                    isSidebarCollapsed
+                      ? `${currentAdminUser.username} - 超级管理员`
+                      : ""
+                  }
+                >
+                  <div className="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center flex-shrink-0">
+                    <User className="h-4 w-4 text-white" />
+                  </div>
+                  {!isSidebarCollapsed && (
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900 truncate">
+                        {currentAdminUser.username}
+                      </p>
+                      <p className="text-xs text-red-600 truncate font-medium">
+                        超级管理员
+                      </p>
+                    </div>
+                  )}
+                  {!isSidebarCollapsed && (
+                    <ChevronDown className="h-4 w-4 text-gray-400" />
+                  )}
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align={isSidebarCollapsed ? "start" : "end"}
+                className="w-48"
+              >
+                <DropdownMenuItem className="flex items-center gap-2">
+                  <Link
+                    to="/admin/profile"
+                    className="flex items-center gap-2 cursor-pointer"
+                  >
+                    <User className="h-4 w-4" />
+                    个人中心
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="flex items-center gap-2 text-red-600 focus:text-red-600 cursor-pointer"
+                  onClick={() => {
+                    adminAuthService.adminLogout();
+                    window.location.href = "/admin/auth";
+                  }}
+                >
+                  <LogOut className="h-4 w-4" />
+                  退出登录
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Link
+              to="/admin/auth"
+              className={cn(
+                "flex items-center gap-3 p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-colors border border-dashed border-gray-300",
+                isSidebarCollapsed ? "justify-center" : "justify-start",
+              )}
+              title={isSidebarCollapsed ? "点击登录" : ""}
+            >
+              <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center flex-shrink-0">
+                <User className="h-4 w-4 text-gray-500" />
+              </div>
+              {!isSidebarCollapsed && (
+                <div className="flex-1">
+                  <p className="text-sm text-gray-600">点击登录</p>
+                </div>
+              )}
+            </Link>
+          )}
+        </div>
+      </div>
+
+      {/* 主内容区域 */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="flex-1 overflow-auto lg:pt-0 pt-16">
+          <Outlet />
+        </div>
+      </div>
+
+      {/* 消息中心抽屉 */}
+      <MessageCenterDrawer 
+        open={isMessageCenterOpen} 
+        onOpenChange={setIsMessageCenterOpen} 
+      />
+    </div>
+  );
+}

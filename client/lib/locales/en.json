@@ -1,0 +1,507 @@
+{
+  "nav": {
+    "platformName": "AI Marketing Platform",
+    "productFeatures": "Product Features",
+    "solutions": "Solutions",
+    "contactUs": "Contact Us",
+    "startAI": "Start AI",
+    "aiMarketing": "AI Smart Marketing",
+    "userProfiling": "User Profiling",
+    "realTimeMonitoring": "Real-time Monitoring",
+    "effectTracking": "Effect Tracking",
+    "ecommerce": "E-commerce Marketing",
+    "contentMarketing": "Content Marketing",
+    "financialMarketing": "Financial Marketing",
+    "enterpriseServices": "Enterprise Services"
+  },
+  "hero": {
+    "aiMarketingTitle": "AI-Driven Future Marketing",
+    "aiMarketingDescription": "Through cutting-edge artificial intelligence technology, achieve {{preciseTech}}, {{automation}}, and {{dataDecision}} to help enterprises realize exponential marketing performance improvement",
+    "preciseTech": "precise user insights",
+    "automation": "automated marketing execution",
+    "dataDecision": "data-driven decisions",
+    "enterpriseTitle": "Enterprise Services Solutions",
+    "enterpriseDescription": "AI marketing solutions tailored for B2B enterprise services, featuring precise customer acquisition, efficient conversion, and customer success management to accelerate business growth",
+    "financialTitle": "Financial Marketing Solutions",
+    "financialDescription": "AI marketing solutions designed for the financial industry, ensuring compliance, security, precise customer acquisition, and enhanced customer value for digital transformation",
+    "ecommerceTitle": "E-commerce Marketing Solutions",
+    "ecommerceDescription": "AI-powered marketing solutions designed for e-commerce platforms, improving conversion rates, reducing cart abandonment, and enhancing user retention for sustainable business growth",
+    "contentTitle": "Content Marketing Solutions",
+    "contentDescription": "AI-driven content marketing solutions that automatically generate high-quality content, enable precise distribution, and enhance brand influence and user engagement",
+    "userProfilingTitle": "User Profiling Analysis",
+    "userProfilingDescription": "In-depth user behavior analysis to precisely understand user needs and preferences, building comprehensive user profiles for data-driven precision marketing",
+    "effectTrackingTitle": "Effect Tracking",
+    "effectTrackingDescription": "Full-funnel effect tracking, quantifying marketing ROI and conversion effects, providing precise data analysis and optimization recommendations for measurable investments",
+    "realTimeMonitoringTitle": "Real-time Monitoring Center",
+    "realTimeMonitoringDescription": "Real-time monitoring of marketing campaign performance, intelligent anomaly detection and alerts, quick strategy adjustments to ensure marketing goal achievement",
+    "ctaPrimary": "Experience Now",
+    "ctaSecondary": "Watch Demo",
+    "ctaStartAI": "Start AI Marketing",
+    "ctaWatchDemo": "Watch Product Demo",
+    "ctaContactExpert": "Contact Expert",
+    "ctaFreeTrial": "Free Trial",
+    "ctaViewDemo": "View Demo"
+  },
+  "features": {
+    "title": "Core Feature Matrix",
+    "subtitle": "Comprehensive AI Marketing Solutions",
+    "aiMarketingTitle": "AI Smart Marketing",
+    "aiMarketingDescription": "AI-based intelligent marketing scenario configuration with automatic personalized content generation",
+    "aiMarketingBenefits": {
+      "contentGeneration": "Intelligent Content Generation",
+      "personalization": "Personalized Recommendations",
+      "automation": "Automated Execution"
+    },
+    "userProfilingTitle": "User Profiling Analysis",
+    "userProfilingDescription": "Deep user behavior analysis for precise insights into user needs and preferences",
+    "userProfilingBenefits": {
+      "fullProfile": "360° User Profiles",
+      "behaviorAnalysis": "Behavior Path Analysis",
+      "valueSegmentation": "Value Segmentation"
+    },
+    "realTimeMonitoringTitle": "Real-time Monitoring Center",
+    "realTimeMonitoringDescription": "Real-time monitoring of marketing campaign performance with rapid optimization",
+    "realTimeMonitoringBenefits": {
+      "realTimeData": "Real-time Data Monitoring",
+      "alerting": "Anomaly Alerts",
+      "optimization": "Performance Optimization"
+    },
+    "effectTrackingTitle": "Effect Tracking",
+    "effectTrackingDescription": "Full-funnel effect tracking to quantify marketing ROI and conversion performance",
+    "effectTrackingBenefits": {
+      "funnelAnalysis": "Conversion Funnel Analysis",
+      "roiCalculation": "ROI Calculation",
+      "multiDimensionReport": "Multi-dimensional Reports"
+    },
+    "dataDecisionTitle": "Data-Driven Decisions",
+    "dataDecisionDescription": "Marketing decision support system based on big data analytics",
+    "dataDecisionBenefits": {
+      "trendPrediction": "Trend Prediction",
+      "strategyRecommendation": "Strategy Recommendations",
+      "abTesting": "A/B Testing"
+    },
+    "automationTitle": "Marketing Automation",
+    "automationDescription": "Full-process marketing automation to reduce manual costs and improve efficiency",
+    "automationBenefits": {
+      "triggerMarketing": "Trigger-based Marketing",
+      "workflow": "Automated Workflows",
+      "batchProcessing": "Batch Processing"
+    },
+    "enterpriseCore": {
+      "preciseLeadsTitle": "Precise Lead Acquisition",
+      "preciseLeadsDescription": "Intelligently identify high-value potential customers and opportunities based on enterprise profiling and decision-maker analysis",
+      "salesOptimizationTitle": "Sales Process Optimization",
+      "salesOptimizationDescription": "AI-driven sales process management to improve sales efficiency and deal closing rates",
+      "customerSuccessTitle": "Customer Success Management",
+      "customerSuccessDescription": "Full lifecycle customer management to improve customer satisfaction and retention rates",
+      "marketingAnalyticsTitle": "Marketing Data Analytics",
+      "marketingAnalyticsDescription": "Deep analysis of B2B marketing data to understand customer needs and market trends"
+    },
+    "financialCore": {
+      "complianceTitle": "Compliance Marketing Management",
+      "complianceDescription": "Strictly follow financial regulatory requirements to ensure marketing activity compliance and risk control",
+      "preciseAcquisitionTitle": "Precise Customer Acquisition",
+      "preciseAcquisitionDescription": "Precisely identify high-value potential customers based on risk models and customer profiles",
+      "valueEnhancementTitle": "Customer Value Enhancement",
+      "valueEnhancementDescription": "Improve single customer value and customer lifecycle through intelligent recommendations and cross-selling",
+      "riskControlTitle": "Risk Control Marketing",
+      "riskControlDescription": "Real-time monitoring of marketing risks, fraud prevention, and protection of customer funds"
+    },
+    "contentCore": {
+      "smartGenerationTitle": "Smart Content Generation",
+      "smartGenerationDescription": "AI-powered intelligent content creation that automatically generates high-quality marketing content and creative materials based on brand tone and target audience",
+      "preciseDistributionTitle": "Precise Content Distribution",
+      "preciseDistributionDescription": "Intelligent identification of optimal publishing timing and channels to ensure content reaches the most accurate target users",
+      "effectAnalysisTitle": "Content Effect Analysis",
+      "effectAnalysisDescription": "Real-time monitoring of content performance, analysis of user interaction data, and continuous optimization of content strategies",
+      "socialMediaTitle": "Social Media Management",
+      "socialMediaDescription": "Unified management of multi-platform social media content with automated publishing and user interaction responses",
+      "subtitle": "AI-powered end-to-end content marketing solutions to enhance brand influence and user engagement"
+    },
+    "aiMarketingOptimized": {
+      "smartContentGeneration": "Smart Content Generation",
+      "smartContentGenerationDesc": "AI-powered intelligent marketing scenario configuration with automated personalized content generation",
+      "smartContentGenerationBenefits": {
+        "naturalLanguageProcessing": "Natural Language Processing",
+        "personalizedContent": "Personalized Content",
+        "multiLanguageSupport": "Multi-language Support",
+        "brandToneAdaptation": "Brand Tone Adaptation"
+      },
+      "preciseScenarioTriggering": "Precise Scenario Triggering",
+      "preciseScenarioTriggeringDesc": "Intelligently identify user behavior patterns and trigger marketing actions at optimal moments",
+      "preciseScenarioTriggeringBenefits": {
+        "behaviorPrediction": "Behavior Prediction",
+        "timingOptimization": "Timing Optimization",
+        "scenarioAdaptation": "Scenario Adaptation",
+        "automaticTriggering": "Automatic Triggering"
+      },
+      "strategyAutoOptimization": "Strategy Auto-Optimization",
+      "strategyAutoOptimizationDesc": "Real-time analysis of marketing performance with AI auto-adjustment of strategy parameters",
+      "strategyAutoOptimizationBenefits": {
+        "effectMonitoring": "Effect Monitoring",
+        "parameterTuning": "Parameter Tuning",
+        "abTesting": "A/B Testing",
+        "strategyEvolution": "Strategy Evolution"
+      },
+      "multiChannelCollaboration": "Multi-Channel Collaboration",
+      "multiChannelCollaborationDesc": "Unified management of multiple marketing channels ensuring consistent user experience",
+      "multiChannelCollaborationBenefits": {
+        "channelIntegration": "Channel Integration",
+        "messageUnification": "Message Unification",
+        "userJourney": "User Journey",
+        "effectAggregation": "Effect Aggregation"
+      },
+      "ecommerceCartRecovery": "E-commerce Cart Recovery",
+      "ecommerceCartRecoveryAI": "AI analyzes user preferences and price sensitivity to generate personalized coupons",
+      "ecommerceCartRecoveryResult": "Conversion rate increased by 45%",
+      "newUserWelcomeSequence": "New User Welcome Sequence",
+      "newUserWelcomeSequenceAI": "Customized welcome content and product recommendations based on registration channel",
+      "newUserWelcomeSequenceResult": "First purchase conversion rate increased by 60%",
+      "memberUpgradeMarketing": "Member Upgrade Marketing",
+      "memberUpgradeMarketingAI": "Analyze consumption behavior to push customized upgrade plans",
+      "memberUpgradeMarketingResult": "Member upgrade rate increased by 35%",
+      "aiAutoProcessing": "AI Auto Processing",
+      "realScenarioTitle": "Real Application Scenarios",
+      "realScenarioSubtitle": "Real cases showcasing the powerful capabilities of AI smart marketing",
+      "technicalAdvantagesTitle": "Technical Advantages",
+      "technicalAdvantagesDesc": "Based on advanced machine learning algorithms and big data analytics technology",
+      "systemAvailability": "System Availability",
+      "dailyMessageProcessing": "Daily Message Processing",
+      "averageEffectImprovement": "Average Effect Improvement",
+      "newEraTitle": "Start the New Era of AI Smart Marketing",
+      "newEraSubtitle": "Let artificial intelligence inject powerful momentum into your marketing strategy",
+      "startExperienceNow": "Start Experience Now",
+      "contactExpertConsultation": "Contact Expert Consultation",
+      "fullTimeIntelligentOperation": "24/7 Full-time Intelligent Operation",
+      "millisecondUserResponse": "Millisecond-level User Response",
+      "personalizedContentGeneration": "Personalized Content Generation",
+      "autoABTestOptimization": "Auto A/B Test Optimization"
+    },
+    "intelligentRecommendation": "Intelligent Recommendation",
+    "intelligentRecommendationDesc": "Real-time recommendation of relevant products and services based on user behavior and preference analysis",
+    "preciseMarketing": "Precise Marketing",
+    "preciseMarketingDesc": "Personalized marketing delivery for each individual through user profiling",
+    "userBehaviorAnalysis": "User Behavior Analysis",
+    "userBehaviorAnalysisDesc": "In-depth analysis of user browsing, purchasing and other behaviors to gain insights into user needs",
+    "customerLoyalty": "Customer Loyalty",
+    "customerLoyaltyDesc": "Improve customer stickiness and repurchase rate through points, membership systems and other methods"
+  },
+  "stats": {
+    "conversionIncrease": "Conversion Rate Increase",
+    "efficiencyIncrease": "Operational Efficiency Increase",
+    "costReduction": "Cost Reduction",
+    "systemStability": "System Stability",
+    "averageConversionIncrease": "Average Conversion Increase",
+    "customerRetentionImprovement": "Customer Retention Growth",
+    "adROIIncrease": "Ad ROI Increase",
+    "cartRecoveryRate": "Cart Recovery Rate",
+    "contentCreationEfficiencyIncrease": "Content Creation Efficiency Increase",
+    "userEngagementGrowth": "User Engagement Growth",
+    "brandAwarenessIncrease": "Brand Awareness Increase",
+    "contentConversionRateGrowth": "Content Conversion Rate Growth",
+    "leadQualityIncrease": "Lead Quality Improvement",
+    "salesCycleShortened": "Sales Cycle Reduction",
+    "customerRenewalRateIncrease": "Customer Renewal Rate Increase",
+    "customerSatisfaction": "Customer Satisfaction",
+    "customerAcquisitionCostReduction": "Customer Acquisition Cost Reduction",
+    "customerValueGrowth": "Customer Value Growth",
+    "complianceGuarantee": "Compliance Guarantee"
+  },
+  "cta": {
+    "homeTitle": "Ready to Launch the AI Marketing Revolution?",
+    "homeSubtitle": "Join {{companiesCount}} leading companies and experience {{aiDriven}} marketing performance improvements",
+    "companiesCount": "thousands of",
+    "aiDriven": "AI-driven",
+    "primaryAction": "Get Started Now",
+    "secondaryAction": "Contact Expert",
+    "enterpriseTitle": "Ready to Accelerate Your Enterprise Service Growth?",
+    "enterpriseSubtitle": "Join leading enterprise service providers and experience intelligent B2B marketing upgrades",
+    "financialTitle": "Ready to Enhance Your Financial Marketing Performance?",
+    "financialSubtitle": "Join leading financial institutions and experience compliant and efficient AI marketing",
+    "ecommerceTitle": "Ready to Boost Your E-commerce Marketing Performance?",
+    "ecommerceSubtitle": "Join leading e-commerce platforms and experience the power of intelligent marketing",
+    "contentTitle": "Ready to Enter the New Era of Intelligent Content Marketing?",
+    "contentSubtitle": "Join innovative brands and experience the unlimited possibilities of AI content marketing",
+    "userProfilingTitle": "Build Your User Profiling System",
+    "userProfilingSubtitle": "Deep user insights for precision marketing decisions",
+    "effectTrackingTitle": "Experience New Real-time Monitoring",
+    "effectTrackingSubtitle": "Make data monitoring simple and intelligent",
+    "realTimeMonitoringTitle": "Experience New Real-time Monitoring",
+    "realTimeMonitoringSubtitle": "Make data monitoring simple and intelligent"
+  },
+  "common": {
+    "explore": "Explore Features",
+    "learnMore": "Learn More",
+    "getStarted": "Get Started",
+    "demoTitle": "Watch Demo",
+    "contactTitle": "Contact Us",
+    "freeTrialTitle": "Free Trial",
+    "scheduleDemo": "Schedule Demo",
+    "dataResults": "Data-Driven Results",
+    "dataResultsSubtitle": "Marketing performance improvements verified by real customer data",
+    "threeStepsTitle": "Three Steps to Launch AI Marketing Engine",
+    "dataIntegration": "Data Integration",
+    "dataIntegrationDesc": "Connect your user data sources, AI automatically analyzes user behavior and preferences",
+    "intelligentConfiguration": "Intelligent Configuration",
+    "intelligentConfigurationDesc": "Configure marketing scenarios, AI automatically generates personalized marketing strategies",
+    "effectOptimization": "Effect Optimization",
+    "effectOptimizationDesc": "Real-time monitoring of results, AI continuously optimizes marketing strategies",
+    "responseTime": "Response Time",
+    "applicationScenarios": "Application Scenarios"
+  },
+  "effectTracking": {
+    "features": {
+      "fullTrackingTitle": "Full-Chain Tracking",
+      "fullTrackingDescription": "Track user behavior paths from touchpoints to final conversion, quantifying the effect contribution of each stage",
+      "fullTrackingBenefits": [
+        "Multi-touchpoint attribution analysis",
+        "Conversion path tracking",
+        "Channel performance comparison",
+        "User journey visualization"
+      ],
+      "roiCalculationTitle": "Precise ROI Calculation",
+      "roiCalculationDescription": "Intelligently calculate marketing input-output ratio, providing multi-dimensional cost-benefit analysis and optimization recommendations",
+      "roiCalculationBenefits": [
+        "Input cost accounting",
+        "Accurate revenue calculation",
+        "ROI/ROAS analysis",
+        "Cost optimization recommendations"
+      ],
+      "predictionModelTitle": "Effect Prediction Model",
+      "predictionModelDescription": "Based on historical data and machine learning algorithms, predict marketing campaign effect trends and optimization opportunities",
+      "predictionModelBenefits": [
+        "Effect trend prediction",
+        "Seasonal analysis",
+        "Growth prediction models",
+        "Optimization strategy recommendations"
+      ],
+      "multiDimensionTitle": "Multi-dimensional Reports",
+      "multiDimensionDescription": "Provide rich visualized reports supporting custom dimension analysis and data drill-down analysis",
+      "multiDimensionBenefits": [
+        "Visualized reports",
+        "Custom dimensions",
+        "Data drill-down analysis",
+        "Scheduled report delivery"
+      ],
+      "fullTrackingBenefits": [
+        "Multi-touchpoint attribution analysis",
+        "Conversion path tracking",
+        "Channel performance comparison",
+        "User journey visualization"
+      ],
+      "roiCalculationBenefits": [
+        "Input cost accounting",
+        "Accurate revenue calculation",
+        "ROI/ROAS analysis",
+        "Cost optimization recommendations"
+      ],
+      "predictionModelBenefits": [
+        "Effect trend prediction",
+        "Seasonal analysis",
+        "Growth prediction models",
+        "Optimization strategy recommendations"
+      ]
+    },
+    "architecture": {
+      "title": "Technical Architecture",
+      "subtitle": "Effect tracking platform based on big data and AI",
+      "platformCapacity": "Platform Capacity",
+      "dailyEvents": "Daily Event Processing",
+      "dataAccuracy": "Data Accuracy",
+      "realTimeResponse": "Real-time Response",
+      "roiImprovement": "ROI Improvement",
+      "trackingMetrics": "Tracking Metrics",
+      "conversionRate": "Conversion Rate",
+      "customerAcquisitionCost": "Customer Acquisition Cost",
+      "lifetimeValue": "Lifetime Value"
+    },
+    "advantages": {
+      "title": "Quantify Every Marketing Investment",
+      "subtitle": "Let data drive your marketing decisions",
+      "benefits": [
+        "Cross-platform data integration",
+        "Real-time effect monitoring",
+        "Intelligent attribution analysis",
+        "Multi-dimensional report analysis",
+        "Predictive insights",
+        "Automated report generation"
+      ],
+      "ctaStart": "Start Tracking Now",
+      "ctaDemo": "Schedule Product Demo"
+    }
+  },
+  "modal": {
+    "aiMarketingDemo": "Watch AI Smart Marketing Demo",
+    "aiMarketingDemoDesc": "Schedule a product demo to learn how AI smart marketing helps you achieve precise customer acquisition and efficient conversion.",
+    "enterpriseDemo": "Watch Enterprise Services Solution Demo",
+    "enterpriseDemoDesc": "Schedule a product demo to learn how we help your enterprise achieve B2B marketing intelligence upgrades.",
+    "financialDemo": "Watch Financial Marketing Solution Demo",
+    "financialDemoDesc": "Schedule a product demo to learn how our financial marketing solutions help you achieve compliant precision marketing.",
+    "ecommerceDemo": "Watch E-commerce Marketing Solution Demo",
+    "ecommerceDemoDesc": "Schedule a demo to learn how AI helps e-commerce platforms improve conversion rates, reduce cart abandonment, and enhance user retention.",
+    "contentDemo": "Watch Content Marketing Solution Demo",
+    "contentDemoDesc": "Schedule a demo to learn how AI helps you achieve intelligent content creation, precise distribution, and performance analysis.",
+    "userProfilingDemo": "View User Profiling Analysis Demo",
+    "userProfilingDemoDesc": "Schedule a demo to learn how to achieve precision marketing and personalized recommendations through deep user behavior analysis.",
+    "effectTrackingDemo": "View Effect Tracking Report Demo",
+    "effectTrackingDemoDesc": "Schedule a demo to view real effect tracking reports and data analysis results.",
+    "effectTrackingProductDemo": "Schedule Effect Tracking Product Demo",
+    "effectTrackingProductDemoDesc": "Schedule a product demo to see how we help you achieve data-driven marketing decisions.",
+    "realTimeMonitoringDemo": "View Real-time Monitoring Dashboard",
+    "realTimeMonitoringDemoDesc": "Schedule a demo of the real-time monitoring dashboard to experience professional marketing data monitoring and analysis features.",
+    "contactTitle": "Contact Us",
+    "contactDesc": "Please fill in your information and requirements, we will contact you as soon as possible to provide professional AI marketing solution consulting.",
+    "aiMarketingExpert": "Contact AI Marketing Expert",
+    "aiMarketingExpertDesc": "Communicate one-on-one with our AI marketing experts to get personalized intelligent marketing solutions and professional advice.",
+    "enterpriseExpert": "Contact Enterprise Services Expert",
+    "enterpriseExpertDesc": "Communicate with our B2B marketing experts to customize professional solutions for your enterprise.",
+    "financialExpert": "Contact Financial Marketing Expert",
+    "financialExpertDesc": "Communicate with our financial marketing experts to customize professional compliant marketing solutions for your financial institution.",
+    "ecommerceExpert": "Contact E-commerce Marketing Expert",
+    "ecommerceExpertDesc": "Communicate with our e-commerce marketing experts to customize professional intelligent marketing solutions for your e-commerce platform.",
+    "contentExpert": "Contact Content Marketing Expert",
+    "contentExpertDesc": "Communicate with our content marketing experts to customize professional AI content marketing solutions for your brand."
+  },
+  "footer": {
+    "description": "Professional AI-driven marketing solutions helping enterprises achieve exponential marketing performance improvements.",
+    "productFeatures": "Product Features",
+    "copyright": "© 2024 AI Marketing Platform. All rights reserved."
+  },
+  "useCases": {
+    "pricingOptimization": "Pricing Optimization",
+    "pricingOptimizationDesc": "Intelligently adjust product prices to maximize revenue based on market data and user behavior",
+    "competitorPriceMonitoring": "Competitor Price Monitoring",
+    "dynamicPricing": "Dynamic Pricing Strategy",
+    "promotionOptimization": "Promotion Optimization",
+    "inventoryManagement": "Inventory Management Optimization",
+    "ecommerceSubtitle": "Practical applications of e-commerce marketing in various business scenarios",
+    "personalizedRecommendation": "Personalized Recommendation",
+    "personalizedRecommendationDesc": "Real-time recommendation of relevant products based on user browsing history and purchase preferences to increase cross-selling",
+    "collaborativeFiltering": "Collaborative Filtering Algorithm",
+    "contentRecommendationEngine": "Content Recommendation Engine",
+    "realTimePersonalization": "Real-time Personalization",
+    "abTestOptimization": "A/B Test Optimization",
+    "cartRecovery": "Cart Recovery",
+    "cartRecoveryDesc": "Intelligently identify cart abandonment behavior and accurately win back customers through email, SMS and other methods",
+    "behavioralPredictionModel": "Behavioral Prediction Model",
+    "multiChannelReach": "Multi-channel Reach",
+    "personalizedOffers": "Personalized Offers",
+    "optimalTiming": "Optimal Timing Push",
+    "content": {
+      "title": "Application Scenarios",
+      "subtitle": "Covering the entire content marketing lifecycle from planning to publishing to effect analysis",
+      "brandMarketing": {
+        "title": "Brand Content Marketing",
+        "description": "Build a complete brand content system to enhance brand awareness and user recognition",
+        "features": {
+          "storyCreation": "Brand Story Creation",
+          "visualDesign": "Visual Content Design",
+          "multimediaProduction": "Multimedia Content Production",
+          "consistencyManagement": "Brand Consistency Management"
+        }
+      },
+      "socialMedia": {
+        "title": "Social Media Operations",
+        "description": "Intelligent social media content planning and publishing to enhance user interaction and fan engagement",
+        "features": {
+          "contentCalendar": "Content Calendar Planning",
+          "interactiveTopics": "Interactive Topic Planning",
+          "ugcIncentives": "User UGC Incentives",
+          "communityManagement": "Community Operations Management"
+        }
+      },
+      "ecommerceMarketing": {
+        "title": "Content E-commerce Marketing",
+        "description": "Drive product sales through quality content to achieve commercialization of content value",
+        "features": {
+          "productPackaging": "Product Content Packaging",
+          "grassContent": "Grass Content Creation",
+          "liveStreaming": "Live Streaming Content Planning",
+          "conversionOptimization": "Conversion Funnel Optimization"
+        }
+      }
+    }
+  },
+  "results": {
+    "ecommerceSubtitle": "Actual business improvements brought by e-commerce marketing solutions",
+    "contentSubtitle": "Verified by real brand data, comprehensively enhancing content marketing effectiveness and brand influence"
+  },
+  "scenarios": {
+    "list": {
+      "aiConfig": "AI Strategy Configuration",
+      "aiStrategy": "AI Strategy",
+      "noDescription": "No description",
+      "noStrategySummary": "No strategy summary",
+      "toast": {
+        "started": "AI automation started",
+        "paused": "AI automation paused",
+        "desc": "Automation for scenario \u201c{{sceneName}}\u201d has been {{action}}",
+        "actionStart": "started",
+        "actionPause": "paused",
+        "failed": "Operation failed",
+        "failedDesc": "Failed to update AI toggle, please try again"
+      },
+      "confirm": {
+        "titleStart": "Start AI Automation",
+        "titlePause": "Pause AI Automation",
+        "descStart": "Are you sure you want to start automation for \u201c{{sceneName}}\u201d?",
+        "descPause": "Are you sure you want to pause automation for \u201c{{sceneName}}\u201d? This will pause the default AI strategy and all custom rules.",
+        "cancel": "Cancel",
+        "confirmStart": "Confirm Start",
+        "confirmPause": "Confirm Pause"
+      }
+    },
+    "config": {
+      "loading": "Loading scenario...",
+      "notFoundTitle": "Scenario Not Found",
+      "notFoundDesc": "The specified marketing scenario was not found",
+      "backToList": "Back to Scenarios",
+      "aiConfigTitle": "AI Strategy Configuration",
+      "editConfig": "Edit Configuration",
+      "baseInfo": "Basic Information",
+      "scenarioId": "Scenario ID",
+      "aiStatus": "AI Automation Status",
+      "enabled": "Enabled",
+      "disabled": "Disabled",
+      "createdAt": "Created At",
+      "lastUpdated": "Last Updated",
+      "aiHowItWorks": "How AI Works",
+      "insight": "Smart Analysis",
+      "insightDesc": "AI analyzes user behavior and preferences to identify the best marketing timing.",
+      "ruleFirst": "Rules First",
+      "ruleFirstDesc": "The system prioritizes your custom rules.",
+      "tracking": "Effect Tracking",
+      "trackingDesc": "Records all action outcomes for your analysis and optimization.",
+      "toasts": {
+        "aiStarted": "AI automation enabled",
+        "aiPaused": "AI automation paused",
+        "aiDesc": "Automation for scenario \u201c{{sceneName}}\u201d has been {{action}}",
+        "configSaved": "Configuration saved",
+        "configSavedDesc": "AI strategy configuration updated successfully",
+        "saveFailed": "Save failed",
+        "saveFailedDesc": "Unable to save AI strategy configuration, please try again",
+        "ruleEnabled": "Rule enabled",
+        "ruleDisabled": "Rule disabled",
+        "ruleStatusDesc": "Custom rule \u201c{{ruleName}}\u201d has been {{action}}",
+        "actionEnabled": "enabled",
+        "actionDisabled": "disabled",
+        "deleteSuccess": "Rule deleted",
+        "ruleDeletedDesc": "Custom rule \u201c{{ruleName}}\u201d has been deleted",
+        "deleteFailed": "Delete failed",
+        "deleteFailedDesc": "Failed to delete rule",
+        "loadFailed": "Load failed",
+        "loadFailedDesc": "Unable to load scenario configuration",
+        "priorityUpdated": "Priority updated",
+        "priorityUpdatedDesc": "Rule priorities updated successfully",
+        "priorityUpdateFailed": "Update failed",
+        "priorityUpdateFailedDesc": "Failed to update rule priorities"
+      },
+      "deleteDialog": {
+        "title": "Delete Custom Rule",
+        "desc": "Are you sure you want to delete rule \u201c{{ruleName}}\u201d? This action cannot be undone.",
+        "cancel": "Cancel",
+        "confirm": "Delete"
+      }
+    }
+  }
+}

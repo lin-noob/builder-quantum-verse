@@ -1,0 +1,166 @@
+/* Custom styles for react-big-calendar with dark mode support */
+
+/* 基础日历容器 */
+.rbc-calendar {
+  @apply bg-transparent text-slate-900 dark:text-slate-100;
+}
+
+/* 月份视图 */
+.rbc-month-view {
+  @apply bg-transparent border-0;
+}
+
+/* 日期网格 */
+.rbc-date-cell {
+  @apply text-right p-2 text-sm;
+}
+
+.rbc-date-cell > a {
+  @apply text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100;
+}
+
+.rbc-date-cell.rbc-off-range {
+  @apply text-slate-300 dark:text-slate-600;
+}
+
+.rbc-date-cell.rbc-now {
+  @apply bg-indigo-50 dark:bg-indigo-900/20;
+}
+
+.rbc-date-cell.rbc-now > a {
+  @apply text-indigo-600 dark:text-indigo-400 font-semibold;
+}
+
+/* 星期标题 */
+.rbc-header {
+  @apply bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 p-3 text-sm font-medium text-slate-600 dark:text-slate-400;
+}
+
+/* 月份行 */
+.rbc-month-row {
+  @apply border-b border-slate-200 dark:border-slate-700 min-h-[120px];
+}
+
+.rbc-month-row:last-child {
+  @apply border-b-0;
+}
+
+/* 日期单元格 */
+.rbc-day-bg {
+  @apply border-r border-slate-200 dark:border-slate-700;
+}
+
+.rbc-day-bg:last-child {
+  @apply border-r-0;
+}
+
+.rbc-day-bg.rbc-off-range-bg {
+  @apply bg-slate-50 dark:bg-slate-800/50;
+}
+
+.rbc-day-bg.rbc-today {
+  @apply bg-indigo-50 dark:bg-indigo-900/10;
+}
+
+/* 事件样式 */
+.rbc-event {
+  padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  overflow: visible !important;
+}
+
+.rbc-event:hover {
+  background: transparent !important;
+}
+
+.rbc-event.rbc-selected {
+  background: transparent !important;
+}
+
+/* 周视图和日视图的事件内容 */
+.rbc-event-content {
+  padding: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* 周视图和日视图的事件标签 */
+.rbc-event-label {
+  display: none !important;
+}
+
+/* AI 建议事件样式 */
+.rbc-event[data-ai-suggested="true"] {
+  @apply bg-purple-500 border-purple-600 opacity-70;
+}
+
+/* 更多事件链接 */
+.rbc-show-more {
+  @apply text-indigo-600 dark:text-indigo-400 text-xs hover:text-indigo-800 dark:hover:text-indigo-300 font-medium;
+}
+
+/* 时间槽 */
+.rbc-time-slot {
+  @apply border-t border-slate-200 dark:border-slate-700;
+}
+
+/* 时间栏 */
+.rbc-time-header {
+  @apply border-b border-slate-200 dark:border-slate-700;
+}
+
+.rbc-time-content {
+  @apply border-l border-slate-200 dark:border-slate-700;
+}
+
+/* 当前时间指示器 */
+.rbc-current-time-indicator {
+  @apply bg-red-500;
+}
+
+/* 周视图和日视图的时间标签 */
+.rbc-time-header-gutter,
+.rbc-time-gutter {
+  @apply bg-slate-50 dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700;
+}
+
+.rbc-time-header-content {
+  @apply border-l border-slate-200 dark:border-slate-700;
+}
+
+/* 选择高亮 */
+.rbc-slot-selecting {
+  @apply bg-indigo-100 dark:bg-indigo-900/30;
+}
+
+/* 弹出层 */
+.rbc-overlay {
+  @apply bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg p-4;
+}
+
+.rbc-overlay-header {
+  @apply text-lg font-semibold text-slate-900 dark:text-slate-100 mb-3;
+}
+
+/* 自定义滚动条 */
+.rbc-time-view {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 #f1f5f9;
+}
+
+.rbc-time-view::-webkit-scrollbar {
+  width: 6px;
+}
+
+.rbc-time-view::-webkit-scrollbar-track {
+  @apply bg-slate-100 dark:bg-slate-700;
+}
+
+.rbc-time-view::-webkit-scrollbar-thumb {
+  @apply bg-slate-300 dark:bg-slate-500 rounded-full;
+}
+
+.rbc-time-view::-webkit-scrollbar-thumb:hover {
+  @apply bg-slate-400 dark:bg-slate-400;
+}

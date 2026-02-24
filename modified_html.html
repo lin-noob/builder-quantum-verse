@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>营销归因分析看板</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: #f8fafc; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        /* Table Styles */
+        .data-table { border-collapse: separate; border-spacing: 0; }
+        .data-table th { 
+            background: #f8fafc; 
+            font-weight: 600; 
+            color: #475569;
+            border-bottom: 2px solid #e2e8f0;
+            white-space: nowrap;
+        }
+        .data-table td { border-bottom: 1px solid #e2e8f0; }
+        .data-table tr:hover td { background: #f8fafc; }
+        .data-table tr:last-child td { border-bottom: none; font-weight: 600; background: #f1f5f9; }
+        
+        /* Rate Bar */
+        .rate-bar-bg { background: #e2e8f0; border-radius: 9999px; height: 6px; width: 60px; display: inline-block; vertical-align: middle; margin-left: 8px; }
+        .rate-bar-fill { height: 100%; border-radius: 9999px; transition: width 0.3s ease; }
+        .rate-high { background: #10b981; }
+        .rate-mid { background: #f59e0b; }
+        .rate-low { background: #ef4444; }
+        
+        /* Modal Animation */
+        .modal-enter { animation: modalSlideIn 0.2s ease-out; }
+        @keyframes modalSlideIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        /* Tag Styles */
+        .page-tag { 
+            display: inline-flex; align-items: center; gap: 6px; 
+            padding: 6px 12px; border-radius: 6px; font-size: 13px; font-weight: 500;
+        }
+        .tag-product { background: #dbeafe; color: #1e40af; }
+        .tag-pricing { background: #d1fae5; color: #065f46; }
+        .tag-article { background: #f3e8ff; color: #7c3aed; }
+        .tag-home { background: #fef3c7; color: #92400e; }
+        .tag-other { background: #f3f4f6; color: #4b5563; }
+        
+        /* Form Elements */
+        .form-select { 
+            appearance: none; background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.5rem center; background-repeat: no-repeat; background-size: 1.5em 1.5em;
+        }
+        
+        .rule-row { transition: all 0.2s; }
+        .rule-row:hover { background: #f8fafc; }
+        
+        /* Switch Toggle */
+        .toggle-checkbox:checked { right: 0; border-color: #3b82f6; }
+        .toggle-checkbox:checked + .toggle-label { background-color: #3b82f6; }
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <!-- Top Navigation -->
+    <nav class="bg-white border-b border-slate-200 px-6 py-4 sticky top-0 z-40">
+        <div class="flex justify-between items-center max-w-7xl mx-auto">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">M</div>
+                <div>
+                    <h1 class="text-lg font-bold text-slate-900">营销归因分析看板</h1>
+                    <p class="text-xs text-slate-500">基于首访页面类型的转化分析</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3 text-sm">
+                <span class="text-slate-500">数据更新时间：2024-01-07 14:30</span>
+                <button class="p-2 hover:bg-slate-100 rounded-lg">
+                    <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto p-6 space-y-6">
+
+        <!-- 1. 顶部筛选区 (Filter Bar) -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+            <div class="flex flex-wrap items-end gap-4">
+                <!-- 时间维度 -->
+                <div class="flex-1 min-w-[240px]">
+                    <label class="block text-sm font-medium text-slate-700 mb-1.5">时间范围</label>
+                    <div class="flex items-center gap-2">
+                        <input type="date" value="2024-01-01" class="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                        <span class="text-slate-400">~</span>
+                        <input type="date" value="2024-01-07" class="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                    </div>
+                </div>
+
+                <!-- 渠道来源 -->
+                <div class="w-48">
+                    <label class="block text-sm font-medium text-slate-700 mb-1.5">渠道来源</label>
+                    <select class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none form-select h-[38px]" style="height: auto; min-height: 38px;">
+                        <option selected>全部渠道</option>
+                        <option>自然搜索 (Organic)</option>
+                        <option>付费广告 (Paid)</option>
+                        <option>直接访问 (Direct)</option>
+                        <option>社交媒体 (Social)</option>
+                        <option>邮件营销 (Email)</option>
+                    </select>
+                </div>
+
+                <!-- 来源国家 -->
+                <div class="w-48">
+                    <label class="block text-sm font-medium text-slate-700 mb-1.5">来源国家/地区</label>
+                    <select class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none form-select">
+                        <option selected>全部地区</option>
+                        <option>🇺🇸 美国</option>
+                        <option>🇹🇭 泰国</option>
+                        <option>🇸🇬 新加坡</option>
+                        <option>🇬🇧 英国</option>
+                        <option>🇯🇵 日本</option>
+                    </select>
+                </div>
+
+                <!-- 页面类型 -->
+                <div class="w-48">
+                    <label class="block text-sm font-medium text-slate-700 mb-1.5">页面类型</label>
+                    <select class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none form-select">
+                        <option selected>全部类型</option>
+                        <option>产品页</option>
+                        <option>报价页</option>
+                        <option>文章页</option>
+                        <option>首页</option>
+                        <option>其他页面</option>
+                    </select>
+                </div>
+
+                <!-- 按钮组 -->
+                <div class="flex gap-2">
+                    <button onclick="applyFilters()" class="px-5 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                        搜索
+                    </button>
+                    <button class="px-4 py-2 border border-slate-300 text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-50 transition flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                        重置
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 已选筛选标签 -->
+            <div class="flex items-center gap-2 mt-4 pt-4 border-t border-slate-100">
+                <span class="text-xs text-slate-500">当前筛选：</span>
+                <span class="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-md font-medium">2024-01-01 ~ 2024-01-07</span>
+                <span class="px-2 py-1 bg-slate-100 text-slate-700 text-xs rounded-md font-medium">全部渠道</span>
+                <span class="px-2 py-1 bg-slate-100 text-slate-700 text-xs rounded-md font-medium">全部地区</span>
+            </div>
+        </div>
+
+        <!-- 2. 操作与配置区 (Action Bar) -->
+        <div class="flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <!-- 页面分类配置（核心新增） -->
+                <button onclick="openPageConfig()" class="px-4 py-2 bg-white border border-slate-300 text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-50 hover:border-slate-400 transition flex items-center gap-2 shadow-sm">
+                    <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
+                    页面分类配置
+                    <span class="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></span>
+                </button>
+                <div class="text-xs text-slate-500 max-w-md">
+                    已配置 <span class="font-semibold text-slate-700">5</span> 条规则，自动将 URL 归类为产品页、报价页等类型
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <!-- 列配置 -->
+                <button onclick="openColumnConfig()" class="px-4 py-2 bg-white border border-slate-300 text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-50 hover:border-slate-400 transition flex items-center gap-2 shadow-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/></svg>
+                    列配置
+                </button>
+                
+                <!-- 导出数据 -->
+                <button onclick="openExportModal()" class="px-4 py-2 bg-white border border-slate-300 text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-50 hover:border-slate-400 transition flex items-center gap-2 shadow-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                    导出数据
+                </button>
+            </div>
+        </div>
+
+        <!-- 3. 数据列表区 (The Table) -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm data-table">
+                    <thead>
+                        <tr>
+                            <th class="px-6 py-4 text-left w-48">
+                                <div class="flex items-center gap-1 cursor-pointer hover:text-blue-600">
+                                    首访页面类型
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/></svg>
+                                </div>
+                            </th>
+                            <th class="px-6 py-4 text-right">
+                                <div class="flex items-center justify-end gap-1 cursor-pointer hover:text-blue-600">
+                                    访客数 (UV)
+                                    <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/></svg>
+                                </div>
+                            </th>
+                            <th class="px-6 py-4 text-right">
+                                <div class="flex items-center justify-end gap-1 cursor-pointer hover:text-blue-600">
+                                    注册次数
+                                    <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/></svg>
+                                </div>
+                            </th>
+                            <th class="px-6 py-4 text-right">
+                                <div class="flex items-center justify-end gap-1 cursor-pointer hover:text-blue-600">
+                                    留资次数
+                                    <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/></svg>
+                                </div>
+                            </th>
+                            <th class="px-6 py-4 text-right">
+                                <div class="flex items-center justify-end gap-1 cursor-pointer hover:text-blue-600">
+                                    下单次数
+                                    <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/></svg>
+                                </div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        <tr class="group">
+                            <td class="px-6 py-4">
+                                <span class="page-tag tag-product">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                                    产品页
+                                </span>
+                                <div class="text-xs text-slate-400 mt-1 ml-1">匹配规则: /products/*</div>
+                            </td>
+                            <td class="px-6 py-4 text-right font-semibold text-slate-900">1,000</td>
+                            <td class="px-6 py-4 text-right">120</td>
+                            <td class="px-6 py-4 text-right">80</td>
+                            <td class="px-6 py-4 text-right font-semibold text-blue-600">30</td>
+                        </tr>
+                        
+                        <tr class="group">
+                            <td class="px-6 py-4">
+                                <span class="page-tag tag-pricing">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    报价页
+                                </span>
+                                <div class="text-xs text-slate-400 mt-1 ml-1">匹配规则: /pricing</div>
+                            </td>
+                            <td class="px-6 py-4 text-right font-semibold text-slate-900">500</td>
+                            <td class="px-6 py-4 text-right">200</td>
+                            <td class="px-6 py-4 text-right">150</td>
+                            <td class="px-6 py-4 text-right font-semibold text-blue-600">5</td>
+                        </tr>
+
+                        <tr class="group">
+                            <td class="px-6 py-4">
+                                <span class="page-tag tag-article">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/></svg>
+                                    文章页
+                                </span>
+                                <div class="text-xs text-slate-400 mt-1 ml-1">匹配规则: /blog/*</div>
+                            </td>
+                            <td class="px-6 py-4 text-right font-semibold text-slate-900">3,000</td>
+                            <td class="px-6 py-4 text-right">60</td>
+                            <td class="px-6 py-4 text-right">30</td>
+                            <td class="px-6 py-4 text-right font-semibold text-blue-600">0</td>
+                        </tr>
+
+                        <tr class="group">
+                            <td class="px-6 py-4">
+                                <span class="page-tag tag-home">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                                    首页
+                                </span>
+                                <div class="text-xs text-slate-400 mt-1 ml-1">匹配规则: / 或 /home</div>
+                            </td>
+                            <td class="px-6 py-4 text-right font-semibold text-slate-900">5,000</td>
+                            <td class="px-6 py-4 text-right">150</td>
+                            <td class="px-6 py-4 text-right">100</td>
+                            <td class="px-6 py-4 text-right font-semibold text-blue-600">10</td>
+                        </tr>
+
+                        <tr class="group">
+                            <td class="px-6 py-4">
+                                <span class="page-tag tag-other">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"/></svg>
+                                    其他页面
+                                </span>
+                                <div class="text-xs text-slate-400 mt-1 ml-1">兜底分类：未匹配上述规则</div>
+                            </td>
+                            <td class="px-6 py-4 text-right font-semibold text-slate-900">400</td>
+                            <td class="px-6 py-4 text-right">5</td>
+                            <td class="px-6 py-4 text-right">2</td>
+                            <td class="px-6 py-4 text-right font-semibold text-blue-600">1</td>
+                        </tr>
+
+                        <!-- 总计行 -->
+                        <tr>
+                            <td class="px-6 py-4 text-slate-900">总计</td>
+                            <td class="px-6 py-4 text-right text-slate-900">9,900</td>
+                            <td class="px-6 py-4 text-right text-slate-900">535</td>
+                            <td class="px-6 py-4 text-right text-slate-900">362</td>
+                            <td class="px-6 py-4 text-right text-blue-700">46</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- 分页 -->
+            <div class="px-6 py-4 border-t border-slate-200 flex justify-between items-center bg-white">
+                <span class="text-sm text-slate-500">显示 1-5 条，共 5 条数据</span>
+                <div class="flex gap-2">
+                    <button class="px-3 py-1.5 border border-slate-300 rounded text-sm text-slate-400 cursor-not-allowed" disabled>上一页</button>
+                    <button class="px-3 py-1.5 bg-blue-600 text-white rounded text-sm">1</button>
+                    <button class="px-3 py-1.5 border border-slate-300 rounded text-sm text-slate-400 cursor-not-allowed" disabled>下一页</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 页面分类配置弹窗 (Page Config Modal) -->
+    <div id="pageConfigModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden modal-enter flex flex-col">
+            <div class="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-slate-50">
+                <div>
+                    <h3 class="text-lg font-bold text-slate-900">页面分类配置</h3>
+                    <p class="text-sm text-slate-500">设置 URL 匹配规则，系统自动将访客首访页面归类</p>
+                </div>
+                <button onclick="closeModal('pageConfigModal')" class="p-2 hover:bg-slate-200 rounded-lg transition">
+                    <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            
+            <div class="p-6 overflow-y-auto flex-1">
+                <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
+                    <div class="flex gap-3">
+                        <svg class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <div class="text-sm text-amber-800">
+                            <p class="font-medium mb-1">匹配逻辑说明</p>
+                            <p>系统按规则顺序从上到下匹配，首个符合条件的规则生效。未匹配任何规则的 URL 将自动归入"其他"。支持通配符 * 匹配任意字符。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-3" id="rulesContainer">
+                    <!-- Rule 1: 产品页 -->
+                    <div class="rule-row flex items-center gap-3 p-3 bg-slate-50 rounded-lg border border-slate-200">
+                        <div class="w-8 h-8 bg-slate-200 rounded-lg flex items-center justify-center text-slate-600 font-bold text-sm cursor-move">⋮⋮</div>
+                        <div class="flex-1">
+                            <label class="block text-xs font-medium text-slate-500 mb-1">页面类型名称</label>
+                            <input type="text" value="产品页" class="w-full border border-slate-300 rounded px-3 py-1.5 text-sm font-medium text-blue-700 bg-blue-50">
+                        </div>
+                        <div class="flex-1">
+                            <label class="block text-xs font-medium text-slate-500 mb-1">URL 包含规则</label>
+                            <input type="text" value="/products/" class="w-full border border-slate-300 rounded px-3 py-1.5 text-sm font-mono">
+                        </div>
+
+                        <button class="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition" onclick="removeRule(this)">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                        </button>
+                    </div>
+
+                    <!-- Rule 2: 报价页 -->
+                    <div class="rule-row flex items-center gap-3 p-3 bg-slate-50 rounded-lg border border-slate-200">
+                        <div class="w-8 h-8 bg-slate-200 rounded-lg flex items-center justify-center text-slate-600 font-bold text-sm cursor-move">⋮⋮</div>
+                        <div class="flex-1">
+                            <input type="text" value="报价页" class="w-full border border-slate-300 rounded px-3 py-1.5 text-sm font-medium text-green-700 bg-green-50">
+                        </div>
+                        <div class="flex-1">
+                            <input type="text" value="/pricing" class="w-full border border-slate-300 rounded px-3 py-1.5 text-sm font-mono">
+                        </div>
+
+                        <button class="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition" onclick="removeRule(this)">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                        </button>
+                    </div>
+
+                    <!-- Rule 3: 文章页 -->
+                    <div class="rule-row flex items-center gap-3 p-3 bg-slate-50 rounded-lg border border-slate-200">
+                        <div class="w-8 h-8 bg-slate-200 rounded-lg flex items-center justify-center text-slate-600 font-bold text-sm cursor-move">⋮⋮</div>
+                        <div class="flex-1">
+                            <input type="text" value="文章页" class="w-full border border-slate-300 rounded px-3 py-1.5 text-sm font-medium text-purple-700 bg-purple-50">
+                        </div>
+                        <div class="flex-1">
+                            <input type="text" value="/blog/*" class="w-full border border-slate-300 rounded px-3 py-1.5 text-sm font-mono">
+                        </div>
+
+                        <button class="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition" onclick="removeRule(this)">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                        </button>
+                    </div>
+
+                    <!-- Rule 4: 首页 -->
+                    <div class="rule-row flex items-center gap-3 p-3 bg-slate-50 rounded-lg border border-slate-200">
+                        <div class="w-8 h-8 bg-slate-200 rounded-lg flex items-center justify-center text-slate-600 font-bold text-sm cursor-move">⋮⋮</div>
+                        <div class="flex-1">
+                            <input type="text" value="首页" class="w-full border border-slate-300 rounded px-3 py-1.5 text-sm font-medium text-amber-700 bg-amber-50">
+                        </div>
+                        <div class="flex-1">
+                            <input type="text" value="/" class="w-full border border-slate-300 rounded px-3 py-1.5 text-sm font-mono">
+                        </div>
+
+                        <button class="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition" onclick="removeRule(this)">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                        </button>
+                    </div>
+
+                    <!-- 兜底规则 -->
+                    <div class="flex items-center gap-3 p-3 bg-slate-100 rounded-lg border border-slate-300 opacity-75">
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 font-bold text-sm">∞</div>
+                        <div class="flex-1">
+                            <input type="text" value="其他页面" disabled class="w-full border border-slate-300 rounded px-3 py-1.5 text-sm font-medium text-slate-600 bg-slate-200 cursor-not-allowed">
+                        </div>
+                        <div class="flex-1">
+                            <input type="text" value="（未匹配以上规则）" disabled class="w-full border border-slate-300 rounded px-3 py-1.5 text-sm text-slate-500 bg-slate-200 cursor-not-allowed">
+                        </div>
+
+                        <div class="w-9"></div>
+                    </div>
+                </div>
+
+                <button onclick="addRule()" class="mt-4 w-full py-2 border-2 border-dashed border-slate-300 text-slate-600 rounded-lg hover:border-blue-400 hover:text-blue-600 transition flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    添加新规则
+                </button>
+            </div>
+
+            <div class="px-6 py-4 border-t border-slate-200 bg-slate-50 flex justify-end gap-3">
+                <button onclick="closeModal('pageConfigModal')" class="px-4 py-2 text-slate-700 hover:bg-slate-200 rounded-lg transition">取消</button>
+                <button onclick="savePageConfig()" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium">保存配置</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 列配置弹窗 (Column Config Modal) -->
+    <div id="columnConfigModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md modal-enter">
+            <div class="px-6 py-4 border-b border-slate-200 flex justify-between items-center">
+                <h3 class="text-lg font-bold text-slate-900">列配置</h3>
+                <button onclick="closeModal('columnConfigModal')" class="p-2 hover:bg-slate-100 rounded-lg transition">
+                    <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="p-6">
+                <p class="text-sm text-slate-500 mb-4">选择要显示的指标列</p>
+                <div class="space-y-3">
+                    <label class="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-50 cursor-pointer">
+                        <input type="checkbox" checked disabled class="w-4 h-4 text-blue-600 rounded border-slate-300">
+                        <span class="text-sm font-medium text-slate-900">首访页面类型（固定）</span>
+                    </label>
+                    <label class="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-50 cursor-pointer">
+                        <input type="checkbox" checked class="w-4 h-4 text-blue-600 rounded border-slate-300">
+                        <span class="text-sm text-slate-900">访客数 (UV)</span>
+                    </label>
+                    <label class="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-50 cursor-pointer">
+                        <input type="checkbox" checked class="w-4 h-4 text-blue-600 rounded border-slate-300">
+                        <span class="text-sm text-slate-900">注册次数 & 转化率</span>
+                    </label>
+                    <label class="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-50 cursor-pointer">
+                        <input type="checkbox" checked class="w-4 h-4 text-blue-600 rounded border-slate-300">
+                        <span class="text-sm text-slate-900">留资次数 & 转化率</span>
+                    </label>
+                    <label class="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-50 cursor-pointer">
+                        <input type="checkbox" checked class="w-4 h-4 text-blue-600 rounded border-slate-300">
+                        <span class="text-sm text-slate-900">下单次数 & 转化率</span>
+                    </label>
+                </div>
+            </div>
+            <div class="px-6 py-4 border-t border-slate-200 flex justify-end gap-3">
+                <button onclick="closeModal('columnConfigModal')" class="px-4 py-2 text-slate-700 hover:bg-slate-100 rounded-lg transition">取消</button>
+                <button onclick="closeModal('columnConfigModal')" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium">确认</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 导出配置弹窗 (Export Modal) -->
+    <div id="exportModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md modal-enter">
+            <div class="px-6 py-4 border-b border-slate-200 flex justify-between items-center">
+                <h3 class="text-lg font-bold text-slate-900">导出配置</h3>
+                <button onclick="closeModal('exportModal')" class="p-2 hover:bg-slate-100 rounded-lg transition">
+                    <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-2">导出范围</label>
+                    <div class="space-y-2">
+                        <label class="flex items-center gap-3 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50">
+                            <input type="radio" name="exportRange" checked class="w-4 h-4 text-blue-600">
+                            <div>
+                                <div class="text-sm font-medium text-slate-900">导出当前筛选数据</div>
+                                <div class="text-xs text-slate-500">共 5 条记录</div>
+                            </div>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50">
+                            <input type="radio" name="exportRange" class="w-4 h-4 text-blue-600">
+                            <div>
+                                <div class="text-sm font-medium text-slate-900">导出全部数据</div>
+                                <div class="text-xs text-slate-500">包含所有时间范围的数据（需权限）</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="px-6 py-4 border-t border-slate-200 flex justify-end gap-3">
+                <button onclick="closeModal('exportModal')" class="px-4 py-2 text-slate-700 hover:bg-slate-100 rounded-lg transition">取消</button>
+                <button onclick="confirmExport()" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                    确认导出
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Modal Controls
+        function openPageConfig() {
+            document.getElementById('pageConfigModal').classList.remove('hidden');
+            document.getElementById('pageConfigModal').classList.add('flex');
+        }
+        
+        function openColumnConfig() {
+            document.getElementById('columnConfigModal').classList.remove('hidden');
+            document.getElementById('columnConfigModal').classList.add('flex');
+        }
+        
+        function openExportModal() {
+            document.getElementById('exportModal').classList.remove('hidden');
+            document.getElementById('exportModal').classList.add('flex');
+        }
+        
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+            document.getElementById(modalId).classList.remove('flex');
+        }
+        
+        // Page Config Functions
+        function addRule() {
+            const container = document.getElementById('rulesContainer');
+            const newRule = document.createElement('div');
+            newRule.className = 'rule-row flex items-center gap-3 p-3 bg-slate-50 rounded-lg border border-slate-200';
+            newRule.innerHTML = `
+                <div class="w-8 h-8 bg-slate-200 rounded-lg flex items-center justify-center text-slate-600 font-bold text-sm cursor-move">⋮⋮</div>
+                <div class="flex-1">
+                    <input type="text" placeholder="页面类型名称" class="w-full border border-slate-300 rounded px-3 py-1.5 text-sm">
+                </div>
+                <div class="flex-1">
+                    <input type="text" placeholder="/path/*" class="w-full border border-slate-300 rounded px-3 py-1.5 text-sm font-mono">
+                </div>
+                <button class="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition" onclick="removeRule(this)">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                </button>
+            `;
+            container.insertBefore(newRule, container.lastElementChild);
+        }
+        
+        function removeRule(btn) {
+            btn.closest('.rule-row').remove();
+        }
+        
+        function savePageConfig() {
+            // Show success feedback
+            const btn = event.target;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '✓ 已保存';
+            btn.classList.add('bg-green-600');
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.classList.remove('bg-green-600');
+                closeModal('pageConfigModal');
+            }, 800);
+        }
+        
+        function confirmExport() {
+            const btn = event.target;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '✓ 导出成功';
+            btn.classList.add('bg-green-600');
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.classList.remove('bg-green-600');
+                closeModal('exportModal');
+            }, 800);
+        }
+        
+        function applyFilters() {
+            // Simulate filter application
+            const btn = event.target;
+            btn.innerHTML = '搜索中...';
+            setTimeout(() => {
+                btn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>搜索`;
+            }, 500);
+        }
+        
+        // Close modal on outside click
+        window.onclick = function(event) {
+            if (event.target.classList.contains('fixed')) {
+                event.target.classList.add('hidden');
+                event.target.classList.remove('flex');
+            }
+        }
+    </script>
+</body>
+</html>

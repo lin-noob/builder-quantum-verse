@@ -1,0 +1,98 @@
+// 模拟数据服务，避免网络请求延迟
+export interface MockUser {
+  id: string;
+  userId: string;
+  cdpId: string;
+  name: string;
+  company: string;
+  contact: string;
+  firstVisitTime: string;
+  registrationTime: string;
+  firstPurchaseTime: string;
+  lastActiveTime: string;
+  totalSpent: number;
+  currency: string;
+}
+
+// 生成模拟用户数据
+const generateMockUsers = (count: number): MockUser[] => {
+  return [];
+};
+
+export class MockDataService {
+  private static users: MockUser[] = generateMockUsers(50);
+
+  // 立即响应，无延迟 - 最佳性能
+  private static delay(ms: number = 0) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  static async getUsers(
+    params: {
+      page?: number;
+      pageSize?: number;
+      search?: string;
+      sortField?: string;
+      sortDirection?: "asc" | "desc";
+    } = {},
+  ): Promise<{ users: MockUser[]; total: number }> {
+    // 移除延迟，提供即时响应
+
+    let filteredUsers = [...this.users];
+
+    // 搜索过滤
+    if (params.search) {
+      const searchLower = params.search.toLowerCase();
+      filteredUsers = filteredUsers.filter(
+        (user) =>
+          user.name.toLowerCase().includes(searchLower) ||
+          user.company.toLowerCase().includes(searchLower) ||
+          user.contact.toLowerCase().includes(searchLower) ||
+          user.cdpId.includes(searchLower),
+      );
+    }
+
+    // 排序
+    if (params.sortField) {
+      filteredUsers.sort((a, b) => {
+        const aValue = a[params.sortField as keyof MockUser];
+        const bValue = b[params.sortField as keyof MockUser];
+
+        if (typeof aValue === "string" && typeof bValue === "string") {
+          const result = aValue.localeCompare(bValue);
+          return params.sortDirection === "desc" ? -result : result;
+        }
+
+        if (typeof aValue === "number" && typeof bValue === "number") {
+          const result = aValue - bValue;
+          return params.sortDirection === "desc" ? -result : result;
+        }
+
+        return 0;
+      });
+    }
+
+    // 分页
+    const page = params.page || 1;
+    const pageSize = params.pageSize || 10;
+    const startIndex = (page - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+
+    return {
+      users: filteredUsers.slice(startIndex, endIndex),
+      total: filteredUsers.length,
+    };
+  }
+
+  // 获取单个用户详情
+  static async getUserById(id: string): Promise<MockUser | null> {
+    const user = this.users.find((u) => u.id === id || u.cdpId === id);
+    return user || null;
+  }
+
+  // 检查是否应该使用模拟数据
+  static shouldUseMockData(): boolean {
+    // 在开发环境中，如果API不可用，使用模拟数据
+    return process.env.NODE_ENV === "development";
+  }
+}
