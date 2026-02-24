@@ -15,8 +15,6 @@ import {
   GripVertical,
   ChevronDown,
   ChevronUp,
-  Download,
-  Loader2,
 } from "lucide-react";
 import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
 import { Input } from "@/components/ui/input";
@@ -27,7 +25,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { request } from "@/lib/request";
-import { formatStartDate, formatEndDate, cn } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { useRoleStore } from "@/stores/roleStore";
 import useProjectStore from "@/stores/projectStore";
 import { ApiUser } from "@/lib/profile";
