@@ -17,9 +17,10 @@ const DEFAULT_STATE: DecisionTraceState = {
     stepStatus: 'AI_ANALYZED',
     isModified: false,
     goals: [
-      { id: 'g1', description: '确认库存可用性', initialSuggestion: '查询 Quantum X1 库存情况', suggestedNextStep: '先校验当前库存与锁定数量', isConfirmed: true, isEnabled: true, source: 'ai', isSuggestionStale: false },
-      { id: 'g2', description: '评估交期可行性', initialSuggestion: '计算物流时效是否满足 Feb 14', suggestedNextStep: '根据收货地预估最晚发货时间', isConfirmed: true, isEnabled: true, source: 'ai', isSuggestionStale: false },
-      { id: 'g3', description: '确认保修条款', initialSuggestion: '检索销售合同模板中的保修条款', suggestedNextStep: '比对客户诉求与合同标准条款', isConfirmed: true, isEnabled: true, source: 'ai', isSuggestionStale: false }
+      { id: 'g1', description: '确认库存可用性', initialSuggestion: '查询 Quantum X1 库存情况', suggestedNextStep: '先校验当前库存与锁定数量', isConfirmed: true, isEnabled: true, source: 'ai', isSuggestionStale: false, unmatchedReason: '', matchReason: '已关联‘产品’类型（原因：目标中明确提到了‘Quantum X1 处理器’）' },
+      { id: 'g2', description: '评估交期可行性', initialSuggestion: '计算物流时效是否满足 Feb 14', suggestedNextStep: '根据收货地预估最晚发货时间', isConfirmed: true, isEnabled: true, source: 'ai', isSuggestionStale: false, unmatchedReason: '', matchReason: '已关联‘物流商’类型（原因：需评估送达时间）' },
+      { id: 'g3', description: '确认保修条款', initialSuggestion: '检索销售合同模板中的保修条款', suggestedNextStep: '比对客户诉求与合同标准条款', isConfirmed: true, isEnabled: true, source: 'ai', isSuggestionStale: false, unmatchedReason: '', matchReason: '已关联‘合同模板’类型（原因：涉及保修条款确认）' },
+      { id: 'g4', description: '确认客户信用额度', initialSuggestion: '查询客户信用评分', suggestedNextStep: '人工介入', isConfirmed: true, isEnabled: true, source: 'ai', isSuggestionStale: false, unmatchedReason: '未找到匹配对象：目标描述过于模糊，系统无法关联到具体的‘信用记录’或‘财务’类型。', matchReason: '' }
     ],
     status: 'pending'
   },
@@ -30,10 +31,10 @@ const DEFAULT_STATE: DecisionTraceState = {
       { id: 'r3', goalId: 'g3', objectType: 'ContractTemplate', fields: ['warranty_clause'], relations: [] }
     ],
     candidates: [
-      { id: 'prod_001', goalId: 'g1', name: 'Quantum X1 处理器', type: 'Product', isSelected: true, data: {}, missingFields: [] },
-      { id: 'log_ups', goalId: 'g2', name: 'UPS 速递', type: 'LogisticsProvider', isSelected: true, data: {}, missingFields: [] },
-      { id: 'log_fedex', goalId: 'g2', name: 'FedEx 优先达', type: 'LogisticsProvider', isSelected: false, data: {}, missingFields: [] },
-      { id: 'tpl_standard', goalId: 'g3', name: '2025 标准销售合同', type: 'ContractTemplate', isSelected: true, data: {}, missingFields: [] }
+      { id: 'prod_001', goalId: 'g1', name: 'Quantum X1 处理器', type: 'Product', isSelected: true, data: {}, missingFields: [], matchReason: '产品名称完全匹配，且库存状态活跃', rank: 1 },
+      { id: 'log_ups', goalId: 'g2', name: 'UPS 速递', type: 'LogisticsProvider', isSelected: true, data: {}, missingFields: [], matchReason: '历史合作首选供应商，时效满足要求', rank: 1 },
+      { id: 'log_fedex', goalId: 'g2', name: 'FedEx 优先达', type: 'LogisticsProvider', isSelected: false, data: {}, missingFields: [], matchReason: '备选方案，成本较高', rank: 2 },
+      { id: 'tpl_standard', goalId: 'g3', name: '2025 标准销售合同', type: 'ContractTemplate', isSelected: true, data: {}, missingFields: [], matchReason: '当前生效的标准模板', rank: 1 }
     ],
     integrityIssues: [
       { 
@@ -390,13 +391,15 @@ const MOCK_STATES: Record<string, DecisionTraceState> = {
 };
 
 export const getMockState = (eventId?: string): DecisionTraceState => {
-  if (!eventId) return DEFAULT_STATE;
+  // Always return a fresh copy to force re-render
+  if (!eventId) return JSON.parse(JSON.stringify(DEFAULT_STATE));
+  
   const state = MOCK_STATES[eventId];
-  if (state) return state;
+  if (state) return JSON.parse(JSON.stringify(state));
   
   // Fallback for unknown IDs: use default but update ID
   return {
-    ...DEFAULT_STATE,
+    ...JSON.parse(JSON.stringify(DEFAULT_STATE)),
     triggerEvent: {
       ...DEFAULT_STATE.triggerEvent,
       id: eventId

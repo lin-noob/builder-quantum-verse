@@ -319,6 +319,14 @@ export const Step3Reasoning: React.FC<Step3Props> = ({ state, onUpdate, onNext, 
                                <span className="text-sm tracking-wider text-slate-400 italic">无关联实例</span>
                              )}
                           </div>
+                          
+                          {/* Manual Description Display */}
+                          {dataPreparation.goalDescriptions?.[goal.id] && (
+                            <div className="mt-2 p-2 bg-slate-50 border border-slate-200 rounded text-sm text-slate-600 italic">
+                               <span className="font-semibold not-italic text-slate-500 mr-1">人工说明:</span>
+                               {dataPreparation.goalDescriptions[goal.id]}
+                            </div>
+                          )}
                         </div>
 
                         {/* Facts List */}

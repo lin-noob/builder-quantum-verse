@@ -33,6 +33,7 @@ export const Step2DataPreparation: React.FC<Step2Props> = ({ state, onUpdate, on
   const { requirements, candidates, integrityIssues } = dataPreparation;
 
   const [expandedGoals, setExpandedGoals] = useState<string[]>([]);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   // 1. Data Processing per Goal
   const enabledGoals = intentAnalysis.goals.filter(g => g.isEnabled);
@@ -51,37 +52,13 @@ export const Step2DataPreparation: React.FC<Step2Props> = ({ state, onUpdate, on
     );
   };
 
-  const toggleCandidate = (id: string) => {
-    const newCandidates = candidates.map(c => 
-      c.id === id ? { ...c, isSelected: !c.isSelected } : c
-    );
-    onUpdate({ candidates: newCandidates });
-  };
-
   // Helper to get status of a specific goal
   const getGoalStatus = (goalId: string) => {
-    // Check if any candidates are selected
-    const goalCandidates = candidates.filter(c => c.goalId === goalId && c.isSelected);
+    // Check if any candidates exist
+    const goalCandidates = candidates.filter(c => c.goalId === goalId);
     if (goalCandidates.length === 0) return 'INCOMPLETE';
 
-    // Check for blocking issues
-    const goalIssues = integrityIssues.filter(i => i.goalId === goalId);
-    const hasBlockingIssues = goalIssues.some(i => i.severity === 'high' || i.type === 'missing_field' || i.type === 'conflict');
-    
-    if (hasBlockingIssues) {
-      // Check if manually confirmed
-      const isConfirmed = dataPreparation.confirmedGoalIds?.includes(goalId);
-      return isConfirmed ? 'CONFIRMED_WITH_RISK' : 'INCOMPLETE';
-    }
-
     return 'COMPLETE';
-  };
-
-  const handleConfirmGoalRisk = (goalId: string) => {
-    const currentConfirmed = dataPreparation.confirmedGoalIds || [];
-    if (!currentConfirmed.includes(goalId)) {
-      onUpdate({ confirmedGoalIds: [...currentConfirmed, goalId] });
-    }
   };
 
   const handleAddCandidate = (goalId: string) => {
@@ -104,7 +81,14 @@ export const Step2DataPreparation: React.FC<Step2Props> = ({ state, onUpdate, on
   };
 
   const handleRemoveCandidate = (candidateId: string) => {
-    onUpdate({ candidates: candidates.filter(c => c.id !== candidateId) });
+    if (confirmDeleteId === candidateId) {
+      onUpdate({ candidates: candidates.filter(c => c.id !== candidateId) });
+      setConfirmDeleteId(null);
+    } else {
+      setConfirmDeleteId(candidateId);
+      // Auto clear confirmation after 3 seconds
+      setTimeout(() => setConfirmDeleteId(null), 3000);
+    }
   };
 
   // Global Status Logic
@@ -135,13 +119,6 @@ export const Step2DataPreparation: React.FC<Step2Props> = ({ state, onUpdate, on
                {completedCount} / {enabledGoals.length}
              </Badge>
            </div>
-           
-           {anyIncomplete && (
-             <span className="text-sm text-red-500 flex items-center gap-1">
-               <AlertCircle className="w-3 h-3" />
-               存在未完成项
-             </span>
-           )}
          </div>
          
          {/* Right Side: Actions */}
@@ -159,14 +136,11 @@ export const Step2DataPreparation: React.FC<Step2Props> = ({ state, onUpdate, on
            <Button 
              size="sm"
              onClick={handleGlobalContinueClick}
-             disabled={anyIncomplete}
              className={cn(
                "gap-1.5 shadow-sm min-w-[140px]",
-               anyIncomplete 
-                ? "bg-slate-100 text-slate-400 border-slate-200" 
-                : hasRisk 
-                  ? "bg-amber-600 hover:bg-amber-700 text-white border-amber-600"
-                  : "bg-blue-600 hover:bg-blue-700 text-white"
+               hasRisk 
+                 ? "bg-amber-600 hover:bg-amber-700 text-white border-amber-600"
+                 : "bg-blue-600 hover:bg-blue-700 text-white"
              )}
            >
              <CheckCircle2 className="w-4 h-4" />
@@ -185,11 +159,15 @@ export const Step2DataPreparation: React.FC<Step2Props> = ({ state, onUpdate, on
           const isConfirmed = dataPreparation.confirmedGoalIds?.includes(goal.id);
           const isExpanded = expandedGoals.includes(goal.id);
 
+          const hasUnmatchedError = !!goal.unmatchedReason;
+
           return (
             <Card key={goal.id} className={cn(
               "border shadow-sm transition-all duration-200",
               goalStatus === 'COMPLETE' ? "border-slate-200 bg-white" : 
-              goalStatus === 'CONFIRMED_WITH_RISK' ? "border-amber-200 bg-amber-50/10" : "border-slate-300 bg-white"
+              goal.unmatchedReason ? "border-red-200 bg-red-50/10" :
+              goalStatus === 'CONFIRMED_WITH_RISK' ? "border-amber-200 bg-amber-50/10" : 
+              "border-slate-300 bg-white"
             )}>
               {/* Card Header (Click to toggle) */}
               <div 
@@ -204,7 +182,9 @@ export const Step2DataPreparation: React.FC<Step2Props> = ({ state, onUpdate, on
                    <div className={cn(
                      "w-1 h-8 rounded-full",
                      goalStatus === 'COMPLETE' ? "bg-green-500" :
-                     goalStatus === 'CONFIRMED_WITH_RISK' ? "bg-amber-500" : "bg-slate-300"
+                     goal.unmatchedReason ? "bg-red-500" :
+                     goalStatus === 'CONFIRMED_WITH_RISK' ? "bg-amber-500" : 
+                     "bg-slate-300"
                    )}></div>
                    
                    <div className="space-y-0.5">
@@ -212,19 +192,28 @@ export const Step2DataPreparation: React.FC<Step2Props> = ({ state, onUpdate, on
                        <span className="text-base font-semibold text-slate-800">{goal.description}</span>
                        <Badge className={cn("text-sm tracking-wider h-5 px-1.5 font-normal border", 
                         goalStatus === 'COMPLETE' ? "bg-green-50 text-green-700 border-green-200" :
+                        goal.unmatchedReason ? "bg-red-50 text-red-700 border-red-200" :
                         goalStatus === 'CONFIRMED_WITH_RISK' ? "bg-amber-50 text-amber-700 border-amber-200" :
                         "bg-slate-100 text-slate-500 border-slate-200"
                       )}>
                          {goalStatus === 'COMPLETE' ? '已就绪' : 
+                          goal.unmatchedReason ? '未匹配' :
                           goalStatus === 'CONFIRMED_WITH_RISK' ? '已确认例外' : '需处理'}
                        </Badge>
                      </div>
-                     <div className="flex items-center gap-1.5 text-sm text-slate-400">
-                       <Database className="w-3 h-3" />
-                       <span>需 {req?.fields?.length || 0} 项信息</span>
-                       <span>·</span>
-                       <span>匹配到 {goalCandidates.length} 个对象</span>
-                     </div>
+                     
+                     {/* Match/Unmatch Reason in Header */}
+                     {goal.unmatchedReason ? (
+                       <div className="flex items-start gap-1.5 text-sm text-red-600">
+                         <AlertCircle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+                         <span className="opacity-90">{goal.unmatchedReason}</span>
+                       </div>
+                     ) : goal.matchReason ? (
+                       <div className="flex items-start gap-1.5 text-sm text-slate-500">
+                         <CheckCircle2 className="w-3.5 h-3.5 mt-0.5 shrink-0 text-slate-400" />
+                         <span className="opacity-90">{goal.matchReason}</span>
+                       </div>
+                     ) : null}
                    </div>
                  </div>
 
@@ -237,31 +226,13 @@ export const Step2DataPreparation: React.FC<Step2Props> = ({ state, onUpdate, on
               {isExpanded && (
                 <div className="p-4 space-y-4 bg-slate-50/30">
                   
-                  {/* [A] Data Requirements (Collapsed Info) */}
-                  <div className="flex items-start gap-2 p-3 rounded bg-slate-50 border border-slate-100 text-sm text-slate-600">
-                    <Info className="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0" />
-                    <div className="space-y-1 flex-1">
-                      <span className="font-medium text-slate-700">AI 数据需求分析:</span>
-                      <p className="leading-relaxed opacity-90">{req?.description}</p>
-                      <div className="flex flex-wrap gap-1 mt-1.5">
-                        {req?.fields?.map(field => (
-                          <span key={field} className="px-1.5 py-0.5 rounded bg-white border border-slate-200 text-sm tracking-wider text-slate-500 font-mono">
-                            {field}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
                   {/* [B] Candidates List (Compact Table) */}
+                  {!goal.unmatchedReason && (
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                        <h4 className="text-sm font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-                         <Search className="w-3 h-3" /> 匹配数据对象
+                         <Search className="w-3 h-3" /> 匹配知识对象
                        </h4>
-                       <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); handleAddCandidate(goal.id); }} className="h-6 text-sm tracking-wider px-2 text-blue-600 hover:bg-blue-50">
-                         <Plus className="w-3 h-3 mr-1" /> 添加对象
-                       </Button>
                     </div>
 
                     {goalCandidates.length > 0 ? (
@@ -269,51 +240,50 @@ export const Step2DataPreparation: React.FC<Step2Props> = ({ state, onUpdate, on
                         <table className="w-full text-sm text-left">
                           <thead className="bg-slate-50 border-b border-slate-100 text-slate-500">
                             <tr>
-                              <th className="w-8 p-2 text-center">#</th>
-                              <th className="p-2 font-medium">相关业务对象</th>
-                              <th className="p-2 font-medium">数据来源</th>
-                              <th className="p-2 font-medium">就绪状态</th>
+                              <th className="p-2 font-medium pl-4">相关业务实例</th>
+                              <th className="p-2 font-medium">知识对象</th>
                               <th className="w-10 p-2 text-center">操作</th>
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-slate-100">
-                            {goalCandidates.map(candidate => (
-                              <tr key={candidate.id} className={cn("group hover:bg-slate-50 transition-colors", candidate.isSelected && "bg-blue-50/30")}>
-                                <td className="p-2 text-center">
-                                  <Checkbox 
-                                    checked={candidate.isSelected}
-                                    onCheckedChange={() => toggleCandidate(candidate.id)}
-                                    className="scale-75 translate-y-0.5"
-                                  />
+                            {goalCandidates
+                              .sort((a, b) => (a.rank || 99) - (b.rank || 99))
+                              .map((candidate, index) => (
+                              <tr key={candidate.id} className="group hover:bg-slate-50 transition-colors">
+                                <td className="p-2 pl-4">
+                                  <div className="flex items-start gap-2">
+                                     {index === 0 && candidate.rank === 1 && (
+                                        <Badge variant="secondary" className="bg-blue-50 text-blue-600 border-blue-100 text-[10px] px-1 h-4 mt-0.5 shrink-0">
+                                            Best
+                                        </Badge>
+                                     )}
+                                     <div>
+                                        <div className="font-medium text-slate-700">{candidate.name}</div>
+                                        <div className="text-sm tracking-wider text-slate-400 font-mono">{candidate.id}</div>
+                                        {candidate.matchReason && (
+                                            <div className="text-xs text-slate-500 mt-0.5 flex items-start gap-1">
+                                                <Info className="w-3 h-3 mt-0.5 shrink-0 opacity-70" />
+                                                {candidate.matchReason}
+                                            </div>
+                                        )}
+                                     </div>
+                                  </div>
                                 </td>
-                                <td className="p-2">
-                                  <div className="font-medium text-slate-700">{candidate.name}</div>
-                                  <div className="text-sm tracking-wider text-slate-400 font-mono">{candidate.id}</div>
-                                </td>
-                                <td className="p-2">
+                                <td className="p-2 align-top pt-3">
                                   <Badge variant="outline" className="text-sm tracking-wider h-5 px-1.5 font-normal text-slate-500 bg-slate-50">
                                     {candidate.type}
                                   </Badge>
                                 </td>
-                                <td className="p-2">
-                                   {(candidate.missingFields && candidate.missingFields.length > 0) ? (
-                                     <div className="flex items-center gap-1.5 text-red-600">
-                                       <XCircle className="w-3 h-3" />
-                                       <span className="text-sm tracking-wider">缺 {candidate.missingFields.length} 字段</span>
-                                     </div>
-                                   ) : (
-                                     <div className="flex items-center gap-1.5 text-green-600">
-                                       <CheckCircle2 className="w-3 h-3" />
-                                       <span className="text-sm tracking-wider">完整</span>
-                                     </div>
-                                   )}
-                                </td>
-                                <td className="p-2 text-center">
+                                <td className="p-2 text-center align-top pt-2">
                                   <button 
                                     onClick={() => handleRemoveCandidate(candidate.id)}
-                                    className="text-slate-300 hover:text-red-500 transition-colors p-1"
+                                    className={cn(
+                                      "transition-colors p-1 flex items-center gap-1 rounded",
+                                      confirmDeleteId === candidate.id ? "text-red-600 bg-red-50 px-2" : "text-slate-300 hover:text-red-500"
+                                    )}
                                   >
                                     <Trash2 className="w-3 h-3" />
+                                    {confirmDeleteId === candidate.id && <span className="text-xs font-medium">确认删除?</span>}
                                   </button>
                                 </td>
                               </tr>
@@ -322,59 +292,33 @@ export const Step2DataPreparation: React.FC<Step2Props> = ({ state, onUpdate, on
                         </table>
                       </div>
                     ) : (
-                      <div className="text-center py-6 border border-dashed rounded-md bg-slate-50 text-slate-400 text-sm">
-                        暂无候选实例，请点击右上角添加
+                      <div className="text-center py-6 text-slate-400 bg-white border border-slate-200 rounded-lg border-dashed">
+                        <span className="text-sm">暂无候选实例</span>
                       </div>
                     )}
                   </div>
-
-                  {/* [C] Integrity Issues (Exception Driven) */}
-                  {goalIssues.length > 0 && (
-                    <div className="space-y-2 pt-2 border-t border-slate-100">
-                       <h4 className="text-sm font-bold text-red-500 uppercase tracking-wider flex items-center gap-1.5">
-                         <AlertTriangle className="w-3 h-3" /> 发现问题
-                       </h4>
-                       <div className="space-y-2">
-                         {goalIssues.map(issue => (
-                           <Alert key={issue.id} variant="destructive" className="py-2 bg-red-50 border-red-100 text-red-800">
-                             <AlertTriangle className="h-3.5 w-3.5" />
-                             <AlertTitle className="text-sm font-bold ml-2">
-                               {issue.type === 'missing_field' ? '字段缺失' : issue.type === 'conflict' ? '数据冲突' : '警告'}
-                             </AlertTitle>
-                             <AlertDescription className="text-sm ml-2 mt-1 opacity-90">
-                               {issue.description}
-                               {issue.affectedInstanceId && (
-                                 <span className="block mt-0.5 text-sm tracking-wider opacity-75 font-mono">Instance: {issue.affectedInstanceId}</span>
-                               )}
-                             </AlertDescription>
-                           </Alert>
-                         ))}
-                       </div>
-
-                       {/* Risk Confirmation Action */}
-                       {!isConfirmed && (
-                         <div className="flex justify-end pt-2">
-                           <Button 
-                             size="sm" 
-                             variant="outline" 
-                             className="text-sm h-7 border-amber-200 text-amber-700 hover:bg-amber-50 hover:text-amber-800"
-                             onClick={() => handleConfirmGoalRisk(goal.id)}
-                           >
-                             <AlertTriangle className="w-3 h-3 mr-1.5" />
-                             确认忽略风险并继续
-                           </Button>
-                         </div>
-                       )}
-                       {isConfirmed && (
-                         <div className="flex justify-end pt-2">
-                            <span className="text-sm font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded border border-amber-100 flex items-center gap-1.5">
-                              <CheckCircle2 className="w-3 h-3" />
-                              已确认忽略风险
-                            </span>
-                         </div>
-                       )}
-                    </div>
                   )}
+
+                  {/* [A-2] Manual Description Input */}
+                  <div className="space-y-1.5 pt-2">
+                    <label className="text-sm font-medium text-slate-700">人工补充说明 (可选)</label>
+                    <textarea
+                      className="flex min-h-[80px] w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm ring-offset-white placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
+                      placeholder="请输入补充说明..."
+                      maxLength={200}
+                      value={dataPreparation.goalDescriptions?.[goal.id] || ''}
+                      onChange={(e) => {
+                        const newDescriptions = { 
+                          ...(dataPreparation.goalDescriptions || {}), 
+                          [goal.id]: e.target.value 
+                        };
+                        onUpdate({ goalDescriptions: newDescriptions });
+                      }}
+                    />
+                    <div className="flex justify-end text-xs text-slate-400">
+                      {(dataPreparation.goalDescriptions?.[goal.id] || '').length}/200
+                    </div>
+                  </div>
 
                 </div>
               )}

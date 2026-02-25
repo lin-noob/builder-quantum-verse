@@ -9,6 +9,10 @@ export interface DecisionGoal {
   suggestedNextStep?: string;
   source?: 'ai' | 'human';
   isSuggestionStale?: boolean;
+  unmatchedReason?: string; // Reason why no objects were matched
+  matchReason?: string; // Reason why specific objects were matched
+}
+  matchReason?: string; // Reason for successful matching (Goal level)
 }
 
 export interface DataRequirement {
@@ -26,7 +30,9 @@ export interface CandidateInstance {
   type: string;
   isSelected: boolean;
   data: Record<string, any>;
-  missingFields?: string[]; // New: Track missing fields per instance
+  missingFields?: string[]; // Track missing fields per instance
+  matchReason?: string; // Reason for matching/ranking
+  rank?: number; // Ranking order (1 = best match)
 }
 
 export interface DataIntegrityIssue {
@@ -160,6 +166,7 @@ export interface DecisionTraceState {
     riskAccepted?: boolean;
     riskNote?: string;
     confirmedGoalIds?: string[]; // IDs of goals manually confirmed by user
+    goalDescriptions?: Record<string, string>; // Manual descriptions per goal
   };
 
   // Step 3: Reasoning
