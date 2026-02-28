@@ -1,18 +1,36 @@
-import {
-  Mail,
-  Globe,
-  AlertCircle,
-  RefreshCw,
-  Clock,
-  User,
-  CheckCircle2,
-  AlertTriangle,
-  XCircle,
-  HelpCircle,
-} from "lucide-react";
+import { Mail, Globe, AlertCircle, RefreshCw, User, HelpCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { zhCN } from "date-fns/locale";
+
+export interface DecisionTraceItem {
+  id: string;
+  instanceId: string;
+  businessId: string;
+  businessType: string;
+  sourceChannel: string;
+  customerId: string;
+  customerName: string;
+  currentStatus: string;
+  gmtCreate: string;
+  gmtModified: string;
+  tenantId: string;
+  actionType?: string | null;
+  aiAnalysisResult?: string | null;
+  analyzedBy?: string | null;
+  decisionRemark?: string | null;
+  eventTime?: string | null;
+  ownerName?: string | null;
+  ownerTeam?: string | null;
+  instanceName?: string;
+  semanticSummary?: string;
+  expertBriefing?: string;
+  sortingEngine?: string;
+  dataInference?: string;
+  statusCode?: string | null;
+  statusName?: string | null;
+  engine?: any;
+  status?: number | string;
+}
 
 // Define the DecisionEvent type based on user requirements
 export interface DecisionEvent {
@@ -37,6 +55,14 @@ export interface DecisionEvent {
   instanceName?: string;
   semanticSummary?: any;
   expertBriefing?: any;
+  sortingEngine?: any;
+  dataInference?: any;
+  semanticSummaryWord?: string;
+  expertBriefingWord?: string;
+  sortingEngineWord?: string;
+  inferenceWord?: string;
+  trace_status?: string;
+  current_step?: number;
 }
 
 interface DecisionEventListItemProps {
@@ -92,9 +118,23 @@ export default function DecisionEventListItem({ event, isSelected, onClick }: De
 
       {/* Row 3: Status & Time */}
       <div className="flex items-center justify-between pl-6 mt-1">
-        <span className={cn("text-[10px] px-2 py-0.5 rounded border font-medium", statusStyle.color)}>
-          {event.status}
-        </span>
+        {event.current_step ? (
+          <span className="text-[10px] px-2 py-0.5 rounded border font-medium bg-blue-100 text-blue-700 border-blue-200 whitespace-nowrap">
+            {
+              {
+                1: "意图分析",
+                2: "数据准备",
+                3: "数据推理",
+                4: "执行动作",
+                5: "结果回溯",
+              }[event.current_step]
+            }
+          </span>
+        ) : (
+          <span className={cn("text-[10px] px-2 py-0.5 rounded border font-medium", statusStyle.color)}>
+            {event.status}
+          </span>
+        )}
         <span className="text-xs text-slate-400 flex items-center gap-1">
           {event.has_human_override && (
             <span className="flex items-center text-amber-600" title="有人工修正">
@@ -104,24 +144,6 @@ export default function DecisionEventListItem({ event, isSelected, onClick }: De
           {format(new Date(event.occurred_at), "yyyy-MM-dd HH:mm")}
         </span>
       </div>
-
-      {/* Hover Info Overlay */}
-      {/* <div className="hidden group-hover:flex absolute top-2 right-2 bg-slate-900/90 text-white text-[10px] px-2 py-1.5 rounded shadow-lg items-center gap-3 backdrop-blur-sm animate-in fade-in zoom-in-95 duration-200 z-10 pointer-events-none">
-        <div className="flex items-center gap-1">
-          <span className="opacity-70">AI 分析:</span>
-          <span className="font-mono">{event.ai_analyzed_at ? format(new Date(event.ai_analyzed_at), 'HH:mm:ss') : '-'}</span>
-        </div>
-        {event.has_human_override ? (
-          <div className="flex items-center text-amber-400 font-medium">
-            <User className="w-3 h-3 mr-1" />
-            <span>有人工修正</span>
-          </div>
-        ) : (
-          <div className="flex items-center text-slate-400">
-             <span>无人工修正</span>
-          </div>
-        )}
-      </div> */}
     </div>
   );
 }

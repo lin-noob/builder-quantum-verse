@@ -16,9 +16,7 @@ export interface RequestConfig {
   /** 是否携带凭证 */
   credentials?: RequestCredentials;
   /** 请求拦截器 */
-  beforeRequest?: (
-    config: RequestConfig,
-  ) => RequestConfig | Promise<RequestConfig>;
+  beforeRequest?: (config: RequestConfig) => RequestConfig | Promise<RequestConfig>;
   /** 响应拦截器 */
   afterResponse?: (response: Response) => Response | Promise<Response>;
   /** 错误处理器 */
@@ -33,19 +31,12 @@ export type RequestMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
 /**
  * 请求数据类型
  */
-export type RequestData =
-  | Record<string, any>
-  | FormData
-  | string
-  | ArrayBuffer
-  | Blob
-  | null;
+export type RequestData = Record<string, any> | FormData | string | ArrayBuffer | Blob | null;
 
 /**
  * 请求选项
  */
-export interface RequestOptions
-  extends Omit<RequestConfig, "beforeRequest" | "afterResponse" | "onError"> {
+export interface RequestOptions extends Omit<RequestConfig, "beforeRequest" | "afterResponse" | "onError"> {
   /** 请求方�� */
   method?: RequestMethod;
   /** 请求数据 */
@@ -88,12 +79,7 @@ export class RequestError extends Error {
   statusText: string;
   response?: Response;
 
-  constructor(
-    message: string,
-    status: number,
-    statusText: string,
-    response?: Response,
-  ) {
+  constructor(message: string, status: number, statusText: string, response?: Response) {
     super(message);
     this.name = "RequestError";
     this.status = status;
@@ -145,9 +131,7 @@ class RequestManager {
               Promise.resolve()
                 .then(() => {
                   try {
-                    controller.abort(
-                      new DOMException("Request cancelled", "AbortError"),
-                    );
+                    controller.abort(new DOMException("Request cancelled", "AbortError"));
                   } catch (e) {
                     // 静默处理
                   }
@@ -180,7 +164,7 @@ export class Request {
   constructor(baseURL: string = "", config: RequestConfig = {}) {
     this.baseURL = baseURL;
     this.defaultConfig = {
-      timeout: 30000, // 增加到30秒
+      timeout: 180000, // 增加到30秒
       credentials: "same-origin",
       headers: {
         "Content-Type": "application/json",
@@ -192,10 +176,7 @@ export class Request {
   /**
    * 构建完整URL
    */
-  private buildURL(
-    url: string,
-    params?: Record<string, string | number | boolean>,
-  ): string {
+  private buildURL(url: string, params?: Record<string, string | number | boolean>): string {
     const fullURL = url.startsWith("http") ? url : `${this.baseURL}${url}`;
 
     if (!params || Object.keys(params).length === 0) {
@@ -225,10 +206,7 @@ export class Request {
   /**
    * 处理请求数据和请求头
    */
-  private processRequestData(
-    data: RequestData,
-    headers: Record<string, string>,
-  ) {
+  private processRequestData(data: RequestData, headers: Record<string, string>) {
     if (!data) {
       return { body: null, headers };
     }
@@ -265,10 +243,7 @@ export class Request {
   /**
    * 处理响应数据
    */
-  private async processResponse<T>(
-    response: Response,
-    responseType: string = "json",
-  ): Promise<ApiResponse<T>> {
+  private async processResponse<T>(response: Response, responseType: string = "json"): Promise<ApiResponse<T>> {
     let data: any;
     const contentType = response.headers.get("content-type") || "";
 
@@ -318,12 +293,7 @@ export class Request {
           throw parseError;
         }
 
-        throw new RequestError(
-          `请求失败: ${statusError}`,
-          response.status,
-          response.statusText,
-          response,
-        );
+        throw new RequestError(`请求失败: ${statusError}`, response.status, response.statusText, response);
       }
     }
 
@@ -332,10 +302,7 @@ export class Request {
       switch (responseType) {
         case "json":
           // 对于 JSON 类型，检查 content-type
-          if (
-            !contentType.includes("application/json") &&
-            !contentType.includes("text/json")
-          ) {
+          if (!contentType.includes("application/json") && !contentType.includes("text/json")) {
             // 如果不是 JSON content-type，先获取文本内容检查
             const textContent = await response.text();
 
@@ -345,13 +312,9 @@ export class Request {
               textContent.trim().toLowerCase().startsWith("<html")
             ) {
               if (process.env.NODE_ENV === "development") {
-                console.group(
-                  `🚨 API Error: HTML Response When Expecting JSON`,
-                );
+                console.group(`🚨 API Error: HTML Response When Expecting JSON`);
                 console.log(`URL: ${response.url}`);
-                console.log(
-                  `Status: ${response.status} (Success, but wrong content)`,
-                );
+                console.log(`Status: ${response.status} (Success, but wrong content)`);
                 console.log(`Content-Type: ${contentType}`);
                 console.log(`Response Preview:`, textContent.substring(0, 300));
                 console.log(`Common causes:
@@ -362,9 +325,7 @@ export class Request {
                 console.groupEnd();
               }
 
-              throw new Error(
-                `API返回了HTML页面而不是期望的JSON数据。请检查API端点是否正确配置。`,
-              );
+              throw new Error(`API返回了HTML页面而不是期望的JSON数据。请检查API端点是否正确配置。`);
             }
 
             // 尝试解析为 JSON（可能是没有正确设置 content-type 的 JSON）
@@ -376,9 +337,7 @@ export class Request {
                 contentType,
                 content: textContent.substring(0, 500),
               });
-              throw new Error(
-                `无法解析响应为JSON格式，响应内容: ${textContent.substring(0, 100)}...`,
-              );
+              throw new Error(`无法解析响应为JSON格式，响应内容: ${textContent.substring(0, 100)}...`);
             }
           } else {
             data = await response.json();
@@ -398,8 +357,7 @@ export class Request {
       }
     } catch (error) {
       // 提供更详细的解析错误信息
-      const errorMessage =
-        error instanceof Error ? error.message : "Unknown parsing error";
+      const errorMessage = error instanceof Error ? error.message : "Unknown parsing error";
 
       console.error(`Failed to parse response as ${responseType}:`, {
         error: errorMessage,
@@ -421,12 +379,7 @@ export class Request {
         // 如果业务状态码不是 200 或 201，则抛出错误
         if (businessCode !== "200" && businessCode !== "201") {
           const errorMsg = data.msg || `业务请求失败，状态码: ${businessCode}`;
-          throw new RequestError(
-            errorMsg,
-            parseInt(businessCode) || 400,
-            errorMsg,
-            response,
-          );
+          throw new RequestError(errorMsg, parseInt(businessCode) || 400, errorMsg, response);
         }
       }
     }
@@ -473,27 +426,24 @@ export class Request {
   /**
    * 通用请求方法
    */
-  async request<T = any>(
-    url: string,
-    options: RequestOptions = {},
-  ): Promise<ApiResponse<T>> {
+  async request<T = any>(url: string, options: RequestOptions = {}): Promise<ApiResponse<T>> {
     // Mock for digital-model/count to fix 400 error
     if (url.includes("/quote/api/v1/digital-model/count")) {
-        console.log(`Mocking response for ${url}`);
-        return {
-            data: {
-                code: "200",
-                msg: "success",
-                data: {
-                    objectCount: Math.floor(Math.random() * 20),
-                    relationCount: Math.floor(Math.random() * 50),
-                    mainId: "mock-id-" + Math.random().toString(36).substr(2, 9)
-                }
-            },
-            status: 200,
-            statusText: "OK",
-            headers: new Headers(),
-        } as unknown as ApiResponse<T>;
+      console.log(`Mocking response for ${url}`);
+      return {
+        data: {
+          code: "200",
+          msg: "success",
+          data: {
+            objectCount: Math.floor(Math.random() * 20),
+            relationCount: Math.floor(Math.random() * 50),
+            mainId: "mock-id-" + Math.random().toString(36).substr(2, 9),
+          },
+        },
+        status: 200,
+        statusText: "OK",
+        headers: new Headers(),
+      } as unknown as ApiResponse<T>;
     }
 
     const config = { ...this.defaultConfig, ...options };
@@ -502,7 +452,7 @@ export class Request {
       data,
       params,
       headers = {},
-      timeout = this.defaultConfig.timeout || 30000, // 增加超时时间到30秒
+      timeout = this.defaultConfig.timeout || 180000, // 增加超时时间到30秒
       credentials = this.defaultConfig.credentials,
       responseType = "json",
     } = config;
@@ -767,26 +717,19 @@ export class Request {
       fullURL = this.buildURL(url, params);
       requestId = `${method}_${fullURL}_${Date.now()}`;
       const jsessionid = localStorage.getItem("auth_session") ?? undefined;
-      const projectId =
-        useProjectStore.getState()?.currentProject?.id ?? '';
-      const currentLanguage = useConfigStore.getState()?.langCode ?? 'en-US';
+      const projectId = useProjectStore.getState()?.currentProject?.id ?? "";
+      const currentLanguage = useConfigStore.getState()?.langCode ?? "en-US";
       const mergedHeaders = {
         ...this.defaultConfig.headers,
         ...headers,
         jsessionid,
         "PROJECT-INFO": projectId,
-        "locale": currentLanguage,
+        locale: currentLanguage,
       };
-      const { body, headers: finalHeaders } = this.processRequestData(
-        data,
-        mergedHeaders,
-      );
+      const { body, headers: finalHeaders } = this.processRequestData(data, mergedHeaders);
 
       // 创建超时控制器
-      const { controller, timeoutId: tid } = this.createTimeoutController(
-        timeout,
-        requestId,
-      );
+      const { controller, timeoutId: tid } = this.createTimeoutController(timeout, requestId);
       timeoutId = tid;
 
       const fetchOptions: RequestInit = {
@@ -822,10 +765,7 @@ export class Request {
       }
 
       // 特殊处理 AbortError - 静默处理，避免不必要的错误抛出
-      if (
-        error instanceof Error &&
-        (error.name === "AbortError" || error.message.includes("aborted"))
-      ) {
+      if (error instanceof Error && (error.name === "AbortError" || error.message.includes("aborted"))) {
         // AbortError 通常是由以下情况引起的：
         // 1. 用户导航到其他页面
         // 2. 组件卸载
@@ -834,9 +774,7 @@ export class Request {
         // 这些情况都不应该作为错误抛出
 
         if (process.env.NODE_ENV === "development") {
-          console.debug(
-            "Request aborted (likely due to navigation/unmount/hot-reload)",
-          );
+          console.debug("Request aborted (likely due to navigation/unmount/hot-reload)");
         }
 
         // 返回一个静默的响应而不是抛出错误
@@ -862,10 +800,7 @@ export class Request {
       // 特别处理403错误 - 根据当前页面路径跳转到相应的登录页
       if (businessCode === 403) {
         // 保存当前路径，登录成功后跳转回来
-        localStorage.setItem(
-          "redirect_after_login",
-          window.location.pathname + window.location.search,
-        );
+        localStorage.setItem("redirect_after_login", window.location.pathname + window.location.search);
 
         // 检查当前路径是否包含/admin，如果是则跳转到管理员登录页，否则跳转到客户端登录页
         const currentPath = window.location.pathname;
@@ -898,24 +833,14 @@ export class Request {
               statusText: "Request Timeout",
             } as any;
           }
-          throw new RequestError(
-            "请求超时，可能是网络连接问题或后端服务未启动",
-            408,
-            "Request Timeout",
-          );
+          throw new RequestError("请求超时，可能是网络连接问题或后端服务未启动", 408, "Request Timeout");
         case "ABORT":
           // 在开发环境中，AbortError通常是由热重载或页面��载引起的，不应作为真正的错误
           if (process.env.NODE_ENV === "development") {
-            console.debug(
-              "Request aborted due to page reload/navigation (development)",
-            );
+            console.debug("Request aborted due to page reload/navigation (development)");
             return { data: null, status: 499, statusText: "Aborted" } as any;
           }
-          throw new RequestError(
-            "Request aborted",
-            499,
-            "Client Closed Request",
-          );
+          throw new RequestError("Request aborted", 499, "Client Closed Request");
         case "NETWORK":
           // 检查是否是后端服务器连接问题
           if (
@@ -952,17 +877,9 @@ export class Request {
               } as any;
             }
           }
-          throw new RequestError(
-            "Network connection failed",
-            0,
-            "Network Error",
-          );
+          throw new RequestError("Network connection failed", 0, "Network Error");
         default:
-          throw new RequestError(
-            error instanceof Error ? error.message : "Unknown error",
-            0,
-            "Unknown Error",
-          );
+          throw new RequestError(error instanceof Error ? error.message : "Unknown error", 0, "Unknown Error");
       }
     }
   }
@@ -1003,10 +920,7 @@ export class Request {
   /**
    * DELETE请求
    */
-  async delete<T = any>(
-    url: string,
-    options?: Omit<RequestOptions, "method">,
-  ): Promise<ApiResponse<T>> {
+  async delete<T = any>(url: string, options?: Omit<RequestOptions, "method">): Promise<ApiResponse<T>> {
     return this.request<T>(url, { ...options, method: "DELETE" });
   }
 
@@ -1055,10 +969,7 @@ export class Request {
   /**
    * 业务接口请求 - 自动处理标����业务响应格式
    */
-  async businessRequest<T = any>(
-    url: string,
-    options: RequestOptions = {},
-  ): Promise<T> {
+  async businessRequest<T = any>(url: string, options: RequestOptions = {}): Promise<T> {
     const response = await this.request<BusinessApiResponse<T>>(url, options);
     const businessData = response.data;
 
@@ -1133,10 +1044,7 @@ export class Request {
   /**
    * 业务DELETE请求
    */
-  async businessDelete<T = any>(
-    url: string,
-    options?: Omit<RequestOptions, "method">,
-  ): Promise<T> {
+  async businessDelete<T = any>(url: string, options?: Omit<RequestOptions, "method">): Promise<T> {
     return this.businessRequest<T>(url, { ...options, method: "DELETE" });
   }
 

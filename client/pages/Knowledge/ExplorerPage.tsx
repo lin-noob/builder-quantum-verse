@@ -1,9 +1,10 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Plus, PackageOpen, Layers, Database, ScanLine } from "lucide-react";
+import { Search, Plus, PackageOpen, Layers, Database, ScanLine, CloudUpload } from "lucide-react";
 import ObjectCard from "../../components/Knowledge/ObjectCard";
 import InstanceSummaryCard from "../../components/Knowledge/InstanceSummaryCard";
+import DataImportDialog from "../../components/Knowledge/DataImportDialog";
 import {
   KnowledgeNodeType,
   KnowledgeNode,
@@ -33,6 +34,7 @@ const ExplorerPage: React.FC = () => {
   // Instance-Specific State
   const [instanceIdSearch, setInstanceIdSearch] = useState("");
   const [expandedTypeIds, setExpandedTypeIds] = useState<string[]>([]);
+  const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
 
   const debouncedSearch = useDebounce(searchQuery, 500);
   const debouncedInstanceIdSearch = useDebounce(instanceIdSearch, 500);
@@ -300,13 +302,28 @@ const ExplorerPage: React.FC = () => {
               />
             </div>
 
-            <Button onClick={handleCreateObject} className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm">
+            <Button
+              variant="outline"
+              onClick={() => setIsImportDialogOpen(true)}
+              className="border-dashed border-slate-300 hover:border-blue-400 hover:bg-blue-50/30 text-slate-600 hover:text-blue-600 transition-all rounded-full h-10 px-6 gap-2 bg-white"
+            >
+              <CloudUpload className="h-4 w-4" />
+              导入数据
+            </Button>
+
+            <Button
+              onClick={handleCreateObject}
+              className="bg-blue-600 hover:bg-blue-700 text-white shadow-md rounded-full h-10 px-6"
+            >
               <Plus className="h-4 w-4 mr-2" />
               新建模型
             </Button>
           </div>
         </div>
       </div>
+
+      {/* Import Dialog */}
+      <DataImportDialog isOpen={isImportDialogOpen} onOpenChange={setIsImportDialogOpen} nodes={nodes} />
 
       {/* Main Content Grid */}
       <div className="flex-1 overflow-y-auto p-8 flex flex-col min-h-0">
