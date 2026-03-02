@@ -131,8 +131,9 @@ export const DecisionTraceLayout: React.FC<DecisionTraceLayoutProps> = ({ eventI
           reasoning: {
             ...mockState.reasoning,
             status: "COMPLETED",
-            results: event.dataInference.per_goal_reasoning || mockState.reasoning.results,
+            results: event?.dataInference?.per_goal_reasoning || mockState.reasoning.results,
             inferenceWord: event.inferenceWord,
+            reasoningAudit: event?.dataInference?.reasoning_audit || "",
           },
         });
       } else {

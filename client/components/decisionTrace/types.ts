@@ -40,22 +40,25 @@ export interface DataIntegrityIssue {
 }
 
 export interface ReasoningFact {
-  id: string;
-  text: string;
+  fact_id: string;
+  description: string;
   confidence: number; // Default 1.0
-  source: string; // Instance + Field
+  source_instance_id: string; // Instance + Field
 }
 
 export interface ReasoningInference {
-  id: string;
-  text: string;
+  inference_id: string;
+  description: string;
   logic: string;
   confidence: number;
-  dependentFacts: string[]; // Fact IDs
+  based_on_facts: {
+    fact_id: string;
+    description: string;
+  }[]; // Fact IDs
 }
 
 export interface ReasoningRisk {
-  id: string;
+  risk_id: string;
   triggerCondition: string;
   impact: string;
   probability: string;
@@ -141,7 +144,10 @@ export interface SortingInstance {
     current_status: string;
     created_at: string;
     updated_at: string;
-    runtime_properties: any[];
+    runtime_properties: {
+      property_name: string;
+      property_value: string;
+    }[];
   };
 }
 
@@ -262,6 +268,7 @@ export interface DecisionTraceState {
     executor?: string;
     inferenceWord?: string; // New: Raw prompt for Step 3
     results: GoalReasoning[];
+    reasoningAudit?: any; // New: Reasoning audit data from dataInference.reasoning_audit
   };
 
   // Step 4: Action

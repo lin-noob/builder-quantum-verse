@@ -3,7 +3,7 @@ import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Table, Input } from "antd";
+import { Table, Input, Tag } from "antd";
 import {
   Database,
   AlertTriangle,
@@ -36,6 +36,7 @@ import {
 } from "@/components/ui/sheet";
 import { PromptDebuggerDrawer } from "./PromptDebuggerDrawer";
 import { Step2ObjectMappingDrawer } from "./Step2ObjectMappingDrawer";
+import { InstanceDetailDrawer } from "./InstanceDetailDrawer";
 
 const { TextArea } = Input;
 
@@ -51,13 +52,49 @@ interface Step2Props {
 
 export const Step2DataPreparation: React.FC<Step2Props> = ({ state, onUpdate, onNext, onBack }) => {
   const { dataPreparation, intentAnalysis } = state;
-  const {
+  let {
     candidates,
     integrityIssues,
     expertBriefing,
     supplementaryNotes = EMPTY_OBJECT,
     excludedObjectIds = EMPTY_ARRAY,
+    sortingResults,
   } = dataPreparation;
+
+  // sortingResults = {};
+
+  // sortingResults.results = [
+  //   {
+  //     goal_id: "G1",
+  //     goal_description: "紧急申请暂停订单602309的生产以避免误产",
+  //     ranked_objects: [
+  //       {
+  //         object_type: "25",
+  //         object_name: "Production_Order (生产订单)",
+  //         ranked_instances: [
+  //           {
+  //             instance_id: "PO-602309",
+  //             rank: 1,
+  //             reason: "ID完全匹配且状态为生产中，符合暂停条件",
+  //             instance_snapshot: {
+  //               instance_id: "PO-602309",
+  //               instance_name: "Order 602309",
+  //               current_status: "In_Production",
+  //               created_at: "2026-02-20T08:00:00Z",
+  //               updated_at: "2026-02-28T10:00:00Z",
+  //               runtime_properties: [{ property_name: "priority", property_value: "High" }],
+  //             },
+  //           },
+  //         ],
+  //       },
+  //       {
+  //         object_type: "26",
+  //         object_name: "Email_Ticket (邮件工单)",
+  //         ranked_instances: [],
+  //       },
+  //     ],
+  //   },
+  // ];
 
   const expertBriefingData = React.useMemo(() => {
     if (!expertBriefing) return null;
@@ -103,35 +140,21 @@ export const Step2DataPreparation: React.FC<Step2Props> = ({ state, onUpdate, on
 
   const [expandedGoals, setExpandedGoals] = useState<string[]>([]);
 
-  // 1. Build goal list from expertBriefing
-
-  // The rendering list: derived from expertBriefing.goal_object_mapping
-  const goalMappingList: any[] = expertBriefingData?.goal_object_mapping || [];
-
-  // Build goal render list from expertBriefing only
-  const baseRenderGoals = goalMappingList.map((mapping: any) => ({
-    id: mapping.goal_id,
-    description: mapping.goal_description,
-    matchedObjects: (mapping.matched_objects || []).filter((obj: any) => !excludedObjectIds.includes(obj.object_id)),
-    unmatchedReason: mapping.unmatched_reason || "",
-  }));
-
-  // Sort goals: matched items first, unmatched (HAS unmatchedReason) second
+  // Build goal render list directly from sortingResults
   const renderGoals = React.useMemo(() => {
-    return [...baseRenderGoals].sort((a, b) => {
-      const aMatched = !a.unmatchedReason;
-      const bMatched = !b.unmatchedReason;
+    if (!sortingResults?.results) return [];
 
-      if (aMatched && !bMatched) return -1;
-      if (!aMatched && bMatched) return 1;
-      return 0;
-    });
-  }, [baseRenderGoals]);
+    return sortingResults.results.map((result: any) => ({
+      id: result.goal_id,
+      description: result.goal_description,
+      ranked_objects: result.ranked_objects || [],
+      human_context_note: result.human_context_note || "",
+    }));
+  }, [sortingResults]);
 
   // Initialize expanded goals on first load (expand incomplete ones)
-  // Only automatically expand goals that aren't already processed to allow manual collapse to persist
   useEffect(() => {
-    if (!expertBriefingData) return;
+    if (renderGoals.length === 0) return;
 
     const incompleteGoals = renderGoals.filter((g) => getGoalStatus(g.id) !== "COMPLETE").map((g) => g.id);
 
@@ -142,7 +165,7 @@ export const Step2DataPreparation: React.FC<Step2Props> = ({ state, onUpdate, on
         return [...prev, ...newGoals];
       });
     }
-  }, [expertBriefingData, excludedObjectIds]); // These are now stable if undefined
+  }, [renderGoals]);
 
   const toggleGoalExpand = (id: string) => {
     setExpandedGoals((prev) => (prev.includes(id) ? prev.filter((gId) => gId !== id) : [...prev, id]));
@@ -159,13 +182,15 @@ export const Step2DataPreparation: React.FC<Step2Props> = ({ state, onUpdate, on
 
   // Helper to get status of a specific goal
   const getGoalStatus = (goalId: string) => {
-    const goalItem = renderGoals.find((g) => g.id === goalId);
-    if (!goalItem) return "INCOMPLETE";
-    const aiCandidates = goalItem.matchedObjects || [];
-    const manualCandidates = candidates.filter((c) => c.goalId === goalId && c.type === "手动" && c.isSelected);
+    const goalSortingResults = getSortingResultsForGoal(goalId);
 
-    // Check if any candidates are present (AI or manual)
-    if (aiCandidates.length === 0 && manualCandidates.length === 0) return "INCOMPLETE";
+    // Check if we have sorting results data
+    const hasData = goalSortingResults?.ranked_objects && goalSortingResults.ranked_objects.length > 0;
+    const hasInstances = goalSortingResults?.ranked_objects?.some(
+      (obj: any) => obj.ranked_instances && obj.ranked_instances.length > 0,
+    );
+
+    if (!hasData || !hasInstances) return "INCOMPLETE";
 
     // Check for blocking issues
     const goalIssues = integrityIssues.filter((i) => i.goalId === goalId);
@@ -214,6 +239,87 @@ export const Step2DataPreparation: React.FC<Step2Props> = ({ state, onUpdate, on
       // It's an AI-matched object, add to excluded list
       onUpdate({ excludedObjectIds: [...excludedObjectIds, candidateId] });
     }
+  };
+
+  // Helper function to get sorting results for a specific goal
+  const getSortingResultsForGoal = (goalId: string) => {
+    if (!sortingResults?.results) return null;
+    return sortingResults.results.find((result: any) => result.goal_id === goalId);
+  };
+
+  // Helper function to prepare table data for a goal
+  const prepareTableDataForGoal = (goalId: string) => {
+    const goalSortingResults = getSortingResultsForGoal(goalId);
+    const hasData = goalSortingResults?.ranked_objects && goalSortingResults.ranked_objects.length > 0;
+
+    if (!hasData) {
+      return { hasData: false, tableData: [], goalSortingResults };
+    }
+
+    // Prepare table data - each instance becomes a separate row
+    const tableData: any[] = [];
+    goalSortingResults.ranked_objects.forEach((obj: any) => {
+      if (obj.ranked_instances && obj.ranked_instances.length > 0) {
+        obj.ranked_instances.forEach((instance: any) => {
+          tableData.push({
+            key: `${obj.object_name}-${instance.instance_id}`,
+            object_name: obj.object_name,
+            object_type: obj.object_type,
+            instance_id: instance.instance_id,
+            rank: instance.rank,
+            reason: instance.reason,
+            instance_snapshot: instance.instance_snapshot,
+          });
+        });
+      }
+    });
+
+    return { hasData: tableData.length > 0, tableData, goalSortingResults };
+  };
+
+  // Table rendering component
+  const SortingResultsTable: React.FC<{ tableData: any[] }> = ({ tableData }) => {
+    return (
+      <div className="border rounded-md bg-white overflow-hidden">
+        <Table
+          dataSource={tableData}
+          columns={[
+            {
+              title: "相关业务实例",
+              key: "instance",
+              render: (_, record: any) => (
+                <InstanceDetailDrawer
+                  instance={record}
+                  trigger={
+                    <button className="text-left hover:text-blue-600 transition-colors">
+                      <Tag color="blue" className="font-medium text-slate-700">
+                        {record.instance_id}
+                      </Tag>
+                      <div className="text-xs text-slate-400 font-mono">{record.rank}</div>
+                      <div className="text-xs text-slate-400 font-mono">{record.reason}</div>
+                    </button>
+                  }
+                />
+              ),
+            },
+            {
+              title: "知识对象",
+              key: "object",
+              render: (_, record: any) => (
+                <div>
+                  <div className="font-medium text-slate-700">{record.object_name}</div>
+                  <div className="text-xs text-slate-500">{record.object_type}</div>
+                </div>
+              ),
+            },
+          ]}
+          rowKey="key"
+          pagination={false}
+          size="small"
+          scroll={{ y: 400 }}
+        />
+      </div>
+    );
   };
 
   // Global Status Logic
@@ -346,15 +452,17 @@ export const Step2DataPreparation: React.FC<Step2Props> = ({ state, onUpdate, on
           </div>
         ) : (
           renderGoals.map((goalItem) => {
-            const matchedObjects = goalItem.matchedObjects;
-            const manualGoalCandidates = candidates.filter((c) => c.goalId === goalItem.id && c.type === "手动");
             const goalIssues = integrityIssues.filter((i) => i.goalId === goalItem.id);
             const goalStatus = getGoalStatus(goalItem.id);
             const isConfirmed = dataPreparation.confirmedGoalIds?.includes(goalItem.id);
             const isExpanded = expandedGoals.includes(goalItem.id);
 
-            // Use unmatchedReason to determine "unmatched" state (red border, sorted bottom)
-            const hasMatches = !goalItem.unmatchedReason;
+            // Check if we have data from sorting results
+            const hasData = goalItem.ranked_objects && goalItem.ranked_objects.length > 0;
+            const hasInstances = goalItem.ranked_objects?.some(
+              (obj: any) => obj.ranked_instances && obj.ranked_instances.length > 0,
+            );
+            const hasMatches = hasData && hasInstances;
 
             return (
               <Card
@@ -412,21 +520,29 @@ export const Step2DataPreparation: React.FC<Step2Props> = ({ state, onUpdate, on
                                 : "需处理"}
                         </Badge>
                       </div>
-                      {goalItem.unmatchedReason && (
+                      {/* {!hasData && (
                         <div className="flex items-center gap-1.5 text-xs text-red-500">
                           <AlertCircle className="w-3 h-3" />
-                          <span>{goalItem.unmatchedReason}</span>
+                          <span>暂无排序数据</span>
                         </div>
-                      )}
+                      )} */}
                       <div className="flex items-center gap-1.5 text-sm text-slate-400">
                         <Database className="w-3 h-3" />
-                        <span>匹配到 {matchedObjects.length} 个对象</span>
-                        {manualGoalCandidates.length > 0 && (
-                          <>
-                            <span>·</span>
-                            <span>手动添加 {manualGoalCandidates.length} 个</span>
-                          </>
-                        )}
+                        {(() => {
+                          if (!goalItem.ranked_objects || goalItem.ranked_objects.length === 0) {
+                            return <span>暂无数据</span>;
+                          }
+                          const objectCount = goalItem.ranked_objects.length;
+                          const instanceCount = goalItem.ranked_objects.reduce(
+                            (total: number, obj: any) => total + (obj.ranked_instances?.length || 0),
+                            0,
+                          );
+                          return (
+                            <span>
+                              {objectCount} 个对象，{instanceCount} 个实例
+                            </span>
+                          );
+                        })()}
                       </div>
                     </div>
                   </div>
@@ -458,78 +574,20 @@ export const Step2DataPreparation: React.FC<Step2Props> = ({ state, onUpdate, on
                         </Button> */}
                       </div>
 
-                      {matchedObjects.length > 0 || manualGoalCandidates.length > 0 ? (
-                        <div className="border rounded-md bg-white overflow-hidden">
-                          <Table
-                            dataSource={[
-                              ...matchedObjects.map((obj: any) => ({
-                                id: obj.object_id,
-                                name: obj.object_name,
-                                type: obj.object_type || "AI 匹配",
-                                match_reason: obj.match_reason || "",
-                                isAI: true,
-                              })),
-                              ...manualGoalCandidates.map((c) => ({
-                                id: c.id,
-                                name: c.name,
-                                type: c.type,
-                                match_reason: "",
-                                isAI: false,
-                              })),
-                            ]}
-                            columns={[
-                              {
-                                title: "相关业务实例",
-                                dataIndex: "name",
-                                key: "name",
-                                render: (text: string, record: any) => (
-                                  <div>
-                                    <div className="font-medium text-slate-700">{text}</div>
-                                    <div className="text-[11px] tracking-wider text-slate-400 font-mono">
-                                      {record.id}
-                                    </div>
-                                  </div>
-                                ),
-                              },
-                              {
-                                title: "知识对象",
-                                dataIndex: "match_reason",
-                                key: "matchReason",
-                                render: (reason: string) => (
-                                  <div className="text-[11px] text-slate-500 max-w-[200px] leading-tight italic">
-                                    {reason || "手动添加"}
-                                  </div>
-                                ),
-                              },
-                              {
-                                title: "操作",
-                                key: "action",
-                                width: 60,
-                                align: "center" as const,
-                                render: (_: any, record: any) => (
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleRemoveCandidate(record.id);
-                                    }}
-                                    className="text-slate-300 hover:text-red-500 transition-colors p-1"
-                                  >
-                                    <Trash2 className="w-3 h-3" />
-                                  </button>
-                                ),
-                              },
-                            ]}
-                            rowKey="id"
-                            pagination={false}
-                            size="small"
-                            scroll={{ y: 300 }}
-                          />
-                        </div>
-                      ) : (
-                        <div className="text-center py-6 border border-dashed rounded-md bg-slate-50 text-slate-400 text-sm">
-                          暂无匹配对象，请点击右上角手动添加
-                        </div>
-                      )}
+                      {/* Table Rendering using sortingResults */}
+                      {(() => {
+                        const { hasData, tableData } = prepareTableDataForGoal(goalItem.id);
+
+                        if (!hasData) {
+                          return (
+                            <div className="text-center py-6 border border-dashed rounded-md bg-slate-50 text-slate-400 text-sm">
+                              暂无数据
+                            </div>
+                          );
+                        }
+
+                        return <SortingResultsTable tableData={tableData} />;
+                      })()}
                     </div>
 
                     {/* Supplementary Notes Section */}

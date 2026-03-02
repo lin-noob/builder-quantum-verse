@@ -74,11 +74,11 @@ export default function EventsSidebar({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">所有状态</SelectItem>
-                <SelectItem value="NEW">新建</SelectItem>
-                <SelectItem value="AI_ANALYZED">AI 已分析</SelectItem>
-                <SelectItem value="HUMAN_REVIEWED">人工已复核</SelectItem>
-                <SelectItem value="ACTION_TAKEN">已执行</SelectItem>
-                <SelectItem value="DISMISSED">已忽略</SelectItem>
+                <SelectItem value="1">意图分析</SelectItem>
+                <SelectItem value="2">数据准备</SelectItem>
+                <SelectItem value="3">数据推理</SelectItem>
+                <SelectItem value="4">执行动作</SelectItem>
+                <SelectItem value="5">结果回溯</SelectItem>
               </SelectContent>
             </Select>
           </div>

@@ -26,6 +26,7 @@ import {
 import { DecisionTraceState, GoalReasoning } from "./types";
 import { cn } from "@/lib/utils";
 import { PromptDebuggerDrawer } from "./PromptDebuggerDrawer";
+import { Step3ReasoningDrawer } from "./Step3ReasoningDrawer";
 import { getDecisionTraceView, submitDataInference } from "@/services/decisionTraceService";
 
 interface Step3Props {
@@ -37,8 +38,8 @@ interface Step3Props {
 
 export const Step3Reasoning: React.FC<Step3Props> = ({ state, onUpdate, onNext, onBack }) => {
   const { reasoning, intentAnalysis, dataPreparation } = state;
-  const { status, results = [], inferenceWord } = reasoning;
-
+  const { status, results = [], inferenceWord, reasoningAudit } = reasoning;
+  debugger;
   // Local state for handling "Questionable" input - Removed
 
   // Collapsible state
@@ -157,7 +158,7 @@ export const Step3Reasoning: React.FC<Step3Props> = ({ state, onUpdate, onNext, 
     try {
       const res = await submitDataInference(
         state.triggerEvent.id,
-        JSON.stringify(dataPreparation.sortingResults?.results as any) || "",
+        JSON.stringify({ results: dataPreparation.sortingResults?.results as any }) || "",
       );
       const viewRes = await getDecisionTraceView(state.triggerEvent.id);
       let dataInferenceWord = "";
@@ -165,35 +166,36 @@ export const Step3Reasoning: React.FC<Step3Props> = ({ state, onUpdate, onNext, 
       if (viewRes.status === 200 && viewRes.data?.data?.engine) {
         dataInferenceWord = viewRes.data.data.engine.dataInferenceWord || "";
       }
-      debugger;
       if (res.status === 200 && res.data?.data) {
         const rawInference = res.data.data.dataInference;
         const parsedInference = flexibleParse(rawInference);
         const perGoalReasoning = parsedInference?.per_goal_reasoning || [];
+        const reasoningAudit = parsedInference?.reasoning_audit || null;
         const mappedResults: GoalReasoning[] = perGoalReasoning.map((item: any) => ({
+          ...item,
           goalId: item.goal_id,
           summary: item.summary,
           goalDescription: item.goal_description,
-          facts: (item.facts || []).map((f: any) => ({
-            id: f.fact_id,
-            text: f.description,
-            source: f.source_instance_id,
-            confidence: 1.0,
-          })),
-          inferences: (item.inferences || []).map((inf: any) => ({
-            id: inf.inference_id,
-            text: inf.description,
-            logic: (inf.based_on_facts || []).map((bf: any) => bf.description).join(", "),
-            confidence: 1.0,
-            dependentFacts: (inf.based_on_facts || []).map((bf: any) => bf.fact_id),
-          })),
-          risks: (item.risks || []).map((r: any) => ({
-            id: r.risk_id,
-            triggerCondition: r.trigger_condition,
-            impact: `${r.description} ${r.impact}`,
-            probability: r.probability,
-          })),
-          assumptions: (item.assumptions || []).map((a: any) => `${a.description} (原因: ${a.reason})`),
+          // facts: (item.facts || []).map((f: any) => ({
+          //   id: f.fact_id,
+          //   text: f.description,
+          //   source: f.source_instance_id,
+          //   confidence: 1.0,
+          // })),
+          // inferences: (item.inferences || []).map((inf: any) => ({
+          //   id: inf.inference_id,
+          //   text: inf.description,
+          //   logic: (inf.based_on_facts || []).map((bf: any) => bf.description).join(", "),
+          //   confidence: 1.0,
+          //   dependentFacts: (inf.based_on_facts || []).map((bf: any) => bf.fact_id),
+          // })),
+          // risks: (item.risks || []).map((r: any) => ({
+          //   id: r.risk_id,
+          //   triggerCondition: r.trigger_condition,
+          //   impact: `${r.description} ${r.impact}`,
+          //   probability: r.probability,
+          // })),
+          // assumptions: (item.assumptions || []).map((a: any) => `${a.description} (原因: ${a.reason})`),
           status: "PENDING",
         }));
 
@@ -201,6 +203,7 @@ export const Step3Reasoning: React.FC<Step3Props> = ({ state, onUpdate, onNext, 
           status: "COMPLETED",
           results: mappedResults,
           inferenceWord: dataInferenceWord,
+          reasoningAudit: reasoningAudit,
           executedAt: new Date().toISOString(),
         });
         // Auto expand first goal with issues or just first goal
@@ -238,7 +241,7 @@ export const Step3Reasoning: React.FC<Step3Props> = ({ state, onUpdate, onNext, 
             </div>
             <div className="flex flex-col">
               <span className="text-base font-medium text-slate-900">{currentStatus.label}</span>
-              {status === "COMPLETED" && (
+              {/* {status === "COMPLETED" && (
                 <div className="flex items-center gap-2 mt-0.5">
                   <div className="h-1.5 w-24 bg-slate-100 rounded-full overflow-hidden">
                     <div
@@ -250,7 +253,7 @@ export const Step3Reasoning: React.FC<Step3Props> = ({ state, onUpdate, onNext, 
                     {acceptedCount} / {enabledGoals.length} 已接受
                   </span>
                 </div>
-              )}
+              )} */}
             </div>
           </div>
         </div>
@@ -270,6 +273,9 @@ export const Step3Reasoning: React.FC<Step3Props> = ({ state, onUpdate, onNext, 
 
           {/* Prompt Debugger Drawer - Placed consistently as Step 2 (right of button) */}
           <PromptDebuggerDrawer title="Reasoning Analysis" prompt={inferenceWord || ""} />
+
+          {/* Reasoning Trace Drawer - Show reasoning audit data */}
+          <Step3ReasoningDrawer title="推理追踪" reasoningAudit={reasoningAudit} />
 
           <div className="h-4 w-[1px] bg-slate-300 mx-1"></div>
 
@@ -339,7 +345,7 @@ export const Step3Reasoning: React.FC<Step3Props> = ({ state, onUpdate, onNext, 
             const riskCount = result?.risks?.length || 0;
             return (
               <div
-                key={goal.goal_id}
+                key={index}
                 className={cn(
                   "border rounded-lg transition-all duration-200 bg-white",
                   isExpanded
@@ -442,11 +448,13 @@ export const Step3Reasoning: React.FC<Step3Props> = ({ state, onUpdate, onNext, 
                         <div className="space-y-3 bg-slate-50/50 p-3 rounded-lg border border-slate-100/50">
                           {result.facts.length > 0 ? (
                             result.facts.map((fact) => (
-                              <div key={fact.id} className="pl-3 border-l-2 border-emerald-400 py-0.5">
-                                <div className="text-sm tracking-tight text-slate-800 leading-snug">{fact.text}</div>
-                                {fact.source && (
+                              <div key={fact.fact_id} className="pl-3 border-l-2 border-emerald-400 py-0.5">
+                                <div className="text-sm tracking-tight text-slate-800 leading-snug">
+                                  {fact.description}
+                                </div>
+                                {fact.source_instance_id && (
                                   <div className="text-[11px] text-slate-400 mt-1 flex items-center gap-1 font-mono">
-                                    <Database className="w-3 h-3" /> Source ID: {fact.source}
+                                    <Database className="w-3 h-3" /> Source ID: {fact.source_instance_id}
                                   </div>
                                 )}
                               </div>
@@ -468,20 +476,20 @@ export const Step3Reasoning: React.FC<Step3Props> = ({ state, onUpdate, onNext, 
                         <div className="space-y-3 bg-white p-3 rounded-lg border border-blue-100/50 shadow-sm">
                           {result.inferences.length > 0 ? (
                             result.inferences.map((inf) => (
-                              <div key={inf.id} className="flex gap-2">
+                              <div key={inf.inference_id} className="flex gap-2">
                                 <span className="text-blue-400 mt-0.5 tracking-tighter">→</span>
                                 <div className="space-y-1">
-                                  <div className="text-sm text-blue-900 leading-normal">{inf.text}</div>
+                                  <div className="text-sm text-blue-900 leading-normal">{inf.description}</div>
                                   <div className="flex flex-wrap items-center gap-1">
                                     <span className="text-[10px] text-slate-400 font-medium px-1 underline decoration-blue-200 decoration-2">
                                       基于事实:
                                     </span>
-                                    {(inf.dependentFacts || []).map((fid) => (
+                                    {(inf.based_on_facts || []).map((fid) => (
                                       <span
-                                        key={fid}
+                                        key={fid.fact_id}
                                         className="text-[10px] bg-blue-50 text-blue-600 px-1.5 py-0 rounded-full border border-blue-100"
                                       >
-                                        {fid}
+                                        {fid.fact_id}
                                       </span>
                                     ))}
                                   </div>
@@ -505,7 +513,10 @@ export const Step3Reasoning: React.FC<Step3Props> = ({ state, onUpdate, onNext, 
                         <div className="space-y-2">
                           {result.risks.length > 0 ? (
                             result.risks.map((risk) => (
-                              <div key={risk.id} className="flex gap-2 bg-white p-2 rounded border border-amber-100/50">
+                              <div
+                                key={risk.risk_id}
+                                className="flex gap-2 bg-white p-2 rounded border border-amber-100/50"
+                              >
                                 <AlertCircle className="w-3.5 h-3.5 text-amber-500 shrink-0 mt-0.5" />
                                 <div className="text-sm text-amber-900 leading-tight">
                                   {risk.triggerCondition}: {risk.impact}

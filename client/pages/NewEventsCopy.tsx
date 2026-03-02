@@ -223,7 +223,7 @@ export default function NewEventsCopy() {
               semanticSummaryWord: item.engine?.semanticSummaryWord,
               expertBriefingWord: item.engine?.expertBriefingWord,
               sortingEngineWord: item.engine?.sortingEngineWord,
-              inferenceWord: item.engine?.inferenceWord,
+              inferenceWord: item.engine?.dataInferenceWord,
               current_step: item.status ? Number(item.status) : undefined,
             });
           } else {

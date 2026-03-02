@@ -10,9 +10,7 @@ import CollapsibleLayer from "@/components/incidentCopy/CollapsibleLayer";
 import StickyActionBar, { EventActionStatus } from "@/components/incidentCopy/StickyActionBar";
 import EventsSidebar, { EventsSidebarFilters } from "@/components/incidentCopy/EventsSidebar";
 import { Search } from "lucide-react";
-import { cn } from "@/lib/utils";
 import dayjs from "dayjs";
-import { DecisionTraceLayout } from "@/components/decisionTrace/DecisionTraceLayout";
 
 // Helper removed
 
