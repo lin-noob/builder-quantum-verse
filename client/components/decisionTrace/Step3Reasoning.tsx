@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
@@ -11,17 +10,12 @@ import {
   ShieldCheck,
   AlertTriangle,
   HelpCircle,
-  RotateCcw,
   Database,
   Loader2,
   Play,
-  ArrowRight,
   ArrowLeft,
   ChevronDown,
   ChevronUp,
-  Maximize2,
-  Minimize2,
-  Terminal,
 } from "lucide-react";
 import { DecisionTraceState, GoalReasoning } from "./types";
 import { cn } from "@/lib/utils";

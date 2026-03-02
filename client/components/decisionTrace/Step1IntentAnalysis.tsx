@@ -29,7 +29,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { PromptDebuggerDrawer } from "./PromptDebuggerDrawer";
 import { Step1IntentTraceDrawer } from "./Step1IntentTraceDrawer";
-import { submitIntentAnalysis, getDecisionTraceView } from "@/services/decisionTraceService";
+import { getDecisionTraceView } from "@/services/decisionTraceService";
 
 interface Step1Props {
   state: DecisionTraceState;
@@ -40,14 +40,7 @@ interface Step1Props {
   onRestart: () => void;
 }
 
-export const Step1IntentAnalysis: React.FC<Step1Props> = ({
-  state,
-  onUpdate,
-  onUpdateData,
-  onNext,
-  onTerminate,
-  onRestart,
-}) => {
+export const Step1IntentAnalysis: React.FC<Step1Props> = ({ state, onUpdate, onNext, onTerminate, onRestart }) => {
   const { TextArea } = Input;
   const { intentAnalysis } = state;
   const [isSubmitting, setIsSubmitting] = React.useState(false);
@@ -99,19 +92,6 @@ export const Step1IntentAnalysis: React.FC<Step1Props> = ({
     markAsModified({ goals: [...intentAnalysis.goals, newGoal] });
   };
 
-  const handleDeleteGoal = (id: string) => {
-    markAsModified({ goals: intentAnalysis.goals.filter((g) => g.id !== id) });
-  };
-
-  const handleTerminate = () => {
-    onUpdate({
-      stepStatus: "TERMINATED",
-      status: "completed",
-      isModified: false,
-    });
-    onTerminate();
-  };
-
   const handleRestart = () => {
     onUpdate({
       stepStatus: "AI_ANALYZED",
@@ -119,41 +99,6 @@ export const Step1IntentAnalysis: React.FC<Step1Props> = ({
       isModified: false,
     });
     onRestart();
-  };
-
-  const flexibleParse = (str: any): any => {
-    if (!str) return null;
-    if (typeof str !== "string") return str;
-
-    let current = str.trim();
-
-    // 1. Try iterative parsing (handles multiple layers of stringification)
-    for (let i = 0; i < 3; i++) {
-      try {
-        const parsed = JSON.parse(current);
-        if (typeof parsed !== "string") return parsed;
-        current = parsed.trim();
-      } catch (e) {
-        break;
-      }
-    }
-
-    // 2. If iterative fails, try aggressive cleaning for common AI formatting issues
-    try {
-      const cleaned = current
-        .replace(/\\n/g, "\n")
-        .replace(/\/n/g, "\n")
-        .replace(/\\"/g, '"')
-        .replace(/^"+|"+$/g, "")
-        .trim();
-
-      if (!cleaned) return null;
-      const finalData = JSON.parse(cleaned);
-      return typeof finalData === "string" ? JSON.parse(finalData) : finalData;
-    } catch (e) {
-      console.error("[Step 1] JSON Cleaning failure:", e);
-      return null;
-    }
   };
 
   const handleConfirm = async () => {
@@ -181,7 +126,6 @@ export const Step1IntentAnalysis: React.FC<Step1Props> = ({
       };
 
       // 2. Submit analysis with POST request
-      const res = await submitIntentAnalysis(state.triggerEvent.id, JSON.stringify(semanticSummary));
 
       let expertBriefingWord = "";
       let sortingEngineWord = "";
@@ -217,23 +161,6 @@ export const Step1IntentAnalysis: React.FC<Step1Props> = ({
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const convertIntentAnalysisToRequest = (intentAnalysis: DecisionTraceState["intentAnalysis"]) => {
-    return {
-      core_intent: {
-        summary: intentAnalysis.coreIntent,
-        confidence: intentAnalysis.confidence || 0.8,
-      },
-      goals: intentAnalysis.goals.map((g) => ({
-        goal_id: g.id,
-        goal_description: g.description,
-        recommendation: {
-          strategy: g.initialSuggestion || "",
-          suggested_next_step: g.suggestedNextStep || "",
-        },
-      })),
-    };
   };
 
   // Status Configuration
@@ -304,7 +231,7 @@ export const Step1IntentAnalysis: React.FC<Step1Props> = ({
               onChange={(e) => markAsModified({ coreIntent: e.target.value })}
               disabled={isTerminated}
               className={cn(
-                "h-9 text-base font-medium pr-20",
+                "h-9 text-base font-medium",
                 isTerminated
                   ? "border-slate-200 bg-slate-50 text-slate-500"
                   : "border-slate-300 focus-visible:ring-blue-500",
@@ -354,19 +281,6 @@ export const Step1IntentAnalysis: React.FC<Step1Props> = ({
             </TooltipContent>
           </Tooltip>
 
-          <Button
-            variant="ghost"
-            size="sm"
-            className={cn(
-              "gap-1 px-2",
-              isTerminated ? "text-slate-400 cursor-not-allowed" : "text-red-600 hover:text-red-700 hover:bg-red-50",
-            )}
-            onClick={handleTerminate}
-            disabled={isTerminated}
-          >
-            <XCircle className="w-4 h-4" />
-            <span className="hidden sm:inline">终止</span>
-          </Button>
           {isTerminated && (
             <Button
               variant="outline"

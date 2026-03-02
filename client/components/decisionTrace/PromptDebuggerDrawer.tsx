@@ -13,6 +13,8 @@ import {
   SheetFooter,
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
+import { useRefresh } from "./RefreshContext";
+import { request } from "@/lib/request";
 
 const { TextArea } = Input;
 
@@ -38,6 +40,7 @@ export const PromptDebuggerDrawer: React.FC<PromptDebuggerDrawerProps> = ({
   model = "",
 }) => {
   const [activeTab, setActiveTab] = React.useState("0");
+  const { refreshEventDetails } = useRefresh(); // 使用刷新hook
 
   // Compute normalized prompts directly without memoization
   const normalizedPrompts = prompts.length > 0 ? prompts : prompt ? [{ label: "Default", word: prompt, model }] : [];
@@ -51,9 +54,9 @@ export const PromptDebuggerDrawer: React.FC<PromptDebuggerDrawerProps> = ({
   const [userEdits, setUserEdits] = React.useState<Record<number, string>>({});
 
   const handlePromptChange = (index: number, newValue: string) => {
-    setUserEdits(prev => ({
+    setUserEdits((prev) => ({
       ...prev,
-      [index]: newValue
+      [index]: newValue,
     }));
   };
 
@@ -66,8 +69,24 @@ export const PromptDebuggerDrawer: React.FC<PromptDebuggerDrawerProps> = ({
   const getEffectivePrompts = () => {
     return editedPrompts.map((prompt, index) => ({
       ...prompt,
-      word: getPromptValue(index)
+      word: getPromptValue(index),
     }));
+  };
+
+  // Handle re-run with refresh
+  const handleReRun = () => {
+    const effectivePrompts = getEffectivePrompts();
+    onReRun?.(effectivePrompts);
+
+    request
+      .post("/quote/api/v1/decision/trace/again", {
+        word: effectivePrompts[0].word,
+        status: 1,
+      })
+      .then(() => {
+        // 同步刷新事件详情
+        refreshEventDetails();
+      });
   };
 
   return (
@@ -158,11 +177,7 @@ export const PromptDebuggerDrawer: React.FC<PromptDebuggerDrawerProps> = ({
 
         <SheetFooter className="p-6 border-t bg-slate-50/50">
           <div className="flex items-center justify-end gap-3 w-full">
-            <Button
-              size="sm"
-              className="gap-2 bg-blue-600 hover:bg-blue-700 px-6"
-              onClick={() => onReRun?.(getEffectivePrompts())}
-            >
+            <Button size="sm" className="gap-2 bg-blue-600 hover:bg-blue-700 px-6" onClick={handleReRun}>
               <Play className="w-4 h-4" />
               重新执行 (Re-run)
             </Button>

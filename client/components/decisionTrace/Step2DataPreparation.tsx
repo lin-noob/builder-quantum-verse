@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -10,30 +10,13 @@ import {
   CheckCircle2,
   Search,
   AlertCircle,
-  Plus,
-  Trash2,
   ArrowLeft,
   ChevronDown,
   ChevronUp,
-  Info,
-  XCircle,
-  HelpCircle,
-  Code2,
-  Terminal,
-  Play,
 } from "lucide-react";
-import { DecisionTraceState, DecisionGoal, CandidateInstance, DataIntegrityIssue } from "./types";
+import { DecisionTraceState, CandidateInstance } from "./types";
 import { cn } from "@/lib/utils";
 
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-  SheetFooter,
-} from "@/components/ui/sheet";
 import { PromptDebuggerDrawer } from "./PromptDebuggerDrawer";
 import { Step2ObjectMappingDrawer } from "./Step2ObjectMappingDrawer";
 import { InstanceDetailDrawer } from "./InstanceDetailDrawer";
@@ -51,7 +34,7 @@ interface Step2Props {
 }
 
 export const Step2DataPreparation: React.FC<Step2Props> = ({ state, onUpdate, onNext, onBack }) => {
-  const { dataPreparation, intentAnalysis } = state;
+  const { dataPreparation } = state;
   let {
     candidates,
     integrityIssues,
@@ -210,34 +193,6 @@ export const Step2DataPreparation: React.FC<Step2Props> = ({ state, onUpdate, on
     const currentConfirmed = dataPreparation.confirmedGoalIds || [];
     if (!currentConfirmed.includes(goalId)) {
       onUpdate({ confirmedGoalIds: [...currentConfirmed, goalId] });
-    }
-  };
-
-  const handleAddCandidate = (goalId: string) => {
-    const newId = `inst_${Date.now()}`;
-    const newCandidate: CandidateInstance = {
-      id: newId,
-      goalId,
-      name: `手动实例 ${newId.slice(-4)}`,
-      type: "手动",
-      isSelected: true,
-      data: { manual: true },
-      missingFields: [],
-    };
-    onUpdate({ candidates: [...candidates, newCandidate] });
-    if (!expandedGoals.includes(goalId)) {
-      setExpandedGoals((prev) => [...prev, goalId]);
-    }
-  };
-
-  const handleRemoveCandidate = (candidateId: string) => {
-    // Check if it's a manual candidate
-    const isManual = candidates.some((c) => c.id === candidateId);
-    if (isManual) {
-      onUpdate({ candidates: candidates.filter((c) => c.id !== candidateId) });
-    } else {
-      // It's an AI-matched object, add to excluded list
-      onUpdate({ excludedObjectIds: [...excludedObjectIds, candidateId] });
     }
   };
 

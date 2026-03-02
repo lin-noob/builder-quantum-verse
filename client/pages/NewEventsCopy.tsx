@@ -3,12 +3,15 @@ import { request } from "@/lib/request";
 import { getDecisionTraceView } from "@/services/decisionTraceService";
 import { DecisionEvent, DecisionTraceItem } from "@/components/incidentCopy/DecisionEventListItem";
 import { DecisionTraceLayout } from "@/components/decisionTrace/DecisionTraceLayout";
+import { RefreshProvider, useRefresh } from "@/components/decisionTrace/RefreshContext";
 import { cn } from "@/lib/utils";
 import dayjs from "dayjs";
 import EventsSidebar, { EventsSidebarFilters } from "@/components/incidentCopy/EventsSidebar";
 import { Search } from "lucide-react";
 
-export default function NewEventsCopy() {
+// 内部组件，使用useRefresh hook
+const EventsContent: React.FC = () => {
+  const { refreshTrigger } = useRefresh();
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [events, setEvents] = useState<DecisionEvent[]>([]);
   const [selectedEvent, setSelectedEvent] = useState<DecisionEvent>();
@@ -235,7 +238,7 @@ export default function NewEventsCopy() {
       }
     };
     fetchDetails();
-  }, [selectedEventId]);
+  }, [selectedEventId, refreshTrigger]); // 使用来自context的refreshTrigger
 
   const handleFilterChange = (updates: Partial<EventsSidebarFilters>) => {
     setFilters((prev) => ({ ...prev, ...updates }));
@@ -265,7 +268,11 @@ export default function NewEventsCopy() {
       {/* 右侧：决策追踪主界面 - 传递 selectedEvent */}
       <div className="flex-1 overflow-hidden">
         {selectedEventId ? (
-          <DecisionTraceLayout key={selectedEventId} eventId={selectedEventId} event={selectedEvent} />
+          <DecisionTraceLayout
+            key={selectedEventId}
+            eventId={selectedEventId}
+            event={selectedEvent}
+          />
         ) : (
           <div className="h-full flex items-center justify-center text-slate-400 bg-slate-50">
             <div className="text-center">
@@ -276,5 +283,14 @@ export default function NewEventsCopy() {
         )}
       </div>
     </div>
+  );
+};
+
+// 主组件，提供RefreshProvider
+export default function NewEventsCopy() {
+  return (
+    <RefreshProvider>
+      <EventsContent />
+    </RefreshProvider>
   );
 }
