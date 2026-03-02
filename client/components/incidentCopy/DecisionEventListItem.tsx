@@ -44,7 +44,7 @@ export interface DecisionEvent {
     type?: string;
   };
   ai_initial_judgement: string;
-  status: "NEW" | "AI_ANALYZED" | "HUMAN_REVIEWED" | "ACTION_TAKEN" | "DISMISSED";
+  status: number;
   occurred_at: string;
   ai_analyzed_at?: string | null;
   has_human_override: boolean;

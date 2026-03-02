@@ -197,6 +197,7 @@ export interface SortingEngine {
 }
 
 export interface DecisionTraceState {
+  status: number;
   currentStep: DecisionStep;
   overallStatus?: "IN_PROGRESS" | "WAITING_CONFIRMATION" | "COMPLETED" | "TERMINATED" | "PAUSED";
 

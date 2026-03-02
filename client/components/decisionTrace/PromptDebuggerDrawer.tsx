@@ -2,7 +2,7 @@ import React from "react";
 import { Terminal, Code2, Play, Hash } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input, Tabs } from "antd";
+import { Input, message, Tabs } from "antd";
 import {
   Sheet,
   SheetContent,
@@ -26,6 +26,9 @@ interface DebugPrompt {
 
 interface PromptDebuggerDrawerProps {
   title: string;
+  currentStep: string;
+  id: string;
+  status?: number;
   prompt?: string; // Legacy single prompt
   prompts?: DebugPrompt[]; // Support for multiple tabs
   onReRun?: (editedPrompts?: DebugPrompt[]) => void;
@@ -37,10 +40,14 @@ export const PromptDebuggerDrawer: React.FC<PromptDebuggerDrawerProps> = ({
   prompt,
   prompts = [],
   onReRun,
+  id,
   model = "",
+  currentStep = "intent",
 }) => {
   const [activeTab, setActiveTab] = React.useState("0");
-  const { refreshEventDetails } = useRefresh(); // 使用刷新hook
+  const [open, setOpen] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(false);
+  const { refreshEventDetails } = useRefresh();
 
   // Compute normalized prompts directly without memoization
   const normalizedPrompts = prompts.length > 0 ? prompts : prompt ? [{ label: "Default", word: prompt, model }] : [];
@@ -77,20 +84,41 @@ export const PromptDebuggerDrawer: React.FC<PromptDebuggerDrawerProps> = ({
   const handleReRun = () => {
     const effectivePrompts = getEffectivePrompts();
     onReRun?.(effectivePrompts);
+    setIsLoading(true);
 
     request
       .post("/quote/api/v1/decision/trace/again", {
         word: effectivePrompts[0].word,
-        status: 1,
+        status: getStatus(),
+        id,
       })
       .then(() => {
-        // 同步刷新事件详情
+        // 重新执行成功后关闭抽屉，并刷新事件详情
+        setOpen(false);
         refreshEventDetails();
+        message.success("重新执行成功");
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
   };
 
+  const getStatus = () => {
+    switch (currentStep) {
+      case "intent":
+        return 1;
+      case "data":
+        if (activeTab === "0") return 2;
+        return 3;
+      case "reasoning":
+        return 4;
+      default:
+        return 1;
+    }
+  };
+
   return (
-    <Sheet>
+    <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-slate-600">
           <Code2 className="w-4 h-4" />
@@ -177,9 +205,14 @@ export const PromptDebuggerDrawer: React.FC<PromptDebuggerDrawerProps> = ({
 
         <SheetFooter className="p-6 border-t bg-slate-50/50">
           <div className="flex items-center justify-end gap-3 w-full">
-            <Button size="sm" className="gap-2 bg-blue-600 hover:bg-blue-700 px-6" onClick={handleReRun}>
+            <Button
+              size="sm"
+              className="gap-2 bg-blue-600 hover:bg-blue-700 px-6"
+              onClick={handleReRun}
+              disabled={isLoading}
+            >
               <Play className="w-4 h-4" />
-              重新执行 (Re-run)
+              {isLoading ? "执行中..." : "重新执行 (Re-run)"}
             </Button>
           </div>
         </SheetFooter>

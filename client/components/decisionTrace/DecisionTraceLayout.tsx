@@ -24,6 +24,7 @@ import { cn } from "@/lib/utils";
 import { getMockState } from "./mockData";
 
 const getEmptyState = (eventId?: string, event?: DecisionEvent | null): DecisionTraceState => ({
+  status: event?.status || 1,
   currentStep: "intent",
   overallStatus: "IN_PROGRESS",
   triggerEvent: {
@@ -252,6 +253,7 @@ export const DecisionTraceLayout: React.FC<DecisionTraceLayoutProps> = ({ eventI
   const headerEvent: DecisionEvent = useMemo(() => {
     return {
       id: state.triggerEvent.id,
+      status: state.status,
       type: "CUSTOMER_EMAIL_RECEIVED",
       type_label: "客户发送了新邮件",
       icon: "mail",
@@ -261,7 +263,6 @@ export const DecisionTraceLayout: React.FC<DecisionTraceLayoutProps> = ({ eventI
         type: "Customer",
       },
       ai_initial_judgement: state.intentAnalysis.coreIntent || "待分析",
-      status: "AI_ANALYZED",
       occurred_at: state.triggerEvent.timestamp,
       ai_analyzed_at: new Date(new Date(state.triggerEvent.timestamp).getTime() + 60000)
         .toISOString()

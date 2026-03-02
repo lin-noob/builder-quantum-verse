@@ -14,16 +14,17 @@ import {
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
-import { DecisionTraceState, CandidateInstance } from "./types";
+import { DecisionTraceState } from "./types";
 import { cn } from "@/lib/utils";
 
 import { PromptDebuggerDrawer } from "./PromptDebuggerDrawer";
 import { Step2ObjectMappingDrawer } from "./Step2ObjectMappingDrawer";
 import { InstanceDetailDrawer } from "./InstanceDetailDrawer";
+import { useRefresh } from "./RefreshContext";
+import { request } from "@/lib/request";
 
 const { TextArea } = Input;
 
-const EMPTY_ARRAY: any[] = [];
 const EMPTY_OBJECT: Record<string, any> = {};
 
 interface Step2Props {
@@ -34,15 +35,9 @@ interface Step2Props {
 }
 
 export const Step2DataPreparation: React.FC<Step2Props> = ({ state, onUpdate, onNext, onBack }) => {
+  const { refreshEventDetails } = useRefresh(); // 使用刷新hook
   const { dataPreparation } = state;
-  let {
-    candidates,
-    integrityIssues,
-    expertBriefing,
-    supplementaryNotes = EMPTY_OBJECT,
-    excludedObjectIds = EMPTY_ARRAY,
-    sortingResults,
-  } = dataPreparation;
+  const { integrityIssues, expertBriefing, supplementaryNotes = EMPTY_OBJECT, sortingResults } = dataPreparation;
 
   // sortingResults = {};
 
@@ -363,6 +358,8 @@ export const Step2DataPreparation: React.FC<Step2Props> = ({ state, onUpdate, on
           {/* Prompt Debugger Drawer */}
           <PromptDebuggerDrawer
             title="Data Preparation & Sorting"
+            currentStep={state.currentStep}
+            id={state.triggerEvent.id}
             prompts={[
               {
                 label: "Data Prep",

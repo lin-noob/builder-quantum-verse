@@ -255,7 +255,6 @@ export const Step3Reasoning: React.FC<Step3Props> = ({ state, onUpdate, onNext, 
         {/* Right Side: Actions */}
         <div className="flex items-center gap-2">
           <div className="h-4 w-[1px] bg-slate-300 mx-1"></div>
-
           <Button
             variant="ghost"
             size="sm"
@@ -264,15 +263,16 @@ export const Step3Reasoning: React.FC<Step3Props> = ({ state, onUpdate, onNext, 
           >
             <ArrowLeft className="w-4 h-4" /> 返回数据准备
           </Button>
-
           {/* Prompt Debugger Drawer - Placed consistently as Step 2 (right of button) */}
-          <PromptDebuggerDrawer title="Reasoning Analysis" prompt={inferenceWord || ""} />
-
+          <PromptDebuggerDrawer
+            currentStep={state.currentStep}
+            id={state.triggerEvent.id}
+            title="Reasoning Analysis"
+            prompt={inferenceWord || ""}
+          />
           {/* Reasoning Trace Drawer - Show reasoning audit data */}
           <Step3ReasoningDrawer title="推理追踪" reasoningAudit={reasoningAudit} />
-
           <div className="h-4 w-[1px] bg-slate-300 mx-1"></div>
-
           {status === "NOT_STARTED" || status === "REASONING" ? (
             <Button
               size="sm"

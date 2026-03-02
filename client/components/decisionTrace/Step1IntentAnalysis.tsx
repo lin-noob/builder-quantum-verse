@@ -41,7 +41,6 @@ interface Step1Props {
 }
 
 export const Step1IntentAnalysis: React.FC<Step1Props> = ({ state, onUpdate, onNext, onTerminate, onRestart }) => {
-  const { TextArea } = Input;
   const { intentAnalysis } = state;
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const isTerminated = intentAnalysis.stepStatus === "TERMINATED";
@@ -299,6 +298,8 @@ export const Step1IntentAnalysis: React.FC<Step1Props> = ({ state, onUpdate, onN
           {/* Prompt Debugger Drawer */}
           <PromptDebuggerDrawer
             title="Intent Analysis"
+            currentStep={state.currentStep}
+            id={state.triggerEvent.id}
             prompt={
               state.dataPreparation.semanticSummaryWord ||
               `Based on the user trigger event: "${state.triggerEvent.content.slice(0, 100)}...", break down the core intent and specific actionable goals.`
