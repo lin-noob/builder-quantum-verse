@@ -33,8 +33,6 @@ interface Step3Props {
 export const Step3Reasoning: React.FC<Step3Props> = ({ state, onUpdate, onNext, onBack }) => {
   const { reasoning, intentAnalysis, dataPreparation } = state;
   const { status, results = [], inferenceWord, reasoningAudit } = reasoning;
-  debugger;
-  // Local state for handling "Questionable" input - Removed
 
   // Collapsible state
   const [expandedGoals, setExpandedGoals] = useState<string[]>([]);
@@ -74,35 +72,6 @@ export const Step3Reasoning: React.FC<Step3Props> = ({ state, onUpdate, onNext, 
 
   // Calculate Progress
   const enabledGoals = results;
-  const acceptedCount = results ? results.filter((r) => r.status === "ACCEPTED").length : 0;
-  const progressPercent = enabledGoals.length > 0 ? (acceptedCount / enabledGoals.length) * 100 : 0;
-
-  const handleGoalStatusChange = (goalId: string, newStatus: GoalReasoning["status"], note?: string) => {
-    const newResults = results.map((r) => {
-      if (r.goalId === goalId) {
-        return { ...r, status: newStatus, userNote: note };
-      }
-      return r;
-    });
-
-    // Check global status update
-    const anyWarning = newResults.some((r) => r.status === "QUESTIONABLE");
-    const allAccepted = newResults.every((r) => r.status === "ACCEPTED");
-
-    onUpdate({
-      results: newResults,
-      status: anyWarning ? "WARNING" : allAccepted ? "COMPLETED" : "COMPLETED",
-    });
-
-    if (newStatus === "RE_REASON_NEEDED") {
-      onBack();
-    }
-
-    // If accepted, collapse this card
-    if (newStatus === "ACCEPTED") {
-      setExpandedGoals((prev) => prev.filter((id) => id !== goalId));
-    }
-  };
 
   // Auto-execute reasoning only when Step2 data preparation is completed
   useEffect(() => {
@@ -148,7 +117,14 @@ export const Step3Reasoning: React.FC<Step3Props> = ({ state, onUpdate, onNext, 
 
   const handleExecute = async () => {
     onUpdate({ status: "REASONING" });
+    if (!dataPreparation?.sortingResults?.results) {
+      return;
+    }
 
+    for (let index = 0; index < dataPreparation.sortingResults.results.length; index++) {
+      const element = dataPreparation.sortingResults.results[index];
+      element.human_context_note = dataPreparation.supplementaryNotes[element.goal_id] || "";
+    }
     try {
       const res = await submitDataInference(
         state.triggerEvent.id,
@@ -327,7 +303,6 @@ export const Step3Reasoning: React.FC<Step3Props> = ({ state, onUpdate, onNext, 
         <div className="space-y-3 pb-8">
           {enabledGoals.map((goal, index) => {
             const result = goal;
-            const candidates = dataPreparation.candidates.filter((c) => c.goalId === goal.goal_id && c.isSelected);
             const isExpanded = expandedGoals.includes(goal.goal_id);
 
             // If no result yet, we'll show a "Pending Analysis" state

@@ -11,7 +11,6 @@ interface InstanceDetailDrawerProps {
 
 export const InstanceDetailDrawer: React.FC<InstanceDetailDrawerProps> = ({ instance, trigger }) => {
   const { instance_snapshot } = instance;
-  console.log(instance_snapshot);
 
   const formatDate = (dateString: string) => {
     try {
