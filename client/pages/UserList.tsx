@@ -611,7 +611,7 @@ export default function UserList() {
         headers: {
           "Content-Type": "application/json",
         },
-        timeout: 3000,
+        timeout: 30000,
       });
 
       const records = response.data.data.records || [];
