@@ -700,12 +700,14 @@ export default function UserDetail() {
                           >
                             {t("userDetail.tabs.overview", "总览")}
                           </TabsTrigger>
-                          <TabsTrigger
-                            className="w-full justify-start rounded-md px-3 py-2 text-sm hover:bg-primary/5 data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:font-semibold data-[state=active]:border-l-2 data-[state=active]:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-                            value="timeline"
-                          >
-                            访问时间线
-                          </TabsTrigger>
+                          {hasPermission("user.timeline") && (
+                            <TabsTrigger
+                              className="w-full justify-start rounded-md px-3 py-2 text-sm hover:bg-primary/5 data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:font-semibold data-[state=active]:border-l-2 data-[state=active]:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                              value="timeline"
+                            >
+                              访问时间线
+                            </TabsTrigger>
+                          )}
                           <TabsTrigger
                             className="w-full justify-start rounded-md px-3 py-2 text-sm hover:bg-primary/5 data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:font-semibold data-[state=active]:border-l-2 data-[state=active]:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                             value="statistics"
@@ -985,9 +987,11 @@ export default function UserDetail() {
                       </div> */}
                     </TabsContent>
 
-                    <TabsContent value="timeline" className="space-y-6">
-                      <SessionTimeline cdpUserId={user.cdpId} sessionId={user.distinctId} />
-                    </TabsContent>
+                    {hasPermission("user.timeline") && (
+                      <TabsContent value="timeline" className="space-y-6">
+                        <SessionTimeline cdpUserId={user.cdpId} sessionId={user.distinctId} />
+                      </TabsContent>
+                    )}
 
                     <TabsContent value="statistics">
                       <OrderHistory cdpUserId={user.cdpId} sessionId={user.distinctId} />
