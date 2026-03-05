@@ -274,6 +274,8 @@ export default function UserList() {
     bounceMax: "", // 百分比 0-100
   });
 
+  const [totalData, setTotalData] = useState<Record<string, any>>({});
+
   // Column Configuration State
   const [selectedColumns, setSelectedColumns] = useState<string[]>([
     "name",
@@ -596,6 +598,9 @@ export default function UserList() {
 
       // 有项目时调用真实API
       const requestBody = buildRequestBody();
+
+      const totalRes = await request.post("/quote/api/v1/profile/total", requestBody);
+      setTotalData(totalRes.data?.data || {});
 
       // 使用通用request方法明确指定POST，添加快速超时
       const response = await request.request<{
@@ -1417,7 +1422,23 @@ export default function UserList() {
               position: ["bottomRight"],
             }}
             onChange={handleTableChange}
-            scroll={{ x: "max-content", y: 450 }}
+            scroll={{ x: "max-content", y: 380 }}
+            summary={() => (
+              <Table.Summary fixed="bottom">
+                <Table.Summary.Row className="bg-gray-50/50 font-bold text-xs">
+                  <Table.Summary.Cell index={0}>
+                    <div className="pl-4 text-gray-900 border-r border-gray-100">总计</div>
+                  </Table.Summary.Cell>
+                  {tableColumns.slice(1).map((col, idx) => (
+                    <Table.Summary.Cell index={idx + 1} key={col.key}>
+                      <div className="text-xs text-gray-900">
+                        {totalData[col.key] !== undefined ? totalData[col.key] : "-"}
+                      </div>
+                    </Table.Summary.Cell>
+                  ))}
+                </Table.Summary.Row>
+              </Table.Summary>
+            )}
           />
         </Card>
       </div>
