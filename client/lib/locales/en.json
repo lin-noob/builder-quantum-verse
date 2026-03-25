@@ -282,24 +282,6 @@
         "Custom dimensions",
         "Data drill-down analysis",
         "Scheduled report delivery"
-      ],
-      "fullTrackingBenefits": [
-        "Multi-touchpoint attribution analysis",
-        "Conversion path tracking",
-        "Channel performance comparison",
-        "User journey visualization"
-      ],
-      "roiCalculationBenefits": [
-        "Input cost accounting",
-        "Accurate revenue calculation",
-        "ROI/ROAS analysis",
-        "Cost optimization recommendations"
-      ],
-      "predictionModelBenefits": [
-        "Effect trend prediction",
-        "Seasonal analysis",
-        "Growth prediction models",
-        "Optimization strategy recommendations"
       ]
     },
     "architecture": {
@@ -425,6 +407,11 @@
   "results": {
     "ecommerceSubtitle": "Actual business improvements brought by e-commerce marketing solutions",
     "contentSubtitle": "Verified by real brand data, comprehensively enhancing content marketing effectiveness and brand influence"
+  },
+  "userList": {
+    "pagination": {
+      "showing": "Show {{start}}-{{end}} of {{total}}"
+    }
   },
   "scenarios": {
     "list": {

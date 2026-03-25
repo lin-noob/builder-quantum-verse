@@ -63,6 +63,7 @@ export interface DecisionEvent {
   inferenceWord?: string;
   trace_status?: string;
   current_step?: number;
+  childStatus?: number;
 }
 
 interface DecisionEventListItemProps {

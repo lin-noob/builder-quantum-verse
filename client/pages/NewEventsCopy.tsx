@@ -268,11 +268,7 @@ const EventsContent: React.FC = () => {
       {/* 右侧：决策追踪主界面 - 传递 selectedEvent */}
       <div className="flex-1 overflow-hidden">
         {selectedEventId ? (
-          <DecisionTraceLayout
-            key={selectedEventId}
-            eventId={selectedEventId}
-            event={selectedEvent}
-          />
+          <DecisionTraceLayout key={selectedEventId} eventId={selectedEventId} event={selectedEvent} />
         ) : (
           <div className="h-full flex items-center justify-center text-slate-400 bg-slate-50">
             <div className="text-center">

@@ -83,6 +83,8 @@ const RulesPage = () => {
     // Convert selector attributes to string format (key=value,key=value)
     const attributes = rule.conditions.selector?.attributesRaw ?? "";
 
+    debugger;
+
     return {
       ruleName: rule.name,
       eventType: rule.conditions.eventType,

@@ -26,6 +26,7 @@ import { getMockState } from "./mockData";
 const getEmptyState = (eventId?: string, event?: DecisionEvent | null): DecisionTraceState => ({
   status: event?.status || 1,
   currentStep: "intent",
+  childStatus: event?.childStatus || 1,
   overallStatus: "IN_PROGRESS",
   triggerEvent: {
     id: eventId || event?.id || "",
@@ -46,7 +47,7 @@ const getEmptyState = (eventId?: string, event?: DecisionEvent | null): Decision
     requirements: [],
     candidates: [],
     integrityIssues: [],
-    status: "pending",
+    status: "NOT_STARTED",
     semanticSummaryWord: event?.semanticSummaryWord,
     expertBriefingWord: event?.expertBriefingWord,
     sortingEngineWord: event?.sortingEngineWord,
@@ -105,9 +106,21 @@ export const DecisionTraceLayout: React.FC<DecisionTraceLayoutProps> = ({ eventI
           5: "result",
         };
         const currentStepStr = nextStepMap[event.current_step || 1] || "intent";
+
+        // Derive childStatus if missing from API
+        let derivedChildStatus = event.childStatus || mockState.childStatus;
+        if (!event.childStatus || event.childStatus === 1) {
+          if (currentStepStr === "intent" && goals.length > 0) {
+            derivedChildStatus = 3; // Intent analysis result pending confirmation
+          } else if (event.status === 8) {
+            derivedChildStatus = 8;
+          }
+        }
+
         setState({
           ...mockState,
           currentStep: currentStepStr,
+          childStatus: derivedChildStatus,
           intentAnalysis: {
             ...mockState.intentAnalysis,
             coreIntent: summary.core_intent?.summary || event.ai_initial_judgement || "",
@@ -217,11 +230,19 @@ export const DecisionTraceLayout: React.FC<DecisionTraceLayoutProps> = ({ eventI
       };
       setState((prev) => {
         const newState = { ...prev, currentStep: stepMap[next] };
+        // Trigger execution if moving forwards
+        if (next === 2) {
+          newState.dataPreparation = {
+            ...newState.dataPreparation,
+            executionTriggered: true,
+          };
+        }
         // Reset reasoning status if we are entering Step 3 (Data Reasoning)
         if (next === 3) {
           newState.reasoning = {
             ...newState.reasoning,
             status: "NOT_STARTED",
+            executionTriggered: true,
           };
         }
         return newState;
@@ -277,8 +298,18 @@ export const DecisionTraceLayout: React.FC<DecisionTraceLayoutProps> = ({ eventI
   }, [state.triggerEvent, state.intentAnalysis.coreIntent]);
 
   // State Updates
-  const updateIntent = (updates: Partial<DecisionTraceState["intentAnalysis"]>) => {
-    setState((prev) => ({ ...prev, intentAnalysis: { ...prev.intentAnalysis, ...updates } }));
+  const updateIntent = (updates: any) => {
+    setState((prev) => {
+      const { childStatus, ...intentUpdates } = updates;
+      const newState = {
+        ...prev,
+        intentAnalysis: { ...prev.intentAnalysis, ...intentUpdates },
+      };
+      if (childStatus !== undefined) {
+        newState.childStatus = childStatus;
+      }
+      return newState;
+    });
   };
 
   const updateData = (updates: Partial<DecisionTraceState["dataPreparation"]>) => {
@@ -318,6 +349,7 @@ export const DecisionTraceLayout: React.FC<DecisionTraceLayoutProps> = ({ eventI
     setState((prev) => ({
       ...prev,
       overallStatus: "TERMINATED",
+      childStatus: 8,
       intentAnalysis: {
         ...prev.intentAnalysis,
         stepStatus: "TERMINATED",
@@ -325,12 +357,14 @@ export const DecisionTraceLayout: React.FC<DecisionTraceLayoutProps> = ({ eventI
         isModified: false,
       },
     }));
+    setActiveStep(1); // Redirect to Step 1 to show the Terminated view
   };
 
   const handleIntentRestart = () => {
     setState((prev) => ({
       ...prev,
       overallStatus: "IN_PROGRESS",
+      childStatus: 1,
       intentAnalysis: {
         ...prev.intentAnalysis,
         stepStatus: "AI_ANALYZED",
@@ -400,8 +434,10 @@ export const DecisionTraceLayout: React.FC<DecisionTraceLayoutProps> = ({ eventI
           <Step2DataPreparation
             state={state}
             onUpdate={updateData}
+            onUpdateIntent={updateIntent}
             onNext={() => goToNextStep()}
             onBack={() => goToPrevStep()}
+            onTerminate={handleIntentTerminate}
           />
         );
       case 3:
@@ -411,6 +447,7 @@ export const DecisionTraceLayout: React.FC<DecisionTraceLayoutProps> = ({ eventI
             onUpdate={updateReasoning}
             onNext={() => goToNextStep()}
             onBack={() => goToPrevStep()}
+            onTerminate={handleIntentTerminate}
           />
         );
       case 4:

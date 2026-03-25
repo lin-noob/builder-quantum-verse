@@ -13,6 +13,10 @@ import {
   ArrowLeft,
   ChevronDown,
   ChevronUp,
+  Loader2,
+  RotateCcw,
+  XCircle,
+  Play,
 } from "lucide-react";
 import { DecisionTraceState } from "./types";
 import { cn } from "@/lib/utils";
@@ -30,49 +34,105 @@ const EMPTY_OBJECT: Record<string, any> = {};
 interface Step2Props {
   state: DecisionTraceState;
   onUpdate: (updates: Partial<DecisionTraceState["dataPreparation"]>) => void;
+  onUpdateIntent: (updates: Partial<DecisionTraceState["intentAnalysis"]>) => void;
   onNext: () => void;
   onBack: () => void;
+  onTerminate: () => void;
 }
 
-export const Step2DataPreparation: React.FC<Step2Props> = ({ state, onUpdate, onNext, onBack }) => {
+export const Step2DataPreparation: React.FC<Step2Props> = ({
+  state,
+  onUpdate,
+  onUpdateIntent,
+  onNext,
+  onBack,
+  onTerminate,
+}) => {
   const { refreshEventDetails } = useRefresh(); // 使用刷新hook
-  const { dataPreparation } = state;
+  const { dataPreparation, intentAnalysis } = state;
   const { integrityIssues, expertBriefing, supplementaryNotes = EMPTY_OBJECT, sortingResults } = dataPreparation;
 
-  // sortingResults = {};
+  // 1. Goal Data Source (Same as Step 1)
+  const goals = intentAnalysis.semanticSummary?.goals || [];
 
-  // sortingResults.results = [
-  //   {
-  //     goal_id: "G1",
-  //     goal_description: "紧急申请暂停订单602309的生产以避免误产",
-  //     ranked_objects: [
-  //       {
-  //         object_type: "25",
-  //         object_name: "Production_Order (生产订单)",
-  //         ranked_instances: [
-  //           {
-  //             instance_id: "PO-602309",
-  //             rank: 1,
-  //             reason: "ID完全匹配且状态为生产中，符合暂停条件",
-  //             instance_snapshot: {
-  //               instance_id: "PO-602309",
-  //               instance_name: "Order 602309",
-  //               current_status: "In_Production",
-  //               created_at: "2026-02-20T08:00:00Z",
-  //               updated_at: "2026-02-28T10:00:00Z",
-  //               runtime_properties: [{ property_name: "priority", property_value: "High" }],
-  //             },
-  //           },
-  //         ],
-  //       },
-  //       {
-  //         object_type: "26",
-  //         object_name: "Email_Ticket (邮件工单)",
-  //         ranked_instances: [],
-  //       },
-  //     ],
-  //   },
-  // ];
+  // 2. Mock Preparation State
+  const overallStep = React.useMemo(() => {
+    if (dataPreparation.status === "COMPLETED") return "confirming";
+    if (dataPreparation.status === "CONFIRMING") return "confirming";
+    if (dataPreparation.status === "PREPARING") return "preparing";
+    return "not_started";
+  }, [dataPreparation.status]);
+
+  const [goalPrepStatus, setGoalPrepStatus] = useState<Record<string, "preparing" | "success" | "failed">>(() => {
+    const initial: Record<string, "preparing" | "success" | "failed"> = {};
+    const defaultStatus =
+      dataPreparation.status === "COMPLETED" || dataPreparation.status === "CONFIRMING" ? "success" : "preparing";
+    goals.forEach((g) => (initial[g.goal_id] = defaultStatus));
+    return initial;
+  });
+
+  const [completedPrepCount, setCompletedPrepCount] = useState(0);
+
+  // Sync internal counts if coming from a completed state
+  useEffect(() => {
+    if (dataPreparation.status === "COMPLETED" || dataPreparation.status === "CONFIRMING") {
+      setCompletedPrepCount(goals.length);
+    }
+  }, [dataPreparation.status, goals.length]);
+
+  const handleStartPrep = () => {
+    const initial: Record<string, "preparing" | "success" | "failed"> = {};
+    goals.forEach((g) => (initial[g.goal_id] = "preparing"));
+    setGoalPrepStatus(initial);
+    setCompletedPrepCount(0);
+    onUpdate({ status: "PREPARING", executionTriggered: false });
+  };
+
+  // Trigger from Step 1
+  useEffect(() => {
+    if (state.dataPreparation.executionTriggered && overallStep === "not_started") {
+      handleStartPrep();
+    }
+  }, [state.dataPreparation.executionTriggered, overallStep]);
+
+  // Simulation: Move through goals
+  useEffect(() => {
+    if (dataPreparation.status !== "PREPARING" || goals.length === 0) return;
+
+    let mounted = true;
+    const runSimulation = async () => {
+      // Small delay before starting
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      for (let i = 0; i < goals.length; i++) {
+        if (!mounted) return;
+        const goal = goals[i];
+
+        // Wait a bit to simulate "calling"
+        await new Promise((resolve) => setTimeout(resolve, 800 + Math.random() * 800));
+
+        if (!mounted) return;
+        setGoalPrepStatus((prev) => ({
+          ...prev,
+          [goal.goal_id]: Math.random() > 0.05 ? "success" : "failed", // 95% success rate for mock
+        }));
+        setCompletedPrepCount(i + 1);
+      }
+
+      if (mounted) {
+        onUpdate({ status: "CONFIRMING" });
+      }
+    };
+
+    runSimulation();
+    return () => {
+      mounted = false;
+    };
+  }, [dataPreparation.status, goals.length]);
+
+  const handleRestartPrep = () => {
+    handleStartPrep();
+  };
 
   const expertBriefingData = React.useMemo(() => {
     if (!expertBriefing) return null;
@@ -95,17 +155,15 @@ export const Step2DataPreparation: React.FC<Step2Props> = ({ state, onUpdate, on
       // 2. If iterative fails, try aggressive cleaning for common AI formatting issues
       try {
         const cleaned = current
-          .replace(/\\n/g, "\n") // Convert literal \n back to real newlines/whitespace
-          .replace(/\/n/g, "\n") // Handle user-reported /n case
-          .replace(/\\"/g, '"') // Unescape quotes
-          .replace(/^"+|"+$/g, "") // Remove redundant wrapping quotes
+          .replace(/\\n/g, "\n")
+          .replace(/\/n/g, "\n")
+          .replace(/\\"/g, '"')
+          .replace(/^"+|"+$/g, "")
           .trim();
 
         if (!cleaned) return null;
 
-        // Try parsing the cleaned version
         const finalData = JSON.parse(cleaned);
-        // If it's still a string, parse one last time
         return typeof finalData === "string" ? JSON.parse(finalData) : finalData;
       } catch (e) {
         console.error("[Step2] Failed to parse expertBriefing even after cleaning:", e);
@@ -116,248 +174,96 @@ export const Step2DataPreparation: React.FC<Step2Props> = ({ state, onUpdate, on
     return flexibleParse(expertBriefing);
   }, [expertBriefing]);
 
-  const [expandedGoals, setExpandedGoals] = useState<string[]>([]);
+  const isNotStarted = overallStep === "not_started";
+  const isPreparing = overallStep === "preparing";
+  const isTerminated = state.intentAnalysis.stepStatus === "TERMINATED";
 
-  // Build goal render list directly from sortingResults
-  const renderGoals = React.useMemo(() => {
-    if (!sortingResults?.results) return [];
-
-    return sortingResults.results.map((result: any) => ({
-      id: result.goal_id,
-      description: result.goal_description,
-      ranked_objects: result.ranked_objects || [],
-      human_context_note: result.human_context_note || "",
-    }));
-  }, [sortingResults]);
-
-  // Initialize expanded goals on first load (expand incomplete ones)
-  useEffect(() => {
-    if (renderGoals.length === 0) return;
-
-    const incompleteGoals = renderGoals.filter((g) => getGoalStatus(g.id) !== "COMPLETE").map((g) => g.id);
-
-    if (incompleteGoals.length > 0) {
-      setExpandedGoals((prev) => {
-        const newGoals = incompleteGoals.filter((id) => !prev.includes(id));
-        if (newGoals.length === 0) return prev;
-        return [...prev, ...newGoals];
-      });
-    }
-  }, [renderGoals]);
-
-  const toggleGoalExpand = (id: string) => {
-    setExpandedGoals((prev) => (prev.includes(id) ? prev.filter((gId) => gId !== id) : [...prev, id]));
-  };
-
-  const handleNoteChange = (goalId: string, note: string) => {
-    onUpdate({
-      supplementaryNotes: {
-        ...supplementaryNotes,
-        [goalId]: note,
-      },
-    });
-  };
-
-  // Helper to get status of a specific goal
-  const getGoalStatus = (goalId: string) => {
-    const goalSortingResults = getSortingResultsForGoal(goalId);
-
-    // Check if we have sorting results data
-    const hasData = goalSortingResults?.ranked_objects && goalSortingResults.ranked_objects.length > 0;
-    const hasInstances = goalSortingResults?.ranked_objects?.some(
-      (obj: any) => obj.ranked_instances && obj.ranked_instances.length > 0,
-    );
-
-    if (!hasData || !hasInstances) return "INCOMPLETE";
-
-    // Check for blocking issues
-    const goalIssues = integrityIssues.filter((i) => i.goalId === goalId);
-    const hasBlockingIssues = goalIssues.some(
-      (i) => i.severity === "high" || i.type === "missing_field" || i.type === "conflict",
-    );
-
-    if (hasBlockingIssues) {
-      const isConfirmed = dataPreparation.confirmedGoalIds?.includes(goalId);
-      return isConfirmed ? "CONFIRMED_WITH_RISK" : "INCOMPLETE";
-    }
-
-    return "COMPLETE";
-  };
-
-  const handleConfirmGoalRisk = (goalId: string) => {
-    const currentConfirmed = dataPreparation.confirmedGoalIds || [];
-    if (!currentConfirmed.includes(goalId)) {
-      onUpdate({ confirmedGoalIds: [...currentConfirmed, goalId] });
-    }
-  };
-
-  // Helper function to get sorting results for a specific goal
-  const getSortingResultsForGoal = (goalId: string) => {
-    if (!sortingResults?.results) return null;
-    return sortingResults.results.find((result: any) => result.goal_id === goalId);
-  };
-
-  // Helper function to prepare table data for a goal
-  const prepareTableDataForGoal = (goalId: string) => {
-    const goalSortingResults = getSortingResultsForGoal(goalId);
-    const hasData = goalSortingResults?.ranked_objects && goalSortingResults.ranked_objects.length > 0;
-
-    if (!hasData) {
-      return { hasData: false, tableData: [], goalSortingResults };
-    }
-
-    // Prepare table data - each instance becomes a separate row
-    const tableData: any[] = [];
-    goalSortingResults.ranked_objects.forEach((obj: any) => {
-      if (obj.ranked_instances && obj.ranked_instances.length > 0) {
-        obj.ranked_instances.forEach((instance: any) => {
-          tableData.push({
-            key: `${obj.object_name}-${instance.instance_id}`,
-            object_name: obj.object_name,
-            object_type: obj.object_type,
-            instance_id: instance.instance_id,
-            rank: instance.rank,
-            reason: instance.reason,
-            instance_snapshot: instance.instance_snapshot,
-          });
-        });
-      }
-    });
-
-    return { hasData: tableData.length > 0, tableData, goalSortingResults };
-  };
-
-  // Table rendering component
-  const SortingResultsTable: React.FC<{ tableData: any[] }> = ({ tableData }) => {
-    return (
-      <div className="border rounded-md bg-white overflow-hidden">
-        <Table
-          dataSource={tableData}
-          columns={[
-            {
-              title: "相关业务实例",
-              key: "instance",
-              render: (_, record: any) => (
-                <InstanceDetailDrawer
-                  instance={record}
-                  trigger={
-                    <button className="text-left hover:text-blue-600 transition-colors">
-                      <Tag color="blue" className="font-medium text-slate-700">
-                        {record.instance_id}
-                      </Tag>
-                      <div className="text-xs text-slate-400 font-mono">{record.rank}</div>
-                      <div className="text-xs text-slate-400 font-mono">{record.reason}</div>
-                    </button>
-                  }
-                />
-              ),
-            },
-            {
-              title: "知识对象",
-              key: "object",
-              render: (_, record: any) => (
-                <div>
-                  <div className="font-medium text-slate-700">{record.object_name}</div>
-                  <div className="text-xs text-slate-500">{record.object_type}</div>
-                </div>
-              ),
-            },
-          ]}
-          rowKey="key"
-          pagination={false}
-          size="small"
-          scroll={{ y: 400 }}
-        />
-      </div>
-    );
-  };
-
-  // Global Status Logic
-  const allGoalStatuses = renderGoals.map((g) => ({ id: g.id, status: getGoalStatus(g.id) }));
-  const anyIncomplete = allGoalStatuses.some((s) => s.status === "INCOMPLETE");
-  const completedCount = allGoalStatuses.filter(
-    (s) => s.status === "COMPLETE" || s.status === "CONFIRMED_WITH_RISK",
-  ).length;
-
-  // Continue Logic
-  const handleGlobalContinueClick = async () => {
-    // We now prioritize sortingEngine as the primary data exchange format
-    const baseSortingResults = dataPreparation.sortingResults;
-
-    if (baseSortingResults) {
-      // 1. Map human context notes and any user-adjusted data into sortingResults
-      const updatedSortingResults = {
-        ...baseSortingResults,
-        results: (baseSortingResults.results || []).map((res) => {
-          // Find if there are manual/filtered candidates involved (optional logic extension)
-          // For now, primarily ensuring human_context_note is attached
-          return {
-            ...res,
-            human_context_note: supplementaryNotes[res.goal_id] || "",
-          };
-        }),
-      };
-
-      // 2. Update status and save the final serialized sortingEngine results
-      // The backend API strictly expects the `results` array from sortingEngine,
-      // enriched with the `human_context_note`.
-      onUpdate({
-        status: "completed",
-        riskNote: undefined,
-        expertBriefing: JSON.stringify(updatedSortingResults.results),
-      });
-    } else {
-      // Fallback if no sorting results exist
-      onUpdate({ status: "completed", riskNote: undefined });
-    }
-
+  // Final Confirmation Logic
+  const handleConfirmReady = () => {
+    onUpdate({ status: "COMPLETED" });
     onNext();
   };
 
-  const hasRisk = allGoalStatuses.some((s) => s.status === "CONFIRMED_WITH_RISK");
+  const handleAuditGoal = (goalId: string, status: "ACCEPTED" | "REJECTED") => {
+    const currentConfirmed = dataPreparation.confirmedGoalIds || [];
+    const currentRejected = dataPreparation.rejectedGoalIds || [];
+
+    if (status === "ACCEPTED") {
+      onUpdate({
+        confirmedGoalIds: currentConfirmed.includes(goalId)
+          ? currentConfirmed.filter((id) => id !== goalId)
+          : [...currentConfirmed, goalId],
+        rejectedGoalIds: currentRejected.filter((id) => id !== goalId),
+      });
+    } else {
+      onUpdate({
+        rejectedGoalIds: currentRejected.includes(goalId)
+          ? currentRejected.filter((id) => id !== goalId)
+          : [...currentRejected, goalId],
+        confirmedGoalIds: currentConfirmed.filter((id) => id !== goalId),
+      });
+    }
+  };
+
+  const isAllHandled = goals.every(
+    (g) =>
+      dataPreparation.confirmedGoalIds?.includes(g.goal_id) || dataPreparation.rejectedGoalIds?.includes(g.goal_id),
+  );
 
   return (
-    <div className="flex flex-col h-full gap-6 relative">
-      {/* 1. Top Navigation & Status Bar */}
+    <div className="flex flex-col h-full gap-4 relative">
+      {/* 1. Sticky Action Bar */}
       <div className="flex items-center justify-between p-3 bg-slate-50 border border-slate-200 rounded-lg sticky top-0 z-10 shadow-sm backdrop-blur-sm bg-opacity-90">
-        {/* Left Side: Progress Info */}
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <div className="text-base font-medium text-slate-700">数据就绪进度</div>
-            <Badge variant="secondary" className="bg-white border border-slate-200 text-slate-600 font-mono">
-              {completedCount} / {renderGoals.length}
-            </Badge>
-          </div>
-
-          {anyIncomplete && (
-            <span className="text-sm text-red-500 flex items-center gap-1">
-              <AlertCircle className="w-3 h-3" />
-              存在未完成项
+        <div className="flex items-center gap-3">
+          <Badge
+            variant="outline"
+            className={cn(
+              "text-sm px-2.5 h-6 font-normal border shadow-sm",
+              isPreparing ? "bg-blue-50 text-blue-700 border-blue-200" : "bg-amber-50 text-amber-700 border-amber-200",
+            )}
+          >
+            {isPreparing ? (
+              <div className="flex items-center gap-1.5">
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                AI 数据准备中
+              </div>
+            ) : (
+              "数据准备待确认"
+            )}
+          </Badge>
+          {!isPreparing && !isAllHandled && (
+            <span className="text-sm text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-100 flex items-center gap-1 animate-pulse">
+              <AlertCircle className="w-3.5 h-3.5" />
+              请先完成数据确认
             </span>
           )}
         </div>
 
-        {/* Right Side: Actions */}
         <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onBack}
-            className="text-slate-600 hover:text-slate-700 hover:bg-slate-100 gap-1.5"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            上一步
+          {!isPreparing && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleRestartPrep}
+              className="h-8 text-slate-600 border-slate-200 hover:bg-slate-50 gap-1.5"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              重新执行
+            </Button>
+          )}
+
+          <Button variant="ghost" size="sm" className="h-8 text-red-500 hover:bg-red-50 gap-1.5" onClick={onTerminate}>
+            <XCircle className="w-3.5 h-3.5" />
+            终止
           </Button>
 
-          {/* Reasoning Trace Drawer */}
           <Step2ObjectMappingDrawer
             expertBriefingData={expertBriefingData}
             sortingResults={dataPreparation.sortingResults}
           />
 
-          {/* Prompt Debugger Drawer */}
           <PromptDebuggerDrawer
-            title="Data Preparation & Sorting"
+            title="Data Preparation"
             currentStep={state.currentStep}
             id={state.triggerEvent.id}
             prompts={[
@@ -365,258 +271,199 @@ export const Step2DataPreparation: React.FC<Step2Props> = ({ state, onUpdate, on
                 label: "Data Prep",
                 word: dataPreparation.expertBriefingWord || "",
               },
-              {
-                label: "Sorting Engine",
-                word: dataPreparation.sortingEngineWord || "",
-              },
             ]}
           />
 
-          <div className="h-4 w-[1px] bg-slate-300 mx-1"></div>
+          <div className="h-4 w-[1px] bg-slate-200 mx-1"></div>
+
           <Button
             size="sm"
-            onClick={handleGlobalContinueClick}
-            disabled={renderGoals.length === 0}
-            className={cn(
-              "gap-1.5 shadow-sm min-w-[140px]",
-              hasRisk
-                ? "bg-amber-600 hover:bg-amber-700 text-white border-amber-600"
-                : "bg-blue-600 hover:bg-blue-700 text-white",
-            )}
+            onClick={handleConfirmReady}
+            disabled={isPreparing || isTerminated || !isAllHandled}
+            className="gap-1.5 bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
           >
-            <CheckCircle2 className="w-4 h-4" />
-            {hasRisk ? "确认并继续" : "确认数据就绪"}
+            <Play className="w-3.5 h-3.5" />
+            确认并继续
           </Button>
         </div>
       </div>
 
-      {/* 2. Goal List (Vertical Flow) — driven by expertBriefing */}
-      <div className="space-y-4 pb-20">
-        {renderGoals.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 gap-4 text-slate-400">
-            <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center">
-              <Database className="w-8 h-8 opacity-40" />
+      {/* 2. Main Content */}
+      <div className="flex-1 overflow-auto px-1 pb-6">
+        {isNotStarted ? (
+          <div className="flex flex-col items-center justify-center min-h-[400px] gap-6 animate-in fade-in duration-500">
+            <div className="w-20 h-20 bg-blue-50 rounded-2xl flex items-center justify-center border border-blue-100 shadow-sm">
+              <Database className="w-10 h-10 text-blue-500" />
             </div>
-            <div className="text-center space-y-1">
-              <p className="text-base font-medium text-slate-500">AI分析中如等待过长，可能分析失败</p>
-              {/* <p className="text-sm text-slate-400">请先完成步骤 1 并确认意图分析，系统将自动进行数据检索与关联</p> */}
+            <div className="text-center space-y-2">
+              <h2 className="text-xl font-bold text-slate-800">数据准备就绪</h2>
+              <p className="text-sm text-slate-500 max-w-sm">
+                意图分析已完成。点击下方按钮开始为 {goals.length} 个目标准备深度分析所需的业务数据。
+              </p>
             </div>
+            <Button
+              size="lg"
+              onClick={handleStartPrep}
+              className="px-8 gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold shadow-md rounded-xl h-12 transition-all hover:scale-105"
+            >
+              <Play className="w-5 h-5" />
+              开始数据准备
+            </Button>
           </div>
         ) : (
-          renderGoals.map((goalItem) => {
-            const goalIssues = integrityIssues.filter((i) => i.goalId === goalItem.id);
-            const goalStatus = getGoalStatus(goalItem.id);
-            const isConfirmed = dataPreparation.confirmedGoalIds?.includes(goalItem.id);
-            const isExpanded = expandedGoals.includes(goalItem.id);
+          <>
+            {/* 3. Progress Banner (Preparing Step Only) */}
+            {isPreparing && (
+              <div className="bg-blue-50/50 border border-blue-100 rounded-xl p-6 flex flex-col gap-3 mb-4 animate-in fade-in slide-in-from-top-2">
+                <div className="flex items-start gap-4">
+                  <div className="bg-white rounded-full p-2.5 shadow-sm border border-blue-100">
+                    <Loader2 className="w-6 h-6 text-blue-500 animate-spin" />
+                  </div>
+                  <div className="space-y-1">
+                    <h3 className="text-lg font-bold text-slate-800">正在为 {goals.length} 个目标准备数据...</h3>
+                    <p className="text-sm text-blue-600 font-medium">
+                      已完成: {completedPrepCount} / {goals.length}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
 
-            // Check if we have data from sorting results
-            const hasData = goalItem.ranked_objects && goalItem.ranked_objects.length > 0;
-            const hasInstances = goalItem.ranked_objects?.some(
-              (obj: any) => obj.ranked_instances && obj.ranked_instances.length > 0,
-            );
-            const hasMatches = hasData && hasInstances;
+            {/* 4. Goal List */}
+            <div className="border border-slate-100 rounded-2xl bg-white shadow-[0_8px_30px_rgb(0,0,0,0.02)] overflow-hidden">
+              {/* Table Header */}
+              <div className="flex items-center bg-slate-50/50 border-b border-slate-100 p-3 text-xs font-bold text-slate-400 uppercase tracking-widest">
+                <div className="w-10 text-center">#</div>
+                <div className="flex-1 px-4">目标描述</div>
+                <div className="w-48 text-right px-4">状态操作</div>
+              </div>
 
-            return (
-              <Card
-                key={goalItem.id}
-                className={cn(
-                  "border shadow-sm transition-all duration-200",
-                  !hasMatches ? "border-red-200 bg-red-50/5" : "border-slate-200 bg-white",
-                  goalStatus === "CONFIRMED_WITH_RISK" && "border-amber-200 bg-amber-50/10",
-                )}
-              >
-                {/* Card Header (Click to toggle) */}
-                <div
-                  className={cn(
-                    "flex items-center justify-between p-4 cursor-pointer transition-colors",
-                    isExpanded && "border-b border-slate-100",
-                  )}
-                  onClick={() => toggleGoalExpand(goalItem.id)}
-                >
-                  <div className="flex items-center gap-3">
-                    {/* Status Indicator Bar */}
+              {/* Rows */}
+              <div className="divide-y divide-slate-100">
+                {goals.map((goal, idx) => {
+                  const status = goalPrepStatus[goal.goal_id] || "preparing";
+
+                  return (
                     <div
-                      className={cn(
-                        "w-1 h-8 rounded-full",
-                        goalStatus === "COMPLETE"
-                          ? "bg-green-500"
-                          : goalStatus === "CONFIRMED_WITH_RISK"
-                            ? "bg-amber-500"
-                            : !hasMatches
-                              ? "bg-red-500"
-                              : "bg-slate-300",
-                      )}
-                    ></div>
+                      key={goal.goal_id}
+                      className="flex items-start p-4 hover:bg-slate-50/30 transition-colors group"
+                    >
+                      {/* Index */}
+                      <div className="w-10 flex-shrink-0 flex justify-center pt-2">
+                        <div className="w-6 h-6 bg-slate-100 text-slate-500 rounded flex items-center justify-center text-xs font-bold group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors">
+                          {idx + 1}
+                        </div>
+                      </div>
 
-                    <div className="space-y-0.5">
-                      <div className="flex items-center gap-2">
-                        <span className="text-base font-semibold text-slate-800">{goalItem.description}</span>
-                        <Badge
+                      {/* Content Area */}
+                      <div className="flex-1 px-4 flex items-center gap-3 py-1">
+                        <span
                           className={cn(
-                            "text-sm tracking-wider h-5 px-1.5 font-normal border",
-                            goalStatus === "COMPLETE"
-                              ? "bg-green-50 text-green-700 border-green-200"
-                              : goalStatus === "CONFIRMED_WITH_RISK"
-                                ? "bg-amber-50 text-amber-700 border-amber-200"
-                                : !hasMatches
-                                  ? "bg-red-50 text-red-700 border-red-200"
-                                  : "bg-slate-100 text-slate-500 border-slate-200",
+                            "text-base font-semibold transition-colors w-80",
+                            dataPreparation.rejectedGoalIds?.includes(goal.goal_id)
+                              ? "text-slate-400"
+                              : "text-slate-800",
                           )}
                         >
-                          {goalStatus === "COMPLETE"
-                            ? "已就绪"
-                            : goalStatus === "CONFIRMED_WITH_RISK"
-                              ? "已确认例外"
-                              : !hasMatches
-                                ? "未匹配"
-                                : "需处理"}
-                        </Badge>
-                      </div>
-                      {/* {!hasData && (
-                        <div className="flex items-center gap-1.5 text-xs text-red-500">
-                          <AlertCircle className="w-3 h-3" />
-                          <span>暂无排序数据</span>
-                        </div>
-                      )} */}
-                      <div className="flex items-center gap-1.5 text-sm text-slate-400">
-                        <Database className="w-3 h-3" />
-                        {(() => {
-                          if (!goalItem.ranked_objects || goalItem.ranked_objects.length === 0) {
-                            return <span>暂无数据</span>;
-                          }
-                          const objectCount = goalItem.ranked_objects.length;
-                          const instanceCount = goalItem.ranked_objects.reduce(
-                            (total: number, obj: any) => total + (obj.ranked_instances?.length || 0),
-                            0,
-                          );
-                          return (
-                            <span>
-                              {objectCount} 个对象，{instanceCount} 个实例
-                            </span>
-                          );
-                        })()}
-                      </div>
-                    </div>
-                  </div>
+                          {goal.goal_description}
+                        </span>
 
-                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-slate-400">
-                    {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                  </Button>
-                </div>
-
-                {/* Collapsible Content */}
-                {isExpanded && (
-                  <div className="p-4 space-y-5 bg-slate-50/30">
-                    {/* Matched Objects Table */}
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <h4 className="text-sm font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-                          <Search className="w-3 h-3" /> 匹配数据对象
-                        </h4>
-                        {/* <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleAddCandidate(goalItem.id);
-                          }}
-                          className="h-6 text-sm tracking-wider px-2 text-blue-600 hover:bg-blue-50"
-                        >
-                          <Plus className="w-3 h-3 mr-1" /> 添加对象
-                        </Button> */}
-                      </div>
-
-                      {/* Table Rendering using sortingResults */}
-                      {(() => {
-                        const { hasData, tableData } = prepareTableDataForGoal(goalItem.id);
-
-                        if (!hasData) {
-                          return (
-                            <div className="text-center py-6 border border-dashed rounded-md bg-slate-50 text-slate-400 text-sm">
-                              暂无数据
-                            </div>
-                          );
-                        }
-
-                        return <SortingResultsTable tableData={tableData} />;
-                      })()}
-                    </div>
-
-                    {/* Supplementary Notes Section */}
-                    <div className="space-y-2 pt-2 border-t border-slate-100">
-                      <h4 className="text-sm font-bold text-slate-500 uppercase tracking-wider">人工补充说明 (可选)</h4>
-                      <TextArea
-                        placeholder="请输入补充说明..."
-                        value={supplementaryNotes[goalItem.id] || ""}
-                        onChange={(e) => handleNoteChange(goalItem.id, e.target.value)}
-                        autoSize={{ minRows: 2, maxRows: 6 }}
-                        className="text-sm"
-                        maxLength={200}
-                      />
-                    </div>
-
-                    {/* [C] Integrity Issues (Exception Driven) */}
-                    {goalIssues.length > 0 && (
-                      <div className="space-y-2 pt-2 border-t border-slate-100">
-                        <h4 className="text-sm font-bold text-red-500 uppercase tracking-wider flex items-center gap-1.5">
-                          <AlertTriangle className="w-3 h-3" /> 发现问题
-                        </h4>
-                        <div className="space-y-2">
-                          {goalIssues.map((issue) => (
-                            <Alert
-                              key={issue.id}
-                              variant="destructive"
-                              className="py-2 bg-red-50 border-red-100 text-red-800"
-                            >
-                              <AlertTriangle className="h-3.5 w-3.5" />
-                              <AlertTitle className="text-sm font-bold ml-2">
-                                {issue.type === "missing_field"
-                                  ? "字段缺失"
-                                  : issue.type === "conflict"
-                                    ? "数据冲突"
-                                    : "警告"}
-                              </AlertTitle>
-                              <AlertDescription className="text-sm ml-2 mt-1 opacity-90">
-                                {issue.description}
-                                {issue.affectedInstanceId && (
-                                  <span className="block mt-0.5 text-sm tracking-wider opacity-75 font-mono">
-                                    Instance: {issue.affectedInstanceId}
-                                  </span>
-                                )}
-                              </AlertDescription>
-                            </Alert>
-                          ))}
-                        </div>
-
-                        {/* Risk Confirmation Action */}
-                        {!isConfirmed && (
-                          <div className="flex justify-end pt-2">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="text-sm h-7 border-amber-200 text-amber-700 hover:bg-amber-50 hover:text-amber-800"
-                              onClick={() => handleConfirmGoalRisk(goalItem.id)}
-                            >
-                              <AlertTriangle className="w-3 h-3 mr-1.5" />
-                              确认忽略风险并继续
-                            </Button>
-                          </div>
+                        {dataPreparation.confirmedGoalIds?.includes(goal.goal_id) && (
+                          <Badge className="bg-green-50 text-green-700 border border-green-200 shadow-sm font-normal py-0.5 px-2 gap-1 h-5">
+                            <CheckCircle2 className="w-3 h-3" />
+                            已审计
+                          </Badge>
                         )}
-                        {isConfirmed && (
-                          <div className="flex justify-end pt-2">
-                            <span className="text-sm font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded border border-amber-100 flex items-center gap-1.5">
-                              <CheckCircle2 className="w-3 h-3" />
-                              已确认忽略风险
-                            </span>
-                          </div>
+
+                        {dataPreparation.rejectedGoalIds?.includes(goal.goal_id) && (
+                          <Badge className="bg-slate-100 text-slate-500 border-slate-200 shadow-sm font-normal py-0.5 px-2 gap-1 h-5">
+                            <XCircle className="w-3 h-3" />
+                            已拒绝
+                          </Badge>
+                        )}
+
+                        {!dataPreparation.confirmedGoalIds?.includes(goal.goal_id) &&
+                          !dataPreparation.rejectedGoalIds?.includes(goal.goal_id) && (
+                            <>
+                              {status === "success" && (
+                                <Badge className="bg-green-50 text-green-700 border border-green-200 shadow-sm font-normal py-0.5 px-2 gap-1 h-5">
+                                  <CheckCircle2 className="w-3 h-3" />
+                                  准备成功
+                                </Badge>
+                              )}
+                              {status === "failed" && (
+                                <Badge className="bg-red-50 text-red-700 border border-red-200 shadow-sm font-normal py-0.5 px-2 gap-1 h-5">
+                                  <AlertCircle className="w-3 h-3" />
+                                  准备失败
+                                </Badge>
+                              )}
+                              {status === "preparing" && isPreparing && (
+                                <Badge className="bg-blue-50 text-blue-600 border border-blue-200 shadow-sm font-normal py-0.5 px-2 gap-1 h-5">
+                                  <Loader2 className="w-3 h-3 animate-spin" />
+                                  准备中
+                                </Badge>
+                              )}
+                            </>
+                          )}
+                      </div>
+
+                      {/* Actions */}
+                      <div className="w-48 flex-shrink-0 flex items-center justify-end gap-2 pt-1 px-2">
+                        {!isPreparing && (
+                          <>
+                            {!dataPreparation.confirmedGoalIds?.includes(goal.goal_id) &&
+                              !dataPreparation.rejectedGoalIds?.includes(goal.goal_id) && (
+                                <>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handleAuditGoal(goal.goal_id, "ACCEPTED")}
+                                    className="h-8 border-green-200 text-green-600 hover:bg-green-50 px-2.5 gap-1 shadow-sm font-normal"
+                                  >
+                                    <CheckCircle2 className="w-3.5 h-3.5" />
+                                    确认
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => handleAuditGoal(goal.goal_id, "REJECTED")}
+                                    className="h-8 text-slate-400 hover:text-red-500 px-2 gap-1 font-normal"
+                                  >
+                                    <XCircle className="w-3.5 h-3.5" />
+                                    拒绝
+                                  </Button>
+                                </>
+                              )}
+
+                            {(dataPreparation.confirmedGoalIds?.includes(goal.goal_id) ||
+                              dataPreparation.rejectedGoalIds?.includes(goal.goal_id)) && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() =>
+                                  handleAuditGoal(
+                                    goal.goal_id,
+                                    dataPreparation.confirmedGoalIds?.includes(goal.goal_id) ? "ACCEPTED" : "REJECTED",
+                                  )
+                                }
+                                className="h-8 text-slate-400 hover:text-blue-600 px-2 gap-1 font-normal"
+                              >
+                                撤销审计
+                              </Button>
+                            )}
+                          </>
                         )}
                       </div>
-                    )}
-                  </div>
+                    </div>
+                  );
+                })}
+
+                {goals.length === 0 && (
+                  <div className="p-16 text-center text-slate-400 italic text-sm">暂无目标数据</div>
                 )}
-              </Card>
-            );
-          })
+              </div>
+            </div>
+          </>
         )}
       </div>
     </div>

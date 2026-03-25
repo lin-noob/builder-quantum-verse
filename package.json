@@ -34,6 +34,8 @@
     "react-i18next": "^15.7.3",
     "react-quill": "^2.0.0",
     "reactflow": "^11.11.4",
+    "vis-data": "^8.0.3",
+    "vis-network": "^10.0.2",
     "zod": "^3.25.76",
     "zustand": "^5.0.8"
   },

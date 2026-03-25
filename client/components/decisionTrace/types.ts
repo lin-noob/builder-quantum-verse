@@ -1,6 +1,12 @@
 export type DecisionStep = "intent" | "data" | "reasoning" | "action" | "result";
 
+export type GoalStatus =
+  | "PENDING" // 待确认
+  | "ACCEPTED" // 已确认
+  | "REJECTED"; // 已拒绝
+
 export interface DecisionGoal {
+  goal_status: DecisionStep;
   id: string;
   description: string;
   initialSuggestion: string;
@@ -199,6 +205,7 @@ export interface SortingEngine {
 export interface DecisionTraceState {
   status: number;
   currentStep: DecisionStep;
+  childStatus: number;
   overallStatus?: "IN_PROGRESS" | "WAITING_CONFIRMATION" | "COMPLETED" | "TERMINATED" | "PAUSED";
 
   // Step 0: Trigger
@@ -237,7 +244,15 @@ export interface DecisionTraceState {
         }>;
       };
       core_intent?: { summary: string; confidence?: number };
-      goals?: any[];
+      goals?: {
+        goal_description: string;
+        goal_id: string;
+        goal_status: GoalStatus;
+        recommendation?: {
+          strategy: string;
+          suggested_next_step: string;
+        };
+      }[];
       [key: string]: any;
     };
   };
@@ -247,11 +262,12 @@ export interface DecisionTraceState {
     requirements: DataRequirement[];
     candidates: CandidateInstance[];
     integrityIssues: DataIntegrityIssue[];
-    status: "pending" | "completed";
+    status: "NOT_STARTED" | "PREPARING" | "CONFIRMING" | "COMPLETED";
     // New fields for risk management
     riskAccepted?: boolean;
     riskNote?: string;
     confirmedGoalIds?: string[]; // IDs of goals manually confirmed by user
+    rejectedGoalIds?: string[]; // New: IDs of goals manually rejected by user in Step 2
     expertBriefing?: string; // New: AI briefing for data preparation
     supplementaryNotes?: Record<string, string>; // New: goalId -> note
     excludedObjectIds?: string[]; // New: list of AI-matched object IDs to hide
@@ -259,6 +275,7 @@ export interface DecisionTraceState {
     expertBriefingWord?: string; // New: Raw prompt for Step 2
     sortingEngineWord?: string; // New: Raw prompt for Sorting Engine
     sortingResults?: SortingEngine; // New: Ranking results from Analysis API
+    executionTriggered?: boolean; // New: Flag to trigger simulation
   };
 
   // Step 3: Reasoning
@@ -269,7 +286,10 @@ export interface DecisionTraceState {
     executor?: string;
     inferenceWord?: string; // New: Raw prompt for Step 3
     results: GoalReasoning[];
+    confirmedGoalIds?: string[]; // New: IDs of goals manually confirmed by user in Step 3
+    rejectedGoalIds?: string[]; // New: IDs of goals manually rejected by user in Step 3
     reasoningAudit?: any; // New: Reasoning audit data from dataInference.reasoning_audit
+    executionTriggered?: boolean; // New: Flag to trigger simulation
   };
 
   // Step 4: Action

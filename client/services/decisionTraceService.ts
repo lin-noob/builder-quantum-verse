@@ -21,6 +21,18 @@ export const submitIntentAnalysis = async (id: string, semanticSummary: string) 
 };
 
 /**
+ * 数据准备
+ * @param id 追踪记录ID
+ * @param semanticSummary 意图分析 JSON 字符串
+ */
+export const submitDataPreparation = async (id: string, semanticSummary: string) => {
+  return request.post("/quote/api/v1/decision/trace/prepare", {
+    id,
+    word: semanticSummary,
+  });
+};
+
+/**
  * 提交数据准备结果并获取推理建议
  * @param id 追踪记录ID
  * @param expertBriefing 数据准备详情 JSON 字符串
