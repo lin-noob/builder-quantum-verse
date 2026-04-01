@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { RuleMetricsCard } from "@/components/RuleMetricsCard";
 import OrderHistory from "@/components/OrderHistory";
 import SessionTimeline from "@/components/SessionTimeline";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -19,7 +20,7 @@ import useProjectStore from "@/stores/projectStore";
 import { useRoleStore } from "@/stores";
 import { MockDataService } from "@/services/mockDataService";
 
-const TooltipIcon = ({ text }: { text: string }) => {
+export const TooltipIcon = ({ text }: { text: string }) => {
   const [show, setShow] = useState(false);
   const iconRef = React.useRef<SVGSVGElement>(null);
   const timerRef = React.useRef<number>();
@@ -799,6 +800,9 @@ export default function UserDetail() {
                           </div>
                         </div>
                       </div>
+
+                      {/* 规则字段卡片 */}
+                      <RuleMetricsCard metrics={apiUser.metrics} />
 
                       {/* 90天内首访表格 */}
                       <div className="mb-6">

@@ -24,6 +24,31 @@ const getColorForNode = (seed: string) => {
   return PALETTE[Math.abs(hash) % PALETTE.length];
 };
 
+const isRecord = (value: unknown): value is Record<string, any> => typeof value === "object" && value !== null;
+
+const getArrayData = (value: unknown): any[] => (Array.isArray(value) ? value : []);
+
+const pickFirstArray = (...values: unknown[]) => {
+  const matched = values.find(Array.isArray);
+  return Array.isArray(matched) ? matched : [];
+};
+
+const normalizeMeshGraphData = (payload: unknown) => {
+  if (Array.isArray(payload)) {
+    return { nodes: payload, edges: [] };
+  }
+
+  if (!isRecord(payload)) {
+    return { nodes: [], edges: [] };
+  }
+
+  const nodes = pickFirstArray(payload.nodes, payload.instances, payload.list, payload.records);
+
+  const edges = pickFirstArray(payload.edges, payload.relations, payload.links);
+
+  return { nodes, edges };
+};
+
 export function GraphCanvasContent() {
   const containerRef = useRef<HTMLDivElement>(null);
   const networkRef = useRef<Network | null>(null);
@@ -40,14 +65,19 @@ export function GraphCanvasContent() {
 
     const initGraph = async () => {
       try {
-        const response = await request.get("/quote/api/v1/digital/list/view");
+        const endpoint = mode === "mesh" ? "/quote/api/v1/instance/graph" : "/quote/api/v1/digital/list/view";
+        const response = await request.get(endpoint);
         if (!isMounted) return;
-        debugger;
-        let apiData: any[] = response.data.data;
+
+        const payload = response.data?.data;
         let nodesData: any[] = [];
+        let edgesData: any[] = [];
+
         if (mode === "macro") {
+          const apiData = getArrayData(payload);
+
           nodesData = apiData.map((item: any) => {
-            const id = item.objectCode || item.id || `node-${Math.random()}`;
+            const id = item.objectCode || item.id || `node-${item.objectName || "macro"}`;
             const isExpanded = graphState.expandedTypes.includes(id);
             const nodeColor = getColorForNode(id);
 
@@ -71,20 +101,73 @@ export function GraphCanvasContent() {
               shadow: true,
             };
           });
-        } else {
-          // Mesh/Focus mode (Instances)
-          nodesData = apiData.map((item: any) => {
-            const id = item.id || `node-${Math.random()}`;
-            const isFocused = mode === "focus" && id === focusedInstanceId;
-            const nodeColor = getColorForNode(item.objectCode || id);
+        } else if (mode === "mesh") {
+          const { nodes: apiData, edges: apiEdges } = normalizeMeshGraphData(payload);
+
+          nodesData = apiData.map((item: any, index: number) => {
+            const id = item.id || item.instanceId || item.instanceCode || `node-${index}`;
+            const nodeColor = getColorForNode(item.objectCode || item.objectTypeId || id);
+            const label = item.instanceName || item.objectName || item.instanceCode || item.name || "Unknown Instance";
 
             return {
-              id: id,
-              label: item.objectName || "Unknown Object",
+              id,
+              label,
+              group: "instance",
+              shape: "dot",
+              size: 20,
+              title: item.description || label,
+              font: { color: "#475569", face: "Inter, sans-serif" },
+              color: {
+                background: nodeColor.bg,
+                border: nodeColor.border,
+                highlight: {
+                  background: nodeColor.highlightBg,
+                  border: nodeColor.highlightBorder,
+                },
+              },
+              borderWidth: 2,
+              shadow: true,
+            };
+          });
+
+          edgesData = apiEdges
+            .map((item: any, index: number) => {
+              const from = item.source || item.sourceId || item.from || item.startId;
+              const to = item.target || item.targetId || item.to || item.endId;
+
+              if (!from || !to) {
+                return null;
+              }
+
+              const label = item.label || item.relationName || item.type || "";
+
+              return {
+                id: item.id || `edge-${from}-${to}-${index}`,
+                from: String(from),
+                to: String(to),
+                label,
+                title: item.description || label,
+                arrows: "to",
+                color: GraphTheme.colors.edge.default,
+              };
+            })
+            .filter(Boolean);
+        } else {
+          const apiData = getArrayData(payload);
+
+          nodesData = apiData.map((item: any, index: number) => {
+            const id = item.id || item.instanceId || `node-${index}`;
+            const isFocused = mode === "focus" && id === focusedInstanceId;
+            const nodeColor = getColorForNode(item.objectCode || item.objectTypeId || id);
+            const label = item.instanceName || item.objectName || item.instanceCode || item.name || "Unknown Object";
+
+            return {
+              id,
+              label,
               group: "instance",
               shape: "dot",
               size: 20, // Uniform fixed size
-              title: item.description || item.objectName,
+              title: item.description || label,
               font: { color: isFocused ? "#1e40af" : "#475569", face: "Inter, sans-serif" },
               color: {
                 background: isFocused ? "#bfdbfe" : nodeColor.bg,
@@ -101,7 +184,7 @@ export function GraphCanvasContent() {
         }
 
         const nodes = new DataSet(nodesData);
-        const edges = new DataSet([]); // Isolated nodes for now (API relation missing)
+        const edges = new DataSet(edgesData);
 
         const data = { nodes, edges };
 
