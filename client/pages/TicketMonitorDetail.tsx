@@ -285,7 +285,7 @@ const getMatchedCenterItem = (centerList: ApiTicketCenterItem[], receivedTime: n
     return null;
   }
 
-  return centerList.find((item) => isMatchedTimestamp(item.eventTime, receivedTime)) || null;
+  return [...centerList].reverse().find((item) => isMatchedTimestamp(item.eventTime, receivedTime)) || null;
 };
 
 const buildOverviewData = (selectedTimeline: TimelineItem | null, selectedCenterItem: ApiTicketCenterItem | null) => {
