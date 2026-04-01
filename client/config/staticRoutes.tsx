@@ -75,6 +75,8 @@ const ApprovalMonitor = React.lazy(() => import("@/pages/Approval/ApprovalMonito
 const ApprovalStatistics = React.lazy(() => import("@/pages/Approval/ApprovalStatistics"));
 
 const BusinessModelEditor = React.lazy(() => import("@/pages/BusinessModelEditor"));
+// const TicketMonitor = React.lazy(() => import("@/pages/TicketMonitor"));
+const TicketMonitorDetail = React.lazy(() => import("@/pages/TicketMonitorDetail"));
 
 // const BusinessModelList = React.lazy(() => import("@/pages/BusinessModelList"));
 
@@ -92,7 +94,6 @@ const InstanceListPage = React.lazy(() => import("@/pages/Knowledge/InstanceList
 const InstanceDetailPage = React.lazy(() => import("@/pages/Knowledge/InstanceDetailPage"));
 const KnowledgeGraphPage = React.lazy(() => import("@/pages/KnowledgeGraph/KnowledgeGraphPage"));
 const BusinessKnowledgeGraph = React.lazy(() => import("@/pages/BusinessKnowledgeGraph"));
-
 
 // LazyRoute 包装组件
 const LazyRoute: React.FC<{
@@ -137,6 +138,26 @@ export const staticRoutes: RouteObject[] = [
       <Layout>
         <LazyRoute>
           <KnowledgeGraphPage />
+        </LazyRoute>
+      </Layout>
+    ),
+  },
+  // {
+  //   path: "/ticket-monitor",
+  //   element: (
+  //     <Layout>
+  //       <LazyRoute>
+  //         <TicketMonitor />
+  //       </LazyRoute>
+  //     </Layout>
+  //   ),
+  // },
+  {
+    path: "/ticket-monitor/detail",
+    element: (
+      <Layout>
+        <LazyRoute>
+          <TicketMonitorDetail />
         </LazyRoute>
       </Layout>
     ),
@@ -805,4 +826,3 @@ export const isStaticRoute = (pathname: string): boolean => {
     return routePath === pathname;
   });
 };
-
