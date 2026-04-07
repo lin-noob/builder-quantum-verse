@@ -1,16 +1,38 @@
-import { useAppContext } from "@/hooks/AppContext";
-import { request } from "@/lib/request";
 import {
+  BulbOutlined,
   CheckCircleOutlined,
+  DeploymentUnitOutlined,
   ExclamationCircleOutlined,
+  FileSearchOutlined,
   InfoCircleOutlined,
   LineChartOutlined,
   LoadingOutlined,
   RocketOutlined,
+  SafetyCertificateOutlined,
   SyncOutlined,
+  WarningOutlined,
 } from "@ant-design/icons";
-import { Button, Card, Col, Divider, List, message, Progress, Row, Space, Spin, Tag, Typography } from "antd";
+import {
+  Badge,
+  Button,
+  Card,
+  Col,
+  Divider,
+  Drawer,
+  List,
+  message,
+  Progress,
+  Row,
+  Space,
+  Spin,
+  Tag,
+  Typography,
+} from "antd";
 import React, { useEffect, useState } from "react";
+
+import { useAppContext } from "@/hooks/AppContext";
+
+import { PromptDrawer } from "./PromptDrawer";
 
 const { Text, Title } = Typography;
 
@@ -18,6 +40,10 @@ export function ResultReviewContent() {
   const { outgoingEmails, viewData, step3Data, setStep3Data } = useAppContext();
   const selectedEmail = outgoingEmails[0];
   const [loading, setLoading] = useState(false);
+  const [drawerVisible, setDrawerVisible] = useState(false);
+  const [promptVisible, setPromptVisible] = useState(false);
+  const reasoningTrace = step3Data?.reasoning_trace;
+  const prompt = viewData?.engine?.dataInferenceWord;
 
   const convertToTimestamp = (timeString?: string): number => {
     if (!timeString) return Date.now();
@@ -28,54 +54,6 @@ export function ResultReviewContent() {
       return Date.now();
     }
   };
-
-  // API 调用函数
-  const callAnalysisAPI = async () => {
-    if (!selectedEmail) return;
-
-    setLoading(true);
-    try {
-      const requestData = {
-        content: selectedEmail.content,
-        htmlBody: selectedEmail.content,
-        receivedTime: convertToTimestamp(selectedEmail.postedOn),
-        id: viewData.id,
-      };
-
-      const response = await request.post("/quote/api/v1/instance/review", requestData);
-
-      if (response?.data?.data) {
-        let result = null;
-        try {
-          result = JSON.parse(response.data.data.dataInference.replace(/\\(?=[^\\"/bfnrtu])/g, "\\n"));
-        } catch (e) {
-          console.error("Parse JSON failed:", e);
-        }
-
-        // 只有当返回的数据包含评分信息时才更新（否则可能和 incoming 的返回结构冲突）
-        if (result) {
-          setStep3Data(result);
-        } else {
-          // 如果后端还没适配 outgoing 结构，至少给个提示
-          console.warn("API returned unexpected structure for outgoing analysis:", result);
-        }
-      }
-
-      message.success("评分完成");
-    } catch (error) {
-      console.error("Outgoing analysis API failed:", error);
-      message.error("评分失败，请重试");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // 当选择的邮件改变时自动调用 API
-  useEffect(() => {
-    if (selectedEmail) {
-      callAnalysisAPI();
-    }
-  }, [selectedEmail]);
 
   if (loading) {
     return (
@@ -110,7 +88,7 @@ export function ResultReviewContent() {
   return (
     <>
       {/* Action Bar */}
-      {/* <Card
+      <Card
         styles={{
           body: {
             padding: "12px 16px",
@@ -148,7 +126,18 @@ export function ResultReviewContent() {
           </Tag>
           <Text type="secondary">分析结果已生成</Text>
         </div>
-      </Card> */}
+        <Space size="middle" wrap style={{ flex: "1 1 auto", justifyContent: "flex-end" }}>
+          {/* <Button onClick={fetchEmails} icon={<SyncOutlined />}>
+            重新评分
+          </Button> */}
+          <Button icon={<BulbOutlined />} onClick={() => setDrawerVisible(true)} disabled={!reasoningTrace}>
+            推理过程
+          </Button>
+          <Button icon={<FileSearchOutlined />} onClick={() => setPromptVisible(true)} disabled={!prompt}>
+            提示词
+          </Button>
+        </Space>
+      </Card>
 
       {/* Content */}
       <div
@@ -160,7 +149,6 @@ export function ResultReviewContent() {
         }}
       >
         <Row gutter={[12, 12]}>
-          {/* Full width columns for sidepanel compatibility */}
           <Col span={24}>
             <Space direction="vertical" size="middle" style={{ width: "100%" }}>
               <Card
@@ -229,7 +217,6 @@ export function ResultReviewContent() {
             </Space>
           </Col>
 
-          {/* Right Column: Optimization Plan */}
           <Col span={24}>
             <Space direction="vertical" size="middle" style={{ width: "100%" }}>
               <Card
@@ -347,6 +334,275 @@ export function ResultReviewContent() {
           </Col>
         </Row>
       </div>
+
+      <Drawer
+        title={
+          <Space>
+            <BulbOutlined style={{ color: "#ff4d4f" }} />
+            <span>评分推理过程分析</span>
+          </Space>
+        }
+        placement="right"
+        width={550}
+        onClose={() => setDrawerVisible(false)}
+        open={drawerVisible}
+        styles={{ body: { padding: "20px", background: "#fefcfc" } }}
+      >
+        {reasoningTrace ? (
+          <Space direction="vertical" size="large" style={{ width: "100%" }}>
+            {/* Input Analysis */}
+            <section>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  marginBottom: 16,
+                }}
+              >
+                <InfoCircleOutlined style={{ color: "#1890ff" }} />
+                <Title level={5} style={{ margin: 0 }}>
+                  输入信号分析 (Input Analysis)
+                </Title>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                {[
+                  {
+                    label: "画像信号 (Profile)",
+                    key: "profile_signal",
+                    color: "#1890ff",
+                  },
+                  {
+                    label: "意图信号 (Intent)",
+                    key: "intent_signal",
+                    color: "#722ed1",
+                  },
+                  {
+                    label: "历史信号 (History)",
+                    key: "history_signal",
+                    color: "#13c2c2",
+                  },
+                  {
+                    label: "草拟信号 (Draft)",
+                    key: "draft_signal",
+                    color: "#eb2f96",
+                  },
+                ].map((item) => (
+                  <div
+                    key={item.key}
+                    style={{
+                      background: "#fff",
+                      padding: "12px 16px",
+                      borderRadius: "8px",
+                      border: "1px solid #f0f0f0",
+                      borderLeft: `4px solid ${item.color}`,
+                      boxShadow: "0 2px 4px rgba(0,0,0,0.02)",
+                    }}
+                  >
+                    <Text
+                      strong
+                      style={{
+                        fontSize: "12px",
+                        color: item.color,
+                        display: "block",
+                        marginBottom: 4,
+                      }}
+                    >
+                      {item.label}:
+                    </Text>
+                    <Text type="secondary" style={{ fontSize: "13px", lineHeight: "1.6" }}>
+                      {reasoningTrace.input_analysis?.[item.key as keyof typeof reasoningTrace.input_analysis] || "-"}
+                    </Text>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            <Divider style={{ margin: "8px 0" }} />
+
+            {/* Scoring Logic */}
+            <section>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  marginBottom: 16,
+                }}
+              >
+                <SafetyCertificateOutlined style={{ color: "#52c41a" }} />
+                <Title level={5} style={{ margin: 0 }}>
+                  计分逻辑分析 (Scoring Logic)
+                </Title>
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                <Row gutter={12}>
+                  <Col span={12}>
+                    <Card
+                      size="small"
+                      title={
+                        <Space>
+                          <CheckCircleOutlined style={{ color: "#52c41a" }} />
+                          <span style={{ fontSize: 13 }}>优点</span>
+                        </Space>
+                      }
+                      style={{ height: "100%", borderRadius: "8px" }}
+                    >
+                      <List
+                        size="small"
+                        dataSource={reasoningTrace.scoring_logic?.strengths}
+                        renderItem={(item: string) => (
+                          <List.Item style={{ padding: "4px 0", border: "none" }}>
+                            <Badge status="success" text={<Text style={{ fontSize: 12 }}>{item}</Text>} />
+                          </List.Item>
+                        )}
+                      />
+                    </Card>
+                  </Col>
+                  <Col span={12}>
+                    <Card
+                      size="small"
+                      title={
+                        <Space>
+                          <WarningOutlined style={{ color: "#ff4d4f" }} />
+                          <span style={{ fontSize: 13 }}>不足</span>
+                        </Space>
+                      }
+                      style={{ height: "100%", borderRadius: "8px" }}
+                    >
+                      <List
+                        size="small"
+                        dataSource={reasoningTrace.scoring_logic?.weaknesses}
+                        renderItem={(item: string) => (
+                          <List.Item style={{ padding: "4px 0", border: "none" }}>
+                            <Badge status="error" text={<Text style={{ fontSize: 12 }}>{item}</Text>} />
+                          </List.Item>
+                        )}
+                      />
+                    </Card>
+                  </Col>
+                </Row>
+                <Card
+                  size="small"
+                  styles={{ body: { padding: "12px", background: "#fffbfb" } }}
+                  style={{ borderRadius: "8px", border: "1px dashed #ffccc7" }}
+                >
+                  <Text strong style={{ fontSize: 12, display: "block", marginBottom: 4 }}>
+                    计分推导路径:
+                  </Text>
+                  <Text
+                    style={{
+                      fontSize: 13,
+                      lineHeight: "1.6",
+                      color: "#595959",
+                    }}
+                  >
+                    {reasoningTrace.scoring_logic?.deduction_path}
+                  </Text>
+                </Card>
+              </div>
+            </section>
+
+            <Divider style={{ margin: "8px 0" }} />
+
+            {/* Plan Derivation */}
+            <section>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  marginBottom: 16,
+                }}
+              >
+                <DeploymentUnitOutlined style={{ color: "#722ed1" }} />
+                <Title level={5} style={{ margin: 0 }}>
+                  改进计划派生 (Plan Derivation)
+                </Title>
+              </div>
+              <List
+                dataSource={reasoningTrace.plan_derivation}
+                renderItem={(item: any) => (
+                  <List.Item
+                    style={{
+                      flexDirection: "column",
+                      alignItems: "flex-start",
+                      padding: "16px",
+                      background: "#fff",
+                      borderRadius: "12px",
+                      border: "1px solid #f0f0f0",
+                      marginBottom: "12px",
+                      boxShadow: "0 2px 8px rgba(0,0,0,0.03)",
+                    }}
+                  >
+                    <div style={{ marginBottom: 12 }}>
+                      <Tag color="purple" style={{ borderRadius: "4px" }}>
+                        Issue ID: {item.issue_id}
+                      </Tag>
+                    </div>
+
+                    <div style={{ marginBottom: 12 }}>
+                      <Text strong style={{ fontSize: "13px", color: "#595959" }}>
+                        关联信号:
+                      </Text>
+                      <div style={{ marginTop: 4 }}>
+                        <Space wrap size={[4, 4]}>
+                          {item.derived_from?.map((f: string, i: number) => (
+                            <Tag
+                              key={i}
+                              style={{
+                                margin: 0,
+                                fontSize: "11px",
+                                background: "#f5f5f5",
+                                border: "none",
+                              }}
+                            >
+                              {f}
+                            </Tag>
+                          ))}
+                        </Space>
+                      </div>
+                    </div>
+
+                    <div
+                      style={{
+                        width: "100%",
+                        padding: "10px 12px",
+                        background: "#f9f0ff",
+                        borderRadius: "6px",
+                      }}
+                    >
+                      <Text
+                        style={{
+                          fontSize: "13px",
+                          lineHeight: "1.5",
+                          color: "#595959",
+                        }}
+                      >
+                        {item.derivation_logic}
+                      </Text>
+                    </div>
+                  </List.Item>
+                )}
+              />
+            </section>
+          </Space>
+        ) : (
+          <div style={{ textAlign: "center", padding: "40px 0" }}>
+            <SyncOutlined spin style={{ fontSize: 24, color: "#bfbfbf", marginBottom: 16 }} />
+            <Text type="secondary" style={{ display: "block" }}>
+              正在准备推理数据...
+            </Text>
+          </div>
+        )}
+      </Drawer>
+      <PromptDrawer
+        visible={promptVisible}
+        onClose={() => setPromptVisible(false)}
+        prompt={prompt}
+        title="评分逻辑提示词"
+      />
     </>
   );
 }

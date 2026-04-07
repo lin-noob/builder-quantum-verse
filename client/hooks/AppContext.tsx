@@ -21,7 +21,19 @@ export interface Step2ResponseData {
     body_content: string;
     closing: string;
   };
-  professional_tips: string[];
+  professional_tips: string;
+  reasoning_trace?: {
+    input_analysis: {
+      profile_signal: string;
+      intent_signal: string;
+      history_signal: string;
+      latest_signal: string;
+    };
+    strategy_derivation: {
+      approach_selection: string;
+      draft_logic: string;
+    };
+  };
 }
 
 export interface Project {

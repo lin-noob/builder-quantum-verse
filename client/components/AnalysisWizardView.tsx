@@ -51,6 +51,7 @@ export function AnalysisWizardView({}: AnalysisWizardViewProps) {
       loading: false,
       analysisResult,
       confidence,
+      reasoningTrace: result?.reasoning_trace,
     });
 
     // 目标拆解清单映射

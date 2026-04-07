@@ -355,6 +355,8 @@ function AnalysisWizardBridge({
     resetAnalysis();
     setStep2Data(null);
     setStep3Data(null);
+    debugger;
+
     setViewData(selectedCenterItem ?? null);
     setSelectedEmail(wizardEmail);
     setHasExistingData(Boolean(selectedCenterItem));

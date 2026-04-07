@@ -4,9 +4,6 @@ import React, { useEffect, useState } from "react";
 
 import { useAppContext } from "@/hooks/AppContext";
 
-import { type TicketPost } from "@/types";
-import { request } from "@/lib/request";
-
 const { Text, Title } = Typography;
 
 interface IntentAnalysisStepProps {}

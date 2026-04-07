@@ -1,20 +1,28 @@
-import { useAppContext } from "@/hooks/AppContext";
 import {
   BulbOutlined,
   CheckCircleOutlined,
+  FileSearchOutlined,
   FileTextOutlined,
+  InfoCircleOutlined,
   LoadingOutlined,
+  NodeIndexOutlined,
   SendOutlined,
   SyncOutlined,
   ThunderboltOutlined,
 } from "@ant-design/icons";
-import { Button, Card, Divider, List, Space, Spin, Tag, Typography } from "antd";
-import React from "react";
+import { Button, Card, Divider, Drawer, List, Space, Spin, Tag, Typography } from "antd";
+import React, { useState } from "react";
+import { useAppContext } from "@/hooks/AppContext";
+import { PromptDrawer } from "./PromptDrawer";
 
 const { Title, Text, Paragraph } = Typography;
 
 export function ExecuteActionContent() {
-  const { setStep, currentStep, step2Data, step2Loading, fetchStep2Data } = useAppContext();
+  const { setStep, currentStep, step2Data, step2Loading, fetchStep2Data, viewData } = useAppContext();
+  const [drawerVisible, setDrawerVisible] = useState(false);
+  const [promptVisible, setPromptVisible] = useState(false);
+  const reasoningTrace = step2Data?.reasoning_trace;
+  const prompt = viewData?.engine?.expertBriefingWord;
 
   const handleRetry = () => {
     fetchStep2Data();
@@ -154,7 +162,7 @@ export function ExecuteActionContent() {
   return (
     <>
       {/* Action Bar */}
-      {/* <Card
+      <Card
         styles={{
           body: {
             padding: "12px 16px",
@@ -193,17 +201,17 @@ export function ExecuteActionContent() {
           <Text type="secondary">AI 已完成分析，请审阅以下建议</Text>
         </div>
         <Space size="middle" wrap style={{ flex: "1 1 auto", justifyContent: "flex-end" }}>
-          <Button icon={<SyncOutlined />} onClick={handleRetry}>
-            重新执行
+          <Button icon={<BulbOutlined />} onClick={() => setDrawerVisible(true)} disabled={!reasoningTrace}>
+            推理过程
           </Button>
-          <Button type="primary" onClick={() => setStep(currentStep + 1)} disabled={currentStep === 2}>
-            确认并继续
+          <Button icon={<FileSearchOutlined />} onClick={() => setPromptVisible(true)} disabled={!prompt}>
+            提示词
           </Button>
         </Space>
-      </Card> */}
+      </Card>
 
       {/* Content — 三个卡片 */}
-      <div style={{ padding: "0 12px 20px", flex: 1, overflowY: "auto" }}>
+      <div style={{ padding: "0 20px 20px", flex: 1, overflowY: "auto" }}>
         {/* 1. 回复策略卡片 */}
         <Card
           title={
@@ -356,47 +364,200 @@ export function ExecuteActionContent() {
           bordered={false}
           style={{ borderRadius: 8 }}
         >
-          <List
-            dataSource={step2Data.professional_tips}
-            renderItem={(tip, index) => (
-              <List.Item
-                style={{
-                  padding: "10px 0",
-                  borderBottom: index < step2Data.professional_tips.length - 1 ? "1px solid #f0f0f0" : "none",
-                }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "flex-start",
-                    gap: 10,
-                  }}
-                >
-                  <div
-                    style={{
-                      width: 22,
-                      height: 22,
-                      borderRadius: "50%",
-                      background: "#fff7e6",
-                      color: "#faad14",
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      fontSize: 11,
-                      fontWeight: "bold",
-                      flexShrink: 0,
-                      marginTop: 1,
-                    }}
-                  >
-                    {index + 1}
-                  </div>
-                  <Text style={{ fontSize: 13 }}>{tip}</Text>
-                </div>
-              </List.Item>
-            )}
-          />
+          {step2Data.professional_tips}
         </Card>
       </div>
+      <Drawer
+        title={
+          <Space>
+            <BulbOutlined style={{ color: "#faad14" }} />
+            <span>策略推理过程分析</span>
+          </Space>
+        }
+        placement="right"
+        width={550}
+        onClose={() => setDrawerVisible(false)}
+        open={drawerVisible}
+        styles={{ body: { padding: "20px", background: "#fffdf9" } }}
+      >
+        {reasoningTrace ? (
+          <Space direction="vertical" size="large" style={{ width: "100%" }}>
+            {/* Input Analysis */}
+            <section>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  marginBottom: 16,
+                }}
+              >
+                <InfoCircleOutlined style={{ color: "#1890ff" }} />
+                <Title level={5} style={{ margin: 0 }}>
+                  输入信号分析 (Input Analysis)
+                </Title>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                {[
+                  {
+                    label: "画像信号 (Profile)",
+                    key: "profile_signal",
+                    color: "#1890ff",
+                  },
+                  {
+                    label: "意图信号 (Intent)",
+                    key: "intent_signal",
+                    color: "#722ed1",
+                  },
+                  {
+                    label: "历史信号 (History)",
+                    key: "history_signal",
+                    color: "#13c2c2",
+                  },
+                  {
+                    label: "最新信号 (Latest)",
+                    key: "latest_signal",
+                    color: "#eb2f96",
+                  },
+                ].map((item) => (
+                  <div
+                    key={item.key}
+                    style={{
+                      background: "#fff",
+                      padding: "12px 16px",
+                      borderRadius: "8px",
+                      border: "1px solid #f0f0f0",
+                      borderLeft: `4px solid ${item.color}`,
+                      boxShadow: "0 2px 4px rgba(0,0,0,0.02)",
+                    }}
+                  >
+                    <Text
+                      strong
+                      style={{
+                        fontSize: "12px",
+                        color: item.color,
+                        display: "block",
+                        marginBottom: 4,
+                      }}
+                    >
+                      {item.label}:
+                    </Text>
+                    <Text type="secondary" style={{ fontSize: "13px", lineHeight: "1.6" }}>
+                      {reasoningTrace.input_analysis?.[item.key as keyof typeof reasoningTrace.input_analysis] || "-"}
+                    </Text>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            <Divider style={{ margin: "8px 0" }} />
+
+            {/* Strategy Derivation */}
+            <section>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  marginBottom: 16,
+                }}
+              >
+                <NodeIndexOutlined style={{ color: "#faad14" }} />
+                <Title level={5} style={{ margin: 0 }}>
+                  策略推导逻辑 (Strategy Derivation)
+                </Title>
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                <Card
+                  size="small"
+                  styles={{ body: { padding: "16px" } }}
+                  style={{
+                    borderRadius: "12px",
+                    border: "none",
+                    background: "linear-gradient(135deg, #fff 0%, #fffef6 100%)",
+                    boxShadow: "0 4px 12px rgba(250, 173, 20, 0.08)",
+                  }}
+                >
+                  <div style={{ marginBottom: 16 }}>
+                    <Text
+                      strong
+                      style={{
+                        display: "block",
+                        marginBottom: 8,
+                        color: "#262626",
+                      }}
+                    >
+                      语气方案选择 (Approach Selection):
+                    </Text>
+                    <div
+                      style={{
+                        padding: "10px 12px",
+                        background: "rgba(255,255,255,0.6)",
+                        borderRadius: "8px",
+                        border: "1px dashed #ffe58f",
+                      }}
+                    >
+                      <Text
+                        style={{
+                          fontSize: "13px",
+                          lineHeight: "1.6",
+                          color: "#434343",
+                        }}
+                      >
+                        {reasoningTrace.strategy_derivation?.approach_selection}
+                      </Text>
+                    </div>
+                  </div>
+                  <div>
+                    <Text
+                      strong
+                      style={{
+                        display: "block",
+                        marginBottom: 8,
+                        color: "#262626",
+                      }}
+                    >
+                      内容构建逻辑 (Draft Logic):
+                    </Text>
+                    <div
+                      style={{
+                        padding: "10px 12px",
+                        background: "rgba(255,255,255,0.6)",
+                        borderRadius: "8px",
+                        border: "1px dashed #ffe58f",
+                      }}
+                    >
+                      <Text
+                        style={{
+                          fontSize: "13px",
+                          lineHeight: "1.6",
+                          color: "#434343",
+                        }}
+                      >
+                        {reasoningTrace.strategy_derivation?.draft_logic}
+                      </Text>
+                    </div>
+                  </div>
+                </Card>
+              </div>
+            </section>
+          </Space>
+        ) : (
+          <div style={{ textAlign: "center", padding: "40px 0" }}>
+            <SyncOutlined spin style={{ fontSize: 24, color: "#bfbfbf", marginBottom: 16 }} />
+            <Text type="secondary" style={{ display: "block" }}>
+              正在准备推理数据...
+            </Text>
+          </div>
+        )}
+      </Drawer>
+      <PromptDrawer
+        visible={promptVisible}
+        onClose={() => setPromptVisible(false)}
+        prompt={prompt}
+        title="执行策略提示词"
+      />
     </>
   );
 }
