@@ -286,8 +286,6 @@ export default function TicketMonitor() {
 
   return (
     <div className="min-h-full space-y-4 bg-gray-50 p-6">
-      <div className="mb-4 text-xl font-bold tracking-wide text-gray-900">工单监控列表</div>
-
       <Card className="flex flex-col items-center gap-4 bg-white p-4 shadow-sm md:flex-row">
         <div className="relative w-full flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
@@ -357,9 +355,10 @@ export default function TicketMonitor() {
               current: currentPage,
               pageSize,
               total,
-              showSizeChanger: true,
-              showQuickJumper: true,
               showTotal: (value) => `共 ${value} 条`,
+            }}
+            scroll={{
+              y: 580,
             }}
             onChange={handleTableChange}
             onRow={(record) => ({

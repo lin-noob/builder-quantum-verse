@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { ArrowLeft, Bot, ChevronDown, User } from "lucide-react";
+import { ArrowLeft, Bot, ChevronDown, Sparkles, User } from "lucide-react";
+import { TicketAIDrawer } from "@/components/TicketAIDrawer";
 
 import { AnalysisWizardView } from "@/components/AnalysisWizardView";
 import { Badge } from "@/components/ui/badge";
@@ -23,6 +24,7 @@ interface ApiTicketDetail {
   centerList?: unknown;
   email?: string | ApiTicketEmail[];
   keyAttributes?: Record<string, unknown> | string | null;
+  evaluation?: string;
 }
 
 interface ApiTicketEmail {
@@ -355,8 +357,6 @@ function AnalysisWizardBridge({
     resetAnalysis();
     setStep2Data(null);
     setStep3Data(null);
-    debugger;
-
     setViewData(selectedCenterItem ?? null);
     setSelectedEmail(wizardEmail);
     setHasExistingData(Boolean(selectedCenterItem));
@@ -383,6 +383,7 @@ export default function TicketMonitorDetail() {
 
   const [detail, setDetail] = useState<ApiTicketDetail | null>(null);
   const [selectedTimelineId, setSelectedTimelineId] = useState<string | null>(null);
+  const [isAiDrawerOpen, setIsAiDrawerOpen] = useState(false);
 
   useEffect(() => {
     const fetchTicketDetail = async () => {
@@ -459,8 +460,22 @@ export default function TicketMonitorDetail() {
           </div>
 
           <div className="flex items-center gap-4">
+            <Button
+              onClick={() => setIsAiDrawerOpen(true)}
+              variant="ghost"
+              className="h-8 gap-1.5 rounded-full bg-[#f0f4ff] px-4 text-xs font-semibold text-[#5e72e4] hover:bg-[#e4e9ff] hover:text-[#4a5fdb]"
+            >
+              <Sparkles className="h-3.5 w-3.5" />
+              工单 AI 评分
+            </Button>
             <div className="text-sm text-gray-500">更新时间: {data.updatedAt}</div>
           </div>
+          <TicketAIDrawer
+            ticketId={ticketId}
+            initialData={detail?.evaluation}
+            open={isAiDrawerOpen}
+            onOpenChange={setIsAiDrawerOpen}
+          />
         </div>
       </div>
 
