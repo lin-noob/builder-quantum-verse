@@ -434,6 +434,17 @@ export default function TicketMonitorDetail() {
     [selectedCenterItem, selectedTimeline],
   );
 
+  const aiTags = useMemo(() => {
+    if (!detail?.evaluation) return [];
+    try {
+      const parsed = JSON.parse(detail.evaluation);
+      return parsed?.audit_summary?.tags || [];
+    } catch (e) {
+      console.error("Failed to parse evaluation tags:", e);
+      return [];
+    }
+  }, [detail?.evaluation]);
+
   const data: any = {
     ...overviewData,
     id: toText(detail?.ticketId ?? detail?.id, mockDetailData.id),
@@ -460,15 +471,28 @@ export default function TicketMonitorDetail() {
           </div>
 
           <div className="flex items-center gap-4">
-            <Button
-              onClick={() => setIsAiDrawerOpen(true)}
-              variant="ghost"
-              className="h-8 gap-1.5 rounded-full bg-[#f0f4ff] px-4 text-xs font-semibold text-[#5e72e4] hover:bg-[#e4e9ff] hover:text-[#4a5fdb]"
-            >
-              <Sparkles className="h-3.5 w-3.5" />
-              工单 AI 评分
-            </Button>
-            <div className="text-sm text-gray-500">更新时间: {data.updatedAt}</div>
+            <div className="flex items-center gap-2">
+              <Button
+                onClick={() => setIsAiDrawerOpen(true)}
+                variant="ghost"
+                className="h-8 gap-1.5 rounded-full bg-[#f0f4ff] px-4 text-xs font-semibold text-[#5e72e4] hover:bg-[#e4e9ff] hover:text-[#4a5fdb]"
+              >
+                <Sparkles className="h-3.5 w-3.5" />
+                工单 AI 评分
+              </Button>
+              <div className="flex flex-wrap items-center gap-2">
+                {aiTags.map((tag: string, idx: number) => (
+                  <Badge
+                    key={idx}
+                    variant="outline"
+                    className="border-indigo-100 bg-indigo-50/50 px-2.5 py-0.5 text-[10px] font-bold text-indigo-600"
+                  >
+                    {tag}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+            <div className="text-sm text-gray-400">更新时间: {data.updatedAt}</div>
           </div>
           <TicketAIDrawer
             ticketId={ticketId}

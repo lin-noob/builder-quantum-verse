@@ -45,6 +45,7 @@ interface ApiTicketRecord {
   instanceCode?: string;
   instanceName?: string;
   centerCount?: string;
+  evaluation?: string;
 }
 
 interface TicketRow {
@@ -57,6 +58,7 @@ interface TicketRow {
   needsAttention: boolean;
   traceCount: number;
   tags: TicketTag[];
+  aiTags: string[];
 }
 
 const defaultTagColor = "bg-gray-100 text-gray-700";
@@ -127,17 +129,30 @@ const normalizeTags = (value: ApiTicketRecord["tags"]): TicketTag[] => {
     .filter((tag): tag is TicketTag => Boolean(tag));
 };
 
-const normalizeTicket = (record: ApiTicketRecord): TicketRow => ({
-  id: toText(record.id ?? record.ticketId ?? record.ticketCode ?? record.code, "-"),
-  instanceCode: record.instanceCode,
-  instanceName: record.instanceName,
-  latestUpdateContent: toText(record.latestUpdateContent ?? record.latestContent ?? record.summary, "暂无最新动态"),
-  updatedAt: toText(record.gmtCreate ?? record.gmtModified, "-"),
-  score: toNumber(record.score ?? record.aiScore, 0),
-  needsAttention: toBoolean(record.needsAttention ?? record.attentionFlag),
-  traceCount: toNumber(record.centerCount, 0),
-  tags: normalizeTags(record.tags ?? record.tagList),
-});
+const normalizeTicket = (record: ApiTicketRecord): TicketRow => {
+  let aiTags: string[] = [];
+  if (record.evaluation) {
+    try {
+      const parsed = JSON.parse(record.evaluation);
+      aiTags = parsed?.audit_summary?.tags || [];
+    } catch (e) {
+      console.error("Failed to parse evaluation in TicketMonitor:", e);
+    }
+  }
+
+  return {
+    id: toText(record.id ?? record.ticketId ?? record.ticketCode ?? record.code, "-"),
+    instanceCode: record.instanceCode,
+    instanceName: record.instanceName,
+    latestUpdateContent: toText(record.latestUpdateContent ?? record.latestContent ?? record.summary, "暂无最新动态"),
+    updatedAt: toText(record.gmtCreate ?? record.gmtModified, "-"),
+    score: toNumber(record.score ?? record.aiScore, 0),
+    needsAttention: toBoolean(record.needsAttention ?? record.attentionFlag),
+    traceCount: toNumber(record.centerCount, 0),
+    tags: normalizeTags(record.tags ?? record.tagList),
+    aiTags,
+  };
+};
 
 export default function TicketMonitor() {
   const navigate = useNavigate();
@@ -263,18 +278,25 @@ export default function TicketMonitor() {
         dataIndex: "tags",
         key: "tags",
         width: "15%",
-        render: (tags: TicketTag[]) => (
+        render: (_: TicketTag[], record: TicketRow) => (
           <div className="flex flex-wrap items-center gap-2">
-            {tags.length > 0 ? (
-              tags.map((tag, index) => (
-                <div
-                  key={`${tag.text}-${index}`}
-                  className={`whitespace-nowrap rounded-full px-2.5 py-0.5 text-[11px] font-medium ${tag.color || defaultTagColor}`}
-                >
-                  {tag.text}
-                </div>
-              ))
-            ) : (
+            {record.tags.map((tag, index) => (
+              <div
+                key={`${tag.text}-${index}`}
+                className={`whitespace-nowrap rounded-full px-2 py-0.5 text-[10px] font-medium ${tag.color || defaultTagColor}`}
+              >
+                {tag.text}
+              </div>
+            ))}
+            {record.aiTags.map((tag, index) => (
+              <div
+                key={`ai-${tag}-${index}`}
+                className="whitespace-nowrap rounded-full border border-indigo-200 bg-indigo-50/50 px-2 py-0.5 text-[10px] font-bold text-indigo-600"
+              >
+                {tag}
+              </div>
+            ))}
+            {record.tags.length === 0 && record.aiTags.length === 0 && (
               <span className="text-sm text-gray-400">-</span>
             )}
           </div>
