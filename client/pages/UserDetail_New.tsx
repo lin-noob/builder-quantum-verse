@@ -153,6 +153,7 @@ export default function UserDetail() {
     if (!apiUser) return null;
     return {
       // old UI-compatible fields
+      id: apiUser.id ?? "",
       userId: apiUser.userId ?? "",
       distinctId: apiUser.distinctId ?? "",
       cdpId: String(apiUser.cdpUserId ?? ""),
@@ -998,7 +999,7 @@ export default function UserDetail() {
                     )}
 
                     <TabsContent value="statistics">
-                      <OrderHistory cdpUserId={user.cdpId} sessionId={user.distinctId} />
+                      <OrderHistory cdpUserId={user.id} sessionId={user.distinctId} />
                     </TabsContent>
                   </CardContent>
                 </Card>
